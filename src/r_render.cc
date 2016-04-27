@@ -59,6 +59,26 @@
 #define DOOM_YSLOPE_FULL  (0.625)
 
 
+static inline float SecLerpedCeil(sector_t *sec)
+{
+	return N_Interpolate(sec->lc_h, sec->c_h);
+}
+
+static inline float SecLerpedFloor(sector_t *sec)
+{
+	return N_Interpolate(sec->lf_h, sec->f_h);
+}
+
+static inline float ExFloorLerpedBottom(extrafloor_t *exf)
+{
+	return N_Interpolate(exf->last_bottom_h, exf->bottom_h);
+}
+
+static inline float ExFloorLerpedTop(extrafloor_t *exf)
+{
+	return N_Interpolate(exf->last_top_h, exf->top_h);
+}
+
 // #define DEBUG_GREET_NEIGHBOUR
 
 
@@ -959,6 +979,8 @@ static void GLOWLIT_Plane(mobj_t *mo, void *dataptr)
 
 #define MAX_EDGE_VERT  20
 
+
+
 static inline void GreetNeighbourSector(float *hts, int& num,
 		vertex_seclist_t *seclist)
 {
@@ -967,9 +989,11 @@ static inline void GreetNeighbourSector(float *hts, int& num,
 
 	for (int k=0; k < (seclist->num * 2); k++)
 	{
+		//TODO LERP ME
 		sector_t *sec = sectors + seclist->sec[k/2];
 
-		float h = (k & 1) ? sec->c_h : sec->f_h;
+		//float h = (k & 1) ? sec->c_h : sec->f_h;
+		float h = (k & 1) ? SecLerpedCeil(sec) : SecLerpedFloor(sec);
 
 		// does not intersect current height range?
 		if (h <= hts[0]+0.1 || h >= hts[num-1]-0.1)
@@ -1233,6 +1257,8 @@ static void DrawSlidingDoor(drawfloor_t *dfloor, float c, float f,
 						    bool opaque, float x_offset)
 {
 
+	//TODO does it matter that this isn't interpolated?
+
 	/* smov may be NULL */
 	slider_move_t *smov = cur_seg->linedef->slider_move;
 
@@ -1439,13 +1465,15 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 
 	sec = sd->sector;
 	other = sidenum ? ld->frontsector : ld->backsector;
-
-
-	float slope_fh = sec->f_h;
+	
+	float secfh = SecLerpedFloor(sec);
+	float secch = SecLerpedCeil(sec);
+	
+	float slope_fh = secfh;
 	if (sec->f_slope)
 		slope_fh += MIN(sec->f_slope->dz1, sec->f_slope->dz2);
 
-	float slope_ch = sec->c_h;
+	float slope_ch = secch;
 	if (sec->c_slope)
 		slope_ch += MAX(sec->c_slope->dz1, sec->c_slope->dz2);
 
@@ -1457,14 +1485,17 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 		AddWallTile(seg, dfloor,
 			&sd->middle, slope_fh, slope_ch, 
 			(ld->flags & MLF_LowerUnpegged) ? 
-			sec->f_h + IM_HEIGHT_SAFE(sd->middle.image) : sec->c_h,
+			secfh + IM_HEIGHT_SAFE(sd->middle.image) : secch,
 			0, f_min, c_max);
 		return;
 	}
 
+	float otherfh = SecLerpedFloor(other);
+	float otherch = SecLerpedCeil(other);
+	
 	// handle lower, upper and mid-masker
 
-	if (slope_fh < other->f_h)
+	if (slope_fh < otherfh)
 	{
 		if (! sd->bottom.image && ! debug_hom.d)
 		{
@@ -1475,23 +1506,23 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 			float lz1 = slope_fh;
 			float rz1 = slope_fh;
 
-			float lz2 = other->f_h + Slope_GetHeight(other->f_slope, seg->v1->x, seg->v1->y);
-			float rz2 = other->f_h + Slope_GetHeight(other->f_slope, seg->v2->x, seg->v2->y);
+			float lz2 = otherfh + Slope_GetHeight(other->f_slope, seg->v1->x, seg->v1->y);
+			float rz2 = otherfh + Slope_GetHeight(other->f_slope, seg->v2->x, seg->v2->y);
 
 			AddWallTile2(seg, dfloor,
 				&sd->bottom, lz1, lz2, rz1, rz2,
-				(ld->flags & MLF_LowerUnpegged) ? sec->c_h : other->f_h, 0);
+				(ld->flags & MLF_LowerUnpegged) ? secch : otherfh, 0);
 		}
 		else
 		{
 			AddWallTile(seg, dfloor,
-				&sd->bottom, slope_fh, other->f_h, 
-				(ld->flags & MLF_LowerUnpegged) ? sec->c_h : other->f_h,
+				&sd->bottom, slope_fh, otherfh, 
+				(ld->flags & MLF_LowerUnpegged) ? secch : otherfh,
 				0, f_min, c_max);
 		}
 	}
 
-	if (slope_ch > other->c_h &&
+	if (slope_ch > otherch &&
 		! (IS_SKY(sec->ceil) && IS_SKY(other->ceil)))
 	{
 		if (! sd->top.image && ! debug_hom.d)
@@ -1500,31 +1531,31 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 		}
 		else if (other->c_slope)
 		{
-			float lz1 = other->c_h + Slope_GetHeight(other->c_slope, seg->v1->x, seg->v1->y);
-			float rz1 = other->c_h + Slope_GetHeight(other->c_slope, seg->v2->x, seg->v2->y);
+			float lz1 = otherch + Slope_GetHeight(other->c_slope, seg->v1->x, seg->v1->y);
+			float rz1 = otherch + Slope_GetHeight(other->c_slope, seg->v2->x, seg->v2->y);
 
 			float lz2 = slope_ch;
 			float rz2 = slope_ch;
 
 			AddWallTile2(seg, dfloor,
 				&sd->top, lz1, lz2, rz1, rz2,
-				(ld->flags & MLF_UpperUnpegged) ? sec->c_h : 
-				other->c_h + IM_HEIGHT_SAFE(sd->top.image), 0);
+				(ld->flags & MLF_UpperUnpegged) ? secch : 
+				otherch + IM_HEIGHT_SAFE(sd->top.image), 0);
 		}
 		else
 		{
 			AddWallTile(seg, dfloor,
-				&sd->top, other->c_h, slope_ch, 
-				(ld->flags & MLF_UpperUnpegged) ? sec->c_h : 
-				other->c_h + IM_HEIGHT_SAFE(sd->top.image),
+				&sd->top, otherch, slope_ch, 
+				(ld->flags & MLF_UpperUnpegged) ? secch : 
+				otherch + IM_HEIGHT_SAFE(sd->top.image),
 				0, f_min, c_max);
 		}
 	}
 
 	if (sd->middle.image)
 	{
-		float f1 = MAX(sec->f_h, other->f_h);
-		float c1 = MIN(sec->c_h, other->c_h);
+		float f1 = MAX(secfh, otherfh);
+		float c1 = MIN(secch, otherch);
 
 		float f2, c2;
 
@@ -1543,8 +1574,8 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 
 		// hack for transparent doors
 		{
-			if (lower_invis) f1 = sec->f_h;
-			if (upper_invis) c1 = sec->c_h;
+			if (lower_invis) f1 = secfh;
+			if (upper_invis) c1 = secch;
 		}
 
 		// hack for "see-through" lines (same sector on both sides)
@@ -1567,17 +1598,18 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 	// -AJA- Don't bother drawing extrafloor sides if the front/back
 	//       sectors have the same tag (and thus the same extrafloors).
 	//
+	//TODO test extrafloor interpolation
 	if (other->tag == sec->tag)
 		return;
 
-	floor_h = other->f_h;
+	floor_h = otherfh;
 
 	S = other->bottom_ef;
 	L = other->bottom_liq;
 
 	while (S || L)
 	{
-		if (!L || (S && S->bottom_h < L->bottom_h))
+		if (!L || (S && ExFloorLerpedBottom(S) < ExFloorLerpedBottom(L)))
 		{
 			C = S;  S = S->higher;
 		}
@@ -1591,7 +1623,10 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 		// ignore liquids in the middle of THICK solids, or below real
 		// floor or above real ceiling
 		//
-		if (C->bottom_h < floor_h || C->bottom_h > other->c_h)
+		float Cbottomh = ExFloorLerpedBottom(C);
+		float Ctoph = ExFloorLerpedTop(C);
+		
+		if (Cbottomh < floor_h || Cbottomh > otherch)
 			continue;
 
 		if (C->ef_info->type & EXFL_Thick)
@@ -1617,13 +1652,13 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 				continue;
 
 			tex_z = (C->ef_line->flags & MLF_LowerUnpegged) ?
-				C->bottom_h + IM_HEIGHT_SAFE(surf->image) : C->top_h;
+				Cbottomh + IM_HEIGHT_SAFE(surf->image) : Ctoph;
 
-			AddWallTile(seg, dfloor, surf, C->bottom_h, C->top_h,
+			AddWallTile(seg, dfloor, surf, Cbottomh, Ctoph,
 						tex_z, flags, f_min, c_max);
 		}
 
-		floor_h = C->top_h;
+		floor_h = Ctoph;
 	}
 }
 
@@ -1926,23 +1961,33 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 
 	// -AJA- 2004/04/21: Emulate Flat-Flooding TRICK
 	if (! debug_hom.d && solid_mode && dfloor->is_lowest &&
-		sd->bottom.image == NULL && cur_seg->back_sub &&
-		cur_seg->back_sub->sector->f_h > cur_seg->front_sub->sector->f_h &&
-		cur_seg->back_sub->sector->f_h < viewz)
+		sd->bottom.image == NULL && cur_seg->back_sub)
 	{
-		EmulateFloodPlane(dfloor, cur_seg->back_sub->sector, +1,
-			cur_seg->front_sub->sector->f_h,
-			cur_seg->back_sub->sector->f_h);
+		float frontf = SecLerpedFloor(cur_seg->front_sub->sector);
+		float backf = SecLerpedFloor(cur_seg->back_sub->sector);
+		//frontf = N_Interpolate(cur_seg->front_sub->sector->lf_h, frontf);
+		//backf = N_Interpolate(cur_seg->back_sub->sector->lf_h, backf);
+		
+		
+		if (backf > frontf && backf < viewz)
+		{
+			EmulateFloodPlane(dfloor, cur_seg->back_sub->sector, +1,
+				frontf,	backf);
+		}
 	}
 
 	if (! debug_hom.d && solid_mode && dfloor->is_highest &&
-		sd->top.image == NULL && cur_seg->back_sub &&
-		cur_seg->back_sub->sector->c_h < cur_seg->front_sub->sector->c_h &&
-		cur_seg->back_sub->sector->c_h > viewz)
+		sd->top.image == NULL && cur_seg->back_sub)
 	{
-		EmulateFloodPlane(dfloor, cur_seg->back_sub->sector, -1,
-			cur_seg->back_sub->sector->c_h,
-			cur_seg->front_sub->sector->c_h);
+		float frontc = SecLerpedCeil(cur_seg->front_sub->sector);
+		float backc = SecLerpedCeil(cur_seg->back_sub->sector);
+		//frontc = N_Interpolate(cur_seg->front_sub->sector->lc_h, frontc);
+		//backc = N_Interpolate(cur_seg->back_sub->sector->lc_h, backc);
+		if (backc < frontc && backc > viewz)
+		{
+			EmulateFloodPlane(dfloor, cur_seg->back_sub->sector, -1,
+				backc, frontc);
+		}
 	}
 }
 
@@ -2597,6 +2642,7 @@ static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
 // Visit a subsector, and collect information, such as where the
 // walls, planes (ceilings & floors) and things need to be drawn.
 //
+//TODO tapamn these should be where interpolation for elevators goes
 static void RGL_WalkSubsector(int num)
 {
 	subsector_t *sub = &subsectors[num];
@@ -2619,7 +2665,8 @@ static void RGL_WalkSubsector(int num)
 	K->Clear(sub);
 
 	// --- handle sky (using the depth buffer) ---
-
+	//TODO? is sky plane interpolation important?
+	// Nope! ^_^ ~CA~
 	if (IS_SKY(cur_sub->sector->floor) && viewz > cur_sub->sector->f_h)
 	{
 		RGL_DrawSkyPlane(cur_sub, cur_sub->sector->f_h);
@@ -2631,9 +2678,9 @@ static void RGL_WalkSubsector(int num)
 	}
 
 	// add in each extrafloor, traversing strictly upwards
-
 	floor_s = &sector->floor;
-	floor_h = sector->f_h;
+	//floor_h = sector->f_h;
+	floor_h = SecLerpedFloor(sector); //N_Interpolate(sector->lf_h, sector->f_h);
 
 	S = sector->bottom_ef;
 	L = sector->bottom_liq;
@@ -2644,6 +2691,9 @@ static void RGL_WalkSubsector(int num)
 	if (boom_ef && (boom_ef->ef_info->type & EXFL_BoomTex))
 		floor_s = &boom_ef->ef_line->frontsector->floor;
 
+		
+	float secceil = SecLerpedCeil(sector);
+	
 	while (S || L)
 	{
 		if (!L || (S && S->bottom_h < L->bottom_h))
@@ -2660,29 +2710,39 @@ static void RGL_WalkSubsector(int num)
 		// ignore liquids in the middle of THICK solids, or below real
 		// floor or above real ceiling
 		//
-		if (C->bottom_h < floor_h || C->bottom_h > sector->c_h)
+		//if (N_Interpolate(C->last_bottom_h, C->bottom_h) < floor_h || C->bottom_h > sector->c_h)
+		float cboth = ExFloorLerpedBottom(C), ctoph = ExFloorLerpedTop(C);
+		//float cboth = C->bottom_h;
+		//float ctoph = C->top_h;
+		//cboth = N_Interpolate(C->last_bottom_h, cboth);
+		//ctoph = N_Interpolate(C->last_top_h, ctoph);
+
+		if (cboth < floor_h || cboth > secceil)
 			continue;
 
 		bool de_f = (cur_sub->deep_ref && K->floors.size() == 0);
 
 		AddNewDrawFloor(K, C,
 			de_f ? cur_sub->deep_ref->f_h : floor_h,
-			C->bottom_h, C->top_h,
+			cboth, ctoph,
 			de_f ? &cur_sub->deep_ref->floor : floor_s,
 			C->bottom, C->p);
 
 		floor_s = C->top;
-		floor_h = C->top_h;
+		floor_h = ctoph;
 	}
 
 	// -AJA- 2004/04/22: emulate the Deep-Water TRICK (above too)
 	bool de_f = (cur_sub->deep_ref && K->floors.size() == 0);
 	bool de_c = (cur_sub->deep_ref != NULL);
 
+	float ceilh = de_c ? SecLerpedCeil(cur_sub->deep_ref) : SecLerpedCeil(sector);
+	//float ceilh = de_c ? cur_sub->deep_ref->c_h : sector->c_h;
+	//ceilh = N_Interpolate(de_c ? cur_sub->deep_ref->lc_h : sector->lc_h, ceilh);
+	
 	AddNewDrawFloor(K, NULL,
 		de_f ? cur_sub->deep_ref->f_h : floor_h,
-		de_c ? cur_sub->deep_ref->c_h : sector->c_h,
-		de_c ? cur_sub->deep_ref->c_h : sector->c_h,
+		ceilh, ceilh,
 		de_f ? &cur_sub->deep_ref->floor : floor_s,
 		de_c ? &cur_sub->deep_ref->ceil : &sector->ceil, sector->p);
 
@@ -2771,11 +2831,11 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 
 	float x1 = mir->seg->v1->x;
 	float y1 = mir->seg->v1->y;
-	float z1 = ld->frontsector->f_h;
+	float z1 = SecLerpedFloor(ld->frontsector);
 
 	float x2 = mir->seg->v2->x;
 	float y2 = mir->seg->v2->y;
-	float z2 = ld->frontsector->c_h;
+	float z2 = SecLerpedCeil(ld->frontsector);
 
 	MIR_Coordinate(x1, y1);
 	MIR_Coordinate(x2, y2);
@@ -2828,11 +2888,12 @@ static void DrawPortalPolygon(drawmirror_c *mir)
 	// get polygon coordinates
 	float x1 = mir->seg->v1->x;
 	float y1 = mir->seg->v1->y;
-	float z1 = ld->frontsector->f_h;
+	float z1 = SecLerpedFloor(ld->frontsector);
 
 	float x2 = mir->seg->v2->x;
 	float y2 = mir->seg->v2->y;
-	float z2 = ld->frontsector->c_h;
+	float z2 = SecLerpedCeil(ld->frontsector);
+	
 
 	MIR_Coordinate(x1, y1);
 	MIR_Coordinate(x2, y2);
@@ -2922,11 +2983,6 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 		{
 			RGL_DrawSeg(dfloor, (*SEGI)->seg);
 		}
-		
-/* 		if (dfloor->floor_move) 
-		{
-			;//tapamn get interpolated heights
-		} */
 
 		RGL_DrawPlane(dfloor, dfloor->c_h, dfloor->ceil,  -1);
 		RGL_DrawPlane(dfloor, dfloor->f_h, dfloor->floor, +1);
@@ -3085,11 +3141,6 @@ static void RGL_RenderTrueBSP(void)
 #endif
 }
 
-enum secinterpstate_e
-{
-   SEC_INTERPOLATE,
-   SEC_NORMAL
-};
 
 /// rendering view point based on the camera's location.
 static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
@@ -3131,9 +3182,12 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 	//viewangle = mo->angle;
 	viewangle = mo->GetInterpolatedAngle();
 
-	if (mo->player)
-		viewz += mo->player->viewz;
-	///viewz += lastpos.Lerp(mo->player->viewz, mo->player->prevviewz);
+	
+	extern float N_GetInterpolater(void);
+	float lerpv = N_GetInterpolater();
+	if (mo->player)//t*b+(a-a*t)
+		//viewz += mo->player->lastviewz + (mo->player->viewz - mo->player->lastviewz) * N_GetInterpolater();
+		viewz += mo->player->viewz*lerpv+(mo->player->lastviewz - mo->player->lastviewz*lerpv);
 	else
 		viewz += mo->height * 9 / 10;
 
@@ -3227,7 +3281,7 @@ void R_Render(int x, int y, int w, int h, mobj_t *camera,
 	viewwindow_h = h;
 
 	view_cam_mo = camera;
-	
+
 	// Load the details for the camera
 	InitCamera(camera, full_height, expand_w);
 

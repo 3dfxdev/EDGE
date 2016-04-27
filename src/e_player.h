@@ -164,7 +164,9 @@ typedef struct player_s
 	// Focal origin above r.z
 	// will be FLO_UNUSED until the first think.
 	float viewz;
-	float prevviewz;       // haleyjd 01/04/14: previous vewz, for interpolation
+	// Used for head bob interpolation. It's the viewz value from the
+	// previous gametic
+	float lastviewz;
 
 	// Base height above floor for viewz.  Tracks `std_viewheight' but
 	// is different when squatting (i.e. after a fall).
@@ -268,9 +270,6 @@ typedef struct player_s
 
 	// Implements a wait counter to prevent use jumping again
 	// -ACB- 1998/08/09
-	
-	int quake;
-	
 	int jumpwait;
 
 	// counter used to determine when to enter weapon idle states
@@ -305,9 +304,6 @@ typedef struct player_s
 	int weapon_last_frame;
 
 	short consistency[BACKUPTICS];
-	
-	short lerp_num;
-	short lerp_pos;
 
 	ticcmd_t in_cmds [BACKUPTICS];
 	ticcmd_t out_cmds[BACKUPTICS];  //???
@@ -321,14 +317,6 @@ typedef struct player_s
 	// This function will be called to initialise the ticcmd_t.
 	void (*builder)(const struct player_s *, void *data, ticcmd_t *dest);
 	void *build_data;
-	
-	vec3_t lerp_from; /// previous position for interpolation
-	
-	last_tic_render_t lastticrender;
-	
-	int prev_viewz;
-	angle_t prev_viewangle;
-	angle_t prev_viewpitch;
 
 public:
 	void Reborn();
@@ -337,11 +325,6 @@ public:
 	{
 		return (playerflags & PFL_Bot) ? true:false;
 	}
-	
-	void UpdateLastTicRender(void);
-	epi::vec3_c GetInterpolatedPosition(void);
-	float GetInterpolatedAngle(void);
-	float GetInterpolatedVertAngle(void);
 }
 player_t;
 

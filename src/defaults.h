@@ -109,6 +109,8 @@
 #define CFGDEF_TELEPT_EFFECT    (0)
 #define CFGDEF_TELEPT_REVERSE   (0)
 #define CFGDEF_WIPE_REVERSE     (0)
+#define CFGDEF_USE_VSYNC        (3)
+#define CFGDEF_INTERPOLATION    (1)
 
 // Gameplay Options
 #define CFGDEF_AUTOAIM          (1)

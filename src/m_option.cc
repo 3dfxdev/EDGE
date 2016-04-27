@@ -123,6 +123,8 @@ extern cvar_c mouse_filter;
 extern cvar_c m_diskicon;
 extern cvar_c debug_mouse;
 extern cvar_c debug_joyaxis;
+extern cvar_c g_aggression;
+extern cvar_c m_busywait;
 
 static int menu_crosshair;  // temp hack
 static int menu_crosshair2;  /// love haxxx
@@ -137,7 +139,7 @@ static void M_AdvancedOptions(int keypressed);
 static void M_GameplayOptions(int keypressed); /// Make Gameplay Options page-flip for MORE options...apparently...
 static void M_AnalogueOptions(int keypressed);
 static void M_SoundOptions(int keypressed);
-static void M_DebuggingOptions(int keypressed); /// New Debugging Sub-menu
+/* static void M_DebuggingOptions(int keypressed); /// New Debugging Sub-menu */
 
 static void M_Key2String(int key, char *deststring);
 
@@ -163,7 +165,7 @@ static void M_ChangeKicking(int keypressed);
 static void M_ChangeWeaponSwitch(int keypressed);
 static void M_ChangeMipMap(int keypressed);
 static void M_ChangeDLights(int keypressed);
-static void M_ChangeHalos(int keypressed);
+/* static void M_ChangeHalos(int keypressed); */
 
 // -ES- 1998/08/20 Added resolution options
 // -ACB- 1998/08/29 Moved to top and tried different system
@@ -171,7 +173,7 @@ static void M_ChangeHalos(int keypressed);
 static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int centrex);
 static void M_ResolutionOptions(int keypressed);
 static void M_OptionSetResolution(int keypressed);
-static void M_OptionTestResolution(int keypressed);
+///--static void M_OptionTestResolution(int keypressed);
 ///--  static void M_RestoreResSettings(int keypressed);
 static void M_ChangeResSize(int keypressed);
 static void M_ChangeResDepth(int keypressed);
@@ -390,7 +392,7 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch,  "Detail Level",   Details,  3, &detail_level, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Texture Filtering",     MipMaps,  3, &var_mipmapping, M_ChangeMipMap, NULL},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
-	{OPT_Boolean,  "Show Disk Icon",  YesNo, 1, &m_diskicon, NULL, NULL},
+	{OPT_Boolean, "Show Disk Icon",  YesNo, 1, &m_diskicon, NULL, NULL},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Switch,  "Crosshair",       CrossH, 10, &menu_crosshair, M_ChangeCrossHair, NULL},
 	{OPT_Slider,  "Crosshair Scale",  NULL, 15, &menu_crosshair2, M_ChangeCrossHairSize, NULL}, /// -- New Crosshair Size Slider (like Global MD5 Scale), define this in LDF!
@@ -406,13 +408,13 @@ static optmenuitem_t advancedoptions[] =
 {
 	{OPT_Boolean, "OpenGL Mode",    GLMode,   2, &r_gl2_path, NULL, "OpenGL"}, /// Change from GL1 to GL2
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
-	{OPT_Boolean, "Interpolation",    YesNo,   2, &r_lerp, NULL, "Lerping"},
-	{OPT_Boolean, "Video Sync",    YesNo,   2, &r_vsync, NULL, "VideoSync"},
+	{OPT_Switch, "Interpolation",    YesNo,   2, &r_lerp, NULL, "Lerping"},
+	{OPT_Switch, "Video Sync",    YesNo,   2, &r_vsync, NULL, "Use 'r_vsync' in console"},
 	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
 
 	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
 
-	{OPT_Slider,  "Global MD5 Scale",    NULL,  4,  &r_md5scale, NULL, "MD5Scale"},
+	{OPT_Plain,   "---Debugging---",  NULL, 0, NULL, NULL, NULL},
 
 	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
 	/* {OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  &var_invul_fx, NULL, NULL}, */
@@ -421,8 +423,9 @@ static optmenuitem_t advancedoptions[] =
 	{OPT_Switch,  "Framerate Counter",    YesNo,  2,  &debug_fps, NULL, NULL},
 	{OPT_Switch,  "Show HOM Errors",    YesNo,  2,  &debug_hom, NULL, "showhom"},
 	{OPT_Switch,  "Show Position Coords",    YesNo,  2,  &debug_pos, NULL, NULL},
-	{OPT_Switch,  "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, &telept_effect, NULL, NULL},
-	{OPT_Switch,  "Goobers!",   YesNo, 2,  &m_goobers, NULL, NULL}
+	{OPT_Switch,  "CPU Busy/Wait", 		YesNo,  2,  &m_busywait, NULL, "busywait"}, //TODO:
+	{OPT_Switch,  "Goobers!",   YesNo, 2,  &m_goobers, NULL, "Requires map restart!"},
+	{OPT_Slider,  "Global MD5 Scale",    NULL,  4,  &r_md5scale, NULL, "(debugging)"}
 
 };
 

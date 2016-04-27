@@ -413,10 +413,19 @@ epi::vec3_c mobj_t::GetInterpolatedPosition(void)
 	epi::vec3_c lastpos(lastticrender.x,lastticrender.y,lastticrender.z);
 	epi::vec3_c curpos(x,y,z);
 	
-	if (interp != 1)
+	if (lerp_num > 0) {
+		//using interpolated position
+		float along = lerp_pos / (float)lerp_num;
+		curpos.x = lerp_from.x + (x - lerp_from.x) * along;
+		curpos.y = lerp_from.y + (y - lerp_from.y) * along;
+		curpos.z = lerp_from.z + (z - lerp_from.z) * along;
+	}
+	
+	if (interp != 1) {
 		return lastpos.Lerp(curpos, interp);
-	else
+	} else {
 		return curpos;
+	}
 }
 
 #define _fma(a,b,c) ((a)*(b)+(c))
@@ -456,7 +465,7 @@ float mobj_t::GetInterpolatedVertAngle(void)
 {
 	float interp = N_GetInterpolater();
 	//XXX
-	///return vertangle;
+	//return vertangle;
 	return CircularLerp(lastticrender.vertangle, vertangle, interp);
 }
 
@@ -1586,9 +1595,27 @@ void P_ClearAllStaleRefs(void)
 
 void P_UpdateInterpolationHistory(void)
 {
+	//Update object interpolation
 	for (mobj_t * mo = mobjlisthead; mo; mo = mo->next)
 	{
 		mo->UpdateLastTicRender();
+	}
+	
+	//update floor/ceiling interpolation
+	sector_t *sect = sectors;
+	int i = numsectors;
+	while(i--) {
+		sect->lf_h = sect->f_h;
+		sect->lc_h = sect->c_h;
+		sect++;
+	}
+	
+	extrafloor_t *exfloor = extrafloors;
+	i = numextrafloors;
+	while(i--) {
+		exfloor->last_top_h = exfloor->top_h;
+		exfloor->last_bottom_h = exfloor->bottom_h;
+		exfloor++;
 	}
 }
 

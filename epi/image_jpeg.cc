@@ -27,13 +27,17 @@ extern "C"
 // jmorecfg.h and standard MinGW headers (basetds.h).
 #define INT32  INT32_jpeg
 
-#include "../lib_win32/jpeg-6b/jpeglib.h"
-#include "../lib_win32/jpeg-6b/jerror.h"
+/// For SIMD version (restricted currently to Win32), use jpeg-turbo
+/* #include "../lib_win32/jpeg-8c/jpeglib.h"
+#include "../lib_win32/jpeg-8c/jerror.h" */
+#include "../lib_win32/jpeg-8c/jpeglib.h"
+#include "../lib_win32/jpeg-8c/jerror.h"
+///#include "../lib_win32/libjpeg-turbo-gcc/include/turbojpeg.h"
 
 #endif
 
-#include <jpeglib.h>
-#include <jerror.h>
+#include "../lib_win32/libjpeg-turbo-gcc/include/jpeglib.h"
+#include "../lib_win32/libjpeg-turbo-gcc/include/jerror.h"
 
 }
 

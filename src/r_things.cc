@@ -552,9 +552,6 @@ void RGL_DrawWeaponModel(player_t * p)
 	weapondef_c *w = p->weapons[p->ready_wp].info;
 
 	modeldef_c *md = W_GetModel(psp->state->sprite);
-	
-	//***TODO*** add md5 weapon model support
-	//SYS_ASSERT(md->modeltype == MODEL_MD2);
 
 	int skin_num = p->weapons[p->ready_wp].model_skin;
 
@@ -592,7 +589,7 @@ void RGL_DrawWeaponModel(player_t * p)
 
 		last_frame = p->weapon_last_frame;
 
-		lerp = (psp->state->tics - psp->tics + 1) / (float)(psp->state->tics);
+		lerp = (psp->state->tics - psp->tics + /* 1 + */ N_GetInterpolater()) / (float)(psp->state->tics);
 		lerp = CLAMP(0, lerp, 1);
 	}
 
@@ -953,18 +950,6 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	epi::vec3_c mp = mo->GetInterpolatedPosition();
 	float mx = mp.x, my = mp.y, mz = mp.z;
 
-	// position interpolation
-	if (mo->lerp_num > 1)
-	{
-		//extern float N_GetInterpolater(void);
-		//float along = mo->lerp_pos / (float)mo->lerp_num + N_GetInterpolater() - 1;
-		float along = mo->lerp_pos / (float)mo->lerp_num;
-
-		mx = mo->lerp_from.x + (mx - mo->lerp_from.x) * along;
-		my = mo->lerp_from.y + (my - mo->lerp_from.y) * along;
-		mz = mo->lerp_from.z + (mz - mo->lerp_from.z) * along;
-	}
-
 	MIR_Coordinate(mx, my);
 
 	float tr_x = mx - viewx;
@@ -1154,7 +1139,8 @@ static void RGL_DrawModel(drawthing_t *dthing)
 
 		SYS_ASSERT(mo->state->tics > 1);
 
-		lerp = (mo->state->tics - mo->tics + 1 + N_GetInterpolater()) / (float)(mo->state->tics);
+		
+		lerp = (mo->state->tics - mo->tics + /* 1 + */ N_GetInterpolater()) / (float)(mo->state->tics);
 		lerp = CLAMP(0, lerp, 1);
 	}
 

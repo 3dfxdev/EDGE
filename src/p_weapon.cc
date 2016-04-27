@@ -138,6 +138,9 @@ bool P_CheckWeaponSprite(weapondef_c *info)
 		return false;
 
 	return W_CheckSpritesExist(info->state_grp);
+	
+	///Hypertension (and 3D projects need this fix):
+	/// return true;
 }
 
 static bool ButtonDown(player_t *p, int ATK)
