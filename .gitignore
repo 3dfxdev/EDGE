@@ -1,5 +1,6 @@
 obj_win32
 lib_win32
+lib_macosx
 edge.macosx
 /warnings.osx.log
 /logmake
