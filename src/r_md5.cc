@@ -139,8 +139,8 @@ void md5_draw_unified_gl(MD5umodel *umd5, epi::mat4_c *jointmats,const epi::mat4
 			skin_img = W_ImageForDummySkin();
 		}
 //		glBindTexture(GL_TEXTURE_2D, W_ImageCache(skin_img));
-		
-		md5_transform_vertices(msh, jointmats, vbuff);
+		md5_transform_vertices(msh, jointmats, vbuff); /// DOES NOT USE SSE
+		///md5_transform_vertices_sse(msh, jointmats, vbuff); /// uses _SSE for quicker transforms
 		render_md5_direct_triangle_lighting(msh, vbuff,model_mat);
 		
 	}
@@ -154,7 +154,6 @@ static void DLIT_CollectLights(mobj_t *mo, void *dataptr) {
 	RGL_AddLight(mo);
 }
 
-//TODO add skin_img support
 void MD5_RenderModel(modeldef_c *md, int last_anim, int last_frame,
 	int current_anim, int current_frame, float lerp, float x, float y, float z,
 	float scale_x,float scale_y,float scale_z,mobj_t *mo)

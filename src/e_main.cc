@@ -1035,9 +1035,8 @@ static void ShowDateAndVersion(void)
 	I_Debugf("[Debug file created at %s]\n\n", timebuf);
 
 	// 23-6-98 KM Changed to hex to allow versions such as 0.65a etc
-	I_Printf("3DGE2 v" EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
+	I_Printf("3DGE v" EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
 	I_Printf("hyper3DGE homepage is at http://edge2.sourceforge.net/\n");
-	I_Printf("hyper3DGE is based on EDGE by the EDGE team http://edge.sourceforge.net/\n");
 	I_Printf("hyper3DGE is based on DOOM by id Software http://www.idsoftware.com/\n");
     I_Printf("hyper3DGE problems should be reported at http://tdgmods.net/smf\n");
 
@@ -1586,7 +1585,10 @@ void E_Tick(void)
 		N_SetInterpolater();
 		E_Display();
 		
-		interpdiff = N_GetInterpolater() - interpstart;
+		extern float N_CalculateCurrentSubTickPosition(void);
+		
+		interpdiff = N_CalculateCurrentSubTickPosition() - interpstart;
+		//interpdiff = N_GetInterpolater() - interpstart;
 		
 		//if (start of frame time + time to render frame + predicted next frame render time) > 1 whole gametic, stop rendering
 		//predicted next frame render time is the render time of the previous frame

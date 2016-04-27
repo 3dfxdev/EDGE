@@ -72,6 +72,8 @@
 int monitor_size;
 
 cvar_c m_diskicon;
+extern cvar_c r_vsync;
+extern cvar_c r_lerp;
 
 bool display_disk = false;
 int  display_desync = 0;
@@ -155,6 +157,8 @@ static default_t defaults[] =
     {CFGT_Int,      "dlights",           &use_dlights,    CFGDEF_USE_DLIGHTS},
     {CFGT_Int,      "detail_level",      &detail_level,   CFGDEF_DETAIL_LEVEL},
 	{CFGT_Int,      "hq2x_scaling",      &hq2x_scaling,   CFGDEF_HQ2X_SCALING},
+	{CFGT_Boolean,  "r_vsync",           &r_vsync,   	  CFGDEF_USE_VSYNC},
+	{CFGT_Boolean,  "r_lerp",            &r_lerp,   	  CFGDEF_INTERPOLATION},
 
     // -KM- 1998/09/01 Useless mouse/joy stuff removed,
     //                 analogue binding added

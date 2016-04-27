@@ -342,7 +342,7 @@ static void S_PlaySound(int idx, sfxdef_c *def, int category, position_c *pos, i
 			chan->split = 1;
 		else if (pos == players[consoleplayer2]->mo)
 			chan->split = 2;
-I_Printf("%s : split %d  cat %d\n", def->name.c_str(), chan->split, category);
+///I_Printf("%s : split %d  cat %d\n", def->name.c_str(), chan->split, category);
 	}
 
 	chan->ComputeDelta();

@@ -45,7 +45,6 @@ extern seg_t *segs;
 
 extern int numsectors;
 extern sector_t *sectors;
-extern sectorinterp_t *sectorinterps;
 
 extern int numsubsectors;
 extern subsector_t *subsectors;

@@ -54,6 +54,18 @@ void RGL_ClearLights();
 void RGL_AddLight(mobj_t *mo);
 void RGL_CaptureCameraMatrix();
 
+//GZDoom checks:
+enum SectorRenderFlags
+{
+	// This is used to avoid creating too many drawinfos
+	SSRF_RENDERFLOOR = 1,
+	SSRF_RENDERCEILING = 2,
+	SSRF_RENDER3DPLANES = 4,
+	SSRF_RENDERALL = 7,
+	SSRF_PROCESSED = 8,
+	SSRF_SEEN = 16,
+};
+
 
 typedef enum
 {
@@ -98,60 +110,5 @@ void RGL_EndUnit(int actual_vert);
 
 
 #endif /* __R_UNITS_H__ */
-//beginunit is renderpolyquad
-
-#ifdef POLYQUADS
-//polyquads??
-// RAW STUFF
-
-typedef struct raw_polyquad_s
-{
-	// Quad ?  When true, the number of vertices must be even, and the
-	// order must be the same as for glBegin(GL_QUADSTRIP).
-	// 
-	bool quad;
-
-	vec3_t *verts;
-	int num_verts;
-	int max_verts;
-
-	// When a polyquad is split, the other pieces are linked from the
-	// original through this pointer.
-	//
-	struct raw_polyquad_s *sisters;
-
-	// 3D bounding box
-	vec3_t min, max;
-}
-raw_polyquad_t;
-
-#define PQ_ADD_VERT(P,X,Y,Z)  do {  \
-	(P)->verts[(P)->num_verts].x = (X);  \
-	(P)->verts[(P)->num_verts].y = (Y);  \
-	(P)->verts[(P)->num_verts].z = (Z);  \
-	(P)->num_verts++; } while(0)
-
-raw_polyquad_t *RGL_NewPolyQuad(int maxvert, bool quad);
-void RGL_FreePolyQuad(raw_polyquad_t *poly);
-void RGL_BoundPolyQuad(raw_polyquad_t *poly);
-
-void RGL_SplitPolyQuad(raw_polyquad_t *poly, int division, 
-					   bool separate);
-void RGL_SplitPolyQuadLOD(raw_polyquad_t *poly, int max_lod, int base_div);
-
-void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
-						void (* CoordFunc)(vec3_t *src, local_gl_vert_t *vert, void *data),
-						GLuint tex_id, GLuint tex2_id, int pass, int blending);
-
-
-
-
-
-
-
-
-
-
-#endif //__R_UNITS_H__ 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

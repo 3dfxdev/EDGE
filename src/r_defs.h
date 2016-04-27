@@ -179,6 +179,9 @@ typedef struct extrafloor_s
     // extrafloor.
     //
 	float top_h, bottom_h;
+	
+	//Last gametic top and bottom of floor, for interpolation
+	float last_top_h, last_bottom_h;
 
 	// top/bottom surfaces of the extrafloor
 	surface_t *top;
@@ -219,21 +222,6 @@ typedef struct slope_plane_s
 	float x2, y2, dz2;
 }
 slope_plane_t;
-
-struct sectorinterp_t
-{
-   bool    interpolated;       // if true, interpolated
-
-   int prevfloorheight;    // previous values, stored for interpolation
-   int prevceilingheight;
-   float   prevfloorheightf;
-   float   prevceilingheightf;
-
-   int backfloorheight;    // backup values, used as cache during rendering
-   int backceilingheight;
-   float   backfloorheightf;
-   float   backceilingheightf;
-};
 
 
 //

@@ -366,7 +366,6 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point, bool is_hub)
 	mobj->vertangle = point->vertangle;
 	mobj->player = p;
 	mobj->health = p->health;
-	///mobj->player->prev_viewangle = mobj->angle + viewangleoffset;
 
 	p->mo = mobj;
 	p->playerstate = PST_LIVE;
@@ -403,8 +402,6 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point, bool is_hub)
 
 	if (COOP_MATCH() && ! level_flags.team_damage)
 		mobj->hyperflags |= HF_SIDEIMMUNE;
-	
-	///R_SmoothPlaying_Reset(p); // e6y
 }
 
 

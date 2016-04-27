@@ -37,9 +37,9 @@
 //#include <L:/hyper3DGE//src/GL/glew.h>
 //#include <L:/hyper3DGE//src/GL/gl.h>
 //#include <L:/hyper3DGE//src/GL/glext.h>
-#include "GL/glew.h"
-#include "GL/gl.h"
-#include "GL/glext.h"
+#include "C:\3DGE\lib_win32\glew-2.0.0\include\GL\glew.h"
+#include "GL\gl.h"
+#include "GL\glext.h"
 #endif
 
 #ifdef MACOSX

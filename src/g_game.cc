@@ -240,9 +240,12 @@ void LoadLevel_Bits(void)
 
 	// Initial height of PointOfView will be set by player think.
 	players[consoleplayer1]->viewz = FLO_UNUSED;
+	players[consoleplayer1]->lastviewz = FLO_UNUSED;
     
-	if (consoleplayer2 >= 0)
+	if (consoleplayer2 >= 0) {
 		players[consoleplayer2]->viewz = FLO_UNUSED;
+		players[consoleplayer2]->lastviewz = FLO_UNUSED;
+	}
 
 	leveltime = 0;
 

@@ -83,23 +83,6 @@ static bool DoDonut_wrapper(sector_t *s, const void *p1, void *p2)
 //
 // UTILITIES
 //
-
-
-/* void P_SaveSectorPositions()
-{
-   for(int i = 0; i < numsectors; i++)
-   {
-      auto &si  = sectorinterps[i];
-      auto &sec = sectors[i];
-
-      si.prevfloorheight    = sec.floorheight;
-      si.prevfloorheightf   = sec.floorheightf;
-      si.prevceilingheight  = sec.ceilingheight;
-      si.prevceilingheightf = sec.ceilingheightf;
-   }
-} */
-
-
 //
 // Will return a side_t * given the number of the current sector,
 // the line number, and the side (0/1) that you want.
