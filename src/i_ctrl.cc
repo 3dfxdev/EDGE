@@ -351,27 +351,27 @@ void HandleMouseWheelEvent(SDL_Event * ev)
 	if (ev->wheel.y > 0) 
 		{
 			event.type = ev_keydown;
-			event.data1 = KEYD_MWHEELUP;
+			event.data1 = KEYD_WHEEL_UP;
 			mwheeluptic = tic;
 		} 
 		else if (ev->wheel.y < 0) 
 		{
 			event.type = ev_keydown;
-			event.data1 = KEYD_MWHEELDOWN;
+			event.data1 = KEYD_WHEEL_DN;
 			mwheeldowntic = tic;
 		} 
 		else
 			return;		
 	if(mwheeluptic && mwheeluptic + 1 < tic) {
         event.type = ev_keyup;
-        event.data1 = KEYD_MWHEELUP;
+        event.data1 = KEYD_WHEEL_UP;
         E_PostEvent(&event);
         mwheeluptic = 0;
     }
 
     if(mwheeldowntic && mwheeldowntic + 1 < tic) {
         event.type = ev_keyup;
-        event.data1 = KEYD_MWHEELDOWN;
+        event.data1 = KEYD_WHEEL_DN;
         E_PostEvent(&event);
         mwheeldowntic = 0;
     }
