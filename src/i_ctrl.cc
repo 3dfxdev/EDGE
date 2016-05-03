@@ -343,41 +343,23 @@ void HandleMouseMotionEvent(SDL_Event * ev)
 
 void HandleMouseWheelEvent(SDL_Event * ev)
 {
-	uint32_t mwheeluptic = 0, mwheeldowntic = 0;
-	uint32_t tic = gametic;
 	event_t event;
 	SDL_PumpEvents();
 	
-	if (ev->wheel.y > 0) 
-		{
-			event.type = ev_keydown;
-			event.data1 = KEYD_WHEEL_UP;
-			mwheeluptic = tic;
-		} 
-		else if (ev->wheel.y < 0) 
-		{
-			event.type = ev_keydown;
-			event.data1 = KEYD_WHEEL_DN;
-			mwheeldowntic = tic;
-		} 
-		else
-			return;		
-	if(mwheeluptic && mwheeluptic + 1 < tic) {
-        event.type = ev_keyup;
-        event.data1 = KEYD_WHEEL_UP;
-        E_PostEvent(&event);
-        mwheeluptic = 0;
-    }
-
-    if(mwheeldowntic && mwheeldowntic + 1 < tic) {
-        event.type = ev_keyup;
-        event.data1 = KEYD_WHEEL_DN;
-        E_PostEvent(&event);
-        mwheeldowntic = 0;
-    }
+	if (ev->wheel.y > 0) {
+		event.type = ev_keydown;
+		event.data1 = KEYD_WHEEL_UP;
+	} 
+	else if (ev->wheel.y < 0) {
+		event.type = ev_keydown;
+		event.data1 = KEYD_WHEEL_DN;
+	} 
+	else
+		return; //TODO: determine if we need to handle this case. This event shouldn't ever fire with a value of 0 anyway.
     event.data2 = event.data3 = 0;
 	E_PostEvent(&event);
-	
+	event.type = ev_keyup;
+	E_PostEvent(&event);
 	return;
 }
 
