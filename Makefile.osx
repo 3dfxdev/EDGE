@@ -21,33 +21,36 @@ LDFLAGS=-lm
 
 CFLAGS += -I.
 
+# Debugging Flags
+CFLAGS += -DDEBUG_KB -DDEVELOPERS
 
 # Operating System
 
-CFLAGS += -DMACOSX
+CFLAGS += -DMACOSX -iframework/Library/Frameworks
+LDFLAGS += -F/Library/Frameworks
 
 # SDL
-CFLAGS += -I$(LIBDIR)/SDL/include/SDL -D_GNU_SOURCE=1 -D_THREAD_SAFE
-LDFLAGS += -L$(LIBDIR)/SDL/lib $(LIBDIR)/SDL/lib/libSDLmain.a $(LIBDIR)/SDL/lib/libSDL.a -Wl,-framework,OpenGL -Wl,-framework,Cocoa -Wl,-framework,ApplicationServices -Wl,-framework,Carbon -Wl,-framework,AudioToolbox -Wl,-framework,AudioUnit -Wl,-framework,IOKit -framework QTKit -framework OpenAL
+CFLAGS += -D_GNU_SOURCE=1 -D_THREAD_SAFE
+LDFLAGS += -Wl,-framework,SDL -Wl,-framework,OpenGL -Wl,-framework,Cocoa -Wl,-framework,ApplicationServices -Wl,-framework,Carbon -Wl,-framework,AudioToolbox -Wl,-framework,AudioUnit -Wl,-framework,IOKit -Wl,-framework,QTKit -Wl,-framework,OpenAL
 
 # ROQPLAYER
-
-# OpenGL rendering
-
-CFLAGS += -I$(LIBDIR)/glew/include
-LDFLAGS += -lGLEW
-
-# HawkNL
 
 # PNG, JPEG and ZLIB
 
 CFLAGS += -I$(LIBDIR)/libpng
-LDFLAGS += -L$(LIBDIR)/libpng/lib -ljpeg -lz -lpng
+LDFLAGS += -L$(LIBDIR)/libpng/lib -lpng -ljpeg -lz
+
+# OpenGL rendering
+
+CFLAGS += -I/usr/local/include
+LDFLAGS += -L/usr/local/lib -lglew
+
+# HawkNL
 
 # OGG/Vorbis
 
 CFLAGS += -DUSE_OGG
-LDFLAGS += -framework ogg -framework vorbis
+LDFLAGS += -Wl,-framework,Ogg -Wl,-framework,Vorbis
 
 
 # glBSP
@@ -67,10 +70,7 @@ stripped: $(PROGRAM)
 	strip --strip-unneeded $(PROGRAM)
 
 clean:
-	rm -f $(PROGRAM) $(OBJDIR)/*/*.* 
-
-halfclean:
-	rm -f $(PROGRAM) $(OBJDIR)/ddf/*.* $(OBJDIR)/edge/*.*
+	rm -rf $(PROGRAM) $(OBJDIR)
 
 makedirs:
 	mkdir -p $(OBJDIR)/coal
@@ -156,10 +156,10 @@ $(OBJDIR)/deh_edge/%.o: deh_edge/%.cc
 
 EDGE_OBJS= \
 	$(OBJDIR)/edge/i_main.o     \
-	$(OBJDIR)/edge/i_ctrl.o     \
 	$(OBJDIR)/edge/i_video.o    \
 	$(OBJDIR)/edge/i_sound.o    \
 	$(OBJDIR)/edge/i_net.o      \
+	$(OBJDIR)/edge/i_ctrl.o     \
 	$(OBJDIR)/edge/am_map.o     \
 	$(OBJDIR)/edge/con_con.o    \
 	$(OBJDIR)/edge/con_main.o   \
@@ -217,7 +217,6 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/r_render.o   \
 	$(OBJDIR)/edge/r_effects.o  \
 	$(OBJDIR)/edge/r_main.o     \
-	$(OBJDIR)/edge/r_md5.o      \
 	$(OBJDIR)/edge/r_occlude.o  \
 	$(OBJDIR)/edge/m_logo.o     \
 	$(OBJDIR)/edge/r_things.o   \
@@ -228,9 +227,11 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/r_colormap.o \
 	$(OBJDIR)/edge/r_modes.o    \
 	$(OBJDIR)/edge/r_md2.o      \
+	$(OBJDIR)/edge/r_md5.o      \
 	$(OBJDIR)/edge/r_image.o    \
 	$(OBJDIR)/edge/r_doomtex.o  \
 	$(OBJDIR)/edge/r_texgl.o    \
+	$(OBJDIR)/edge/r_bumpmap.o  \
 	$(OBJDIR)/edge/s_blit.o     \
 	$(OBJDIR)/edge/s_cache.o    \
 	$(OBJDIR)/edge/s_sound.o    \

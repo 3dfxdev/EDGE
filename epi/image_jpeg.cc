@@ -34,12 +34,16 @@ extern "C"
 #include "../lib_win32/jpeg-8c/jerror.h"
 ///#include "../lib_win32/libjpeg-turbo-gcc/include/turbojpeg.h"
 
-#endif
 
 #include "../lib_win32/libjpeg-turbo-gcc/include/jpeglib.h"
 #include "../lib_win32/libjpeg-turbo-gcc/include/jerror.h"
+#else
+#include <jpeglib.h>
+#include <jerror.h>
+#endif
 
 }
+
 
 namespace epi
 {
