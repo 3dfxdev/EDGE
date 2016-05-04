@@ -21,9 +21,9 @@
 #include "i_defs_gl.h"
 
 #ifdef WIN32
-#include "C:\3DGE\lib_win32\glew-2.0.0\include\GL\wglew.h"
+#include "GL/wglew.h"
 #else
-#include <C:\3DGE\lib_win32\glew-2.0.0\include\GL\glew.h>
+#include <GL/glew.h>
 #endif
 
 #include <signal.h>
