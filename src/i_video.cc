@@ -263,14 +263,14 @@ void I_FinishFrame(void)
 
 	#ifdef WIN32
 	if (WGLEW_EXT_swap_control) {
-		if (r_vsync.d > 1)
+		if (r_vsync.d > 0)
 			glFinish();
 		wglSwapIntervalEXT(r_vsync.d != 0);
 	}
 	#endif
 
 	SDL_GL_SwapBuffers();
-	if (r_vsync.d > 1)
+	if (r_vsync.d > 0)
 			glFinish();
 	if (in_grab.CheckModified())
 		I_GrabCursor(grab_state);
