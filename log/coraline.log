@@ -8,7 +8,24 @@ TODO  // notes to self
 ~~~~  // TODO seperator & ees
 ##############################
 
+------------------
+5.8.2016:
+Added a new cvar, r_spriteflipped, that will flip all [A0] sprites horizontally,
+as a consumer feature (i.e., not DDF). 
+
+Eventually, I will DDF-itize this, 
+for modders who can find it useful: STATES(DEATH)=TROO:A:1:NORMAL:FLIPPED, 
+(flipped could be the marker that passes the *flip bool in R2_GetThingSprite2).
+
+Okay, just DDF-itized this as a hyperflag, HF_MIRRORED, in ddf/things.cc. That way,
+it can affect the entire sprite (which means that randomizers are now possible for this
+behavior in DDF). I should probably squash this down some more...
+
+Again, okay, in DDF, just added the MAKEMIRRORED thing_special in actioncode_t, that
+will make the object mirrored! Gotta actually write P_ActMakeMirrored now. . .
+
 ------------------------------------
+
 5.7.2016:
 More work on PAK today, defined raw pak headers and structures into dm_structs.h
 Added basic detection to w_wad.cc (FLKIND_PAK), routed from <- e_main.cc
