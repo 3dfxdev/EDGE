@@ -10,6 +10,31 @@ TODO  // notes to self
 
 ------------------
 5.8.2016:
+
+PAK file support is finished and integrated into W_Wad.cc. Now, I'm going to test
+it with the most basic WADFile - edge2.wad (converted to edge2.pak). I mirrored
+most of the raw_wad_x loading code through EPI, so this should be fairly straight-
+forward. I will download GFCScape to create a new PAKfile for 3DGE to attempt to
+load. Also found out PAK files are not compressed - no big deal! 
+
+^^ Bombed due to the inclusion of Quake's pak0.pak. When I loaded a newly made
+packfile (edge.pak), it accepted, computed hash, and continued loading! Now, I am
+going to try replacing the specialwadverify -> specialpakverify ^_^
+
+Added E_SpecialPAKVerify to verify that EDGEVER is correct in the PAKfile.
+
+In InitDirectories, added EDGE2.PAK file detection, new M_GetParm ("-epak"), so,
+let's see how this goes.
+
+^ System startup automatically finds edge2.pak, but bombs right after:
+'Adding .\EDGE2.pak', which is the same problem I was running into while trying to
+add custom PAK files. I think because there are single lumps that arent' being handled,
+so I will need to add more utility code.
+
+^^ Solved again, but still need some extra stuff to cache the PAK file (hmm, I wonder
+if it's smart caching PAKs or leaving them as-is, since technically it's just a "dir"
+lookup...)
+
 Added a new cvar, r_spriteflipped, that will flip all [A0] sprites horizontally,
 as a consumer feature (i.e., not DDF). 
 
