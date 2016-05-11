@@ -152,7 +152,19 @@ SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 	///SDL_GL_SetAttribute(SDL_GL_S, 1);
-	SDL_GL_SetSwapInterval(1);
+	SDL_GL_SetSwapInterval(-1); 
+	
+	// ~CA 5.7.2016:
+	
+/* 	Some systems allow specifying -1 for the interval, 
+	to enable late swap tearing. Late swap tearing works 
+	the same as vsync, but if you've already missed the 
+	vertical retrace for a given frame, it swaps buffers 
+	immediately, which might be less jarring for the user 
+	during occasional framerate drops. If application 
+	requests late swap tearing and the system does not support 
+	it, this function will fail and return -1. In such a case, 
+	you should probably retry the call with 1 for the interval. */
 	
 	flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
 	
@@ -169,164 +181,10 @@ SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
         I_Error("I_InitScreen: Failed to create window");
         return;
     }
-	
-	
-    /* if((glContext = SDL_GL_CreateContext(my_vis)) == NULL) {
-        // re-adjust depth size if video can't run it
-        if(r_depth.d >= 24) 
-		{
-            r_depth.f = 16;
-        }
-        else if(r_depth.d >= 16) 
-		{
-            r_depth = 8;
-        }
-
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, (int)r_depth.d);
-
-        if((glContext = SDL_GL_CreateContext(my_vis)) == NULL) {
-            // fall back to lower buffer setting
-            r_depth = 16;
-            SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, (int)r_depth.d);
-
-            if((glContext = SDL_GL_CreateContext(my_vis)) == NULL) {
-                // give up
-                I_Error("I_InitScreen: Failed to create OpenGL context");
-                return;
-            }
-        }
-    } */
-
-    // -DS- 2005/06/27 Detect SDL Resolutions
-	//const SDL_GetRendererInfo *info = SDL_RendererInfo();
-	///const SDL_VideoInfo *info = SDL_GetVideoInfo();
-/* 	int SDL_GetRendererInfo(SDL_Renderer*     renderer,
-                        SDL_RendererInfo* info);
-
-	display_W = info->current_w;
-	display_H = info->current_h;
-
-	I_Printf("Desktop resolution: %dx%d\n", display_W, display_H);
-	
-	SDL_Rect **modes = SDL_ListModes(info->vfmt,
-					  SDL_OPENGL | SDL_DOUBLEBUF | SDL_FULLSCREEN); */
-
-/* 	if (modes && modes != (SDL_Rect **)-1)
-	{
-		for (; *modes; modes++)
-		{
-			scrmode_c test_mode;
-
-			test_mode.width  = (*modes)->w;
-			test_mode.height = (*modes)->h;
-			test_mode.depth  = info->vfmt->BitsPerPixel;  // HMMMM ???
-			test_mode.full   = true;
-
-			if ((test_mode.width & 15) != 0)
-				continue;
-
-			if (test_mode.depth == 15 || test_mode.depth == 16 ||
-			    test_mode.depth == 24 || test_mode.depth == 32)
-			{
-				R_AddResolution(&test_mode);
-			}
-		}
-	}
-
-	// -ACB- 2000/03/16 Test for possible windowed resolutions
-	for (int full = 0; full <= 1; full++)
-	{
-		for (int depth = 16; depth <= 32; depth = depth+16)
-		{
-			for (int i = 0; possible_modes[i].w != -1; i++)
-			{
-				scrmode_c mode;
-
-				mode.width  = possible_modes[i].w;
-				mode.height = possible_modes[i].h;
-				mode.depth  = depth;
-				mode.full   = full;
-
-				int got_depth = SDL_VideoModeOK(mode.width, mode.height,
-						mode.depth, SDL_OPENGL | SDL_DOUBLEBUF |
-						(mode.full ? SDL_FULLSCREEN : 0));
-
-				if (R_DepthIsEquivalent(got_depth, mode.depth))
-				{
-					R_AddResolution(&mode);
-				}
-			}
-		}
-	} */
 
 	I_Printf("I_StartupGraphics: initialisation OK\n");
 }
 
-
-/* #if 0
-//	SDL_Rect **modes = SDL_ListModes(info->vfmt, SDL_OPENGL | SDL_DOUBLEBUF | SDL_FULLSCREEN); //SDL_ListModes() is not available in SDL2
-//	(call SDL_GetDisplayMode() in a loop, SDL_GetNumDisplayModes() times)
-	int mode_count = SDL_GetNumDisplayModes, display_index = 0;
-	SDL_DisplayMode* mode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
-	SDL_Rect **modes = &mode;
-	if (mode_count > 0) {
-		for (int mode_index = 0; mode_index < mode_count; mode_index++) {
-			*modes[mode_index] = SDL_GetDisplayMode(display_index, mode_index, mode);
-			
-		}
-	}
-
-	if (modes && modes != (SDL_Rect **)-1)
-	{
-		for (; *modes; modes++) //build a list of valid resolutions
-		{
-			scrmode_c test_mode;
-
-			test_mode.width  = (*modes)->w;
-			test_mode.height = (*modes)->h;
-			test_mode.depth  = info->vfmt->BitsPerPixel;
-			test_mode.full   = true;
-
-			if ((test_mode.width & 15) != 0) //tests false if width not negative and divisible by 16 (read: if this is a valid fullscreen width)
-				continue;
-
-			if (test_mode.depth == 15 || test_mode.depth == 16 ||
-			    test_mode.depth == 24 || test_mode.depth == 32) //VGA color depth (8bpp) not suitable
-			{
-				R_AddResolution(&test_mode);
-			}
-		}
-	}
-
-	// -ACB- 2000/03/16 Test for possible windowed resolutions
-	for (int full = 0; full <= 1; full++)
-	{
-		for (int depth = 16; depth <= 32; depth = depth+16)
-		{
-			for (int i = 0; possible_modes[i].w != -1; i++)
-			{
-				scrmode_c mode;
-
-				mode.width  = possible_modes[i].w;
-				mode.height = possible_modes[i].h;
-				mode.depth  = depth;
-				mode.full   = full;
-
-				int got_depth = SDL_VideoModeOK(mode.width, mode.height, // this is probably not available either.
-						mode.depth, SDL_OPENGL | SDL_DOUBLEBUF |
-						(mode.full ? SDL_FULLSCREEN : 0));
-
-				if (R_DepthIsEquivalent(got_depth, mode.depth))
-				{
-					R_AddResolution(&mode);
-				}
-			}
-		}
-	}
-
-	I_Printf("I_StartupGraphics: initialisation OK\n");
-}
-#endif */
 
 bool I_SetScreenSize(scrmode_c *mode)
 {
@@ -348,8 +206,7 @@ bool I_SetScreenSize(scrmode_c *mode)
                     (mode->full ? SDL_WINDOW_FULLSCREEN :0));
 	SDL_GLContext context = SDL_GL_CreateContext( my_vis );
     SDL_GL_MakeCurrent( my_vis, context );
-	
-	///glewInit();
+
                     
 	if (my_vis == NULL)
 	{
