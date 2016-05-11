@@ -27,6 +27,8 @@
 
 // -ES- 2000/03/04 The version of EDGE2.WAD we require.
 #define EDGE_WAD_VERSION  700
+// ~CA  5.7.2016
+#define EDGE_PAK_VERSION  800
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
