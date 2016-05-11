@@ -261,7 +261,8 @@ bool F_Responder(event_t * event)
 
 	if (finalecount > TICRATE)
 	{
-		skip_finale = false;
+		skip_finale = true;
+		///~CA~ FIXME: this is a huge problem as skipping can cause "black screen" behavior.
 		return true;
 	}
 
