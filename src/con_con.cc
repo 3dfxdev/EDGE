@@ -200,6 +200,7 @@ static void CON_ClearInputLine(void)
 void CON_SetVisible(visible_t v)
 {
 	paused = true;
+	SDL_StartTextInput();
 	if (v == vs_toggle)
 	{
 		v = (con_visible == vs_notvisible) ? vs_maximal : vs_notvisible;
@@ -480,6 +481,8 @@ void CON_Drawer(void)
 
 	if (con_visible == vs_notvisible && !conwipeactive)
 		return;
+	
+	SDL_StartTextInput();
 
 	// -- background --
 
@@ -503,20 +506,24 @@ void CON_Drawer(void)
 
 	if (bottomrow == -1)
 	{
+		SDL_StartTextInput();
 		DrawText(0, y, ">", T_PURPLE);
 
 		if (cmd_hist_pos >= 0)
 		{
 			const char *text = cmd_history[cmd_hist_pos]->c_str();
 
+			SDL_StartTextInput();
 			DrawText(XMUL, y, text, T_PURPLE);
 		}
 		else
 		{
+			SDL_StartTextInput();
 			DrawText(XMUL, y, input_line, T_PURPLE);
 		}
 
 		if (con_cursor < 16)
+			SDL_StartTextInput();
 			DrawText((input_pos+1) * XMUL, y - 2, "_", T_PURPLE);
 
 		y += YMUL;
@@ -773,6 +780,7 @@ static void TabComplete(void)
 
 void CON_HandleKey(int key, bool shift, bool ctrl)
 {
+	SDL_StartTextInput();
 	switch (key)
 	{
 	case KEYD_RALT:
@@ -1035,17 +1043,19 @@ bool CON_Responder(event_t * ev)
         ticpressed = 0;
     }
 
-/*      if(c == KEYD_SHIFT)
+      if(c == KEYD_SHIFT)
 	{
         if(ev->type == ev_keydown) 
 		{
-            shiftdown = true;
+            //shiftdown = true;
+			KeysShifted = true;
         }
         else if(ev->type == ev_keyup) 
 		{
-            shiftdown = false;
+            KeysShifted = false;
+			//shiftdown = false;
         }
-    } */
+    }
 
 	/// Pulling console down.
 	if (ev->type == ev_keydown && ev->data1 == key_console)
@@ -1056,8 +1066,9 @@ bool CON_Responder(event_t * ev)
 	}
 
 	if (con_visible == vs_notvisible)
+	{   paused = false;
 		return false;
-
+	}
 /*  	int key = GetKeycode(ev);
 	if (key < 0)
 		return true; */
@@ -1155,6 +1166,7 @@ void CON_Ticker(void)
 			conwipepos++;
 			if (conwipepos >= CON_WIPE_TICS)
 				conwipeactive = false;
+				paused = true;
 		}
 	}
 }
