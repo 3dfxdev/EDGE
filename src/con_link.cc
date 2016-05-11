@@ -122,12 +122,12 @@ cvar_link_t  all_cvars[] =
 	{ "in_running",     &in_running,     "c",   "0"  },
 	{ "in_stageturn",   &in_stageturn,   "c",   "1"  },
 	{ "in_warpmouse",   &in_warpmouse,   "c",   "1"  },
-
+	 
 	{ "joy_dead",       &joy_dead,       "c",   "0.15" },
 	{ "joy_peak",       &joy_peak,       "c",   "0.95" },
 	{ "joy_tuning",     &joy_peak,       "c",   "1.0"  },
 
-  	{ "mouse_filter",   &mouse_filter,   "c",   "0"  },
+  	{ "mouse_filter",   &mouse_filter,   "c",   "1"  },
 
 	{ "goobers",        &m_goobers,      "",    "0" },
 	{ "m_diskicon",     &m_diskicon,     "c",   "0"  },

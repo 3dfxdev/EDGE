@@ -334,6 +334,17 @@ bool MIR_Reflective(void);
 float MIR_XYScale(void);
 float MIR_ZScale(void);
 
+//
+//   SHADOWS (simple)
+//
+
+/* extern simple_shadow_params_t simple_shadows;
+extern int gl_shadows_maxdist;
+extern int gl_shadows_factor;
+
+void RGL_InitShadows(void);
+void RGL_ProcessThingShadow(mobj_t *mo);
+void RGL_RenderShadows(void); */
 
 #endif /* __RGL_DEFS_H__ */
 

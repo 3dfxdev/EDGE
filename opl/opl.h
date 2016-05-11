@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
-//  EDGE2 SDL System Internal header
+//  3DGE OPL Class Header
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2005-2009  The EDGE2 Team.
-// 
+//  Copyright (c) 2015 Isotope SoftWorks
+//  
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -15,30 +15,29 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
+//
 
-#ifndef __SDL_SYSTEM_INTERNAL_H__
-#define __SDL_SYSTEM_INTERNAL_H__
+#ifndef OPL_H
+#define OPL_H
 
-#ifdef MACOSX
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_keycode.h>
-#else
-#include <SDL.h>
-#include <SDL_keycode.h> /// Keys
+// Abstract base class for OPL emulators
+
+class OPLEmul
+{
+public:
+	OPLEmul() {}
+	virtual ~OPLEmul() {}
+
+	virtual void Reset() = 0;
+	virtual void WriteReg(int reg, int v) = 0;
+	virtual void Update(float *buffer, int length) = 0;
+	virtual void SetPanning(int c, float left, float right) = 0;
+};
+
+OPLEmul *JavaOPLCreate(bool stereo);
+
+#define OPL_SAMPLE_RATE			49716.0
+#define CENTER_PANNING_POWER	0.70710678118
+
+
 #endif
-
-/* // If we still need this we have unported code that needs fixing.
-// workaround for old SDL version (< 1.2.10)
-#if (SDL_PATCHLEVEL < 10)
-#include <stdlib.h>
-#define SDL_getenv  getenv
-#define SDL_putenv  putenv
-#endif
-*/
-
-#include "i_local.h"  // FIXME: remove
-
-#endif /* __SDL_SYSTEM_INTERNAL_H__ */
-
-//--- editor settings ---
-// vi:ts=4:sw=4:noexpandtab
