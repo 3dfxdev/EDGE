@@ -37,9 +37,6 @@ net_node_c::net_node_c() : sock(INVALID_SOCKET), remote()
 net_node_c::~net_node_c()
 { }
 
-
-//#if 0  // DISABLED
-
 //----------------------------------------------------------------------------
 
 static SOCKET host_conn_sock = INVALID_SOCKET;
