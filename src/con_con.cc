@@ -40,7 +40,11 @@
 #include "r_image.h"
 #include "r_modes.h"
 #include "r_wipe.h"
-
+#ifdef MACOSX
+#include <SDL2/SDL_keyboard.h>
+#else
+#include <SDL_keyboard.h>
+#endif
 
 #define CON_WIPE_TICS  12
 
