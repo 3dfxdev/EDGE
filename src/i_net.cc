@@ -431,22 +431,22 @@ void I_SetNonBlock(SOCKET sock, bool enable)
 
 void I_SetNoDelay(SOCKET sock, bool enable)
 {
-#ifdef TCP_NODELAY
+///#ifdef TCP_NODELAY
 	int mode = enable ? 1 : 0;
 
 	setsockopt(sock, IPPROTO_TCP, TCP_NODELAY,
 			(char*)&mode, sizeof(mode));
-#endif
+///#endif
 }
 
 void I_SetBroadcast(SOCKET sock, bool enable)
 {
-#ifdef SO_BROADCAST
+///#ifdef SO_BROADCAST
 	int mode = enable ? 1 : 0;
 
     setsockopt(sock, SOL_SOCKET, SO_BROADCAST,
                (char*)&mode, sizeof(mode));
-#endif
+///#endif
 }
 
 //#endif  // DISABLED FOR NOW
