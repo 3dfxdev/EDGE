@@ -71,6 +71,7 @@
 #include "m_argv.h"
 #include "m_random.h"
 #include "p_local.h"
+#include "r_image.h" //W_ImageGetName
 #include "r_misc.h"
 #include "r_shader.h"
 #include "s_sound.h"
@@ -1108,6 +1109,17 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 	}
 }
 
+bool image_array_contains(const char **names, const char *image) {
+ for(int i=0;names[i];i++) {
+  if(strcmp(names[i],image)==0) {
+   return true;
+  }
+ }
+ return false;
+}
+
+
+
 //
 // This function detects when a player has hit the floor, among other functions
 // P_ZMovement
@@ -1117,7 +1129,27 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	float dist;
 	float delta;
 	float zmove;
+	
+	//This code below stores known flats in a container
+	const char *image = W_ImageGetName(mo->subsector->sector->floor.image);
+	const char *names[]={
+	"FWATER4",
+	"NUKAGE3",
+	"SWATER4",
+	"BLOOD3",
+	"SLIME04",
+	"SLIME08",
+	"SLIME12",
+	0
+	};
+	//Eventually Nukage and LAVA will have their own stuff.
+	
+	/// DEBUG CURRENT FLOOR: CON_Message("Image is: '%s'\n",image);
+	
+	//int img_num;
 
+	// -KM- 1998/11/25 Gravity is now not precalculated so that
+	//  menu changes affect instantly.
 	float gravity = props->gravity / 8.0f * 
 		(float)level_flags.menu_grav / (float)MENU_GRAV_NORMAL;
 
@@ -1151,23 +1183,14 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 		}
 	}
 
-	//
-	//  HIT FLOOR ?
-	//
-	//if (floor.image = 'FWATER')
-	    //{SYS_ASSERT(objtype->respawneffect);
-		//P_MobjCreateObject(x, y, z, objtype->respawneffect);}
-		
-			        
 	if (mo->flags & MF_SKULLFLY)
 			mo->mom.z = -mo->mom.z;
 	
 	//TeleportRespawn(mobj);
 
 
-	if (mo->z <= mo->floorz)
-//	    P_HitFloor(mo);
-//		mo->z <= mo->floorz;
+	if (mo->z <= mo->floorz) // Hit Floor.
+
 	{
 		if (mo->flags & MF_SKULLFLY)
 			mo->mom.z = -mo->mom.z;
@@ -1175,7 +1198,6 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 		if (mo->mom.z < 0)
 		{
 			float hurt_momz = gravity * mo->info->maxfall;
-			//const char *img_name = W_ImageGetName(images[L]);
 			bool fly_or_swim = mo->player && (mo->player->swimming ||
 				mo->player->powers[PW_Jetpack] > 0 || mo->on_ladder >= 0);
 
@@ -1183,9 +1205,19 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 			{
 				// Squat down. Decrease viewheight for a moment after hitting the
 				// ground (hard), and utter appropriate sound.
-				mo->player->deltaviewheight = zmove / 8.0f;
-				S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
 			
+/*	 			if(strcmp(image, "NUKAGE3"))
+				{
+					//DEBUG: CON_Message("Normal Floor!");
+					mo->player->deltaviewheight = zmove / 8.0f;
+					S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
+				} else */
+				if (image_array_contains(names,image))//(strcmp(image, "NUKAGE3") == 0)
+				{
+					//DEBUG: CON_Message("Detected FWATER FLAT!");
+					mo->player->deltaviewheight = zmove / 8.0f;
+					//S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo); // FIXME: BD: compile failed with "error: no member named 'gloopsound' in 'mobjtype_c'"
+				}
 			}
 			
 			    
@@ -1219,6 +1251,25 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 					mo->mom.x = mo->mom.y = mo->mom.z = 0;
 				}
 			}
+			
+			
+
+			if (mo->player && gravity > 0 && -zmove > ! OOF_SPEED && ! fly_or_swim)
+			{
+		
+/* 			if(strcmp(image, "FWATER4"))
+			{
+					//DO NOTHING
+			}
+			else */ if (image_array_contains(names,image)) //((strcmp(image, "FWATER4") == 0) && (mo->player->gloopwait == 0))//(strcmp(image, "NUKAGE3") == 0)
+				{
+				//DEBUG: CON_Message("Detected FWATER FLAT!");
+				//mo->player->deltaviewheight = zmove / 0.5f;
+				//S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo); // FIXME: BD: compile failed with "error: no member named 'gloopsound' in 'mobjtype_c'"
+				mo->player->gloopwait = TICRATE;// * 2;
+				}
+			}
+
 			else
 				mo->mom.z = 0;
 				

@@ -66,6 +66,33 @@ enum SectorRenderFlags
 	SSRF_SEEN = 16,
 };
 
+//shadows
+typedef struct shadow_params_s
+{
+  int enable;
+  int loaded;
+
+  GLuint tex_id;
+  int width;
+  int height;
+
+  int max_radius;
+  int max_dist;
+  float factor;
+  float bias;
+} simple_shadow_params_t;
+
+typedef struct
+{
+  float x, y, z;
+  float radius;
+  float light;
+} GLShadow;
+
+
+extern simple_shadow_params_t simple_shadows;
+extern int gl_shadows_maxdist;
+extern int gl_shadows_factor;
 
 typedef enum
 {

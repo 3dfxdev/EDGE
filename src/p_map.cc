@@ -1103,6 +1103,11 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 		// move up to the wall
 		if (bestslidefrac == 1.0001f)
 		{
+
+     // This eliminates player bobbing if pressed against a wall
+			if (!P_TryMove(mo, mo->x, mo->y + dy))
+			if (!P_TryMove(mo, mo->x + dx, mo->y))
+				dx = dy = 0;
 			// the move must have hit the middle, so stairstep
 			break;  // goto stairstep
 		}

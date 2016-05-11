@@ -552,6 +552,9 @@ void RGL_DrawWeaponModel(player_t * p)
 	weapondef_c *w = p->weapons[p->ready_wp].info;
 
 	modeldef_c *md = W_GetModel(psp->state->sprite);
+	
+	//***TODO*** add md5 weapon model support
+	//SYS_ASSERT(md->modeltype == MODEL_MD2);
 
 	int skin_num = p->weapons[p->ready_wp].model_skin;
 

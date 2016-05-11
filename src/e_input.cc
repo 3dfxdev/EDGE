@@ -603,36 +603,38 @@ void E_BuildTiccmd(ticcmd_t * cmd)
 // 
 bool INP_Responder(event_t * ev)
 {
-	int sym = ev->value.key.sym;
+	int sym = ev->data1;
 
 	switch (ev->type)
 	{
 		case ev_keydown:
+		case ev_mousedown:
 			if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
 			{
 				mouse_ss_hack |= (1 << (sym - KEYD_MOUSE1));
 				return true;
 			}
 
-			if (ev->value.key.sym < NUMKEYS)
+			if (ev->data1 < NUMKEYS)
 			{
-				gamekeydown[ev->value.key.sym] &= ~GK_UP;
-				gamekeydown[ev->value.key.sym] |=  GK_DOWN;
+				gamekeydown[ev->data1] &= ~GK_UP;
+				gamekeydown[ev->data1] |=  GK_DOWN;
 			}
 
 			// eat key down events 
 			return true;
 
 		case ev_keyup:
+		case ev_mouseup:
 			if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
 			{
 				mouse_ss_hack &= ~(1 << (sym - KEYD_MOUSE1));
 				return false;
 			}
 
-			if (ev->value.key.sym < NUMKEYS)
+			if (ev->data1 < NUMKEYS)
 			{
-				gamekeydown[ev->value.key.sym] |= GK_UP;
+				gamekeydown[ev->data1] |= GK_UP;
 			}
 
 			// always let key up events filter down 
@@ -640,8 +642,8 @@ bool INP_Responder(event_t * ev)
 
 		case ev_mouse:
 		{
-			float dx = ev->value.mouse.dx;
-			float dy = ev->value.mouse.dy;
+			float dx = ev->data2;
+			float dy = ev->data3;
 
 			// perform inversion
 			if ((mouse_xaxis+1) & 1) dx = -dx;
@@ -652,7 +654,7 @@ bool INP_Responder(event_t * ev)
 
 			if (debug_mouse.d)
 				I_Printf("Mouse %+04d %+04d --> %+7.2f %+7.2f\n",
-				         ev->value.mouse.dx, ev->value.mouse.dy, dx, dy);
+				         ev->data2, ev->data3, dx, dy);
 
 			// -AJA- 1999/07/27: Mlook key like quake's.
 			if (E_IsKeyPressed(key_mlook))
@@ -727,8 +729,8 @@ void E_ReleaseAllKeys(void)
 			event_t ev;
 			
 			ev.type = ev_keyup;
-			ev.value.key.sym = i;
-			ev.value.key.unicode = 0;
+			ev.data1 = i;
+			///ev.value.key.unicode = 0;
 
 			E_PostEvent(&ev);
 		}
@@ -741,15 +743,22 @@ void E_ReleaseAllKeys(void)
 void E_PostEvent(event_t * ev)
 {
 	events[eventhead] = *ev;
-	eventhead = (eventhead + 1) % MAXEVENTS;
+	eventhead = ++eventhead % MAXEVENTS;
 
 #ifdef DEBUG_KEY_EV  //!!!!
 if (ev->type == ev_keydown || ev->type == ev_keyup)
 {
 	L_WriteDebug("EVENT @ %08x %d %s\n",
 		I_ReadMicroSeconds()/1000,
-		ev->value.key,
-		(ev->type == ev_keyup) ? "DOWN" : "up");
+		ev->data1,
+		(ev->type == ev_keyup) ? "keyup" : "keydown");
+}
+else if (ev->type == ev_mousedown || ev->type == ev_mouseup)
+{
+	L_WriteDebug("EVENT @ %08x %d %s\n",
+		I_ReadMicroSeconds()/1000,
+		ev->data1,
+		(ev->type == ev_mouseup) ? "mouseup" : "mousedown");
 }
 #endif
 }

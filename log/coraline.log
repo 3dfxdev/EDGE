@@ -1,0 +1,145 @@
+CORALINE'S LOGFILE
+https://github.com/corbachu
+##############################
+------ // start entry seperator
+x.x.x // DATE
+------ // end entry seperator
+TODO  // notes to self
+~~~~  // TODO seperator & ees
+##############################
+
+------------------
+5.8.2016:
+
+PAK file support is finished and integrated into W_Wad.cc. Now, I'm going to test
+it with the most basic WADFile - edge2.wad (converted to edge2.pak). I mirrored
+most of the raw_wad_x loading code through EPI, so this should be fairly straight-
+forward. I will download GFCScape to create a new PAKfile for 3DGE to attempt to
+load. Also found out PAK files are not compressed - no big deal! 
+
+^^ Bombed due to the inclusion of Quake's pak0.pak. When I loaded a newly made
+packfile (edge.pak), it accepted, computed hash, and continued loading! Now, I am
+going to try replacing the specialwadverify -> specialpakverify ^_^
+
+Added E_SpecialPAKVerify to verify that EDGEVER is correct in the PAKfile.
+
+In InitDirectories, added EDGE2.PAK file detection, new M_GetParm ("-epak"), so,
+let's see how this goes.
+
+^ System startup automatically finds edge2.pak, but bombs right after:
+'Adding .\EDGE2.pak', which is the same problem I was running into while trying to
+add custom PAK files. I think because there are single lumps that arent' being handled,
+so I will need to add more utility code.
+
+^^ Solved again, but still need some extra stuff to cache the PAK file (hmm, I wonder
+if it's smart caching PAKs or leaving them as-is, since technically it's just a "dir"
+lookup...)
+
+Added a new cvar, r_spriteflipped, that will flip all [A0] sprites horizontally,
+as a consumer feature (i.e., not DDF). 
+
+Eventually, I will DDF-itize this, 
+for modders who can find it useful: STATES(DEATH)=TROO:A:1:NORMAL:FLIPPED, 
+(flipped could be the marker that passes the *flip bool in R2_GetThingSprite2).
+
+Okay, just DDF-itized this as a hyperflag, HF_MIRRORED, in ddf/things.cc. That way,
+it can affect the entire sprite (which means that randomizers are now possible for this
+behavior in DDF). I should probably squash this down some more...
+
+Again, okay, in DDF, just added the MAKEMIRRORED thing_special in actioncode_t, that
+will make the object mirrored! Gotta actually write P_ActMakeMirrored now. . .
+
+------------------------------------
+
+5.7.2016:
+More work on PAK today, defined raw pak headers and structures into dm_structs.h
+Added basic detection to w_wad.cc (FLKIND_PAK), routed from <- e_main.cc
+
+The thing here is to add PAK file/directory support into the engine, and once it
+is finalized, edge2.wad will become edge.pak. That way, people cannot
+muck about with the official wadfile anymore. PAKs also offers better
+compression and readtimes over WAD, especially for low-mem systems, mainly
+Dreamcast read/write/cache/flush, etc. 
+
+^^(Will also solve the 8-character lumpname limit currently existing with WAD. 
+Users always had to hack this by, for instance, declaring the 8 char limit in 
+IMAGES.ddf, but we worked around that by having the  "entry name", defined 
+in the first [brackets], to be however long neccesary, and used that as a lookup.)
+
+Added basic pk3 detection in e_main, will warn the user if it detects a PK3 being
+loaded. Will most likely start on pk3 after PAK is declared finished, and then the
+WAD2/WAD3 formats (remember those Andrew??)
+
+I_ShowCPU simplified for logfile, complex for debugfile. Anyways, people send their
+debugs over their standard logs, which begs the question - should I do away with the
+standard LOG? Maybe make DEBUG.txt -> debug.edge, and be done with two kinds... something
+to think about... The only thing EDGE2.LOG offers over debug.txt is simplicity and less crap
+mucking about if I am searching for something quick...yeeaahh...take a vote maybe?
+
+More SDL2 improvements: SDL_StartTextInput() solved the "no shift+char" in console!
+
+Implemented "Multiplayer" menu selection into our main menu drawer, but selecting it does nothing (yet),
+this was a change over how Legacy does it (implemented it into Single Player) - this way mirrors the
+way Quake does it(™)
+
+Started a new "Working Directory" for 3DGE in SourceTree (which is what I use to manage Github/etc).
+
+~~~~~~~~~~~~~~~~~~
+TODO:
+More Heretic detection stuff (adding skulls around logo in menu, setting global bool for heretic_mode)
+
+Rip out (completely this time...) HawkNL. Suitable and doable replacements for 3DGE NETWORKING:
+*OpenTNL (once popular, used in Doom Legacy 2, seen more recent update than HawkNL, decent track record)
+[https://github.com/kocubinski/opentnl]
+*Raknet (formerly HawkNL) // Will this conflict with our completely open-source policy..?
+[https://github.com/OculusVR/RakNet] 
+*SDL_Net (no brainer. . .and this would be the easiest I think)
+~~~~~~~~~~~~~~~~~~
+-----------------------------------
+
+-----------------------------------
+5.6.2016:
+Started PAK file struct for PAKfile support, added PAK file error-detection in e_main (it finds it juuust fine)!
+Ripped out old OPL header to make room for custom (thanks nukeyT)
+------------------------------------
+
+-----------------------------------
+5.5.2016:
+Implemented E_ShowCPU for CPU ID support, called right after ShowDateAndVersion().
+
+SDL2 improvements - SDL_GL_SetSwapInterval(-1), see notes there for why it needs to be -1 and not 1.
+
+i_video: Fixed r_Vsync needing to be set for every map (that was a very dumb oversight on my part) :-(
+-----------------------------------
+
+-----------------------------------
+5.4.2016:
+WOOOWWW, it's been way too long since I have kept a logfile. Well, rest of programmers are
+demanding it to track my ADHD-ified work, so here goes. Also, Brendan sort of made it fun
+again - I mean, who doesn't want to see Batman cry??
+
+Wrote a doxygen file for a generated Doxygen HTML. Will upload to server sometime soon.
+-----------------------------------
+
+-----------------------------------
+6/7/2011:
+DDF: Got scream sound finalized with screamwait in source (with Ajapted's guidance).
+
+r_render: Started basic shadow support in source. 
+-----------------------------------
+
+-----------------------------------
+6/6/2011:
+r_render: Got basic Fog working in 3DGE (with screenshot)
+
+Did some more stuff with s_roqplay.cc in /src. Looks like I'll have to bind
+SDL some other way. 
+
+Also, GLFog works but nothing else will, so I have to take this command
+and make it sector-based. It's not true fog, but it works just fine. ;)
+-----------------------------------
+
+-----------------------------------
+LOG 6/5/2011: 
+DDF/THINGS.DDF: added scream_Sound for falling screams from Hexen source
+-----------------------------------

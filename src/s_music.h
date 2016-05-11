@@ -61,6 +61,38 @@ void S_MusicTicker(void);
 
 void S_ChangeMusicVolume(void);
 
+
+// OPL MAME CODE! (use abstract music class instead)
+/* 
+class OPLMIDIDevice //: public SoftSynthMIDIDevice, protected OPLmusicBlock
+{
+public:
+	OPLMIDIDevice();
+	int Open(void (*callback)(unsigned int, void *, UWORD, UWORD), void *userdata);
+	void Close();
+	//int GetTechnology() const;
+	//FString GetStats();
+
+protected:
+	void CalcTickRate();
+	int PlayTick();
+	void HandleEvent(int status, int parm1, int parm2);
+	void HandleLongEvent(const BYTE *data, int len);
+	void ComputeOutput(float *buffer, int len);
+	bool ServiceStream(void *buff, int numbytes);
+};
+
+// OPL dumper implementation of a MIDI output device ------------------------
+
+class OPLDumperMIDIDevice : public OPLMIDIDevice
+{
+public:
+	OPLDumperMIDIDevice(const char *filename);
+	~OPLDumperMIDIDevice();
+	int Resume();
+	void Stop();
+}; */
+
 #endif /* __S_MUSIC_H__ */
 
 //--- editor settings ---
