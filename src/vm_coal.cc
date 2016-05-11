@@ -376,6 +376,9 @@ void VM_LoadLumpOfCoal(int lump)
 
 void VM_LoadScripts()
 {
+	// Replaced doom_ddf here with coal_hud to differentiate - COAL scripts should
+	// *not* go in doom_ddf since they are not DDF files.
+	//  reverted. didn't work out.
 	std::string script_dir = epi::PATH_Join(game_dir.c_str(), "doom_ddf");
 	std::string fn;
 

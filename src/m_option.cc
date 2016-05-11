@@ -125,6 +125,7 @@ extern cvar_c debug_mouse;
 extern cvar_c debug_joyaxis;
 extern cvar_c g_aggression;
 extern cvar_c m_busywait;
+//extern cvar_c mouse_accel;
 
 static int menu_crosshair;  // temp hack
 static int menu_crosshair2;  /// love haxxx
@@ -403,6 +404,30 @@ static optmenuitem_t vidoptions[] =
 
 };
 
+/*
+static optmenuitem_t advancedoptions[] =
+{
+
+	{OPT_Boolean, "Interpolation",    YesNo,   2, &r_lerp, NULL, "Lerping"},
+	{OPT_Boolean, "Video Sync",    YesNo,   2, &r_vsync, NULL, "VideoSync"},
+	{OPT_Boolean, "OpenGL 2x Mode",    YesNo,   2, &r_gl2_path, NULL, "OpenGL"},
+	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
+
+	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
+
+	{OPT_Slider,  "Global MD5 Scale",    NULL,  5,  &r_md5scale, NULL, "MD5Scale"},
+
+	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
+	{OPT_Plain,   "Debug Options",  NULL, 0, NULL, NULL, NULL},
+	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
+	
+	{OPT_Switch,  "Framerate Counter",    YesNo,  2,  &debug_fps, NULL, NULL},
+	{OPT_Switch,  "Show HOM Errors",    YesNo,  2,  &debug_hom, NULL, "showhom"},
+	{OPT_Switch,  "Show Position Coords",    YesNo,  2,  &debug_pos, NULL, NULL},
+	{OPT_Switch,  "Dithering (PowerVR)",    YesNo,  2,  &var_dithering, NULL, "powervr"}
+	
+};
+*/
 
 static optmenuitem_t advancedoptions[] =
 {
@@ -494,6 +519,7 @@ static optmenuitem_t analogueoptions[] =
 	{OPT_Switch,   "Mouse Y Axis",       Axis, 11, &mouse_yaxis, NULL, NULL},
 	{OPT_Slider,   "X Sensitivity",      NULL, 16, &mouse_xsens, NULL, NULL},
 	{OPT_Slider,   "Y Sensitivity",      NULL, 16, &mouse_ysens, NULL, NULL},
+//	{OPT_Slider,   "Mouse Acceleration", NULL, 20,  &mouse_accel, NULL, NULL},
 	{OPT_Boolean,  "Mouse Filtering",    YesNo, 0,  &mouse_filter, NULL, NULL},
 	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
 	{OPT_Switch,   "Joystick Device", JoyDevs, 7,  &joystick_device, NULL, NULL},
@@ -1112,7 +1138,7 @@ bool M_OptResponder(event_t * ev, int ch)
 
 		if (ev->type != ev_keydown)
 			return false;
-		int key = ev->value.key.sym;
+		int key = ev->data1;
 
 		keyscan = 0;
 
@@ -1146,6 +1172,7 @@ bool M_OptResponder(event_t * ev, int ch)
 	switch (ch)
 	{
 		case KEYD_BACKSPACE:
+		case KEYD_DELETE:
 		{
 			if (curr_item->type == OPT_KeyConfig)
 				*(int*)(curr_item->switchvar) = 0;

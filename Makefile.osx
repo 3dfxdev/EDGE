@@ -22,7 +22,7 @@ LDFLAGS=-lm
 CFLAGS += -I.
 
 # Debugging Flags
-CFLAGS += -DDEBUG_KB -DDEVELOPERS
+CFLAGS += -DDEVELOPERS # -DDEBUG_KEY_EV -DDEBUG_KB -DNDEBUG
 
 # Operating System
 
@@ -31,7 +31,7 @@ LDFLAGS += -F/Library/Frameworks
 
 # SDL
 CFLAGS += -D_GNU_SOURCE=1 -D_THREAD_SAFE
-LDFLAGS += -Wl,-framework,SDL -Wl,-framework,OpenGL -Wl,-framework,Cocoa -Wl,-framework,ApplicationServices -Wl,-framework,Carbon -Wl,-framework,AudioToolbox -Wl,-framework,AudioUnit -Wl,-framework,IOKit -Wl,-framework,QTKit -Wl,-framework,OpenAL
+LDFLAGS += -Wl,-framework,SDL2 -Wl,-framework,OpenGL -Wl,-framework,Cocoa -Wl,-framework,ApplicationServices -Wl,-framework,Carbon -Wl,-framework,AudioToolbox -Wl,-framework,AudioUnit -Wl,-framework,IOKit -Wl,-framework,QTKit -Wl,-framework,OpenAL
 
 # ROQPLAYER
 
@@ -354,14 +354,6 @@ $(OBJDIR)/timidity/%.o: timidity/%.cc
 	$(CXX) $(CFLAGS) -o $@ -c $< 
 
  
-# ---------- MAC OSX SPECIFICS ---------------
-
-MACOSX_OBJS= \
-	$(OBJDIR)/macosx/SDLMain.o
-
-$(OBJDIR)/macosx/%.o: $(LIBDIR)/SDL/libexec/%.m
-	$(CC) $(CFLAGS) -o $@ -c $<
-
 # ---------- FINAL LINK STEP -----------
   
 $(PROGRAM) : $(COAL_OBJS) \

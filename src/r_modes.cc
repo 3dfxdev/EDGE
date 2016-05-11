@@ -288,7 +288,7 @@ struct Compare_Res_pred
 
 void R_InitialResolution(void)
 {
-	L_WriteDebug("R_InitialResolution...\n");
+	L_WriteDebug("R_InitialResolution setting up...\n");
 
 	scrmode_c mode;
 

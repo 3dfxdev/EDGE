@@ -51,12 +51,52 @@ static sfx_t * sfx_jprise;
 static sfx_t * sfx_jpdown;
 static sfx_t * sfx_jpflow;
 
+#if 0
+float xxxSlope_GetHeight(slope_plane_t *slope, float x, float y/*,bool floorz_hack*/) {
+	// FIXME: precompute (store in slope_plane_t)
+	float dx = slope->x2 - slope->x1;
+	float dy = slope->y2 - slope->y1;
+
+	float d_len = dx*dx + dy*dy;
+
+	float along = ((x - slope->x1) * dx + (y - slope->y1) * dy) / d_len;
+/*
+	printf("x %f z1 %f z2 %f p %f x1 %f x2 %f\n",x,slope->dz1,slope->dz2,
+			along,slope->x1,slope->x2);
+			*/
+	/*
+	if(floorz_hack) {
+		along+=1.0;
+	}
+	*/
+
+	return slope->dz1 + along * (slope->dz2 - slope->dz1);
+}
+#endif
 
 static void CalcHeight(player_t * player)
 {
 	player->lastviewz = player->viewz;
 
 	bool onground = player->mo->z <= player->mo->floorz;
+#if 0
+	bool onslope=(player->mo->z<=player->mo->floorz+23.0 && player->mo->subsector->sector->c_slope);
+
+	float slope_offset=0;
+	float slope_total=0;
+	if(onslope) {
+		slope_offset=xxxSlope_GetHeight(player->mo->subsector->sector->c_slope,player->mo->x,player->mo->y);
+		slope_total=slope_offset+player->mo->subsector->sector->f_h;//player->mo->floorz;
+		/*
+		printf("floorz %f sector floorz %f slope %f TOTAL\t%f\n",player->mo->floorz,
+				player->mo->subsector->sector->f_h,
+				slope_offset,
+				player->mo->floorz+slope_offset);
+		*/
+	}
+
+	//bool still = false;
+#endif
 
 	if (player->mo->height < (player->mo->info->height + player->mo->info->crouchheight) / 2.0f)
 		player->mo->extendedflags |= EF_CROUCHING;
@@ -151,7 +191,14 @@ static void CalcHeight(player_t * player)
 			bob_z *= (6 - player->jumpwait) / 6.0;
 	}
 
-	player->viewz = player->viewheight + bob_z;
+/*
+	if(onslope) {
+		//printf("VIEWZ %f Z %f TOTAL %f\n",player->viewz,player->mo->z,player->mo->floorz+slope_offset);
+		player->viewz=slope_total-player->mo->z+bob_z+player->std_viewheight;
+	}
+	else { */
+		player->viewz = player->viewheight + bob_z;
+//	}
 
 
 #if 0  // DEBUG

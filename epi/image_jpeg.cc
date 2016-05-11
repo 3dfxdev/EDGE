@@ -26,15 +26,14 @@ extern "C"
 // horrible workaround for INT32 typedef incompatibility between
 // jmorecfg.h and standard MinGW headers (basetds.h).
 #define INT32  INT32_jpeg
+#endif
 
-/// For SIMD version (restricted currently to Win32), use jpeg-turbo
-/* #include "../lib_win32/jpeg-8c/jpeglib.h"
-#include "../lib_win32/jpeg-8c/jerror.h" */
+#if defined WIN32 && !defined SSD2
 #include "../lib_win32/jpeg-8c/jpeglib.h"
 #include "../lib_win32/jpeg-8c/jerror.h"
+#elif defined WIN32 && defined SSD2
+/// For SIMD version (restricted currently to Win32), use jpeg-turbo
 ///#include "../lib_win32/libjpeg-turbo-gcc/include/turbojpeg.h"
-
-
 #include "../lib_win32/libjpeg-turbo-gcc/include/jpeglib.h"
 #include "../lib_win32/libjpeg-turbo-gcc/include/jerror.h"
 #else

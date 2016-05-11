@@ -32,8 +32,6 @@
 
 // implementation limits
 
-GLUquadricObj *quadratic; // Storage For Our Quadratic Objects ( NEW )
-
 int glmax_lights;
 int glmax_clip_planes;
 int glmax_tex_size;

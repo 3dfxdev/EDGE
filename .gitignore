@@ -1,8 +1,9 @@
 obj_win32
 lib_win32
+obj_macosx
 lib_macosx
+Hyper3DGE.app
 edge.macosx
 /warnings.osx.log
 /logmake
-hyper3dge.app
 desktop.ini

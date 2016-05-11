@@ -21,6 +21,13 @@
 
 #include "i_defs.h"
 #include "i_defs_gl.h"
+#include "i_sdlinc.h"
+
+#ifdef MACOSX
+#include <SDL2/SDL_opengl.h>
+#else
+#include "SDL_opengl.h"
+#endif
 
 #include <vector>
 #include <algorithm>
@@ -37,13 +44,6 @@
 #include "r_texgl.h"
 #include "r_shader.h"
 #include "r_bumpmap.h"
-
-//bool   gp;                      // G Pressed? ( New )
-//GLuint filter;                      // Which Filter To Use
-//GLuint fogMode[]= { GL_EXP, GL_EXP2, GL_LINEAR };   // Storage For Three Types Of Fog
-//GLuint fogfilter= 0;                    // Which Fog To Use
-//GLfloat fogColor[4]= {0.0f, 0.0f, 0.1f, 0.0f};      // Fog Color
-
 
 cvar_c r_colorlighting;
 cvar_c r_colormaterial;
@@ -291,6 +291,7 @@ void RGL_EndUnit(int actual_vert)
 	cur_vert += actual_vert;
 	cur_unit++;
 
+	// These two below cause errors with MD5 models...or something?
 	SYS_ASSERT(cur_vert <= MAX_L_VERT);
 	SYS_ASSERT(cur_unit <= MAX_L_UNIT);
 }

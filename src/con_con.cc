@@ -967,7 +967,7 @@ void CON_HandleKey(int key, bool shift, bool ctrl)
 	}
 }
 
-static int GetKeycode(event_t *ev)
+/* static int GetKeycode(event_t *ev)
 {
     int sym = ev->value.key.sym;
 
@@ -1003,14 +1003,52 @@ static int GetKeycode(event_t *ev)
         return sym;
 
     return -1;
-}
+} */
+
+static bool keyheld = false;
+static bool lastevent = 0;
+static int lastkey = 0;
+static int ticpressed = 0;
 
 bool CON_Responder(event_t * ev)
 {
-	if (ev->type != ev_keyup && ev->type != ev_keydown)
-		return false;
+	int c;
+    bool clearheld = true;
 
-	if (ev->type == ev_keydown && E_MatchesKey(key_console, ev->value.key.sym))
+    if(ev->type != ev_keyup && ev->type != ev_keydown) 
+	{
+        return false;
+    }
+	
+	c = ev->data1;
+    lastkey = c;
+    lastevent = ev->type;
+
+    if(ev->type == ev_keydown && !keyheld) 
+	{
+        keyheld = true;
+        ticpressed = CON_WIPE_TICS;
+    }
+    else 
+	{
+        keyheld = false;
+        ticpressed = 0;
+    }
+
+/*      if(c == KEYD_SHIFT)
+	{
+        if(ev->type == ev_keydown) 
+		{
+            shiftdown = true;
+        }
+        else if(ev->type == ev_keyup) 
+		{
+            shiftdown = false;
+        }
+    } */
+
+	/// Pulling console down.
+	if (ev->type == ev_keydown && ev->data1 == key_console)
 	{
 		CON_SetVisible(vs_toggle);
 		paused = true;
@@ -1020,16 +1058,16 @@ bool CON_Responder(event_t * ev)
 	if (con_visible == vs_notvisible)
 		return false;
 
-	int key = GetKeycode(ev);
+/*  	int key = GetKeycode(ev);
 	if (key < 0)
-		return true;
+		return true; */
 
 	if (ev->type == ev_keyup)
 	{
-		if (key == repeat_key)
+		if (c == repeat_key)
 			repeat_countdown = 0;
 
-		switch (key)
+		switch (c)
 		{
 			case KEYD_PGUP:
 			case KEYD_PGDN:
@@ -1045,7 +1083,7 @@ bool CON_Responder(event_t * ev)
 	else
 	{
 		// Okay, fine. Most keys don't repeat
-		switch (key)
+		switch (c)
 		{
 			case KEYD_RIGHTARROW:
 			case KEYD_LEFTARROW:
@@ -1061,9 +1099,9 @@ bool CON_Responder(event_t * ev)
 				break;
 		}
 
-		repeat_key = key;
+		repeat_key = c;
 
-		CON_HandleKey(key, KeysShifted, false);
+		CON_HandleKey(c, KeysShifted, false);
 	}
 
 	return true;  // eat all keyboard events
