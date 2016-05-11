@@ -154,7 +154,6 @@ static void DLIT_CollectLights(mobj_t *mo, void *dataptr) {
 	RGL_AddLight(mo);
 }
 
-//TODO add skin_img support
 void MD5_RenderModel(modeldef_c *md, int last_anim, int last_frame,
 	int current_anim, int current_frame, float lerp, float x, float y, float z,
 	float scale_x,float scale_y,float scale_z,mobj_t *mo)
