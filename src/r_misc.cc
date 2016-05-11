@@ -216,6 +216,7 @@ float R_PointToDist(float x1, float y1, float x2, float y2)
 		dy = temp;
 	}
 
+	// faster to use atan2?
 	angle = M_ATan(dy / dx) + ANG90;
 
 	// use as cosine
