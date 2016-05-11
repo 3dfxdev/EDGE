@@ -129,6 +129,7 @@ static const image_c *menu_saveg;
 static const image_c *menu_svol;
 static const image_c *menu_doom;
 static const image_c *menu_newgame;
+static const image_c *menu_multiplayer;
 static const image_c *menu_skill;
 static const image_c *menu_episode;
 static const image_c *menu_skull[2];
@@ -263,6 +264,7 @@ static void M_SaveGame(int choice);
 
 // 25-6-98 KM
 extern void M_Options(int choice);
+extern void M_Multiplayer(int choice);
 static void M_LoadSavePage(int choice);
 static void M_ReadThis(int choice);
 static void M_ReadThis2(int choice);
@@ -301,6 +303,7 @@ void M_StartControlPanel(void);
 typedef enum
 {
 	newgame = 0,
+	multiplayer,
 	options,
 	loadgame,
 	savegame,
@@ -313,7 +316,7 @@ main_e;
 static menuitem_t MainMenu[] =
 {
 	{1, "M_NGAME",   NULL, M_NewGame, 'n'},
-	/*{1, "M_SGAME",   NULL, M_SplitGame, 'p'},*/
+	{1, "M_MULTI",   NULL, M_Multiplayer, 'p'},
 	{1, "M_OPTION",  NULL, M_Options, 'o'},
 	{1, "M_LOADG",   NULL, M_LoadGame, 'l'},
 	{1, "M_SAVEG",   NULL, M_SaveGame, 's'},
@@ -1070,6 +1073,15 @@ void M_NewGame(int choice)
 	}
 
 	M_SetupNextMenu(&EpiDef);
+}
+
+void M_Multiplayer(int choice)
+{
+	option_menuon  = 0;
+	netgame_menuon = 0;
+	
+
+	// hack
 }
 
 //
@@ -2139,6 +2151,10 @@ void M_Init(void)
 	if (! def) def = default_style;
 	menu_def_style = hu_styles.Lookup(def);
 	
+	def = styledefs.Lookup("MULTIPLAYER");
+	if (! def) def = default_style;
+	menu_def_style = hu_styles.Lookup(def);
+	
 	def = styledefs.Lookup("OPTIONS");
 	if (! def) def = default_style;
 	menu_def_style = hu_styles.Lookup(def);
@@ -2176,6 +2192,7 @@ void M_Init(void)
 	menu_saveg    = W_ImageLookup("M_SAVEG");
 	menu_svol     = W_ImageLookup("M_SVOL");
 	menu_newgame  = W_ImageLookup("M_NEWG");
+	menu_multiplayer = W_ImageLookup("M_MULTI");
 	menu_skill    = W_ImageLookup("M_SKILL");
 	menu_episode  = W_ImageLookup("M_EPISOD");
 	menu_skull[0] = W_ImageLookup("M_SKULL1");
