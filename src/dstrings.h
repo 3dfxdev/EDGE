@@ -28,12 +28,14 @@
 
 // Misc. other strings.
 #define REQUIREDWAD    "EDGE2"
+#define REQUIREDPAK    "edge2"
 #define EDGECONFIGFILE "EDGE2.cfg"
 #define EDGELOGFILE    "EDGE2.log"
 
 #define EDGEGWAEXT     "gwa"
 #define EDGEHWAEXT     "hwa"
 #define EDGEWADEXT     "wad"
+#define EDGEPAKEXT     "pak"
 
 #define SAVEGAMEBASE   "save"
 #define SAVEGAMEEXT    "esg"
