@@ -37,6 +37,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
+#include <libcpuid.h>
 
 #include "../epi/exe_path.h"
 #include "../epi/file.h"
@@ -157,6 +158,7 @@ bool autoquickload = false;
 
 std::string cfgfile;
 std::string ewadfile;
+std::string epakfile; //<---- EDGE PAK FILE
 std::string iwad_base;
 
 std::string cache_dir;
@@ -227,7 +229,7 @@ static startup_progress_c s_progress;
 void E_ProgressMessage(const char *message)
 {
 	// FIXME: show message near progress bar
-	I_Printf("%s", message);
+	//I_Printf("%s", message);
 }
 
 void E_LocalProgress(int step, int total)
@@ -246,7 +248,7 @@ void E_GlobalProgress(int step, int size, int total)
 void E_NodeMessage(const char *message)
 {
 	// FIXME: show message
-	I_Printf("LOADING, PLEASE WAIT.%s", message);
+	//I_Printf("LOADING, PLEASE WAIT.%s", message);
 }
 
 void E_NodeProgress(int perc)
@@ -425,6 +427,41 @@ static void SpecialWadVerify(void)
 	{
 		I_Warning("EDGE2.WAD is a newer version (expected %1.2f)\n",
 		          EDGE_WAD_VERSION / 100.0);
+	}
+}
+
+//
+// SpecialPAKVerify
+//
+static void SpecialPAKVerify(void)
+{
+	int lump = W_CheckNumForName("EDGEVER");
+	if (lump < 0)
+		I_Error("EDGEVER lump not found. Get EDGE.PAK at http://edge2.sourceforge.net/");
+
+	const void *data = W_CacheLumpNum(lump);
+
+	// parse version number
+	const char *s = (const char*)data;
+	int pak_ver = atoi(s) * 100;
+
+	while (isdigit(*s)) s++;
+	s++;
+	pak_ver += atoi(s);
+
+	W_DoneWithLump(data);
+
+	I_Printf("EDGE.PAK version %1.2f found.\n", pak_ver / 100.0);
+
+	if (pak_ver < EDGE_PAK_VERSION)
+	{
+		I_Warning("EDGE.PAK is an older version (expected %1.2f)\n",
+		          EDGE_PAK_VERSION / 100.0);
+	}
+	else if (pak_ver > EDGE_PAK_VERSION)
+	{
+		I_Warning("EDGE.PAK is a newer version (expected %1.2f)\n",
+		          EDGE_PAK_VERSION / 100.0);
 	}
 }
 
@@ -864,6 +901,10 @@ static void IdentifyVersion(void)
     std::string iwad_par;
     std::string iwad_file;
     std::string iwad_dir;
+	
+	std::string pak_par;
+    std::string pak_file;
+    std::string pak_dir;
 
 	const char *s = M_GetParm("-iwad");
 
@@ -1047,6 +1088,53 @@ static void ShowDateAndVersion(void)
 	M_DebugDumpArgs();
 }
 
+// ~CA~ 5.6.2016: Implemented CPU detection.
+// linked via libcpuID ->> <libcpuid.h>
+static void E_ShowCPU(void)
+{
+	if (!cpuid_present()) 
+	{
+		I_Printf("3DGE cannot detect your Processor Type!\n");
+		//return -1;
+	}
+	
+	struct cpu_raw_data_t raw;  // contains only raw data
+	struct cpu_id_t data;      // contains recognized CPU features data
+	
+	if (cpuid_get_raw_data(&raw) < 0) 
+	{   // obtain the raw CPUID data
+		I_Printf("Sorry, cannot get the CPUID raw data.\n");
+		I_Printf("Error: %s\n", cpuid_error());                          // cpuid_error() gives the last error description
+		//return -2;
+	}
+	
+	if (cpu_identify(&raw, &data) < 0) 
+	{   // identify the CPU, using the given raw data.
+		I_Printf("Sorrry, CPU identification failed.\n");
+		I_Printf("Error: %s\n", cpuid_error());
+		//return -3;
+	}
+	
+	I_Printf("E_ShowCPU: detected %s CPU\n", data.vendor_str); // print out the vendor string (e.g. `GenuineIntel')
+/* 	I_Printf("I_ShowCPU:`%s'\n", data.cpu_codename); // print out the CPU code name (e.g. `Pentium 4 (Northwood)') */
+	I_Printf("E_ShowCPU: `%s'\n", data.brand_str);             // print out the CPU brand string
+	I_Printf("E_ShowCPU: clocked at %d MHz (according to your OS)\n",
+		cpu_clock_by_os());  // print out the CPU clock, according to the OS
+								   
+	// Debugfile will output more information
+ 	I_Debugf("The processor has %dK L1 cache and %dK L2 cache\n",
+		data.l1_data_cache, data.l2_cache);                            // print out cache size information
+	I_Debugf("The processor has %d cores and %d logical processors\n",
+		data.num_cores, data.num_logical_cpus);                        // print out CPU cores information
+	
+	I_Debugf("Supported multimedia instruction sets:\n");
+	I_Debugf("  MMX         : %s\n", data.flags[CPU_FEATURE_MMX] ? "present" : "absent");
+	I_Debugf("  MMX-extended: %s\n", data.flags[CPU_FEATURE_MMXEXT] ? "present" : "absent");
+	I_Debugf("  SSE         : %s\n", data.flags[CPU_FEATURE_SSE] ? "present" : "absent");
+	I_Debugf("  SSE2        : %s\n", data.flags[CPU_FEATURE_SSE2] ? "present" : "absent");
+	I_Debugf("  3DNow!      : %s\n", data.flags[CPU_FEATURE_3DNOW] ? "present" : "absent");
+}
+
 static void SetupLogAndDebugFiles(void)
 {
 	// -AJA- 2003/11/08 The log file gets all CON_Printfs, I_Printfs,
@@ -1093,11 +1181,19 @@ static void AddSingleCmdLineFile(const char *name)
 
 	if (stricmp(ext.c_str(), "edm") == 0)
 		I_Error("Demos are no longer supported\n");
+	
+/* 	if (stricmp(ext.c_str(), "pak") == 0) /// ~CA~ 5.7.2016 - new PAK class file
+		I_Error("DETECTED PAK FILE, ABORTING. . .\n"); */
+		
+	if (stricmp(ext.c_str(), "pk3") == 0) /// ~CA~ 5.7.2016 - new PAK class file
+		I_Error(".pk3 not supported yet! Aborting...\n");
 
 	// no need to check for GWA (shouldn't be added manually)
 
 	if (stricmp(ext.c_str(), "wad") == 0)
 		kind = FLKIND_PWad;
+	if (stricmp(ext.c_str(), "pak") == 0) /// ~CA~ 5.7.2016 - new PAK class file
+		kind = FLKIND_PAK;//I_Printf("DETECTED PAK FILE. . .\n");
 	else if (stricmp(ext.c_str(), "hwa") == 0)
 		kind = FLKIND_HWad;
 	else if (stricmp(ext.c_str(), "rts") == 0)
@@ -1157,7 +1253,8 @@ static void AddCommandLineFiles(void)
 			std::string ext = epi::PATH_GetExtension(ps);
 
 			// sanity check...
-			if (stricmp(ext.c_str(), "wad") == 0 || 
+			if (stricmp(ext.c_str(), "wad") == 0 ||
+				stricmp(ext.c_str(), "pak") == 0 ||
                 stricmp(ext.c_str(), "gwa") == 0 ||
 			    stricmp(ext.c_str(), "hwa") == 0 ||
                 stricmp(ext.c_str(), "ddf") == 0 ||
@@ -1252,7 +1349,7 @@ startuporder_t startcode[] =
 	{  3, W_InitFlats          },
 	{ 10, W_InitTextures       },
 	{  1, CON_Start            },
-	{  1, SpecialWadVerify     },
+	{  1, SpecialWadVerify     }, //<---- Change to SpecialPAKVerify for testing. . .
 	{  1, M_InitMiscConVars    },
 	{ 20, W_ReadDDF            },
 	{  1, DDF_CleanUp          },
@@ -1318,6 +1415,8 @@ static void E_Startup(void)
 	CON_ResetAllVars();
 
 	ShowDateAndVersion();
+
+	E_ShowCPU();
 
 	M_LoadDefaults();
 
