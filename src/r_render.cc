@@ -867,17 +867,16 @@ static void PlaneCoordFunc(void *d, int v_idx,
 }
 
 
-void ShadowCoordFunc(int v_idx, vec3_t *pos, float *rgb, vec2_t *texc, void *d)
+void ShadowCoordFunc(void *d, int v_idx,
+		vec3_t *pos, float *rgb, vec2_t *texc,
+		vec3_t *normal, vec3_t *lit_pos)
 
 {
 	const plane_coord_data_t *data = (plane_coord_data_t *)d;
 	
 	*pos    = data->vert[v_idx];
+	*normal = data->normal;
 	
-//	float x = pos->x;
-//	float y = pos->y;
-//	float z = pos->z;
-
     float rx = (data->tx0 + pos->x);
 	float ry = (data->ty0 + pos->y);
 	
@@ -2342,8 +2341,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 						  surface_t *surf, int face_dir)
 {
 	float orig_h = h;
-	
-//	raw_polyquad_t *poly;
 
 	MIR_Height(h);
 
@@ -2487,26 +2484,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	data.x_mat = surf->x_mat;
 	data.y_mat = surf->y_mat;
-	
-	//	poly = RGL_NewPolyQuad(num_vert, false);
-	//
-	//	for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
-	//		seg=seg->sub_next, i++)
-	//	{
-	//		PQ_ADD_VERT(poly, seg->v1->x, seg->v1->y, h);
-	//	}
-	//
-	//	RGL_BoundPolyQuad(poly);
-	//
-	//	
-	//	if ((use_dlights /* == 2 (COMPAT) */ && data.dlights) || doom_fading)
-	//		RGL_SplitPolyQuadLOD(poly, 1, 128 >> detail_level);
-	//
-	//
-	//	RGL_RenderPolyQuad(poly, &data, PlaneCoordFunc, tex_id,0,
-	//		/* pass */ 0, blending);
-	//
-	//	RGL_FreePolyQuad(poly);
 
 	float mir_scale = MIR_XYScale();
 	data.x_mat.x /= mir_scale; data.x_mat.y /= mir_scale;
@@ -2542,7 +2519,9 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 #ifdef SHADOW_PROTOTYPEz
 	if (level_flags.shadows && solid_mode && face_dir > 0)
 	{
-		wall_plane_data_t dat2;
+		RGL_InitShadows(); //new SDL shadows
+		I_Printf("Render: Simple Shadows Initilised!");
+		 plane_coord_data_t dat2;
 		memcpy(&dat2, &data, sizeof(dat2));
 
 //		light = NULL;
@@ -2565,23 +2544,25 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 			dat2.y_mat.y = 0.5f / dthing->mo->radius;
 			dat2.y_mat.x = 0;
 
-			poly = RGL_BeginUnit(num_vert);
+			//poly = RGL_BeginUnit(num_vert);
+			local_gl_vert_t *glvert = RGL_BeginUnit(num_vert);
 
 			for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
 				seg=seg->sub_next, i++)
-//			{
-//				PQ_ADD_VERT(poly, seg->v1->x, seg->v1->y, h);
-//			}
+			{
+				RGL_RenderShadows(); //glVertex3f(seg->v1->x, seg->v1->y, h);
+			}
 
-			RGL_BoundPolyQuad(poly);
+/* 			RGL_BoundPolyQuad(poly);
 
 			RGL_RenderPolyQuad(poly, &data, ShadowCoordFunc, tex_id,0,
-				/* pass */ 2, BL_Alpha);
+				 pass  2, BL_Alpha);
 
-			RGL_FreePolyQuad(poly);
+			RGL_FreePolyQuad(poly); */
 		}
 	}
 #endif
+
 
 }
 

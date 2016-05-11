@@ -72,7 +72,6 @@ static rgbcol_t am_colors[AM_NUM_COLORS] =
 
 // Automap keys
 // Ideally these would be configurable...
-
 int key_am_up;
 int key_am_down;
 int key_am_left;
@@ -254,6 +253,7 @@ void AM_InitLevel(void)
 	FindMinMaxBoundaries();
 
 	m_scale = INIT_MSCALE;
+
 }
 
 
@@ -281,7 +281,7 @@ static void AM_Show(void)
 	automapactive = true;
 
 	if (! stopped)
-	///	AM_Stop();
+		AM_Stop();
 		return;
 
 	AM_InitLevel();
@@ -305,16 +305,30 @@ static void ChangeWindowScale(float factor)
 	m_scale = MIN(m_scale, MAX_MSCALE);
 }
 
+static bool keyheld = false;
+static bool lastevent = 0;
+static int lastkey = 0;
+static int ticpressed = 0;
 
 //
 // Handle events (user inputs) in automap mode
 //
 bool AM_Responder(event_t * ev)
 {
-	int sym = ev->value.key.sym;
+	int c;
+	bool clearheld = true;
+	
+	if(ev->type != ev_keyup && ev->type != ev_keydown) 
+	{
+        return false;
+    }
+	
+	c = ev->data1;
+    lastkey = c;
+    lastevent = ev->type;
 
 	// check the enable/disable key
-	if (ev->type == ev_keydown && E_MatchesKey(key_map, sym))
+	if (ev->type == ev_keydown && ev->data1 == key_map)
 	{
 		if (automapactive)
 			AM_Hide();
@@ -330,13 +344,14 @@ bool AM_Responder(event_t * ev)
 
 	if (ev->type == ev_keyup)
 	{
-		if (E_MatchesKey(key_am_left, sym) || E_MatchesKey(key_am_right, sym))
+		if (ev->data1 == key_am_left || ev->data1 == key_am_right)
+		///if (E_MatchesKey(key_am_left, sym) || E_MatchesKey(key_am_right, sym))
 			panning_x = 0;
-
-		if (E_MatchesKey(key_am_up, sym) || E_MatchesKey(key_am_down, sym))
+		if (ev->data1 == key_am_up || ev->data1 == key_am_down)
+		///if (E_MatchesKey(key_am_up, sym) || E_MatchesKey(key_am_down, sym))
 			panning_y = 0;
-
-		if (E_MatchesKey(key_am_zoomin, sym) || E_MatchesKey(key_am_zoomout, sym))
+		if (ev->data1 == key_am_zoomin || ev->data1 == key_am_zoomout)
+		///if (E_MatchesKey(key_am_zoomin, sym) || E_MatchesKey(key_am_zoomout, sym))
 			zooming = -1;
 
 		return false;
@@ -349,40 +364,40 @@ bool AM_Responder(event_t * ev)
 
 	if (! followplayer)
 	{
-		if (E_MatchesKey(key_am_left, sym))
+		if (ev->data1 == key_am_left)
 		{
 			panning_x = -FTOM(F_PANINC);
 			return true;
 		}
-		else if (E_MatchesKey(key_am_right, sym))
+		else if (ev->data1 == key_am_right)
 		{
 			panning_x = FTOM(F_PANINC);
 			return true;
 		}
-		else if (E_MatchesKey(key_am_up, sym))
+		else if (ev->data1 == key_am_up)
 		{
 			panning_y = FTOM(F_PANINC);
 			return true;
 		}
-		else if (E_MatchesKey(key_am_down, sym))
+		else if (ev->data1 == key_am_down)
 		{
 			panning_y = -FTOM(F_PANINC);
 			return true;
 		}
 	}
 
-	if (E_MatchesKey(key_am_zoomin, sym))
+	if (ev->data1 == key_am_zoomin)
 	{
 		zooming = M_ZOOMIN;
 		return true;
 	}
-	else if (E_MatchesKey(key_am_zoomout, sym))
+	else if (ev->data1 == key_am_zoomout)
 	{
 		zooming = 1.0 / M_ZOOMIN;
 		return true;
 	}
 
-	if (E_MatchesKey(key_am_follow, sym))
+	if (ev->data1 == key_am_follow)
 	{
 		followplayer = !followplayer;
 
@@ -395,7 +410,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (E_MatchesKey(key_am_grid, sym))
+	if (ev->data1 == key_am_grid)
 	{
 		grid = !grid;
 		// -ACB- 1998/08/10 Use DDF Lang Reference
@@ -407,7 +422,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (E_MatchesKey(key_am_mark, sym))
+	if (ev->data1 == key_am_mark)
 	{
 		// -ACB- 1998/08/10 Use DDF Lang Reference
 		CON_PlayerMessage(consoleplayer1, "%s %d",
@@ -416,7 +431,7 @@ bool AM_Responder(event_t * ev)
 		return true;
 	}
 
-	if (E_MatchesKey(key_am_clear, sym))
+	if (ev->data1 == key_am_clear)
 	{
 		// -ACB- 1998/08/10 Use DDF Lang Reference
 		CON_PlayerMessageLDF(consoleplayer1, "AutoMapMarksClear");
@@ -425,19 +440,19 @@ bool AM_Responder(event_t * ev)
 	}
 
 	// -AJA- 2007/04/18: mouse-wheel support
-	if (sym == KEYD_WHEEL_DN)
+	if (ev->data1 == KEYD_WHEEL_DN)
 	{
 		ChangeWindowScale(1.0 / WHEEL_ZOOMIN);
 		return true;
 	}
-	else if (sym == KEYD_WHEEL_UP)
+	else if (ev->data1 == KEYD_WHEEL_UP)
 	{
 		ChangeWindowScale(WHEEL_ZOOMIN);
 		return true;
 	}
 
 	// -ACB- 1999/09/28 Proper casting
-	if (!DEATHMATCH() && M_CheckCheat(&cheat_amap, (char)sym))
+	if (!DEATHMATCH() && M_CheckCheat(&cheat_amap, (char)ev->data1))
 	{
 		cheating = (cheating + 1) % 3;
 

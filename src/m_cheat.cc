@@ -239,7 +239,7 @@ bool M_CheatResponder(event_t * ev)
 	if (ev->type != ev_keydown)
 		return false;
 
-	char key = (char) ev->value.key.sym;
+	char key = (char) ev->data1;
 
 	// no cheating in netgames or if disallowed in levels.ddf
 	if (!level_flags.cheats)

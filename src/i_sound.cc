@@ -37,6 +37,9 @@
 // If true, sound system is off/not working. Changed to false if sound init ok.
 bool nosound = false;
 
+// Pitch to stepping lookup
+static int steptable[256];
+
 /* See m_option.cc for corresponding menu items */
 static const int sample_rates[5] = { 11025, 16000, 22050, 32000, 44100 };
 static const int sample_bits[2]  = { 8, 16 };
@@ -71,6 +74,8 @@ static char errordesc[256] = "FOO";
 static char scratcherror[256];
 
 static bool audio_is_locked = false;
+
+
 
 
 void SoundFill_Callback(void *udata, Uint8 *stream, int len)
@@ -184,9 +189,12 @@ void I_StartupSound(void)
 
 	if (stricmp(driver, "default") != 0)
 	{
-		char buffer[200];
-		snprintf(buffer, sizeof(buffer), "SDL_AUDIODRIVER=%s", driver);
-		SDL_putenv(buffer);
+		char nameBuffer[200];
+		char valueBuffer[200];
+		bool overWrite = true;
+		snprintf(nameBuffer, sizeof(nameBuffer), "SDL_VIDEODRIVER");
+		snprintf(valueBuffer, sizeof(valueBuffer), "%s", driver);
+		SDL_setenv(nameBuffer, valueBuffer, overWrite);
 	}
 
 	I_Printf("SDL_Audio_Driver: %s\n", driver);

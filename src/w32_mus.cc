@@ -475,7 +475,7 @@ bool I_StartupMUS()
 
 	if (midiavailable)
 		return true; // Already initialized.
-
+	
 	semaphore = SDL_CreateSemaphore(1);
 	SYS_ASSERT(semaphore);
 

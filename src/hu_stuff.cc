@@ -206,7 +206,7 @@ bool HU_Responder(event_t * ev)
 	if (ev->type != ev_keyup && ev->type != ev_keydown)
 		return false;
 
-	int c = ev->value.key.sym;
+	int c = ev->data1;
 
 	if (ev->type != ev_keydown)
 		return false;

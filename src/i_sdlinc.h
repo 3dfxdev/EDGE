@@ -19,17 +19,22 @@
 #ifndef __SDL_SYSTEM_INTERNAL_H__
 #define __SDL_SYSTEM_INTERNAL_H__
 
-#ifdef WIN32
-#include "SDL.h"
-#endif 
+#ifdef MACOSX
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_keycode.h>
+#else
+#include <SDL.h>
+#include <SDL_keycode.h> /// Keys
+#endif
 
-
+/* // If we still need this we have unported code that needs fixing.
 // workaround for old SDL version (< 1.2.10)
 #if (SDL_PATCHLEVEL < 10)
 #include <stdlib.h>
 #define SDL_getenv  getenv
 #define SDL_putenv  putenv
 #endif
+*/
 
 #include "i_local.h"  // FIXME: remove
 

@@ -34,18 +34,17 @@
 
 #ifdef WIN32
 #define GLEW_STATIC  1
-//#include <L:/hyper3DGE//src/GL/glew.h>
-//#include <L:/hyper3DGE//src/GL/gl.h>
-//#include <L:/hyper3DGE//src/GL/glext.h>
-#include "C:\3DGE\lib_win32\glew-2.0.0\include\GL\glew.h"
-#include "GL\gl.h"
-#include "GL\glext.h"
+#include "gl/glew.h"
+#include "gl/gl.h"
+#include "gl/glext.h"
+#include "SDL_opengl.h"
 #endif
 
 #ifdef MACOSX
 #include <GL/glew.h>
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>
+#include <SDL2/SDL_opengl.h>
 #endif
 
 #ifdef DREAMCAST

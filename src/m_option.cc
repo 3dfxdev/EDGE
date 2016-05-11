@@ -125,6 +125,7 @@ extern cvar_c debug_mouse;
 extern cvar_c debug_joyaxis;
 extern cvar_c g_aggression;
 extern cvar_c m_busywait;
+//extern cvar_c mouse_accel;
 
 static int menu_crosshair;  // temp hack
 static int menu_crosshair2;  /// love haxxx
@@ -494,6 +495,7 @@ static optmenuitem_t analogueoptions[] =
 	{OPT_Switch,   "Mouse Y Axis",       Axis, 11, &mouse_yaxis, NULL, NULL},
 	{OPT_Slider,   "X Sensitivity",      NULL, 16, &mouse_xsens, NULL, NULL},
 	{OPT_Slider,   "Y Sensitivity",      NULL, 16, &mouse_ysens, NULL, NULL},
+//	{OPT_Slider,   "Mouse Acceleration", NULL, 20,  &mouse_accel, NULL, NULL},
 	{OPT_Boolean,  "Mouse Filtering",    YesNo, 0,  &mouse_filter, NULL, NULL},
 	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
 	{OPT_Switch,   "Joystick Device", JoyDevs, 7,  &joystick_device, NULL, NULL},
@@ -1112,7 +1114,7 @@ bool M_OptResponder(event_t * ev, int ch)
 
 		if (ev->type != ev_keydown)
 			return false;
-		int key = ev->value.key.sym;
+		int key = ev->data1;
 
 		keyscan = 0;
 
@@ -1146,6 +1148,7 @@ bool M_OptResponder(event_t * ev, int ch)
 	switch (ch)
 	{
 		case KEYD_BACKSPACE:
+		case KEYD_DELETE:
 		{
 			if (curr_item->type == OPT_KeyConfig)
 				*(int*)(curr_item->switchvar) = 0;

@@ -1,0 +1,44 @@
+DATE: April 29, 2016 
+--------------------
+/* Ideas to deal with mousewheel speed problem:
+
+-Put in a sensitivity control for it similar to the mouse sensitivity (treat it as a third mouse axis)
+	Pros:
+		-Can use mousewheel for other cool things, like height control while flying
+		-Code already exists for it, just needs to be adapted
+	Cons:
+		-Lose the ability to easily use it as buttons. Assigning it in the menu just got weird.
+		-Menu overhaul just got more complicated.
+		-Need to write code code for deciding what (third axis delta? distance scrolled?) equals how many button presses
+
+-Put in a trigger cooldown so events can only be triggered so often (once every 100ms sounds sane, or even once per tic or two)
+	Pros:
+		-Sounds easy to implement
+		-Works with existing menu system
+	Cons:
+		-No third axis. Games stuck with current usefulness.
+		-Might complicate things for touch users. (or maybe not. Needs to be tested...)
+
+-Only allow the first few triggers to queue, dump the rest
+	Pros:
+		-So easy a drunk monkey with one arm could code it.
+			For (bad) example:
+			if (lastevent == scrollup and (event.timestamp - lastevent.timestamp) < 500ms or so ) { 
+				if (i < 6ish) {
+					i++; return event
+				} else {
+					return nothing }
+			} else {
+				i=0; return event }
+	Cons:
+		-Sloppy. Would feel like a drunk monkey with one arm was using it.
+		
+-Remove mousewheel support entirely. I mean, who Really uses that?
+	Pros:
+		-Takes literally a minute to do properly. If I'm a lazy asshole, already complete.
+		-???
+	Cons:
+		-Wait, *I* might use that! Maybe. Ok, so I only noticed it was missing because I was debugging it.
+		-What are you, a communist?
+		-Makes Batman cry.
+*/
