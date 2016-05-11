@@ -165,6 +165,13 @@ void HU_Ticker(void)
 		message_no_overwrite = false;
 	}
 	
+	//TODO: HUD Message Fading
+/* 	if(message_counter >= HU_MSGFADESTART) 
+	{
+       alpha = MAX((alpha -= HU_MSGFADETIME), 0);
+    } */
+
+	
 	// check for incoming chat characters
 	if (! netgame)
 		return;
