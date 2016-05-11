@@ -214,11 +214,6 @@ static char MusicDevs[]   = "System/Timidity";
 // Screen resolution changes
 static scrmode_c new_scrmode;
 
-
-// -ES- 1998/11/28 Wipe and Faded teleportation options
-static char FadeT[] = "Off/On, flash/On, no flash";
-
-
 //
 //  OPTION STRUCTURES
 //
@@ -410,14 +405,17 @@ static optmenuitem_t advancedoptions[] =
 	{OPT_Boolean, "OpenGL Mode",    GLMode,   2, &r_gl2_path, NULL, "OpenGL"}, /// Change from GL1 to GL2
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Switch, "Interpolation",    YesNo,   2, &r_lerp, NULL, "Lerping"},
-	{OPT_Switch, "Video Sync",    YesNo,   2, &r_vsync, NULL, "Use 'r_vsync' in console"},
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
+/* 	{OPT_Switch, "Video Sync",   YesNo,   2, &r_vsync, NULL, "Use 'r_vsync' in console to disable"}, */
+	{OPT_Boolean, "Vync Value --->",    YesNo,   3, &r_vsync, NULL, "Type 'r_vsync 0' in console to disable"},
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
 
 	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
 
 	{OPT_Plain,   "---Debugging---",  NULL, 0, NULL, NULL, NULL},
 
-	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
+/* 	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL}, */
 	/* {OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  &var_invul_fx, NULL, NULL}, */
 	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
 	
