@@ -38,7 +38,7 @@ extern "C"
 #include "../lib_win32/libjpeg-turbo-gcc/include/jpeglib.h"
 #include "../lib_win32/libjpeg-turbo-gcc/include/jerror.h"
 #else
-#include <jpeglib.h>
+#include <jpeglib.h> //FIXME: this implementation will call the first version listed in the makefile regardless of whether jpeg-turbo is supported.
 #include <jerror.h>
 #endif
 
