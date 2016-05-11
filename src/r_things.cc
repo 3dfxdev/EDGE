@@ -33,10 +33,12 @@
 #include "../epi/image_jpeg.h"
 #include "../md5_conv/md5_draw.h"
 
+#include "con_main.h"
 #include "dm_data.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "p_local.h"
+#include "m_random.h"
 #include "r_colormap.h"
 #include "r_defs.h"
 #include "r_draw.h"
@@ -59,6 +61,7 @@
 
 #define DEBUG  0
 
+cvar_c r_spriteflip;
 
 cvar_c r_crosshair;    // shape
 cvar_c r_crosscolor;   // 0 .. 7
@@ -552,9 +555,6 @@ void RGL_DrawWeaponModel(player_t * p)
 	weapondef_c *w = p->weapons[p->ready_wp].info;
 
 	modeldef_c *md = W_GetModel(psp->state->sprite);
-	
-	//***TODO*** add md5 weapon model support
-	//SYS_ASSERT(md->modeltype == MODEL_MD2);
 
 	int skin_num = p->weapons[p->ready_wp].model_skin;
 
@@ -657,6 +657,12 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 	}
 
 	int rot = 0;
+	// ~CA: 5.7.2016 - 3DGE feature to randomly decide to flip front-facing sprites in-game
+	if (r_spriteflip.d > 0)
+	{
+		srand(P_RandomTest(*flip));	// value below in brackets would technically be "A0"
+		(*flip) = frame->flip[0] += true;
+	}
 
 	if (frame->rots >= 8)
 	{
