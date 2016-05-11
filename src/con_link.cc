@@ -56,6 +56,8 @@ extern cvar_c mouse_accel,  mouse_filter;
 
 extern cvar_c joy_dead, joy_peak, joy_tuning;
 
+extern cvar_c r_spriteflip;
+
 extern cvar_c r_width, r_height, r_depth, r_fullscreen;
 extern cvar_c r_colormaterial, r_colorlighting;
 extern cvar_c r_dumbsky, r_dumbmulti, r_dumbcombine, r_dumbclamp;
@@ -114,6 +116,8 @@ cvar_link_t  all_cvars[] =
     { "ddf_quiet",      &ddf_quiet,      "c",   "0"  },
 
     { "aggression",     &g_aggression,   "c",   "0"  },
+	
+	{ "spriteflip",      &r_spriteflip,       "c",   "1"  },
 
 	/* Input Stuff */
 
