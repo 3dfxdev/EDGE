@@ -118,7 +118,6 @@ static void GetPackets(bool do_delay)
 	L_WriteDebug("- GOT PACKET [%c%c] len = %d\n", pk.hd().type[0], pk.hd().type[1],
 		pk.hd().data_len);
 
-#if 0
 	if (! pk.CheckType("Tg"))
 		return;
 
@@ -164,8 +163,6 @@ static void GetPackets(bool do_delay)
 	}
 
 	SYS_ASSERT((raw_cmd - tg.tic_cmds) == (1 + bots_each));
-
-#endif
 
 #endif  // USE_HAWKNL
 }
