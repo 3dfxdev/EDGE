@@ -22,7 +22,7 @@ LDFLAGS=-lm
 CFLAGS += -I.
 
 # Debugging Flags
-CFLAGS += -DDEVELOPERS # -DDEBUG_KEY_EV -DDEBUG_KB -DNDEBUG
+CFLAGS += -DDEVELOPERS -DSSE2 # -DDEBUG_KEY_EV -DDEBUG_KB -DNDEBUG
 
 # Operating System
 
@@ -37,8 +37,8 @@ LDFLAGS += -Wl,-framework,SDL2 -Wl,-framework,OpenGL -Wl,-framework,Cocoa -Wl,-f
 
 # PNG, JPEG and ZLIB
 
-CFLAGS += -I$(LIBDIR)/libpng
-LDFLAGS += -L$(LIBDIR)/libpng/lib -lpng -ljpeg -lz
+CFLAGS += -I$(LIBDIR)/libpng -I$(LIBDIR)/libjpeg-turbo
+LDFLAGS += -L$(LIBDIR)/libpng/lib -lpng -L$(LIBDIR)/libjpeg-turbo/lib -ljpeg -lz
 
 # OpenGL rendering
 
