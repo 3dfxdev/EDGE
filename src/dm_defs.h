@@ -74,8 +74,6 @@ gamestate_e;
 #define MTF_EXFLOOR_SHIFT   10
 
 //HEXEN/LEGACY STUFF
-#define	FRACBITS		16
-#define	FRACUNIT		(1<<FRACBITS)
 
 typedef enum
 {
