@@ -192,7 +192,7 @@ void I_StartupSound(void)
 		char nameBuffer[200];
 		char valueBuffer[200];
 		bool overWrite = true;
-		snprintf(nameBuffer, sizeof(nameBuffer), "SDL_VIDEODRIVER");
+		snprintf(nameBuffer, sizeof(nameBuffer), "SDL_AUDIODRIVER");
 		snprintf(valueBuffer, sizeof(valueBuffer), "%s", driver);
 		SDL_setenv(nameBuffer, valueBuffer, overWrite);
 	}
