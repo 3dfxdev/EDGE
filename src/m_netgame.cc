@@ -63,6 +63,7 @@ extern gameflags_t default_gameflags;
 
 
 int netgame_menuon;
+int split_menuon; /// Splitscreen Multiplayer
 bool netgame_we_are_host;
 
 static style_c *ng_host_style;
@@ -575,7 +576,98 @@ void M_DrawHostMenu(void)
 	HL_WriteText(ng_host_style,(host_pos==idx) ? 2:0, 120,  y, "Start");
 }
 
+//// TERRIBLE FUCKING HACK THAT DOESN'T REALLY WORK CORRECTLY...FIXME OR REMOVEME...
+void M_DrawSplitMenu(void)
+{
+	splitscreen_mode = true;
+	HUD_SetAlpha(0.64f);
+	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	HUD_SetAlpha();
+
+	HL_WriteText(ng_host_style,2, 2, 10, "M_SETUPB");
+
+	char buffer[200];
+
+	int y = 30;
+	int idx = 0;
+/* 
+
+	DrawKeyword(-1, ng_host_style, y, "LOCAL ADDRESS", n_local_addr.TempString(false));
+  	y += 10;
+
+	DrawKeyword(-1, ng_join_style, y, "LOCAL PORT",
+			LocalPrintf(buffer, sizeof(buffer), "%d", hosting_port));
+  	y += 18; */
+
+
+	DrawKeyword(idx, ng_host_style, y, "GAME", ng_params->map->episode->name.c_str());
+	y += 10; idx++;
+
+	DrawKeyword(idx, ng_host_style, y, "LEVEL", ng_params->map->name.c_str());
+	y += 18; idx++;
+
+
+	DrawKeyword(idx, ng_host_style, y, "MODE", GetModeName(ng_params->deathmatch));
+	y += 10; idx++;
+
+	DrawKeyword(idx, ng_host_style, y, "SKILL", GetSkillName(ng_params->skill));
+	y += 10; idx++;
+
+	DrawKeyword(idx, ng_host_style, y, "BOTS",
+			LocalPrintf(buffer, sizeof(buffer), "%d", host_want_bots));
+	y += 10; idx++;
+
+	DrawKeyword(idx, ng_host_style, y, "BOT SKILL", GetBotSkillName(bot_skill));
+	y += 18; idx++;
+
+
+	DrawKeyword(idx, ng_host_style, y, "MONSTERS", ng_params->flags->nomonsters ? "OFF" : ng_params->flags->fastparm ? "FAST" : "ON");
+	y += 10; idx++;
+
+	DrawKeyword(idx, ng_host_style, y, "ITEM RESPAWN", ng_params->flags->itemrespawn ? "ON" : "OFF");
+	y += 10; idx++;
+
+	DrawKeyword(idx, ng_host_style, y, "TEAM DAMAGE", ng_params->flags->team_damage ? "ON" : "OFF");
+	y += 22; idx++;
+
+
+	HL_WriteText(ng_host_style,(host_pos==idx) ? 2:0, 120,  y, "Start Game!");
+}
+
 bool M_NetHostResponder(event_t * ev, int ch)
+{
+	if (ch == KEYD_ENTER)
+	{
+		if (host_pos == (HOST_OPTIONS-1))
+		{
+			HostAccept();
+			S_StartFX(sfx_swtchn);
+			return true;
+		}
+	}
+
+	if (ch == KEYD_DOWNARROW || ch == KEYD_WHEEL_DN)
+	{
+		host_pos = (host_pos + 1) % HOST_OPTIONS;
+		return true;
+	}
+	else if (ch == KEYD_UPARROW || ch == KEYD_WHEEL_UP)
+	{
+		host_pos = (host_pos + HOST_OPTIONS - 1) % HOST_OPTIONS;
+		return true;
+	}
+
+	if (ch == KEYD_LEFTARROW || ch == KEYD_RIGHTARROW ||
+		ch == KEYD_ENTER)
+	{
+		HostChangeOption(host_pos, ch);
+		return true;
+	}
+
+	return false;
+}
+
+bool M_SplitGameResponder(event_t * ev, int ch)
 {
 	if (ch == KEYD_ENTER)
 	{
@@ -919,6 +1011,47 @@ void M_NetGameInit(void)
 	}
 }
 
+//----------------------------------------------------------------------------
+
+void M_SplitGameInit(void)
+{
+	netgame_menuon = 0;
+	splitscreen_mode = true;
+
+	host_pos = 0;
+	join_pos = 0;
+
+	hosting_port = joining_port = 0;  // set later
+
+	// load styles
+	styledef_c *def;
+	style_c *ng_default;
+
+	def = styledefs.Lookup("OPTIONS");
+	if (! def) def = default_style;
+	ng_default = hu_styles.Lookup(def);
+
+	def = styledefs.Lookup("HOST NETGAME");
+	ng_host_style = def ? hu_styles.Lookup(def) : ng_default;
+
+	def = styledefs.Lookup("JOIN NETGAME");
+	ng_join_style = def ? hu_styles.Lookup(def) : ng_default;
+
+	def = styledefs.Lookup("NET PLAYER LIST");
+	ng_list_style = def ? hu_styles.Lookup(def) : ng_default;
+
+
+	const char *str = M_GetParm("-connect");
+	if (str)
+	{
+		join_addr = new net_address_c();
+		if (! join_addr->FromString(str))
+		{
+			I_Error("Bad IP address for -connect: %s\n", str);
+		}
+	}
+}
+
 void M_NetGameDrawer(void)
 {
 	switch (netgame_menuon)
@@ -929,6 +1062,17 @@ void M_NetGameDrawer(void)
 	}
 
 	I_Error("INTERNAL ERROR: netgame_menuon=%d\n", netgame_menuon);
+}
+
+void M_SplitGameDrawer(void)
+{
+	switch (split_menuon)
+	{
+		case 1: M_DrawSplitMenu(); return;
+		case 2: M_DrawPlayerList(); return;
+	}
+
+	I_Error("INTERNAL ERROR: splitgame_menuon=%d\n", netgame_menuon);
 }
 
 bool M_NetGameResponder(event_t * ev, int ch)
