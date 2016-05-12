@@ -102,99 +102,24 @@ int telept_reverse = 0;
 
 int var_invul_fx;
 
-//
-// To get a global angle from cartesian coordinates,
-// the coordinates are flipped until they are in
-// the first octant of the coordinate system, then
-// the y (<=x) is scaled and divided by x to get a
-// tangent (slope) value which is looked up in the
-// tantoangle[] table.
-//
 angle_t R_PointToAngle(float x1, float y1, float x, float y)
 {
 	x -= x1;
 	y -= y1;
 
-	if ((x == 0) && (y == 0))
+	if ((x == 0) && (y == 0)) {
 		return 0;
-
-	if (x >= 0)
-	{
-		// x >=0
-		if (y >= 0)
-		{
-			// y>= 0
-
-			if (x > y)
-			{
-				// octant 0
-				return M_ATan(y / x);
-			}
-			else
-			{
-				// octant 1
-				return ANG90 - 1 - M_ATan(x / y);
-			}
-		}
-		else
-		{
-			// y<0
-			y = -y;
-
-			if (x > y)
-			{
-				// octant 8
-				// -ACB- 1999/09/27 Fixed MSVC Compiler warning
-				return 0 - M_ATan(y / x);
-			}
-			else
-			{
-				// octant 7
-				return ANG270 + M_ATan(x / y);
-			}
-		}
 	}
-	else
-	{
-		// x<0
-		x = -x;
-
-		if (y >= 0)
-		{
-			// y>= 0
-			if (x > y)
-			{
-				// octant 3
-				return ANG180 - 1 - M_ATan(y / x);
-			}
-			else
-			{
-				// octant 2
-				return ANG90 + M_ATan(x / y);
-			}
-		}
-		else
-		{
-			// y<0
-			y = -y;
-
-			if (x > y)
-			{
-				// octant 4
-				return ANG180 + M_ATan(y / x);
-			}
-			else
-			{
-				// octant 5
-				return ANG270 - 1 - M_ATan(x / y);
-			}
-		}
+	else {
+		return atan2(y, x) * (180 / M_PI); //atan2 returns values in radians; convert to degrees
 	}
 }
 
 
 float R_PointToDist(float x1, float y1, float x2, float y2)
 {
+	return sqrt(pow((x1-x2), 2)+pow((y1-y2), 2)); //pythagorean distance formula. Wow, wasn't that easier?
+/*
 	angle_t angle;
 	float dx;
 	float dy;
@@ -223,6 +148,7 @@ float R_PointToDist(float x1, float y1, float x2, float y2)
 	dist = dx / M_Sin(angle);
 
 	return dist;
+*/
 }
 
 
