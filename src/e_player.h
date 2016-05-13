@@ -276,9 +276,6 @@ typedef struct player_s
 	int idlewait;
 
 	int splashwait;
-	
-	// counter for stepping on a liquid flat. 
-	int gloopwait;
 
 	// breathing support.  In air-less sectors, this is decremented on
 	// each tic.  When it reaches zero, the player starts choking (which
