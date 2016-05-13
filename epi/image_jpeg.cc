@@ -26,24 +26,15 @@ extern "C"
 // horrible workaround for INT32 typedef incompatibility between
 // jmorecfg.h and standard MinGW headers (basetds.h).
 #define INT32  INT32_jpeg
-#endif
-
-#if defined WIN32 && !defined SSE2
-#include "../lib_win32/jpeg-8c/jpeglib.h"
-#include "../lib_win32/jpeg-8c/jerror.h"
-#elif defined WIN32 && defined SSE2
-/// For SIMD version (restricted currently to Win32), use jpeg-turbo
-// TODO: SSE2 supported in intel macs too according to libcpuid. Find a suitable library and link it.
-///#include "../lib_win32/libjpeg-turbo-gcc/include/turbojpeg.h"
 #include "../lib_win32/libjpeg-turbo-gcc/include/jpeglib.h"
 #include "../lib_win32/libjpeg-turbo-gcc/include/jerror.h"
+#include "../lib_win32/libjpeg-turbo-gcc/include/turbojpeg.h"
 #else
 #include <jpeglib.h> //FIXME: this implementation will call the first version listed in the makefile regardless of whether jpeg-turbo is supported.
 #include <jerror.h>
 #endif
 
 }
-
 
 namespace epi
 {
