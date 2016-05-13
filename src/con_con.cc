@@ -26,6 +26,7 @@
 
 #include "i_defs.h"
 #include "i_defs_gl.h"
+#include "i_sdlinc.h"
 
 #include "../ddf/language.h"
 
@@ -40,6 +41,7 @@
 #include "r_image.h"
 #include "r_modes.h"
 #include "r_wipe.h"
+
 #ifdef MACOSX
 #include <SDL2/SDL_keyboard.h>
 #else
