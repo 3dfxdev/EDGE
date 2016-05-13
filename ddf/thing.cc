@@ -249,6 +249,7 @@ const actioncode_t thing_actions[] =
 	{"CLOSE_ATTACK",      P_ActMeleeAttack, DDF_StateGetAttack},
 	{"RANGE_ATTACK",      P_ActRangeAttack, DDF_StateGetAttack},
 	{"SPARE_ATTACK",      P_ActSpareAttack, DDF_StateGetAttack},
+/* 	{"MAKEMIRRORED",      P_ActMakeMirrored, NULL}, */
 
 	{"RANGEATTEMPTSND",   P_ActMakeRangeAttemptSound, NULL},
 	{"REFIRE_CHECK",      P_ActRefireCheck, NULL},
@@ -1321,6 +1322,7 @@ static specflags_t hyper_specials[] =
 	{"VAMPIRE", HF_VAMPIRE, 0},
 	{"AUTOAIM", HF_NO_AUTOAIM, 1},
 	{"TILT", HF_TILT, 0},
+	{"MIRRORED", HF_MIRRORED, 0},
 	{NULL, 0, 0}
 };
 
