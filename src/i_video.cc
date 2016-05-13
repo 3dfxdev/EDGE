@@ -1,8 +1,8 @@
-//----------------------------------------------------------------------------
+ //----------------------------------------------------------------------------
 //  EDGE2 SDL Video Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 2016  Isotope SoftWorks.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -21,7 +21,8 @@
 #include "i_defs_gl.h"
 
 #ifdef WIN32
-#include "GL/wglew.h"
+#include "../lib_win32/glew-2.0.0/include/GL/wglew.h" ///#include "GL/wglew.h"
+/// If you don't hardlink under Win32, replace with ---> ^___________________^
 #else
 #include <GL/glew.h>
 #endif
@@ -31,6 +32,7 @@
 #else
 #include <SDL_opengl.h>
 #endif
+
 
 #include <signal.h>
 
@@ -83,13 +85,13 @@ void I_GrabCursor(bool enable)
 	{
 		SDL_ShowCursor(0);
 //		SDL_WM_GrabInput(SDL_GRAB_ON);
-		SDL_SetWindowGrab(my_vis, SDL_TRUE);
+		SDL_SetWindowGrab(my_vis, SDL_TRUE); //TODO: grab which window??
 	}
 	else
 	{
 		SDL_ShowCursor(1);
 //		SDL_WM_GrabInput(SDL_GRAB_OFF);
-		SDL_SetWindowGrab(my_vis, SDL_FALSE);
+		SDL_SetWindowGrab(my_vis, SDL_FALSE); //TODO: grab which window??
 	}
 }
 
@@ -151,7 +153,6 @@ SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-	///SDL_GL_SetAttribute(SDL_GL_S, 1);
 	SDL_GL_SetSwapInterval(-1); 
 	
 	// ~CA 5.7.2016:
@@ -168,6 +169,9 @@ SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
 	
 	flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
 	
+	///FIXME: Call scrmode_c to determine and allow resolution handling in-game!!!!
+	/// See: http://stackoverflow.com/questions/25594714/how-can-i-get-the-screen-resolution-using-sdl2
+	
 	sprintf(title, "3DGE");
     my_vis = SDL_CreateWindow(title,
                               SDL_WINDOWPOS_CENTERED,
@@ -183,6 +187,8 @@ SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
     }
 
 	I_Printf("I_StartupGraphics: initialisation OK\n");
+	
+	I_Printf("Desktop resolution: %dx%d\n", display_W, display_H);
 }
 
 
@@ -195,9 +201,6 @@ bool I_SetScreenSize(scrmode_c *mode)
 			 mode->width, mode->height, mode->depth,
 			 mode->full ? "fullscreen" : "windowed");
 
-//	my_vis = SDL_SetVideoMode(mode->width, mode->height, mode->depth, 
-//					SDL_OPENGL | SDL_DOUBLEBUF |
-//					(mode->full ? SDL_FULLSCREEN : 0));
 	my_vis = SDL_CreateWindow("Hyper3DGE",
 					SDL_WINDOWPOS_UNDEFINED,
                     SDL_WINDOWPOS_UNDEFINED,
@@ -214,7 +217,7 @@ bool I_SetScreenSize(scrmode_c *mode)
 		return false;
 	}
 
-/* 	stupid shit we really do NOT need
+/* 	FIXME: BPP detection. //!!!
 if (my_vis->format->BytesPerPixel <= 1)
 	{
 		I_Printf("I_SetScreenSize: 8-bit mode set (not suitable)\n");
@@ -224,26 +227,24 @@ if (my_vis->format->BytesPerPixel <= 1)
 	 I_Printf("I_SetScreenSize: mode now %dx%d %dbpp flags:0x%x\n",
 			 my_vis->w, my_vis->h,
 			 my_vis->format->BitsPerPixel, my_vis->flags); 
-			*/
+*/
 
 	// -AJA- turn off cursor -- BIG performance increase.
 	//       Plus, the combination of no-cursor + grab gives 
 	//       continuous relative mouse motion.
+	
+	// ~CA~  TODO:  Eventually we will want to turn on the cursor
+	//				when we get Doom64-style mouse control for
+	//				the options drawer.
 	I_GrabCursor(true);
 
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
-	
-	//function sets the active rendering area, it doesn't enforce any orthagonal matrices
-	///glViewport( 0, 0, display_W, display_H );
 
 #ifdef MACOSX
 	//TODO: On Mac OS X make sure to bind 0 to the draw framebuffer before swapping the window, otherwise nothing will happen.
 #endif
-//	SDL_GL_SwapBuffers()
 	SDL_GL_SwapWindow(my_vis);
-	
-	///I_Printf("Screen Size Set!/n");
 	
 	return true;
 }
@@ -251,7 +252,6 @@ if (my_vis->format->BytesPerPixel <= 1)
 
 void I_StartFrame(void)
 {
-	///I_Printf("STARTING FRAME");
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
@@ -261,14 +261,16 @@ void I_FinishFrame(void)
 {
 	extern cvar_c r_vsync;
 
-#ifdef WIN32
-	if (SDL_GL_GetSwapInterval)
+	//FIXME: WIN32 relies on WGLEW, so when we go to GLAD, make sure to generate a WGL_GLAD header to compensate.
+	//       I wonder if SDL_GL_SwapWindow will work under Win32 without WGLEW extensions. hmmm.
+	#ifdef WIN32
+	if (WGLEW_EXT_swap_control) 
 	{
 		if (r_vsync.d > 0)
 			glFinish();
-		SDL_GL_SetSwapInterval(r_vsync.d != 0);
+		wglSwapIntervalEXT(r_vsync.d != 0);
 	}
-#endif
+	#endif
 
 	SDL_GL_SwapWindow(my_vis);
 	if (r_vsync.d > 0)
