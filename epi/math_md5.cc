@@ -260,13 +260,13 @@ namespace debugepi
 		{
 			sprintf(num_buf, "%02x", hash.hash[pos]);
 
-			cout << num_buf;
+			std::cout << num_buf;
 		}
 	}
 
 	void Test_Md5Hash_DoString(const char *str)
 	{
-		cout << "MD5 (\"" << str << "\") = ";
+		std::cout << "MD5 (\"" << str << "\") = ";
 
 		/// ASSERT(sizeof(char) == sizeof(byte));
 
@@ -274,19 +274,19 @@ namespace debugepi
 
 		Test_Md5Hash_Write(hash);
 
-		cout << "\n";
+		std::cout << "\n";
 	}
 
 	void Test_Md5Hash()
 	{
-		cout << "\n===TEST-MD5-HASH==========================\n\n";
+		std::cout << "\n===TEST-MD5-HASH==========================\n\n";
 
 		Test_Md5Hash_DoString("");
 		Test_Md5Hash_DoString("a");
 		Test_Md5Hash_DoString("abc");
 		Test_Md5Hash_DoString("message digest");
 
-		cout << "\n==========================================\n\n";
+		std::cout << "\n==========================================\n\n";
 	}
 };
 
