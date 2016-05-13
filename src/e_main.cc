@@ -853,7 +853,7 @@ void InitDirectories(void)
         cfgfile = epi::PATH_Join(home_dir.c_str(), EDGECONFIGFILE);
 	}
 
-	// EDGE2.wad file
+ 	// EDGE2.wad file
 	s = M_GetParm("-ewad");
 	if (s)
 	{
@@ -863,6 +863,17 @@ void InitDirectories(void)
     {
         ewadfile = epi::PATH_Join(home_dir.c_str(), "edge2.wad");
 	}
+	
+	// EDGE2.pak file
+/* 	s = M_GetParm("-epak");
+	if (s)
+	{
+		epakfile = M_ComposeFileName(home_dir.c_str(), s);
+	}
+	else
+    {
+        epakfile = epi::PATH_Join(home_dir.c_str(), "edge.pak");
+	} */
 
 	// cache directory
     cache_dir = epi::PATH_Join(home_dir.c_str(), CACHEDIR);
@@ -1025,12 +1036,17 @@ static void IdentifyVersion(void)
     // Emulate this behaviour?
 
     // Look for the required wad in the IWADs dir and then the gamedir
+	
+	//this will join edge2.pak with the IWAD. . .
     std::string reqwad(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEWADEXT));
+	
+	///this one will join pak files with IWAD.
+	///std::string reqpak(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT));
 
     if (! epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
     {
         reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEWADEXT);
-
+		
         if (! epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
         {
             I_Error("IdentifyVersion: Could not find required %s.%s!\n", 
@@ -1193,7 +1209,7 @@ static void AddSingleCmdLineFile(const char *name)
 	if (stricmp(ext.c_str(), "wad") == 0)
 		kind = FLKIND_PWad;
 	if (stricmp(ext.c_str(), "pak") == 0) /// ~CA~ 5.7.2016 - new PAK class file
-		kind = FLKIND_PAK;//I_Printf("DETECTED PAK FILE. . .\n");
+		kind = FLKIND_PAK;//I_Error("DETECTED PAK FILE, ABORTING. . .\n");
 	else if (stricmp(ext.c_str(), "hwa") == 0)
 		kind = FLKIND_HWad;
 	else if (stricmp(ext.c_str(), "rts") == 0)
