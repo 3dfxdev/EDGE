@@ -2,7 +2,7 @@
 //  EPI Quaternion type
 //------------------------------------------------------------------------
 //
-//  Copyright (c) 2004-2008  The EDGE Team.
+//  Copyright (c) 2016 Isotope SoftWorks.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
