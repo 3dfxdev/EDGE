@@ -26,12 +26,8 @@
 
 #ifdef WIN32
 #include <windows.h>
-#include <C:\hyperedge\Dream3DGE\PC136\md5_conv\GL\glut.h>
+#include "../src/i_defs_gl.h"
 #endif
-//#include <GL/glut.h>
-//#include "glut.h"
-//#include <GL/gl.h>
-//#include <GL/glu.h>
 #include <unistd.h>
 
 #include <stdio.h>
@@ -59,8 +55,7 @@
 
 
 #define PREMULTIPLY 0
-
-#if 0
+/* 
 #include <xmmintrin.h>
 
 __m128 m4x4v_colSSE(const __m128 cols[4], const __m128 v) {
@@ -104,8 +99,8 @@ void md5_transform_vertices_sse(MD5mesh *msh, epi::mat4_c *posemats, basevert *d
 		_mm_store_ps((float*)&cv->pos, pos);
 		_mm_store_ps((float*)&cv->norm, norm);
 	}
-}
-#endif
+} */
+
 
 void md5_transform_vertices(MD5mesh *msh, epi::mat4_c *posemats, basevert *dst) {
 	epi::mat4_c *mats = posemats + 1;
