@@ -1,5 +1,5 @@
 #
-# EDGE Makefile : WIN32 cross-compile
+# EDGE Makefile : WIN32 cross-compile (SDL2 VERSION)
 #
 ## Improved this makefile, this should be much less of a hassle to setup on Win32 now. 
 ## Also, removed all hardcoded paths, EXCEPT in this makefile (notably, libmingw32.a)
@@ -18,40 +18,29 @@ UPX=upx/upx.exe
 CC=gcc
 CXX=g++
 ld=gcc
-#CFLAGS=-O3 -pg -ffast-math  -msse2 -mfpmath=sse -fno-strict-aliasing -Wall -I
-CFLAGS=-O3 -ffast-math -msse2 -mfpmath=sse -fno-strict-aliasing -Wall
-
+CFLAGS=-O3 -ffast-math -fno-strict-aliasing -Wall
 
 CFLAGS += -I
 
+LDFLAGS=-Wl,--warn-common -I
 
-#LDFLAGS=-pg -Wl,--warn-common -I  
-LDFLAGS=-Wl,--warn-common -I -mfpmath=sse
-#LDFLAGS=-pg -Wl,--warn-common -I
-
-LDFLAGS += -L$C:/MinGW/lib/libmingw32.a -lm -I -mfpmath=sse
+LDFLAGS += -L$C:/MinGW/lib/libmingw32.a -lm -I
 
 
 # Operating System
 
 CFLAGS += -DWIN32
 
-
 # SDL 2
+CFLAGS += -I$(LIBDIR)/SDL_2/include
 
-# CFLAGS += -I$(LIBDIR)/SDL/include
+LDFLAGS += -L$(LIBDIR)/SDL_2/lib
+LDFLAGS += -lmingw32 $(LIBDIR)/SDL_2/build/libSDL2main.a $(LIBDIR)/SDL_2/build/.libs/SDL2.dll 
 
-# LDFLAGS += -L$(LIBDIR)/SDL/lib
-# LDFLAGS += -lmingw32 $(LIBDIR)/SDL/build/libSDL2main.a $(LIBDIR)/SDL/build/.libs/SDL2.dll 
+# CPUID
+CFLAGS  += -I$(LIBDIR)/libcpuid/libcpuid/
 
-# SDL 1.X
-
- CFLAGS += -I$(LIBDIR)/SDL/include
-
- LDFLAGS += -L$(LIBDIR)/SDL/lib
- LDFLAGS += -lmingw32 $(LIBDIR)/SDL/build/.libs/libSDLmain.a $(LIBDIR)/SDL/build/.libs/SDL.dll 
-
-
+LDFLAGS += $(LIBDIR)/libcpuid/libcpuid/.libs/libcpuid.a
 
 # ROQPLAYER
 
@@ -61,9 +50,9 @@ CFLAGS += -DWIN32
 
 # OpenGL rendering
 
-CFLAGS  += -I$(LIBDIR)/glew-1.5.8/include/GL
-LDFLAGS += -L$(LIBDIR)/glew-1.5.8/lib
-LDFLAGS += $(LIBDIR)/glew-1.5.8/lib/libglew32.a $(LIBDIR)/glew-1.5.8/lib/libopengl32.a
+CFLAGS  += -I$(LIBDIR)/glew-2.0.0/include
+LDFLAGS += -L$(LIBDIR)/glew-2.0.0/lib
+LDFLAGS += $(LIBDIR)/glew-2.0.0/lib/libglew32.a $(LIBDIR)/glew-2.0.0/lib/libopengl32.a
 
 # HawkNL
 
@@ -73,21 +62,21 @@ LDFLAGS += $/hawknl/include/NLstatic.lib
 
 # PNG (straight, non-SIMD)
 
-CFLAGS  += -I$(LIBDIR)/libpng-1.2.12
-LDFLAGS += -L$(LIBDIR)/libpng-1.2.12
-LDFLAGS += $(LIBDIR)/libpng-1.2.12/libpng.a
+CFLAGS  += -I$(LIBDIR)/libpng-1.6.21
+LDFLAGS += -L$(LIBDIR)/libpng-1.6.21
+LDFLAGS += $(LIBDIR)/libpng-1.6.21/.libs/libpng16.a
 
-# JPEG (straight JPEG lib, non-SIMD)
+# JPEG
 
-CFLAGS  += -I$(LIBDIR)/jpeg-6b
-LDFLAGS += -L$(LIBDIR)/jpeg-6b
-LDFLAGS += $(LIBDIR)/jpeg-6b/libjpeg.a
+CFLAGS  += -I$(LIBDIR)/libjpeg-turbo-gcc/lib
+LDFLAGS += -L$(LIBDIR)/libjpeg-turbo-gcc/lib
+LDFLAGS += $(LIBDIR)/libjpeg-turbo-gcc/lib/libturbojpeg.a
 
 #ZLIB
 
-CFLAGS  += -I$(LIBDIR)/zlib-1.2.3/zlib-1.2.3
-LDFLAGS += -L$(LIBDIR)/zlib-1.2.3/zlib-1.2.3
-LDFLAGS += $(LIBDIR)/zlib-1.2.3/libz.a
+CFLAGS  += -I$(LIBDIR)/zlib-1.2.8/zlib-1.2.8
+LDFLAGS += -L$(LIBDIR)/zlib-1.2.8/zlib-1.2.8
+LDFLAGS += $(LIBDIR)/zlib-1.2.8/libz.a
 
 
 # OGG/Vorbis
@@ -103,12 +92,12 @@ LDFLAGS += $(LIBDIR)/libvorbis-1.3.5/lib/.libs/libvorbisfile.a $(LIBDIR)/libvorb
 
 # glBSP
 
-CFLAGS_GLBSP=-O3 -Wall -fno-strict-aliasing
+CFLAGS_GLBSP=-O -Wall -fno-strict-aliasing
 
 CFLAGS_GLBSP += -DGLBSP_PLUGIN
 CFLAGS_GLBSP += -DINLINE_G=inline
 
-CFLAGS_GLBSP += -I$(LIBDIR)/zlib-1.2.3
+CFLAGS_GLBSP += -I$(LIBDIR)/zlib-1.2.8
 
 
 # Win32 libs
