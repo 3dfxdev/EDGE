@@ -106,14 +106,13 @@ angle_t R_PointToAngle(float x1, float y1, float x, float y)
 {
 	x -= x1;
 	y -= y1;
-
-	if ((x == 0) && (y == 0)) {
+	return (x == 0) && (y == 0) ? 0 : FLOAT_2_ANG(atan2(y, x) * (180 / M_PI));
+	/*if ((x == 0) && (y == 0)) {
 		return 0;
 	}
 	else {
 		return FLOAT_2_ANG(atan2(y, x) * (180 / M_PI)); //atan2 returns values in radians; convert to BAMS
-	}
-
+	}*/
 /*
 	if (x >= 0)
 	{
