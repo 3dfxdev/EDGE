@@ -23,10 +23,9 @@
 #undef _SETJMP_H  // workaround for some weirdness in pngconf.h
 
 #ifdef WIN32
-#include "../lib_win32/libpng-1.2.12/png.h"
+#include "../lib_win32/libpng-1.6.21/png.h"
+#include "../lib_win32/zlib-1.2.8/zlib.h"
 #else
-//#include <png/png.h>
-//#include <zlib/zlib.h>
 #include <png.h>
 #include <zlib.h>
 #endif
@@ -105,7 +104,7 @@ image_data_c *PNG_Load(file_c *f, int read_flags)
 	 * (this is the normal method of doing things with libpng).
 	 */
 #ifndef DREAMCAST
-	if (setjmp(png_ptr->jmpbuf))
+	if (setjmp(png_jmpbuf(png_ptr)))
 #else
 	if (setjmp(png_jmpbuf(png_ptr)))
 #endif
@@ -251,7 +250,7 @@ bool PNG_GetInfo(file_c *f, int *width, int *height, bool *solid)
 	 * (this is the normal method of doing things with libpng).
 	 */
 #ifndef DREAMCAST
-	if (setjmp(png_ptr->jmpbuf))
+	if (setjmp(png_jmpbuf(png_ptr)))
 #else
 	if (setjmp(png_jmpbuf(png_ptr)))
 #endif
@@ -332,7 +331,7 @@ bool PNG_Save(FILE *fp, const image_data_c *img, int compress)
 	 * (this is the normal method of doing things with libpng).
 	 */
  #ifndef DREAMCAST
-	if (setjmp(png_ptr->jmpbuf))
+	if (setjmp(png_jmpbuf(png_ptr)))
 #else
 	if (setjmp(png_jmpbuf(png_ptr)))
 #endif
