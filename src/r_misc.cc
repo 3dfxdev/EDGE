@@ -111,8 +111,84 @@ angle_t R_PointToAngle(float x1, float y1, float x, float y)
 		return 0;
 	}
 	else {
-		return atan2(y, x) * (180 / M_PI); //atan2 returns values in radians; convert to degrees
+		return FLOAT_2_ANG(atan2(y, x) * (180 / M_PI)); //atan2 returns values in radians; convert to BAMS
 	}
+
+/*
+	if (x >= 0)
+	{
+		// x >=0
+		if (y >= 0)
+		{
+			// y>= 0
+
+			if (x > y)
+			{
+				// octant 0
+				return M_ATan(y / x);
+			}
+			else
+			{
+				// octant 1
+				return ANG90 - 1 - M_ATan(x / y);
+			}
+		}
+		else
+		{
+			// y<0
+			y = -y;
+
+			if (x > y)
+			{
+				// octant 8
+				// -ACB- 1999/09/27 Fixed MSVC Compiler warning
+				return 0 - M_ATan(y / x);
+			}
+			else
+			{
+				// octant 7
+				return ANG270 + M_ATan(x / y);
+			}
+		}
+	}
+	else
+	{
+		// x<0
+		x = -x;
+
+		if (y >= 0)
+		{
+			// y>= 0
+			if (x > y)
+			{
+				// octant 3
+				return ANG180 - 1 - M_ATan(y / x);
+			}
+			else
+			{
+				// octant 2
+				return ANG90 + M_ATan(x / y);
+			}
+		}
+		else
+		{
+			// y<0
+			y = -y;
+
+			if (x > y)
+			{
+				// octant 4
+				return ANG180 + M_ATan(y / x);
+			}
+			else
+			{
+				// octant 5
+				return ANG270 - 1 - M_ATan(x / y);
+			}
+		}
+	}
+*/
+
 }
 
 
