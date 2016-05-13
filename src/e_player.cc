@@ -195,7 +195,6 @@ void player_s::Reborn()
 	jumpwait = 0;
 	idlewait = 0;
 	splashwait = 0;
-	gloopwait = 0; // time when player lands on water flat
 	air_in_lungs = 0;
 	underwater = false;
 	swimming = false;
