@@ -293,6 +293,8 @@ typedef enum
 
 	// -AJA- 2010/12/23: force models to tilt by viewangle
 	HF_TILT = (1 << 15),
+	
+	HF_MIRRORED = (1 << 16),
 }
 mobjhyperflag_t;
 
