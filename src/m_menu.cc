@@ -256,7 +256,7 @@ static menu_t *currentMenu;
 // PROTOTYPES
 //
 static void M_NewGame(int choice);
-//static void M_SplitGame(int choice);
+
 static void M_Episode(int choice);
 static void M_ChooseSkill(int choice);
 static void M_LoadGame(int choice);
@@ -336,6 +336,35 @@ static menu_t MainDef =
 //Hypertension	37, 100, //97, 64
 	0
 };
+
+// For Splitscreen games. . .
+// Order should go as such:
+/* TITLE: Two Player Game
+	Setup Player Two
+	Options (links back to the Gameplay Options menu!
+	Start Server (use Advanced Start from m_Options!!!)
+	Multiplayer (for true TCP/IP multiplayer, disable that for now...*/
+	
+/* static menu_t MultiDef[] =
+{
+	0,//multi_numtypes, // # of menu items
+	&MainDef, // previous menu
+	MultiMenu,  // ::from::SkillMenu ->> menuitem_t ->
+	&main_menu_style, /// Same style, I guess?
+	NULL,
+	48, 63,
+	0  // lastOn
+	
+} */
+/* 
+static menuitem_t MultiMenu[] = ///Dupe Doom Legacy's Multiplayer menu. . .
+{
+	{1, "M_SETUPB", NULL, M_ChooseSkill, 'p'}, //Setup Player Two (controls and stuff, only shows in multiplayer menu)
+	{1, "M_OPTIONS", NULL, M_Options, 'r'}, //pulls back to Gameplay Options Drawer
+	{1, "M_STSERV",  NULL, M_Multiplayer, 'h'}, //Goes to Advanced Start, dupe advanced start for a splitscreen game (II)
+	{1, "M_MULTI", NULL, NULL, 'u'}, /// Make this go nowhere. This will be for TCP/IP STUFF!
+	///{1, "M_NMARE", NULL, M_ChooseSkill, 'n'}
+}; */
 
 //
 // EPISODE SELECT
@@ -2072,19 +2101,6 @@ void M_Drawer(void)
 		HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
 	}
 }
-
-// called at splitscreen changes
-// easy way to draw additional menu if it detects splitscreen!
-/*
-void M_SwitchSplitscreen()
-{
-  // activate setup for player 2
-  if (cv_splitscreen.value)
-    MultiPlayer_MI[MI_mp_setup_p2].flags = IT_ACT;
-  else
-    MultiPlayer_MI[MI_mp_setup_p2].flags = IT_OFF_BIG;
-}
-*/
 
 void M_ClearMenus(void)
 {
