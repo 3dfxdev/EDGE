@@ -1109,16 +1109,23 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 	}
 }
 
-bool image_array_contains(const char **names, const char *image) {
- for(int i=0;names[i];i++) {
-  if(strcmp(names[i],image)==0) {
+/// ~CA 5.13.2016
+/// This is a prototype for gathering flat names, so when the player hits
+/// the floor, the appropriate sound (was testing with DSGLOOP) will play.
+/// I actually got this code to *work*, but there was no timer so the sound
+/// looped forever. This is a TODO, as I want this to mature and eventually
+/// become TERRAIN.DDF...
+bool image_array_contains(const char **names, const char *image) 
+{
+ for(int i=0;names[i];i++) 
+ {
+  if(strcmp(names[i],image)==0) 
+  {
    return true;
   }
  }
  return false;
 }
-
-
 
 //
 // This function detects when a player has hit the floor, among other functions
@@ -1130,7 +1137,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	float delta;
 	float zmove;
 	
-	//This code below stores known flats in a container
+	//This code below stores known flats in a container (see image_array_contains)
 	const char *image = W_ImageGetName(mo->subsector->sector->floor.image);
 	const char *names[]={
 	"FWATER4",
@@ -1142,14 +1149,12 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	"SLIME12",
 	0
 	};
-	//Eventually Nukage and LAVA will have their own stuff.
+	//Eventually Nukage and LAVA will have their own stuff. And this will become Terrain.DDF
 	
 	/// DEBUG CURRENT FLOOR: CON_Message("Image is: '%s'\n",image);
 	
 	//int img_num;
 
-	// -KM- 1998/11/25 Gravity is now not precalculated so that
-	//  menu changes affect instantly.
 	float gravity = props->gravity / 8.0f * 
 		(float)level_flags.menu_grav / (float)MENU_GRAV_NORMAL;
 
@@ -1182,15 +1187,14 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				mo->z += mo->info->float_speed;
 		}
 	}
-
+	        
 	if (mo->flags & MF_SKULLFLY)
 			mo->mom.z = -mo->mom.z;
 	
 	//TeleportRespawn(mobj);
 
 
-	if (mo->z <= mo->floorz) // Hit Floor.
-
+	if (mo->z <= mo->floorz)
 	{
 		if (mo->flags & MF_SKULLFLY)
 			mo->mom.z = -mo->mom.z;
@@ -1202,35 +1206,28 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				mo->player->powers[PW_Jetpack] > 0 || mo->on_ladder >= 0);
 
 			if (mo->player && gravity > 0 && -zmove > OOF_SPEED && ! fly_or_swim)
-			{
-				// Squat down. Decrease viewheight for a moment after hitting the
-				// ground (hard), and utter appropriate sound.
-			
-/*	 			if(strcmp(image, "NUKAGE3"))
 				{
+					/* FIXME: THIS CODE WORKS, JUST NEEDS PROPER COOLDOWN TIMER SO SOUND EFFECT DOESNT LOOP EVERY 3 SECONDS!!!
+					if(strcmp(image, "NUKAGE3"))
+					{
 					//DEBUG: CON_Message("Normal Floor!");
 					mo->player->deltaviewheight = zmove / 8.0f;
 					S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
-				} else */
-				if (image_array_contains(names,image))//(strcmp(image, "NUKAGE3") == 0)
-				{
+					} else 
+					if (image_array_contains(names,image))//(strcmp(image, "NUKAGE3") == 0)
+					{
 					//DEBUG: CON_Message("Detected FWATER FLAT!");
 					mo->player->deltaviewheight = zmove / 8.0f;
 					//S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo); // FIXME: BD: compile failed with "error: no member named 'gloopsound' in 'mobjtype_c'"
+					} */
+				
+				// Squat down. Decrease viewheight for a moment after hitting the
+				// ground (hard), and utter appropriate sound.
+				mo->player->deltaviewheight = zmove / 8.0f;
+				S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
 				}
-			}
-			
-			    
-              ///    (W_ImageGetName(mo->subsector->sector->floor.image))
-			///	      while (strcmp (floor.image,'FWATER1') != 1);
-				      ///(strcmp(W_ImageGetName(mo->subsector->sector->floor.image), 'FWATER1') == 1);
-			///	      S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
-                   ///{P_SpawnSplash(thing, thing->floorz);}
-			 
-		     ///ss->floor.image = W_ImageLookup('FWATER1', INS_Flat);
-			
 
-			//}
+
 			// -KM- 1998/12/16 If bigger than max fall, take damage.
 
 			if (mo->info->maxfall > 0 && gravity > 0 && -mo->mom.z > hurt_momz &&
@@ -1251,36 +1248,28 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 					mo->mom.x = mo->mom.y = mo->mom.z = 0;
 				}
 			}
-			
-			
-
-			if (mo->player && gravity > 0 && -zmove > ! OOF_SPEED && ! fly_or_swim)
+/*			if (mo->player && gravity > 0 && -zmove > ! OOF_SPEED && ! fly_or_swim)
 			{
 		
-/* 			if(strcmp(image, "FWATER4"))
+ 			if(strcmp(image, "FWATER4"))
 			{
-					//DO NOTHING
+					//DO NOT MAKE A SOUND (!!!)
 			}
-			else */ if (image_array_contains(names,image)) //((strcmp(image, "FWATER4") == 0) && (mo->player->gloopwait == 0))//(strcmp(image, "NUKAGE3") == 0)
+			else  if (image_array_contains(names,image)) //((strcmp(image, "FWATER4") == 0) && (mo->player->gloopwait == 0))//(strcmp(image, "NUKAGE3") == 0)
 				{
 				//DEBUG: CON_Message("Detected FWATER FLAT!");
 				//mo->player->deltaviewheight = zmove / 0.5f;
 				//S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo); // FIXME: BD: compile failed with "error: no member named 'gloopsound' in 'mobjtype_c'"
 				mo->player->gloopwait = TICRATE;// * 2;
 				}
-			}
+			} */
 
 			else
 				mo->mom.z = 0;
-				
-
 		}
 
 		mo->z = mo->floorz;
-			//img_name is actually floor.image in W_ImageGetName
-	//const char *img_name = W_ImageGetName(mo->subsector->sector->floor.image);
 
-		
 		if ((mo->flags & MF_MISSILE) && !(mo->flags & MF_NOCLIP))
 		{
 			// -AJA- 2003/10/09: handle missiles that hit a monster on
@@ -1860,40 +1849,6 @@ void P_RemoveItemsInQue(void)
 //
 // GAME SPAWN FUNCTIONS
 //
-
-
-// SPAWNS A SPLASH WHEN PLAYER HITS GROUND IN WATER (but not deep water!)
-
-// FIXME!!!
-
-#if 0
-//~~CA, 6/8/2011 - adapted Water Splash code from Legacy/Hexen
-void P_SpawnSplash(float z, const mobjtype_c * puff)// mobj_t * mo)
-{
-    mobj_t *th;
-    //fixed_t     z;
-
-    // need to touch the surface because the splashes only appear at surface
-    if (mo->z > z || mo->z + mo->height < z)
-        return;
-
-//As noted above, P_SpawnMobj was replaced entirely with P_MobjCreateObject, so we will change it here.
-		
-    // note pos +1 +1 so it doesn't eat the sound of the player..
-	
-    th = P_MobjCreateObject(z, puff); //replace MT_SPLASH with just "splash"?, this is the "object we need to create", needs to be registered
-	                                                             //WILL THIS BE IN DDF?
-    
-    S_StartFX(th, sfx_gloop); //declare this FIRST!
-    //else
-    //    S_StartSound (th,sfx_splash);
-    th->tics -= P_Random() & 3;
-
-    if (th->tics < 1)
-        th->tics = 1;
-}	
-#endif
-
 
 //
 // P_SpawnPuff
