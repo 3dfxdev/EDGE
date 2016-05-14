@@ -436,15 +436,16 @@ epi::vec3_c mobj_t::GetInterpolatedPosition(void)
 static float CircularLerp(float start , float end, float value){
 	float min = 0.0f;
 	float max = ANG360;
-	float half = abs((max - min) * 0.5);
+//	float half = abs((max - min) * 0.5);
+	float half = ANG360 / 2;
 	float retval = 0.0f;
 	float diff = 0.0f;
 
-	if((end - start) < -half) {
+	if((end - start) < (half * -1)) {
 		diff = ((max - start)+end)*value;
 		retval =  start+diff;
 	} else if((end - start) > half) {
-		diff = -((max - end)+start)*value;
+		diff = ((max - end)+start)*value*-1;
 		retval = start+diff;
 	} else {
 		retval = start+(end-start)*value;
