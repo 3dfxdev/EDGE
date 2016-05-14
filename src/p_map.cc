@@ -1103,11 +1103,18 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 		// move up to the wall
 		if (bestslidefrac == 1.0001f)
 		{
-
-     // This eliminates player bobbing if pressed against a wall
-			if (!P_TryMove(mo, mo->x, mo->y + dy))
-			if (!P_TryMove(mo, mo->x + dx, mo->y))
-				dx = dy = 0;
+			/// ~CA~ FIXME (!!!) TODO (!!!)
+			/*TODO: This should eliminate player bobbing if pressed against a wall (...)
+					When a player hits a wall, this moves the weapon 
+					to the center of the screen and disables bob, to appear
+					as if the player is actually really jammed up against 
+					the wall (and not bobbing against it like he's trying to
+					return some sort of interesting sexual pleasure to TEKWAL
+					...lol). So, yeah we kind of need this (!!!) */
+            ///  if (!P_TryMove(mo, mo->x, mo->y + dy))
+            ///  if (!P_TryMove(mo, mo->x + dx, mo->y))
+            ///      dx = dy = 0;
+		
 			// the move must have hit the middle, so stairstep
 			break;  // goto stairstep
 		}
