@@ -2,7 +2,7 @@
 //  EDGE2 Version Header
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2010  The EDGE2 Team.
+//  Copyright (c) 2016 Isotope SoftWorks
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -16,17 +16,17 @@
 //
 //----------------------------------------------------------------------------
 
-#define TITLE  "EDGE2 Engine"
+#define TITLE  "3DGE ENGINE"
 
-#define EDGEVER       210//210
+#define EDGEVER       210//201
 #define EDGEVERHEX  0x210
 #define EDGEVERSTR  "2.1.0"
 
 // patch level (Savegames and Demos)
-#define EDGEPATCH  6
+#define EDGEPATCH  7
 
 // -ES- 2000/03/04 The version of EDGE2.WAD we require.
-#define EDGE_WAD_VERSION  700
+#define EDGE_WAD_VERSION  800
 // ~CA  5.7.2016
 #define EDGE_PAK_VERSION  800
 
