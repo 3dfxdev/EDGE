@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE2 WAD Support Code
+//  EDGE2 WAD & PAK Support Code
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2009  The EDGE2 Team.
@@ -70,6 +70,7 @@
 #include "rad_trig.h"
 #include "vm_coal.h"
 #include "w_wad.h"
+#include "w_pak.h"
 #include "z_zone.h"
 
 // -KM- 1999/01/31 Order is important, Languages are loaded before sfx, etc...
@@ -199,7 +200,7 @@ public:
 };
 
 static std::list<raw_filename_c *> wadfiles;
-static std::list<raw_filename_c *> r_pak_fp; // PAK file
+static std::list<raw_filename_c *> r_pak_fp;
 
 
 typedef enum
@@ -573,7 +574,6 @@ static void SortSpriteLumps(data_file_c *df)
 //  for the lump name.
 //
 
-#if 0  // UNUSED ??
 static void FreeLump(lumpheader_t *h)
 {
 	int lumpnum = h->lumpindex;
@@ -595,7 +595,7 @@ static void FreeLump(lumpheader_t *h)
 	h->next->prev = h->prev;
 	Z_Free(h);
 }
-#endif
+
 
 //
 // MarkAsCached
@@ -687,7 +687,7 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 		return;
 	}
 
-	// -KM- 1998/12/16 Load DDF/RSCRIPT file from wad.
+	// -KM- 1998/12/16 Load DDF/RSCRIPT file from wad or pak.
 	if (allow_ddf)
 	{
 		for (j=0; j < NUM_DDF_READERS; j++)
@@ -1125,6 +1125,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 			{
 				I_Error("Wad file %s doesn't have IWAD or PWAD id\n", filename);
 			}
+
 		}
 
 		header.num_entries = EPI_LE_S32(header.num_entries);
@@ -1413,7 +1414,7 @@ void W_ReadDDF(void)
 			if (df->kind >= FLKIND_Demo)
 				continue;
 
-			if (df->kind == FLKIND_EWad)
+			if (df->kind == FLKIND_PAK || FLKIND_PAK)
 			{
 				// special handling for TNT and Plutonia
 				// edit for HERETIC iwad
@@ -1471,11 +1472,11 @@ void W_ReadDDF(void)
 			}
 		}
 
-		std::string msg_buf(epi::STR_Format(
-			"Loaded %s %s\n", (d == NUM_DDF_READERS-1) ? "RTS" : "DDF",
-				DDF_Readers[d].print_name));
-
-		E_ProgressMessage(msg_buf.c_str());
+///		std::string msg_buf(epi::STR_Format(
+///			"Loaded %s %s\n", (d == NUM_DDF_READERS-1) ? "RTS" : "DDF",
+///				DDF_Readers[d].print_name));
+///
+///		E_ProgressMessage(msg_buf.c_str());
 
 		E_LocalProgress(d, NUM_DDF_READERS);
 	}
@@ -2146,7 +2147,7 @@ void W_ShowFiles(void)
 //  PAK READING
 //------------------------------------------------------------------------
 
-bool PAK_OpenRead(const char *filename)
+/* bool PAK_OpenRead(const char *filename)
 {
   FILE *r_pak_fp = fopen(filename, "rb");
 
@@ -2315,7 +2316,7 @@ void PAK_ListEntries(void)
 	}
 
 	printf("--------------------------------------------------\n");
-}
+} */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
