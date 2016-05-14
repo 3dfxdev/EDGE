@@ -139,8 +139,12 @@ void md5_draw_unified_gl(MD5umodel *umd5, epi::mat4_c *jointmats,const epi::mat4
 			skin_img = W_ImageForDummySkin();
 		}
 //		glBindTexture(GL_TEXTURE_2D, W_ImageCache(skin_img));
+		// Added SSE2 flag again!
+#ifndef SSE2
 		md5_transform_vertices(msh, jointmats, vbuff); /// DOES NOT USE SSE
-		///md5_transform_vertices_sse(msh, jointmats, vbuff); /// uses _SSE for quicker transforms
+#else
+		md5_transform_vertices_sse(msh, jointmats, vbuff); /// uses _SSE for quicker transforms
+#endif
 		render_md5_direct_triangle_lighting(msh, vbuff,model_mat);
 		
 	}
