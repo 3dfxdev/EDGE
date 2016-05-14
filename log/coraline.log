@@ -1,4 +1,4 @@
-CORALINE'S LOGFILE
+﻿CORALINE'S LOGFILE
 https://github.com/corbachu
 ##############################
 ------ // start entry seperator
@@ -7,6 +7,84 @@ x.x.x // DATE
 TODO  // notes to self
 ~~~~  // TODO seperator & ees
 ##############################
+-----------------
+5.13.2016
+-----------------
+
+Merged in Working Copy again, now the game should run a-ok =) I also got around
+to commenting and explaining new/cryptic code that was introduced without any
+explanation from myself :S
+
+(!!!) Found a giant flaw with the SSE2 code GCC implements - on my new machine,
+which has an Intel I5, passing -sse2(et al) and using the MD5 SSE2 code make
+3DGE refuse to start up. This was not an issue on my previous AMD machine, so I
+think this might be something on Intel's side. I have explicitly disabled this for
+right now.
+
+Merged in AK's modified math code (ddf/types) and his improvements to Brendan's
+new implementation code (simplifying R_PointToAngle & R_PointToDist). 
+^  Yay for replacing kludgy, bloated math!! ;)
+
+Merged in my working copy again to get good compiles for all systems.
+
+Removed lots of Bot debugging stuff, so now games with bots aren't as choppy
+as they previously were (inflating debug text files and slowing down engine
+as a result - jeeze).
+
+Removed all of my previous GLEW OpenGL replacement code (GLAD), stashed it to
+revisit in the near future. However, I added it into the /src directory for those
+who are curious and want to take a stab at it. Will come back to it.
+
+Made r_spriteflipped "0", since there are still a few issues left to resolve with
+that code. Will keep it undocumented for public releases until it is cleaned up,
+since it causes sprite "flickering". Obviously this method would be better called
+with DDF.
+
+Re-implemented PAK (flkind_pak) since it is working now. There is still the issue
+of getting directory contents, but there needs to be more support code for it,
+since EPI can read from directories, which PAK basically is, via filesystem_dir_c.
+At the moment, it is in the engine and works fine as long as you don't try adding
+a PAKfile yet. Needs to be immediately addressed IMO.
+
+-----------------
+5.12.2016
+-----------------
+Merged in Brendan's math code (r_misc.cc), now R_PointToAngle goes "all the way"
+and uses atan2 (extremely simplified). Also, R_PointToDist is now simplified
+with the pythagorean distance formula. First steps into making 3DGE's math and
+rendering calls much less archaic (as suggested by Graf). 
+
+-----------------
+5.11.2016
+-----------------
+More GLAD stuff, but for right now I have switched us back to GLEW since I do not
+have time to reliably test the new extension handler. Created IFDEFS in the Makefile
+and source files (ifdef RGL_GLEW and ifdef NO_GLEW), and restored the hard link to
+OpenGL/GLEW in the makefile
+
+-----------------
+5.10.2016:
+
+Pretty fucking fed up with GLEW, so today I decided to take this a step further,
+and implemented GLAD + SDL_OpenGL. GLAD is a one file/header linkage to OpenGL,
+which is must faster than including *everything* in a huge library (GLEW).
+
+Under Win32 (et al), OpenGL is no longer required to be linked statically in the exe,
+nor is GLEW, under any means. For those who still want to compile with GLEW, I left the
+old code from Bruce in, as RGL_CheckExtensions(), since mine is named differently.
+
+I have added GLAD_GetExtensions() into r_main, which replaces the old code written
+by Bruce Lewis (RGL_CheckExtensions). This new codeblock initializes SDL_GL from
+GLAD, eliminating reliance on a statically-linked library. Now, we only have 
+compatibility with OpenGL v1--v2.1 -- we don't even need to link to a static lib
+now, since it is all contained in headers, and a much smaller .cc file. Overall,
+this will save us space, time, and future headaches.
+
+-----------------
+5.9.2016:
+
+Finally merged the SDL2_Migration branch -> "master", as everything seems good
+to go with that.
 
 ------------------
 5.8.2016:
