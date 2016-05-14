@@ -162,6 +162,12 @@ public:
 #define IM_OFFSETX(image) ((image)->offset_x * (image)->scale_x)
 #define IM_OFFSETY(image) ((image)->offset_y * (image)->scale_y)
 
+#define IM_FLIPXCOORD(image)   ((float((image)->actual_w/2.0f) + (image)->offset_x) * (image)->scale_x)
+
+/* offset_x = -offset_x;
+
+	offset_x  = (width/2.0f + offset_x) * scale_x; */
+
 // deliberately long, should not be used (except for special cases)
 #define IM_TOTAL_WIDTH(image)  ((image)->total_w * (image)->scale_x)
 #define IM_TOTAL_HEIGHT(image) ((image)->total_h * (image)->scale_y)
