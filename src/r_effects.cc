@@ -185,8 +185,7 @@ void RGL_PaletteEffect(player_t *player)
 		if (var_invul_fx != INVULFX_Complex)
 			return;
 #ifndef DREAMCAST
-		///if (GLEW_ARB_imaging || GLEW_SGI_color_matrix)
-			if (GL_ARB_imaging || GL_SGI_color_matrix)
+		if (GLEW_ARB_imaging || GLEW_SGI_color_matrix)
 		{
 			glFlush();
 
