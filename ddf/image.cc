@@ -333,7 +333,7 @@ static void ImageParseLump(const char *spec)
 		dynamic_image->format = LIF_TGA;
 	}
 	else
-		DDF_Error("Unknown image format: %s (use PNG or JPEG)\n", keyword);
+		DDF_Error("Unknown image format: %s (use PNG, TGA or JPEG)\n", keyword);
 }
 
 
