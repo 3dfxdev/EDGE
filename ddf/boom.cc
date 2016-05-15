@@ -62,7 +62,7 @@ void DDF_BoomClearGenTypes(void)
 // 
 void DDF_BoomMakeGenSector(sectortype_c *sec, int number)
 {
-//  I_Debugf("- Making Generalized Sector 0x%03x\n", number);
+  I_Debugf("BOOM- Making Generalized Sector 0x%03x\n", number);
 
 	// handle lower 5 bits: Lighting
 	switch (number & 0x1F)
