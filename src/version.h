@@ -20,7 +20,7 @@
 
 #define EDGEVER       210//201
 #define EDGEVERHEX  0x210
-#define EDGEVERSTR  "2.1.0"
+#define EDGEVERSTR  "2.1.0 - TEST 1" 
 
 // patch level (Savegames and Demos)
 #define EDGEPATCH  7
