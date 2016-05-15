@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Console Interface code.
 //----------------------------------------------------------------------------
-// 
+//  Copyright (c) 2011-2016  Isotope SoftWorks
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-//  Copyright (c) 1998       Randy Heit
+//  Copyright (c) 1998       Marisa Heit
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -16,12 +16,6 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-//
-// Originally based on the ZDoom console code, by Randy Heit
-// (rheit@iastate.edu).  Randy Heit has given his permission to
-// release this code under the GPL, for which the EDGE2 Team is very
-// grateful.  The original GPL'd version `c_consol.c' can be found
-// in the contrib/ directory.
 //
 
 #include "i_defs.h"
@@ -37,6 +31,7 @@
 #include "hu_stuff.h"
 #include "hu_style.h"
 #include "m_argv.h"
+#include "m_shift.h"
 #include "r_draw.h"
 #include "r_image.h"
 #include "r_modes.h"
@@ -786,7 +781,14 @@ static void TabComplete(void)
 
 void CON_HandleKey(int key, bool shift, bool ctrl)
 {
+
+	if(KeysShifted) 
+	{
+        key = shiftxform[key];
+    }
+	
 	SDL_StartTextInput();
+	
 	switch (key)
 	{
 	case KEYD_RALT:
@@ -795,7 +797,7 @@ void CON_HandleKey(int key, bool shift, bool ctrl)
 		break;
 	
 	case KEYD_RSHIFT:
-		// SHIFT was pressed
+		// SHIFT was pressed (now we point to shiftxform as per Doom 64EX)
 		KeysShifted = true;
 		break;
 	
@@ -981,44 +983,6 @@ void CON_HandleKey(int key, bool shift, bool ctrl)
 	}
 }
 
-/* static int GetKeycode(event_t *ev)
-{
-    int sym = ev->value.key.sym;
-
-	switch (sym)
-	{
-		case KEYD_TAB:
-		case KEYD_PGUP:
-		case KEYD_PGDN:
-		case KEYD_HOME:
-		case KEYD_END:
-		case KEYD_LEFTARROW:
-		case KEYD_RIGHTARROW:
-		case KEYD_BACKSPACE:
-		case KEYD_DELETE:
-		case KEYD_UPARROW:
-		case KEYD_DOWNARROW:
-		case KEYD_WHEEL_UP:
-		case KEYD_WHEEL_DN:
-		case KEYD_ENTER:
-		case KEYD_ESCAPE:
-		case KEYD_RSHIFT:
-			return sym;
-
-		default:
-			break;
-    }
-
-    int unicode = ev->value.key.unicode;
-    if (HU_IS_PRINTABLE(unicode))
-        return unicode;
-
-    if (HU_IS_PRINTABLE(sym))
-        return sym;
-
-    return -1;
-} */
-
 static bool keyheld = false;
 static bool lastevent = 0;
 static int lastkey = 0;
@@ -1028,6 +992,11 @@ bool CON_Responder(event_t * ev)
 {
 	int c;
     bool clearheld = true;
+	
+/* 	if(shiftdown) 
+	{
+        c = shiftxform[c];
+    } */
 
     if(ev->type != ev_keyup && ev->type != ev_keydown) 
 	{
@@ -1051,16 +1020,14 @@ bool CON_Responder(event_t * ev)
 
       if(c == KEYD_SHIFT)
 	{
-        if(ev->type == ev_keydown) 
+         if(ev->type == ev_keydown) 
 		{
-            //shiftdown = true;
 			KeysShifted = true;
         }
         else if(ev->type == ev_keyup) 
 		{
             KeysShifted = false;
-			//shiftdown = false;
-        }
+        } 
     }
 
 	/// Pulling console down.
@@ -1075,10 +1042,7 @@ bool CON_Responder(event_t * ev)
 	{   paused = false;
 		return false;
 	}
-/*  	int key = GetKeycode(ev);
-	if (key < 0)
-		return true; */
-
+	
 	if (ev->type == ev_keyup)
 	{
 		if (c == repeat_key)

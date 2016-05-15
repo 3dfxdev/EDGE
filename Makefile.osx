@@ -190,6 +190,7 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/m_option.o   \
 	$(OBJDIR)/edge/m_netgame.o  \
 	$(OBJDIR)/edge/m_random.o   \
+	$(OBJDIR)/edge/m_shift.o    \
 	$(OBJDIR)/edge/n_bcast.o    \
 	$(OBJDIR)/edge/n_reliable.o \
 	$(OBJDIR)/edge/n_network.o  \

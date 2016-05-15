@@ -54,6 +54,7 @@
 #include "p_setup.h"
 #include "am_map.h"
 #include "r_local.h"
+#include "m_shift.h"
 #include "r_draw.h"
 #include "r_modes.h"
 #include "r_colormap.h"
@@ -2277,6 +2278,8 @@ void M_Init(void)
 
 	M_OptMenuInit();
 	M_NetGameInit();
+	
+	M_InitShiftXForm();
 }
 
 
