@@ -7,9 +7,46 @@ x.x.x // DATE
 TODO  // notes to self
 ~~~~  // TODO seperator & ees
 ##############################
+
+-----------------
+5.15.2016
+-----------------
+
+Added a new source file (m_shift.cc), which handles a shift table 
+(for when the 'shift' key is being pressed down in the Console). 
+Added support code in CON_HandleKey() that calls the shift table code
+- and WHALA - we have shift+X key presses!
+
+ As a result, the new code 
+*does* make the key presses/handling work, _BUT_, pressing the 'shift' 
+key also prints a 'S' everytime it is pressed (in the console).
+
+
+
+Oh well, Brendan will probably handle this in no time and put me to 
+shame over it.
+
+-----------------
+5.14.2016
+-----------------
+
+Updated Win32 Makefile with the -mstackrealign flag (otherwise, SSE2 will 
+crash 3DGE for anyone who uses an Intel CPU). This flag *must* be passed 
+through GCC if any SSE2 code is present, so I have made it permanent. Added
+-DSSE2 compiler flag (as per Brendan).
+
+Added the -mincoming-stack-boundary= explanation, which IS NEEDED for glBSP 
+to build GLnodes, since -mstackrealign causes glBSP, when outputting GWA nodes 
+for new maps, to misalign the stack, that was re-aligned when GCC starts compiling. 
+So, we *must* define that in glBSP's cflags first!
+
+Checked in additional code from Brendan that fixes some fudgy interpolation calcs.
+
 -----------------
 5.13.2016
 -----------------
+
+Added doom_ddf and heretic_ddf, along with edge2.wad, to /data.
 
 Merged in Working Copy again, now the game should run a-ok =) I also got around
 to commenting and explaining new/cryptic code that was introduced without any
