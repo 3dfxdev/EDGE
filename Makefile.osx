@@ -15,7 +15,7 @@ LIBDIR=lib_macosx
 CC=gcc
 CXX=g++
 
-CFLAGS=-O3 -ffast-math -msse2 -mfpmath=sse -fno-strict-aliasing -Wall -pipe
+CFLAGS=-O3 -ffast-math -fno-strict-aliasing -Wall -pipe -msse2 -mfpmath=sse
 LDFLAGS=-lm
 
 CFLAGS += -I.
@@ -36,8 +36,8 @@ LDFLAGS += -Wl,-framework,SDL2 -Wl,-framework,OpenGL -Wl,-framework,Cocoa -Wl,-f
 
 # PNG, JPEG and ZLIB
 
-CFLAGS += -I$(LIBDIR)/libpng -I$(LIBDIR)/libjpeg-turbo
-LDFLAGS += -L$(LIBDIR)/libpng/lib -lpng -L$(LIBDIR)/libjpeg-turbo/lib -ljpeg -lz
+CFLAGS += -I$(LIBDIR)/libpng -I$(LIBDIR)/libjpeg-turbo/include
+LDFLAGS += -L$(LIBDIR)/libpng/lib -lpng -lz -L$(LIBDIR)/libjpeg-turbo/lib -ljpeg
 
 # OpenGL rendering
 

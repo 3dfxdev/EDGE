@@ -20,21 +20,34 @@
 
 #include "image_jpeg.h"
 
+#if defined WIN32 && !defined SSE2
 extern "C"
 {
-#ifdef WIN32
 // horrible workaround for INT32 typedef incompatibility between
 // jmorecfg.h and standard MinGW headers (basetds.h).
 #define INT32  INT32_jpeg
+} //libjpeg-turbo seems to be allergic to C style linking.
+#endif
+#if defined WIN32 && defined SSE2
 #include "../lib_win32/libjpeg-turbo-gcc/include/jpeglib.h"
 #include "../lib_win32/libjpeg-turbo-gcc/include/jerror.h"
 #include "../lib_win32/libjpeg-turbo-gcc/include/turbojpeg.h"
+#elif defined WIN32
+extern "C"
+{
+#include "../lib_win32/jpeg-8c/jpeglib.h"
+#include "../lib_win32/jpeg-8c/jerror.h"
+}
+#elif defined SSE2
+#include <turbojpeg.h>
+#include <jpeglib.h> //NOTE: this implementation will call the first version listed in the makefile regardless of whether jpeg-turbo is supported.
+#include <jerror.h>
 #else
-#include <jpeglib.h> //FIXME: this implementation will call the first version listed in the makefile regardless of whether jpeg-turbo is supported.
+#include <jpeglib.h>
 #include <jerror.h>
 #endif
 
-}
+
 
 namespace epi
 {
