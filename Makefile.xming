@@ -15,21 +15,37 @@ UPX=upx/upx.exe
 
 # The compiler and compiler flags
 
+# PAY CLOSE ATTENTION IF YOU COMPILE ON AN INTEL X86 WITH SSE INSTRUCTIONS (!!!!)
+#
+# IF YOU LINK WITH JPEG-TURBO OR USE ANY SSE2, YOU MUST USE:
+# -mstackrealign:
+# Realign the stack at entry. On the Intel x86, the -mstackrealign option will generate
+# an alternate prologue and epilogue that realigns the runtime stack if necessary. This
+# supports mixing legacy codes that keep a 4-byte aligned stack with modern codes that 
+# keep a 16-byte stack for SSE compatibility. See also the attribute force_align_arg_pointer, 
+# applicable to individual functions. 
+#
+# Without defining this flag along with SSE2 flags, 3DGE *will* crash before startup.
+
 CC=gcc
 CXX=g++
 ld=gcc
-CFLAGS=-O3 -ffast-math -fno-strict-aliasing -Wall
+CFLAGS=-O3 -ffast-math -fno-strict-aliasing -Wall -msse2 -mfpmath=sse -mstackrealign
+
 
 CFLAGS += -I
 
-LDFLAGS=-Wl,--warn-common -I
 
-LDFLAGS += -L$C:/MinGW/lib/libmingw32.a -lm -I
+#LDFLAGS=-pg -Wl,--warn-common -I  
+LDFLAGS=-Wl,--warn-common -I -mfpmath=sse
+#LDFLAGS=-pg -Wl,--warn-common -I
+
+LDFLAGS += -L$C:/MinGW/lib/libmingw32.a -lm -I -mfpmath=sse
 
 
 # Operating System
 
-CFLAGS += -DWIN32
+CFLAGS += -DWIN32 -DSSE2
 
 # SDL 2
 CFLAGS += -I$(LIBDIR)/SDL_2/include
@@ -54,12 +70,6 @@ CFLAGS  += -I$(LIBDIR)/glew-2.0.0/include
 LDFLAGS += -L$(LIBDIR)/glew-2.0.0/lib
 LDFLAGS += $(LIBDIR)/glew-2.0.0/lib/libglew32.a $(LIBDIR)/glew-2.0.0/lib/libopengl32.a
 
-# HawkNL
-
-CFLAGS  += -I$/hawknl/include
-LDFLAGS += -L$/hawknl/include
-LDFLAGS += $/hawknl/include/NLstatic.lib
-
 # PNG (straight, non-SIMD)
 
 CFLAGS  += -I$(LIBDIR)/libpng-1.6.21
@@ -68,7 +78,7 @@ LDFLAGS += $(LIBDIR)/libpng-1.6.21/.libs/libpng16.a
 
 # JPEG
 
-CFLAGS  += -I$(LIBDIR)/libjpeg-turbo-gcc/lib
+CFLAGS  += -I$(LIBDIR)/libjpeg-turbo-gcc/include
 LDFLAGS += -L$(LIBDIR)/libjpeg-turbo-gcc/lib
 LDFLAGS += $(LIBDIR)/libjpeg-turbo-gcc/lib/libturbojpeg.a
 
@@ -92,7 +102,7 @@ LDFLAGS += $(LIBDIR)/libvorbis-1.3.5/lib/.libs/libvorbisfile.a $(LIBDIR)/libvorb
 
 # glBSP
 
-CFLAGS_GLBSP=-O -Wall -fno-strict-aliasing
+CFLAGS_GLBSP=-O3 -Wall -fno-strict-aliasing -ffast-math -msse2 -mfpmath=sse
 
 CFLAGS_GLBSP += -DGLBSP_PLUGIN
 CFLAGS_GLBSP += -DINLINE_G=inline
