@@ -24,7 +24,7 @@
 #include <SDL2/SDL_keycode.h>
 #else
 #include <SDL.h>
-#include <SDL_keycode.h> /// Keys
+#include <SDL_keysym.h> /// Keys
 #endif
 
 #include "i_local.h"  // FIXME: remove

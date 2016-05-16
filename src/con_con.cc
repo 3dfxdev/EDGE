@@ -67,6 +67,12 @@ static rgbcol_t current_color;
 // TODO: console var
 #define MAX_CON_LINES  160
 
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+#define START_TEXT_INPUT SDL_StartTextInput();
+#else
+#define START_TEXT_INPUT 
+#endif
+
 class console_line_c
 {
 public:
@@ -201,7 +207,7 @@ static void CON_ClearInputLine(void)
 void CON_SetVisible(visible_t v)
 {
 	paused = true;
-	SDL_StartTextInput();
+	START_TEXT_INPUT
 	if (v == vs_toggle)
 	{
 		v = (con_visible == vs_notvisible) ? vs_maximal : vs_notvisible;
@@ -483,7 +489,7 @@ void CON_Drawer(void)
 	if (con_visible == vs_notvisible && !conwipeactive)
 		return;
 	
-	SDL_StartTextInput();
+	START_TEXT_INPUT
 
 	// -- background --
 
@@ -507,24 +513,24 @@ void CON_Drawer(void)
 
 	if (bottomrow == -1)
 	{
-		SDL_StartTextInput();
+		START_TEXT_INPUT
 		DrawText(0, y, ">", T_PURPLE);
 
 		if (cmd_hist_pos >= 0)
 		{
 			const char *text = cmd_history[cmd_hist_pos]->c_str();
 
-			SDL_StartTextInput();
+			START_TEXT_INPUT
 			DrawText(XMUL, y, text, T_PURPLE);
 		}
 		else
 		{
-			SDL_StartTextInput();
+			START_TEXT_INPUT
 			DrawText(XMUL, y, input_line, T_PURPLE);
 		}
 
 		if (con_cursor < 16)
-			SDL_StartTextInput();
+			START_TEXT_INPUT
 			DrawText((input_pos+1) * XMUL, y - 2, "_", T_PURPLE);
 
 		y += YMUL;
@@ -787,7 +793,7 @@ void CON_HandleKey(int key, bool shift, bool ctrl)
         key = shiftxform[key];
     }
 	
-	SDL_StartTextInput();
+	START_TEXT_INPUT
 	
 	switch (key)
 	{

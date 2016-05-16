@@ -26,7 +26,7 @@
 #ifdef MACOSX
 #include <SDL2/SDL_opengl.h>
 #else
-#include "SDL_opengl.h"
+#include <SDL_opengl.h>
 #endif
 
 #include <vector>
