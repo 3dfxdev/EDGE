@@ -19,12 +19,14 @@
 #ifndef __SDL_SYSTEM_INTERNAL_H__
 #define __SDL_SYSTEM_INTERNAL_H__
 
-#ifdef MACOSX
+#include <SDL_version.h>
+
+#if SDL_VERSION_ATLEAST(2, 0, 0)
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_keycode.h>
 #else
 #include <SDL.h>
-#include <SDL_keysym.h> /// Keys
+#include <SDL_keysym.h> // Keys
 #endif
 
 #include "i_local.h"  // FIXME: remove

@@ -2,6 +2,8 @@
 # EDGE Makefile : LINUX version
 #
 
+SDL2 = 1
+
 PROGRAM=edge.linux
 
 OBJDIR=obj_linux
@@ -54,10 +56,16 @@ CFLAGS_GLBSP += -DGLBSP_PLUGIN
 CFLAGS_GLBSP += -DINLINE_G=inline
 
 
-# SDL
+# SDL/SDL2
 
+ifeq ($(SDL2),0)
 CFLAGS  += $(shell sdl-config --cflags)
 LDFLAGS += $(shell sdl-config --libs)
+else ifeq ($(SDL2),1)
+CFLAGS  += $(shell sdl2-config --cflags)
+LDFLAGS += $(shell sdl2-config --libs)
+endif
+
 
 # LIBCPUID
 
