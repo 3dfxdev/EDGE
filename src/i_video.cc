@@ -199,6 +199,12 @@ void I_StartupGraphics(void)
                               display_W,
                               display_H,
                               flags);
+                              
+	if(my_vis == NULL) 
+	{
+        I_Error("I_InitScreen: Failed to create window");
+        return;
+    }                     
 #else
 	const SDL_VideoInfo *info = SDL_GetVideoInfo();
 
@@ -258,11 +264,6 @@ void I_StartupGraphics(void)
 		}
 	}
 #endif	
-	if(my_vis == NULL) 
-	{
-        I_Error("I_InitScreen: Failed to create window");
-        return;
-    }
 
 	I_Printf("I_StartupGraphics: initialisation OK\n");
 	
