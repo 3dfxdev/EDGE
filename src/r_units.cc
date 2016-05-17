@@ -23,7 +23,7 @@
 #include "i_defs_gl.h"
 #include "i_sdlinc.h"
 
-#ifdef MACOSX
+#if SDL_VERSION_ATLEAST(2,0,0)
 #include <SDL2/SDL_opengl.h>
 #else
 #include <SDL_opengl.h>
