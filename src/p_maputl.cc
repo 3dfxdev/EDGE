@@ -127,32 +127,7 @@ void P_ComputeIntersection(divline_t *div,
 //
 int P_PointOnDivlineSide(float x, float y, divline_t *div)
 {
-	float dx, dy;
-	float left, right;
-
-	if (div->dx == 0)
-		return ((x <= div->x) ^ (div->dy > 0)) ? 0 : 1;
-
-	if (div->dy == 0)
-		return ((y <= div->y) ^ (div->dx < 0)) ? 0 : 1;
-
-	dx = x - div->x;
-	dy = y - div->y;
-
-	// try to quickly decide by looking at sign bits
-	if ((div->dy < 0) ^ (div->dx < 0) ^ (dx < 0) ^ (dy < 0))
-	{
-		// left is negative
-		if ((div->dy < 0) ^ (dx < 0))
-			return 1;
-
-		return 0;
-	}
-
-	left  = dx * div->dy;
-	right = dy * div->dx;
-
-	return (right < left) ? 0 : 1;
+	return (div->dx * (y - div->y) - div->dy * (x - div->x)) >= 0; // FIXME: returns back / left if the point is *on* the line. We should find a way to use a tri-state instead of boolean logic. Besides, there's currently no way to *tell* the engine the state is undefined... maybe there is upstream logic for this?
 }
 
 //
