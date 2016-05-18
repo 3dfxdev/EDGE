@@ -66,6 +66,8 @@ float P_ApproxDistance(float dx, float dy)
 
 float P_ApproxDistance(float dx, float dy, float dz)
 {
+	return sqrt(pow(dx,2)+pow(dy,2)+pow(dz,2));
+/*
 	dx = fabs(dx);
 	dy = fabs(dy);
 	dz = fabs(dz);
@@ -73,6 +75,7 @@ float P_ApproxDistance(float dx, float dy, float dz)
 	float dxy = (dy > dx) ? dy + dx/2 : dx + dy/2;
 
 	return (dz > dxy) ? dz + dxy/2 : dxy + dz/2;
+*/
 }
 
 //
@@ -90,7 +93,7 @@ float P_ApproxSlope(float dx, float dy, float dz)
 	if (dist < 1.0f / 32.0f)
 		dist = 1.0f / 32.0f;
 
-	return dz / dist;
+	return dz / dist; //with the above kludge, this approximation gets less precise the higher the target is off the ground.
 }
 
 void P_ComputeIntersection(divline_t *div,
