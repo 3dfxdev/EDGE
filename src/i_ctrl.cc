@@ -18,6 +18,7 @@
 
 #include "i_defs.h"
 #include "i_sdlinc.h"
+#include "i_ctrl.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -67,8 +68,8 @@ int TranslateSDLKey(int key)
 	// if keypad is not wanted, convert to normal keys
 	if (! in_keypad.d)
 	{
-		if (SDLK_KP_0 <= key && key <= SDLK_KP_9)
-			return '0' + (key - SDLK_KP_0);
+		if (KEYBOARD_0 <= key && key <= KEYBOARD_9)
+			return '0' + (key - KEYBOARD_0);
 
 		switch (key)
 		{
@@ -116,16 +117,17 @@ int TranslateSDLKey(int key)
 		case SDLK_F11: return KEYD_F11;
 		case SDLK_F12: return KEYD_F12;
 
-		case SDLK_KP_0: return KEYD_KP0;
-		case SDLK_KP_1: return KEYD_KP1;
-		case SDLK_KP_2: return KEYD_KP2;
-		case SDLK_KP_3: return KEYD_KP3;
-		case SDLK_KP_4: return KEYD_KP4;
-		case SDLK_KP_5: return KEYD_KP5;
-		case SDLK_KP_6: return KEYD_KP6;
-		case SDLK_KP_7: return KEYD_KP7;
-		case SDLK_KP_8: return KEYD_KP8;
-		case SDLK_KP_9: return KEYD_KP9;
+
+		case KEYBOARD_0: return KEYD_KP0;
+		case KEYBOARD_1: return KEYD_KP1;
+		case KEYBOARD_2: return KEYD_KP2;
+		case KEYBOARD_3: return KEYD_KP3;
+		case KEYBOARD_4: return KEYD_KP4;
+		case KEYBOARD_5: return KEYD_KP5;
+		case KEYBOARD_6: return KEYD_KP6;
+		case KEYBOARD_7: return KEYD_KP7;
+		case KEYBOARD_8: return KEYD_KP8;
+		case KEYBOARD_9: return KEYD_KP9;
 
 		case SDLK_KP_PERIOD:   return KEYD_KP_DOT;
 		case SDLK_KP_PLUS:     return KEYD_KP_PLUS;
@@ -135,19 +137,19 @@ int TranslateSDLKey(int key)
 		case SDLK_KP_EQUALS:   return KEYD_KP_EQUAL;
 		case SDLK_KP_ENTER:    return KEYD_KP_ENTER;
 
-		case SDLK_PRINTSCREEN:     return KEYD_PRTSCR;
+		case KEYBOARD_PRINTSCREEN:     return KEYD_PRTSCR;
 		case SDLK_CAPSLOCK:  return KEYD_CAPSLOCK;
-		case SDLK_NUMLOCKCLEAR:   return KEYD_NUMLOCK;
-		case SDLK_SCROLLLOCK: return KEYD_SCRLOCK;
+		case KEYBOARD_NUMLOCKCLEAR:   return KEYD_NUMLOCK;
+		case KEYBOARD_SCROLLLOCK: return KEYD_SCRLOCK;
 		case SDLK_PAUSE:     return KEYD_PAUSE;
 
 		case SDLK_LSHIFT:
 		case SDLK_RSHIFT: return KEYD_RSHIFT;
 		case SDLK_LCTRL:
 		case SDLK_RCTRL:  return KEYD_RCTRL;
-		case SDLK_LGUI:
+		case KEYBOARD_LGUI:
 		case SDLK_LALT:   return KEYD_LALT;
-		case SDLK_RGUI:
+		case KEYBOARD_RGUI:
 		case SDLK_RALT:   return KEYD_RALT;
 
 		default: break;
@@ -194,18 +196,38 @@ static int I_SDLtoDoomMouseState(Uint8 buttonstate) {
 void HandleKeyEvent(SDL_Event* ev)
 {	
 	SDL_PumpEvents();
-//	if (ev->type != SDL_KEYDOWN && ev->type != SDL_KEYUP) 
-//		return;
-
-	// For SDL2, we no longer require the SYM codes.
-	///int sym = (int)ev->key.keysym.sym;
 	event_t event;
+	
+#if (SDL_COMPILEDVERSION < SDL_VERSIONNUM(1, 3, 0))
+	int sym = (int)ev->key.keysym.sym;
+	if (ev->type != SDL_KEYDOWN && ev->type != SDL_KEYUP) 
+		return;
+	if (sym == SDLK_CAPSLOCK || sym == SDLK_NUMLOCK)
+	{
+		// -AJA- for some reason (perhaps not SDL's fault), the CAPSLOCK
+		//       key behaves differently on Win32 and Linux.  Under Win32
+		//       we get the "long press" behaviour, but on Linux we get
+		//       "faked key-ups" behaviour.  Oi oi oi.
+#ifdef LINUX
+		if (ev->type != SDL_KEYDOWN)
+			return;
+#endif
+		event.type = ev_keydown;
+		E_PostEvent(&event);
+
+		event.type = ev_keyup;
+		E_PostEvent(&event);
+		return;
+	}
+#endif
 	
     switch(ev->type) 
 	{
 	case SDL_KEYDOWN:
+		#if SDL_VERSION_ATLEAST(2, 0, 0)
 		if(ev->key.repeat)
 			break;
+		#endif
         event.type = ev_keydown;
         event.data1 = TranslateSDLKey(ev->key.keysym.sym); //will set event.data1 to -1 if no translation found (shouldn't happen on a normal keyboard)
         E_PostEvent(&event);
@@ -326,7 +348,11 @@ void HandleMouseMotionEvent(SDL_Event * ev)
 
 	dx = ev->motion.xrel;
 	dy = ev->motion.yrel;
+	#if SDL_VERSION_ATLEAST(2, 0, 0)
 	SDL_SetRelativeMouseMode(SDL_TRUE);
+	#else
+	SDL_WM_GrabInput(SDL_GRAB_ON);
+	#endif
 
 	if (dx || dy)
 	{
@@ -346,6 +372,7 @@ void HandleMouseWheelEvent(SDL_Event * ev)
 	event_t event;
 	SDL_PumpEvents();
 	
+	#if SDL_VERSION_ATLEAST(2, 0, 0)
 	if (ev->wheel.y > 0) {
 		event.type = ev_keydown;
 		event.data1 = KEYD_WHEEL_UP;
@@ -356,6 +383,8 @@ void HandleMouseWheelEvent(SDL_Event * ev)
 	} 
 	else
 		return; //TODO: determine if we need to handle this case. This event shouldn't ever fire with a value of 0 anyway.
+	#endif	
+		
     event.data2 = event.data3 = 0;
 	E_PostEvent(&event);
 	event.type = ev_keyup;
@@ -428,6 +457,7 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 {
 	switch(sdl_ev->type)
 	{
+#if SDL_VERSION_ATLEAST(2, 0, 0)
 		case SDL_WINDOWEVENT:
 		switch (sdl_ev->window.event) 
 		{
@@ -451,6 +481,7 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 			break;
 		}
 		break;
+#endif
 		
 		case SDL_KEYDOWN:
 		case SDL_KEYUP:
@@ -476,11 +507,12 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 
 			HandleMouseMotionEvent(sdl_ev);
 			break;
-		
+	
+#if SDL_VERSION_ATLEAST(2, 0, 0)
 		case SDL_MOUSEWHEEL:
 			HandleMouseWheelEvent(sdl_ev);
 			break;
-		
+#endif
 		case SDL_QUIT:
 			// Note we deliberate clear all other flags here. Its our method of 
 			// ensuring nothing more is done with events.
@@ -525,8 +557,11 @@ void InactiveEventProcess(SDL_Event *sdl_ev)
 
 void I_CentreMouse(void)
 {
+	#if SDL_VERSION_ATLEAST(2, 0, 0)
 	SDL_SetRelativeMouseMode(SDL_TRUE);//(SCREENWIDTH/2, SCREENHEIGHT/2);
-	
+	#else
+	SDL_WM_GrabInput(SDL_GRAB_ON);
+	#endif
 }
 
 
@@ -548,7 +583,7 @@ void I_ShowJoysticks(void)
 
 	for (int i = 0; i < num_joys; i++)
 	{
-		const char *name = SDL_JoystickNameForIndex(i);
+		const char *name = GET_JOYSTICK_NAME(i);
 		if (! name)
 			name = "(UNKNOWN)";
 
@@ -570,7 +605,7 @@ void I_OpenJoystick(int index)
 
 	cur_joy = index;
 
-	const char *name = SDL_JoystickNameForIndex(cur_joy-1);
+	const char *name = GET_JOYSTICK_NAME(cur_joy-1);
 	if (! name)
 		name = "(UNKNOWN)";
 
