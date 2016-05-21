@@ -180,8 +180,8 @@ private:
 		float my = mo->y;
 		float mz = MO_MIDZ(mo);
 
-		MIR_Coordinate(mx, my);
-		MIR_Height(mz);
+//		MIR_Coordinate(mx, my);
+//		MIR_Height(mz);
 
 		float dx = lit_pos->x - mx;
 		float dy = lit_pos->y - my;
@@ -221,10 +221,10 @@ private:
 	inline float WhatRadius(int DL)
 	{
 		if (DL == 0)
-			return mo->dlight.r * MIR_XYScale();
+			return mo->dlight.r; // * MIR_XYScale();
 
 		return mo->info->dlight[1].radius * mo->dlight.r /
-			   mo->info->dlight[0].radius * MIR_XYScale();
+			   mo->info->dlight[0].radius; // * MIR_XYScale();
 	}
 
 	inline rgbcol_t WhatColor(int DL)
@@ -245,8 +245,8 @@ public:
 		float my = mo->y;
 		float mz = MO_MIDZ(mo);
 
-		MIR_Coordinate(mx, my);
-		MIR_Height(mz);
+//		MIR_Coordinate(mx, my);
+//		MIR_Height(mz);
 
 		float dx = x - mx;
 		float dy = y - my;
@@ -287,15 +287,15 @@ public:
 			my += viewsin * 24;
 		}
 
-		MIR_Coordinate(mx, my);
-		MIR_Height(mz);
+//		MIR_Coordinate(mx, my);
+//		MIR_Height(mz);
 
 		float dx = mod_pos->x;
 		float dy = mod_pos->y;
 		float dz = MO_MIDZ(mod_pos);
 
-		MIR_Coordinate(dx, dy);
-		MIR_Height(dz);
+//		MIR_Coordinate(dx, dy);
+//		MIR_Height(dz);
 
 		dx -= mx; dy -= my; dz -= mz;
 
@@ -305,7 +305,7 @@ public:
 		dy /= dist;
 		dz /= dist;
 
-		dist = MAX(1.0, dist - mod_pos->radius * MIR_XYScale());
+		dist = MAX(1.0, dist - mod_pos->radius); // * MIR_XYScale());
 
 		float L = 0.6 - 0.7 * (dx*nx + dy*ny + dz*nz);
 
@@ -434,10 +434,10 @@ private:
 	inline float WhatRadius(int DL)
 	{
 		if (DL == 0)
-			return mo->dlight.r * MIR_XYScale();
+			return mo->dlight.r; // * MIR_XYScale();
 
 		return mo->info->dlight[1].radius * mo->dlight.r /
-			   mo->info->dlight[0].radius * MIR_XYScale();
+			   mo->info->dlight[0].radius; // * MIR_XYScale();
 	}
 
 	inline rgbcol_t WhatColor(int DL)
@@ -694,7 +694,7 @@ public:
 private:
 	inline float WhatRadius(int DL)
 	{
-		return info->dlight[DL].radius * MIR_XYScale();
+		return info->dlight[DL].radius; // * MIR_XYScale();
 	}
 
 	inline rgbcol_t WhatColor(int DL)

@@ -214,13 +214,13 @@ static std::vector<drawthing_t  *> drawthings;
 static std::vector<drawfloor_t  *> drawfloors;
 static std::vector<drawseg_c    *> drawsegs;
 static std::vector<drawsub_c    *> drawsubs;
-static std::vector<drawmirror_c *> drawmirrors;
+//static std::vector<drawmirror_c *> drawmirrors;
 
 static int drawthing_pos;
 static int drawfloor_pos;
 static int drawseg_pos;
 static int drawsub_pos;
-static int drawmirror_pos;
+//static int drawmirror_pos;
 
 
 //
@@ -240,7 +240,7 @@ void R2_ClearBSP(void)
 	drawfloor_pos  = 0;
 	drawseg_pos    = 0;
 	drawsub_pos    = 0;
-	drawmirror_pos = 0;
+//	drawmirror_pos = 0;
 }
 
 void R2_FreeupBSP(void)
@@ -251,13 +251,13 @@ void R2_FreeupBSP(void)
 	for (i=0; i < (int)drawfloors .size(); i++) delete drawfloors [i];
 	for (i=0; i < (int)drawsegs   .size(); i++) delete drawsegs   [i];
 	for (i=0; i < (int)drawsubs   .size(); i++) delete drawsubs   [i];
-	for (i=0; i < (int)drawmirrors.size(); i++) delete drawmirrors[i];
+//	for (i=0; i < (int)drawmirrors.size(); i++) delete drawmirrors[i];
 
 	drawthings .erase(drawthings .begin(), drawthings .end());
 	drawfloors .erase(drawfloors .begin(), drawfloors .end());
 	drawsegs   .erase(drawsegs   .begin(), drawsegs   .end());
 	drawsubs   .erase(drawsubs   .begin(), drawsubs   .end());
-	drawmirrors.erase(drawmirrors.begin(), drawmirrors.end());
+//	drawmirrors.erase(drawmirrors.begin(), drawmirrors.end());
 
 	R2_ClearBSP();
 }
@@ -302,7 +302,7 @@ drawsub_c *R_GetDrawSub()
 
 	return drawsubs[drawsub_pos++];
 }
-
+/*
 drawmirror_c *R_GetDrawMirror()
 {
 	if (drawmirror_pos >= (int)drawmirrors.size())
@@ -312,7 +312,7 @@ drawmirror_c *R_GetDrawMirror()
 
 	return drawmirrors[drawmirror_pos++];
 }
-
+*/
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

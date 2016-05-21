@@ -668,14 +668,14 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 	{
 		angle_t ang = mo->angle;
 
-		MIR_Angle(ang);
+//		MIR_Angle(ang);
 
 		angle_t from_view = R_PointToAngle(viewx, viewy, mx, my);
 
 		ang = from_view - ang + ANG180;
 
-		if (MIR_Reflective())
-			ang = (angle_t)0 - ang;
+/*		if (MIR_Reflective())
+			ang = (angle_t)0 - ang; */
 
 		if (frame->rots == 16)
 			rot = (ang + (ANG45 / 4)) >> (ANGLEBITS - 4);
@@ -687,9 +687,9 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 
 	(*flip) = frame->flip[rot] ? true : false;
 
-	if (MIR_Reflective())
+/*	if (MIR_Reflective())
 		(*flip) = !(*flip);
-
+*/
 	if (! frame->images[rot])
 	{
 		// show dummy sprite for missing rotation
@@ -749,8 +749,8 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 	LinkDrawthingIntoDrawfloor(dfloor, dthing);
 
 	// HACK: the code below cannot handle Portals
-	if (num_active_mirrors > 0)
-		return;
+//	if (num_active_mirrors > 0)
+//		return;
 
 	// handle never-clip things 
 	if (dthing->y_clipping == YCLIP_Never)
@@ -945,7 +945,8 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	SYS_ASSERT(mo->state);
 
 	// ignore the camera itself
-	if (mo == view_cam_mo && num_active_mirrors == 0)
+//	if (mo == view_cam_mo && num_active_mirrors == 0)
+	if (mo == view_cam_mo)
 		return;
 
 	// ignore invisible things
@@ -959,7 +960,7 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	epi::vec3_c mp = mo->GetInterpolatedPosition();
 	float mx = mp.x, my = mp.y, mz = mp.z;
 
-	MIR_Coordinate(mx, my);
+//	MIR_Coordinate(mx, my);
 
 	float tr_x = mx - viewx;
 	float tr_y = my - viewy;
@@ -1081,8 +1082,8 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 		if (gzb >= gzt)
 			return;
 
-		MIR_Height(gzb);
-		MIR_Height(gzt);
+//		MIR_Height(gzb);
+//		MIR_Height(gzt);
 	}
 
 	// create new draw thing
@@ -1109,12 +1110,12 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	dthing->bottom = dthing->orig_bottom = gzb;
 ///----	dthing->y_offset = 0;
 
-	float mir_scale = MIR_XYScale();
+//	float mir_scale = MIR_XYScale();
 
-	dthing->left_dx  = pos1 *  viewsin * mir_scale;
-	dthing->left_dy  = pos1 * -viewcos * mir_scale;
-	dthing->right_dx = pos2 *  viewsin * mir_scale;
-	dthing->right_dy = pos2 * -viewcos * mir_scale;
+	dthing->left_dx  = pos1 *  viewsin;// * mir_scale;
+	dthing->left_dy  = pos1 * -viewcos;// * mir_scale;
+	dthing->right_dx = pos2 *  viewsin;// * mir_scale;
+	dthing->right_dy = pos2 * -viewcos;// * mir_scale;
 
 	R2_ClipSpriteVertically(dsub, dthing);
 }
@@ -1134,7 +1135,7 @@ static void RGL_DrawModel(drawthing_t *dthing)
 
 	float z = dthing->mz;
 
-	MIR_Height(z);
+//	MIR_Height(z);
 
 	if (mo->hyperflags & HF_HOVER)
 		z += GetHoverDZ(mo);
@@ -1246,7 +1247,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	z1t = z2t = dthing->top;
 
 	// MLook: tilt sprites so they look better
-	if (MIR_XYScale() >= 0.99)
+/*	if (MIR_XYScale() >= 0.99)
 	{
 		float h = dthing->orig_top - dthing->orig_bottom;
 		float skew2 = h;
@@ -1266,14 +1267,14 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		x1b -= bottom_q * dx; y1b -= bottom_q * dy;
 		x2b -= bottom_q * dx; y2b -= bottom_q * dy;
 	}
-
+*/
 	float tex_x1 = 0.001f;
 	float tex_x2 = right - 0.001f;
 
 	float tex_y1 = dthing->bottom - dthing->orig_bottom;
 	float tex_y2 = tex_y1 + (z1t - z1b);
 
-	float yscale = mo->info->scale * MIR_ZScale();
+	float yscale = mo->info->scale; // * MIR_ZScale();
 
 	SYS_ASSERT(h > 0);
 	tex_y1 = top * tex_y1 / (h * yscale);

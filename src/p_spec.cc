@@ -672,7 +672,7 @@ static void P_SectorEffect(sector_t *target, line_t *source,
 		target->ceil.offset.y *= factor;
 	}
 }
-
+/*
 static void P_PortalEffect(line_t *ld)
 {
 	// already linked?
@@ -766,7 +766,7 @@ static void P_PortalEffect(line_t *ld)
 
 	I_Warning("Portal on line #%d disabled: Cannot find partner!\n", ld - lines);
 }
-
+*/
 
 static slope_plane_t * DetailSlope_BoundIt(line_t *ld, sector_t *sec, float dz1, float dz2)
 {
@@ -1742,11 +1742,11 @@ void P_SpawnSpecials1(void)
 		lines[i].count = special->count;
 
 		// -AJA- 2007/12/29: Portal effects
-		if (special->portal_effect != PORTFX_None)
+/*		if (special->portal_effect != PORTFX_None)
 		{
 			P_PortalEffect(&lines[i]);
 		}
-
+*/
 		// Extrafloor creation
 		if (special->ef.type != EXFL_None && lines[i].tag > 0)
 		{

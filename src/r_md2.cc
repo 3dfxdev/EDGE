@@ -1202,9 +1202,9 @@ SYS_ASSERT(point->vert_idx < md->verts_per_frame);
 	float y1 = LerpIt(vert1->y, vert2->y, data->lerp);
 	float z1 = LerpIt(vert1->z, vert2->z, data->lerp) + data->bias;
 
-	if (MIR_Reflective())
+/*	if (MIR_Reflective())
 		y1 = -y1;
-
+*/
 	data->CalcPos(pos, x1, y1, z1);
 
 
@@ -1286,10 +1286,10 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	if (mo->hyperflags & HF_NOZBUFFER)
 		blending |= BL_NoZBuf;
 
-	if (MIR_Reflective())
+/*	if (MIR_Reflective())
 		blending |= BL_CullFront;
 	else
-		blending |= BL_Masked;
+*/		blending |= BL_Masked;
 
 
 	data.mo = mo;
@@ -1306,8 +1306,8 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 	data.is_weapon = is_weapon;
 
-	data.xy_scale = scale * aspect * MIR_XYScale();
-	data. z_scale = scale * MIR_ZScale();
+	data.xy_scale = scale * aspect; // * MIR_XYScale();
+	data. z_scale = scale; // * MIR_ZScale();
 	data.bias = bias;
 
 	bool tilt = is_weapon || (mo->flags & MF_MISSILE) || (mo->hyperflags & HF_TILT);
@@ -1319,7 +1319,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	//angle_t ang = mo->angle;
 	angle_t ang = mo->GetInterpolatedAngle();
 
-	MIR_Angle(ang);
+//	MIR_Angle(ang);
 
 	M_Angle2Matrix(~ ang, &data.rx_mat, &data.ry_mat);
 

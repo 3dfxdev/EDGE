@@ -217,7 +217,7 @@ public:
 }
 drawfloor_t;
 
-
+#if 0
 class drawmirror_c
 {
 public:
@@ -243,7 +243,7 @@ public:
 		drawsubs.clear();
 	}
 };
-
+#endif
 
 class drawseg_c   // HOPEFULLY this can go away
 {
@@ -265,13 +265,13 @@ public:
 
 	std::list<drawseg_c *> segs;
 
-	std::list<drawmirror_c *> mirrors;
+//	std::list<drawmirror_c *> mirrors;
 
 	bool visible;
 	bool sorted;
 
 public:
-	drawsub_c() : sub(NULL), floors(), segs(), mirrors()
+	drawsub_c() : sub(NULL), floors(), segs()//, mirrors()
 	{ }
 
 	~drawsub_c()
@@ -286,7 +286,7 @@ public:
 
 		floors.clear();
 		segs.clear();
-		mirrors.clear();
+//		mirrors.clear();
 	}
 };
 
@@ -310,7 +310,7 @@ drawthing_t  *R_GetDrawThing();
 drawfloor_t  *R_GetDrawFloor();
 drawseg_c    *R_GetDrawSeg();
 drawsub_c    *R_GetDrawSub();
-drawmirror_c *R_GetDrawMirror();
+//drawmirror_c *R_GetDrawMirror();
 
 
 //
@@ -323,7 +323,7 @@ void R2_Init(void);
 //
 //  MIRRORS
 //
-
+/*
 extern int num_active_mirrors;
 
 void MIR_Coordinate(float& x, float& y);
@@ -333,7 +333,7 @@ void MIR_Angle(angle_t& ang);
 bool MIR_Reflective(void);
 float MIR_XYScale(void);
 float MIR_ZScale(void);
-
+*/
 //
 //   SHADOWS (simple)
 //

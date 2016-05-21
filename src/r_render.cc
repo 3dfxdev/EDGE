@@ -153,7 +153,7 @@ static std::list<drawsub_c *> drawsubs;
 static const image_c *shadow_image = NULL;
 //#endif
 
-
+#if 0
 // ========= MIRROR STUFF ===========
 
 #define MAX_MIRRORS  3
@@ -482,7 +482,7 @@ static void MIR_Pop()
 
 	MIR_SetClippers();
 }
-
+#endif
 
 float Slope_GetHeight(slope_plane_t *slope, float x, float y)
 {
@@ -903,7 +903,7 @@ static void DLIT_Wall(mobj_t *mo, void *dataptr)
 		float mx = mo->x;
 		float my = mo->y;
 
-		MIR_Coordinate(mx, my);
+//		MIR_Coordinate(mx, my);
 
 		float dist = (mx - data->div.x) * data->div.dy -
 					 (my - data->div.y) * data->div.dx;
@@ -1076,7 +1076,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	M_ClearBox(v_bbox);
 	M_AddToBox(v_bbox, x1, y1);
 	M_AddToBox(v_bbox, x2, y2);
-
+/*
 	MIR_Coordinate(x1, y1);
 	MIR_Coordinate(x2, y2);
 
@@ -1087,7 +1087,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 
    		tmp_x = tex_x1; tex_x1 = tex_x2; tex_x2 = tmp_x;
 	}
-
+*/
 	SYS_ASSERT(currmap);
 
 	int lit_adjust = 0;
@@ -1114,9 +1114,10 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	float tx0    = tex_x1;
 	float tx_mul = tex_x2 - tex_x1;
 
-	MIR_Height(tex_top_h);
+//	MIR_Height(tex_top_h);
 
-	float ty_mul = surf->y_mat.y / (total_h * MIR_ZScale());
+//	float ty_mul = surf->y_mat.y / (total_h * MIR_ZScale());
+	float ty_mul = surf->y_mat.y / (total_h);
 	float ty0    = IM_TOP(image) - tex_top_h * ty_mul;
 
 #if (DEBUG >= 3) 
@@ -1168,7 +1169,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 		vertices[v_count].y = y1;
 		vertices[v_count].z = left_h[LI];
 
-		MIR_Height(vertices[v_count].z);
+//		MIR_Height(vertices[v_count].z);
 
 		v_count++;
 	}
@@ -1179,7 +1180,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 		vertices[v_count].y = y2;
 		vertices[v_count].z = right_h[RI];
 
-		MIR_Height(vertices[v_count].z);
+//		MIR_Height(vertices[v_count].z);
 
 		v_count++;
 	}
@@ -1765,8 +1766,8 @@ static void DLIT_Flood(mobj_t *mo, void *dataptr)
 static void EmulateFloodPlane(const drawfloor_t *dfloor,
 	const sector_t *flood_ref, int face_dir, float h1, float h2)
 {
-	if (num_active_mirrors > 0)
-		return;
+//	if (num_active_mirrors > 0)
+//		return;
 
 	const surface_t *surf = (face_dir > 0) ? &flood_ref->floor :
 		&flood_ref->ceil;
@@ -1993,7 +1994,7 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 
 static void RGL_WalkBSPNode(unsigned int bspnum);
 
-
+/*
 static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 						   angle_t left, angle_t right,
 						   bool is_portal)
@@ -2032,7 +2033,7 @@ static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 	// pop mirror
 	MIR_Pop();
 }
-
+*/
 
 //
 // RGL_WalkSeg
@@ -2043,8 +2044,8 @@ static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 {
 	// ignore segs sitting on current mirror
-	if (MIR_SegOnPortal(seg))
-		return;
+//	if (MIR_SegOnPortal(seg))
+//		return;
 
 	float sx1 = seg->v1->x;
 	float sy1 = seg->v1->y;
@@ -2054,7 +2055,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 
 	// when there are active mirror planes, segs not only need to
 	// be flipped across them but also clipped across them.
-	if (num_active_mirrors > 0)
+/*	if (num_active_mirrors > 0)
 	{
 		for (int i=num_active_mirrors-1; i >= 0; i--)
 		{
@@ -2097,7 +2098,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 			}
 		}
 	}
-
+*/
 	angle_t angle_L = R_PointToAngle(viewx, viewy, sx1, sy1);
 	angle_t angle_R = R_PointToAngle(viewx, viewy, sx2, sy2);
 
@@ -2154,7 +2155,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 	if (seg->miniseg || span == 0)
 		return;
 
-	if (num_active_mirrors < MAX_MIRRORS)
+/*	if (num_active_mirrors < MAX_MIRRORS)
 	{
 		if (seg->linedef->flags & MLF_Mirror)
 		{
@@ -2169,7 +2170,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 			return;
 		}
 	}
-
+*/
 	drawseg_c *dseg = R_GetDrawSeg();
 	dseg->seg = seg;
 
@@ -2244,7 +2245,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 
 bool RGL_CheckBBox(float *bspcoord)
 {
-	if (num_active_mirrors > 0)
+/*	if (num_active_mirrors > 0)
 	{
 		// a flipped bbox may no longer be axis aligned, hence we
 		// need to find the bounding area of the transformed box.
@@ -2264,7 +2265,7 @@ bool RGL_CheckBBox(float *bspcoord)
 
 		bspcoord = new_bbox;
 	}
-			
+*/			
 	int boxx, boxy;
 
 	// Find the corners of the box
@@ -2342,7 +2343,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 {
 	float orig_h = h;
 
-	MIR_Height(h);
+//	MIR_Height(h);
 
 	int num_vert, i;
 
@@ -2443,10 +2444,10 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 			{
 				z = orig_h + Slope_GetHeight(slope, x, y);
 
-				MIR_Height(z);
+//				MIR_Height(z);
 			}
 
-			MIR_Coordinate(x, y);
+//			MIR_Coordinate(x, y);
 
 			vertices[v_count].x = x;
 			vertices[v_count].y = y;
@@ -2485,9 +2486,9 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	data.x_mat = surf->x_mat;
 	data.y_mat = surf->y_mat;
 
-	float mir_scale = MIR_XYScale();
-	data.x_mat.x /= mir_scale; data.x_mat.y /= mir_scale;
-	data.y_mat.x /= mir_scale; data.y_mat.y /= mir_scale;
+//	float mir_scale = MIR_XYScale();
+//	data.x_mat.x /= mir_scale; data.x_mat.y /= mir_scale;
+//	data.y_mat.x /= mir_scale; data.y_mat.y /= mir_scale;
 
 	data.normal.Set(0, 0, (viewz > h) ? +1 : -1);
 
@@ -2746,9 +2747,9 @@ static void RGL_WalkSubsector(int num)
 
 	// add drawsub to list (closest -> furthest)
 
-	if (num_active_mirrors > 0)
+/*	if (num_active_mirrors > 0)
 		active_mirrors[num_active_mirrors-1].def->drawsubs.push_back(K);
-	else
+	else */
 		drawsubs.push_back(K);
 }
 
@@ -2782,7 +2783,7 @@ static void RGL_DrawSubList(std::list<drawsub_c *> &dsubs)
 
 }
 
-
+/*
 static void DrawMirrorPolygon(drawmirror_c *mir)
 {
 	glDisable(GL_TEXTURE_2D);
@@ -2929,7 +2930,7 @@ static void RGL_DrawMirror(drawmirror_c *mir)
 	solid_mode = true;
 	RGL_StartUnits(solid_mode);
 }
-
+*/
 
 static void RGL_DrawSubsector(drawsub_c *dsub)
 {
@@ -2941,7 +2942,7 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 
 	cur_sub = sub;
 
-	if (solid_mode)
+/*	if (solid_mode)
 	{
 		std::list<drawmirror_c *>::iterator MRI;
 
@@ -2950,7 +2951,7 @@ static void RGL_DrawSubsector(drawsub_c *dsub)
 			RGL_DrawMirror(*MRI);
 		}
 	}
-
+*/
 	cur_sub = sub;
 
 	drawfloor_t *dfloor;
@@ -3026,15 +3027,15 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 	nd_div.dx = node->div.x + node->div.dx;
 	nd_div.dy = node->div.y + node->div.dy;
 
-	MIR_Coordinate(nd_div.x,  nd_div.y);
-	MIR_Coordinate(nd_div.dx, nd_div.dy);
+//	MIR_Coordinate(nd_div.x,  nd_div.y);
+//	MIR_Coordinate(nd_div.dx, nd_div.dy);
 
-	if (MIR_Reflective())
+/*	if (MIR_Reflective())
 	{
 		float tx = nd_div.x; nd_div.x = nd_div.dx; nd_div.dx = tx;
 		float ty = nd_div.y; nd_div.y = nd_div.dy; nd_div.dy = ty;
 	}
-
+*/
 	nd_div.dx -= nd_div.x;
 	nd_div.dy -= nd_div.y;
 	

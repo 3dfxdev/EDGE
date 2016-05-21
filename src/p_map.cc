@@ -243,10 +243,10 @@ static bool PIT_CheckAbsLine(line_t * ld, void *data)
 	// The spawning thing's position touches the given line.
 	// If this should not be allowed, return false.
 
-	if (tm_I.mover->player && ld->special &&
+/*	if (tm_I.mover->player && ld->special &&
 		(ld->special->portal_effect & PORTFX_Standard))
 		return true;
-	
+*/	
 	if (!ld->backsector || ld->gap_num == 0)
 		return false;  // one sided line
 
@@ -425,10 +425,10 @@ static bool PIT_CheckRelLine(line_t * ld, void *data)
 	// so two special lines that are only 8 pixels apart
 	// could be crossed in either order.
 
-	if (tm_I.mover->player && ld->special &&
+/*	if (tm_I.mover->player && ld->special &&
 		(ld->special->portal_effect & PORTFX_Standard))
 		return true;
-
+*/
 	if (!ld->backsector)
 	{
 		blockline = ld;
