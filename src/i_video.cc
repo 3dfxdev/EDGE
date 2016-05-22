@@ -27,7 +27,7 @@
 #include <GL/glew.h>
 #endif
 
-#if SDL_VERSION_ATLEAST(2,0,0)
+#ifdef MACOSX
 #include <SDL2/SDL_opengl.h>
 #else
 #include <SDL_opengl.h>
@@ -42,6 +42,9 @@
 
 extern cvar_c r_width, r_height, r_depth, r_fullscreen;
 
+//The window we'll be rendering to
+SDL_Window *my_vis;
+
 int graphics_shutdown = 0;
 
 cvar_c in_grab;
@@ -50,13 +53,7 @@ static bool grab_state;
 
 static int display_W, display_H;
 
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-//The window we'll be rendering to
-SDL_Window *my_vis;
 SDL_GLContext   glContext;
-#else
-SDL_Surface *my_vis;
-#endif
 
 
 // Possible Screen Modes
@@ -87,20 +84,14 @@ void I_GrabCursor(bool enable)
 	if (grab_state && in_grab.d)
 	{
 		SDL_ShowCursor(0);
-#if SDL_VERSION_ATLEAST(2, 0, 0)
+//		SDL_WM_GrabInput(SDL_GRAB_ON);
 		SDL_SetWindowGrab(my_vis, SDL_TRUE); //TODO: grab which window??
-#else
-		SDL_WM_GrabInput(SDL_GRAB_ON);
-#endif
 	}
 	else
 	{
 		SDL_ShowCursor(1);
-#if SDL_VERSION_ATLEAST(2, 0, 0)
+//		SDL_WM_GrabInput(SDL_GRAB_OFF);
 		SDL_SetWindowGrab(my_vis, SDL_FALSE); //TODO: grab which window??
-#else
-		SDL_WM_GrabInput(SDL_GRAB_OFF);
-#endif
 	}
 }
 
@@ -134,18 +125,12 @@ void I_StartupGraphics(void)
 
 	if (stricmp(driver, "default") != 0)
 	{
-#if SDL_VERSION_ATLEAST(2, 0, 0)
 		char nameBuffer[200];
 		char valueBuffer[200];
 		bool overWrite = true;
 		snprintf(nameBuffer, sizeof(nameBuffer), "SDL_VIDEODRIVER");
 		snprintf(valueBuffer, sizeof(valueBuffer), "%s", driver);
 		SDL_setenv(nameBuffer, valueBuffer, overWrite);
-#else
-		char buffer[200];
-		snprintf(buffer, sizeof(buffer), "SDL_VIDEODRIVER=%s", driver);
-		SDL_putenv(buffer);
-#endif	
 	}
 
 	I_Printf("SDL_Video_Driver: %s\n", driver);
@@ -158,8 +143,8 @@ void I_StartupGraphics(void)
 		in_grab = 0;
 	
 #ifdef OPENGL_2
-	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
-	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
+SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
+SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
 #endif	
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,   8);
@@ -168,15 +153,10 @@ void I_StartupGraphics(void)
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-#if SDL_VERSION_ATLEAST(2, 0, 0)
 	SDL_GL_SetSwapInterval(-1); 
-#else
-	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
-#endif
 	
 	// ~CA 5.7.2016:
-
-#if SDL_VERSION_ATLEAST(2, 0, 0)	
+	
 /* 	Some systems allow specifying -1 for the interval, 
 	to enable late swap tearing. Late swap tearing works 
 	the same as vsync, but if you've already missed the 
@@ -199,71 +179,12 @@ void I_StartupGraphics(void)
                               display_W,
                               display_H,
                               flags);
-                              
-	if(my_vis == NULL) 
+	
+	    if(my_vis == NULL) 
 	{
         I_Error("I_InitScreen: Failed to create window");
         return;
-    }                     
-#else
-	const SDL_VideoInfo *info = SDL_GetVideoInfo();
-
-	display_W = info->current_w;
-	display_H = info->current_h;
-
-	I_Printf("Desktop resolution: %dx%d\n", display_W, display_H);
-
-	SDL_Rect **modes = SDL_ListModes(info->vfmt,
-					  SDL_OPENGL | SDL_DOUBLEBUF | SDL_FULLSCREEN);
-
-	if (modes && modes != (SDL_Rect **)-1)
-	{
-		for (; *modes; modes++)
-		{
-			scrmode_c test_mode;
-
-			test_mode.width  = (*modes)->w;
-			test_mode.height = (*modes)->h;
-			test_mode.depth  = info->vfmt->BitsPerPixel;  // HMMMM ???
-			test_mode.full   = true;
-
-			if ((test_mode.width & 15) != 0)
-				continue;
-
-			if (test_mode.depth == 15 || test_mode.depth == 16 ||
-			    test_mode.depth == 24 || test_mode.depth == 32)
-			{
-				R_AddResolution(&test_mode);
-			}
-		}
-	}
-
-	// -ACB- 2000/03/16 Test for possible windowed resolutions
-	for (int full = 0; full <= 1; full++)
-	{
-		for (int depth = 16; depth <= 32; depth = depth+16)
-		{
-			for (int i = 0; possible_modes[i].w != -1; i++)
-			{
-				scrmode_c mode;
-
-				mode.width  = possible_modes[i].w;
-				mode.height = possible_modes[i].h;
-				mode.depth  = depth;
-				mode.full   = full;
-
-				int got_depth = SDL_VideoModeOK(mode.width, mode.height,
-						mode.depth, SDL_OPENGL | SDL_DOUBLEBUF |
-						(mode.full ? SDL_FULLSCREEN : 0));
-
-				if (R_DepthIsEquivalent(got_depth, mode.depth))
-				{
-					R_AddResolution(&mode);
-				}
-			}
-		}
-	}
-#endif	
+    }
 
 	I_Printf("I_StartupGraphics: initialisation OK\n");
 	
@@ -280,21 +201,14 @@ bool I_SetScreenSize(scrmode_c *mode)
 			 mode->width, mode->height, mode->depth,
 			 mode->full ? "fullscreen" : "windowed");
 
-	#if SDL_VERSION_ATLEAST(2, 0, 0)  
 	my_vis = SDL_CreateWindow("Hyper3DGE",
 					SDL_WINDOWPOS_UNDEFINED,
                     SDL_WINDOWPOS_UNDEFINED,
                     mode->width, mode->height,
                     SDL_WINDOW_OPENGL | //SDL2 is double-buffered by default
                     (mode->full ? SDL_WINDOW_FULLSCREEN :0));
-                                
 	SDL_GLContext context = SDL_GL_CreateContext( my_vis );
     SDL_GL_MakeCurrent( my_vis, context );
-    #else
-	my_vis = SDL_SetVideoMode(mode->width, mode->height, mode->depth, 
-					SDL_OPENGL | SDL_DOUBLEBUF |
-					(mode->full ? SDL_FULLSCREEN : 0));
-    #endif
 
                     
 	if (my_vis == NULL)
@@ -330,11 +244,7 @@ if (my_vis->format->BytesPerPixel <= 1)
 #ifdef MACOSX
 	//TODO: On Mac OS X make sure to bind 0 to the draw framebuffer before swapping the window, otherwise nothing will happen.
 #endif
-	#if SDL_VERSION_ATLEAST(2, 0, 0)  
 	SDL_GL_SwapWindow(my_vis);
-	#else
-	SDL_GL_SwapBuffers();
-	#endif
 	
 	return true;
 }
@@ -362,12 +272,7 @@ void I_FinishFrame(void)
 	}
 	#endif
 
-	#if SDL_VERSION_ATLEAST(2, 0, 0)  
 	SDL_GL_SwapWindow(my_vis);
-	#else
-	SDL_GL_SwapBuffers();
-	#endif
-	
 	if (r_vsync.d > 0)
 			glFinish();
 	if (in_grab.CheckModified())
@@ -382,13 +287,7 @@ void I_PutTitle(const char *title)
 
 void I_SetGamma(float gamma)
 {
-	#if SDL_VERSION_ATLEAST(2, 0, 0)  
-	#define Set_Brightness SDL_SetWindowBrightness(my_vis, gamma)
-	#else
-	#define Set_Brightness SDL_SetGamma(gamma,gamma,gamma)
-	#endif
-	
-	if (Set_Brightness < 0)
+	if (SDL_SetWindowBrightness(my_vis, gamma) < 0)
 		I_Printf("Failed to change gamma.\n");
 }
 
