@@ -2,8 +2,6 @@
 # EDGE Makefile : LINUX version
 #
 
-SDL2 = 1
-
 PROGRAM=edge.linux
 
 OBJDIR=obj_linux
@@ -17,7 +15,7 @@ LIBDIR=lib_linux
 CC=gcc
 CXX=g++
 
-CFLAGS = -O2 -ffast-math -fno-strict-aliasing -Wall -pipe
+CFLAGS=-O2 -ffast-math -fno-strict-aliasing -Wall -pipe
 
 LDFLAGS=-lm -Wl,--warn-common
 
@@ -56,21 +54,10 @@ CFLAGS_GLBSP += -DGLBSP_PLUGIN
 CFLAGS_GLBSP += -DINLINE_G=inline
 
 
-# SDL/SDL2
+# SDL
 
-ifeq ($(SDL2),0)
 CFLAGS  += $(shell sdl-config --cflags)
 LDFLAGS += $(shell sdl-config --libs)
-else ifeq ($(SDL2),1)
-CFLAGS  += $(shell sdl2-config --cflags)
-LDFLAGS += $(shell sdl2-config --libs)
-endif
-
-
-# LIBCPUID
-
-CFLAGS += -I/usr/include/libcpuid
-LDFLAGS += -lcpuid
 
 
 
@@ -235,7 +222,6 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/r_main.o     \
 	$(OBJDIR)/edge/r_occlude.o  \
 	$(OBJDIR)/edge/m_logo.o     \
-	$(OBJDIR)/edge/m_shift.o   \
 	$(OBJDIR)/edge/r_things.o   \
 	$(OBJDIR)/edge/r_units.o    \
 	$(OBJDIR)/edge/r_wipe.o     \
