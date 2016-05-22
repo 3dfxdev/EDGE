@@ -23,7 +23,7 @@
 
 #include "i_defs.h"
 
-#include <vorbis/vorbisfile.h>
+#include <Vorbis/vorbisfile.h>
 
 
 #include "../epi/sound_data.h"
