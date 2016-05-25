@@ -24,11 +24,7 @@
 
 #include "i_defs.h"
 
-#ifdef WIN32
-#include "../lib_win32/zlib-1.2.8/zlib.h"
-#else
 #include <zlib.h>
-#endif
 
 #include "../epi/math_crc.h"
 

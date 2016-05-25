@@ -28,17 +28,7 @@ extern "C"
 #define INT32  INT32_jpeg
 } //libjpeg-turbo seems to be allergic to C style linking.
 #endif
-#if defined WIN32 && defined SSE2
-#include "../lib_win32/libjpeg-turbo-gcc/include/jpeglib.h"
-#include "../lib_win32/libjpeg-turbo-gcc/include/jerror.h"
-#include "../lib_win32/libjpeg-turbo-gcc/include/turbojpeg.h"
-#elif defined WIN32
-extern "C"
-{
-#include "../lib_win32/jpeg-8c/jpeglib.h"
-#include "../lib_win32/jpeg-8c/jerror.h"
-}
-#elif defined SSE2
+#if defined SSE2
 #include <turbojpeg.h>
 #include <jpeglib.h> //NOTE: this implementation will call the first version listed in the makefile regardless of whether jpeg-turbo is supported.
 #include <jerror.h>

@@ -21,7 +21,7 @@
 #include "i_defs_gl.h"
 
 #ifdef WIN32
-#include "../lib_win32/glew-2.0.0/include/GL/wglew.h" ///#include "GL/wglew.h"
+#include "GL/wglew.h"
 /// If you don't hardlink under Win32, replace with ---> ^___________________^
 #else
 #include <GL/glew.h>
