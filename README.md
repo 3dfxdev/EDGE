@@ -16,6 +16,10 @@ Build System for 3DGE
 There are custom configurations for each platform. This project uses Makefiles for compiling.
 (There is no autoconf/automake/libtool support).
 
+### Visual Studio and CMake support was recently added along with our standard Make system -- proper building instructions are coming soon!
+
+### Building with Make:
+
 #### Build Linux debugging + shared-lib binary:
 
     > make -f Makefile.linux
