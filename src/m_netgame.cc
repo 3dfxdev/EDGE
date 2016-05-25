@@ -952,6 +952,8 @@ bool M_NetListResponder(event_t * ev, int ch)
 	M_ClearMenus();
 
 	NetGameStartLevel();
+
+    return false;
 }
 
 //bool M_NetListResponder(event_t * ev, int ch)

@@ -28,12 +28,7 @@
 #include <math.h>
 #include <limits.h>
 #include <errno.h>
-
-#ifdef WIN32
-#include "../../lib_win32/zlib-1.2.8/zlib.h"
-#else
 #include <zlib.h>
-#endif
 
 #include "blockmap.h"
 #include "level.h"

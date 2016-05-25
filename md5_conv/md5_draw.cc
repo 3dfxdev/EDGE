@@ -28,7 +28,12 @@
 #include <windows.h>
 #include "../src/i_defs_gl.h"
 #endif
+
+#ifdef _MSC_VER
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
 
 #include <stdio.h>
 #include <assert.h>
