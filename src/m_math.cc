@@ -25,6 +25,7 @@
 
 #include "i_defs.h"
 
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 #include "m_math.h"

@@ -30,7 +30,7 @@
 #include "md5_parse.h"
 #include "md5.h"
 
-#define dbo(a...) do { printf(a); fflush(stdout); } while(0)
+#define dbo(a, ...) do { printf(a, __VA_ARGS__); fflush(stdout); } while(0)
 #define dbl() do { dbo("[%s %i]\n",__FILE__, __LINE__); } while(0)
 
 void I_Error(const char *error,...);

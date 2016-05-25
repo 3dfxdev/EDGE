@@ -22,13 +22,8 @@
 
 #undef _SETJMP_H  // workaround for some weirdness in pngconf.h
 
-#ifdef WIN32
-#include "../lib_win32/libpng-1.6.21/png.h"
-#include "../lib_win32/zlib-1.2.8/zlib.h"
-#else
 #include <png.h>
 #include <zlib.h>
-#endif
 
 namespace epi
 {

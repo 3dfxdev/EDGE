@@ -36,7 +36,7 @@
 ///      define, like WIN32_GLAD, for GLEWs successor..
 #ifdef WIN32
 #define GLEW_STATIC  1
-#include "C:\3DGE\lib_win32\glew-2.0.0\include\GL\glew.h" ///if on WIN32, replace this if you have GLEW installed locally.
+#include "GL\glew.h"
 #include "GL\gl.h"
 #include "GL\glext.h"
 #endif
