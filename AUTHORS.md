@@ -20,6 +20,7 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 * Alex "TapamN" Nesemann
 * UsernameAK
 * Josh "Ph3nom" Pearson
+* Benjamin Moir
 
 ## Codebase Contributors
 * AlexeyNukeyT (OPL)
@@ -38,6 +39,7 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 * Kaiser (Doom64-ex)
 * Marisa Heit (most amazing woman in the community, TBH ;)
 * ctd1500
+
  ---
 ##### We've tried to include everyone, but if you've made a contribution to the 3DGE engine and are not listed, please feel free to open an issue or pull request with your name and contribution.
 
