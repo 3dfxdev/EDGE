@@ -202,7 +202,7 @@ void PutReject(void)
   GroupSectors();
   
   reject_size = (num_sectors * num_sectors + 7) / 8;
-  matrix = UtilCalloc(reject_size);
+  matrix = (uint8_g *)UtilCalloc(reject_size);
 
   CreateReject(matrix);
 
@@ -218,4 +218,3 @@ void PutReject(void)
 
   UtilFree(matrix);
 }
-

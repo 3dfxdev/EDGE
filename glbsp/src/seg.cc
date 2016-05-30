@@ -98,7 +98,7 @@ static intersection_t *NewIntersection(void)
   }
   else
   {
-    cut = UtilCalloc(sizeof(intersection_t));
+    cut = (intersection_t *) UtilCalloc(sizeof(intersection_t));
   }
 
   return cut;
@@ -1240,4 +1240,3 @@ void AddMinisegs(seg_t *part,
     quick_alloc_cuts = cur;
   }
 }
-

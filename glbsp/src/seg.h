@@ -110,5 +110,4 @@ void AddMinisegs(seg_t *part,
 // free the quick allocation cut list
 void FreeQuickAllocCuts(void);
 
-
 #endif /* __GLBSP_SEG_H__ */
