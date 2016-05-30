@@ -410,8 +410,8 @@ GLBSP_OBJS= \
 	$(OBJDIR)/glbsp/util.o     \
 	$(OBJDIR)/glbsp/wad.o
 
-$(OBJDIR)/glbsp/%.o: glbsp/src/%.c
-	$(CC) $(CFLAGS_GLBSP) -o $@ -c $< 
+$(OBJDIR)/glbsp/%.o: glbsp/src/%.cc
+	$(CXX) $(CFLAGS_GLBSP) -o $@ -c $< 
 
 
 # ---------- Timidity ---------------
