@@ -307,4 +307,3 @@ uint32_g Endian_U32(uint32_g x)
   else
     return x;
 }
-

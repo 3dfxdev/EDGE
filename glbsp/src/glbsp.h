@@ -22,6 +22,8 @@
 #define __GLBSP_GLBSP_H__
 
 
+/** Eureka change: namespacing */
+
 #define GLBSP_VER  "2.27"
 #define GLBSP_VER_HEX  0x227
 
@@ -35,9 +37,11 @@
 #endif
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
+/** OBLIGE change: assume C++ **/
+
+// #ifdef __cplusplus
+// extern "C" {
+// #endif // __cplusplus
 
 
 /* ----- basic types --------------------------- */
@@ -239,7 +243,7 @@ glbsp_ret_e;
 // values.  Calling this routine is not compulsory.  Note that the set
 // of arguments does not include the program's name.
 //
-glbsp_ret_e GlbspParseArgs(nodebuildinfo_t *info,
+glbsp_ret_e ParseArgs(nodebuildinfo_t *info,
     volatile nodebuildcomms_t *comms,
     const char ** argv, int argc);
 
@@ -281,10 +285,5 @@ glbsp_ret_e GlbspBuildNodes(const nodebuildinfo_t *info,
 //
 const char *GlbspStrDup(const char *str);
 void GlbspFree(const char *str);
-
-
-#ifdef __cplusplus
-}
-#endif // __cplusplus
 
 #endif /* __GLBSP_GLBSP_H__ */
