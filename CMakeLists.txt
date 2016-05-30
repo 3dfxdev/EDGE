@@ -240,16 +240,16 @@ set(3DGE_SOURCES
 	epi/epi_win32.cc
 	epi/filesystem_win32.cc
 	
-	glbsp/src/analyze.c
-	glbsp/src/blockmap.c
-	glbsp/src/glbsp.c
-	glbsp/src/level.c
-	glbsp/src/node.c
-	glbsp/src/reject.c
-	glbsp/src/seg.c
-	glbsp/src/system.c
-	glbsp/src/util.c
-	glbsp/src/wad.c
+	glbsp/src/analyze.cc
+	glbsp/src/blockmap.cc
+	glbsp/src/glbsp.cc
+	glbsp/src/level.cc
+	glbsp/src/node.cc
+	glbsp/src/reject.cc
+	glbsp/src/seg.cc
+	glbsp/src/system.cc
+	glbsp/src/util.cc
+	glbsp/src/wad.cc
 	
 	timidity/common.cc
 	timidity/instrum.cc
