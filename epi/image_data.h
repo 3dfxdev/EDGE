@@ -30,6 +30,10 @@ typedef enum
 }
 image_data_flags_e;
 
+struct png_grAb_t
+{
+    int32_t x, y;
+};
 
 class image_data_c
 {
@@ -50,6 +54,8 @@ public:
 	short used_h;
 
 	u8_t *pixels;
+
+    png_grAb_t *grAb;
 
 	// TODO: color_c *palette;
 

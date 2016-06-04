@@ -17,6 +17,7 @@
 //------------------------------------------------------------------------
 
 #include "epi.h"
+#include "endianess.h"
 
 #include "image_png.h"
 
@@ -54,7 +55,6 @@ bool PNG_IsDataPNG(const byte *data, int length)
 
 	return png_sig_cmp((png_bytep) data, (png_size_t)0, CHECK_PNG_BYTES) == 0;
 }
-
 
 image_data_c *PNG_Load(file_c *f, int read_flags)
 {
@@ -113,6 +113,7 @@ image_data_c *PNG_Load(file_c *f, int read_flags)
 
 	/* read the header information */
 
+    png_set_keep_unknown_chunks(png_ptr, PNG_HANDLE_CHUNK_ALWAYS, nullptr, 0);
 	png_read_info(png_ptr, info_ptr);
 
 	png_uint_32 width, height;
@@ -182,6 +183,22 @@ image_data_c *PNG_Load(file_c *f, int read_flags)
 
 	png_read_image(png_ptr, row_pointers);
 	png_read_end(png_ptr, info_ptr);
+
+    /* read grAb chunk */
+    png_unknown_chunk *unknowns;
+    int num_unknowns = png_get_unknown_chunks(png_ptr, info_ptr, &unknowns);
+
+    for (int i = 0; i < num_unknowns; i++)
+    {
+        if (!memcmp(unknowns[i].name, "grAb", 4))
+        {
+            png_grAb_t *grAb = reinterpret_cast<png_grAb_t *>(unknowns[i].data);
+            grAb->x = EPI_BE_S32(grAb->x) + 160 - width / 2;
+            grAb->y = EPI_BE_S32(grAb->y) + 200 - 32 - height;
+            img->grAb = grAb;
+            break;
+        }
+    }
 
 	png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 
