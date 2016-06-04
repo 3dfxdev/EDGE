@@ -201,7 +201,7 @@ static void CON_ClearInputLine(void)
 void CON_SetVisible(visible_t v)
 {
 	paused = true;
-	SDL_StartTextInput();
+
 	if (v == vs_toggle)
 	{
 		v = (con_visible == vs_notvisible) ? vs_maximal : vs_notvisible;
@@ -483,8 +483,6 @@ void CON_Drawer(void)
 	if (con_visible == vs_notvisible && !conwipeactive)
 		return;
 	
-	SDL_StartTextInput();
-
 	// -- background --
 
 	int CON_GFX_HT = (SCREENHEIGHT * 3 / 5) / YMUL;
@@ -507,24 +505,23 @@ void CON_Drawer(void)
 
 	if (bottomrow == -1)
 	{
-		SDL_StartTextInput();
+
 		DrawText(0, y, ">", T_PURPLE);
 
 		if (cmd_hist_pos >= 0)
 		{
 			const char *text = cmd_history[cmd_hist_pos]->c_str();
 
-			SDL_StartTextInput();
 			DrawText(XMUL, y, text, T_PURPLE);
 		}
 		else
 		{
-			SDL_StartTextInput();
+
 			DrawText(XMUL, y, input_line, T_PURPLE);
 		}
 
 		if (con_cursor < 16)
-			SDL_StartTextInput();
+
 			DrawText((input_pos+1) * XMUL, y - 2, "_", T_PURPLE);
 
 		y += YMUL;
@@ -781,24 +778,12 @@ static void TabComplete(void)
 
 void CON_HandleKey(int key, bool shift, bool ctrl)
 {
-
-	if(KeysShifted) 
-	{
-        key = shiftxform[key];
-    }
-	
-	SDL_StartTextInput();
-	
-	switch (key)
-	{
+	switch (key) {
 	case KEYD_RALT:
 	case KEYD_RCTRL:
-		// Do nothing
-		break;
-	
 	case KEYD_RSHIFT:
-		// SHIFT was pressed (now we point to shiftxform as per Doom 64EX)
-		KeysShifted = true;
+		// Do nothing
+		// BD: nothing to do for *just* shift key being pressed.
 		break;
 	
 	case KEYD_PGUP:
@@ -969,14 +954,14 @@ void CON_HandleKey(int key, bool shift, bool ctrl)
 			// ignore non-printable characters
 			break;
 		}
-
+		if(shift) {
+			key = shiftxform[key]; //BD: only try to transform printable characters.
+		}
 		EditHistory();
 
 		if (input_pos >= MAX_CON_INPUT-1)
 			break;
-
 		InsertChar(key);
-		
 		TabbedLast = false;
 		con_cursor = 0;
 		break;
@@ -992,11 +977,6 @@ bool CON_Responder(event_t * ev)
 {
 	int c;
     bool clearheld = true;
-	
-/* 	if(shiftdown) 
-	{
-        c = shiftxform[c];
-    } */
 
     if(ev->type != ev_keyup && ev->type != ev_keydown) 
 	{
@@ -1031,7 +1011,8 @@ bool CON_Responder(event_t * ev)
     }
 
 	/// Pulling console down.
-	if (ev->type == ev_keydown && ev->data1 == key_console)
+	int theKey = (KeysShifted) ? shiftxform[ev->data1] : ev->data1; //allows shifted keys to (not) toggle the console (eg. so you can type a "~")
+	if (ev->type == ev_keydown && theKey == key_console)
 	{
 		CON_SetVisible(vs_toggle);
 		paused = true;
@@ -1054,6 +1035,7 @@ bool CON_Responder(event_t * ev)
 			case KEYD_PGDN:
 				scroll_dir = 0;
 				break;
+		//	case KEYD_SHIFT:	
 			case KEYD_RSHIFT:
 				KeysShifted = false;
 				break;
@@ -1082,7 +1064,7 @@ bool CON_Responder(event_t * ev)
 
 		repeat_key = c;
 
-		CON_HandleKey(c, KeysShifted, false);
+		CON_HandleKey(c, KeysShifted, false); //TODO: pass KeysShifted=true if CAPSLOCK is active.
 	}
 
 	return true;  // eat all keyboard events
