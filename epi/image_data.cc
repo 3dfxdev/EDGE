@@ -26,7 +26,7 @@ namespace epi
 
 image_data_c::image_data_c(int _w, int _h, int _bpp) :
     width(_w), height(_h), bpp(_bpp), flags(IDF_NONE),
-    used_w(_w), used_h(_h)
+    used_w(_w), used_h(_h), grAb(nullptr)
 {
 	pixels = new u8_t[width * height * bpp];
 }
@@ -34,6 +34,7 @@ image_data_c::image_data_c(int _w, int _h, int _bpp) :
 image_data_c::~image_data_c()
 {
 	delete[] pixels;
+    delete[] grAb;
 
 	pixels = NULL;
 	width = height = 0;

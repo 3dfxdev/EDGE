@@ -946,8 +946,14 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 		what_pal_cached = true;
 	}
 
-
 	epi::image_data_c *tmp_img = ReadAsEpiBlock(rim);
+    
+    /* add offsets if they were read from the file */
+    if (tmp_img->grAb != nullptr)
+    {
+        rim->offset_x = tmp_img->grAb->x;
+        rim->offset_y = tmp_img->grAb->y;
+    }
 
 	if (rim->opacity == OPAC_Unknown)
 		rim->opacity = R_DetermineOpacity(tmp_img);
