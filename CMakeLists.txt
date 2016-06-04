@@ -53,6 +53,7 @@ find_package(jpeg REQUIRED)
 include_directories(${JPEG_INCLUDE_DIR})
 
 # 3DGE
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 set(3DGE_SOURCES
 	coal/c_compile.cc
 	coal/c_execute.cc
@@ -266,6 +267,7 @@ set(3DGE_WIN32_SOURCES
 	src/w32_mus.cc
 	src/w32_net.cc
 	src/w32_system.cc
+	src/w32_res.rc
 )
 
 set(3DGE_UNIX_SOURCES
