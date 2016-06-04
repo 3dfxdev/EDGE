@@ -9,6 +9,34 @@ TODO  // notes to self
 ##############################
 
 -----------------
+6.3.2016
+-----------------
+
+Checked in extremely early (and super unfinished) ROTT code, so 3DGE
+can interpret ROTT maps and datas (basically, a non-shitty RottGL)
+
+-----------------
+5.29.2016
+-----------------
+
+Took a small break to research a ton of stuff for the engine.
+
+Released 2.1.0 (TEST-1) today, let's see what kind of awful feedback
+we can get about the state of our SDL2 port. ;)
+
+Upgraded glBSP to the version in Andrew's Eureka codebase, and now the
+library is true C++ (no ugly extern "C" hacks).
+
+Integrated polyobjects, then abruptly removed them. I had merged a working
+copy from a year or two ago when I had mostly working Polyobject code, before
+I realised that it always crashed on maps that contained them. My knowledge
+of the engine has increased two-fold, so I will be slowly working on adding
+proper (done the right way) support as time goes on.
+
+Checked in Wolfenstein-3D code! =)
+
+
+-----------------
 5.15.2016
 -----------------
 
