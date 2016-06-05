@@ -20,6 +20,8 @@
 
 #include "image_data.h"
 
+// ~CA: 6.4.16: GCC does not support nullptr without gross hacks, so this is a workaround:
+#define nullptr NULL
 
 namespace epi
 {
