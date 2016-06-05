@@ -43,15 +43,14 @@
 #define GCCATTR(xyz)  /* nothing */
 #endif
 
+#pragma warning( disable : 4290 )
+#pragma warning( disable : 4005 ) // This is to disable the macro redefinition of _WINDOWS under Visual Studio
 
 #define _WINDOWS
 #define WIN32_LEAN_AND_MEAN
 
 #include <windows.h>
 
-#if 0  // needed??
-#pragma warning( disable : 4290 )
-#endif
 
 #endif /*__WIN32_EPI_HEADER__*/
 
