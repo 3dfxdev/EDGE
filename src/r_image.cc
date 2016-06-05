@@ -80,6 +80,9 @@ extern void CloseUserFileOrLump(imagedef_c *def, epi::file_c *f);
 #define DUMMY_X  16
 #define DUMMY_Y  16
 
+// ~CA: 6.4.16: GCC does not support nullptr without gross hacks, so this is a workaround:
+#define nullptr NULL
+
 
 extern void DeleteSkyTextures(void);
 extern void DeleteColourmapTextures(void);

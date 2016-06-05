@@ -26,6 +26,8 @@
 #include <png.h>
 #include <zlib.h>
 
+#define nullptr NULL // workaround
+
 namespace epi
 {
 
@@ -66,6 +68,8 @@ image_data_c *PNG_Load(file_c *f, int read_flags)
 	image_data_c * volatile img = 0;
 
 	png_bytep * volatile row_pointers = 0;
+	
+	int num_unknowns = 0;
 
 	/* we take the address of these two, so we shouldn't need the
 	 * volatile.  (GCC complains about discarding qualifiers if the
@@ -186,7 +190,7 @@ image_data_c *PNG_Load(file_c *f, int read_flags)
 
     /* read grAb chunk */
     png_unknown_chunk *unknowns;
-    int num_unknowns = png_get_unknown_chunks(png_ptr, info_ptr, &unknowns);
+    png_get_unknown_chunks(png_ptr, info_ptr, &unknowns);
 
     for (int i = 0; i < num_unknowns; i++)
     {
