@@ -7,6 +7,8 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 ---
 This build uses Sconstruct to build a Linux (or equivalent) version of 3DGE. You will find this in the root folder (appropriately named Sconstruct)
 
+*The Sconstruct file is now located in /SCONS in the root directory. Just copy it out to the root and execute it.*
+
 # Building with SCONS
 ---
 1) Execute Sconscript (make sure the libs are build-beforehand and linked inside of the file)
