@@ -26,7 +26,10 @@
 #include <png.h>
 #include <zlib.h>
 
-#define nullptr NULL // workaround
+// if we can't use C++11 or aren't using VS2015, resort to gross hacks
+#if __cplusplus < 201103L && (!defined(_MSC_VER) || _MSC_VER < 1900)
+#define nullptr NULL
+#endif
 
 namespace epi
 {
@@ -190,7 +193,7 @@ image_data_c *PNG_Load(file_c *f, int read_flags)
 
     /* read grAb chunk */
     png_unknown_chunk *unknowns;
-    png_get_unknown_chunks(png_ptr, info_ptr, &unknowns);
+    num_unknowns = png_get_unknown_chunks(png_ptr, info_ptr, &unknowns);
 
     for (int i = 0; i < num_unknowns; i++)
     {
