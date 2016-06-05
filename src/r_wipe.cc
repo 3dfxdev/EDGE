@@ -25,7 +25,7 @@
 
 #include "i_defs.h"
 #include "i_defs_gl.h"
-#include "dm_state.h"
+
 #include "../epi/image_data.h"
 
 #include "m_random.h"
@@ -236,6 +236,8 @@ static void RGL_Wipe_Pixelfade(float how_far)
 
 	glAlphaFunc(GL_GREATER, 0);
 }
+
+/// FIXME: Different behavior between VS and MinGW results in RGL_Wipe_Melt() being broken in VS, working in MinGW =(
 
 static void RGL_Wipe_Melt(void)
 {
