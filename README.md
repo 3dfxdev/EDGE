@@ -5,60 +5,32 @@ Welcome to hyper3DGE!
 
 #### 3DGE is an advanced OpenGL source port based on the DOOM engine
 
-* http://edge2.sourceforge.net
-* (c) 2011-2015 Isotope SoftWorks & Contributors
-* [Visit the hyper3DGE Wiki for support and documentation](http://3dfxdev.net/edgewiki)
+# (C) 2011-2016 Isotope SoftWorks & Contributors
+##### id Tech 1-4 (C) id Software, LLC
+#### Licensed under the GPLv2 (or greater)
+http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
+# See our 3DGE Wiki (http://3dfxdev.net/edgewiki/index.php/Main_Page)
+--
 
+## Build System for 3DGE
+---
+To build 3DGE, [please see](../blob/master/build_guide) and choose
+based on your platform and compiler. They are step-by-step guides
+in order to lessen the amount of fumbling around that was previously
+noted for new users.
 
-Build System for 3DGE
----------------------
-
-There are custom configurations for each platform. This project uses Makefiles for compiling.
-(There is no autoconf/automake/libtool support).
-
-### Visual Studio and CMake support was recently added along with our standard Make system -- proper building instructions are coming soon!
-
-### Building with Make:
-
-#### Build Linux debugging + shared-lib binary:
-
-    > make -f Makefile.linux
-
-#### Build Win32 statically-linked binary:
-
-    > make -f Makefile.xming
-
-#### Build MacOSX binary:
- 
-    > make -f Makefile.osx
-
-#### Build Dreamcast:
-(note: this requires KallistiOS)
-
-    > make -f Makefile.dc
-
-
-
-Libraries
----------
-
+## Libraries
+---
 For the list of libraries required by 3DGE, please see the
-following document: docs/tech/libraries.txt
+following document: docs/tech/libraries.txt.
+##### You can also obtain the pre-compiled libraries by looking in the build_guide, depending on what compiler you are planning to use.
 
-The Makefiles not only build the main engine code
-(i.e. all the stuff in the src/ directory) but also build
-the EPI, DEH_EDGE, COAL, TIMIDITY, MD5, and GLBSP libraries.
+---
 
-The following libraries are linked statically in the
-release builds and must be built manually beforehand:
-zlib, libpng, jpeglib, libogg, libvorbis and libvorbisfile.
-Also FLTK for Linux release binaries.
-
-To find a list of the requirements to build the Dreamcast version,
-please visit the [KallistiOS homepage](gamedev.allusion.net/softprj/kos/).
-
-#### Support
+# Support
 * Visit the [3DGE forums](http://tdgmods.net/smf) and get involved with the
 community and the various projects for the engine.
 * The [3DGEWiki](http://3dfxdev.net/edgewiki) is also a great resource for
 editing documentation and other information related to the engine.
+
+(C) 2011 - 2016 Isotope SoftWorks and Contributors. All Rights Reserved.
