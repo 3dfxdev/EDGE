@@ -70,7 +70,7 @@ typedef struct
 
 	/* byte filename[]; */
 
-} PACKEDATTR raw_zip_local_header_t;
+}raw_zip_local_header_t;
 
 
 typedef struct
@@ -81,7 +81,7 @@ typedef struct
 	u32_t compress_size;
 	u32_t full_size;
 
-} PACKEDATTR raw_zip_local_trailer_t;
+} raw_zip_local_trailer_t;
 
 
 typedef struct
@@ -114,7 +114,7 @@ typedef struct
 
 	/* byte filename[]; */
 
-} PACKEDATTR raw_zip_central_header_t;
+} raw_zip_central_header_t;
 
 
 typedef struct
@@ -132,7 +132,7 @@ typedef struct
 
 	u16_t comment_length;
 
-} PACKEDATTR raw_zip_end_of_directory_t;
+} raw_zip_end_of_directory_t;
 
 
 // magic signatures:
