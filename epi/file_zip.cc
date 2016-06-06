@@ -23,8 +23,20 @@
 
 #include <zlib.h>
 #include <list>
+#include <time.h>
 
 #include "rawdef_zip.h"
+
+#define LogPrintf I_Printf
+#define DebugPrintf I_Debugf
+
+#ifdef _MSC_VER
+#define strdup _strdup
+#define stricmp _stricmp
+#define strnicmp _strnicmp
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#endif
 
 #define LOCAL_CRC_OFFSET   (7*2)
 #define LOCAL_NAME_OFFSET  (15*2)
@@ -437,7 +449,7 @@ int ZIPF_FindEntry(const char *name)
 {
 	for (unsigned int i = 0 ; i < r_end_part.total_entries ; i++)
 	{
-		if (StringCaseCmp(name, r_directory[i].name) == 0)
+		if (strcasecmp(name, r_directory[i].name) == 0)
 			return i;
 	}
 
@@ -765,7 +777,7 @@ void ZIPF_CloseWrite(void)
 void ZIPF_NewLump(const char *name)
 {
 	if (strlen(name)+1 >= ZIPF_MAX_PATH)
-		Main_FatalError("ZIPF_NewLump: name too long (>= %d)\n", ZIPF_MAX_PATH);
+		I_Error("ZIPF_NewLump: name too long (>= %d)\n", ZIPF_MAX_PATH);
 
 	// remember position
 	w_local_start  = (int)ftell(w_zip_fp);
