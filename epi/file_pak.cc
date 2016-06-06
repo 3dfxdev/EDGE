@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------
-//  ARCHIVE handling - Quake1/2 PAK files
+//  EPI Quake1/2 PAK handling
 //------------------------------------------------------------------------
 //
-//  Oblige Level Maker
+//  From Oblige Level Maker: Copyright (C) 2006-2009 Andrew Apted
 //
-//  Copyright (C) 2006-2009 Andrew Apted
+//  Copyright (C) 20116 Isotope SoftWorks.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -20,12 +20,20 @@
 
 #include "epi.h"
 #include "endianess.h"
+#include "types.h"
 
 #include "rawdef_pak.h"
 
 #include <list>
 
 #define LogPrintf  I_Printf
+
+
+#ifdef _MSC_VER 
+//not #if defined(_WIN32) || defined(_WIN64) because we have strncasecmp in mingw
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#endif
 
 namespace epi
 {
@@ -74,8 +82,8 @@ bool PAK_OpenRead(const char *filename)
 		return false;
 	}
 
-	r_header.dir_start = LE_U32(r_header.dir_start);
-	r_header.entry_num = LE_U32(r_header.entry_num);
+	r_header.dir_start = EPI_LE_U32(r_header.dir_start);
+	r_header.entry_num = EPI_LE_U32(r_header.entry_num);
 
 	// convert directory length to entry count
 	r_header.entry_num /= sizeof(raw_pak_entry_t);
@@ -127,8 +135,8 @@ bool PAK_OpenRead(const char *filename)
 		// make sure name is NUL terminated.
 		E->name[55] = 0;
 
-		E->offset = LE_U32(E->offset);
-		E->length = LE_U32(E->length);
+		E->offset = EPI_LE_U32(E->offset);
+		E->length = EPI_LE_U32(E->length);
 
 		//  DebugPrintf(" %4d: %08x %08x : %s\n", i, E->offset, E->length, E->name);
 	}
@@ -158,7 +166,7 @@ int PAK_FindEntry(const char *name)
 {
 	for (unsigned int i = 0; i < r_header.entry_num; i++)
 	{
-		if (StringCaseCmp(name, r_directory[i].name) == 0)
+		if (strcasecmp(name, r_directory[i].name) == 0)
 			return i;
 	}
 
@@ -322,8 +330,8 @@ void PAK_CloseWrite(void)
 	// finally write the _real_ PAK header
 	header.entry_num *= sizeof(raw_pak_entry_t);
 
-	header.dir_start = LE_U32(header.dir_start);
-	header.entry_num = LE_U32(header.entry_num);
+	header.dir_start = EPI_LE_U32(header.dir_start);
+	header.entry_num = EPI_LE_U32(header.entry_num);
 
 	fseek(w_pak_fp, 0, SEEK_SET);
 
@@ -376,8 +384,8 @@ void PAK_FinishLump(void)
 	}
 
 	// fix endianness
-	w_pak_entry.offset = LE_U32(w_pak_entry.offset);
-	w_pak_entry.length = LE_U32(len);
+	w_pak_entry.offset = EPI_LE_U32(w_pak_entry.offset);
+	w_pak_entry.length = EPI_LE_U32(len);
 
 	w_pak_dir.push_back(w_pak_entry);
 }
