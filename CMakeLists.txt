@@ -215,6 +215,9 @@ set(3DGE_SOURCES
 	epi/filesystem.cc
 	epi/file_memory.cc
 	epi/file_sub.cc
+	epi/file_grp.cc
+	epi/file_pak.cc
+	epi/file_zip.cc
 	epi/image_data.cc
 	epi/image_hq2x.cc
 	epi/image_jpeg.cc
