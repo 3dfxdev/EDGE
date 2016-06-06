@@ -24,6 +24,7 @@
 
 #include "types.h"
 
+
 namespace epi
 {
 
@@ -54,13 +55,14 @@ void GRP_FinishLump(void);
 
 
 /* ----- GRP structure ---------------------- */
+// Removed PACKEDATTR...
 
 typedef struct
 {
 	char magic[12];
 	u32_t num_lumps;
 
-} PACKEDATTR raw_grp_header_t;
+}raw_grp_header_t;
 
 
 typedef struct
@@ -68,7 +70,7 @@ typedef struct
 	char name[12];
 	u32_t length;
 
-} PACKEDATTR raw_grp_lump_t;
+}raw_grp_lump_t;
 
 
 }  // namespace epi

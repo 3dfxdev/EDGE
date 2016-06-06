@@ -20,6 +20,9 @@
 
 #include "epi.h"
 #include "endianess.h"
+#include "types.h"
+#include <limits.h>
+
 
 #include "rawdef_grp.h"
 
@@ -184,7 +187,7 @@ int GRP_FindEntry(const char *name)
 		strncpy(buffer, grp_R_dir[i].name, 12);
 		buffer[12] = 0;
 
-		if (StringCaseCmp(name, buffer) == 0)
+		if (strcmp(name, buffer) == 0)
 			return i;
 	}
 
