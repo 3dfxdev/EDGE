@@ -4,6 +4,17 @@
 ## Improved this makefile, this should be much less of a hassle to setup on Win32 now. 
 ## Also, removed all hardcoded paths, EXCEPT in this makefile (notably, libmingw32.a)
 
+#########
+#########
+#########
+#########
+# 
+# THIS WAY OF BUILDING WINDOWS IS UNSUPPORTED!! THEREFORE, WE WILL STOP UPDATING IT IMMEDIATELY. WINDOWS USERS NEED TO MOVE TO VISUAL STUDIO!!
+# 
+#########
+#########
+#########
+#########
 PROGRAM=edge2.exe
 
 OBJDIR=obj_win32

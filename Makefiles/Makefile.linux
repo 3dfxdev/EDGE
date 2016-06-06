@@ -288,6 +288,9 @@ EPI_OBJS= \
 	$(OBJDIR)/epi/filesystem.o   \
 	$(OBJDIR)/epi/file_memory.o  \
 	$(OBJDIR)/epi/file_sub.o     \
+	$(OBJDIR)/epi/file_grp.o     \
+	$(OBJDIR)/epi/file_pak.o     \
+	$(OBJDIR)/epi/file_zip.o     \
 	$(OBJDIR)/epi/image_data.o   \
 	$(OBJDIR)/epi/image_hq2x.o   \
 	$(OBJDIR)/epi/image_jpeg.o   \
