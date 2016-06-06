@@ -26,6 +26,14 @@
 
 #define DEBUG_DDF  0
 
+/// `CA- 6.5.2016: quick hacks to change these in Visual Studio (less warnings). 
+#ifdef _MSC_VER
+#define strdup _strdup
+#define stricmp _stricmp
+#define strnicmp _strnicmp
+#endif
+
+
 // Forward declarations
 struct mobj_s;
 struct sfx_s;
