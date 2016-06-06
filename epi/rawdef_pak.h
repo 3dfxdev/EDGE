@@ -25,6 +25,11 @@
 #ifndef __EPI_RAWDEF_PAK__
 #define __EPI_RAWDEF_PAK__
 
+#include <vector> ///rip
+
+/// OBLIGE HOLDOVERS:
+#define ALIGN_LEN(x)  (((x) + 3) & ~3)
+
 namespace epi
 {
 /* PAK reading */
@@ -63,7 +68,7 @@ typedef struct
 	u32_t dir_start;
 	u32_t entry_num;
 
-} PACKEDATTR raw_pak_header_t;
+}raw_pak_header_t;
 
 #define PAK_MAGIC  "PACK"
 
@@ -75,7 +80,7 @@ typedef struct
 	u32_t offset;
 	u32_t length;
 
-} PACKEDATTR raw_pak_entry_t;
+}raw_pak_entry_t;
 
 
 }  // namespace epi

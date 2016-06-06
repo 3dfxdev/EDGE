@@ -149,7 +149,8 @@ namespace epi
     
 };
 
-
+/// OBLIGE HOLDOVERS:
+#define ALIGN_LEN(x)  (((x) + 3) & ~3)
 
 
 //
