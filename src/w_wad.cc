@@ -1044,9 +1044,11 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	raw_wad_header_t header;
 	raw_wad_entry_t *curinfo;
 	
-	static raw_pak_header_t r_header;
+	raw_pak_header_t r_header;
 
-	static raw_pak_entry_t * r_directory;
+	raw_pak_entry_t *r_directory;
+
+	std::string pak_filename;
 
 /* 	raw_pak_header_t r_header;
 	raw_pak_entry_t * r_directory; */
@@ -1077,8 +1079,10 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	if (kind == FLKIND_RTS)
 		return;
  	
+	/// For this, we are using everything defined in /source. This has been EPI::fied, so we will eventually use that!!
 	if (kind == FLKIND_PAK) // -CA PAK support	
 	{
+
 		// PAK File
 		file->Read(&r_header, sizeof(raw_pak_header_t));
 		
@@ -1089,7 +1093,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		
 		raw_pak_entry_t *fileinfo = new raw_pak_entry_t[r_header.entry_num];
 		
-		file->Seek(r_header.dir_start, epi::file_c::SEEKPOINT_START); /// should dir_start be instead num_entries?
+		file->Seek(r_header.dir_start, epi::file_c::SEEKPOINT_START);
 		file->Read(fileinfo, length);
 		
 		//Compute MD5 hash over PAK dir structure. . .
@@ -1107,9 +1111,11 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 					r_directory->name,
 					(kind == FLKIND_PAK));/// || (kind == FLKIND_EPK) ); <--- EPK can be 3DGE PAK, for edge.epk or something?
 		}
-		
-		///I_Debugf(" %4d: %08x %08x : %s\n", i, E->offset, E->length, E->name);
-		delete[] fileinfo;
+
+		epi::PATH_Join(cache_dir.c_str(), r_directory->name);
+
+		///I_Printf(" %4d: %08x %08x : %s\n", j, r_directory->offset, r_directory->length, r_directory->name);
+		///delete[] fileinfo;
 	}
 
 	if (kind <= FLKIND_HWad)
@@ -1414,7 +1420,7 @@ void W_ReadDDF(void)
 			if (df->kind >= FLKIND_Demo)
 				continue;
 
-			if (df->kind == FLKIND_PAK || FLKIND_PAK)
+			if (df->kind == FLKIND_EWad || FLKIND_PAK)
 			{
 				// special handling for TNT and Plutonia
 				// edit for HERETIC iwad
@@ -2142,181 +2148,6 @@ void W_ShowFiles(void)
 		I_Printf(" %2d %-4s \"%s\"\n", i+1, FileKind_Strings[df->kind], df->file_name);
 	}
 }
-
-//------------------------------------------------------------------------
-//  PAK READING
-//------------------------------------------------------------------------
-
-/* bool PAK_OpenRead(const char *filename)
-{
-  FILE *r_pak_fp = fopen(filename, "rb");
-
-  if (! r_pak_fp)
-  {
-    I_Printf("PAK_OpenRead: no such file: %s\n", filename);
-    return false;
-  }
-
-  I_Printf("Opened PAK file: %s\n", filename);
-
-  if (fread(&r_header, sizeof(r_header), 1, r_pak_fp) != 1)
-  {
-    I_Printf("PAK_OpenRead: failed reading header\n");
-    fclose(r_pak_fp);
-    return false;
-  }
-
-  if (memcmp(r_header.magic, PAK_MAGIC, 4) != 0)
-  {
-    I_Printf("PAK_OpenRead: not a PAK file!\n");
-    fclose(r_pak_fp);
-    return false;
-  }
-
-  r_header.dir_start = EPI_LE_U32(r_header.dir_start);
-  r_header.entry_num = EPI_LE_U32(r_header.entry_num);
-
-  // convert directory length to entry count
-  ///ala endianness swapping
-  length = r_header.entry_num /= sizeof(raw_pak_entry_t);
-
-  if (r_header.entry_num >= 5000)  // sanity check
-  {
-    I_Printf("PAK_OpenRead: bad header (%d entries?)\n", r_header.entry_num);
-    fclose(r_pak_fp);
-    return false;
-  }
-
-  if (fseek(r_pak_fp, r_header.dir_start, SEEK_SET) != 0)
-  {
-    I_Printf("PAK_OpenRead: cannot seek to directory (at 0x%08x)\n", r_header.dir_start);
-    fclose(r_pak_fp);
-    return false;
-  }
-
-  // read in directory
-  r_directory = new raw_pak_entry_t[r_header.entry_num + 1];
-
-  for (int i = 0; i < (int)r_header.entry_num; i++)
-  {
-    raw_pak_entry_t *E = &r_directory[i];
-
-    int res = fread(E, sizeof(raw_pak_entry_t), 1, r_pak_fp);
-
-    if (res == EOF || res != 1 || ferror(r_pak_fp))
-    {
-      if (i == 0)
-      {
-        I_Printf("PAK_OpenRead: could not read any dir-entries!\n");
-
-        delete[] r_directory;
-        r_directory = NULL;
-
-        fclose(r_pak_fp);
-        return false;
-      }
-
-      I_Printf("PAK_OpenRead: hit EOF reading dir-entry %d\n", i);
-
-      // truncate directory
-      r_header.entry_num = i;
-      break;
-    }
-
-    // make sure name is NUL terminated.
-    E->name[55] = 0;
-
-    E->offset = EPI_LE_U32(E->offset);
-    E->length = EPI_LE_U32(E->length);
-
-    ///I_Debugf(" %4d: %08x %08x : %s\n", i, E->offset, E->length, E->name);
-  }
-
-  return true; // OK
-}
-
-void PAK_CloseRead(void)
-{
- //Z_Free(r_pak_fp);
-
-  I_Printf("Closed PAK file\n");
-
-  delete[] r_directory;
-  r_directory = NULL;
-}
-
-
-int PAK_NumEntries(void)
-{
-  return (int)r_header.entry_num;
-}
-
-int PAK_FindEntry(const char *name)
-{
-  for (unsigned int i = 0; i < r_header.entry_num; i++)
-  {
-    if (stricmp(name, r_directory[i].name) == 0)
-      return i;
-  }
-
-  return -1; // not found
-}
-
-int PAK_EntryLen(int entry)
-{
-  SYS_ASSERT(entry >= 0 && entry < (int)r_header.entry_num);
-
-  return r_directory[entry].length;
-}
-
-const char * PAK_EntryName(int entry)
-{
-  SYS_ASSERT(entry >= 0 && entry < (int)r_header.entry_num);
-
-  return r_directory[entry].name;
-}
-
-
-bool PAK_ReadData(int entry, int offset, int length, void *buffer)
-{
-	SYS_ASSERT(entry >= 0 && entry < (int)r_header.entry_num);
-	SYS_ASSERT(offset >= 0);
-	SYS_ASSERT(length > 0);
-
-	raw_pak_entry_t *E = &r_directory[entry];
-
-	if ((u32_t)offset + (u32_t)length > E->length)  // EOF
-		return false;
-
-	if (fseek(r_pak_fp, E->offset + offset, SEEK_SET) != 0)
-		return false;
-
-	int res = fread(buffer, length, 1, r_pak_fp);
-
-	return (res == 1);
-}
-
-
-void PAK_ListEntries(void)
-{
-	I_Printf("--------------------------------------------------\n");
-
-	if (r_header.entry_num == 0)
-	{
-		I_Printf("PAK file is empty\n");
-	}
-	else
-	{
-		for (int i = 0; i < (int)r_header.entry_num; i++)
-		{
-			raw_pak_entry_t *E = &r_directory[i];
-
-			I_Printf("%4d: +%08x %08x : %s\n", i+1, E->offset, E->length, E->name);
-		}
-	}
-
-	printf("--------------------------------------------------\n");
-} */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

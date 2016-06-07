@@ -35,12 +35,13 @@ typedef enum
 {
 	FLKIND_IWad = 0,  // iwad file
 	FLKIND_PWad,      // normal .wad file
-	FLKIND_PAK,       // Quake PAK file
 	FLKIND_EWad,      // EDGE2.wad
 	FLKIND_GWad,      // glbsp node wad
 	FLKIND_HWad,      // deHacked wad
+	FLKIND_PAK,
 
 	FLKIND_Lump,      // raw lump (no extension)
+	
 
 	FLKIND_DDF,       // .ddf or .ldf file
 	FLKIND_Demo,      // .lmp demo file
