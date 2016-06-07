@@ -61,26 +61,28 @@ void PAK_FinishLump(void);
 
 /* ----- PAK structures ---------------------- */
 
-typedef struct
+typedef struct raw_pak_header_s
 {
 	char magic[4];
 
 	u32_t dir_start;
 	u32_t entry_num;
 
-}raw_pak_header_t;
+}
+raw_pak_header_t;
 
 #define PAK_MAGIC  "PACK"
 
 
-typedef struct
+typedef struct raw_pak_entry_s
 {
 	char name[56];
 
 	u32_t offset;
 	u32_t length;
 
-}raw_pak_entry_t;
+}
+raw_pak_entry_t;
 
 
 }  // namespace epi
