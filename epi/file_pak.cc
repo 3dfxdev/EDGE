@@ -20,6 +20,7 @@
 
 #include "epi.h"
 #include "endianess.h"
+#include "file.h"
 #include "types.h"
 
 #include "rawdef_pak.h"
@@ -45,9 +46,9 @@ namespace epi
 static FILE *r_pak_fp;
 
 
-static raw_pak_header_t r_header;
+static raw_pak_header_t r_header; ///header
 
-static raw_pak_entry_t * r_directory;
+static raw_pak_entry_t * r_directory; //*curinfo
 
 
 bool PAK_OpenRead(const char *filename)
@@ -89,6 +90,7 @@ bool PAK_OpenRead(const char *filename)
 	r_header.entry_num /= sizeof(raw_pak_entry_t);
 
 	/* read directory */
+	I_Printf("Now reading PAK Directory contents:\n");
 
 	if (r_header.entry_num >= 5000)  // sanity check
 	{
@@ -113,6 +115,7 @@ bool PAK_OpenRead(const char *filename)
 
 	for (int i = 0; i < (int)r_header.entry_num; i++)
 	{
+		///I_Printf("PAK_OpenRead: scanning/loading dir-entries!\n");
 		raw_pak_entry_t *E = &r_directory[i];
 
 		int res = fread(E, sizeof(raw_pak_entry_t), 1, r_pak_fp);
@@ -138,9 +141,9 @@ bool PAK_OpenRead(const char *filename)
 		E->offset = EPI_LE_U32(E->offset);
 		E->length = EPI_LE_U32(E->length);
 
-		//  DebugPrintf(" %4d: %08x %08x : %s\n", i, E->offset, E->length, E->name);
+		//I_Printf(" %4d: %08x %08x : %s\n", i, E->offset, E->length, E->name);
+		
 	}
-
 	return true; // OK
 }
 
@@ -245,7 +248,7 @@ bool PAK_ReadData(int entry, int offset, int length, void *buffer)
 
 void PAK_ListEntries(void)
 {
-	printf("--------------------------------------------------\n");
+	I_Printf("--------------------------------------------------\n");
 
 	if (r_header.entry_num == 0)
 	{
@@ -264,7 +267,7 @@ void PAK_ListEntries(void)
 	printf("--------------------------------------------------\n");
 }
 
-
+/* 
 //------------------------------------------------------------------------
 //  PAK WRITING
 //------------------------------------------------------------------------
@@ -388,7 +391,7 @@ void PAK_FinishLump(void)
 	w_pak_entry.length = EPI_LE_U32(len);
 
 	w_pak_dir.push_back(w_pak_entry);
-}
+} */
 
 
 } //end namespace epi
