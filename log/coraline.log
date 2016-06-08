@@ -9,6 +9,56 @@ TODO  // notes to self
 ##############################
 
 -----------------
+6.6.2016
+-----------------
+
+Got PAK files to load properly. Next up on our agenda - PK3 files for
+our wonderful modders. ;)
+
+Still having a problem scanning in "directories" in PAK files - 3DGE
+will scan and load everything top-level no problem - add a directory
+inside the PAK and it will ignore it. So, we need to come up with a way
+to scan the _entire_ length of the PAK, going into subfolders and loading
+lumps that way. Otherwise - what's the point? ;)
+^ NOTE: maybe use epi::PATH_JOIN?
+
+-----------------
+6.5.2016
+-----------------
+
+Took all of yesterday setting up CMake and Visual Studio (bye-bye MinGW)
+
++ Finally moved over to Visual Studio - holy christ, what have I been
+missing??? =)
+
+Updated entire documentation as a result in the Github (new directory, build_guide),
+with more markdown-readme for platforms, and cleaned up the main directory. This cleanup
+will happen in a major way later down the line -- more on that later.
+
+Implemented new filetypes in EPI:
+/file_pak: PAK decoding (now I can remove the decode stuff out of /src and use epi::)
+/file_grp: GRP decoding (from Duke Nukem 3D)
+/file_zip: ZIP decoding (pk3/pk4, zip!!!)
+With their raw counterparts (rawdef_x).
+* Removed PACKEDATTR until we can get it working with both G++ and VS (probably we don't need it...)
+
+Added defines in i_defs.h for Visual Studio to silence POSIX-style warnings (which is
+pretty stupid since MSVC seems to contain many POSIX-complaint stuff and DOESNT
+COMPLAIN ABOUT THEM...ugh). Anyways, for /source, they can be locally stored there ^_^
+^ Also added in util.h (deh_edge) and ddf_main.h. Probably a much better way of going
+about this...maybe a global header than can do this shit for us...
+^^ I am literally about to rip. Seriously -- we need some sort of management header for this!!
+
+DDF/IMAGE.cc -> In AddEssentialImages():
+Andrew described it as a hack -- which it totally is. For the proper 2.1.0 release, I will remove this
+function and define all of those images in IMAGES.DDF. Doing that will also allow the modder to realize
+that they can change that and that it isn't such a "hardcoded" thing after all. But this is on my
+TODO, as I slowly want to replace these "hacks". But the bad thing is that all existing mods will need this
+added to their DDF's, if they are internalized. Hmmm...
+
+
+
+-----------------
 6.3.2016
 -----------------
 
