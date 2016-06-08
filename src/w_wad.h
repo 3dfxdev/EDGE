@@ -38,7 +38,8 @@ typedef enum
 	FLKIND_EWad,      // EDGE2.wad
 	FLKIND_GWad,      // glbsp node wad
 	FLKIND_HWad,      // deHacked wad
-	FLKIND_PAK,
+	FLKIND_PAK,       // Quake PAK
+	FLKIND_PK3,       // PK3 zip file
 
 	FLKIND_Lump,      // raw lump (no extension)
 	

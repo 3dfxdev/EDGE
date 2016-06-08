@@ -1048,8 +1048,6 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 	raw_pak_entry_t *r_directory;
 
-	std::string pak_filename;
-
 /* 	raw_pak_header_t r_header;
 	raw_pak_entry_t * r_directory; */
 
@@ -1105,6 +1103,9 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		
 		for (j=startlump, r_directory=fileinfo; j < numlumps; j++,r_directory++)
 		{
+
+			///TODO: Here, create new function AddSubDir, to add PAK sub-directories as needed. . .
+
 			AddLump(df, j, EPI_LE_S32(r_directory->offset), EPI_LE_S32(r_directory->length),
 					datafile, 
                     (dyn_index >= 0) ? dyn_index : datafile, 
@@ -1112,7 +1113,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 					(kind == FLKIND_PAK));/// || (kind == FLKIND_EPK) ); <--- EPK can be 3DGE PAK, for edge.epk or something?
 		}
 
-		epi::PATH_Join(cache_dir.c_str(), r_directory->name);
+		
 
 		///I_Printf(" %4d: %08x %08x : %s\n", j, r_directory->offset, r_directory->length, r_directory->name);
 		///delete[] fileinfo;

@@ -49,7 +49,7 @@ namespace Deh_Edge
 #elif defined(WIN32)
 
 #define STRICT
-#define _WINDOWS
+
 #define WIN32_LEAN_AND_MEAN
 
 namespace Deh_Edge
