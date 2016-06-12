@@ -1421,7 +1421,7 @@ void W_ReadDDF(void)
 			if (df->kind >= FLKIND_Demo)
 				continue;
 
-			if (df->kind == FLKIND_EWad || FLKIND_PAK)
+			if (df->kind == FLKIND_EWad)
 			{
 				// special handling for TNT and Plutonia
 				// edit for HERETIC iwad
