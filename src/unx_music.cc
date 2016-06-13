@@ -27,6 +27,7 @@
 
 #include "s_sound.h"
 #include "s_music.h"
+#include "s_opl.h"
 #include "s_timid.h"
 #include "unx_sysinc.h"
 
@@ -51,6 +52,15 @@ void I_StartupMusic(void)
 #if 1
 	if (! nosound)
 	{
+		if (S_StartupOPL())
+		{
+			I_Printf("I_StartupMusic: OPL Init OK\n");
+		}
+		else
+		{
+			I_Printf("I_StartupMusic: OPL Init FAILED\n");
+		}
+		
 		if (S_StartupTimidity())
 		{
 			I_Printf("I_StartupMusic: Timidity Init OK\n");
@@ -76,6 +86,7 @@ void I_StartupMusic(void)
 
 void I_ShutdownMusic(void)
 {
+	S_ShutdownOPL();
 }
 
 

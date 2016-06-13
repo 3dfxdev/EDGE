@@ -82,6 +82,7 @@
 #define CFGDEF_SOUND_STEREO     (1)  // Stereo
 #define CFGDEF_MIX_CHANNELS     (3)  // 32 channels
 #define CFGDEF_QUIET_FACTOR     (1)
+#define CFGDEF_OPL_OPL3MODE     (0)
 
 #ifdef LINUX
 #define CFGDEF_MUSIC_DEVICE     (1)  // Timidity

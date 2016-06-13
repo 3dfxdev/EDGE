@@ -19,7 +19,7 @@
 
 
 #define _STDCALL_SUPPORTED
-#define _M_IX86
+
 #define GLUT_DISABLE_ATEXIT_HACK
 
 #define COMMON_NO_LOADING

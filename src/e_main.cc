@@ -106,7 +106,7 @@ static int screenshot_rate;
 
 // For screenies...
 bool m_screenshot_required = false;
-bool need_save_screenshot  = false;
+bool need_save_screenshot = false;
 
 FILE *logfile = NULL;
 FILE *debugfile = NULL;
@@ -128,7 +128,7 @@ gameflags_t default_gameflags =
 	true,   // crouch
 	true,   // mlook
 	AA_ON,  // autoaim
-     
+
 	true,   // cheats
 	true,   // have_extra
 	false,  // limit_zoom
@@ -212,14 +212,14 @@ public:
 
 	void setGlobal(int step, int size, int total)
 	{
-		g_step  = step;
-		g_size  = size;
+		g_step = step;
+		g_size = size;
 		g_total = total;
 	}
 
 	void setLocal(int step, int total)
 	{
-		l_step  = step;
+		l_step = step;
 		l_total = total;
 	}
 };
@@ -276,7 +276,7 @@ static void SetGlobalVars(void)
 	p = M_CheckParm("-res");
 	if (p && p + 2 < M_GetArgCount())
 	{
-		SCREENWIDTH  = atoi(M_GetArgument(p + 1));
+		SCREENWIDTH = atoi(M_GetArgument(p + 1));
 		SCREENHEIGHT = atoi(M_GetArgument(p + 2));
 	}
 
@@ -294,7 +294,7 @@ static void SetGlobalVars(void)
 	if (SCREENBITS < 15) SCREENBITS = 15;
 	else if (SCREENBITS > 32) SCREENBITS = 32;
 
-	M_CheckBooleanParm("windowed",   &FULLSCREEN, true);
+	M_CheckBooleanParm("windowed", &FULLSCREEN, true);
 	M_CheckBooleanParm("fullscreen", &FULLSCREEN, false);
 
 	// sprite kludge (TrueBSP)
@@ -363,12 +363,12 @@ static void SetGlobalVars(void)
 
 	// check for strict and no-warning options
 	M_CheckBooleanCVar("strict", &ddf_strict, false);
-	M_CheckBooleanCVar("lax",    &ddf_lax,    false);
-	M_CheckBooleanCVar("warn",   &ddf_quiet,  true);
+	M_CheckBooleanCVar("lax", &ddf_lax, false);
+	M_CheckBooleanCVar("warn", &ddf_quiet, true);
 
 	strict_errors = ddf_strict.d ? true : false;
-	lax_errors    = ddf_lax.d    ? true : false;
-	no_warnings   = ddf_quiet.d  ? true : false;
+	lax_errors = ddf_lax.d ? true : false;
+	no_warnings = ddf_quiet.d ? true : false;
 }
 
 //
@@ -377,7 +377,7 @@ static void SetGlobalVars(void)
 void SetLanguage(void)
 {
 	const char *want_lang = M_GetParm("-lang");
-	if (! want_lang)
+	if (!want_lang)
 		want_lang = M_GetParm("-language");
 
 	if (want_lang)
@@ -388,8 +388,8 @@ void SetLanguage(void)
 
 	I_Warning("Invalid language: '%s'\n", m_language.str);
 
-	if (! language.IsValid())
-		if (! language.Select(0))
+	if (!language.IsValid())
+		if (!language.Select(0))
 			I_Error("Unable to select any language!");
 
 	m_language = language.GetName();
@@ -421,14 +421,15 @@ static void SpecialWadVerify(void)
 	if (wad_ver < EDGE_WAD_VERSION)
 	{
 		I_Warning("EDGE2.WAD is an older version (expected %1.2f)\n",
-		          EDGE_WAD_VERSION / 100.0);
+			EDGE_WAD_VERSION / 100.0);
 	}
 	else if (wad_ver > EDGE_WAD_VERSION)
 	{
 		I_Warning("EDGE2.WAD is a newer version (expected %1.2f)\n",
-		          EDGE_WAD_VERSION / 100.0);
+			EDGE_WAD_VERSION / 100.0);
 	}
 }
+#if 0
 
 //
 // SpecialPAKVerify
@@ -456,21 +457,22 @@ static void SpecialPAKVerify(void)
 	if (pak_ver < EDGE_PAK_VERSION)
 	{
 		I_Warning("EDGE.PAK is an older version (expected %1.2f)\n",
-		          EDGE_PAK_VERSION / 100.0);
+			EDGE_PAK_VERSION / 100.0);
 	}
 	else if (pak_ver > EDGE_PAK_VERSION)
 	{
 		I_Warning("EDGE.PAK is a newer version (expected %1.2f)\n",
-		          EDGE_PAK_VERSION / 100.0);
+			EDGE_PAK_VERSION / 100.0);
 	}
 }
+#endif // 0
 
 //
 // ShowNotice
 //
 static void ShowNotice(void)
 {
-	CON_MessageColor(RGB_MAKE(64,192,255));
+	CON_MessageColor(RGB_MAKE(64, 192, 255));
 
 	I_Printf("%s", language["Notice"]);
 }
@@ -505,7 +507,7 @@ static void DoSystemStartup(void)
 static void M_DisplayPause(void)
 {
 	///CON_Printf("Paused ;)\n");
-/* 	static const image_c *pause_image = NULL;
+	/* 	static const image_c *pause_image = NULL;
 
 	//if (! pause_image)
 	//	pause_image = W_ImageLookup("M_PAUSE");
@@ -556,20 +558,20 @@ void E_Display(void)
 		return;  // for comparative timing / profiling
 
 #if 0
-	//tapamn check fps
+				 //tapamn check fps
 	static int last = 0;
 	int now = I_GetMillies();
 	I_Printf("T: %f\n", 1.0f / ((now - last) / 1000.0f));
 	last = now;
 #endif
-	
-	
+
+
 	N_SetInterpolater();
 #if 0
 	//tapamn check interpolater value
 	I_Printf("I: %f\n", N_GetInterpolater());
 #endif
-	
+
 	// Start the frame - should we need to.
 	I_StartFrame();
 
@@ -581,54 +583,54 @@ void E_Display(void)
 
 	switch (gamestate)
 	{
-		case GS_LEVEL:
-			HU_Erase();
+	case GS_LEVEL:
+		HU_Erase();
 
-			R_PaletteStuff();
+		R_PaletteStuff();
 
-			if (splitscreen_mode)
-			{
-				VM_RunHud(1);
-				VM_RunHud(2);
-			}
-			else
-				VM_RunHud(0);
+		if (splitscreen_mode)
+		{
+			VM_RunHud(1);
+			VM_RunHud(2);
+		}
+		else
+			VM_RunHud(0);
 
-			if (need_save_screenshot)
-			{
-				M_MakeSaveScreenShot();
-				need_save_screenshot = false;
-			}
+		if (need_save_screenshot)
+		{
+			M_MakeSaveScreenShot();
+			need_save_screenshot = false;
+		}
 
-			HU_Drawer();
-			RAD_Drawer();
-			break;
+		HU_Drawer();
+		RAD_Drawer();
+		break;
 
-		case GS_INTERMISSION:
-			WI_Drawer();
-			break;
+	case GS_INTERMISSION:
+		WI_Drawer();
+		break;
 
-		case GS_FINALE:
-			F_Drawer();
-			break;
+	case GS_FINALE:
+		F_Drawer();
+		break;
 
-		case GS_TITLESCREEN:
-			E_TitleDrawer();
-			break;
+	case GS_TITLESCREEN:
+		E_TitleDrawer();
+		break;
 
-		case GS_NOTHING:
-			break;
+	case GS_NOTHING:
+		break;
 	}
 
 	if (wipe_gl_active)
 	{
-		 //maybe this will pause the game?
+		//maybe this will pause the game?
 		// -AJA- Wipe code for GL.  Sorry for all this ugliness, but it just
 		//       didn't fit into the existing wipe framework.
 		//
 		if (RGL_DoWipe())
 		{
-			
+
 			RGL_StopWipe();
 			wipe_gl_active = false;
 			paused = false;
@@ -689,7 +691,7 @@ static void E_TitleDrawer(void)
 	if (title_image)
 		HUD_StretchImage(0, 0, 320, 200, title_image);
 	else
-		HUD_SolidBox(0, 0, 320, 200, RGB_MAKE(64,64,64));
+		HUD_SolidBox(0, 0, 320, 200, RGB_MAKE(64, 64, 64));
 }
 
 
@@ -702,7 +704,7 @@ void E_AdvanceTitle(void)
 	title_pic++;
 
 	// prevent an infinite loop
-	for (int loop=0; loop < 100; loop++)
+	for (int loop = 0; loop < 100; loop++)
 	{
 		gamedef_c *g = gamedefs[title_game];
 		SYS_ASSERT(g);
@@ -710,7 +712,7 @@ void E_AdvanceTitle(void)
 		if (title_pic >= g->titlepics.GetSize())
 		{
 			title_game = (title_game + 1) % gamedefs.GetSize();
-			title_pic  = 0;
+			title_pic = 0;
 			continue;
 		}
 
@@ -720,14 +722,14 @@ void E_AdvanceTitle(void)
 			W_CheckNumForName(g->firstmap) == -1)
 		{
 			title_game = (title_game + 1) % gamedefs.GetSize();
-			title_pic  = 0;
+			title_pic = 0;
 			continue;
 		}
 
 		// ignore non-existing images
 		title_image = W_ImageLookup(g->titlepics[title_pic], INS_Graphic, ILF_Null);
 
-		if (! title_image)
+		if (!title_image)
 		{
 			title_pic++;
 			continue;
@@ -752,7 +754,7 @@ void E_AdvanceTitle(void)
 void E_StartTitle(void)
 {
 	gameaction = ga_nothing;
-	gamestate  = GS_TITLESCREEN;
+	gamestate = GS_TITLESCREEN;
 
 	paused = false;
 
@@ -760,7 +762,7 @@ void E_StartTitle(void)
 	title_game = gamedefs.GetSize() - 1;
 	title_pic = 29999;
 	title_countdown = 1;
- 
+
 	E_AdvanceTitle();
 }
 
@@ -784,35 +786,35 @@ void E_TitleTicker(void)
 //
 void InitDirectories(void)
 {
-    std::string path;
+	std::string path;
 
 	const char *s = M_GetParm("-home");
-    if (s)
-        home_dir = s;
+	if (s)
+		home_dir = s;
 
 	// Get the Home Directory from environment if set
-    if (home_dir.empty())
-    {
-        s = getenv("HOME");
-        if (s)
-        {
-            home_dir = epi::PATH_Join(s, EDGEHOMESUBDIR); 
+	if (home_dir.empty())
+	{
+		s = getenv("HOME");
+		if (s)
+		{
+			home_dir = epi::PATH_Join(s, EDGEHOMESUBDIR);
 
-			if (! epi::FS_IsDir(home_dir.c_str()))
+			if (!epi::FS_IsDir(home_dir.c_str()))
 			{
-                epi::FS_MakeDir(home_dir.c_str());
+				epi::FS_MakeDir(home_dir.c_str());
 
-                // Check whether the directory was created
-                if (! epi::FS_IsDir(home_dir.c_str()))
-                    home_dir.clear();
+				// Check whether the directory was created
+				if (!epi::FS_IsDir(home_dir.c_str()))
+					home_dir.clear();
 			}
-        }
-    }
+		}
+	}
 
-    if (home_dir.empty())
-        home_dir = "."; // Default to current directory
+	if (home_dir.empty())
+		home_dir = "."; // Default to current directory
 
-	// Get the Game Directory from parameter.
+						// Get the Game Directory from parameter.
 	s = epi::GetResourcePath();
 	game_dir = s;
 	free((void*)s);
@@ -834,7 +836,7 @@ void InitDirectories(void)
 	if (s)
 	{
 		ddf_dir = std::string(s);
-	} 
+	}
 	else
 	{
 		ddf_dir = epi::PATH_Join(game_dir.c_str(), "doom_ddf");
@@ -849,51 +851,51 @@ void InitDirectories(void)
 		cfgfile = M_ComposeFileName(home_dir.c_str(), s);
 	}
 	else
-    {
-        cfgfile = epi::PATH_Join(home_dir.c_str(), EDGECONFIGFILE);
+	{
+		cfgfile = epi::PATH_Join(home_dir.c_str(), EDGECONFIGFILE);
 	}
 
- 	// EDGE2.wad file
+	// EDGE2.wad file
 	s = M_GetParm("-ewad");
 	if (s)
 	{
 		ewadfile = M_ComposeFileName(home_dir.c_str(), s);
 	}
 	else
-    {
-        ewadfile = epi::PATH_Join(home_dir.c_str(), "edge2.wad");
+	{
+		ewadfile = epi::PATH_Join(home_dir.c_str(), "edge2.wad");
 	}
-	
+
 	// EDGE2.pak file
-/* 	s = M_GetParm("-epak");
+	/* 	s = M_GetParm("-epak");
 	if (s)
 	{
-		epakfile = M_ComposeFileName(home_dir.c_str(), s);
+	epakfile = M_ComposeFileName(home_dir.c_str(), s);
 	}
 	else
-    {
-        epakfile = epi::PATH_Join(home_dir.c_str(), "edge.pak");
+	{
+	epakfile = epi::PATH_Join(home_dir.c_str(), "edge.pak");
 	} */
 
 	// cache directory
-    cache_dir = epi::PATH_Join(home_dir.c_str(), CACHEDIR);
+	cache_dir = epi::PATH_Join(home_dir.c_str(), CACHEDIR);
 
-    if (! epi::FS_IsDir(cache_dir.c_str()))
-        epi::FS_MakeDir(cache_dir.c_str());
+	if (!epi::FS_IsDir(cache_dir.c_str()))
+		epi::FS_MakeDir(cache_dir.c_str());
 
 	// savegame directory
-    save_dir = epi::PATH_Join(home_dir.c_str(), SAVEGAMEDIR);
-	
-    if (! epi::FS_IsDir(save_dir.c_str()))
-        epi::FS_MakeDir(save_dir.c_str());
+	save_dir = epi::PATH_Join(home_dir.c_str(), SAVEGAMEDIR);
+
+	if (!epi::FS_IsDir(save_dir.c_str()))
+		epi::FS_MakeDir(save_dir.c_str());
 
 	SV_ClearSlot("current");
 
 	// screenshot directory
-    shot_dir = epi::PATH_Join(home_dir.c_str(), SCRNSHOTDIR);
+	shot_dir = epi::PATH_Join(home_dir.c_str(), SCRNSHOTDIR);
 
-    if (!epi::FS_IsDir(shot_dir.c_str()))
-        epi::FS_MakeDir(shot_dir.c_str());
+	if (!epi::FS_IsDir(shot_dir.c_str()))
+		epi::FS_MakeDir(shot_dir.c_str());
 }
 
 
@@ -902,99 +904,99 @@ void InitDirectories(void)
 //
 // Adding HERETIC.WAD to string 2.24.2013
 // Kept freedoom.wad for backward compatibility
-const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "hacx", "heretic", "freedoom", "freedm", "chex.wad", "freedoom1.wad", "freedoom2.wad", NULL };
+const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "hacx", "heretic", "freedoom", "freedm", "chex", "freedoom1", "freedoom2", NULL };
 
 static void IdentifyVersion(void)
 {
 	I_Debugf("- Identify Version\n");
 
 	// Check -iwad parameter, find out if it is the IWADs directory
-    std::string iwad_par;
-    std::string iwad_file;
-    std::string iwad_dir;
-	
+	std::string iwad_par;
+	std::string iwad_file;
+	std::string iwad_dir;
+
 	std::string pak_par;
-    std::string pak_file;
-    std::string pak_dir;
+	std::string pak_file;
+	std::string pak_dir;
 
 	const char *s = M_GetParm("-iwad");
 
-    iwad_par = std::string(s ? s : "");
+	iwad_par = std::string(s ? s : "");
 
-    if (! iwad_par.empty())
-    {
-        if (epi::FS_IsDir(iwad_par.c_str()))
-        {
-            iwad_dir = iwad_par;
-            iwad_par.clear(); // Discard 
-        }
-    }   
+	if (!iwad_par.empty())
+	{
+		if (epi::FS_IsDir(iwad_par.c_str()))
+		{
+			iwad_dir = iwad_par;
+			iwad_par.clear(); // Discard 
+		}
+	}
 
-    // If we haven't yet set the IWAD directory, then we check
-    // the DOOMWADDIR environment variable
-    if (iwad_dir.empty())
-    {
-        s = getenv("DOOMWADDIR");
+	// If we haven't yet set the IWAD directory, then we check
+	// the DOOMWADDIR environment variable
+	if (iwad_dir.empty())
+	{
+		s = getenv("DOOMWADDIR");
 		//else
-        //s = getenv("DOOMWADPATH");
+		//s = getenv("DOOMWADPATH");
 
-        if (s && epi::FS_IsDir(s))
-            iwad_dir = std::string(s);
-    }
-	
+		if (s && epi::FS_IsDir(s))
+			iwad_dir = std::string(s);
+	}
+
 	//Check the DOOMWADPATH environment variable.
 	if (iwad_dir.empty())
 	{
-		s=getenv("DOOMWADPATH");
-		
+		s = getenv("DOOMWADPATH");
+
 		if (s && epi::FS_IsDir(s))
-            iwad_dir = std::string(s);
+			iwad_dir = std::string(s);
 	}
 
-    // Should the IWAD directory not be set by now, then we
-    // use our standby option of the current directory.
-    if (iwad_dir.empty())
-        iwad_dir = ".";
+	// Should the IWAD directory not be set by now, then we
+	// use our standby option of the current directory.
+	if (iwad_dir.empty())
+		iwad_dir = ".";
 
-    // Should the IWAD Parameter not be empty then it means
-    // that one was given which is not a directory. Therefore
-    // we assume it to be a name
-    if (!iwad_par.empty())
-    {
-        std::string fn = iwad_par;
-        
-        // Is it missing the extension?
-        std::string ext = epi::PATH_GetExtension(iwad_par.c_str());
-        if (ext.empty())
-        {
-            fn += ("." EDGEWADEXT);
-        }
+	// Should the IWAD Parameter not be empty then it means
+	// that one was given which is not a directory. Therefore
+	// we assume it to be a name
+	if (!iwad_par.empty())
+	{
+		std::string fn = iwad_par;
 
-        // If no directory given use the IWAD directory
-        std::string dir = epi::PATH_GetDir(fn.c_str());
-        if (dir.empty())
-            iwad_file = epi::PATH_Join(iwad_dir.c_str(), fn.c_str()); 
-        else
-            iwad_file = fn;
+		// Is it missing the extension?
+		std::string ext = epi::PATH_GetExtension(iwad_par.c_str());
+		if (ext.empty())
+		{
+			fn += ("." EDGEWADEXT);
+		}
 
-        if (!epi::FS_Access(iwad_file.c_str(), epi::file_c::ACCESS_READ))
-        {
+		// If no directory given use the IWAD directory
+		std::string dir = epi::PATH_GetDir(fn.c_str());
+		if (dir.empty())
+			iwad_file = epi::PATH_Join(iwad_dir.c_str(), fn.c_str());
+		else
+			iwad_file = fn;
+
+		if (!epi::FS_Access(iwad_file.c_str(), epi::file_c::ACCESS_READ))
+		{
 			I_Error("IdentifyVersion: Unable to add specified '%s'", fn.c_str());
-        }
-    }
-    else
-    {
-        const char *location;
-		
-        int max = 1;
+		}
+	}
+	else
+	{
+		const char *location;
 
-        if (stricmp(iwad_dir.c_str(), game_dir.c_str()) != 0) 
-        {
-            // IWAD directory & game directory differ 
-            // therefore do a second loop which will
-            // mean we check both.
-            max++;
-        } 
+		int max = 1;
+
+		if (stricmp(iwad_dir.c_str(), game_dir.c_str()) != 0)
+		{
+			// IWAD directory & game directory differ 
+			// therefore do a second loop which will
+			// mean we check both.
+			max++;
+		}
 
 		bool done = false;
 		for (int i = 0; i < max && !done; i++)
@@ -1008,53 +1010,53 @@ static void IdentifyVersion(void)
 			// -ACB- 2000/06/08 Quit after we found a file - don't load
 			//                  more than one IWAD
 			//
-			for (int w_idx=0; wadname[w_idx]; w_idx++)
+			for (int w_idx = 0; wadname[w_idx]; w_idx++)
 			{
 				std::string fn(epi::PATH_Join(location, wadname[w_idx]));
 
-                fn += ("." EDGEWADEXT);
+				fn += ("." EDGEWADEXT);
 
 				if (epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
 				{
-                    iwad_file = fn;
+					iwad_file = fn;
 					done = true;
 					break;
 				}
 			}
 		}
-    }
+	}
 
 	if (iwad_file.empty())
 		I_Error("IdentifyVersion: No IWADS found!\n");
 
-    W_AddRawFilename(iwad_file.c_str(), FLKIND_IWad);
+	W_AddRawFilename(iwad_file.c_str(), FLKIND_IWad);
 
-    iwad_base = epi::PATH_GetBasename(iwad_file.c_str());
+	iwad_base = epi::PATH_GetBasename(iwad_file.c_str());
 
 	I_Debugf("IWAD BASE = [%s]\n", iwad_base.c_str());
 
-    // Emulate this behaviour?
+	// Emulate this behaviour?
 
-    // Look for the required wad in the IWADs dir and then the gamedir
-	
+	// Look for the required wad in the IWADs dir and then the gamedir
+
 	//this will join edge2.pak with the IWAD. . .
-    std::string reqwad(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEWADEXT));
-	
+	std::string reqwad(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEWADEXT));
+
 	///this one will join pak files with IWAD.
 	///std::string reqpak(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT));
 
-    if (! epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
-    {
-        reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEWADEXT);
-		
-        if (! epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
-        {
-            I_Error("IdentifyVersion: Could not find required %s.%s!\n", 
-                    REQUIREDWAD, EDGEWADEXT);
-        }
-    }
+	if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
+	{
+		reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEWADEXT);
 
-    W_AddRawFilename(reqwad.c_str(), FLKIND_EWad);
+		if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
+		{
+			I_Error("IdentifyVersion: Could not find required %s.%s!\n",
+				REQUIREDWAD, EDGEWADEXT);
+		}
+	}
+
+	W_AddRawFilename(reqwad.c_str(), FLKIND_EWad);
 }
 
 static void CheckTurbo(void)
@@ -1095,7 +1097,7 @@ static void ShowDateAndVersion(void)
 	I_Printf("3DGE v" EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
 	I_Printf("hyper3DGE homepage is at http://edge2.sourceforge.net/\n");
 	I_Printf("hyper3DGE is based on DOOM by id Software http://www.idsoftware.com/\n");
-    I_Printf("hyper3DGE problems should be reported at http://tdgmods.net/smf\n");
+	I_Printf("hyper3DGE problems should be reported at http://tdgmods.net/smf\n");
 
 #ifdef WIN32
 	I_Printf("Executable path: '%s'\n", win32_exe_path);
@@ -1108,41 +1110,41 @@ static void ShowDateAndVersion(void)
 // linked via libcpuID ->> <libcpuid.h>
 static void E_ShowCPU(void)
 {
-	if (!cpuid_present()) 
+	if (!cpuid_present())
 	{
 		I_Printf("3DGE cannot detect your Processor Type!\n");
 		//return -1;
 	}
-	
+
 	struct cpu_raw_data_t raw;  // contains only raw data
 	struct cpu_id_t data;      // contains recognized CPU features data
-	
-	if (cpuid_get_raw_data(&raw) < 0) 
+
+	if (cpuid_get_raw_data(&raw) < 0)
 	{   // obtain the raw CPUID data
 		I_Printf("Sorry, cannot get the CPUID raw data.\n");
 		I_Printf("Error: %s\n", cpuid_error());                          // cpuid_error() gives the last error description
-		//return -2;
+																		 //return -2;
 	}
-	
-	if (cpu_identify(&raw, &data) < 0) 
+
+	if (cpu_identify(&raw, &data) < 0)
 	{   // identify the CPU, using the given raw data.
 		I_Printf("Sorrry, CPU identification failed.\n");
 		I_Printf("Error: %s\n", cpuid_error());
 		//return -3;
 	}
-	
+
 	I_Printf("E_ShowCPU: detected %s CPU\n", data.vendor_str); // print out the vendor string (e.g. `GenuineIntel')
-/* 	I_Printf("I_ShowCPU:`%s'\n", data.cpu_codename); // print out the CPU code name (e.g. `Pentium 4 (Northwood)') */
+															   /* 	I_Printf("I_ShowCPU:`%s'\n", data.cpu_codename); // print out the CPU code name (e.g. `Pentium 4 (Northwood)') */
 	I_Printf("E_ShowCPU: `%s'\n", data.brand_str);             // print out the CPU brand string
 	I_Printf("E_ShowCPU: clocked at %d MHz (according to your OS)\n",
 		cpu_clock_by_os());  // print out the CPU clock, according to the OS
-								   
-	// Debugfile will output more information
- 	I_Debugf("The processor has %dK L1 cache and %dK L2 cache\n",
+
+							 // Debugfile will output more information
+	I_Debugf("The processor has %dK L1 cache and %dK L2 cache\n",
 		data.l1_data_cache, data.l2_cache);                            // print out cache size information
 	I_Debugf("The processor has %d cores and %d logical processors\n",
 		data.num_cores, data.num_logical_cpus);                        // print out CPU cores information
-	
+
 	I_Debugf("Supported multimedia instruction sets:\n");
 	I_Debugf("  MMX         : %s\n", data.flags[CPU_FEATURE_MMX] ? "present" : "absent");
 	I_Debugf("  MMX-extended: %s\n", data.flags[CPU_FEATURE_MMXEXT] ? "present" : "absent");
@@ -1156,13 +1158,13 @@ static void SetupLogAndDebugFiles(void)
 	// -AJA- 2003/11/08 The log file gets all CON_Printfs, I_Printfs,
 	//                  I_Warnings and I_Errors.
 
-	std::string log_fn  (epi::PATH_Join(home_dir.c_str(), EDGELOGFILE));
+	std::string log_fn(epi::PATH_Join(home_dir.c_str(), EDGELOGFILE));
 	std::string debug_fn(epi::PATH_Join(home_dir.c_str(), "debug.txt"));
 
 	logfile = NULL;
 	debugfile = NULL;
 
-	if (! M_CheckParm("-nolog"))
+	if (!M_CheckParm("-nolog"))
 	{
 
 		logfile = fopen(log_fn.c_str(), "w");
@@ -1192,15 +1194,15 @@ static void SetupLogAndDebugFiles(void)
 
 static void AddSingleCmdLineFile(const char *name)
 {
-    std::string ext = epi::PATH_GetExtension(name);
+	std::string ext = epi::PATH_GetExtension(name);
 	int kind = FLKIND_Lump;
 
 	if (stricmp(ext.c_str(), "edm") == 0)
 		I_Error("Demos are no longer supported\n");
-	
-/* 	if (stricmp(ext.c_str(), "pak") == 0) /// ~CA~ 5.7.2016 - new PAK class file
-		I_Error("DETECTED PAK FILE, ABORTING. . .\n"); */
-		
+
+	/* 	if (stricmp(ext.c_str(), "pak") == 0) /// ~CA~ 5.7.2016 - new PAK class file
+	I_Error("DETECTED PAK FILE, ABORTING. . .\n"); */
+
 	if (stricmp(ext.c_str(), "pk3") == 0) /// ~CA~ 5.7.2016 - new PAK class file
 		I_Error(".pk3 not supported yet! Aborting...\n");
 
@@ -1215,10 +1217,10 @@ static void AddSingleCmdLineFile(const char *name)
 	else if (stricmp(ext.c_str(), "rts") == 0)
 		kind = FLKIND_RTS;
 	else if (stricmp(ext.c_str(), "ddf") == 0 ||
-			 stricmp(ext.c_str(), "ldf") == 0)
+		stricmp(ext.c_str(), "ldf") == 0)
 		kind = FLKIND_DDF;
 	else if (stricmp(ext.c_str(), "deh") == 0 ||
-			 stricmp(ext.c_str(), "bex") == 0)
+		stricmp(ext.c_str(), "bex") == 0)
 		kind = FLKIND_Deh;
 
 	std::string fn = M_ComposeFileName(game_dir.c_str(), name);
@@ -1241,7 +1243,7 @@ static void AddCommandLineFiles(void)
 	// next handle the -file option (we allow multiple uses)
 
 	p = M_CheckNextParm("-file", 0);
-	
+
 	while (p)
 	{
 		// the parms after p are wadfile/lump names,
@@ -1252,13 +1254,13 @@ static void AddCommandLineFiles(void)
 			AddSingleCmdLineFile(ps);
 		}
 
-		p = M_CheckNextParm("-file", p-1);
+		p = M_CheckNextParm("-file", p - 1);
 	}
 
 	// scripts....
 
 	p = M_CheckNextParm("-script", 0);
-	
+
 	while (p)
 	{
 		// the parms after p are script filenames,
@@ -1271,11 +1273,11 @@ static void AddCommandLineFiles(void)
 			// sanity check...
 			if (stricmp(ext.c_str(), "wad") == 0 ||
 				stricmp(ext.c_str(), "pak") == 0 ||
-                stricmp(ext.c_str(), "gwa") == 0 ||
-			    stricmp(ext.c_str(), "hwa") == 0 ||
-                stricmp(ext.c_str(), "ddf") == 0 ||
-			    stricmp(ext.c_str(), "deh") == 0 ||
-			    stricmp(ext.c_str(), "bex") == 0)
+				stricmp(ext.c_str(), "gwa") == 0 ||
+				stricmp(ext.c_str(), "hwa") == 0 ||
+				stricmp(ext.c_str(), "ddf") == 0 ||
+				stricmp(ext.c_str(), "deh") == 0 ||
+				stricmp(ext.c_str(), "bex") == 0)
 			{
 				I_Error("Illegal filename for -script: %s\n", ps);
 			}
@@ -1285,14 +1287,14 @@ static void AddCommandLineFiles(void)
 			W_AddRawFilename(fn.c_str(), FLKIND_RTS);
 		}
 
-		p = M_CheckNextParm("-script", p-1);
+		p = M_CheckNextParm("-script", p - 1);
 	}
 
 
 	// finally handle the -deh option(s)
 
 	p = M_CheckNextParm("-deh", 0);
-	
+
 	while (p)
 	{
 		// the parms after p are Dehacked/BEX filenames,
@@ -1303,11 +1305,11 @@ static void AddCommandLineFiles(void)
 			std::string ext(epi::PATH_GetExtension(ps));
 
 			// sanity check...
-			if (stricmp(ext.c_str(), "wad") == 0 || 
-                stricmp(ext.c_str(), "gwa") == 0 ||
-			    stricmp(ext.c_str(), "hwa") == 0 ||
-                stricmp(ext.c_str(), "ddf") == 0 ||
-			    stricmp(ext.c_str(), "rts") == 0)
+			if (stricmp(ext.c_str(), "wad") == 0 ||
+				stricmp(ext.c_str(), "gwa") == 0 ||
+				stricmp(ext.c_str(), "hwa") == 0 ||
+				stricmp(ext.c_str(), "ddf") == 0 ||
+				stricmp(ext.c_str(), "rts") == 0)
 			{
 				I_Error("Illegal filename for -deh: %s\n", ps);
 			}
@@ -1317,7 +1319,7 @@ static void AddCommandLineFiles(void)
 			W_AddRawFilename(fn.c_str(), FLKIND_Deh);
 		}
 
-		p = M_CheckNextParm("-deh", p-1);
+		p = M_CheckNextParm("-deh", p - 1);
 	}
 }
 
@@ -1336,63 +1338,63 @@ void E_EngineShutdown(void)
 	S_StopMusic();
 
 	// Pause to allow sounds to finish
-	for (int loop=0; loop < 30; loop++)
+	for (int loop = 0; loop < 30; loop++)
 	{
-		S_SoundTicker(); 
+		S_SoundTicker();
 		I_Sleep(50);
 	}
 
-    S_Shutdown();
+	S_Shutdown();
 }
 
 typedef struct
 {
 	int prog_time;  // rough indication of progress time
-	void (*function)(void);
+	void(*function)(void);
 }
 startuporder_t;
 
 startuporder_t startcode[] =
 {
-	{  1, InitDDF              },
-	{  1, IdentifyVersion      },
-	{  1, AddCommandLineFiles  },
-	{  1, CheckTurbo           },
-	{  1, RAD_Init             },
-	{  4, W_InitMultipleFiles  },
-	{  1, V_InitPalette        },
-	{  2, HU_Init              },
-	{  3, W_InitFlats          },
-	{ 10, W_InitTextures       },
-	{  1, CON_Start            },
-	{  1, SpecialWadVerify     }, //<---- Change to SpecialPAKVerify for testing. . .
-	{  1, M_InitMiscConVars    },
-	{ 20, W_ReadDDF            },
-	{  1, DDF_CleanUp          },
-	{  1, SetLanguage          },
-	{  1, ShowNotice           },
-	{  1, SV_MainInit          },
-	{ 10, W_ImageCreateUser    },
-	{ 20, W_InitSprites        },
-	{  3, W_ProcessTX_HI       },
-	{  1, W_InitModels         },
-	{  1, M_Init               },
-	{  3, R_Init               },
-	{  1, P_Init               },
-	{  1, P_MapInit            },
-	{  1, P_InitSwitchList     },
-	{  1, W_InitPicAnims       },
-	{  1, S_Init               },
-	{  1, N_InitNetwork        },
-	{  1, M_CheatInit          },
-	{  1, VM_InitCoal          },
-	{  8, VM_LoadScripts       },
-	{  0, NULL                 }
+	{ 1, InitDDF },
+	{ 1, IdentifyVersion },
+	{ 1, AddCommandLineFiles },
+	{ 1, CheckTurbo },
+	{ 1, RAD_Init },
+	{ 4, W_InitMultipleFiles },
+	{ 1, V_InitPalette },
+	{ 2, HU_Init },
+	{ 3, W_InitFlats },
+	{ 10, W_InitTextures },
+	{ 1, CON_Start },
+	{ 1, SpecialWadVerify }, //<---- Change to SpecialPAKVerify for testing. . .
+	{ 1, M_InitMiscConVars },
+	{ 20, W_ReadDDF },
+	{ 1, DDF_CleanUp },
+	{ 1, SetLanguage },
+	{ 1, ShowNotice },
+	{ 1, SV_MainInit },
+	{ 10, W_ImageCreateUser },
+	{ 20, W_InitSprites },
+	{ 3, W_ProcessTX_HI },
+	{ 1, W_InitModels },
+	{ 1, M_Init },
+	{ 3, R_Init },
+	{ 1, P_Init },
+	{ 1, P_MapInit },
+	{ 1, P_InitSwitchList },
+	{ 1, W_InitPicAnims },
+	{ 1, S_Init },
+	{ 1, N_InitNetwork },
+	{ 1, M_CheatInit },
+	{ 1, VM_InitCoal },
+	{ 8, VM_LoadScripts },
+	{ 0, NULL }
 };
 
 extern void WLF_InitMaps(void); //!!!
 
-// Local Prototypes
+								// Local Prototypes
 extern void E_SplashScreen(void);
 static void E_Startup();
 static void E_Shutdown(void);
@@ -1402,15 +1404,15 @@ static void E_Startup(void)
 {
 	int p;
 	const char *ps;
-	
-	 
+
+
 #ifdef DREAMCAST_DEBUG
 	printf("Changing dir\n");
 	fflush(stdout);
 	chdir("/pc/3dgedc/");
 #endif
 #ifdef DREAMCAST_RELEASE
-	#error Get CD working
+#error Get CD working
 #endif
 	// Version check ?
 	if (M_CheckParm("-version"))
@@ -1422,7 +1424,7 @@ static void E_Startup(void)
 	// -AJA- 2000/02/02: initialise global gameflags to defaults
 	global_flags = default_gameflags;
 
-	
+
 	InitDirectories();
 
 	SetupLogAndDebugFiles();
@@ -1440,29 +1442,29 @@ static void E_Startup(void)
 	SetGlobalVars();
 
 	DoSystemStartup();
-      //Splash Screen Check
-	  
-    ps = M_GetParm("-showsplash");
+	//Splash Screen Check
+
+	ps = M_GetParm("-showsplash");
 	if (ps)
 	{
 		E_SplashScreen();
-		
+
 	}
 
 	I_PutTitle(E_TITLE); // Needs to be done once the system is up and running
 
-	// RGL_FontStartup();
+						 // RGL_FontStartup();
 
 	E_GlobalProgress(0, 0, 1);
 
-	int total=0;
-	int cur=0;
+	int total = 0;
+	int cur = 0;
 
-	for (p=0; startcode[p].function != NULL; p++)
+	for (p = 0; startcode[p].function != NULL; p++)
 		total += startcode[p].prog_time;
 
 	// Cycle through all the startup functions
-	for (p=0; startcode[p].function != NULL; p++)
+	for (p = 0; startcode[p].function != NULL; p++)
 	{
 		E_GlobalProgress(cur, startcode[p].prog_time, total);
 
@@ -1491,7 +1493,7 @@ static void E_InitialState(void)
 	// necessary state already (in the demo file / savegame).
 
 	if (M_CheckParm("-playdemo") || M_CheckParm("-timedemo") ||
-	    M_CheckParm("-record"))
+		M_CheckParm("-record"))
 	{
 		I_Error("Demos are no longer supported\n");
 	}
@@ -1552,7 +1554,7 @@ static void E_InitialState(void)
 		warp = true;
 
 	// start the appropriate game based on parms
-	if (! warp)
+	if (!warp)
 	{
 		I_Debugf("- Startup: showing title screen.\n");
 		E_StartTitle();
@@ -1561,15 +1563,15 @@ static void E_InitialState(void)
 
 	newgame_params_c params;
 
-	params.skill = warp_skill;	
-	params.deathmatch = warp_deathmatch;	
+	params.skill = warp_skill;
+	params.deathmatch = warp_deathmatch;
 
 	if (warp_map.length() > 0)
 		params.map = G_LookupMap(warp_map.c_str());
 	else
 		params.map = G_LookupMap("1");
 
-	if (! params.map)
+	if (!params.map)
 		I_Error("-warp: no such level '%s'\n", warp_map.c_str());
 
 	SYS_ASSERT(G_MapExists(params.map));
@@ -1617,29 +1619,29 @@ void E_Main(int argc, const char **argv)
 
 		E_InitialState();
 
-		CON_MessageColor(RGB_MAKE(255,255,0));
+		CON_MessageColor(RGB_MAKE(255, 255, 0));
 		I_Printf("EDGE2 v" EDGEVERSTR " system ready.\n");
 
 		I_Debugf("- Entering game loop...\n");
 
-		while (! (app_state & APP_STATE_PENDING_QUIT))
+		while (!(app_state & APP_STATE_PENDING_QUIT))
 		{
 			// We always do this once here, although the engine may
 			// makes in own calls to keep on top of the event processing
-			I_ControlGetEvents(); 
+			I_ControlGetEvents();
 
 			if (app_state & APP_STATE_ACTIVE)
 				E_Tick();
 		}
 	}
-	catch(...)
+	catch (...)
 	{
 		I_Error("Unexpected internal failure occurred!\n");
 	}
 
 	E_Shutdown();    // Shutdown whatever at this point
 
-	// Kill the epi interface
+					 // Kill the epi interface
 	epi::Shutdown();
 }
 
@@ -1673,7 +1675,7 @@ void E_Tick(void)
 	ticker--;
 	if (ticker == 0) {
 		extern cvar_c r_lerp;
-		
+
 		ticker = 70;
 		r_lerp.d = !r_lerp.d;
 		CON_Message("Interp: %i\n", r_lerp.d);
@@ -1686,7 +1688,7 @@ void E_Tick(void)
 	static int nextframe = 0;
 	do {
 		interpstart += interpdiff;
-		
+
 		extern cvar_c r_maxfps;
 		if (r_maxfps.d > 0) {
 			while (I_GetMillies() < nextframe) {
@@ -1696,19 +1698,19 @@ void E_Tick(void)
 			}
 			nextframe = I_GetMillies() + 1000.0f / r_maxfps.f;
 		}
-		
+
 		N_SetInterpolater();
 		E_Display();
-		
+
 		extern float N_CalculateCurrentSubTickPosition(void);
-		
+
 		interpdiff = N_CalculateCurrentSubTickPosition() - interpstart;
 		//interpdiff = N_GetInterpolater() - interpstart;
-		
+
 		//if (start of frame time + time to render frame + predicted next frame render time) > 1 whole gametic, stop rendering
 		//predicted next frame render time is the render time of the previous frame
 		//TODO maybe predicted time should be event processing time?
-	} while ((interpstart + 2*interpdiff) <  0.98);
+	} while ((interpstart + 2 * interpdiff) <  0.98);
 
 	bool fresh_game_tic;
 
@@ -1725,7 +1727,7 @@ void E_Tick(void)
 		if (fresh_game_tic)
 			G_Ticker();
 
-		S_SoundTicker(); 
+		S_SoundTicker();
 		S_MusicTicker(); // -ACB- 1999/11/13 Improved music update routines
 
 		N_NetUpdate(false);  // check for new console commands

@@ -186,6 +186,62 @@ SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
         return;
     }
 
+#if 0
+		// -DS- 2005/06/27 Detect SDL Resolutions
+		const SDL_VideoInfo *info = SDL_GetVideoInfo();
+
+		SDL_Rect **modes = SDL_ListModes(info->vfmt,
+			SDL_OPENGL | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+
+		if (modes && modes != (SDL_Rect **)-1)
+		{
+			for (; *modes; modes++)
+			{
+				scrmode_c test_mode;
+
+				test_mode.width = (*modes)->w;
+				test_mode.height = (*modes)->h;
+				test_mode.depth = info->vfmt->BitsPerPixel;  // HMMMM ???
+				test_mode.full = true;
+
+				if ((test_mode.width & 15) != 0)
+					continue;
+
+				if (test_mode.depth == 15 || test_mode.depth == 16 ||
+					test_mode.depth == 24 || test_mode.depth == 32)
+				{
+					R_AddResolution(&test_mode);
+				}
+			}
+		}
+
+		// -ACB- 2000/03/16 Test for possible windowed resolutions
+		for (int full = 0; full <= 1; full++)
+		{
+			for (int depth = 16; depth <= 32; depth = depth + 16)
+			{
+				for (int i = 0; possible_modes[i].w != -1; i++)
+				{
+					scrmode_c mode;
+
+					mode.width = possible_modes[i].w;
+					mode.height = possible_modes[i].h;
+					mode.depth = depth;
+					mode.full = full;
+
+					int got_depth = SDL_VideoModeOK(mode.width, mode.height,
+						mode.depth, SDL_OPENGL | SDL_DOUBLEBUF |
+						(mode.full ? SDL_FULLSCREEN : 0));
+
+					if (R_DepthIsEquivalent(got_depth, mode.depth))
+					{
+						R_AddResolution(&mode);
+					}
+				}
+			}
+		}
+#endif // 0
+
 	I_Printf("I_StartupGraphics: initialisation OK\n");
 	
 	I_Printf("Desktop resolution: %dx%d\n", display_W, display_H);

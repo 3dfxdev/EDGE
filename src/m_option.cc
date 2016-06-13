@@ -209,7 +209,7 @@ static char SoundBits[]   = "8 bit/16 bit";
 static char StereoNess[]  = "Off/On/Swapped";
 static char MixChans[]    = "8/16/32/64/96";
 static char QuietNess[]   = "Loud (distorted)/Normal/Soft/Very Soft";
-static char MusicDevs[]   = "System/Timidity";
+static char MusicDevs[]   = "System/Timidity/OPL";
 
 // Screen resolution changes
 static scrmode_c new_scrmode;
@@ -539,8 +539,9 @@ static optmenuitem_t soundoptions[] =
 	{OPT_Switch,  "Mix Channels",    MixChans,  4, &var_mix_channels, M_ChangeMixChan, NULL},
 	{OPT_Switch,  "Quiet Factor",    QuietNess, 3, &var_quiet_factor, NULL, NULL},
 	{OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL},
-	{OPT_Switch,  "Music Device",    MusicDevs, 2, &var_music_dev, NULL, NULL},
+	{OPT_Switch,  "Music Device",    MusicDevs, 3, &var_music_dev, NULL, NULL},
 	{OPT_Switch,  "Timidity Factor", QuietNess, 3, &var_timid_factor, M_ChangeTimidQuiet, NULL},
+	{OPT_Boolean, "OPL3 Mode",       YesNo,     2, &var_opl_opl3mode, NULL, NULL},
 };
 
 static menuinfo_t sound_optmenu = 

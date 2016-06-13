@@ -44,6 +44,10 @@ include_directories(${ZLIB_INCLUDE_DIRS})
 find_package(cpuid REQUIRED)
 include_directories(${CPUID_INCLUDE_DIR})
 
+# splines
+find_package(splines REQUIRED)
+include_directories(${SPLINES_INCLUDE_DIR})
+
 # png
 find_package(png REQUIRED)
 include_directories(${PNG_INCLUDE_DIRS})
@@ -182,6 +186,7 @@ set(3DGE_SOURCES
 	src/s_sound.cc
 	src/s_music.cc
 	src/s_ogg.cc
+	src/s_opl.cc
 	src/s_timid.cc
 	src/sv_chunk.cc
 	src/sv_glob.cc
@@ -263,6 +268,10 @@ set(3DGE_SOURCES
 	timidity/resample.cc
 	timidity/tables.cc
 	timidity/timidity.cc
+
+	opllib/opl3.cc
+	opllib/oplapi.cc
+	
 )
 
 set(3DGE_WIN32_SOURCES
@@ -312,6 +321,7 @@ target_link_libraries(3DGE
 	${OGG_LIBRARIES}
 	${VORBIS_LIBRARIES}
 	${CPUID_LIBRARY}
+	${SPLINES_LIBRARY}
 	${ZLIB_LIBRARIES}
 	${GLEW_LIBRARIES}
 	${PNG_LIBRARIES}

@@ -33,6 +33,7 @@
 #include "s_music.h"
 #include "s_ogg.h"
 #include "s_timid.h"
+#include "s_opl.h"
 #include "m_misc.h"
 #include "w_wad.h"
 
@@ -173,8 +174,10 @@ void S_ChangeMusic(int entrynum, bool loop)
 
 	if (var_music_dev == 0 && is_mus)
 		music_player = I_PlayNativeMusic(data, length, volume, loop);
-	else
-		music_player = S_PlayTimidity(data, length, is_mus, volume, loop);
+    else if (var_music_dev == 1)
+        music_player = S_PlayTimidity(data, length, is_mus, volume, loop);
+    else
+        music_player = S_PlayOPL(data, length, volume, loop);
 
 #if 0
 	byte *data;

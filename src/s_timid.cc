@@ -295,7 +295,7 @@ static const char * FindTimidityConfig(void)
 			// if the directory does not exist, then there is no
 			// need to proceed (hence saving a LOT of time).
 
-			I_Debugf("TIMID: checking directory '%s'\n", dir.c_str());
+			//I_Debugf("TIMID: checking directory '%s'\n", dir.c_str());
 
 			if (dir.length() > 0 && ! epi::FS_IsDir(dir.c_str()))
 				continue;
@@ -309,7 +309,7 @@ static const char * FindTimidityConfig(void)
 				else
 					fn = epi::PATH_Join(dir.c_str(), config_names[k]);
 				
-				I_Debugf("  trying '%s'\n", fn.c_str());
+				//I_Debugf("  trying '%s'\n", fn.c_str());
 				
 				if (epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
 				{

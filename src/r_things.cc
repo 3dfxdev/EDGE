@@ -658,11 +658,13 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 
 	int rot = 0;
 	// ~CA: 5.7.2016 - 3DGE feature to randomly decide to flip front-facing sprites in-game
+#if 0
 	if (r_spriteflip.d > 0)
 	{
 		srand(P_RandomTest(*flip));	// value below in brackets would technically be "A0"
 		(*flip) = frame->flip[0] += true;
 	}
+#endif // 0
 
 	if (frame->rots >= 8)
 	{
