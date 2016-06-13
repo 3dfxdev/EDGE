@@ -20,9 +20,6 @@
 
 #include "image_data.h"
 
-// ~CA: 6.4.16: GCC does not support nullptr without gross hacks, so this is a workaround:
-#define nullptr NULL
-
 namespace epi
 {
 
@@ -36,7 +33,7 @@ image_data_c::image_data_c(int _w, int _h, int _bpp) :
 image_data_c::~image_data_c()
 {
 	delete[] pixels;
-    delete[] grAb;
+    //////////////delete[] grAb;
 
 	pixels = NULL;
 	width = height = 0;

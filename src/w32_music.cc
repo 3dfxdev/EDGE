@@ -28,6 +28,7 @@
 #include "../ddf/playlist.h"
 
 #include "s_sound.h"
+#include "s_opl.h"
 #include "s_timid.h"
 
 bool musicpaused;
@@ -55,6 +56,15 @@ void I_StartupMusic(void)
 		//samplesPerMusicTick = param_samplerate / 700;    // SDL_t0FastAsmService played at 700Hz
 	}
 
+	if (S_StartupOPL())
+	{
+		I_Printf("I_StartupMusic: OPL Init OK\n");
+	}
+	else
+	{
+		I_Printf("I_StartupMusic: OPL Init FAILED\n");
+	}
+
 	if (S_StartupTimidity())
 	{
 		I_Printf("I_StartupMusic: Timidity Init OK\n");
@@ -71,6 +81,7 @@ void I_StartupMusic(void)
 void I_ShutdownMusic(void)
 {
 	I_ShutdownMUS();
+	S_ShutdownOPL();
 }
 
 

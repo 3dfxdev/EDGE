@@ -57,6 +57,30 @@ typedef struct wad_s
 }
 wad_t;
 
+typedef struct pak_s
+{
+	// kind of wad file : IWAD or PWAD
+	int kind;
+
+	// number of entries in directory
+	int entry_num;
+
+	// offset to start of directory
+	int dir_start;
+
+	// current directory entries
+	struct lump_s *dir_head;
+	struct lump_s *dir_tail;
+
+	// current level
+	struct lump_s *current_level;
+
+	// array of level names found
+	const char ** level_names;
+	int num_level_names;
+}
+pak_t;
+
 
 // level information
 

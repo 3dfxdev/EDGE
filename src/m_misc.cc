@@ -92,6 +92,7 @@ int var_sound_stereo = 0;
 int var_mix_channels = 0;
 int var_quiet_factor = 0;
 int var_timid_factor = 0;
+bool var_opl_opl3mode = 0;
 
 static int edge_version;
 static bool done_first_init = false;
@@ -120,6 +121,7 @@ static default_t defaults[] =
     {CFGT_Int,      "mix_channels",      &var_mix_channels, CFGDEF_MIX_CHANNELS},
     {CFGT_Int,      "quiet_factor",      &var_quiet_factor, CFGDEF_QUIET_FACTOR},
     {CFGT_Int,      "timidity_quiet",    &var_timid_factor, CFGDEF_QUIET_FACTOR},
+    {CFGT_Boolean,  "opl_opl3mode",      &var_opl_opl3mode, CFGDEF_OPL_OPL3MODE},
 
     {CFGT_Int,      "show_messages",     &showMessages,   CFGDEF_SHOWMESSAGES},
 

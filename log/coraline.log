@@ -9,6 +9,44 @@ TODO  // notes to self
 ##############################
 
 -----------------
+6.10.2016
+-----------------
+
+Pushed the new OPL (Adlib-alike) player to the source - major thanks to NukeyT for
+soldiering on with it ;)
+
+Pushed more Heretic updates and fixes from Plums today, guy rocks!!! =)
+
+Found more memory leaks in the code (boy, there is a lot more than I thought), but
+the good news is that this will help fix the DC port once and for all ;)
+
+
+-----------------
+6.7.2016
+-----------------
+
+Fixed the strange screen melting issue. As it turns out, Visual Studio does a
+giant set of optimizations by default when compiling. This is great, but for
+some reason enabling it causes the screen wipe to melt almost a single coloumn
+of pixels, leaving the rest of the screen intact before it vanishes. So, the
+UpdateMelt() code in r_wipe is being affected somehow. Will mark it as a TODO.
+^ Disabling compiler optimizations altogether restores the wipe melt code. This
+will be marked as a TODO, because this implies that the code can be written
+better. However, other things like better inlining optimization is OK.
+
+
+Took the first dive into Splines, the custom camera library that
+3DGE will use to explcitly control camera movement. This library
+was heavily modified from my earlier Scourge/KMQ2 engine (which is
+why you might find some kmq2 code in 3DGE already).
+^ 1) Linked in Splines project into Cmakelists.txt...let's see how it goes.
+^ 2) Instead of linking in the static LIB, I'm going to link the entire
+	 Splines project into 3DGE. This will take some heavy refactoring. I
+	 wanted to just merely plug the lib and define everything in an external
+	 linker, but this wasn't going to happen unfortunately. It never works out
+	 like that ;)
+	 
+-----------------
 6.6.2016
 -----------------
 

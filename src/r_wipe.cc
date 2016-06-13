@@ -35,6 +35,8 @@
 #include "r_modes.h"
 #include "r_texgl.h"
 
+#pragma optimize("", off) //FIXME: Hack to get screen melts working under VS versions of 3DGE.
+
 // we're limited to one wipe at a time...
 static int cur_wipe_reverse = 0;
 static wipetype_e cur_wipe_effect = WIPE_None;

@@ -1,0 +1,18 @@
+SPLINES LIBRARY -> 3DGE
+=======================
+All Splines math code needs translating to epi:: math code,
+since this project will be a core part of 3DGE, and thus, I
+can't just stick the stupid LIB into the project. 
+
+Things to note:
+
+All the MATH_ code: needs to use EPI/MATH_ code
+ALL q_ code: needs to use local defines in /src
+ALL the UTIL_ code: needs to use EPI utilitiy code
+ ^ util_list, util_str
+
+
+////////////////////////////////////////////////////////////
+First, we *WILL* try the LIB method of linking
+Splines.lib into the project. This way, we can just use its
+functions directly. Tired of this shit.

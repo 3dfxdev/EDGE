@@ -67,25 +67,25 @@ raw_wad_entry_t;
 
 /* ----- PAK structures ---------------------- */
 
-typedef struct
+typedef struct raw_pak_header_s
 {
 	char magic[4];
 
 	u32_t dir_start; ///offset to wad directory...
 	u32_t entry_num;
 
-} PACKEDATTR raw_pak_header_t;
+}raw_pak_header_t;
 
 #define PAK_MAGIC  "PACK"
 
-typedef struct
+typedef struct raw_pak_entry_s
 {
 	char name[56];
 
-	u32_t offset;///< file offset for the item
-	u32_t length;///< item size
+	u32_t offset;// file offset for the item
+	u32_t length;// item size
 
-} PACKEDATTR raw_pak_entry_t;
+}raw_pak_entry_t;
 
 
 /* ----- blockmap struct! ---------------------- */
