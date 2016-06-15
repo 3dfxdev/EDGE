@@ -21,7 +21,7 @@
 //      OPLx decapsulated(Matthew Gambrell, Olli Niemitalo):
 //          OPL2 ROMs.
 //
-// version: 1.7.1
+// version: 1.7.2
 //
 
 #include <stdio.h>
@@ -144,8 +144,8 @@ static const Bit8u kslrom[16] = {
     0, 32, 40, 45, 48, 51, 53, 55, 56, 58, 59, 60, 61, 62, 63, 64
 };
 
-static const Bit8u kslshift[8] = {
-    8, 1, 2, 0, 8, 2, 1, 0
+static const Bit8u kslshift[4] = {
+    8, 1, 2, 0
 };
 
 //
@@ -607,10 +607,6 @@ static void OPL3_SlotWrite20(opl3_slot *slot, Bit8u data)
 static void OPL3_SlotWrite40(opl3_slot *slot, Bit8u data)
 {
     slot->reg_ksl = (data >> 6) & 0x03;
-    if (slot->chip->swapksl)
-    {
-        slot->reg_ksl |= 0x04;
-    }
     slot->reg_tl = data & 0x3f;
     OPL3_EnvelopeUpdateKSL(slot);
 }
@@ -752,6 +748,8 @@ static void OPL3_ChannelUpdateRhythm(opl3_chip *chip, Bit8u data)
         {
             OPL3_EnvelopeKeyOff(channel6->slots[0], egk_drum);
             OPL3_EnvelopeKeyOff(channel6->slots[1], egk_drum);
+            OPL3_EnvelopeKeyOff(chip->channel[chnum].slots[0], egk_drum);
+            OPL3_EnvelopeKeyOff(chip->channel[chnum].slots[1], egk_drum);
         }
     }
     else
@@ -1055,7 +1053,7 @@ static void OPL3_GenerateRhythm1(opl3_chip *chip)
         | (((phase17 >> 2) ^ phase17) & 0x08)) ? 0x01 : 0x00;
     //hh
     phase = (phasebit << 9)
-        | (0x34 << ((phasebit ^ (chip->noise & 0x01) << 1)));
+        | (0x34 << ((phasebit ^ (chip->noise & 0x01)) << 1));
     OPL3_SlotGeneratePhase(channel7->slots[0], phase);
     //tt
     OPL3_SlotGenerateZM(channel8->slots[0]);
@@ -1265,11 +1263,6 @@ void OPL3_Reset(opl3_chip *chip)
 void OPL3_SetRate(opl3_chip *chip, Bit32u samplerate)
 {
     chip->rateratio = (samplerate << RSM_FRAC) / OPL_RATE;
-}
-
-void OPL3_SwapKSL(opl3_chip *chip, bool swap)
-{
-    chip->swapksl = swap;
 }
 
 void OPL3_WriteReg(opl3_chip *chip, Bit16u reg, Bit8u v)
