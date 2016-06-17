@@ -44,10 +44,6 @@ include_directories(${ZLIB_INCLUDE_DIRS})
 find_package(cpuid REQUIRED)
 include_directories(${CPUID_INCLUDE_DIR})
 
-# splines
-find_package(splines REQUIRED)
-include_directories(${SPLINES_INCLUDE_DIR})
-
 # png
 find_package(png REQUIRED)
 include_directories(${PNG_INCLUDE_DIRS})
@@ -271,6 +267,8 @@ set(3DGE_SOURCES
 
 	opllib/opl3.cc
 	opllib/oplapi.cc
+
+	
 	
 )
 
@@ -321,7 +319,6 @@ target_link_libraries(3DGE
 	${OGG_LIBRARIES}
 	${VORBIS_LIBRARIES}
 	${CPUID_LIBRARY}
-	${SPLINES_LIBRARY}
 	${ZLIB_LIBRARIES}
 	${GLEW_LIBRARIES}
 	${PNG_LIBRARIES}
