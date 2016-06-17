@@ -87,7 +87,7 @@
 #ifdef LINUX
 #define CFGDEF_MUSIC_DEVICE     (1)  // Timidity
 #else
-#define CFGDEF_MUSIC_DEVICE     (1)  // System
+#define CFGDEF_MUSIC_DEVICE     (2)  // System
 #endif
 
 // Video Options
@@ -110,7 +110,7 @@
 #define CFGDEF_TELEPT_EFFECT    (0)
 #define CFGDEF_TELEPT_REVERSE   (0)
 #define CFGDEF_WIPE_REVERSE     (0)
-#define CFGDEF_USE_VSYNC        (3)
+#define CFGDEF_USE_VSYNC        (0)
 #define CFGDEF_INTERPOLATION    (1)
 
 // Gameplay Options

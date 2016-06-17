@@ -267,12 +267,15 @@ static void SplitIntoLines(char *src)
 		}
 
 		// strip non-printing characters (including backspace)
-		if (! isprint(*src))
+
+		if (!isprint(*src))
 		{
 			src++; continue;
 		}
 
+
 		*dest++ = *src++;
+
 	}
 
 	*dest++ = 0;

@@ -2235,6 +2235,11 @@ void M_Init(void)
 	else
 		menu_skull[1] = W_ImageLookup("M_SKULL2");
 
+	
+
+		// Further code switches out DOOM -> Heretic graphics
+
+
 	// Here we could catch other version dependencies,
 	//  like HELP1/2, and four episodes.
 	//    if (W_CheckNumForName("M_EPI4") < 0)

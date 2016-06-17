@@ -9,6 +9,19 @@ TODO  // notes to self
 ##############################
 
 -----------------
+6.16.2016
+-----------------
+
+Whew, took a few days off. Fixed a few leaks here and there, but nothing major
+so far. 
+
+My focus as of late is getting 3DGE running on KOS, but I think either GCC or
+KOS is breaking 3DGE as we aren't getting I_FinishFrame() to update the screen,
+even though calls to KallistiOs's glswapbuffers() are happening in the background.
+
+Ugh.
+
+-----------------
 6.10.2016
 -----------------
 
