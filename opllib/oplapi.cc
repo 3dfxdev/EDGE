@@ -142,6 +142,10 @@ void OPL_Player::OPL_Synth_Reset_Chip(opl3_chip *chip)
         }
         OPL3_WriteReg(chip, 0x105, 0x01);
     }
+    else
+    {
+        OPL3_WriteReg(chip, 0x105, 0x00);
+    }
 }
 
 void OPL_Player::OPL_Synth_Reset_MIDI(opl_synth_midi_channel *channel)
@@ -374,10 +378,10 @@ void OPL_Player::OPL_Synth_Voice_On(opl_synth_midi_channel *channel,
             voice->tl[1] = OPL_Synth_Operator_Setup(bank, base,
                 &voice_data->mod, false);
         }
-
-        OPL_Synth_WriteReg(bank, 0xc0 + voice->ch_base,
-            voice_data->mod.feedback | voice->pan);
     }
+
+    OPL_Synth_WriteReg(voice->bank, 0xc0 + voice->ch_base,
+        voice_data->mod.feedback | voice->pan);
 
     if (MISC_Read16LE(patch->flags) & OPL_GENMIDI_FIXED)
     {
