@@ -34,6 +34,10 @@ bool nonet = false;
 #include <linux/sockios.h>
 #endif
 
+#ifdef BSD
+#include <net/if.h>
+#endif
+
 #include "../epi/endianess.h"
 
 #include "m_argv.h"
