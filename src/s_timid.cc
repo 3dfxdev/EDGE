@@ -211,6 +211,13 @@ static const char *config_base_dirs[] =
 	"/opt",
 #endif
 
+#ifdef BSD
+	"/usr/local/lib",
+	"/usr/local/share",
+	"/usr/pkg/lib",
+	"/usr/pkg/share",
+#endif
+
 	NULL // the end
 };
 

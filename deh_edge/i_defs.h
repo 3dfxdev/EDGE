@@ -83,6 +83,13 @@ namespace Deh_Edge
 	typedef long long Int64;
 }
 
+// BSD
+#elif defined(BSD)
+namespace Deh_Edge
+{
+	typedef long long Int64;
+}
+
 // Dreamcast
 #elif defined (DREAMCAST)
 
