@@ -6,7 +6,7 @@ env.ParseConfig('sdl-config --libs')
 env.Append( CPPFLAGS=['-DLINUX'] )
 env.Append( CPPFLAGS=['-Os','-ffast-math','-fno-strict-aliasing','-Wall','-pipe','-DINLINE_G=inline','-DUSE_OGG','-DGLBSP_PLUGIN', '-DDEH_EDGE_PLUGIN'] )
 
-env.Append( LIBS = ['SDL_mixer', 'SDL_image', 'm', 'jpeg', 'png', 'z', 'Xext', 'X11', 'GL' , 'NL', 'GLEW' , 'ogg' , 'vorbis', 'vorbisfile' ] ) 
+env.Append( LIBS = ['SDL_mixer', 'SDL_image', 'm', 'jpeg', 'png', 'z', 'Xext', 'X11', 'GL' , 'GLEW' , 'ogg' , 'vorbis', 'vorbisfile' ] )
 
 env.Program(
 '3DGE',
@@ -91,6 +91,7 @@ env.Program(
 'src/m_option.cc',
 'src/m_netgame.cc',
 'src/m_random.cc',
+'src/m_shift.cc',
 'src/n_bcast.cc',
 'src/n_reliable.cc',
 'src/n_network.cc',
@@ -122,6 +123,7 @@ env.Program(
 'src/r_effects.cc',
 'src/r_main.cc',
 'src/r_occlude.cc',
+'src/r_bumpmap.cc',
 'src/m_logo.cc',
 'src/r_things.cc',
 'src/r_units.cc',
@@ -140,6 +142,7 @@ env.Program(
 'src/s_sound.cc',
 'src/s_music.cc',
 'src/s_ogg.cc',
+'src/s_opl.cc',
 'src/s_timid.cc',
 'src/sv_chunk.cc',
 'src/sv_glob.cc',
@@ -195,6 +198,8 @@ env.Program(
 'epi/utility.cc',
 'epi/epi_linux.cc',
 'epi/filesystem_linux.cc',
+'opllib/opl3.cc',
+'opllib/oplapi.cc',
 'timidity/common.cc',
 'timidity/instrum.cc',
 'timidity/mix.cc',
@@ -203,15 +208,15 @@ env.Program(
 'timidity/resample.cc',
 'timidity/tables.cc',
 'timidity/timidity.cc',
-'glbsp/src/wad.c',
-'glbsp/src/util.c',
-'glbsp/src/system.c',
-'glbsp/src/seg.c',
-'glbsp/src/reject.c',
-'glbsp/src/node.c',
-'glbsp/src/level.c',
-'glbsp/src/glbsp.c',
-'glbsp/src/blockmap.c',
-'glbsp/src/analyze.c'
+'glbsp/src/wad.cc',
+'glbsp/src/util.cc',
+'glbsp/src/system.cc',
+'glbsp/src/seg.cc',
+'glbsp/src/reject.cc',
+'glbsp/src/node.cc',
+'glbsp/src/level.cc',
+'glbsp/src/glbsp.cc',
+'glbsp/src/blockmap.cc',
+'glbsp/src/analyze.cc'
 ]
 )

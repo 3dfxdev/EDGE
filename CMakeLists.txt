@@ -37,7 +37,7 @@ include_directories(
 )
 
 # zlib
-find_package(zlib REQUIRED)
+find_package(ZLIB REQUIRED)
 include_directories(${ZLIB_INCLUDE_DIRS})
 
 # libcpuid
@@ -45,11 +45,11 @@ find_package(cpuid REQUIRED)
 include_directories(${CPUID_INCLUDE_DIR})
 
 # png
-find_package(png REQUIRED)
+find_package(PNG REQUIRED)
 include_directories(${PNG_INCLUDE_DIRS})
 
 # jpeg
-find_package(jpeg REQUIRED)
+find_package(JPEG REQUIRED)
 include_directories(${JPEG_INCLUDE_DIR})
 
 # 3DGE
