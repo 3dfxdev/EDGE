@@ -191,7 +191,8 @@ namespace epi
 
 		/* read grAb chunk */
 		png_unknown_chunk *unknowns;
-		int num_unknowns = png_get_unknown_chunks(png_ptr, info_ptr, &unknowns);
+		int num_unknowns;
+		num_unknowns = png_get_unknown_chunks(png_ptr, info_ptr, &unknowns);
 
 		for (int i = 0; i < num_unknowns; i++)
 		{
