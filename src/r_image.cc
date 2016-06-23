@@ -67,6 +67,11 @@
 #include "z_zone.h"
 
 
+// hack?
+#ifdef __OpenBSD__
+#define nullptr NULL
+#endif
+
 // LIGHTING DEBUGGING
 // #define MAKE_TEXTURES_WHITE  1
 

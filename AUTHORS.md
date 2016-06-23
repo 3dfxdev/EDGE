@@ -25,6 +25,7 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 * Benjamin Moir
 * Gameblabla
 * Joseph Fenton (Chilly Willy)
+* ryan-sg
 
 ## Codebase Contributors
 ---

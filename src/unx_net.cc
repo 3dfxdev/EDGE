@@ -36,7 +36,7 @@
 
 #include <arpa/inet.h>
 
-#ifdef MACOSX
+#if defined(MACOSX) || defined(BSD)
 #include <net/if.h>
 #else
 #include <linux/netdevice.h> 
