@@ -9,6 +9,126 @@ TODO  // notes to self
 ##############################
 
 -----------------
+7.5.2016
+-----------------
+
+Removed dependence on starting Heretic with a batch file and with an
+external "fix" WAD (herfix.wad). All menu graphics were hacked to be
+replaced from M_ to H_, and changed in source accordingly. Also, offsets
+that are wrong can be changed in IMAGES.DDF (just don't use IMAGE_DATA=),
+using *RIM images (real-images). As long as Heretic is the sole IWAD in
+the folder, it will choose this one -- otherwise, it will default to DOOM
+or whatever else is found first. 
+
+Eventually, I am going to implement a launcher, similar to Eternity, that
+will allow users to easily select the IWAD they want to load (or maybe, like
+Zdoom).
+
+Other fixes were made to Wolf3D and Rise of the Triad - 3DGE is almost finished
+with decoding ROTT's patch format (using *RIM), so that's good.
+
+-----------------
+7.2.2016
+-----------------
+
+Instead of trying to do the Wolf3d/ROTT conversion from scratch, I was
+generiously donated the source code to MapToWad, which I will now use
+as a plugin, much like glBSP, to handle and build Wolfenstein3D maps. Some
+modification needs to go into it to get it working with 3DGE, but this is
+a godsend, and a very special thanks to David Gould (simbey) for allowing
+us to use the code!
+
+Rather than use it, I abandoned it. It was *way* too complicated to put into
+the engine, so I just hacked away at the existing Wolf3D stuff we had for about
+9 hours, and got it all integrated inside of 3DGE. Now to create global bools
+if we detect Wolf3D "wl6" datas, etc...
+
+Success. Now we need to set the doom_ddf variable (ddf_dir) to use Wolf_ddf, but
+for now I will create a batchfile since testing at this point is much more
+important.
+
+-----------------
+7.1.2016
+-----------------
+
+Implemented ACS as a virtual machine, much like COAL, into 3DGE, though
+this is not linked through the playsim yet, ACS does in fact exist in
+some form through 3DGE.
+
+Worked more on the internal node builder for Wolfenstein and Rise of the Triad
+maps, and started merging the wolf3D code into 3DGE directly. I have also
+majorly hacked up TinyBSP to instead focus on generating Wolfenstein and ROTT
+bsp's, so when 3DGE detects a ROTT or Wolf map, it will defer to TinyBSP and
+ignore glBSP completely.
+
+Renamed wlf_graph.cc to r_graph.cc (since it is used for image routines, no need
+to name it wlf_*).
+
+Renamed wlf_colors.cc to r_playpal.cc (since this is used for PLAYPAL generation
+based on what kind of datas are loaded first, and not specific to Wolfenstein
+anymore). TODO: Pop in Rise of the Triad Palette here!
+
+More work on multiplayer over LAN today, so far, so good! =) 
+-----------------
+7.1.2016
+-----------------
+
+After a small break from 3DGE, I came back and did some neat stuff.
+
+Instead of starting a Splitscreen game via the Command Line, you can
+start it up in the all-new Multiplayer menu. This also meant removing
+all of that related stuff from the Options Menu. It was a PITA that it
+took so long. Also, I wrote most of this stuff in the existing Netgame
+responder/menu, so in the future I will need to create a new menu file
+specifically for Splitscreen, because I pretty much hacked the shit out
+of the network menu to get it working. Also, if you do happen to start
+a splitscreen game from the command line, make sure the number of bots is
+'2' or higher -- ugly, quick hack that is. Need to mark it as a TODO.
+
+Fixed another bug with the screen wipes (so dumb), that caused them all to +1
+then invalid the end. Not sure when that happened...
+
+Half-way to re-implementing resolution changing in SDL2, and speaking of,
+networking via SDL2 is very close to being finished. This means, while I'm sure
+we will have a long road ahead of us as far as stuff staying in sync, we will finally
+have true networking.
+
+ZIP detection is now working.
+
+Worked a bit more on loading Quake 3 BSP's, specifically, bringing back 3DGE's old
+lightmap code for those directly, but we still have a long ways to go.
+
+Fixed a bug in coal_compile that was never freed, and now it is, so that's one
+memory leak fixed.
+
+Added additional controls for a Dreamcast controller, started working on second
+player input for local splitscreen.
+
+-----------------
+6.22.2016
+-----------------
+
+Fixed a nasty bug that prevented users from re-assigning the 'USE' key. Moved it into
+another menu and renamed accordingly - tested and verified to now be working 100% - no
+more rebinding problems (thanks Eruanna!)
+
+
+-----------------
+6.19.2016
+-----------------
+
+Hellish work week over, daughter's 3rd birthday was a huge smash (aside from me
+dropping the cake on the ground before getting into the pizza parlor...grrr, and
+she got everything she wanted!)...so that out of the way now, I commenced to open
+3DGE back up!
+
+I've been working on the KOS port of 3DGE, and one thing I am getting rid of is
+the StartFrame/FinishFrame stuff, since on Dreamcast this is only called in E_Display,
+so replacing those with direct calls to clear the screen and swap buffers should also
+eliminate all the extra BS.
+
+
+-----------------
 6.16.2016
 -----------------
 
