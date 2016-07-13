@@ -32,6 +32,10 @@
 #include <linux/sockios.h>
 #endif
 
+#ifdef BSD
+#include <net/if.h>
+#endif
+
 #include "../epi/endianess.h"
 
 #include "n_bcast.h"

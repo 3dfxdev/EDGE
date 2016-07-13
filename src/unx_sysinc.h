@@ -23,7 +23,7 @@
 
 #include <sys/ioctl.h>
 
-#ifndef MACOSX
+#ifdef LINUX
 #include <linux/cdrom.h>
 #endif
 
