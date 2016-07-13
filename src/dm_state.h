@@ -150,6 +150,8 @@ extern int quickSaveSlot;
 extern bool singletics;
 
 extern bool splitscreen_mode;
+extern bool wolf3d_mode;
+extern bool rott_mode;
 
 extern bool heretic_mode;
 

@@ -30,7 +30,7 @@
 #include "e_ticcmd.h"
 
 void E_ClearInput(void);
-void E_BuildTiccmd(ticcmd_t * cmd); //after (), add , int which_player
+void E_BuildTiccmd(ticcmd_t * cmd, int which_player); //after (), add , int which_player
 void E_ReleaseAllKeys(void);
 void E_SetTurboScale(int scale);
 void E_UpdateKeyState(void);
@@ -65,9 +65,20 @@ extern int var_forwardspeed;
 extern int var_sidespeed;
 extern int var_flyspeed;
 
+/* Player 2 */
+extern int key2_right;
+extern int key2_left;
+extern int key2_lookup;
+extern int key2_lookdown;
+extern int key2_lookcenter;
+extern int key2_up;
+extern int key2_down;
+extern int key2_strafeleft;
+extern int key2_straferight;
 
-/* keyboard stuff */
-// Dupe this all for second player!
+
+/* keyboard stuff 
+// Dupe this all for second player!*/
 
 extern int key_right;
 extern int key_left;

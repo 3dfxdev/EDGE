@@ -1,5 +1,6 @@
 //----------------------------------------------------------------------------
-//  EDGE2 WAD & PAK Support Code
+//  EDGE2 Packed Data Support Code
+//  WAD, PAK, ZIP, WL6 (Wolfenstein) Handler
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2009  The EDGE2 Team.
@@ -43,6 +44,7 @@
 #include "../epi/file.h"
 #include "../epi/file_sub.h"
 #include "../epi/filesystem.h"
+#include "../epi/rawdef_zip.h"
 #include "../epi/math_md5.h"
 #include "../epi/path.h"
 #include "../epi/str_format.h"
@@ -69,6 +71,8 @@
 #include "r_image.h"
 #include "rad_trig.h"
 #include "vm_coal.h"
+#include "wlf_local.h"
+#include "wlf_rawdef.h"
 #include "w_wad.h"
 #include "w_pak.h"
 #include "z_zone.h"
@@ -107,8 +111,10 @@ static ddf_reader_t DDF_Readers[] =
 
 #define LANG_READER  0
 #define COLM_READER  2
+#define IMAG_READER  4
 #define SWTH_READER  12
 #define ANIM_READER  13
+#define GAME_READER  14
 #define RTS_READER   16
 
 class data_file_c
@@ -201,7 +207,7 @@ public:
 
 static std::list<raw_filename_c *> wadfiles;
 static std::list<raw_filename_c *> r_pak_fp;
-
+static std::list<raw_filename_c *> raw_wl6;
 
 typedef enum
 {
@@ -329,7 +335,14 @@ static bool IsS_END(char *name)
 //
 static bool IsF_START(char *name)
 {
-	if (strncmp(name, "FF_START", 8) == 0)
+	if (strncmp(name, "UPDNSTRT", 8) == 0)
+	{
+		// fix up flag to standard syntax
+		strncpy(name, "F_START", 8);
+		return 1;
+	}
+
+	else if (strncmp(name, "FF_START", 8) == 0)
 	{
 		// fix up flag to standard syntax
 		strncpy(name, "F_START", 8);
@@ -345,7 +358,13 @@ static bool IsF_START(char *name)
 //
 static bool IsF_END(char *name)
 {
-	if (strncmp(name, "FF_END", 8) == 0)
+	if (strncmp(name, "UPDNSTOP", 8) == 0)
+	{
+		// fix up flag to standard syntax
+		strncpy(name, "F_END", 8);
+		return 1;
+	}
+	else if (strncmp(name, "FF_END", 8) == 0)
 	{
 		// fix up flag to standard syntax
 		strncpy(name, "F_END", 8);
@@ -405,11 +424,23 @@ static bool IsC_END(char *name)
 //
 static bool IsTX_START(char *name)
 {
+	if (strncmp(name, "WALLSTRT", 8) == 0)
+	{
+		// fix up flag to standard syntax
+		strncpy(name, "TX_START", 8);
+		return 1;
+	}
 	return (strncmp(name, "TX_START", 8) == 0);
 }
 
 static bool IsTX_END(char *name)
 {
+	if (strncmp(name, "WALLSTOP", 8) == 0)
+	{
+		// fix up flag to standard syntax
+		strncpy(name, "TX_END", 8);
+		return 1;
+	}
 	return (strncmp(name, "TX_END", 8) == 0);
 }
 
@@ -958,6 +989,7 @@ static bool FindCacheFilename(std::string& out_name,
 {
 	std::string wad_dir;
 	std::string pak_dir;
+	std::string wolf_dir;
 	std::string hash_string;
 	std::string local_name;
 	std::string cache_name;
@@ -1024,6 +1056,7 @@ static bool FindCacheFilename(std::string& out_name,
 	return false;
 }
 
+extern void MapsReadHeaders(); //<--- This makes wlf_maps able to start the header identification
 //
 // AddFile
 //
@@ -1045,11 +1078,12 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	raw_wad_entry_t *curinfo;
 
 	raw_pak_header_t r_header;
-
 	raw_pak_entry_t *r_directory;
 
-	/* 	raw_pak_header_t r_header;
-	raw_pak_entry_t * r_directory; */
+
+
+	/* Wolfenstein 3D headers/entries/etc*/ //TODO
+
 
 	// reset the sprite/flat/patch list stuff
 	within_sprite_list = within_flat_list = false;
@@ -1076,6 +1110,14 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	// for RTS scripts, adding the data_file is enough
 	if (kind == FLKIND_RTS)
 		return;
+
+	//First things first: Here, we will call all of the existing functions to open neccesarry Wolf files.
+#if 0
+	if (kind == FLKIND_WL6)
+	{
+		return;
+	}
+#endif // 0
 
 	/// For this, we are using everything defined in /source. This has been EPI::fied, so we will eventually use that!!
 	if (kind == FLKIND_PAK) // -CA PAK support	
@@ -1317,8 +1359,11 @@ void W_AddRawFilename(const char *file, int kind)
 {
 	I_Debugf("Added filename: %s\n", file);
 
+
 	wadfiles.push_back(new raw_filename_c(file, kind));
 	r_pak_fp.push_back(new raw_filename_c(file, kind));
+	raw_wl6.push_back(new raw_filename_c(file, kind));
+
 }
 
 //
@@ -1371,6 +1416,24 @@ static bool TryLoadExtraLanguage(const char *name)
 	return true;
 }
 
+static bool TryLoadExtraGame(const char *name)
+{
+	int lumpnum = W_CheckNumForName(name);
+
+	if (lumpnum < 0)
+		return false;
+
+	I_Printf("Loading additional graphics from %s\n", name);
+
+	int length;
+	char *data = (char *)W_ReadLumpAlloc(lumpnum, &length);
+
+	DDF_ReadGames(data, length);
+	delete[] data;
+
+	return true;
+}
+
 // MUNDO HACK, but if only fixable by a new wad structure...
 // CA - this will be changed to read the HERETIC language file 2.24.2013
 static void LoadTntPlutStrings(void)
@@ -1381,8 +1444,16 @@ static void LoadTntPlutStrings(void)
 	if (DDF_CompareName(iwad_base.c_str(), "PLUTONIA") == 0)
 		TryLoadExtraLanguage("PLUTLANG");
 
-	//	if (DDF_CompareName(iwad_base.c_str(), "HERETIC") == 0)
-	//	    TryLoadExtraLanguage("HTICLANG");
+}
+
+static void LoadTntPlutGame(void)
+{
+	if (DDF_CompareName(iwad_base.c_str(), "TNT") == 0)
+		TryLoadExtraGame("TNTGAME");
+
+	if (DDF_CompareName(iwad_base.c_str(), "PLUTONIA") == 0)
+		TryLoadExtraGame("PLUTGAME");
+
 }
 
 
@@ -1425,6 +1496,9 @@ void W_ReadDDF(void)
 				// edit for HERETIC iwad
 				if (d == LANG_READER)
 					LoadTntPlutStrings();
+
+				if (d == GAME_READER)
+					LoadTntPlutGame();
 
 				continue;
 			}
@@ -2094,7 +2168,7 @@ static const char *FileKind_Strings[] =
 {
 	"iwad", "pwad", "EDGE2", "gwa", "hwa",
 	"lump", "ddf",  "demo", "rts", "deh",
-	"pak",  "???",  "???",  "???"
+	"pak",  "wl6",  "???",  "???"
 };
 
 static const char *LumpKind_Strings[] =

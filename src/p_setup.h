@@ -36,6 +36,7 @@ extern epi::crc32_c mapthing_CRC;
 
 extern int mapthing_NUM;
 
+
 // Called by startup code.
 void P_Init(void);
 

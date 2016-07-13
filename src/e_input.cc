@@ -124,10 +124,13 @@ static int mlookturn[3] = {400,  800, 200};
 #define GK_DOWN  0x01
 #define GK_UP    0x02
 
+///this equiv to gamecontrol in Legacy?
 static byte gamekeydown[NUMKEYS];
+static byte gamekeydown2[NUMKEYS]; //2nd-Player stuff.
 
 static int turnheld;   // for accelerative turning 
 static int mlookheld;  // for accelerative mlooking 
+
 
 //-------------------------------------------
 // -KM-  1998/09/01 Analogue binding
@@ -364,17 +367,42 @@ static bool allow180 = true;
 static bool allowzoom = true;
 static bool allowautorun = true;
 
-void E_BuildTiccmd(ticcmd_t * cmd)
+void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 {
 	UpdateForces();
 
+#if 0
 	if (splitscreen_mode && cmd->player_idx == consoleplayer1)
 	{
 		E_BuildTiccmd_Other(cmd);
 		return;
 	}
+#endif // 0
 
 	Z_Clear(cmd, ticcmd_t, 1);
+
+#if 0
+	//player_t *player_idx; //Mirror Doom Legacy's controller handling between two players.
+	int(*gcc)[2]; //Mirror Doom Legacy's controller handling between two players.
+
+	if (which_player == 0)
+	{
+		cmd->player_idx == consoleplayer1;
+		gamekeydown[];
+	}
+	else
+	{
+		cmd->player_idx = consoleplayer2;
+		gamekeydown2[];
+		///pitch = localaiming2;
+	}
+
+	// Exit now if locked
+	if (cmd->player_idx->locked)
+		goto done;
+#endif // 0
+
+
 
 	bool strafe = E_IsKeyPressed(key_strafe);
 	int  speed  = E_IsKeyPressed(key_speed) ? 1 : 0;

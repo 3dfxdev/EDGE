@@ -39,6 +39,7 @@ extern struct sfx_s * sfx_pstop;
 extern struct sfx_s * sfx_stnmov;
 extern struct sfx_s * sfx_pistol;
 extern struct sfx_s * sfx_swtchx;
+extern struct sfx_s * sfx_network;
 
 //
 // MENUS
@@ -56,11 +57,14 @@ void M_Ticker(void);
 
 // Called by main loop,
 // draws the menus directly into the screen buffer.
+void H_Drawer(void);
 void M_Drawer(void);
 
 // Called by D_DoomMain,
 // loads the config file.
 void M_Init(void);
+
+void H_Init(void);
 
 // Called by intro code to force menu up upon a keypress,
 // does nothing if menu is already up.

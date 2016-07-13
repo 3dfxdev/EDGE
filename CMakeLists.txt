@@ -173,10 +173,12 @@ set(3DGE_SOURCES
 	src/r_modes.cc
 	src/r_md2.cc
 	src/r_md5.cc
+	src/r_graph.cc 
 	src/r_image.cc
 	src/r_doomtex.cc
 	src/r_texgl.cc
 	src/r_bumpmap.cc
+	src/r_playpal.cc
 	src/s_blit.cc
 	src/s_cache.cc
 	src/s_sound.cc
@@ -193,6 +195,7 @@ set(3DGE_SOURCES
 	src/sv_mobj.cc
 	src/sv_play.cc
 	src/sv_save.cc
+	src/tinybsp.cc
 	src/w_flat.cc
 	src/w_model.cc
 	src/w_sprite.cc
@@ -202,6 +205,10 @@ set(3DGE_SOURCES
 	src/vm_coal.cc
 	src/vm_hud.cc
 	src/vm_player.cc
+	src/wlf_util.cc
+	src/wlf_vswap.cc
+	src/wlf_maps.cc
+	src/wlf_setup.cc
 	
 	md5_conv/md5_load.cc
 	md5_conv/md5_parse.cc

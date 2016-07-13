@@ -67,6 +67,7 @@
 #include "z_zone.h"
 
 
+extern bool heretic_mode; //that's why this never worked right. . .
 //
 // defaulted values
 //
@@ -92,13 +93,33 @@ int screen_hud;  // has default
 static std::string msg_string;
 static int msg_lastmenu;
 static int msg_mode;
+static int MenuTime;
 
 static std::string input_string;		
 
 bool menuactive;
 
+#define MENUSTRINGSIZE      32
+
 #define SKULLXOFF   -24
 #define LINEHEIGHT   15  //!!!!
+
+
+#define HLEFT_DIR 0 //From Heretic
+#define HRIGHT_DIR 1 //From Heretic
+#define HSKULLXOFF   -28
+#define HSKULLYOFF   -1
+#define HLINEHEIGHT   20  //equiv to ITEM_HEIGHT in Heretic's source
+#define HASCII_CURSOR '[' //not sure what this is for...from Heretic.
+
+
+//
+// fade-in/out stuff
+//
+void M_MenuFadeIn(void);
+void M_MenuFadeOut(void);
+void(*menufadefunc)(void) = NULL;
+
 
 // timed message = no input from user
 static bool msg_needsinput;
@@ -107,7 +128,7 @@ static void (* message_key_routine)(int response) = NULL;
 static void (* message_input_routine)(const char *response) = NULL;
 
 static int chosen_epi;
-
+ 
 // SOUNDS
 sfx_t * sfx_swtchn;
 sfx_t * sfx_tink;
@@ -117,6 +138,7 @@ sfx_t * sfx_pstop;
 sfx_t * sfx_stnmov;
 sfx_t * sfx_pistol;
 sfx_t * sfx_swtchx;
+sfx_t * sfx_network;
 //
 //  IMAGES USED
 //
@@ -124,6 +146,7 @@ static const image_c *therm_l;
 static const image_c *therm_m;
 static const image_c *therm_r;
 static const image_c *therm_o;
+static const image_c *SkullBaseLump = NULL;
 
 static const image_c *menu_loadg;
 static const image_c *menu_saveg;
@@ -131,6 +154,7 @@ static const image_c *menu_svol;
 static const image_c *menu_doom;
 static const image_c *menu_newgame;
 static const image_c *menu_multiplayer;
+static const image_c *menu_gamefiles;
 static const image_c *menu_skill;
 static const image_c *menu_episode;
 static const image_c *menu_skull[2];
@@ -138,6 +162,8 @@ static const image_c *menu_readthis[2];
 
 static style_c *menu_def_style;
 static style_c *main_menu_style;
+static style_c *multi_menu_style;
+static style_c *files_menu_style;
 static style_c *episode_style;
 static style_c *skill_style;
 static style_c *load_style;
@@ -194,6 +220,10 @@ static slot_extra_info_t ex_slots[SAVE_SLOTS];
 #define SLIDERLEFT  -1
 #define SLIDERRIGHT -2
 
+// Heretic defines.
+#define HSLIDERLEFT  0
+#define HSLIDERRIGHT 1
+
 //
 // MENU TYPEDEFS
 //
@@ -205,6 +235,7 @@ typedef struct
   	// image for menu entry
 	char patch_name[10];
 	const image_c *image;
+
 	//const char *text; //this is to sub out from *image?
 
   	// choice = menu item #.
@@ -215,6 +246,25 @@ typedef struct
 	char alpha_key;
 }
 menuitem_t;
+
+#if 0
+typedef struct
+{
+	// 0 = no cursor here, 1 = ok, 2 = arrows ok
+	int status;
+
+	char name[64];
+
+	// choice = menu item #.
+	// if status = 2, choice can be SLIDERLEFT or SLIDERRIGHT
+	// select_func became draw_func
+	void(*draw_func)(int choice);
+
+	// hotkey in menu
+	char alpha_key;
+}
+d64menuitem_t;
+#endif // 0
 
 typedef struct menu_s
 {
@@ -241,8 +291,50 @@ typedef struct menu_s
 }
 menu_t;
 
+//typedef struct 
+//{
+//	cvar_c* mitem;
+//	float    mdefault;
+//} d64menudefault_t;
+
+//typedef struct 
+//{
+//	int item;
+//	float width;
+//	cvar_c *mitem;
+//} d64menuthermobar_t;
+
+//typedef struct d64menu_s 
+//{
+//	short               numitems;           // # of menu items
+//	bool            textonly;
+//	struct menu_s       *prevMenu;          // previous menu
+//	d64menuitem_t          *menuitems;         // menu items
+//	void(*draw_func)(void);                  // draw routine
+//	char                title[64];
+//	short               x;
+//	short               y;                  // x,y of menu
+//	short               lastOn;             // last item user was on in menu
+//	bool				smallfont;          // draw text using small fonts
+//	d64menudefault_t       *defaultitems;      // pointer to default values for cvars
+//	short               numpageitems;       // number of items to display per page
+//	short               menupageoffset;
+//	float               scale;
+//	char                **hints;
+//	d64menuthermobar_t     *thermobars;
+//} d64menu_t;
+
+//typedef struct 
+//{
+//	char    *name;
+//	char    *action;
+//} d64menuaction_t;
+
 // menu item skull is on
 static int itemOn;
+
+// doom64
+short  itemSelected;
 
 // skull animation counter
 static int skullAnimCounter;
@@ -250,14 +342,42 @@ static int skullAnimCounter;
 // which skull to draw
 static int whichSkull;
 
+char  msgNames[2][4] = { "Off","On" };
+
 // current menudef
 static menu_t *currentMenu;
 
-//
+// current DOOM64 menudef
+#if 0
+static d64menu_t* currentMenu;
+static d64menu_t* nextmenu;
+
+extern d64menu_t ControlMenuDef;
+#endif // 0
+
+//------------------------------------------------------------------------
+// DOOM 64
 // PROTOTYPES
 //
-static void M_NewGame(int choice);
+//------------------------------------------------------------------------
+#if 0
+static int M_StringWidth(const char *string);
+static int M_StringHeight(const char *string);
+static int M_BigStringWidth(const char *string);
+static void M_DrawSmbString(const char* text, d64menu_t* menu, int item);
+static void M_DrawSaveGameFrontend(d64menu_t* def);
+static void M_SetInputString(char* string, int len);
+static void M_Scroll(d64menu_t* menu, bool up);
+#endif // 0
 
+
+
+//------------------------------------------------------------------------
+// 3DGE 
+// PROTOTYPES
+//
+//------------------------------------------------------------------------
+static void M_NewGame(int choice);
 static void M_Episode(int choice);
 static void M_ChooseSkill(int choice);
 static void M_LoadGame(int choice);
@@ -265,7 +385,9 @@ static void M_SaveGame(int choice);
 
 // 25-6-98 KM
 extern void M_Options(int choice);
+extern void M_StartServerMultiplayer(int choice);
 extern void M_Multiplayer(int choice);
+extern void M_GameFiles(int choice);
 static void M_LoadSavePage(int choice);
 static void M_ReadThis(int choice);
 static void M_ReadThis2(int choice);
@@ -275,6 +397,10 @@ static void M_ChangeMessages(int choice);
 static void M_SfxVol(int choice);
 static void M_MusicVol(int choice);
 // static void M_Sound(int choice);
+
+static void M_HostNetGame(int choice);
+static void M_JoinNetGame(int choice);
+static void M_SplitScreenGame(int choice);
 
 static void M_FinishReadThis(int choice);
 static void M_LoadSelect(int choice);
@@ -287,7 +413,11 @@ static void M_DrawMainMenu(void);
 static void M_DrawReadThis1(void);
 static void M_DrawReadThis2(void);
 static void M_DrawNewGame(void);
+static void M_DrawMultiGame(void);
 static void M_DrawEpisode(void);
+static void HereticMainMenuDrawer(void); // Heretic
+static void DrawFilesMenu(void); //Heretic only.
+static void M_DrawSlider(menu_t *currentMenu, int item, int width, int slot);
 static void M_DrawSound(void);
 static void M_DrawLoad(void);
 static void M_DrawSave(void);
@@ -297,6 +427,7 @@ static void M_SetupNextMenu(menu_t * menudef);
 void M_ClearMenus(void);
 void M_StartControlPanel(void);
 // static void M_StopMessage(void);
+
 
 //
 // DOOM MENU
@@ -314,6 +445,31 @@ typedef enum
 }
 main_e;
 
+
+#if 0
+d64menuitem_t MainMenu[] = {
+{ 1,"New Game",M_NewGame,'n' },
+{ 1,"Options",M_Options,'o' },
+{ 1,"Load Game",M_LoadGame,'l' },
+{ 1,"Quit Game",M_QuitEDGE,'q' },
+};
+#endif // 0
+
+
+static menuitem_t HereticMainMenu[] =
+{
+	{ 1, "H_NGAME",   NULL, M_NewGame, '1' },
+	{ 1, "H_MULTI",   NULL, M_Multiplayer, 'p' },
+	{ 1, "H_OPTION",  NULL, M_Options, 'o' },
+	//TODO: { 1, "H_GAMEFLS", NULL, M_GameFiles, 'f' }, //already written, needs a graphic from plums
+	{ 1, "H_LOADG",   NULL, M_LoadGame, 'l' }, //temporary
+	{ 1, "H_SAVEG",   NULL, M_SaveGame, 's' }, //temporary
+	{ 1, "H_RDTHIS",  NULL, M_ReadThis, 'r' },
+	{ 1, "H_QUITG",   NULL, M_QuitEDGE, 'q' }
+};
+
+
+
 static menuitem_t MainMenu[] =
 {
 	{1, "M_NGAME",   NULL, M_NewGame, 'n'},
@@ -325,6 +481,9 @@ static menuitem_t MainMenu[] =
 	{1, "M_RDTHIS",  NULL, M_ReadThis, 'r'},
 	{1, "M_QUITG",   NULL, M_QuitEDGE, 'q'}
 };
+
+
+
 
 static menu_t MainDef =
 {
@@ -338,6 +497,17 @@ static menu_t MainDef =
 	0
 };
 
+static menu_t HereticMainDef =
+{
+	main_end,
+	NULL,
+	HereticMainMenu,
+	&main_menu_style,
+	HereticMainMenuDrawer,
+	110, 56,
+	0
+};
+
 // For Splitscreen games. . .
 // Order should go as such:
 /* TITLE: Two Player Game
@@ -345,27 +515,82 @@ static menu_t MainDef =
 	Options (links back to the Gameplay Options menu!
 	Start Server (use Advanced Start from m_Options!!!)
 	Multiplayer (for true TCP/IP multiplayer, disable that for now...*/
-	
-/* static menu_t MultiDef[] =
-{
-	0,//multi_numtypes, // # of menu items
-	&MainDef, // previous menu
-	MultiMenu,  // ::from::SkillMenu ->> menuitem_t ->
-	&main_menu_style, /// Same style, I guess?
-	NULL,
-	48, 63,
-	0  // lastOn
-	
-} */
-/* 
+
+
+// Doom Legacy's gfx = STSERV, CONNEC, replaced by Julian's GFX 
 static menuitem_t MultiMenu[] = ///Dupe Doom Legacy's Multiplayer menu. . .
 {
-	{1, "M_SETUPB", NULL, M_ChooseSkill, 'p'}, //Setup Player Two (controls and stuff, only shows in multiplayer menu)
-	{1, "M_OPTIONS", NULL, M_Options, 'r'}, //pulls back to Gameplay Options Drawer
-	{1, "M_STSERV",  NULL, M_Multiplayer, 'h'}, //Goes to Advanced Start, dupe advanced start for a splitscreen game (II)
-	{1, "M_MULTI", NULL, NULL, 'u'}, /// Make this go nowhere. This will be for TCP/IP STUFF!
-	///{1, "M_NMARE", NULL, M_ChooseSkill, 'n'}
-}; */
+	//{ 1, "M_SETUPA", NULL, NULL, 'a' }, //Setup Player One (controls and stuff, only shows in multiplayer menu)
+	//{ 1, "M_SETUPB", NULL, NULL, 'b' }, //Setup Player Two (controls and stuff, only shows in multiplayer menu)
+	{ 1, "M_STSERV", NULL, M_HostNetGame, 'o' }, // Pulls up the Advanced Start Menu (Host)
+	{ 1, "M_CONNEC",  NULL, M_JoinNetGame, 'h' }, //Pulls up the Join Game Menu (client)
+	{ 1, "M_2PLAYR",  NULL, M_SplitScreenGame, 'z' }, //Goes to splitscreen game (II)
+	{ 1, "M_OPTION", NULL, M_Options, 'o' } // Goes to Options...
+
+};
+	
+static menu_t MultiDef =
+{
+	4,	//multi_numtypes, // # of menu items...try main_end
+	&MainDef, // previous menu
+	MultiMenu,  // ::from::SkillMenu ->> menuitem_t ->
+	&multi_menu_style, /// Same style, I guess?
+	M_DrawMultiGame,
+	48, 63,
+	0  // lastOn
+};
+
+static menuitem_t HMultiMenu[] = ///Dupe Doom Legacy's Multiplayer menu. . .
+{
+	//{ 1, "M_SETUPA", NULL, NULL, 'a' }, //Setup Player One (controls and stuff, only shows in multiplayer menu)
+	//{ 1, "M_SETUPB", NULL, NULL, 'b' }, //Setup Player Two (controls and stuff, only shows in multiplayer menu)
+	{ 1, "H_HOSTNG", NULL, M_HostNetGame, 'o' }, // Pulls up the Advanced Start Menu (Host)
+	{ 1, "H_JOINNG",  NULL, M_JoinNetGame, 'h' }, //Pulls up the Join Game Menu (client)
+	{ 1, "M_2PLAYR",  NULL, M_SplitScreenGame, 'z' }, //Goes to splitscreen game (II)
+	{ 1, "H_OPTION", NULL, M_Options, 'o' } // Goes to Options...
+
+};
+
+static menu_t HMultiDef =
+{
+	4,	//multi_numtypes, // # of menu items...try main_end
+	&HereticMainDef, // previous menu
+	HMultiMenu,  // ::from::SkillMenu ->> menuitem_t ->
+	&multi_menu_style, /// Same style, I guess?
+	M_DrawMultiGame,
+	48, 63,
+	0  // lastOn
+};
+
+//---------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------
+
+// GAMEFILES MENU (Heretic Specific)
+// Since LoadGame and Savegame are in a submenu now.
+static menuitem_t FilesMenu[] =
+{
+	{ 1, "H_LOADG",   NULL, M_LoadGame, 'l' },
+	{ 1, "H_SAVEG",   NULL, M_SaveGame, 's' }
+};
+
+// FilesDef = GAMEFILES MENU, from Heretic.
+static menu_t FilesDef =
+{
+	2,	//multi_numtypes, // # of menu items...try main_end
+	&MainDef, // previous menu
+	FilesMenu,  // DrawFilesMenu
+	&files_menu_style, /// create this...somewhere
+	NULL, //graphic that appears at the top of this menu
+	110, 60,
+	0  // lastOn
+};
+
+//---------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------
+
+
 
 //
 // EPISODE SELECT
@@ -394,6 +619,17 @@ static menu_t EpiDef =
 	0  // lastOn
 };
 
+static menu_t HereticEpiDef =
+{
+	0,  //ep_end,  // # of menu items
+	&HereticMainDef,  // previous menu
+	&DefaultEpiMenu,  // menuitem_t ->
+	&episode_style,
+	M_DrawEpisode,  // drawing routine ->
+	80, 50,  // x,y as in original Heretic
+	0  // lastOn
+};
+
 static menuitem_t SkillMenu[] =
 {
 	{1, "M_JKILL", NULL, M_ChooseSkill, 'p'},
@@ -411,6 +647,17 @@ static menu_t SkillDef =
 	&skill_style,
 	M_DrawNewGame,  // drawing routine ->
 	48, 63,  // x,y 63
+	sk_medium  // lastOn
+};
+
+static menu_t HereticSkillDef =
+{
+	sk_numtypes,  // # of menu items
+	&EpiDef,  // previous menu
+	SkillMenu,  // menuitem_t ->
+	&skill_style,
+	M_DrawNewGame,  // drawing routine ->
+	38, 30,  // x,y 63
 	sk_medium  // lastOn
 };
 
@@ -495,6 +742,17 @@ static menu_t SoundDef =
 	&sound_vol_style,
 	M_DrawSound,
 	80, 64,
+	0
+};
+
+static menu_t HereticSoundDef =
+{
+	sound_end,
+	&HereticMainDef,  ///  &OptionsDef,
+	SoundMenu,
+	&sound_vol_style,
+	M_DrawSound,
+	90, 20,
 	0
 };
 
@@ -1008,6 +1266,19 @@ void M_QuickLoad(void)
 	M_StartMessage(s.c_str(), QuickLoadResponse, true);
 }
 
+
+//---------------------------------------------------------------------------
+//
+// PROC InitFonts
+//
+//---------------------------------------------------------------------------
+
+static void InitFonts(void)
+{
+	//FontABaseLump = W_GetNumForName("FONTA_S") + 1;
+	//FontBBaseLump = W_GetNumForName("FONTB_S") + 1;
+}
+
 //
 // Read This Menus
 // Had a "quick hack to fix romero bug"
@@ -1032,6 +1303,14 @@ void M_DrawSound(void)
 
 	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol   + 1), SND_SLIDER_NUM, sfx_volume, 1);
 	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), SND_SLIDER_NUM, mus_volume, 1);
+}
+
+void M_DrawHereticSound(void)
+{
+	HUD_DrawImage(60, 38, menu_svol);
+
+	M_DrawThermo(SoundDef.x, SoundDef.y + HLINEHEIGHT * (sfx_vol + 1), SND_SLIDER_NUM, sfx_volume, 1);
+	M_DrawThermo(SoundDef.x, SoundDef.y + HLINEHEIGHT * (music_vol + 1), SND_SLIDER_NUM, mus_volume, 1);
 }
 
 #if 0
@@ -1083,6 +1362,23 @@ void M_MusicVol(int choice)
 	S_ChangeMusicVolume();
 }
 
+void HereticMainMenuDrawer(void)
+{
+	//int frame = (I_GetTime() / 3) % 18;
+	///int frame = (I_GetTime() / 3) % 18; //TODO: M_SKL00 has animations that need defining in ANIMS.DDF!!
+	int frame;
+
+	frame = (MenuTime / 3) % 18;
+
+	SkullBaseLump = W_ImageLookup("M_SKL13"); //also try ILF_Exact!
+
+	HUD_DrawImage(40, 10, SkullBaseLump);// + (17 - frame));
+	HUD_DrawImage(232, 10, SkullBaseLump);// + (17 - frame));
+
+	//Now, finally, draw the "main" menu.
+	HUD_DrawImage(94, 2, menu_doom);
+}
+
 void M_DrawMainMenu(void)
 {
 	HUD_DrawImage(94, 2, menu_doom);
@@ -1092,6 +1388,17 @@ void M_DrawNewGame(void)
 {
 	HUD_DrawImage(96, 14, menu_newgame);
 	HUD_DrawImage(54, 38, menu_skill);
+}
+
+void M_DrawMultiGame(void)
+{
+	HUD_DrawImage(96, 14, menu_multiplayer);
+}
+
+// Game Files menu from Heretic!
+void M_DrawFileGFX(void)
+{
+	HUD_DrawImage(96, 14, menu_gamefiles); //hack
 }
 
 void M_NewGame(int choice)
@@ -1107,13 +1414,63 @@ void M_NewGame(int choice)
 
 void M_Multiplayer(int choice)
 {
-	option_menuon  = 0;
-	netgame_menuon = 0;
 	
+	///bool netgame = true;
+	if (netgame)
+	{
+		M_StartMessage(language["NewNetGame"], NULL, true);
+		return;
+	}
 
+	M_SetupNextMenu(&MultiDef);
+	
 	// hack
 }
 
+void M_GameFiles(int choice)
+{
+	///bool netgame = true;
+	if (netgame)
+	{
+		M_StartMessage(language["NewNetGame"], NULL, true);
+		return;
+	}
+
+	M_SetupNextMenu(&FilesDef);
+}
+
+extern void M_NetHostBegun(void);
+extern void M_NetJoinBegun(void);
+extern void M_SplitScreenBegun(void);
+
+void M_HostNetGame(int choice)
+{
+	option_menuon = 0;
+	netgame_menuon = 1;
+	splitgame_menuon= 0;
+
+	M_NetHostBegun();
+}
+
+void M_JoinNetGame(int choice)
+{
+	//#if 0
+	option_menuon = 0;
+	netgame_menuon = 2;
+	splitgame_menuon= 0;
+
+	M_NetJoinBegun();
+	//#endif
+}
+
+void M_SplitScreenGame(int choice)
+{
+	option_menuon = 0;
+	netgame_menuon = 0;
+	splitgame_menuon = 1;
+
+	M_SplitScreenBegun();
+}
 //
 //      M_Episode
 //
@@ -1301,6 +1658,7 @@ void M_EndGame(int choice)
 
 	option_menuon  = 0;
 	netgame_menuon = 0;
+	splitgame_menuon = 0;
 
 	if (netgame)
 	{
@@ -1309,6 +1667,7 @@ void M_EndGame(int choice)
 	}
 
 	M_StartMessage(language["EndGameCheck"], EndGameResponse, true);
+	splitscreen_mode = false;
 }
 
 void M_ReadThis(int choice)
@@ -1462,6 +1821,43 @@ void M_DrawThermo(int x, int y, int thermWidth, int thermDot, int div)
 	x = basex + step + thermDot * step;
 
 	HUD_StretchImage(x, y, step+1, IM_HEIGHT(therm_o)/div, therm_o);
+}
+
+//----------------------------------------------------------------------------
+//   HERETIC MENU FUNCTIONS
+//----------------------------------------------------------------------------
+
+void M_DrawSlider(menu_t *currentMenu, int item, int width, int slot)
+{
+	//
+	//int i, basex = x;
+	int x;
+	int y;
+	int x2;
+	int count; //compat with Heretic, we can hack around step int and use count like Vanilla Heretic..
+	
+
+			 // Note: the (step+1) here is for compatibility with the original
+			 // code.  It seems required to make the thermo bar tile properly.
+			 // int step = (8 / div);
+
+			 //NOTE: Assume weird void above 
+
+	x = currentMenu->x + 24;
+	y = currentMenu->y + 2 + (item * LINEHEIGHT);
+
+
+	//HUD_StretchImage(x - 32, y, IM_HEIGHT(therm_l));
+	HUD_DrawImage(x - 32, y, therm_l);
+
+	for (x2 = x, count = width; count--; x2 += 8)
+	{
+		HUD_DrawImage(x2, y, W_ImageLookup(count & 1 ? "M_SLDMD1" : "M_SLDMD2"));
+	}
+
+	HUD_DrawImage(x2, y, therm_r); //M_SLDRT
+
+	HUD_DrawImage(x + 4 + slot * 8, y + 7, therm_o); //M_SLDKB
 }
 
 void M_StartMessage(const char *string, void (* routine)(int response), 
@@ -1623,6 +2019,9 @@ bool M_Responder(event_t * ev)
 
 	if (netgame_menuon)
 		return M_NetGameResponder(ev, ch);
+
+	if (splitgame_menuon)
+		return M_SplitGameResponder(ev, ch);
 
 	// Save Game string input
 	if (saveStringEnter)
@@ -1895,26 +2294,21 @@ void M_StartControlPanel(void)
 	// intro might call this repeatedly
 	if (menuactive)
 		return;
-	
-	static int xh_count = 0;
-	static int xh_dir = 1;
-
-	// -jc- Pulsating
-	if (xh_count == 31)
-		xh_dir = -1;
-	else if (xh_count == 0)
-		xh_dir = 1;
-
-	xh_count += xh_dir;
-	xh_dir *= itemOn;
 
 	menuactive = true;
 	CON_SetVisible(vs_notvisible);
 	paused = false; // extra check to disable graphic from con_setvisible
 
-	currentMenu = &MainDef;  // JDC
+	if (heretic_mode)
+	{
+		currentMenu = &HereticMainDef;
+	}
+	else if (!heretic_mode)
+	{
+		currentMenu = &MainDef;  // JDC
+	}
 	
-	itemOn = currentMenu->lastOn - xh_count / 100.0f;  // JDC
+	itemOn = currentMenu->lastOn;  // JDC
 
 	M_OptCheckNetgame();
 }
@@ -2043,6 +2437,12 @@ void M_Drawer(void)
 	if (!menuactive)
 		return;
 
+	if (heretic_mode)
+	{
+		H_Drawer();
+		return;
+	}
+
 	// Horiz. & Vertically center string and print it.
 	if (msg_mode)
 	{
@@ -2063,12 +2463,17 @@ void M_Drawer(void)
 		return;
 	}
 
+	if (splitgame_menuon)
+	{
+		M_SplitGameDrawer();
+		return;
+	}
+
 	style_c *style = currentMenu->style_var[0];
 	SYS_ASSERT(style);
 	HUD_SetAlpha(0.64f);
 	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
 	HUD_SetAlpha();
-
 
 	// call Draw routine
 	if (currentMenu->draw_func)
@@ -2095,12 +2500,104 @@ void M_Drawer(void)
 	}
 
 	// DRAW SKULL
+
+#if 0
+	if (heretic_mode)
 	{
+#define SKULLXOFF   -24
+#define LINEHEIGHT   15  //!!!!
 		int sx = x + SKULLXOFF;
 		int sy = currentMenu->y - 5 + itemOn * LINEHEIGHT;
 
 		HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
 	}
+
+	else if (!heretic_mode)
+	{
+#endif // 0
+
+		int sx = x + SKULLXOFF;
+		int sy = currentMenu->y - 5 + itemOn * LINEHEIGHT;
+
+		HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
+	//}
+}
+
+
+void H_Drawer(void)
+{
+		short x, y;
+
+		unsigned int i;
+		unsigned int max;
+
+		if (!menuactive)
+			return;
+
+		// Horiz. & Vertically center string and print it.
+		if (msg_mode)
+		{
+			DrawMessage();
+			return;
+		}
+
+		// new options menu enable, use that drawer instead
+		if (option_menuon)
+		{
+			M_OptDrawer();
+			return;
+		}
+
+		if (netgame_menuon)
+		{
+			M_NetGameDrawer();
+			return;
+		}
+
+		if (splitgame_menuon)
+		{
+			M_SplitGameDrawer();
+			return;
+		}
+
+		style_c *style = currentMenu->style_var[0];
+		SYS_ASSERT(style);
+		HUD_SetAlpha(0.64f);
+		HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+		HUD_SetAlpha();
+
+
+		// call Draw routine
+		if (currentMenu->draw_func)
+			(*currentMenu->draw_func)();
+
+		// DRAW MENU
+		x = currentMenu->x;
+		y = currentMenu->y;
+		max = currentMenu->numitems;
+
+		for (i = 0; i < max; i++, y += HLINEHEIGHT)
+		{
+			// ignore blank lines
+			if (!currentMenu->menuitems[i].patch_name[0])
+				continue;
+
+			if (!currentMenu->menuitems[i].image)
+				currentMenu->menuitems[i].image = W_ImageLookup(
+					currentMenu->menuitems[i].patch_name);
+
+			const image_c *image = currentMenu->menuitems[i].image;
+
+			HUD_DrawImage(x, y, image);
+		}
+
+		// DRAW SKULL
+
+			int sx = x + HSKULLXOFF;
+			int sy = currentMenu->y - 5 + itemOn * HLINEHEIGHT;
+
+			HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
+			//}
 }
 
 void M_ClearMenus(void)
@@ -2140,6 +2637,12 @@ void M_Ticker(void)
 		return;
 	}
 
+	if (splitgame_menuon)
+	{
+		M_NetGameTicker();
+		return;
+	}
+
 	if (--skullAnimCounter <= 0)
 	{
 		whichSkull ^= 1;
@@ -2147,8 +2650,160 @@ void M_Ticker(void)
 	}
 }
 
+void H_Init(void)
+{
+	if (!heretic_mode)
+	{
+		I_Printf("Heretic mode not detected, breaking into M_Init!\n");
+		return;
+	}
+
+	I_Printf("- Heretic Main Menu Init\n");
+
+	E_ProgressMessage(language["MiscInfo"]);
+
+	currentMenu = &HereticMainDef;
+	menuactive = false;
+	itemOn = currentMenu->lastOn;
+	whichSkull = 0;
+	skullAnimCounter = 10;
+	msg_mode = 0;
+	msg_string.clear();
+	msg_lastmenu = menuactive;
+	quickSaveSlot = -1;
+
+
+	// lookup styles
+	styledef_c *def;
+
+	def = styledefs.Lookup("MENU");
+	if (!def) def = default_style;
+	menu_def_style = hu_styles.Lookup(def);
+
+	def = styledefs.Lookup("MULTIPLAYER");
+	if (!def) def = default_style;
+	menu_def_style = hu_styles.Lookup(def);
+
+	def = styledefs.Lookup("OPTIONS");
+	if (!def) def = default_style;
+	menu_def_style = hu_styles.Lookup(def);
+
+	def = styledefs.Lookup("MAIN MENU");
+	main_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("CHOOSE EPISODE");
+	episode_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("CHOOSE SKILL");
+	skill_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("MAIN MENU");
+	files_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("LOAD MENU");
+	load_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("SAVE MENU");
+	save_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("DIALOG");
+	dialog_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("SOUND VOLUME");
+	if (!def) def = styledefs.Lookup("OPTIONS");
+	if (!def) def = default_style;
+	sound_vol_style = hu_styles.Lookup(def);
+
+	// lookup required images
+
+	therm_l = W_ImageLookup("M_SLDLT");
+
+	therm_m = W_ImageLookup("M_SLDMD1");
+
+	therm_r = W_ImageLookup("M_SLDRT");
+
+	therm_o = W_ImageLookup("M_SLDKB"); //Heretic: M_SLDKB */
+
+	menu_loadg = W_ImageLookup("H_LOADG");
+	menu_saveg = W_ImageLookup("H_SAVEG");
+	menu_svol = W_ImageLookup("H_SVOL");
+	menu_newgame = W_ImageLookup("H_NGAME");
+	menu_multiplayer = W_ImageLookup("H_MULTI");
+	menu_skill = W_ImageLookup("H_SKILL");
+	menu_episode = W_ImageLookup("H_EPISOD");
+
+	// Check for DOOM vs Heretic Dependancies. Rewrite the code below to use the
+	// heretic_mode bool first -- this way we can do this accross all games!
+
+		menu_doom = W_ImageLookup("M_HTIC");
+
+
+		menu_skull[0] = W_ImageLookup("M_SLCTR1");
+
+		menu_skull[1] = W_ImageLookup("M_SLCTR2");
+
+
+
+	// Further code switches out DOOM -> Heretic graphics
+
+
+	// Here we could catch other version dependencies,
+	//  like HELP1/2, and four episodes.
+	//    if (W_CheckNumForName("M_EPI4") < 0)
+	//      EpiDef.numitems -= 2;
+	//    else if (W_CheckNumForName("M_EPI5") < 0)
+	//      EpiDef.numitems--;
+
+	if (W_CheckNumForName("HELP") >= 0)
+		menu_readthis[0] = W_ImageLookup("HELP");
+	else
+		menu_readthis[0] = W_ImageLookup("HELP1");
+
+	if (W_CheckNumForName("HELP2") >= 0)
+		menu_readthis[1] = W_ImageLookup("HELP2");
+	else
+	{
+		menu_readthis[1] = W_ImageLookup("CREDIT");
+
+		// This is used because DOOM 2 had only one HELP
+		//  page. I use CREDIT as second page now, but
+		//  kept this hack for educational purposes.
+
+		HereticMainMenu[readthis] = HereticMainMenu[quitdoom];
+		HereticMainDef.numitems--;
+		HereticMainDef.y += 8; // FIXME
+		SkillDef.prevMenu = &HereticMainDef;
+		ReadDef1.draw_func = M_DrawReadThis1;
+		ReadDef1.x = 330;
+		ReadDef1.y = 165;
+		ReadMenu1[0].select_func = M_FinishReadThis;
+	}
+
+	sfx_swtchn = sfxdefs.GetEffect("SWTCHN");
+	sfx_tink = sfxdefs.GetEffect("TINK");
+	sfx_radio = sfxdefs.GetEffect("RADIO");
+	sfx_oof = sfxdefs.GetEffect("OOF");
+	sfx_pstop = sfxdefs.GetEffect("PSTOP");
+	sfx_stnmov = sfxdefs.GetEffect("STNMOV");
+	sfx_pistol = sfxdefs.GetEffect("PISTOL");
+	sfx_swtchx = sfxdefs.GetEffect("SWTCHX");
+	sfx_network = sfxdefs.GetEffect("DSSECRET");
+
+	M_OptMenuInit();
+	M_NetGameInit();
+
+	M_InitShiftXForm();
+}
+
+
 void M_Init(void)
 {
+	if (heretic_mode)
+	{
+		H_Init();
+		return; 
+	}
+
 	E_ProgressMessage(language["MiscInfo"]);
 
 	currentMenu = &MainDef;
@@ -2165,15 +2820,15 @@ void M_Init(void)
 	styledef_c *def;
 
 	def = styledefs.Lookup("MENU");
-	if (! def) def = default_style;
+	if (!def) def = default_style;
 	menu_def_style = hu_styles.Lookup(def);
-	
+
 	def = styledefs.Lookup("MULTIPLAYER");
-	if (! def) def = default_style;
+	if (!def) def = default_style;
 	menu_def_style = hu_styles.Lookup(def);
-	
+
 	def = styledefs.Lookup("OPTIONS");
-	if (! def) def = default_style;
+	if (!def) def = default_style;
 	menu_def_style = hu_styles.Lookup(def);
 
 	def = styledefs.Lookup("MAIN MENU");
@@ -2195,8 +2850,8 @@ void M_Init(void)
 	dialog_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
 	def = styledefs.Lookup("SOUND VOLUME");
-	if (! def) def = styledefs.Lookup("OPTIONS");
-	if (! def) def = default_style;
+	if (!def) def = styledefs.Lookup("OPTIONS");
+	if (!def) def = default_style;
 	sound_vol_style = hu_styles.Lookup(def);
 
 	// lookup required images
@@ -2205,39 +2860,39 @@ void M_Init(void)
 	therm_r = W_ImageLookup("M_THERMR");
 	therm_o = W_ImageLookup("M_THERMO");
 
-	menu_loadg    = W_ImageLookup("M_LOADG");
-	menu_saveg    = W_ImageLookup("M_SAVEG");
-	menu_svol     = W_ImageLookup("M_SVOL");
-	menu_newgame  = W_ImageLookup("M_NEWG");
+	menu_loadg = W_ImageLookup("M_LOADG");
+	menu_saveg = W_ImageLookup("M_SAVEG");
+	menu_svol = W_ImageLookup("M_SVOL");
+	menu_newgame = W_ImageLookup("M_NEWG");
 	menu_multiplayer = W_ImageLookup("M_MULTI");
-	menu_skill    = W_ImageLookup("M_SKILL");
-	menu_episode  = W_ImageLookup("M_EPISOD");
+	menu_skill = W_ImageLookup("M_SKILL");
+	menu_episode = W_ImageLookup("M_EPISOD");
 	menu_skull[0] = W_ImageLookup("M_SKULL1");
 	menu_skull[1] = W_ImageLookup("M_SKULL2");
-	
-//	if (W_CheckNumForName("M_NEWG") >= 0)
-//	    DrawKeyword("NEW GAME");//HL_WriteText(style,2, 80, 30, "NEW GAME");//HUD_DrawText(0, 0, "NEW GAME");//HL_WriteText(style,2, LoadDef.x - 4, y, "NEW GAME");
-//or
-// menu_doom = HL_WriteText(style,2,LoadDef.x,y, "NEW GAME");
+
+	//	if (W_CheckNumForName("M_NEWG") >= 0)
+	//	    DrawKeyword("NEW GAME");//HL_WriteText(style,2, 80, 30, "NEW GAME");//HUD_DrawText(0, 0, "NEW GAME");//HL_WriteText(style,2, LoadDef.x - 4, y, "NEW GAME");
+	//or
+	// menu_doom = HL_WriteText(style,2,LoadDef.x,y, "NEW GAME");
 	if (W_CheckNumForName("M_HTIC") >= 0)
 		menu_doom = W_ImageLookup("M_HTIC");
 	else
 		menu_doom = W_ImageLookup("M_DOOM");
 
-		//code below switches out skull
+	//code below switches out skull
 	if (W_CheckNumForName("M_SLCTR1") >= 0)
 		menu_skull[0] = W_ImageLookup("M_SLCTR1");
 	else
 		menu_skull[0] = W_ImageLookup("M_SKULL1");
-		
+
 	if (W_CheckNumForName("M_SLCTR2") >= 0)
 		menu_skull[1] = W_ImageLookup("M_SLCTR2");
 	else
 		menu_skull[1] = W_ImageLookup("M_SKULL2");
 
-	
 
-		// Further code switches out DOOM -> Heretic graphics
+
+	// Further code switches out DOOM -> Heretic graphics
 
 
 	// Here we could catch other version dependencies,
@@ -2272,18 +2927,18 @@ void M_Init(void)
 		ReadMenu1[0].select_func = M_FinishReadThis;
 	}
 
- 	sfx_swtchn = sfxdefs.GetEffect("SWTCHN");
- 	sfx_tink   = sfxdefs.GetEffect("TINK");
- 	sfx_radio  = sfxdefs.GetEffect("RADIO");
- 	sfx_oof    = sfxdefs.GetEffect("OOF");
- 	sfx_pstop  = sfxdefs.GetEffect("PSTOP");
- 	sfx_stnmov = sfxdefs.GetEffect("STNMOV");
- 	sfx_pistol = sfxdefs.GetEffect("PISTOL");
- 	sfx_swtchx = sfxdefs.GetEffect("SWTCHX");
+	sfx_swtchn = sfxdefs.GetEffect("SWTCHN");
+	sfx_tink = sfxdefs.GetEffect("TINK");
+	sfx_radio = sfxdefs.GetEffect("RADIO");
+	sfx_oof = sfxdefs.GetEffect("OOF");
+	sfx_pstop = sfxdefs.GetEffect("PSTOP");
+	sfx_stnmov = sfxdefs.GetEffect("STNMOV");
+	sfx_pistol = sfxdefs.GetEffect("PISTOL");
+	sfx_swtchx = sfxdefs.GetEffect("SWTCHX");
 
 	M_OptMenuInit();
 	M_NetGameInit();
-	
+
 	M_InitShiftXForm();
 }
 

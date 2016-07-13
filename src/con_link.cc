@@ -181,7 +181,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_md5scale",        &r_md5scale,        "c", "0" },
 	{ "r_lerp",        &r_lerp,        "c", "1" },
 	{ "r_maxfps",        &r_maxfps,        "c", "0" },
-	{ "vsync",           &r_vsync,        "c", "0" },
+	{ "r_vsync",           &r_vsync,        "c", "0" },
 
 #if 0 // FIXME
     { "edge_compat",    &edge_compat,    "",    "0"  },
