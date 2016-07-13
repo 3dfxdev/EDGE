@@ -9,6 +9,18 @@ TODO  // notes to self
 ##############################
 
 -----------------
+7.12.2016
+-----------------
+
+At the 3DGE forums, I finally unlocked the Bug Reports sub-forum, in the sense that
+our registered users should be able to locally create a bug report, while users who
+are not registered should instead follow the SourceForge link and do it there.
+^ Speaking of, the old Bug Reports link redirect had: Total redirects: 5407
+^^ Holy cow! Not sure whether to be flattered or destroyed after that number...;)
+
+Removed "dirent.h" from epi/file.h.
+
+-----------------
 7.11.2016
 -----------------
 
