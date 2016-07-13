@@ -26,7 +26,7 @@
 #ifndef __SYSTEM_SPECIFIC_DEFS_OPENGL__
 #define __SYSTEM_SPECIFIC_DEFS_OPENGL__
 
-#ifdef LINUX
+#if defined(LINUX) || defined(BSD)
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glext.h>
