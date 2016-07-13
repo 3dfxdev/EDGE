@@ -15,7 +15,7 @@ LIBDIR=lib_linux
 CC?=gcc
 CXX?=g++
 
-CFLAGS=-O2 -ffast-math -fno-strict-aliasing -Wall -pipe
+CFLAGS=-O2 -ffast-math -fno-strict-aliasing -Wall -pipe -std=c++11
 
 LDFLAGS=-lm -Wl,--warn-common
 
@@ -27,8 +27,15 @@ CFLAGS += -I.
 
 CFLAGS += -DLINUX
 
+# libcpuid
+
+CFLAGS += -DHAVE_STDINT_H
+
+LDFLAGS += -lcpuid
 
 # OpenGL rendering
+
+CFLAGS += -DOPENGL_2
 
 LDFLAGS += -lGL
 LDFLAGS += -L$(LIBDIR)/glew-1.4/lib -lGLEW
@@ -56,8 +63,8 @@ CFLAGS_GLBSP += -DINLINE_G=inline
 
 # SDL
 
-CFLAGS  += $(shell sdl-config --cflags)
-LDFLAGS += $(shell sdl-config --libs)
+CFLAGS  += $(shell sdl2-config --cflags)
+LDFLAGS += $(shell sdl2-config --libs)
 
 
 
@@ -71,7 +78,7 @@ stripped: $(PROGRAM)
 	strip --strip-unneeded $(PROGRAM)
 
 clean:
-	rm -f $(PROGRAM) $(OBJDIR)/*/*.* 
+	rm -f $(PROGRAM) $(OBJDIR)/*/*.*
 
 halfclean:
 	rm -f $(PROGRAM) $(OBJDIR)/ddf/*.* $(OBJDIR)/edge/*.*
@@ -99,7 +106,7 @@ COAL_OBJS= \
 	$(OBJDIR)/coal/c_memory.o
 
 $(OBJDIR)/coal/%.o: coal/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 
 # --------- DDF ----------------
@@ -126,7 +133,7 @@ DDF_OBJS= \
 	$(OBJDIR)/ddf/weapon.o
 
 $(OBJDIR)/ddf/%.o: ddf/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 
 # ---------- Deh_EDGE ---------------
@@ -153,7 +160,7 @@ DEHEDGE_OBJS= \
 	$(OBJDIR)/deh_edge/rscript.o
 
 $(OBJDIR)/deh_edge/%.o: deh_edge/%.cc
-	$(CXX) $(CFLAGS) -DDEH_EDGE_PLUGIN -o $@ -c $< 
+	$(CXX) $(CFLAGS) -DDEH_EDGE_PLUGIN -o $@ -c $<
 
 
 # ---------- EDGE ---------------
@@ -233,10 +240,12 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/r_modes.o    \
 	$(OBJDIR)/edge/r_md2.o      \
 	$(OBJDIR)/edge/r_md5.o      \
+	$(OBJDIR)/edge/r_graph.o    \
 	$(OBJDIR)/edge/r_image.o    \
 	$(OBJDIR)/edge/r_doomtex.o  \
 	$(OBJDIR)/edge/r_texgl.o    \
 	$(OBJDIR)/edge/r_bumpmap.o  \
+	$(OBJDIR)/edge/r_playpal.o  \
 	$(OBJDIR)/edge/s_blit.o     \
 	$(OBJDIR)/edge/s_cache.o    \
 	$(OBJDIR)/edge/s_sound.o    \
@@ -253,6 +262,7 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/sv_mobj.o    \
 	$(OBJDIR)/edge/sv_play.o    \
 	$(OBJDIR)/edge/sv_save.o    \
+	$(OBJDIR)/edge/tinybsp.o    \
 	$(OBJDIR)/edge/w_flat.o     \
 	$(OBJDIR)/edge/w_model.o    \
 	$(OBJDIR)/edge/w_sprite.o   \
@@ -262,6 +272,10 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/vm_coal.o    \
 	$(OBJDIR)/edge/vm_hud.o     \
 	$(OBJDIR)/edge/vm_player.o  \
+	$(OBJDIR)/edge/wlf_util.o   \
+	$(OBJDIR)/edge/wlf_vswap.o  \
+	$(OBJDIR)/edge/wlf_maps.o   \
+	$(OBJDIR)/edge/wlf_setup.o  \
 	$(OBJDIR)/edge/unx_music.o  \
 	$(OBJDIR)/edge/unx_net.o    \
 	$(OBJDIR)/edge/unx_system.o \
@@ -272,13 +286,13 @@ EDGE_OBJS= \
 	$(OBJDIR)/md5_conv/kmq2/q2stuff.o \
 
 $(OBJDIR)/edge/%.o: src/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 $(OBJDIR)/md5_conv/%.o: md5_conv/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 $(OBJDIR)/md5_conv/kmq2/%.o: md5_conv/kmq2/%.c
-	$(CC) $(CFLAGS) -o $@ -c $< 
+	$(CC) $(CFLAGS) -o $@ -c $<
 
 
 # ---------- EPI ---------------
@@ -322,7 +336,7 @@ EPI_OBJS= \
 	$(OBJDIR)/epi/filesystem_linux.o
 
 $(OBJDIR)/epi/%.o: epi/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 
 # ---------- glBSP ---------------
@@ -340,7 +354,7 @@ GLBSP_OBJS= \
 	$(OBJDIR)/glbsp/wad.o
 
 $(OBJDIR)/glbsp/%.o: glbsp/src/%.cc
-	$(CC) $(CFLAGS_GLBSP) -o $@ -c $< 
+	$(CC) $(CFLAGS_GLBSP) -o $@ -c $<
 
 
 # ---------- Timidity ---------------
@@ -356,9 +370,9 @@ TIMIDITY_OBJS= \
 	$(OBJDIR)/timidity/timidity.o
 
 $(OBJDIR)/timidity/%.o: timidity/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
- 
+
 # ---------- OPL ---------------------
 
 OPLLIB_OBJS= \
@@ -369,7 +383,7 @@ $(OBJDIR)/opllib/%.o: opllib/%.cc
 	$(CXX) $(CFLAGS) -o $@ -c $<
 
 # ---------- FINAL LINK STEP -----------
-  
+
 $(PROGRAM) : $(COAL_OBJS) \
              $(DDF_OBJS)  \
 	     $(DEHEDGE_OBJS) \
