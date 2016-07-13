@@ -1,10 +1,10 @@
 //----------------------------------------------------------------------------
 //  EDGE2 OpenGL Thing Rendering
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
 //  Copyright (c) 2015 Isotope SoftWorks
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -130,7 +130,7 @@ static int GetMulticolMaxRGB(multi_color_c *cols, int num, bool additive)
 
 		result = MAX(result, mx);
 	}
-	
+
 	return result;
 }
 
@@ -231,7 +231,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	data.vert[1].Set(x1t, y1t, 0);
 	data.vert[2].Set(x2t, y1t, 0);
 	data.vert[3].Set(x2b, y2b, 0);
-		
+
 	data.texc[0].Set(tex_x1, tex_bot_h);
 	data.texc[1].Set(tex_x1, tex_top_h);
 	data.texc[2].Set(tex_x2, tex_top_h);
@@ -252,7 +252,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	if (trans >= 0.11f && image->opacity != OPAC_Complex)
 		blending = BL_Less;
 
-	if (trans < 0.99 || image->opacity == OPAC_Complex)
+	if (trans < 0.99 || image->opacity != OPAC_Solid)
 		blending |= BL_Alpha;
 
 
@@ -376,19 +376,19 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	glColor4f(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
 
 	glBegin(GL_QUADS);
-  
+
 	glTexCoord2f(tex_x1, tex_bot_h);
 	glVertex2f(x1b, y1b);
-  
+
 	glTexCoord2f(tex_x1, tex_top_h);
 	glVertex2f(x1t, y1t);
-  
+
 	glTexCoord2f(tex_x2, tex_top_h);
 	glVertex2f(x2t, y1t);
-  
+
 	glTexCoord2f(tex_x2, tex_bot_h);
 	glVertex2f(x2b, y2b);
-  
+
 	glEnd();
 
 	glDisable(GL_TEXTURE_2D);
@@ -464,12 +464,12 @@ static void DrawStdCrossHair(void)
 	glColor3f(r, g, b);
 
 	glBegin(GL_POLYGON);
-  
+
 	glTexCoord2f(0.0f, 0.0f); glVertex2f(x-w, y-w);
 	glTexCoord2f(0.0f, 1.0f); glVertex2f(x-w, y+w);
 	glTexCoord2f(1.0f, 1.0f); glVertex2f(x+w, y+w);
 	glTexCoord2f(1.0f, 0.0f); glVertex2f(x+w, y-w);
-  
+
 	glEnd();
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -565,7 +565,7 @@ void RGL_DrawWeaponModel(player_t * p)
 
 
 // I_Debugf("Rendering weapon model!\n");
-	
+
 	float x = viewx + viewright.x * psp->sx / 8.0;
 	float y = viewy + viewright.y * psp->sx / 8.0;
 	float z = viewz + viewright.z * psp->sx / 8.0;
@@ -754,7 +754,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 	if (num_active_mirrors > 0)
 		return;
 
-	// handle never-clip things 
+	// handle never-clip things
 	if (dthing->y_clipping == YCLIP_Never)
 		return;
 
@@ -788,7 +788,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 	// Two sections here: Downward clipping (for sprite's bottom) and
 	// Upward clipping (for sprite's top).  Both use the exact same
 	// algorithm:
-	//     
+	//
 	//    WHILE (current must be clipped)
 	//    {
 	//       new := COPY OF current
@@ -1150,7 +1150,7 @@ static void RGL_DrawModel(drawthing_t *dthing)
 
 		SYS_ASSERT(mo->state->tics > 1);
 
-		
+
 		lerp = (mo->state->tics - mo->tics + /* 1 + */ N_GetInterpolater()) / (float)(mo->state->tics);
 		lerp = CLAMP(0, lerp, 1);
 	}
@@ -1195,7 +1195,7 @@ static void DLIT_Thing(mobj_t *mo, void *dataptr)
 	// dynamic lights do not light themselves up!
 	if (mo == data->mo)
 		return;
-	
+
 	SYS_ASSERT(mo->dlight.shader);
 
 	for (int v = 0; v < 4; v++)
@@ -1317,13 +1317,13 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	if (trans >= 0.11f && image->opacity != OPAC_Complex)
 		blending = BL_Less;
 
-	if (trans < 0.99 || image->opacity == OPAC_Complex)
+	if (trans < 0.99 || image->opacity != OPAC_Solid)
 		blending |= BL_Alpha;
 
 	if (mo->hyperflags & HF_NOZBUFFER)
 		blending |= BL_NoZBuf;
 
-	
+
 	float  fuzz_mul = 0;
 	vec2_t fuzz_add;
 
@@ -1381,7 +1381,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 		bool is_additive = (pass > 0 && pass == num_pass-1);
 
-		if (pass > 0 && pass < num_pass-1) 
+		if (pass > 0 && pass < num_pass-1)
 		{
 			if (GetMulticolMaxRGB(data.col, 4, false) <= 0)
 				continue;
@@ -1445,31 +1445,31 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 void RGL_DrawSortThings(drawfloor_t *dfloor)
 {
 	//
-	// As part my move to strip out Z_Zone usage and replace 
-	// it with array classes and more standard new and delete 
-	// calls, I've removed the QSORT() here and the array. 
-	// My main reason for doing that is that since I have to 
+	// As part my move to strip out Z_Zone usage and replace
+	// it with array classes and more standard new and delete
+	// calls, I've removed the QSORT() here and the array.
+	// My main reason for doing that is that since I have to
 	// modify the code here anyway, it is prudent to re-evaluate
-	// their usage. 
+	// their usage.
 	//
 	// The QSORT() mechanism used does an
 	// allocation each time it is used and this is called
 	// for each floor drawn in each subsector drawn, it is
 	// reasonable to assume that removing it will give
-	// something of speed improvement. 
+	// something of speed improvement.
 	//
-	// This comes at a cost since optimisation is always 
-	// a balance between speed and size: drawthing_t now has 
-	// to hold 4 additional pointers. Two for the binary tree 
-	// (order building) and two for the the final linked list 
-	// (avoiding recursive function calls that the parsing the 
+	// This comes at a cost since optimisation is always
+	// a balance between speed and size: drawthing_t now has
+	// to hold 4 additional pointers. Two for the binary tree
+	// (order building) and two for the the final linked list
+	// (avoiding recursive function calls that the parsing the
 	// binary tree would require).
 	//
 	// -ACB- 2004/08/17
 	//
-	
+
 	drawthing_t *head_dt;
-	
+
 	// Check we have something to draw
 	head_dt = dfloor->things;
 	if (!head_dt)
@@ -1477,22 +1477,22 @@ void RGL_DrawSortThings(drawfloor_t *dfloor)
 
 	drawthing_t *curr_dt, *dt, *next_dt;
 	float cmp_val;
-		
+
 	head_dt->rd_l = head_dt->rd_r = head_dt->rd_prev = head_dt->rd_next = NULL;
-	
+
 	dt = NULL;	// Warning removal: This will always have been set
-	
+
 	curr_dt = head_dt->next;
 	while(curr_dt)
 	{
 		curr_dt->rd_l = curr_dt->rd_r = NULL;
-		
+
 		// Parse the tree to find our place
 		next_dt = head_dt;
 		do
 		{
 			dt = next_dt;
-			
+
 			cmp_val = dt->tz - curr_dt->tz;
 			if (cmp_val == 0.0f)
 			{
@@ -1500,47 +1500,47 @@ void RGL_DrawSortThings(drawfloor_t *dfloor)
 				int offset = dt->mo - curr_dt->mo;
 				cmp_val = (float)offset;
 			}
-						
+
 			if (cmp_val < 0.0f)
-				next_dt = dt->rd_l;				
+				next_dt = dt->rd_l;
 			else
 				next_dt = dt->rd_r;
 		}
 		while (next_dt);
-		
-		// Update our place 
+
+		// Update our place
 		if (cmp_val < 0.0f)
-		{ 
+		{
 			// Update the binary tree
 			dt->rd_l = curr_dt;
 
 			// Update the linked list (Insert behind node)
-			if (dt->rd_prev) 
-				dt->rd_prev->rd_next = curr_dt; 
-			
-			curr_dt->rd_prev = dt->rd_prev;
-			curr_dt->rd_next = dt; 
+			if (dt->rd_prev)
+				dt->rd_prev->rd_next = curr_dt;
 
-			dt->rd_prev = curr_dt;		
+			curr_dt->rd_prev = dt->rd_prev;
+			curr_dt->rd_next = dt;
+
+			dt->rd_prev = curr_dt;
 		}
 		else
 		{
 			// Update the binary tree
-			dt->rd_r = curr_dt; 
+			dt->rd_r = curr_dt;
 
 			// Update the linked list (Insert infront of node)
-			if (dt->rd_next) 
-				dt->rd_next->rd_prev = curr_dt; 
-			
-			curr_dt->rd_next = dt->rd_next;
-			curr_dt->rd_prev = dt; 
+			if (dt->rd_next)
+				dt->rd_next->rd_prev = curr_dt;
 
-			dt->rd_next = curr_dt;	
+			curr_dt->rd_next = dt->rd_next;
+			curr_dt->rd_prev = dt;
+
+			dt->rd_next = curr_dt;
 		}
-		
+
 		curr_dt = curr_dt->next;
 	}
-	
+
 	// Find the first to draw
 	while(head_dt->rd_prev)
 		head_dt = head_dt->rd_prev;

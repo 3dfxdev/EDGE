@@ -1,9 +1,9 @@
  //----------------------------------------------------------------------------
 //  EDGE2 SDL Video Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 2016  Isotope SoftWorks.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -40,7 +40,7 @@
 #include "m_misc.h"
 #include "r_modes.h"
 
-extern cvar_c r_width, r_height, r_depth, r_fullscreen;
+extern cvar_c r_width, r_height, r_depth, r_fullscreen, r_vsync;
 
 //The window we'll be rendering to
 SDL_Window *my_vis;
@@ -98,10 +98,10 @@ void I_GrabCursor(bool enable)
 
 void I_StartupGraphics(void)
 {
-	
+
 	uint32_t  flags = 0;
     char    title[256];
-	
+
 	if (M_CheckParm("-directx"))
 		force_directx = true;
 
@@ -141,11 +141,11 @@ void I_StartupGraphics(void)
 
 	if (M_CheckParm("-nograb"))
 		in_grab = 0;
-	
+
 #ifdef OPENGL_2
 SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
 SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
-#endif	
+#endif
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,   8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,    8);
@@ -153,25 +153,17 @@ SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-	SDL_GL_SetSwapInterval(-1); 
-	
+
 	// ~CA 5.7.2016:
-	
-/* 	Some systems allow specifying -1 for the interval, 
-	to enable late swap tearing. Late swap tearing works 
-	the same as vsync, but if you've already missed the 
-	vertical retrace for a given frame, it swaps buffers 
-	immediately, which might be less jarring for the user 
-	during occasional framerate drops. If application 
-	requests late swap tearing and the system does not support 
-	it, this function will fail and return -1. In such a case, 
-	you should probably retry the call with 1 for the interval. */
-	
+
 	flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
-	
+
 	///FIXME: Call scrmode_c to determine and allow resolution handling in-game!!!!
 	/// See: http://stackoverflow.com/questions/25594714/how-can-i-get-the-screen-resolution-using-sdl2
-	
+
+	display_W = SCREENWIDTH;
+	display_H = SCREENHEIGHT;
+
 	sprintf(title, "3DGE");
     my_vis = SDL_CreateWindow(title,
                               SDL_WINDOWPOS_CENTERED,
@@ -179,13 +171,29 @@ SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
                               display_W,
                               display_H,
                               flags);
-	
-	    if(my_vis == NULL) 
+
+	glContext = SDL_GL_CreateContext( my_vis );
+    SDL_GL_MakeCurrent( my_vis, glContext );
+    if(my_vis == NULL)
 	{
         I_Error("I_InitScreen: Failed to create window");
         return;
     }
 
+/* 	Some systems allow specifying -1 for the interval,
+	to enable late swap tearing. Late swap tearing works
+	the same as vsync, but if you've already missed the
+	vertical retrace for a given frame, it swaps buffers
+	immediately, which might be less jarring for the user
+	during occasional framerate drops. If application
+	requests late swap tearing and the system does not support
+	it, this function will fail and return -1. In such a case,
+	you should probably retry the call with 1 for the interval. */
+
+	if (r_vsync.d == 1)
+		SDL_GL_SetSwapInterval(1);
+	else
+		SDL_GL_SetSwapInterval(-1);
 
 //#if 0
 		// -DS- 2005/06/27 Detect SDL Resolutions
@@ -236,16 +244,16 @@ SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
 						(mode.full ? SDL_FULLSCREEN : 0));
 #endif // 0
 
-					
+
 						R_AddResolution(&mode);
-					
+
 				}
 			}
 		}
 //#endif // 0
 
 	I_Printf("I_StartupGraphics: initialisation OK\n");
-	
+
 	I_Printf("Desktop resolution: %dx%d\n", display_W, display_H);
 }
 
@@ -254,6 +262,9 @@ bool I_SetScreenSize(scrmode_c *mode)
 {
 	///I_Printf("I_SetScreenSize = reached");
 	I_GrabCursor(false);
+
+	SDL_GL_DeleteContext(glContext);
+	SDL_DestroyWindow(my_vis);
 
 	I_Printf("I_SetScreenSize: trying %dx%d %dbpp (%s)\n",
 			 mode->width, mode->height, mode->depth,
@@ -265,15 +276,18 @@ bool I_SetScreenSize(scrmode_c *mode)
                     mode->width, mode->height,
                     SDL_WINDOW_OPENGL | //SDL2 is double-buffered by default
                     (mode->full ? SDL_WINDOW_FULLSCREEN :0));
-	SDL_GLContext context = SDL_GL_CreateContext( my_vis );
-    SDL_GL_MakeCurrent( my_vis, context );
-
-                    
+	glContext = SDL_GL_CreateContext( my_vis );
+    SDL_GL_MakeCurrent( my_vis, glContext );
 	if (my_vis == NULL)
 	{
 		I_Printf("I_SetScreenSize: (mode not possible)\n");
 		return false;
 	}
+
+	if (r_vsync.d == 1)
+		SDL_GL_SetSwapInterval(1);
+	else
+		SDL_GL_SetSwapInterval(-1);
 
 /* 	FIXME: BPP detection. //!!!
 if (my_vis->format->BytesPerPixel <= 1)
@@ -284,13 +298,13 @@ if (my_vis->format->BytesPerPixel <= 1)
 
 	 I_Printf("I_SetScreenSize: mode now %dx%d %dbpp flags:0x%x\n",
 			 my_vis->w, my_vis->h,
-			 my_vis->format->BitsPerPixel, my_vis->flags); 
+			 my_vis->format->BitsPerPixel, my_vis->flags);
 */
 
 	// -AJA- turn off cursor -- BIG performance increase.
-	//       Plus, the combination of no-cursor + grab gives 
+	//       Plus, the combination of no-cursor + grab gives
 	//       continuous relative mouse motion.
-	
+
 	// ~CA~  TODO:  Eventually we will want to turn on the cursor
 	//				when we get Doom64-style mouse control for
 	//				the options drawer.
@@ -303,7 +317,7 @@ if (my_vis->format->BytesPerPixel <= 1)
 	//TODO: On Mac OS X make sure to bind 0 to the draw framebuffer before swapping the window, otherwise nothing will happen.
 #endif
 	SDL_GL_SwapWindow(my_vis);
-	
+
 	return true;
 }
 
@@ -322,7 +336,7 @@ void I_FinishFrame(void)
 	//FIXME: WIN32 relies on WGLEW, so when we go to GLAD, make sure to generate a WGL_GLAD header to compensate.
 	//       I wonder if SDL_GL_SwapWindow will work under Win32 without WGLEW extensions. hmmm.
 	#ifdef WIN32
-	if (WGLEW_EXT_swap_control) 
+	if (WGLEW_EXT_swap_control)
 	{
 		if (r_vsync.d > 0)
 			glFinish();
@@ -361,6 +375,11 @@ void I_ShutdownGraphics(void)
 	{
         // reset gamma to default
         I_SetGamma(1.0f);
+
+		if (glContext)
+			SDL_GL_DeleteContext(glContext);
+		if (my_vis)
+			SDL_DestroyWindow(my_vis);
 
 		SDL_Quit ();
 	}

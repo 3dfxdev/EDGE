@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 OpenGL Rendering (BSP Traversal)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2010  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -234,7 +234,7 @@ public:
 		line_t *other = seg->linedef->portal_pair;
 
 		SYS_ASSERT(other);
-			
+
 		float ax1 = seg->v1->x;
 		float ay1 = seg->v1->y;
 
@@ -447,7 +447,7 @@ static void MIR_SetClippers()
 			active_mirrors[k].Transform(v1.x, v1.y);
 			active_mirrors[k].Transform(v2.x, v2.y);
 		}
-		
+
 		GLdouble front_p[4];
 
 		ClipPlaneHorizontalLine(front_p, v2, v1);
@@ -619,7 +619,7 @@ typedef struct wall_plane_data_s
 
 	float tx, tdx;
 	float ty, ty_mul, ty_skew;
-	
+
 
 	vec2_t x_mat, y_mat;
 
@@ -770,7 +770,7 @@ typedef struct
 
 	int pass;
 	int blending;
-	
+
 	float R, G, B;
 	float trans;
 
@@ -824,7 +824,7 @@ typedef struct
 	const vec3_t *vert;
 
 	GLuint tex_id;
-	
+
     drawthing_t *dlights;
 	int pass;
 	int blending;
@@ -916,17 +916,17 @@ void ShadowCoordFuncNew(void *d, int v_idx,
 
 {
 	const plane_coord_data_t *data = (plane_coord_data_t *)d;
-	
+
 	*pos    = data->vert[v_idx];
 	*normal = data->normal;
-	
+
     float rx = (data->tx0 + pos->x);
 	float ry = (data->ty0 + pos->y);
-	
+
 //	SET_TEXCOORD(tx, ty);
 	texc->x = rx * data->x_mat.x + ry * data->x_mat.y;
 	texc->y = rx * data->y_mat.x + ry * data->y_mat.y;
-	
+
 	rgb[0] = data->R;
 	rgb[1] = data->G;
 	rgb[2] = data->B;
@@ -940,7 +940,7 @@ static void DLIT_Wall(mobj_t *mo, void *dataptr)
 {
 	wall_coord_data_t *data = (wall_coord_data_t *)dataptr;
 
-	// light behind the plane ?    
+	// light behind the plane ?
 	if (! mo->info->dlight[0].leaky && ! data->mid_masked)
 	{
 		float mx = mo->x;
@@ -958,7 +958,7 @@ static void DLIT_Wall(mobj_t *mo, void *dataptr)
 	SYS_ASSERT(mo->dlight.shader);
 
 	int blending = (data->blending & ~BL_Alpha) | BL_Add;
-	
+
 	mo->dlight.shader->WorldMix(GL_POLYGON, data->v_count, data->tex_id,
 			data->trans, &data->pass, blending, data->mid_masked,
 			data, WallCoordFunc);
@@ -982,11 +982,11 @@ static void DLIT_Plane(mobj_t *mo, void *dataptr)
 {
 	plane_coord_data_t *data = (plane_coord_data_t *)dataptr;
 
-	// light behind the plane ?    
+	// light behind the plane ?
 	if (! mo->info->dlight[0].leaky)
 	{
 		float z = data->vert[0].z;
-		
+
 		if (data->slope)
 			z += Slope_GetHeight(data->slope, mo->x, mo->y);
 
@@ -1043,7 +1043,7 @@ static inline void GreetNeighbourSector(float *hts, int& num,
 
 		// check if new height already present, and at same time
 		// find place to insert new height.
-		
+
 		int pos;
 
 		for (pos = 1; pos < num; pos++)
@@ -1162,8 +1162,8 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	float ty_mul = surf->y_mat.y / (total_h * MIR_ZScale());
 	float ty0    = IM_TOP(image) - tex_top_h * ty_mul;
 
-#if (DEBUG >= 3) 
-	L_WriteDebug( "WALL (%d,%d,%d) -> (%d,%d,%d)\n", 
+#if (DEBUG >= 3)
+	L_WriteDebug( "WALL (%d,%d,%d) -> (%d,%d,%d)\n",
 		(int) x1, (int) y1, (int) top, (int) x2, (int) y2, (int) bottom);
 #endif
 
@@ -1237,7 +1237,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	else
 		blending = BL_Less;
 
-	if (trans < 0.99f || image->opacity == OPAC_Complex)
+	if (trans < 0.99f || image->opacity != OPAC_Solid)
 		blending |= BL_Alpha;
 
 	// -AJA- 2006-06-22: fix for midmask wrapping bug
@@ -1370,12 +1370,12 @@ static void DrawSlidingDoor(drawfloor_t *dfloor, float c, float f,
 					e_tex   = s_tex + (e_along - s_along);
 				}
 				break;
-				
+
 			default:
 				I_Error("INTERNAL ERROR: unknown slidemove type!\n");
 				return; /* NOT REACHED */
 		}
-		
+
 		// limit sliding door coordinates to current seg
 		if (s_along < s_seg)
 		{
@@ -1456,7 +1456,7 @@ static void DrawTile(seg_t *seg, drawfloor_t *dfloor,
 	DrawWallPart(dfloor,
 		x1,y1, lz1,lz2,
 		x2,y2, rz1,rz2, tex_top_h,
-		surf, image, (flags & WTILF_MidMask) ? true : false, 
+		surf, image, (flags & WTILF_MidMask) ? true : false,
 		opaque, tex_x1, tex_x2, (flags & WTILF_MidMask) ?
 		&seg->sidedef->sector->props : NULL);
 }
@@ -1507,10 +1507,10 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 
 	sec = sd->sector;
 	other = sidenum ? ld->frontsector : ld->backsector;
-	
+
 	float secfh = SecLerpedFloor(sec);
 	float secch = SecLerpedCeil(sec);
-	
+
 	float slope_fh = secfh;
 	if (sec->f_slope)
 		slope_fh += MIN(sec->f_slope->dz1, sec->f_slope->dz2);
@@ -1525,8 +1525,8 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 			return;
 
 		AddWallTile(seg, dfloor,
-			&sd->middle, slope_fh, slope_ch, 
-			(ld->flags & MLF_LowerUnpegged) ? 
+			&sd->middle, slope_fh, slope_ch,
+			(ld->flags & MLF_LowerUnpegged) ?
 			secfh + IM_HEIGHT_SAFE(sd->middle.image) : secch,
 			0, f_min, c_max);
 		return;
@@ -1534,7 +1534,7 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 
 	float otherfh = SecLerpedFloor(other);
 	float otherch = SecLerpedCeil(other);
-	
+
 	// handle lower, upper and mid-masker
 
 	if (slope_fh < otherfh)
@@ -1558,7 +1558,7 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 		else
 		{
 			AddWallTile(seg, dfloor,
-				&sd->bottom, slope_fh, otherfh, 
+				&sd->bottom, slope_fh, otherfh,
 				(ld->flags & MLF_LowerUnpegged) ? secch : otherfh,
 				0, f_min, c_max);
 		}
@@ -1581,14 +1581,14 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 
 			AddWallTile2(seg, dfloor,
 				&sd->top, lz1, lz2, rz1, rz2,
-				(ld->flags & MLF_UpperUnpegged) ? secch : 
+				(ld->flags & MLF_UpperUnpegged) ? secch :
 				otherch + IM_HEIGHT_SAFE(sd->top.image), 0);
 		}
 		else
 		{
 			AddWallTile(seg, dfloor,
-				&sd->top, otherch, slope_ch, 
-				(ld->flags & MLF_UpperUnpegged) ? secch : 
+				&sd->top, otherch, slope_ch,
+				(ld->flags & MLF_UpperUnpegged) ? secch :
 				otherch + IM_HEIGHT_SAFE(sd->top.image),
 				0, f_min, c_max);
 		}
@@ -1667,7 +1667,7 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 		//
 		float Cbottomh = ExFloorLerpedBottom(C);
 		float Ctoph = ExFloorLerpedTop(C);
-		
+
 		if (Cbottomh < floor_h || Cbottomh > otherch)
 			continue;
 
@@ -1715,7 +1715,7 @@ typedef struct
 
 	GLuint tex_id;
 	int pass;
-		
+
 	float R, G, B;
 
 	float plane_h;
@@ -1766,7 +1766,7 @@ static void DLIT_Flood(mobj_t *mo, void *dataptr)
 {
 	flood_emu_data_t *data = (flood_emu_data_t *)dataptr;
 
-	// light behind the plane ?    
+	// light behind the plane ?
 	if (! mo->info->dlight[0].leaky)
 	{
 		if ((MO_MIDZ(mo) > data->plane_h) != (data->normal.z > 0))
@@ -2009,8 +2009,8 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 		float backf = SecLerpedFloor(cur_seg->back_sub->sector);
 		//frontf = N_Interpolate(cur_seg->front_sub->sector->lf_h, frontf);
 		//backf = N_Interpolate(cur_seg->back_sub->sector->lf_h, backf);
-		
-		
+
+
 		if (backf > frontf && backf < viewz)
 		{
 			EmulateFloodPlane(dfloor, cur_seg->back_sub->sector, +1,
@@ -2224,7 +2224,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 
 	if (seg->back_sub)
 		backsector = seg->back_sub->sector;
-		
+
 	// only 1 sided walls affect the 1D occlusion buffer
 
 	if (seg->linedef->blocked)
@@ -2307,7 +2307,7 @@ bool RGL_CheckBBox(float *bspcoord)
 
 		bspcoord = new_bbox;
 	}
-			
+
 	int boxx, boxy;
 
 	// Find the corners of the box
@@ -2410,7 +2410,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	if (surf->override_p)
 		props = surf->override_p;
 
-	
+
 	slope_plane_t *slope = NULL;
 
 	if (face_dir > 0 && dfloor->is_lowest)
@@ -2446,7 +2446,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	if ((trans < 0.99f || surf->image->opacity >= OPAC_Masked) == solid_mode)
 		return;
 
-	
+
 	// count number of actual vertices
 	seg_t *seg;
 	for (seg=cur_sub->segs, num_vert=0; seg; seg=seg->sub_next, num_vert++)
@@ -2467,10 +2467,10 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	float v_bbox[4];
 
 	M_ClearBox(v_bbox);
-	
+
 	int v_count = 0;
 
-	for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
+	for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT);
 		 seg=seg->sub_next, i++)
 	{
 		if (v_count < MAX_PLVERT)
@@ -2509,7 +2509,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	else
 		blending = BL_Less;
 
-	if (trans < 0.99f || surf->image->opacity == OPAC_Complex)
+	if (trans < 0.99f || surf->image->opacity != OPAC_Solid)
 		blending |= BL_Alpha;
 
 
@@ -2711,9 +2711,9 @@ static void RGL_WalkSubsector(int num)
 	if (boom_ef && (boom_ef->ef_info->type & EXFL_BoomTex))
 		floor_s = &boom_ef->ef_line->frontsector->floor;
 
-		
+
 	float secceil = SecLerpedCeil(sector);
-	
+
 	while (S || L)
 	{
 		if (!L || (S && S->bottom_h < L->bottom_h))
@@ -2759,7 +2759,7 @@ static void RGL_WalkSubsector(int num)
 	float ceilh = de_c ? SecLerpedCeil(cur_sub->deep_ref) : SecLerpedCeil(sector);
 	//float ceilh = de_c ? cur_sub->deep_ref->c_h : sector->c_h;
 	//ceilh = N_Interpolate(de_c ? cur_sub->deep_ref->lc_h : sector->lc_h, ceilh);
-	
+
 	AddNewDrawFloor(K, NULL,
 		de_f ? cur_sub->deep_ref->f_h : floor_h,
 		ceilh, ceilh,
@@ -2913,7 +2913,7 @@ static void DrawPortalPolygon(drawmirror_c *mir)
 	float x2 = mir->seg->v2->x;
 	float y2 = mir->seg->v2->y;
 	float z2 = SecLerpedCeil(ld->frontsector);
-	
+
 
 	MIR_Coordinate(x1, y1);
 	MIR_Coordinate(x2, y2);
@@ -3076,7 +3076,7 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 
 	nd_div.dx -= nd_div.x;
 	nd_div.dy -= nd_div.y;
-	
+
 	side = P_PointOnDivlineSide(viewx, viewy, &nd_div);
 
 	// Recursively divide front space.
@@ -3119,7 +3119,7 @@ static void RGL_RenderTrueBSP(void)
 	drawsubs.clear();
 
 	player_t *v_player = view_cam_mo->player;
-	
+
 	// handle powerup effects
 	RGL_RainbowEffect(v_player);
 
@@ -3156,7 +3156,7 @@ static void RGL_RenderTrueBSP(void)
 		RGL_DrawCrosshair(v_player);
 	}
 
-#if (DEBUG >= 3) 
+#if (DEBUG >= 3)
 	L_WriteDebug( "\n\n");
 #endif
 }
@@ -3195,14 +3195,14 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 	view_x_slope *= view_expand_w;
 
 	epi::vec3_c vp = mo->GetInterpolatedPosition();
-	
+
 	viewx = vp.x;
 	viewy = vp.y;
 	viewz = vp.z;
 	//viewangle = mo->angle;
 	viewangle = mo->GetInterpolatedAngle();
 
-	
+
 	extern float N_GetInterpolater(void);
 	float lerpv = N_GetInterpolater();
 	if (mo->player)//t*b+(a-a*t)

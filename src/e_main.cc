@@ -1,9 +1,9 @@
 //---------------------------------------------------------------------------
 //  EDGE2 Main Init + Program Loop Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -37,7 +37,11 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
+#ifndef LINUX
 #include <libcpuid.h>
+#else
+#include <libcpuid/libcpuid.h>
+#endif
 
 #include "../epi/exe_path.h"
 #include "../epi/file.h"
@@ -350,7 +354,7 @@ static void SetGlobalVars(void)
 
 	if (M_CheckParm("-wolf3d_mode"))
 		wolf3d_mode = true;
-	
+
 	if (M_CheckParm("-rott_mode"))
 		rott_mode = true;
 
@@ -527,7 +531,7 @@ static void M_DisplayPause(void)
 	 	static const image_c *pause_image = NULL;
 
 	if (! pause_image)
-		pause_image = W_ImageLookup("M_PAUSE"); 
+		pause_image = W_ImageLookup("M_PAUSE");
 
 	// make sure image is centered horizontally
 
@@ -565,7 +569,7 @@ void E_ForceWipe(void)
 //
 // Draw current display, possibly wiping it from the previous
 //
-// -ACB- 1998/07/27 Removed doublebufferflag check (unneeded).  
+// -ACB- 1998/07/27 Removed doublebufferflag check (unneeded).
 
 static bool wipe_gl_active = false;
 
@@ -953,7 +957,7 @@ static void IdentifyVersion(void)
 		return;
 	}
 
-	
+
 	// Check -iwad parameter, find out if it is the IWADs directory
 	std::string iwad_par;
 	std::string iwad_file;
@@ -1065,7 +1069,7 @@ static void IdentifyVersion(void)
 
 		if (stricmp(iwad_dir.c_str(), game_dir.c_str()) != 0)
 		{
-			// IWAD directory & game directory differ 
+			// IWAD directory & game directory differ
 			// therefore do a second loop which will
 			// mean we check both.
 			max++;
@@ -1109,7 +1113,7 @@ static void IdentifyVersion(void)
 					break;
 				}
 			}
-			
+
 		}
 	}
 
@@ -1173,7 +1177,7 @@ static void IdentifyWolfenstein(void)
 
 	// Should the Wolf Parameter not be empty then it means
 	// that one was given which is not a directory. Therefore
-	// we assume it to be a name or some shit! 
+	// we assume it to be a name or some shit!
 	else if (!wolf_par.empty())
 	{
 		std::string fn = wolf_par;
@@ -1211,7 +1215,7 @@ static void IdentifyWolfenstein(void)
 
 		if (stricmp(wolf_dir.c_str(), game_dir.c_str()) != 0)
 		{
-			// WOLF directory & game directory differ 
+			// WOLF directory & game directory differ
 			// therefore do a second loop which will
 			// mean we check both.
 			max++;
@@ -1273,7 +1277,7 @@ static void IdentifyWolfenstein(void)
 	W_AddRawFilename(wolf_file.c_str(), FLKIND_Lump); //<--- This needs defining! Done.c
 
 	//Finally sets the wolf_base (maphead_base)
-	wolf_base = epi::PATH_GetBasename(wolf_file.c_str()); //<--- 
+	wolf_base = epi::PATH_GetBasename(wolf_file.c_str()); //<---
 
 	I_Debugf("WOLF BASE = [%s]\n", wolf_file.c_str()); //Eventually we should collect all of these. . .
 
@@ -1296,7 +1300,7 @@ static void IdentifyWolfenstein(void)
 	W_AddRawFilename(reqwad.c_str(), FLKIND_EWad);
 	I_Printf("Wolfenstein Data is loaded and joined with 3DGE -- let's keep going!\n");
 
-	// After this, should we skip all the bullshit and load the stuff directly? 
+	// After this, should we skip all the bullshit and load the stuff directly?
 }
 
 
@@ -1857,7 +1861,7 @@ static void E_InitialState(void)
 //                  Used LanguageLookup() for lang specifics.
 //
 // -ACB- 1998/09/06 Removed all the unused code that no longer has
-//                  relevance.    
+//                  relevance.
 //
 // -ACB- 1999/09/04 Removed statcopy parm check - UNUSED
 //
@@ -1865,7 +1869,7 @@ static void E_InitialState(void)
 //
 void E_Main(int argc, const char **argv)
 {
-	// Start the EPI Interface 
+	// Start the EPI Interface
 	epi::Init();
 
 	// Start memory allocation system at the very start (SCHEDULED FOR REMOVAL)
@@ -1945,7 +1949,7 @@ void E_Tick(void)
 #endif
 	// Update display, next frame, with current state.
 	// Render frames until it's time to run a gametic
-	// Measure frame length in order to avoid 
+	// Measure frame length in order to avoid
 	float interpstart = 0, interpdiff = 0;
 	static int nextframe = 0;
 	do {

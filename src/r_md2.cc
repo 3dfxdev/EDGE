@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------
 //
 // (C) 2015 Isotope SoftWorks
-//  
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -94,29 +94,29 @@ typedef struct
 	s32_t ofs_st;
 	s32_t ofs_tris;
 	s32_t ofs_frames;
-	s32_t ofs_glcmds;  
+	s32_t ofs_glcmds;
 	s32_t ofs_end;
-} 
+}
 raw_md2_header_t;
 
 typedef struct
 {
 	u16_t s, t;
-} 
+}
 raw_md2_texcoord_t;
 
-typedef struct 
+typedef struct
 {
 	u16_t index_xyz[3];
 	u16_t index_st[3];
-} 
+}
 raw_md2_triangle_t;
 
 typedef struct
 {
 	u8_t x, y, z;
 	u8_t light_normal;
-} 
+}
 raw_md2_vertex_t;
 
 typedef struct
@@ -134,7 +134,7 @@ typedef struct
 	char name[16];
 
 //	raw_md2_vertex_t verts[1];  /* variable sized */
-} 
+}
 raw_md2_frame_t;
 
 typedef struct
@@ -311,7 +311,7 @@ static vec3_t md2_normals[MD2_NUM_NORMALS] =
 	{ -0.425325f,  0.688191f, -0.587785f },
 	{ -0.425325f, -0.688191f, -0.587785f },
 	{ -0.587785f, -0.425325f, -0.688191f },
-	{ -0.688191f, -0.587785f, -0.425325f }  
+	{ -0.688191f, -0.587785f, -0.425325f }
 };
 
 //
@@ -381,14 +381,14 @@ typedef struct
 	s32_t ofs_tags;
 	s32_t ofs_meshes;
 	s32_t ofs_end;
-} 
+}
 raw_md3_header_t;
 
 typedef struct
 {
 	char ident[4];
 	char name[64];
-	
+
 	u32_t flags;
 
 	s32_t num_frames;
@@ -407,13 +407,13 @@ raw_md3_mesh_t;
 typedef struct
 {
 	f32_t s, t;
-} 
+}
 raw_md3_texcoord_t;
 
-typedef struct 
+typedef struct
 {
 	u32_t index_xyz[3];
-} 
+}
 raw_md3_triangle_t;
 
 typedef struct
@@ -421,7 +421,7 @@ typedef struct
 	s16_t x, y, z;
 
 	u8_t pitch, yaw;
-} 
+}
 raw_md3_vertex_t;
 
 typedef struct
@@ -432,7 +432,7 @@ typedef struct
 	f32_t radius;
 
 	char name[16];
-} 
+}
 raw_md3_frame_t;
 
 
@@ -527,7 +527,7 @@ static short *CreateNormalList(byte *which_normals)
 {
 	int count = 0;
 	int i;
-	
+
 	for (i=0; i < MD2_NUM_NORMALS; i++)
 		if (which_normals[i])
 			count++;
@@ -541,7 +541,7 @@ static short *CreateNormalList(byte *which_normals)
 			n_list[count++] = i;
 
 	n_list[count] = -1;
-	
+
 	return n_list;
 }
 
@@ -566,7 +566,7 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 		I_Error("MD2_LoadModel: lump is not an MD2 model!");
 		return NULL; /* NOT REACHED */
 	}
-			
+
 	if (version != MD2_VERSION)
 	{
 		I_Error("MD2_LoadModel: strange version!");
@@ -853,7 +853,7 @@ md2_model_c *MD3_LoadModel(epi::file_c *f)
 		I_Error("MD3_LoadModel: lump is not an MD3 model!");
 		return NULL; /* NOT REACHED */
 	}
-			
+
 	if (version != MD3_VERSION)
 	{
 		I_Error("MD3_LoadModel: strange version!");
@@ -865,7 +865,7 @@ md2_model_c *MD3_LoadModel(epi::file_c *f)
 
 
 	/* LOAD MESH #1 */
-	
+
 	int mesh_base = EPI_LE_S32(header.ofs_meshes);
 
 	f->Seek(mesh_base, epi::file_c::SEEKPOINT_START);
@@ -1197,7 +1197,7 @@ SYS_ASSERT(point->vert_idx < md->verts_per_frame);
 	const mod_vertex_c *vert1 = &frame1->vertices[point->vert_idx];
 	const mod_vertex_c *vert2 = &frame2->vertices[point->vert_idx];
 
-	
+
 	float x1 = LerpIt(vert1->x, vert2->x, data->lerp);
 	float y1 = LerpIt(vert1->y, vert2->y, data->lerp);
 	float z1 = LerpIt(vert1->z, vert2->z, data->lerp) + data->bias;
@@ -1280,7 +1280,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	else
 		blending = BL_Less;
 
-	if (trans < 0.99f || skin->img->opacity == OPAC_Complex)
+	if (trans < 0.99f || skin->img->opacity != OPAC_Solid)
 		blending |= BL_Alpha;
 
 	if (mo->hyperflags & HF_NOZBUFFER)
@@ -1315,7 +1315,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	//M_Angle2Matrix(tilt ? ~mo->vertangle : 0, &data.kx_mat, &data.kz_mat);
 	M_Angle2Matrix(tilt ? ~(angle_t)mo->GetInterpolatedVertAngle() : 0, &data.kx_mat, &data.kz_mat);
 
-	
+
 	//angle_t ang = mo->angle;
 	angle_t ang = mo->GetInterpolatedAngle();
 
@@ -1485,7 +1485,7 @@ void MD2_RenderModel_2D(md2_model_c *md, const image_c *skin_img, int frame,
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, skin_tex);
- 
+
 	glEnable(GL_BLEND);
 	glEnable(GL_CULL_FACE);
 
