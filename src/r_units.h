@@ -135,27 +135,6 @@ local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert,
 void RGL_SetUnitMaps(GLuint tex_normal,GLuint tex_specular);
 void RGL_EndUnit(int actual_vert);
 
-// utility macros
-#define SET_COLOR(R,G,B,A)  \
-	do { vert->col[0] = (R); vert->col[1] = (G); vert->col[2] = (B);  \
-	vert->col[3] = (A); } while(0)
-
-#define SET_TEXCOORD(X,Y)  \
-	do { vert->t_x = (X); vert->t_y = (Y); } while(0)
-
-#define SET_TEX2COORD(X,Y)  \
-	do { vert->t2_x = (X); vert->t2_y = (Y); } while(0)
-
-#define SET_NORMAL(X,Y,Z)  \
-	do { vert->n_x = (X); vert->n_y = (Y); vert->n_z = (Z); } while(0)
-
-#define SET_EDGE_FLAG(E)  \
-	do { vert->edge = (E); } while(0)
-
-#define SET_VERTEX(X,Y,Z)  \
-	do { vert->x = (X); vert->y = (Y); vert->z = (Z); } while(0)
-
-
 #endif /* __R_UNITS_H__ */
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
