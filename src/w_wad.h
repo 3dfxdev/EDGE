@@ -42,6 +42,8 @@ typedef enum
 	FLKIND_PK3,       // PK3 zip file
 
 	FLKIND_Lump,      // raw lump (no extension)
+
+	FLKIND_WL6,      // .wl6 Wolfenstein datas
 	
 
 	FLKIND_DDF,       // .ddf or .ldf file

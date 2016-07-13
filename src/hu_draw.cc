@@ -160,6 +160,8 @@ void HUD_FrameSetup(int split)
 	margin_X = (SCREENWIDTH  - margin_W) / 2.0;
 	margin_Y = (SCREENHEIGHT + margin_H) / 2.0;
 
+	//TODO: make this a menu option - to split the screen vertically or horizontally for two player!
+	/// split 1 means viewport 1, split 2 means viewport 2
 	if (split == 2)
 		margin_X += margin_W / 2;
 

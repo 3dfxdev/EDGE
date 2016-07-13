@@ -28,7 +28,7 @@
 
 const char *win32_exe_path = ".";
 
-extern "C" {
+
 
 int main(int argc, char *argv[])
 {
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 	
 printf("DREAMCAST STARTUP\n");
 fflush(stdout);
-	E_Main(11,a);
+	E_Main(12,a);
 #else
 
 
@@ -90,7 +90,7 @@ fflush(stdout);
 	return 0;
 }
 
-} // extern "C"
+
 
 
 //--- editor settings ---

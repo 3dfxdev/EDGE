@@ -21,6 +21,7 @@
 #include <limits.h>
 #include <vector>
 
+#include "../epi/math_angle.h"
 #include "../epi/path.h"
 #include "../epi/str_format.h"
 
@@ -31,6 +32,9 @@
 
 // FIXME: unwanted link to engine code (switch to epi::angle_c)
 extern float M_Tan(angle_t ang)  GCCATTR((const));
+
+// FIXME: CA: Trying to use angle_c via EPI::
+//float M_Tan(epi::angle_c *ang)  GCCATTR((const));// = epi::angle_c::ATan
 
 
 #define DEBUG_DDFREAD  0

@@ -801,6 +801,7 @@ static void WallCoordFunc(void *d, int v_idx,
 
 	float along;
 
+	// compute texture coord
 	if (fabs(data->div.dx) > fabs(data->div.dy))
 	{
 		along = (pos->x - data->div.x) / data->div.dx;
@@ -833,6 +834,7 @@ typedef struct
 
 	float tx0, ty0;
 	float image_w, image_h;
+	float image;
 
 	vec2_t x_mat;
 	vec2_t y_mat;
@@ -867,7 +869,48 @@ static void PlaneCoordFunc(void *d, int v_idx,
 }
 
 
-void ShadowCoordFunc(void *d, int v_idx,
+void ShadowCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
+{
+	wall_plane_data_t *data = (wall_plane_data_t *)d;
+
+
+	vec3_t pos;
+	int v_idx;
+	vec2_t *texc;
+
+
+	float *rgb;
+
+	float x = src->x;
+	float y = src->y;
+	float z = src->z;
+
+	float rx = (x + data->tx);
+	float ry = (y + data->ty);
+
+	float tx = rx * data->x_mat.x + ry * data->x_mat.y;
+	float ty = rx * data->y_mat.x + ry * data->y_mat.y;
+
+	///SET_COLOR
+	rgb[0] = data->R;
+	rgb[1] = data->G;
+	rgb[2] = data->B;
+
+	//SET TEXCOORD
+	texc->x = rx * data->x_mat.x + ry * data->x_mat.y;
+	texc->y = rx * data->y_mat.x + ry * data->y_mat.y;
+
+	//SET NORMAL
+
+	//SET_EDGE_FLAG(GL_TRUE);
+
+	//data->vert.Set(x, y, z);
+}
+
+
+
+
+void ShadowCoordFuncNew(void *d, int v_idx,
 		vec3_t *pos, float *rgb, vec2_t *texc,
 		vec3_t *normal, vec3_t *lit_pos)
 
@@ -2516,27 +2559,28 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 							 GLOWLIT_Plane, &data);
 	}
 
-#ifdef SHADOW_PROTOTYPEz
+#if 0
+
 	if (level_flags.shadows && solid_mode && face_dir > 0)
 	{
-		RGL_InitShadows(); //new SDL shadows
 		I_Printf("Render: Simple Shadows Initilised!");
-		 plane_coord_data_t dat2;
+		wall_coord_data_t dat2;
 		memcpy(&dat2, &data, sizeof(dat2));
 
-//		light = NULL;
+		//		light = NULL;
 		dat2.trans = 0.5;
-		dat2.image = shadow_image;
+		//dat2.image = shadow_image;
 
-		tex_id = W_ImageCache(dat2.image);
+		GLuint tex_id = W_ImageCache(shadow_image);
 
-		for (drawthing_t *dthing=dfloor->things; dthing; dthing=dthing->next)
+
+		for (drawthing_t *dthing = dfloor->things; dthing; dthing = dthing->next)
 		{
 			if (dthing->mo->info->shadow_trans <= 0 || dthing->mo->floorz >= viewz)
 				continue;
 
-			dat2.tx = -(dthing->mo->x - dthing->mo->radius);
-			dat2.ty = -(dthing->mo->y - dthing->mo->radius);
+			dat2.tx0 = -(dthing->mo->x - dthing->mo->radius);
+			dat2.ty0 = -(dthing->mo->y - dthing->mo->radius);
 
 			dat2.x_mat.x = 0.5f / dthing->mo->radius;
 			dat2.x_mat.y = 0;
@@ -2544,24 +2588,19 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 			dat2.y_mat.y = 0.5f / dthing->mo->radius;
 			dat2.y_mat.x = 0;
 
-			//poly = RGL_BeginUnit(num_vert);
-			local_gl_vert_t *glvert = RGL_BeginUnit(num_vert);
-
-			for (seg=cur_sub->segs, i=0; seg && (i < MAX_PLVERT); 
-				seg=seg->sub_next, i++)
+			for (seg = cur_sub->segs, i = 0; seg && (i < MAX_PLVERT);
+				seg = seg->sub_next, i++)
 			{
-				RGL_RenderShadows(); //glVertex3f(seg->v1->x, seg->v1->y, h);
+				glVertex3f(seg->v1->x, seg->v1->y, h);
 			}
 
-/* 			RGL_BoundPolyQuad(poly);
+			local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, &dat2, ShadowCoordFunc, tex_id, 0,
+				/* pass */0, 2, BL_Alpha);
 
-			RGL_RenderPolyQuad(poly, &data, ShadowCoordFunc, tex_id,0,
-				 pass  2, BL_Alpha);
-
-			RGL_FreePolyQuad(poly); */
 		}
 	}
-#endif
+#endif // 0
+
 
 
 }

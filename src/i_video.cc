@@ -186,12 +186,13 @@ SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
         return;
     }
 
-#if 0
-		// -DS- 2005/06/27 Detect SDL Resolutions
-		const SDL_VideoInfo *info = SDL_GetVideoInfo();
 
-		SDL_Rect **modes = SDL_ListModes(info->vfmt,
-			SDL_OPENGL | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+//#if 0
+		// -DS- 2005/06/27 Detect SDL Resolutions
+		///const SDL_VideoInfo *info = SDL_GetVideoInfo();
+
+		SDL_Rect **modes; //= SDL_GetDisplayMode(&mode);///SDL_ListModes(info->vfmt,
+			///SDL_OPENGL | SDL_DOUBLEBUF | SDL_FULLSCREEN);
 
 		if (modes && modes != (SDL_Rect **)-1)
 		{
@@ -201,7 +202,7 @@ SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
 
 				test_mode.width = (*modes)->w;
 				test_mode.height = (*modes)->h;
-				test_mode.depth = info->vfmt->BitsPerPixel;  // HMMMM ???
+				///test_mode.depth = info->vfmt->BitsPerPixel;  // HMMMM ???
 				test_mode.full = true;
 
 				if ((test_mode.width & 15) != 0)
@@ -229,18 +230,19 @@ SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
 					mode.depth = depth;
 					mode.full = full;
 
+#if 0
 					int got_depth = SDL_VideoModeOK(mode.width, mode.height,
 						mode.depth, SDL_OPENGL | SDL_DOUBLEBUF |
 						(mode.full ? SDL_FULLSCREEN : 0));
+#endif // 0
 
-					if (R_DepthIsEquivalent(got_depth, mode.depth))
-					{
+					
 						R_AddResolution(&mode);
-					}
+					
 				}
 			}
 		}
-#endif // 0
+//#endif // 0
 
 	I_Printf("I_StartupGraphics: initialisation OK\n");
 	

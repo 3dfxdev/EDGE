@@ -22,12 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __SPLINES_H
 #define __SPLINES_H
 
-extern "C" {
-#ifdef Q3RADIANT
-#include "../qgl.h"
-#else
-//#include "../renderer/qgl.h"
-#endif
 }
 #include "util_list.h"
 #include "util_str.h"

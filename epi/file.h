@@ -21,6 +21,10 @@
 
 #include <limits.h>
 
+#include "dirent.h" //for Linux/etc, use <dirent.h>
+
+/// Began hack on epi_file_class to support directory entries and directories in general.
+
 namespace epi
 {
 
@@ -49,6 +53,7 @@ public:
 protected:
 
 public:
+	// constructor and destructor
 	file_c() {}
 	virtual ~file_c() {}
 
@@ -92,6 +97,38 @@ public:
 
 // utility function:
 bool FS_FlagsToAnsiMode(int flags, char *mode);
+
+
+//========================================================
+
+/// \brief Class for physical directories
+class file_dir_c : public file_c
+{
+private:
+	FILE *fp;
+
+protected:
+  DIR        *dstream;  //<associated stream
+  struct vdiritem_t *contents; //mapping from numbers to item properties (from vdiritem_t to just diritem_t)
+
+  virtual int Internal_ReadItem(int item, void *dest, unsigned size, unsigned offset = 0);
+
+public:
+	file_dir_c(FILE *_filep);
+  virtual ~file_dir_c();
+
+  virtual bool Open(const char *fp);
+
+public:
+
+  int GetLength();
+  int GetPosition();
+
+  unsigned int Read(void *dest, unsigned int size);
+  unsigned int Write(const void *src, unsigned int size);
+
+  bool Seek(int offset, int seekpoint);
+};
 	
 } // namespace epi
 

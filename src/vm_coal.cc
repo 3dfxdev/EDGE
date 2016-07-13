@@ -376,20 +376,21 @@ void VM_LoadLumpOfCoal(int lump)
 
 void VM_LoadScripts()
 {
-	// Replaced doom_ddf here with coal_hud to differentiate - COAL scripts should
-	// *not* go in doom_ddf since they are not DDF files.
-	//  reverted. didn't work out.
-	std::string script_dir = epi::PATH_Join(game_dir.c_str(), "doom_ddf");
+	//We should be using ddf_dir.c_str()...
+
+	// Script_Dir will be useful for OTHER, non-3DGE scripts. For now, use the god damn ddf_dir string!!
+
+	//std::string script_dir = epi::PATH_Join(ddf_dir.c_str(), "doom_ddf");
 	std::string fn;
 
-	fn = epi::PATH_Join(script_dir.c_str(), "coal_api.ec");
+	fn = epi::PATH_Join(ddf_dir.c_str(), "coal_api.ec");
 	VM_LoadCoalFire(fn.c_str());
 
-	fn = epi::PATH_Join(script_dir.c_str(), "coal_hud.ec");
+	fn = epi::PATH_Join(ddf_dir.c_str(), "coal_hud.ec");
 	VM_LoadCoalFire(fn.c_str());
 
 	fn.clear();
-	script_dir.clear();
+	ddf_dir.clear(); //used to be script_dir...
 
 	W_ReadCoalLumps();
 }

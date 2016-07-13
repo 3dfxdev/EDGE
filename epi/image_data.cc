@@ -38,7 +38,7 @@ image_data_c::image_data_c(int _w, int _h, int _bpp) :
 image_data_c::~image_data_c()
 {
 	delete[] pixels;
-    //////////////delete[] grAb;
+    delete[] grAb;
 
 	pixels = NULL;
 	width = height = 0;

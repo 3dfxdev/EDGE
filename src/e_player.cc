@@ -63,6 +63,11 @@ int consoleplayer1 = -1; // player taking events
 int consoleplayer2 = -1;
 int displayplayer = -1; // view being displayed (except in splitscreen_mode)
 
+// [WDJ] Simplify every test against a player ptr, and splitscreen
+extern  player_t * consoleplayer_ptr;
+extern player_t * consoleplayer2_ptr;
+extern  player_t * displayplayer_ptr;
+
 #define MAX_BODIES   50
 
 static mobj_t *bodyqueue[MAX_BODIES];

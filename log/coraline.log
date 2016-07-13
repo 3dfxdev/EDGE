@@ -2,11 +2,77 @@
 https://github.com/corbachu
 ##############################
 ------ // start entry seperator
-x.x.x // DATE
+x.xx.20xx // DATE
 ------ // end entry seperator
 TODO  // notes to self
 ~~~~  // TODO seperator & ees
 ##############################
+
+-----------------
+7.11.2016
+-----------------
+
+*Experimented with adding an FNTYP_Image type to fonts.ddf, to actually load a font
+graphic (INS_GRAPHIC) rather than individual patch sets. Added the appropriate stuff,
+and in Fonts.ddf, you can use TYPE=IMAGE; now, rather than TYPE=PATCH;, _BUT_ IMAGE
+does not work as of yet, I still need to do lots of debugging. Thankfully, the console
+font draws exactly the same way, so there is a lot to look upon for that.
+
+*Temporarily fixed the "unable to set resolution in-game" issue that transpired
+when we did the switch to SDL2. What I did ended up being really hackey. As of Test2,
+users can once again switch their resolution, but there is no information gathering
+via SDL of a display mode - it simply grabs every display mode and populates the list.
+So, for instance, a user in the Change Resolution might see strange ones, like
+320x200 -- changing to it will cramp the screen to that value, and the rest will be
+invalidated. This is not so much a bug with the video resolution handling, but a result
+of our incompleted SDL InActive processor. Like we've said, SDL2 really changed a lot,
+but it requires a steep learning curve. At least now, users can change their full-screen
+resolution.
+
+^ Unfortunately, Windowed Mode is still completely broken, and as soon as I can come back
+to the code, I will try and fix it up.
+
+*Fixed the WIPE_EnumStr bug, that was returning an "INVALID" wipe, it was 
+me forgetting to remove the experimental wipe from r_wipe.h - the result
+was that the OPTIONS code found an extra wipe that it was not aware of.
+(reported by: marscaleb)
+
+*Created new functions to detect and load the appropriate episode graphics
+for M_EPI6/M_EPI7 when TNT or Plutonia are used (even if they are used
+with the original DOOM as a PWAD). Special thanks to Julian for providing
+the graphics. I also implemented them throughout Doom's menu structure.
+
+*Looking into having a string-based menu graphic system (generated with fonts,
+at least for HERETIC), but it will only be used for Heretic. I don't know
+WTF I was thinking when I thought FONTA and FONTB were packed into a lump sheet.
+I think I got mixed-up when looking at Zdoom's FONTDEFS and...yeah. I even think
+I confused Marisa when I hit her up about it. Ah, the joys of ADHD. It happens to
+me all the time. . . =(
+
+*Did more work on the Dreamcast port, still ongoing. Chilly is really kicking ass
+on it, and I'm thinking I can take its improvements (like its vastly improved
+sound system) over to the main branch.
+
+*Picked up Simbey's MAP2WAD program again, this time we are both working together
+to load as a DLL for an easy conversion of Wolfenstein mapdatas, that glBSP can then
+take and process WITHOUT having to resort to TinyBSP. Since glBSP has a proven
+track record, we will just do this and cut out Tiny again.
+
+*Experimented a bit with GL_VIS...interesting results, got 3DGE to read them and...
+yeah, it *really* makes a noticable difference. The only issue here is that it is
+kind of a moot point, for two reasons:
+
+1) GL_VIS can take a long time to generate a potentially-visible set (most of the time,
+if a map isn't Dues Vault-level of complex, it does this quick, and 3DGE indeed does
+less work, but how many of my port users are going to use it? There is *no* way I will
+include GL_PVS as a run-time library.
+
+2) Skip the BS and do it directly in RGL_WalkBSP(), eliminating the needless walking of
+every subsector, and do it how Graf does - check against segs. Despite my hesitation,
+Graf was indeed correct. Andrew gave me a vague response when I asked him about it, and I
+don't think he wrote the original with speed in mind -- as this is indeed how most OpenGL
+ports do it. Wouldn't it be nice to use libtess for tesselation breakup of a map, rather than
+rely on other tricks?
 
 -----------------
 7.5.2016
@@ -38,12 +104,7 @@ modification needs to go into it to get it working with 3DGE, but this is
 a godsend, and a very special thanks to David Gould (simbey) for allowing
 us to use the code!
 
-Rather than use it, I abandoned it. It was *way* too complicated to put into
-the engine, so I just hacked away at the existing Wolf3D stuff we had for about
-9 hours, and got it all integrated inside of 3DGE. Now to create global bools
-if we detect Wolf3D "wl6" datas, etc...
-
-Success. Now we need to set the doom_ddf variable (ddf_dir) to use Wolf_ddf, but
+Now we need to set the doom_ddf variable (ddf_dir) to use Wolf_ddf, but
 for now I will create a batchfile since testing at this point is much more
 important.
 
@@ -127,6 +188,10 @@ the StartFrame/FinishFrame stuff, since on Dreamcast this is only called in E_Di
 so replacing those with direct calls to clear the screen and swap buffers should also
 eliminate all the extra BS.
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> e7cebe88379c7e54942988be60a7cb2f43d4a1ce
 -----------------
 6.16.2016
 -----------------

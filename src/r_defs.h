@@ -457,6 +457,9 @@ typedef struct subsector_s
 
 	// -AJA- 2004/04/20: used when emulating deep-water TRICK
 	struct sector_s *deep_ref;
+
+	/// only used by TinyBSP (Wolfenstein and Rise of the Triad maps)
+	int seg_count;
 }
 subsector_t;
 

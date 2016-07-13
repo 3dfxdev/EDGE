@@ -51,6 +51,7 @@
 #include "con_var.h"
 #include "dm_defs.h"
 #include "dm_state.h"
+#include "wlf_local.h"
 #include "dstrings.h"
 #include "e_input.h"
 #include "f_finale.h"
@@ -83,10 +84,12 @@
 #include "w_model.h"
 #include "w_sprite.h"
 #include "w_texture.h"
+#include "wlf_rawdef.h"
 #include "w_wad.h"
 #include "version.h"
 #include "vm_coal.h"
 #include "z_zone.h"
+
 
 
 #define E_TITLE  "EDGE2 v" EDGEVERSTR
@@ -97,6 +100,12 @@ int app_state = APP_STATE_ACTIVE;
 bool singletics = false;  // debug flag to cancel adaptiveness
 
 bool splitscreen_mode = false;
+
+bool wolf3d_mode = false; //Wolfenstein 3D game detection . . . kind of a 'hack'
+
+bool rott_mode = false; //hack!
+
+bool heretic_mode = false; //hack!
 
 bool show_splash = true;
 
@@ -160,6 +169,7 @@ std::string cfgfile;
 std::string ewadfile;
 std::string epakfile; //<---- EDGE PAK FILE
 std::string iwad_base;
+std::string wolf_base; //<--- Wolfenstein file?
 
 std::string cache_dir;
 std::string ddf_dir;
@@ -269,6 +279,7 @@ static void SetGlobalVars(void)
 	if (s)
 		SCREENWIDTH = atoi(s);
 
+
 	s = M_GetParm("-height");
 	if (s)
 		SCREENHEIGHT = atoi(s);
@@ -336,6 +347,12 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("crouching", &global_flags.crouch, false);
 	M_CheckBooleanParm("weaponswitch", &global_flags.weapon_switch, false);
 	M_CheckBooleanParm("autoload", &autoquickload, false);
+
+	if (M_CheckParm("-wolf3d_mode"))
+		wolf3d_mode = true;
+	
+	if (M_CheckParm("-rott_mode"))
+		rott_mode = true;
 
 	if (M_CheckParm("-infight"))
 		g_aggression = 1;
@@ -503,14 +520,14 @@ static void DoSystemStartup(void)
 	I_Debugf("- System startup done.\n");
 }
 
-
+//TODO: Restored Pause graphic, dupe function as Pause2 with no graphic for the console responder!
 static void M_DisplayPause(void)
 {
 	///CON_Printf("Paused ;)\n");
-	/* 	static const image_c *pause_image = NULL;
+	 	static const image_c *pause_image = NULL;
 
-	//if (! pause_image)
-	//	pause_image = W_ImageLookup("M_PAUSE");
+	if (! pause_image)
+		pause_image = W_ImageLookup("M_PAUSE"); 
 
 	// make sure image is centered horizontally
 
@@ -520,7 +537,7 @@ static void M_DisplayPause(void)
 	float x = 160 - w / 2;
 	float y = 10;
 
-	HUD_StretchImage(x, y, w, h, pause_image); */
+	HUD_StretchImage(x, y, w, h, pause_image);
 }
 
 
@@ -650,7 +667,17 @@ void E_Display(void)
 		M_DisplayPause();
 
 	// menus go directly to the screen
-	M_Drawer();  // menu is drawn even on top of everything (except console)
+#if 0
+	if (heretic_mode)
+	{
+		H_Drawer();
+	}
+	else if (!heretic_mode)
+	{
+	}
+#endif // 0
+		M_Drawer();  // menu is drawn even on top of everything (except console)
+
 
 	N_NetUpdate(false);  // send out any new accumulation
 
@@ -837,10 +864,16 @@ void InitDirectories(void)
 	{
 		ddf_dir = std::string(s);
 	}
-	else
+
+	else if (heretic_mode)
+	{
+		ddf_dir = epi::PATH_Join(game_dir.c_str(), "her_ddf");
+	}
+	else if (!heretic_mode)
 	{
 		ddf_dir = epi::PATH_Join(game_dir.c_str(), "doom_ddf");
 	}
+
 
 	DDF_SetWhere(ddf_dir);
 
@@ -904,31 +937,71 @@ void InitDirectories(void)
 //
 // Adding HERETIC.WAD to string 2.24.2013
 // Kept freedoom.wad for backward compatibility
-const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "hacx", "heretic", "freedoom", "freedm", "chex", "freedoom1", "freedoom2", NULL };
+// 2016/02/07: Added Darkwar.wad for ROTT
+const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "hacx", "heretic", "freedoom", "freedm", "chex", "freedoom1", "freedoom2", "darkwar", NULL };
 
 static void IdentifyVersion(void)
 {
-	I_Debugf("- Identify Version\n");
+	I_Debugf("- Identify IWADS\n");
 
+	// Check -wolf3d param (which is the ONLY way to start Wolfenstein for now), if this is a Wolf3D map, drastically alter startupcode, and set a global bool to 'wolf3d_mode'.
+
+	if (wolf3d_mode)
+	{
+		//IdentifyWolfenstein();
+		I_Printf("Detected Wolfenstein mode, breaking into IdentifyWolfenstein()! \n");
+		return;
+	}
+
+	
 	// Check -iwad parameter, find out if it is the IWADs directory
 	std::string iwad_par;
 	std::string iwad_file;
 	std::string iwad_dir;
 
+	// Check -pak parameter, find out if it is PAKs. . .
 	std::string pak_par;
 	std::string pak_file;
 	std::string pak_dir;
 
+
 	const char *s = M_GetParm("-iwad");
 
 	iwad_par = std::string(s ? s : "");
+
+#if 0
+	///This handles the startup for Heretic, which forces 3DGE to load her_ddf and the heretic fix PWAD, scheduled for removal.
+//if (s ? s : "heretic")
+	if (stricmp(wadname[iwad_file], "heretic") == 0)
+	{
+		heretic_mode = true;
+#if 0
+
+		I_Printf("Heretic IWAD: Joining PWAD fix!!!\n");
+		I_Debugf("Added filename: %s\n", REQHERETICPWAD "." EDGEWADEXT);
+		epi::PATH_Join(game_dir.c_str(), REQHERETICPWAD "." EDGEWADEXT);
+
+
+#endif // 0
+		I_Printf("DDF: Loading Heretic HDF\n");
+		ddf_dir = epi::PATH_Join(game_dir.c_str(), "her_ddf");
+		DDF_SetWhere(ddf_dir);
+	}
+	else
+	{
+		heretic_mode = false;
+		ddf_dir = epi::PATH_Join(game_dir.c_str(), "doom_ddf");
+		DDF_SetWhere(ddf_dir);
+	}
+#endif // 0
+
 
 	if (!iwad_par.empty())
 	{
 		if (epi::FS_IsDir(iwad_par.c_str()))
 		{
 			iwad_dir = iwad_par;
-			iwad_par.clear(); // Discard 
+			iwad_par.clear(); // Discard id
 		}
 	}
 
@@ -998,7 +1071,9 @@ static void IdentifyVersion(void)
 			max++;
 		}
 
+
 		bool done = false;
+
 		for (int i = 0; i < max && !done; i++)
 		{
 			location = (i == 0 ? iwad_dir.c_str() : game_dir.c_str());
@@ -1010,37 +1085,50 @@ static void IdentifyVersion(void)
 			// -ACB- 2000/06/08 Quit after we found a file - don't load
 			//                  more than one IWAD
 			//
+
 			for (int w_idx = 0; wadname[w_idx]; w_idx++)
 			{
-				std::string fn(epi::PATH_Join(location, wadname[w_idx]));
+					std::string fn(epi::PATH_Join(location, wadname[w_idx]));
 
-				fn += ("." EDGEWADEXT);
+					fn += ("." EDGEWADEXT);
+
 
 				if (epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
 				{
+					// next two lines check for Heretic mode, and set it to true
+					if (stricmp(wadname[w_idx], "heretic") == 0)
+					{
+						I_Printf("DDF: Loading Heretic HDF\n");
+						ddf_dir = epi::PATH_Join(game_dir.c_str(), "her_ddf");
+						DDF_SetWhere(ddf_dir);
+						heretic_mode = true;
+					}
 					iwad_file = fn;
 					done = true;
+					//I_Printf("iwad_file returning true!\n");
 					break;
 				}
 			}
+			
 		}
 	}
 
 	if (iwad_file.empty())
-		I_Error("IdentifyVersion: No IWADS found!\n");
+		I_Warning("IdentifyVersion: No IWADS found!\n");
 
-	W_AddRawFilename(iwad_file.c_str(), FLKIND_IWad);
+		W_AddRawFilename(iwad_file.c_str(), FLKIND_IWad);
 
-	iwad_base = epi::PATH_GetBasename(iwad_file.c_str());
+		iwad_base = epi::PATH_GetBasename(iwad_file.c_str());
 
-	I_Debugf("IWAD BASE = [%s]\n", iwad_base.c_str());
+		I_Debugf("IWAD BASE = [%s]\n", iwad_base.c_str());
+
 
 	// Emulate this behaviour?
 
 	// Look for the required wad in the IWADs dir and then the gamedir
 
-	//this will join edge2.pak with the IWAD. . .
 	std::string reqwad(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEWADEXT));
+
 
 	///this one will join pak files with IWAD.
 	///std::string reqpak(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT));
@@ -1058,6 +1146,159 @@ static void IdentifyVersion(void)
 
 	W_AddRawFilename(reqwad.c_str(), FLKIND_EWad);
 }
+
+//WLF_EXTENSION ADDS ALL WL6 FILES ALL AT ONCE FOR WOLFENSTEIN, JUST FOR TESTING, MAYBE MAKE THIS MORE ROBUST IN THE FUTURE...?
+const char *wlf_extension[] = { "audiohed", "audiot", "gamemaps","maphead", "vgadict", "vgagraph", "vgahead", "vswap", NULL }; //test to load this bitch up. . .
+static void IdentifyWolfenstein(void)
+{
+	if (!wolf3d_mode)
+	{
+		//IdentifyVersion();
+		//I_Printf("Wolf: Breaking back into IdentifyVersion (IWADS)!\n");
+		return;
+	}
+
+	std::string wolf_par; //parameter
+	std::string wolf_file; //filename
+	std::string wolf_dir; //directory
+
+	const char *w = M_GetParm("-startwolf"); ///Yep, the big one!
+
+	wolf_par = std::string(w ? w : ""); //Brute force MAPHEAD, just for now.
+
+											// Should the Wolfenstein directory not be set by now, then we
+											// use our standby option of the current directory.
+	if (wolf_dir.empty())
+		wolf_dir = ".";
+
+	// Should the Wolf Parameter not be empty then it means
+	// that one was given which is not a directory. Therefore
+	// we assume it to be a name or some shit! 
+	else if (!wolf_par.empty())
+	{
+		std::string fn = wolf_par;
+
+		//testing just opening MAPHEAD for now. Apparently, Wolf3D ignores
+		//extensions (stripping them) and using what would be the wlf_extensions
+		// Is it missing the extension?
+		std::string ext = epi::PATH_GetExtension(wolf_par.c_str());
+		if (ext.empty())
+		{
+			fn += ("."); //Don't use an extension, just the raw filename!
+			I_Printf("- missing extension, so ext.empty() passed the test!");
+		}
+
+		// If no directory given...
+		std::string dir = epi::PATH_GetDir(fn.c_str());
+
+		if (dir.empty())
+			wolf_file = epi::PATH_Join(wolf_dir.c_str(), fn.c_str());
+		else
+			wolf_file = fn;
+
+		if (!epi::FS_Access(wolf_file.c_str(), epi::file_c::ACCESS_READ))
+		{
+			I_Error("IdentifyWolfenstein: Unable to add specified Wolfenstein file: '%s'", fn.c_str());
+		}
+	}
+
+	else
+	{
+
+		const char *location2;
+
+		int max = 1;
+
+		if (stricmp(wolf_dir.c_str(), game_dir.c_str()) != 0)
+		{
+			// WOLF directory & game directory differ 
+			// therefore do a second loop which will
+			// mean we check both.
+			max++;
+		}
+
+		bool done = false;
+
+		for (int i = 0; i < max && !done; i++)
+		{
+			location2 = (i == 0 ? wolf_dir.c_str() : game_dir.c_str());
+
+			//
+			// go through the available WL6 names constructing an access
+			// name for each, adding the file if they exist.
+			//
+
+			//
+			// FIND MAPHEAD
+			//
+			for (int w_idx = 0; wlf_extension[w_idx]; w_idx++)
+			{
+				std::string fn(epi::PATH_Join(location2, wlf_extension[w_idx]));
+
+				fn += ("." WOLFDATEXT); //Wolfenstein Datas, maybe instead of +=, use an iterator, fn++?
+
+				if (epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
+				{
+					if (stricmp(wlf_extension[w_idx], "maphead") == 0)
+					{
+						wolf3d_mode = true;
+						I_Printf("DDF: Loading Wolfenstein DDF\n");
+						ddf_dir = epi::PATH_Join(game_dir.c_str(), "wolf_ddf");
+						DDF_SetWhere(ddf_dir);
+					}
+
+					wolf_file = fn;
+					done = true;
+					I_Printf("MAPHEAD.WL6 found!/n");
+					break;
+				}
+			}
+		}
+	}
+
+	//Brute this out -- make sure the fucking thing is even trying to be opened..
+	if (wolf_file.empty())
+		I_Printf("EPI could not open the fucker -- brute force it below!\n");
+
+	I_Printf("DDF: Loading Wolfenstein DDF\n");
+	ddf_dir = epi::PATH_Join(game_dir.c_str(), "wolf_ddf");
+	DDF_SetWhere(ddf_dir);
+
+
+	// Just AddRawFilename. Strip the god damn extension (instead of FLKIND_WL6, use FLKIND_Lump. Ooops.... First the file, then the filetype for loading via w_wad (AddFile()).
+	I_Printf("Breaking into WF_InitMaps to find MAPHEAD info!\n");
+	WF_InitMaps(); //In Wlf_Maps.cc, this thing directly calls MapsReadHeaders(), which will open the file and read its rlew_tag, etc.
+
+
+	W_AddRawFilename(wolf_file.c_str(), FLKIND_Lump); //<--- This needs defining! Done.c
+
+	//Finally sets the wolf_base (maphead_base)
+	wolf_base = epi::PATH_GetBasename(wolf_file.c_str()); //<--- 
+
+	I_Debugf("WOLF BASE = [%s]\n", wolf_file.c_str()); //Eventually we should collect all of these. . .
+
+														   // Emulate this behaviour?
+
+	//All this function below does is add EDGE2.WAD to whatever the fuck we are adding as well.
+	std::string reqwad(epi::PATH_Join(wolf_dir.c_str(), REQUIREDWAD "." EDGEWADEXT));
+
+	if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
+	{
+		reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEWADEXT);
+
+		if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
+		{
+			I_Error("IdentifyWolfenstein: Could not find required Wolf3D data: %s.%s!\n",
+				REQUIREDWAD, EDGEWADEXT);
+		}
+	}
+
+	W_AddRawFilename(reqwad.c_str(), FLKIND_EWad);
+	I_Printf("Wolfenstein Data is loaded and joined with 3DGE -- let's keep going!\n");
+
+	// After this, should we skip all the bullshit and load the stuff directly? 
+}
+
 
 static void CheckTurbo(void)
 {
@@ -1210,6 +1451,8 @@ static void AddSingleCmdLineFile(const char *name)
 
 	if (stricmp(ext.c_str(), "wad") == 0)
 		kind = FLKIND_PWad;
+	if (stricmp(ext.c_str(), "wl6") == 0)
+		kind = FLKIND_WL6;
 	if (stricmp(ext.c_str(), "pak") == 0) /// ~CA~ 5.7.2016 - new PAK class file
 		kind = FLKIND_PAK;//I_Error("DETECTED PAK FILE, ABORTING. . .\n");
 	else if (stricmp(ext.c_str(), "hwa") == 0)
@@ -1224,6 +1467,14 @@ static void AddSingleCmdLineFile(const char *name)
 		kind = FLKIND_Deh;
 
 	std::string fn = M_ComposeFileName(game_dir.c_str(), name);
+
+#if 0
+	if (heretic_mode)
+	{
+		std::string fn = M_ComposeFileName(game_dir.c_str(), name);
+		W_AddRawFilename(fn.c_str(), kind);
+	}
+#endif // 0
 
 	W_AddRawFilename(fn.c_str(), kind);
 }
@@ -1272,6 +1523,7 @@ static void AddCommandLineFiles(void)
 
 			// sanity check...
 			if (stricmp(ext.c_str(), "wad") == 0 ||
+				stricmp(ext.c_str(), "wl6") == 0 ||
 				stricmp(ext.c_str(), "pak") == 0 ||
 				stricmp(ext.c_str(), "gwa") == 0 ||
 				stricmp(ext.c_str(), "hwa") == 0 ||
@@ -1306,6 +1558,7 @@ static void AddCommandLineFiles(void)
 
 			// sanity check...
 			if (stricmp(ext.c_str(), "wad") == 0 ||
+				stricmp(ext.c_str(), "wl6") == 0 ||
 				stricmp(ext.c_str(), "gwa") == 0 ||
 				stricmp(ext.c_str(), "hwa") == 0 ||
 				stricmp(ext.c_str(), "ddf") == 0 ||
@@ -1358,6 +1611,7 @@ startuporder_t startcode[] =
 {
 	{ 1, InitDDF },
 	{ 1, IdentifyVersion },
+	{ 1, IdentifyWolfenstein },
 	{ 1, AddCommandLineFiles },
 	{ 1, CheckTurbo },
 	{ 1, RAD_Init },
@@ -1381,6 +1635,7 @@ startuporder_t startcode[] =
 	{ 1, M_Init },
 	{ 3, R_Init },
 	{ 1, P_Init },
+	//{ 1, WF_InitMaps },
 	{ 1, P_MapInit },
 	{ 1, P_InitSwitchList },
 	{ 1, W_InitPicAnims },
@@ -1392,7 +1647,7 @@ startuporder_t startcode[] =
 	{ 0, NULL }
 };
 
-extern void WLF_InitMaps(void); //!!!
+extern void WF_InitMaps(void); //!!!
 
 								// Local Prototypes
 extern void E_SplashScreen(void);
@@ -1404,7 +1659,6 @@ static void E_Startup(void)
 {
 	int p;
 	const char *ps;
-
 
 #ifdef DREAMCAST_DEBUG
 	printf("Changing dir\n");
@@ -1450,6 +1704,14 @@ static void E_Startup(void)
 		E_SplashScreen();
 
 	}
+
+#if 0
+	pt = M_GetParm("-wolf3d");
+	if (pt)
+	{
+		WF_InitMaps();
+	}
+#endif // 0
 
 	I_PutTitle(E_TITLE); // Needs to be done once the system is up and running
 

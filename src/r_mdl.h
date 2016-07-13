@@ -39,16 +39,16 @@ typedef u32_t f32_t;
 // conversions they are represented here as unsigned integers.
 typedef struct
 {
-    //int		filetypeid;	//IDSP
+    int		filetypeid;	//IDSP
 	char ident[10];
 	
-	//int		version;	//10
+	int		version;	//10
 	s32_t version;
 	
-    //char	name[64];
-    //int		filesize;
-    //vec3_t	unknown3[5];
-    //int		unknown4;
+    char	name[64];
+    int		filesize;
+    vec3_t	unknown3[5];
+    int		unknown4;
     s32_t		numbones;
     s32_t		boneindex;
     s32_t		numcontrollers;

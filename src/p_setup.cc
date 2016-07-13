@@ -71,6 +71,8 @@
 
 static bool level_active = false;
 
+extern void TinyBSP(void); /// Add #IFDEF DREAMCAST TO REMOVE GLBSP LINKAGE
+
 
 //
 // MAP related Lookup tables.
@@ -120,6 +122,7 @@ epi::crc32_c mapthing_CRC;
 int mapthing_NUM;
 
 static bool hexen_level;
+static bool wolf3d_level; //!!!
 static bool v5_nodes;
 
 // a place to store sidedef numbers of the loaded linedefs.
@@ -915,7 +918,7 @@ static void UnknownThingWarning(int type, float x, float y)
 }
 
 
-static void SpawnMapThing(const mobjtype_c *info,
+extern void SpawnMapThing(const mobjtype_c *info,
 						  float x, float y, float z,
 						  sector_t *sec, angle_t angle,
 						  int options, int tag)
@@ -2220,6 +2223,7 @@ void P_SetupLevel(void)
 
 	// check if the level is for Hexen
 	hexen_level = false;
+	// Check if the level is for Wolfenstein 3D
 
 	if (lumpnum + ML_BEHAVIOR < numlumps &&
 		W_VerifyLumpName(lumpnum + ML_BEHAVIOR, "BEHAVIOR"))

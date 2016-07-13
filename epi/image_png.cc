@@ -198,7 +198,9 @@ namespace epi
 		{
 			if (!memcmp(unknowns[i].name, "grAb", 4))
 			{
-				png_grAb_t *grAb = reinterpret_cast<png_grAb_t *>(unknowns[i].data);
+				/* png_grAb_t *grAb = reinterpret_cast<png_grAb_t *>(unknowns[i].data); */
+				png_grAb_t *grAb = new png_grAb_t;
+				memcpy(grAb, unknowns[i].data, sizeof(png_grAb_t));
 				grAb->x = EPI_BE_S32(grAb->x) + 160 - width / 2;
 				grAb->y = EPI_BE_S32(grAb->y) + 200 - 32 - height;
 				img->grAb = grAb;
@@ -209,6 +211,8 @@ namespace epi
 		png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 
 		delete[] row_pointers;
+		//delete[] unknowns;
+
 
 		return img;
 

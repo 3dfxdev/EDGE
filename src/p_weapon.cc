@@ -51,6 +51,7 @@ static sound_category_e WeapSfxCat(player_t *p)
 }
 
 
+//SetPsprite is player weapon sprite. Look into this for weird Heretic offsets...?
 static void P_SetPsprite(player_t * p, int position, int stnum, weapondef_c *info = NULL)
 {
 	pspdef_t *psp = &p->psprites[position];
@@ -798,6 +799,7 @@ void P_DropWeapon(player_t * p)
 }
 
 
+//Ah, here we go.
 void P_SetupPsprites(player_t * p)
 {
 	// --- Called at start of level for each player ---

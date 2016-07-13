@@ -31,11 +31,13 @@
 #define REQUIREDPAK    "edge2"
 #define EDGECONFIGFILE "EDGE2.cfg"
 #define EDGELOGFILE    "EDGE2.log"
+#define REQHERETICPWAD "herfix"
 
 #define EDGEGWAEXT     "gwa"
 #define EDGEHWAEXT     "hwa"
 #define EDGEWADEXT     "wad"
 #define EDGEPAKEXT     "pak"
+#define WOLFDATEXT     "maphead." ///Wolfenstein shit
 
 #define SAVEGAMEBASE   "save"
 #define SAVEGAMEEXT    "esg"

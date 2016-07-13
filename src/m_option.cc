@@ -200,6 +200,7 @@ static char Hq2xMode[]  = "Off/UI Only/UI & Sprites/All";
 static char Invuls[]    = "Simple/Complex/Textured";
 static char MonitSiz[]  = "4:3/16:9/16:10/3:2/24:10";
 static char GLMode[]    = "1/2";
+static char VsyncValue[] = "1/2/3";
 
 // for CVar enums
 const char WIPE_EnumStr[] = "none/melt/crossfade/pixelfade/top/bottom/left/right/spooky/doors";
@@ -406,8 +407,7 @@ static optmenuitem_t advancedoptions[] =
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Switch, "Interpolation",    YesNo,   2, &r_lerp, NULL, "Lerping"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
-/* 	{OPT_Switch, "Video Sync",   YesNo,   2, &r_vsync, NULL, "Use 'r_vsync' in console to disable"}, */
-	{OPT_Boolean, "Vync Value --->",    YesNo,   3, &r_vsync, NULL, "Type 'r_vsync 0' in console to disable"},
+	{OPT_Boolean, "Video Sync",   YesNo,   2, &r_vsync, NULL, "0/1 = OFF/ON, 2 & 3 are stronger"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
 
@@ -440,10 +440,11 @@ static optmenuitem_t advancedoptions[] =
 } */
 
 
+///Screen Options, custom graphic by Julian 
 static menuinfo_t video_optmenu = 
 {
 	vidoptions, sizeof(vidoptions) / sizeof(optmenuitem_t),
-	&video_style, 150, 77, "M_VIDEO", NULL, 0, ""
+	&video_style, 150, 77, "M_SCROPT", NULL, 0, ""
 };
 
 // for advanced video options
@@ -474,10 +475,11 @@ static optmenuitem_t resoptions[] =
 	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL}
 };
 
+//Custom GFX by Julian
 static menuinfo_t res_optmenu = 
 {
 	resoptions, sizeof(resoptions) / sizeof(optmenuitem_t),
-	&setres_style, 150, 77, "M_VIDEO", NULL, 3, ""
+	&setres_style, 150, 77, "M_SETRES", NULL, 3, ""
 };
 
 //
@@ -658,6 +660,8 @@ static optmenuitem_t attack_keyconfig[] =
 	{OPT_KeyConfig, "Next Weapon",      NULL, 0, &key_nextweapon, NULL, NULL},
 	{OPT_KeyConfig, "Previous Weapon",  NULL, 0, &key_prevweapon, NULL, NULL},
 	{OPT_KeyConfig, "Weapon Reload",    NULL, 0, &key_reload, NULL, NULL},
+	{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL },
+	{OPT_KeyConfig, "Use Item",         NULL, 0, &key_use, NULL, NULL },
 	{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL},
 	{OPT_KeyConfig, "Look Up",          NULL, 0, &key_lookup, NULL, NULL},
 	{OPT_KeyConfig, "Look Down",        NULL, 0, &key_lookdown, NULL, NULL},
@@ -678,7 +682,7 @@ static menuinfo_t attack_optmenu =
 //
 static optmenuitem_t other_keyconfig[] =
 {
-	{OPT_KeyConfig, "Use Item",         NULL, 0, &key_use, NULL, NULL},
+	{ OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL },
 	{OPT_KeyConfig, "Strafe",           NULL, 0, &key_strafe, NULL, NULL},
 	{OPT_KeyConfig, "Run",              NULL, 0, &key_speed, NULL, NULL},
 	{OPT_KeyConfig, "Toggle Autorun",   NULL, 0, &key_autorun, NULL, NULL},
@@ -780,6 +784,7 @@ void M_OptCheckNetgame(void)
 		strcpy(mainoptions[HOSTNET_POS+0].name, "Leave Game");
 		mainoptions[HOSTNET_POS+0].routine = &M_EndGame;
 		mainoptions[HOSTNET_POS+0].help = NULL;
+
 
 //		strcpy(mainoptions[HOSTNET_POS+1].name, "");
 //		mainoptions[HOSTNET_POS+1].type = OPT_Plain;
