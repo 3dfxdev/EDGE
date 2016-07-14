@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 SDL System Internal header
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 2005-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -19,7 +19,7 @@
 #ifndef __SDL_SYSTEM_INTERNAL_H__
 #define __SDL_SYSTEM_INTERNAL_H__
 
-#ifdef MACOSX
+#if defined(MACOSX) || defined(LINUX)
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_keycode.h>
 #else
