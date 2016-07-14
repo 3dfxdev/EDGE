@@ -50,7 +50,6 @@ int graphics_shutdown = 0;
 cvar_c in_grab;
 
 static bool grab_state;
-static bool is_fullscreen;
 
 static int display_W, display_H;
 
@@ -184,7 +183,6 @@ SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
         I_Error("I_InitScreen: Failed to create window");
         return;
     }
-    is_fullscreen = false;
 
 /* 	Some systems allow specifying -1 for the interval,
 	to enable late swap tearing. Late swap tearing works
