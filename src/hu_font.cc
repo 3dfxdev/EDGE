@@ -152,38 +152,11 @@ void font_c::LoadPatches()
 	p_cache.height = I_ROUND(IM_HEIGHT(Nom));
 }
 
-#define XMUL im_div.sub_w
-#define YMUL im_div.sub_h
-static int FNSZ;
-//static int XMUL;
-//static int YMUL;
-
-//im_div.sub_w = 0;
-//im_div.sub_h = 0;
-
-void font_c::CalcSizes()
-{
-	// determine font sizing and spacing
-	if (SCREENWIDTH < 400)
-	{
-		FNSZ = 10; XMUL = 7; YMUL = 12;
-	}
-	else if (SCREENWIDTH < 700)
-	{
-		FNSZ = 13; XMUL = 9; YMUL = 15;
-	}
-	else
-	{
-		FNSZ = 16; XMUL = 11; YMUL = 19;
-	}
-}
 
 void font_c::LoadImageDiv()
 {
 	// TODO
 	I_Printf("LoadImageDiv called??\n");
-	CalcSizes();
-
 }
 
 
@@ -354,9 +327,9 @@ int font_c::StringLines(const char *str) const
 void font_c::DrawChar320(float x, float y, char ch, float scale, float aspect,
     const colourmap_c *colmap, float alpha) const
 {
-	///SYS_ASSERT(def->type != FNTYP_Image);
-	if (x + FNSZ < 0)
-		return;
+	SYS_ASSERT(def->type != FNTYP_Image);
+	//if (x + FNSZ < 0)
+		//return;
 
 	const image_c *image = CharImage(ch);
 

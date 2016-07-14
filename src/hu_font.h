@@ -91,7 +91,6 @@ public:
 private:
 	void BumpPatchName(char *name);
 	void LoadPatches();
-	void CalcSizes();
 	void LoadImageDiv();
 };
 

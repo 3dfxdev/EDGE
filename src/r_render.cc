@@ -834,7 +834,6 @@ typedef struct
 
 	float tx0, ty0;
 	float image_w, image_h;
-	float image;
 
 	vec2_t x_mat;
 	vec2_t y_mat;
