@@ -2,9 +2,9 @@
 //  EDGE2 Packed Data Support Code
 //  WAD, PAK, ZIP, WL6 (Wolfenstein) Handler
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -285,6 +285,9 @@ static int cache_size = 0;
 
 // the first datafile which contains a PLAYPAL lump
 static int palette_datafile = -1;
+// the last datafile which contains a PLAYPAL lump
+static int palette_lastfile = -1;
+bool modpalette = false;
 
 // Sprites & Flats
 static bool within_sprite_list;
@@ -673,6 +676,7 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 		df->wadtex.palette = lump;
 		if (palette_datafile < 0)
 			palette_datafile = file;
+		palette_lastfile = file;
 		return;
 	}
 	else if (strncmp(name, "PNAMES", 8) == 0)
@@ -1120,7 +1124,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 #endif // 0
 
 	/// For this, we are using everything defined in /source. This has been EPI::fied, so we will eventually use that!!
-	if (kind == FLKIND_PAK) // -CA PAK support	
+	if (kind == FLKIND_PAK) // -CA PAK support
 	{
 
 		// PAK File
@@ -1626,13 +1630,17 @@ const char *W_GetFileName(int lump)
 // there are two possibilities: search backwards for the "closest"
 // palette, or simply return -1.  Neither one is ideal, though I tend
 // to think that searching backwards is more intuitive.
-// 
+//
 // NOTE 2: the palette_datafile stuff is there so we always return -1
 // for the "GLOBAL" palette.
-// 
+//
 int W_GetPaletteForLump(int lump)
 {
 	SYS_ASSERT(0 <= lump && lump < numlumps);
+
+	// if override palette for mod, return last file with PLAYPAL
+	if (modpalette)
+		return palette_lastfile;
 
 	int f = lumpinfo[lump].file;
 
@@ -1679,7 +1687,7 @@ static inline int QuickFindLumpMap(char *buf)
 //
 // Returns -1 if name not found.
 //
-// -ACB- 1999/09/18 Added name to error message 
+// -ACB- 1999/09/18 Added name to error message
 //
 int W_CheckNumForName2(const char *name)
 {
