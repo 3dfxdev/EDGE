@@ -18,9 +18,9 @@
 
 #define TITLE  "3DGE ENGINE"
 
-#define EDGEVER       210//201
+#define EDGEVER       2102//201
 #define EDGEVERHEX  0x210
-#define EDGEVERSTR  "2.1.0 - TEST 1" 
+#define EDGEVERSTR  "2.1.0 - TEST 2" 
 
 // patch level (Savegames and Demos)
 #define EDGEPATCH  7
