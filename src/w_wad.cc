@@ -1640,7 +1640,12 @@ int W_GetPaletteForLump(int lump)
 
 	// if override palette for mod, return last file with PLAYPAL
 	if (modpalette)
-		return palette_lastfile;
+	{
+		data_file_c *df = data_files[palette_lastfile];
+
+		if (df->wadtex.palette >= 0)
+			return df->wadtex.palette;
+	}
 
 	int f = lumpinfo[lump].file;
 
