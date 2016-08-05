@@ -537,10 +537,10 @@ void TransformColourmap(colourmap_c *colmap)
 		// int score =
 		AnalyseColourmap(table, 0, &r, &g, &b);
 
-#if 0  // DEBUGGING
+
 		I_Debugf("COLMAP [%s] alpha %d --> (%d %d %d)\n",
 				 colmap->name.c_str(), 0, r, g, b);
-#endif
+
 
 		r = MIN(255, MAX(0, r));
 		g = MIN(255, MAX(0, g));
