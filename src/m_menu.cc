@@ -146,7 +146,6 @@ static const image_c *therm_l;
 static const image_c *therm_m;
 static const image_c *therm_r;
 static const image_c *therm_o;
-static const image_c *SkullBaseLump = NULL;
 
 static const image_c *menu_loadg;
 static const image_c *menu_saveg;
@@ -159,6 +158,7 @@ static const image_c *menu_skill;
 static const image_c *menu_episode;
 static const image_c *menu_skull[2];
 static const image_c *menu_readthis[2];
+static const image_c *SkullBaseLump[18]; //replaced = NULL -> 17, 17 frames of animation
 
 static style_c *menu_def_style;
 static style_c *main_menu_style;
@@ -335,6 +335,12 @@ static int itemOn;
 
 // doom64
 short  itemSelected;
+
+// Heretic Gold Skull animation counter (NOT blinking skull)
+static int goldskullAnimCounter;
+
+// Heretic: which skull to draw:
+static int whichgoldSkull;
 
 // skull animation counter
 static int skullAnimCounter;
@@ -650,11 +656,20 @@ static menu_t SkillDef =
 	sk_medium  // lastOn
 };
 
+static menuitem_t HereticSkillMenu[] =
+{
+	{ 1, "H_JKILL", NULL, M_ChooseSkill, 'p' },
+	{ 1, "H_ROUGH", NULL, M_ChooseSkill, 'r' },
+	{ 1, "H_HURT",  NULL, M_ChooseSkill, 'h' },
+	{ 1, "H_ULTRA", NULL, M_ChooseSkill, 'u' },
+	{ 1, "H_NMARE", NULL, M_ChooseSkill, 'n' }
+};
+
 static menu_t HereticSkillDef =
 {
 	sk_numtypes,  // # of menu items
 	&EpiDef,  // previous menu
-	SkillMenu,  // menuitem_t ->
+	HereticSkillMenu,  // menuitem_t ->
 	&skill_style,
 	M_DrawNewGame,  // drawing routine ->
 	38, 30,  // x,y 63
@@ -1366,14 +1381,10 @@ void HereticMainMenuDrawer(void)
 {
 	//int frame = (I_GetTime() / 3) % 18;
 	///int frame = (I_GetTime() / 3) % 18; //TODO: M_SKL00 has animations that need defining in ANIMS.DDF!!
-	int frame;
+	int frame = (I_GetTime()/3)%18;
 
-	frame = (MenuTime / 3) % 18;
-
-	SkullBaseLump = W_ImageLookup("M_SKL13"); //also try ILF_Exact!
-
-	HUD_DrawImage(40, 10, SkullBaseLump);// + (17 - frame));
-	HUD_DrawImage(232, 10, SkullBaseLump);// + (17 - frame));
+	HUD_DrawImage(40, 10, SkullBaseLump[whichgoldSkull]);// + (17 - frame)); LEFT
+	HUD_DrawImage(232, 10, SkullBaseLump[goldskullAnimCounter]);// + (17 - frame)); RIGHT
 
 	//Now, finally, draw the "main" menu.
 	HUD_DrawImage(94, 2, menu_doom);
@@ -1618,8 +1629,17 @@ void M_ChooseSkill(int choice)
 void M_Episode(int choice)
 {
 	chosen_epi = choice;
+
+	if (heretic_mode)
+	{
+		M_SetupNextMenu(&HereticSkillDef);
+		return;
+	}
+	else 
 	M_SetupNextMenu(&SkillDef);
 }
+
+
 
 //
 // Toggle messages on/off
@@ -1826,6 +1846,7 @@ void M_DrawThermo(int x, int y, int thermWidth, int thermDot, int div)
 //----------------------------------------------------------------------------
 //   HERETIC MENU FUNCTIONS
 //----------------------------------------------------------------------------
+#if 0
 
 void M_DrawSlider(menu_t *currentMenu, int item, int width, int slot)
 {
@@ -1835,7 +1856,7 @@ void M_DrawSlider(menu_t *currentMenu, int item, int width, int slot)
 	int y;
 	int x2;
 	int count; //compat with Heretic, we can hack around step int and use count like Vanilla Heretic..
-	
+
 
 			 // Note: the (step+1) here is for compatibility with the original
 			 // code.  It seems required to make the thermo bar tile properly.
@@ -1859,6 +1880,7 @@ void M_DrawSlider(menu_t *currentMenu, int item, int width, int slot)
 
 	HUD_DrawImage(x + 4 + slot * 8, y + 7, therm_o); //M_SLDKB
 }
+#endif // 0
 
 void M_StartMessage(const char *string, void (* routine)(int response), 
 					bool input)
@@ -2648,6 +2670,12 @@ void M_Ticker(void)
 		whichSkull ^= 1;
 		skullAnimCounter = 8;
 	}
+
+	if (--goldskullAnimCounter <= 0)
+	{
+		whichgoldSkull ^= 1;
+		goldskullAnimCounter = 8;
+	}
 }
 
 void H_Init(void)
@@ -2667,6 +2695,8 @@ void H_Init(void)
 	itemOn = currentMenu->lastOn;
 	whichSkull = 0;
 	skullAnimCounter = 10;
+	whichgoldSkull = 0;
+	goldskullAnimCounter = 10;
 	msg_mode = 0;
 	msg_string.clear();
 	msg_lastmenu = menuactive;
@@ -2726,22 +2756,37 @@ void H_Init(void)
 
 	menu_loadg = W_ImageLookup("H_LOADG");
 	menu_saveg = W_ImageLookup("H_SAVEG");
-	menu_svol = W_ImageLookup("H_SVOL");
+	menu_svol = W_ImageLookup("H_SNDOPT");
 	menu_newgame = W_ImageLookup("H_NGAME");
 	menu_multiplayer = W_ImageLookup("H_MULTI");
 	menu_skill = W_ImageLookup("H_SKILL");
 	menu_episode = W_ImageLookup("H_EPISOD");
 
-	// Check for DOOM vs Heretic Dependancies. Rewrite the code below to use the
-	// heretic_mode bool first -- this way we can do this accross all games!
-
 		menu_doom = W_ImageLookup("M_HTIC");
 
-
+		// Menu Skull code. Notice the int is [2], but this holds [0] and [1], which as in integer = 2! 
+		// Heretic logic: int is [17], but should go from [0] to [16], which as an intereger = 17!
 		menu_skull[0] = W_ImageLookup("M_SLCTR1");
-
 		menu_skull[1] = W_ImageLookup("M_SLCTR2");
 
+		SkullBaseLump[0] = W_ImageLookup("M_SKL00"); // iterate to 18
+		SkullBaseLump[1] = W_ImageLookup("M_SKL01");
+		SkullBaseLump[2] = W_ImageLookup("M_SKL02");
+		SkullBaseLump[3] = W_ImageLookup("M_SKL03");
+		SkullBaseLump[4] = W_ImageLookup("M_SKL04");
+		SkullBaseLump[5] = W_ImageLookup("M_SKL05");
+		SkullBaseLump[6] = W_ImageLookup("M_SKL06");
+		SkullBaseLump[7] = W_ImageLookup("M_SKL07");
+		SkullBaseLump[8] = W_ImageLookup("M_SKL08");
+		SkullBaseLump[9] = W_ImageLookup("M_SKL09");
+		SkullBaseLump[10] = W_ImageLookup("M_SKL10");
+		SkullBaseLump[11] = W_ImageLookup("M_SKL11");
+		SkullBaseLump[12] = W_ImageLookup("M_SKL12");
+		SkullBaseLump[13] = W_ImageLookup("M_SKL13");
+		SkullBaseLump[14] = W_ImageLookup("M_SKL14");
+		SkullBaseLump[15] = W_ImageLookup("M_SKL15");
+		SkullBaseLump[16] = W_ImageLookup("M_SKL16");
+		SkullBaseLump[17] = W_ImageLookup("M_SKL17");
 
 
 	// Further code switches out DOOM -> Heretic graphics
