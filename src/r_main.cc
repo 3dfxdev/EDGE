@@ -335,6 +335,7 @@ void RGL_SoftInit(void)
 //
 void RGL_Init(void)
 {
+	I_Printf("==============================================================================\n");
 	I_Printf("OpenGL: Initialising...\n");
 
 	RGL_CheckExtensions();
@@ -368,6 +369,7 @@ void RGL_Init(void)
 
 	I_Printf("OpenGL: Lights: %d  Clips: %d  Tex: %d  Units: %d\n",
 			 glmax_lights, glmax_clip_planes, glmax_tex_size, glmax_tex_units);
+	I_Printf("==============================================================================\n");
   
 	RGL_SoftInit();
 
