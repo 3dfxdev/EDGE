@@ -530,18 +530,37 @@ static void M_DisplayPause(void)
 	///CON_Printf("Paused ;)\n");
 	 	static const image_c *pause_image = NULL;
 
-	if (! pause_image)
-		pause_image = W_ImageLookup("M_PAUSE");
+		if (!pause_image)
+		{
+			if (heretic_mode)
+			{
+				pause_image = W_ImageLookup("PAUSED");
+			}
+			else
+				pause_image = W_ImageLookup("M_PAUSE");
+		}
 
 	// make sure image is centered horizontally
 
 	float w = IM_WIDTH(pause_image);
 	float h = IM_HEIGHT(pause_image);
 
-	float x = 160 - w / 2;
-	float y = 10;
+	if (heretic_mode)
+	{
+		float x = 160 - 3 / 2;
+		float y = 3;
+		HUD_StretchImage(x, y, w, h, pause_image);
+		return;
+	}
+	else
+	{
+		float x = 160 - w / 2;
+		float y = 10;
+		HUD_StretchImage(x, y, w, h, pause_image);
+		return;
+	}
 
-	HUD_StretchImage(x, y, w, h, pause_image);
+	//HUD_StretchImage(x, y, w, h, pause_image);
 }
 
 
@@ -1058,7 +1077,20 @@ static void IdentifyVersion(void)
 
 		if (!epi::FS_Access(iwad_file.c_str(), epi::file_c::ACCESS_READ))
 		{
-			I_Error("IdentifyVersion: Unable to add specified '%s'", fn.c_str());
+			I_Error("IdentifyVersion: Unable to add specified '%s'",
+				fn.c_str());
+		}
+		else
+		{
+			// next lines check for Heretic mode, and set it to true
+			if (fn.compare(fn.size() - 11, 11, "heretic.wad") == 0)
+			{
+				I_Printf("DDF: Loading Heretic HDF\n");
+				ddf_dir = epi::PATH_Join(game_dir.c_str(), "her_ddf");
+				DDF_SetWhere(ddf_dir);
+				heretic_mode = true;
+				printf("Heretic mode TRUE\n");
+			}
 		}
 	}
 	else
