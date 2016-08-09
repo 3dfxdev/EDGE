@@ -467,9 +467,9 @@ static menuitem_t HereticMainMenu[] =
 	{ 1, "H_NGAME",   NULL, M_NewGame, '1' },
 	{ 1, "H_MULTI",   NULL, M_Multiplayer, 'p' },
 	{ 1, "H_OPTION",  NULL, M_Options, 'o' },
-	//TODO: { 1, "H_GAMEFLS", NULL, M_GameFiles, 'f' }, //already written, needs a graphic from plums
-	{ 1, "H_LOADG",   NULL, M_LoadGame, 'l' }, //temporary
-	{ 1, "H_SAVEG",   NULL, M_SaveGame, 's' }, //temporary
+	{ 1, "H_GAMFIL", NULL, M_GameFiles, 'f' }, //already written, needs a graphic from plums
+	//{ 1, "H_LOADG",   NULL, M_LoadGame, 'l' }, //temporary
+	//{ 1, "H_SAVEG",   NULL, M_SaveGame, 's' }, //temporary
 	{ 1, "H_RDTHIS",  NULL, M_ReadThis, 'r' },
 	{ 1, "H_QUITG",   NULL, M_QuitEDGE, 'q' }
 };
@@ -487,8 +487,6 @@ static menuitem_t MainMenu[] =
 	{1, "M_RDTHIS",  NULL, M_ReadThis, 'r'},
 	{1, "M_QUITG",   NULL, M_QuitEDGE, 'q'}
 };
-
-
 
 
 static menu_t MainDef =
@@ -514,16 +512,6 @@ static menu_t HereticMainDef =
 	0
 };
 
-// For Splitscreen games. . .
-// Order should go as such:
-/* TITLE: Two Player Game
-	Setup Player Two
-	Options (links back to the Gameplay Options menu!
-	Start Server (use Advanced Start from m_Options!!!)
-	Multiplayer (for true TCP/IP multiplayer, disable that for now...*/
-
-
-// Doom Legacy's gfx = STSERV, CONNEC, replaced by Julian's GFX 
 static menuitem_t MultiMenu[] = ///Dupe Doom Legacy's Multiplayer menu. . .
 {
 	//{ 1, "M_SETUPA", NULL, NULL, 'a' }, //Setup Player One (controls and stuff, only shows in multiplayer menu)
@@ -532,7 +520,6 @@ static menuitem_t MultiMenu[] = ///Dupe Doom Legacy's Multiplayer menu. . .
 	{ 1, "M_CONNEC",  NULL, M_JoinNetGame, 'h' }, //Pulls up the Join Game Menu (client)
 	{ 1, "M_2PLAYR",  NULL, M_SplitScreenGame, 'z' }, //Goes to splitscreen game (II)
 	{ 1, "M_OPTION", NULL, M_Options, 'o' } // Goes to Options...
-
 };
 	
 static menu_t MultiDef =
@@ -1383,7 +1370,7 @@ void HereticMainMenuDrawer(void)
 	///int frame = (I_GetTime() / 3) % 18; //TODO: M_SKL00 has animations that need defining in ANIMS.DDF!!
 	int frame = (I_GetTime()/3)%18;
 
-	HUD_DrawImage(40, 10, SkullBaseLump[whichgoldSkull]);// + (17 - frame)); LEFT
+	HUD_DrawImage(40, 10, SkullBaseLump[goldskullAnimCounter]);// + (17 - frame)); LEFT
 	HUD_DrawImage(232, 10, SkullBaseLump[goldskullAnimCounter]);// + (17 - frame)); RIGHT
 
 	//Now, finally, draw the "main" menu.
@@ -1433,7 +1420,14 @@ void M_Multiplayer(int choice)
 		return;
 	}
 
-	M_SetupNextMenu(&MultiDef);
+	if (heretic_mode)
+	{
+		M_SetupNextMenu(&HMultiDef);
+	}
+	else if (!heretic_mode)
+	{
+		M_SetupNextMenu(&MultiDef);
+	}
 	
 	// hack
 }
@@ -2674,7 +2668,7 @@ void M_Ticker(void)
 	if (--goldskullAnimCounter <= 0)
 	{
 		whichgoldSkull ^= 1;
-		goldskullAnimCounter = 8;
+		goldskullAnimCounter = 17;
 	}
 }
 
@@ -2696,7 +2690,7 @@ void H_Init(void)
 	whichSkull = 0;
 	skullAnimCounter = 10;
 	whichgoldSkull = 0;
-	goldskullAnimCounter = 10;
+	goldskullAnimCounter = 17;
 	msg_mode = 0;
 	msg_string.clear();
 	msg_lastmenu = menuactive;
@@ -2727,7 +2721,7 @@ void H_Init(void)
 	def = styledefs.Lookup("CHOOSE SKILL");
 	skill_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-	def = styledefs.Lookup("MAIN MENU");
+	def = styledefs.Lookup("GAME FILES");
 	files_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
 	def = styledefs.Lookup("LOAD MENU");
@@ -2855,7 +2849,7 @@ void M_Init(void)
 	menuactive = false;
 	itemOn = currentMenu->lastOn;
 	whichSkull = 0;
-	skullAnimCounter = 10;
+	skullAnimCounter = 15;
 	msg_mode = 0;
 	msg_string.clear();
 	msg_lastmenu = menuactive;
