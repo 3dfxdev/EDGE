@@ -59,6 +59,7 @@ static const commandlist_t text_commands[] =
 {
     DF("COLOURMAP", colmap, DDF_MainGetColourmap),
 	DF("TRANSLUCENCY", translucency, DDF_MainGetPercent),
+	DF("IMAGE", image_name, DDF_MainGetString), //adding image control to move this out of "hard-coded" territory
     DF("FONT",   font,   DDF_MainLookupFont),
     DF("SCALE",  scale,  DDF_MainGetFloat),
     DF("ASPECT", aspect, DDF_MainGetFloat),
@@ -99,6 +100,7 @@ static const commandlist_t style_commands[] =
 	DDF_SUB_LIST("ALT",   text[1], text_commands),
 	DDF_SUB_LIST("TITLE", text[2], text_commands),
 	DDF_SUB_LIST("HELP",  text[3], text_commands),
+	DDF_SUB_LIST("IMAGE", text[4], text_commands),
 	DDF_SUB_LIST("SOUND",  sounds, sound_commands),
 
     DF("SPECIAL", special, DDF_StyleGetSpecials),
@@ -344,6 +346,8 @@ void textstyle_c::Default()
 	colmap = NULL;
 	translucency = PERCENT_MAKE(100);
 
+	image_name.clear();
+
 	font   = NULL;
 	scale  = 1.0f;
 	aspect = 1.0f;
@@ -358,6 +362,7 @@ textstyle_c& textstyle_c::operator= (const textstyle_c &rhs)
 	{
 		colmap = rhs.colmap;
 		translucency = rhs.translucency;
+		image_name = rhs.image_name;
 
 		font   = rhs.font;
 		scale  = rhs.scale;
