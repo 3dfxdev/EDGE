@@ -451,6 +451,21 @@ typedef enum
 }
 main_e;
 
+//
+// HERETIC MENU
+//
+typedef enum
+{
+	hnewgame = 0,
+	hmultiplayer,
+	hoptions,
+	gamefiles,
+	hreadthis,
+	quitheretic,
+	hmain_end
+}
+hmain_e;
+
 
 #if 0
 d64menuitem_t MainMenu[] = {
@@ -468,8 +483,6 @@ static menuitem_t HereticMainMenu[] =
 	{ 1, "H_MULTI",   NULL, M_Multiplayer, 'p' },
 	{ 1, "H_OPTION",  NULL, M_Options, 'o' },
 	{ 1, "H_GAMFIL", NULL, M_GameFiles, 'f' }, //already written, needs a graphic from plums
-	//{ 1, "H_LOADG",   NULL, M_LoadGame, 'l' }, //temporary
-	//{ 1, "H_SAVEG",   NULL, M_SaveGame, 's' }, //temporary
 	{ 1, "H_RDTHIS",  NULL, M_ReadThis, 'r' },
 	{ 1, "H_QUITG",   NULL, M_QuitEDGE, 'q' }
 };
@@ -503,7 +516,7 @@ static menu_t MainDef =
 
 static menu_t HereticMainDef =
 {
-	main_end,
+	hmain_end,
 	NULL,
 	HereticMainMenu,
 	&main_menu_style,
@@ -1053,16 +1066,34 @@ void M_DrawLoad(void)
 //
 void M_DrawSaveLoadBorder(float x, float y, int len)
 {
-	const image_c *L = W_ImageLookup("M_LSLEFT");
-	const image_c *C = W_ImageLookup("M_LSCNTR");
-	const image_c *R = W_ImageLookup("M_LSRGHT");
+	if (heretic_mode)
+	{
+		const image_c *L = W_ImageLookup("NULL");
+		const image_c *C = W_ImageLookup("M_FSLOT");
+		const image_c *R = W_ImageLookup("NULL");
 
-	HUD_DrawImage(x - IM_WIDTH(L), y + 7, L);
+		HUD_DrawImage(x - IM_WIDTH(L), y + 7, L);
 
-	for (int i = 0; i < len; i++, x += IM_WIDTH(C))
-		HUD_DrawImage(x, y + 7, C);
+		for (int i = 0; i < len; i++, x += IM_WIDTH(C))
+			HUD_DrawImage(x, y + 7, C);
 
-	HUD_DrawImage(x, y + 7, R);
+		HUD_DrawImage(x, y + 7, R);
+	}
+	else if (!heretic_mode)
+	{
+		const image_c *L = W_ImageLookup("M_LSLEFT");
+		const image_c *C = W_ImageLookup("M_LSCNTR");
+		const image_c *R = W_ImageLookup("M_LSRGHT");
+
+		HUD_DrawImage(x - IM_WIDTH(L), y + 7, L);
+
+		for (int i = 0; i < len; i++, x += IM_WIDTH(C))
+			HUD_DrawImage(x, y + 7, C);
+
+		HUD_DrawImage(x, y + 7, R);
+	}
+
+	
 }
 
 //
@@ -1371,7 +1402,7 @@ void HereticMainMenuDrawer(void)
 	int frame = (I_GetTime()/3)%18;
 
 	HUD_DrawImage(40, 10, SkullBaseLump[goldskullAnimCounter]);// + (17 - frame)); LEFT
-	HUD_DrawImage(232, 10, SkullBaseLump[goldskullAnimCounter]);// + (17 - frame)); RIGHT
+	HUD_DrawImage(240, 10, SkullBaseLump[goldskullAnimCounter]);// + (17 - frame)); RIGHT
 
 	//Now, finally, draw the "main" menu.
 	HUD_DrawImage(94, 2, menu_doom);
@@ -2753,7 +2784,8 @@ void H_Init(void)
 	menu_svol = W_ImageLookup("H_SNDOPT");
 	menu_newgame = W_ImageLookup("H_NGAME");
 	menu_multiplayer = W_ImageLookup("H_MULTI");
-	menu_skill = W_ImageLookup("H_SKILL");
+	///menu_skill = W_ImageLookup("H_SKILL");
+	menu_skill = W_ImageLookup("NULL");
 	menu_episode = W_ImageLookup("H_EPISOD");
 
 		menu_doom = W_ImageLookup("M_HTIC");
