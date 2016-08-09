@@ -106,7 +106,6 @@
 
 #include "defaults.h"
 
-
 int option_menuon = 0;
 
 extern cvar_c m_language;
@@ -132,6 +131,8 @@ static int menu_crosshair2;  /// love haxxx
 extern int monitor_size;
 
 extern int joystick_device;
+
+extern bool heretic_mode;
 
 //submenus
 static void M_KeyboardOptions(int keypressed);
@@ -368,8 +369,28 @@ static optmenuitem_t mainoptions[] =
 
 static menuinfo_t main_optmenu = 
 {
-	mainoptions, sizeof(mainoptions) / sizeof(optmenuitem_t), 
-	&opt_def_style, 164, 108, "M_OPTTTL", NULL, 0, ""
+	mainoptions, 
+	sizeof(mainoptions) / sizeof(optmenuitem_t),
+	&opt_def_style, 
+	164, 
+	108, 
+	"M_OPTTTL",
+	NULL, 
+	0, 
+	""
+};
+
+static menuinfo_t hereticmain_optmenu =
+{
+	mainoptions, 
+	sizeof(mainoptions) / sizeof(optmenuitem_t),
+	&opt_def_style,
+	164, 
+	108, 
+	"H_OPTION", 
+	NULL, 
+	0, 
+	""
 };
 
 //
@@ -446,6 +467,11 @@ static menuinfo_t video_optmenu =
 	vidoptions, sizeof(vidoptions) / sizeof(optmenuitem_t),
 	&video_style, 150, 77, "M_SCROPT", NULL, 0, ""
 };
+static menuinfo_t hereticvideo_optmenu =
+{
+	vidoptions, sizeof(vidoptions) / sizeof(optmenuitem_t),
+	&video_style, 150, 77, "H_SCROPT", NULL, 0, ""
+};
 
 // for advanced video options
 // advancedoptions[], m_ADVANCED
@@ -453,6 +479,11 @@ static menuinfo_t advanced_optmenu =
 {
 	advancedoptions, sizeof(advancedoptions) / sizeof(optmenuitem_t),
 	&advanced_style, 150, 77, "M_VIDEO", NULL, 0, "" //maybe I can replace the stupid hard coded graphic. . .
+};
+static menuinfo_t hereticadvanced_optmenu =
+{
+	advancedoptions, sizeof(advancedoptions) / sizeof(optmenuitem_t),
+	&advanced_style, 150, 77, "H_VIDEO", NULL, 0, "" //maybe I can replace the stupid hard coded graphic. . .
 };
 
 
@@ -480,6 +511,11 @@ static menuinfo_t res_optmenu =
 {
 	resoptions, sizeof(resoptions) / sizeof(optmenuitem_t),
 	&setres_style, 150, 77, "M_SETRES", NULL, 3, ""
+};
+static menuinfo_t hereticres_optmenu =
+{
+	resoptions, sizeof(resoptions) / sizeof(optmenuitem_t),
+	&setres_style, 150, 77, "H_SETRES", NULL, 3, ""
 };
 
 //
@@ -522,6 +558,11 @@ static menuinfo_t analogue_optmenu =
 	analogueoptions, sizeof(analogueoptions) / sizeof(optmenuitem_t),
 	&mouse_style, 150, 75, "M_MSETTL", NULL, 0, ""
 };
+static menuinfo_t hereticanalogue_optmenu =
+{
+	analogueoptions, sizeof(analogueoptions) / sizeof(optmenuitem_t),
+	&mouse_style, 150, 75, "H_MSETTL", NULL, 0, ""
+};
 
 //
 //  SOUND OPTIONS
@@ -550,6 +591,11 @@ static menuinfo_t sound_optmenu =
 {
 	soundoptions, sizeof(soundoptions) / sizeof(optmenuitem_t),
 	&mouse_style, 150, 75, "M_SFXOPT", NULL, 0, ""
+};
+static menuinfo_t hereticsound_optmenu =
+{
+	soundoptions, sizeof(soundoptions) / sizeof(optmenuitem_t),
+	&mouse_style, 150, 75, "H_SFXOPT", NULL, 0, ""
 };
 
 //
@@ -618,6 +664,11 @@ static menuinfo_t gameplay_optmenu =
 	playoptions, sizeof(playoptions) / sizeof(optmenuitem_t),
 	&gameplay_style, 160, 46, "M_GAMEPL", NULL, 0, ""
 };
+static menuinfo_t hereticgameplay_optmenu =
+{
+	playoptions, sizeof(playoptions) / sizeof(optmenuitem_t),
+	&gameplay_style, 160, 46, "H_GAMEPL", NULL, 0, ""
+};
 
 //
 //  KEY CONFIG : MOVEMENT
@@ -644,6 +695,12 @@ static menuinfo_t movement_optmenu =
 {
 	move_keyconfig, sizeof(move_keyconfig) / sizeof(optmenuitem_t),
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
+	"Movement"
+};
+static menuinfo_t hereticmovement_optmenu =
+{
+	move_keyconfig, sizeof(move_keyconfig) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "H_CONTRL", NULL, 0,
 	"Movement"
 };
 
@@ -676,6 +733,12 @@ static menuinfo_t attack_optmenu =
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Attack / Look"
 };
+static menuinfo_t hereticattack_optmenu =
+{
+	attack_keyconfig, sizeof(attack_keyconfig) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "H_CONTRL", NULL, 0,
+	"Attack / Look"
+};
 
 //
 //  KEY CONFIG : OTHER STUFF
@@ -703,6 +766,12 @@ static menuinfo_t otherkey_optmenu =
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Other Keys"
 };
+static menuinfo_t hereticotherkey_optmenu =
+{
+	other_keyconfig, sizeof(other_keyconfig) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "H_CONTRL", NULL, 0,
+	"Other Keys"
+};
 
 //
 //  KEY CONFIG : WEAPONS
@@ -726,6 +795,12 @@ static menuinfo_t weapon_optmenu =
 {
 	weapon_keyconfig, sizeof(weapon_keyconfig) / sizeof(optmenuitem_t),
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
+	"Weapon Keys"
+};
+static menuinfo_t hereticweapon_optmenu =
+{
+	weapon_keyconfig, sizeof(weapon_keyconfig) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "H_CONTRL", NULL, 0,
 	"Weapon Keys"
 };
 
@@ -753,6 +828,12 @@ static menuinfo_t automap_optmenu =
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Automap Keys"
 };
+static menuinfo_t hereticautomap_optmenu =
+{
+	automap_keyconfig, sizeof(automap_keyconfig) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "H_CONTRL", NULL, 0,
+	"Automap Keys"
+};
 
 /*
  * ALL KEYBOARD MENUS
@@ -766,6 +847,14 @@ static menuinfo_t * all_key_menus[NUM_KEY_MENUS] =
 	&otherkey_optmenu,
 	&weapon_optmenu,
 	&automap_optmenu
+};
+static menuinfo_t * heretic_key_menus[NUM_KEY_MENUS] =
+{
+	&hereticmovement_optmenu,
+	&hereticattack_optmenu,
+	&hereticotherkey_optmenu,
+	&hereticweapon_optmenu,
+	&hereticautomap_optmenu
 };
 
 static char keystring1[] = "Enter to change, Backspace to Clear";
@@ -810,7 +899,17 @@ void M_OptCheckNetgame(void)
 void M_OptMenuInit()
 {
 	option_menuon = 0;
-	curr_menu = &main_optmenu;
+
+	if (heretic_mode)
+	{
+		curr_menu = &hereticmain_optmenu;
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = &main_optmenu;
+	}
+
+
 	curr_item = curr_menu->items + curr_menu->pos;
 	curr_key_menu = 0;
 	keyscan = 0;
@@ -934,6 +1033,10 @@ void M_OptDrawer()
 					   deltay, curr_menu->menu_center);
 	}
 	else if (curr_menu == &main_optmenu)
+	{
+		M_LanguageDrawer(curr_menu->menu_center, curry, deltay);
+	}
+	else if (curr_menu == &hereticmain_optmenu)
 	{
 		M_LanguageDrawer(curr_menu->menu_center, curry, deltay);
 	}
@@ -1357,17 +1460,36 @@ bool M_OptResponder(event_t * ev, int ch)
 		case KEYD_MOUSE2:
 		case KEYD_MOUSE3:
 		{
-			if (curr_menu == &main_optmenu)
+
+			if (heretic_mode)
 			{
-				option_menuon = 0;
+				if (curr_menu == &hereticmain_optmenu)
+				{
+					option_menuon = 0;
+				}
+				else
+				{
+					curr_menu = &hereticmain_optmenu;
+					curr_item = curr_menu->items + curr_menu->pos;
+				}
+				S_StartFX(sfx_swtchx);
+				return true;
 			}
-			else
+			else if (!heretic_mode)
 			{
-				curr_menu = &main_optmenu;
-				curr_item = curr_menu->items + curr_menu->pos;
+				if (curr_menu == &main_optmenu)
+				{
+					option_menuon = 0;
+				}
+				else
+				{
+					curr_menu = &main_optmenu;
+					curr_item = curr_menu->items + curr_menu->pos;
+				}
+				S_StartFX(sfx_swtchx);
+				return true;
 			}
-			S_StartFX(sfx_swtchx);
-			return true;
+			
 		}
 	}
 	return false;
@@ -1380,13 +1502,28 @@ bool M_OptResponder(event_t * ev, int ch)
 //
 static void M_VideoOptions(int keypressed)
 {
-	curr_menu = &video_optmenu;
+	if (heretic_mode)
+	{
+		curr_menu = &hereticvideo_optmenu;
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = &video_optmenu;
+	}
+	
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
 static void M_AdvancedOptions(int keypressed)
 {
-	curr_menu = &advanced_optmenu;
+	if (heretic_mode)
+	{
+		curr_menu = &hereticadvanced_optmenu;
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = &advanced_optmenu;
+	}
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
@@ -1406,7 +1543,14 @@ static void M_ResolutionOptions(int keypressed)
 	new_scrmode.depth  = SCREENBITS;
 	new_scrmode.full   = FULLSCREEN;
 
-	curr_menu = &res_optmenu;
+	if (heretic_mode)
+	{
+		curr_menu = &hereticres_optmenu;
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = &res_optmenu;
+	}
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
@@ -1415,7 +1559,14 @@ static void M_ResolutionOptions(int keypressed)
 //
 static void M_AnalogueOptions(int keypressed)
 {
-	curr_menu = &analogue_optmenu;
+	if (heretic_mode)
+	{
+		curr_menu = &hereticanalogue_optmenu;
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = &analogue_optmenu;
+	}
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
@@ -1424,7 +1575,15 @@ static void M_AnalogueOptions(int keypressed)
 //
 static void M_SoundOptions(int keypressed)
 {
-	curr_menu = &sound_optmenu;
+	if (heretic_mode)
+	{
+		curr_menu = &hereticsound_optmenu;
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = &sound_optmenu;
+	}
+	
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
@@ -1438,7 +1597,15 @@ static void M_GameplayOptions(int keypressed)
 	if (netgame)
 		return;
 
-	curr_menu = &gameplay_optmenu;
+	if (heretic_mode)
+	{
+		curr_menu = &hereticgameplay_optmenu;
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = &gameplay_optmenu;
+	}
+	
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
@@ -1447,7 +1614,14 @@ static void M_GameplayOptions(int keypressed)
 //
 static void M_KeyboardOptions(int keypressed)
 {
-	curr_menu = all_key_menus[curr_key_menu];
+	if (heretic_mode)
+	{
+		curr_menu = heretic_key_menus[curr_key_menu];
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = all_key_menus[curr_key_menu];
+	}
 
 	curr_item = curr_menu->items + curr_menu->pos;
 }
