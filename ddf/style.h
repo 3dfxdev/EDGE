@@ -67,6 +67,8 @@ public:
 	float scale;
 	float aspect;
 
+	epi::strent_c image_name;
+
 	// FIXME: horizontal and vertical alignment
 };
 
