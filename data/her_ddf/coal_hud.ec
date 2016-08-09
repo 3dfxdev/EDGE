@@ -193,7 +193,7 @@ function doom_overlay_status() =
  //   hud.draw_image(  107, 190, "STKEYS5")
 
     //hud.set_alpha(0.7)
-    hud.text_font("HERETIC_DIGIT")
+    hud.text_font("HERETIC_BIG")
 
 	doomguy_face(0, 166)
 
@@ -260,14 +260,24 @@ function draw_all() =
     hud.coord_sys(320, 200)
     hud.grab_times()
 
-        hud.render_world(0, 0, 320, 200)
+    //hud.render_world(0, 0, 320, 200)
 
     if (hud.check_automap())
     {
        doom_automap()
         return
     }
+	// there are three standard HUDs
+	var which = hud.which_hud() % 3
 
+    if (which == 0)
+        hud.render_world(0, 0, 320, 200)
+    else
+        hud.render_world(0, 0, 320, 200 - 30)
+
+    if (which == 0)
+        doom_overlay_status()
+    else if (which == 2)
         heretic_overlay_status()
 
     edge_air_bar()
