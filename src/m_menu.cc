@@ -397,6 +397,8 @@ extern void M_GameFiles(int choice);
 static void M_LoadSavePage(int choice);
 static void M_ReadThis(int choice);
 static void M_ReadThis2(int choice);
+static void H_ReadThis(int choice);
+static void H_ReadThis2(int choice);
 void M_EndGame(int choice);
 
 static void M_ChangeMessages(int choice);
@@ -409,6 +411,7 @@ static void M_JoinNetGame(int choice);
 static void M_SplitScreenGame(int choice);
 
 static void M_FinishReadThis(int choice);
+static void H_FinishReadThis(int choice);
 static void M_LoadSelect(int choice);
 static void M_SaveSelect(int choice);
 static void M_ReadSaveStrings(void);
@@ -483,7 +486,7 @@ static menuitem_t HereticMainMenu[] =
 	{ 1, "H_MULTI",   NULL, M_Multiplayer, 'p' },
 	{ 1, "H_OPTION",  NULL, M_Options, 'o' },
 	{ 1, "H_GAMFIL", NULL, M_GameFiles, 'f' }, //already written, needs a graphic from plums
-	{ 1, "H_RDTHIS",  NULL, M_ReadThis, 'r' },
+	{ 1, "H_RDTHIS",  NULL, H_ReadThis, 'r' },
 	{ 1, "H_QUITG",   NULL, M_QuitEDGE, 'q' }
 };
 
@@ -701,6 +704,11 @@ static menuitem_t ReadMenu1[] =
 	{1, "", NULL, M_ReadThis2, 0}
 };
 
+static menuitem_t HReadMenu1[] =
+{
+	{ 1, "", NULL, H_ReadThis2, 0 }
+};
+
 static menu_t ReadDef1 =
 {
 	1,
@@ -712,16 +720,44 @@ static menu_t ReadDef1 =
 	0
 };
 
+
+static menu_t HReadDef1 =
+{
+	1,
+	&HereticMainDef,
+	HReadMenu1,
+	&menu_def_style,  // FIXME: maybe have READ_1 and READ_2 styles ??
+	M_DrawReadThis1,
+	280, 185,
+	0
+};
+
 static menuitem_t ReadMenu2[] =
 {
 	{1, "", NULL, M_FinishReadThis, 0}
 };
 
+static menuitem_t HReadMenu2[] =
+{
+	{ 1, "", NULL, H_FinishReadThis, 0 }
+};
+
 static menu_t ReadDef2 =
 {
 	1,
-	&ReadDef1,
-	ReadMenu2,
+	&HReadDef1,
+	HReadMenu2,
+	&menu_def_style,  // FIXME: maybe have READ_1 and READ_2 styles ??
+	M_DrawReadThis2,
+	330, 175,
+	0
+};
+
+static menu_t HReadDef2 =
+{
+	1,
+	&HReadDef1,
+	HReadMenu2,
 	&menu_def_style,  // FIXME: maybe have READ_1 and READ_2 styles ??
 	M_DrawReadThis2,
 	330, 175,
@@ -1402,6 +1438,7 @@ void HereticMainMenuDrawer(void)
 	int frame = (I_GetTime()/3)%18;
 
 	HUD_DrawImage(40, 10, SkullBaseLump[goldskullAnimCounter]);// + (17 - frame)); LEFT
+
 	HUD_DrawImage(240, 10, SkullBaseLump[goldskullAnimCounter]);// + (17 - frame)); RIGHT
 
 	//Now, finally, draw the "main" menu.
@@ -1720,14 +1757,29 @@ void M_ReadThis(int choice)
 	M_SetupNextMenu(&ReadDef1);
 }
 
+void H_ReadThis(int choice)
+{
+	M_SetupNextMenu(&HReadDef1);
+}
+
 void M_ReadThis2(int choice)
 {
 	M_SetupNextMenu(&ReadDef2);
 }
 
+void H_ReadThis2(int choice)
+{
+	M_SetupNextMenu(&HReadDef2);
+}
+
 void M_FinishReadThis(int choice)
 {
 	M_SetupNextMenu(&MainDef);
+}
+
+void H_FinishReadThis(int choice)
+{
+	M_SetupNextMenu(&HereticMainDef);
 }
 
 //
@@ -2840,14 +2892,14 @@ void H_Init(void)
 		//  page. I use CREDIT as second page now, but
 		//  kept this hack for educational purposes.
 
-		HereticMainMenu[readthis] = HereticMainMenu[quitdoom];
+		HereticMainMenu[hreadthis] = HereticMainMenu[quitheretic];
 		HereticMainDef.numitems--;
 		HereticMainDef.y += 8; // FIXME
 		SkillDef.prevMenu = &HereticMainDef;
-		ReadDef1.draw_func = M_DrawReadThis1;
-		ReadDef1.x = 330;
-		ReadDef1.y = 165;
-		ReadMenu1[0].select_func = M_FinishReadThis;
+		HReadDef1.draw_func = M_DrawReadThis1;
+		HReadDef1.x = 330;
+		HReadDef1.y = 165;
+		HReadMenu1[0].select_func = H_FinishReadThis;
 	}
 
 	sfx_swtchn = sfxdefs.GetEffect("SWTCHN");
