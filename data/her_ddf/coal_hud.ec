@@ -30,6 +30,7 @@ var face_image : string
 var chain_wiggle : float
 
 
+
 function doom_weapon_icon(slot, x, y, off_pic : string, on_pic : string) =
 {
     if (player.has_weapon_slot(slot))
@@ -153,51 +154,86 @@ doom_weapon_icon(7, 302, 162, "STGNCOMA", "STSMCOMA")
     hud.draw_num2(317, 162, 3, player.ammo(4))
 
 }
-
-function heretic_overlay_status() =
+// Full-Screen Heretic status bar. .
+//DrawCommonBar in Hexetic source code!
+// Does not even deal with the Life Chain/Gem bar!
+function heretic_status_bar() =
 {
-		// V_DrawPatchInDirect(0, 148, 0, PatchLTFCTOP);
-        // V_DrawPatchInDirect(290, 148, 0, PatchRTFCTOP);
-		
-		hud.draw_image(0, 158, "BARBACK")
-		hud.draw_image(0, 190, "CHAIN")
+
+		// mirror function doom_status_bar in order of operations.
 		hud.draw_image(0, 148, "LTFCTOP")
 		hud.draw_image(290, 148, "RTFCTOP")
+		hud.draw_image(0, 158, "BARBACK")
+		
+		//Draw Heretic Health Digit
+		//hud.text_font("HERETIC_DIGIT")
+		
+		
+		
+		// NOTE (from DoomWiki:) Health Chain (equivalent to Doom's player face)
+
 		hud.draw_image(34, 160, "LIFEBAR")
 		
+		hud.draw_image(0, 190, "CHAINBAC") // changed to match Doom's centered face icon, which it isn't!
+		
+		//hud.set_alpha(0.0)
+		
+		hud.text_font("HERETIC_DIGIT")
+		//hud.set_scale(1.2)
+		hud.draw_num(85, 170, 9, player.health()) // 100?
+		
+		hud.draw_num(252, 170, 3, player.total_armor()) //
+		
+		// player picks up keys and stuff
+		
+		
+	if (player.has_key(1))
+    hud.draw_image(  153, 164, "ykeyicon")
+
+	if (player.has_key(2))
+    hud.draw_image(  153, 172, "gkeyicon")
+
+	if (player.has_key(3))
+    hud.draw_image(  153, 180, "bkeyicon")
+
+		
+		// weapon selection box (displays ammo, and picture of ammunition in Heretic)
+	if (player.cur_weapon() == "PISTOL")
+	{
+		hud.draw_image(115, 170, "INAMGLD")
+    hud.draw_num( 135, 162, 3, player.ammo(1))
+	}
+	
+
+    if (player.cur_weapon() == "SHOTGUN")
+		hud.draw_image(115, 170, "INAMBOW")
+    hud.draw_num( 135, 162, 3, player.main_ammo(1))
+
+    if (player.cur_weapon() == "CHAINGUN")
+		hud.draw_image(115, 170, "INAMBST")
+    hud.draw_num( 135, 162, 3, player.main_ammo(1))
+
+    if (player.cur_weapon() == "ROCKET_LAUNCHER")
+		hud.draw_image(115, 170, "INAMRAM")
+    hud.draw_num( 135, 162, 3, player.main_ammo(1))
+
+    if (player.cur_weapon() == "PLASMA_RIFLE")
+		hud.draw_image(115, 170, "INAMPNX")
+    hud.draw_num( 135, 162, 3, player.main_ammo(1))
+
+    if (player.cur_weapon() == "BFG9000")
+		hud.draw_image(115, 170, "INAMLOB")
+    hud.draw_num( 135, 162, 3, player.main_ammo(1))
+
 }
-function doom_overlay_status() = 
-    {
-    // if (player.has_power(player.NIGHT_VIS))
-        // hud.draw_image(0, 0, "STVISOR")
-
-    //doom_little_ammo2()
-   // 
-
-//if (player.has_key(1))
-//    hud.draw_image(  97, 170, "YKEYI")
-
-//i/f (player.has_key(2))
- //   hud.draw_image(  97, 180, "STKEYS1")
-
-//if (player.has_key(3))
- //   hud.draw_image(  97, 190, "STKEYS2")
-
-//if (player.has_key(5))
-  //  hud.draw_image(  107, 170, "STKEYS3")
-
-//if (player.has_key(6))
-  //  hud.draw_image(  107, 180, "STKEYS4")
-
-//if (player.has_key(7))
- //   hud.draw_image(  107, 190, "STKEYS5")
-
-    //hud.set_alpha(0.7)
+// 3DGE-based overlay (more advanced overlay than in default Heretic)
+function heretic_overlay_status() = 
+{
     hud.text_font("HERETIC_BIG")
 
 	doomguy_face(0, 166)
 
-    hud.draw_num2(78, 179, 3, player.health()) // 100
+	hud.draw_num2(78, 179, 3, player.health()) // 100
 
     //hud.draw_image(  79, 179, "STTPRCNT")
 
@@ -206,7 +242,9 @@ function doom_overlay_status() =
     hud.text_font("HERETIC")
     hud.text_color(hud.NO_COLOR)
     hud.draw_text(38, 170, "HEALTH")
+	hud.draw_text(220, 170, "AMMO")
     hud.draw_text(270, 170, "ARMOR")
+	
 
 }
 
@@ -215,16 +253,38 @@ function doom_automap() =
     // Background is already black, only need to use 'solid_box'
     // when we want a different color.
     //
-    // hud.solid_box(0, 0, 320, 200 - 32, '80 80 80')
+	
+    ///hud.gradient_box(0, 0, 320, 200 - 32, '80 80 80')
 
     hud.render_automap(0, 0, 320, 200)
 
+	//hud.draw_image(0, 0, "AUTOPAGE")
     hud.text_color(hud.NO_COLOR)
     hud.text_font("HERETIC")
     hud.draw_text(0, 200 - 32 - 10, hud.map_title())
     hud.draw_text(0, 200 - 32 - 10, hud.map_title())
 
-        heretic_overlay_status()
+    heretic_status_bar()
+}
+
+function heretic_chain_bar() =
+{
+/*     if (player.health() <= 0)
+        return */
+
+    var wiggle = player.health()
+
+    wiggle = math.floor(1 + 21 * ((100 - wiggle) / 100.1))
+
+    var barname : string;
+    
+/*     if (air < 10)
+        barname = "AIRBAR0" + wiggle
+    else */
+        barname = "CHAIN"
+
+
+    hud.draw_image(0, 190, barname) //finally draw the god damn chain
 }
 
 
@@ -257,7 +317,7 @@ function begin_level() =
 
 function draw_all() =
 {
-    hud.coord_sys(320, 200)
+    hud.coord_sys(320, 200) //Didn't Heretic draw at 320x240?
     hud.grab_times()
 
     //hud.render_world(0, 0, 320, 200)
@@ -270,15 +330,18 @@ function draw_all() =
 	// there are three standard HUDs
 	var which = hud.which_hud() % 3
 
-    if (which == 0)
-        hud.render_world(0, 0, 320, 200)
-    else
+    if (which == 0) //heretic_overlay_status()
+        hud.render_world(0, 0, 320, 200)// 0, 0, 320, 200. . //0, 200 - 32 - 10,
+    else //heretic_status_bar()
         hud.render_world(0, 0, 320, 200 - 30)
 
     if (which == 0)
-        doom_overlay_status()
-    else if (which == 2)
         heretic_overlay_status()
+    else if (which == 2)
+		
+        heretic_status_bar()
+		heretic_chain_bar()
+		
 
     edge_air_bar()
 }
