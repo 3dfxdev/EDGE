@@ -8,18 +8,7 @@
 
 #VERSION 1.36
 
-[spr:GAUNA0]
-X_OFFSET=-5;
-Y_OFFSET=-125;
-[spr:GAUNB0]
-X_OFFSET=-4;
-Y_OFFSET=-117;
-[spr:GAUNC0]
-X_OFFSET=-1;
-Y_OFFSET=-85;
-[spr:GAUND0]
-X_OFFSET=0;
-Y_OFFSET=60;
+
 
 // [gfx:M_NGAME]
 // image_data = LUMP:PNG:"M_NGAME";
