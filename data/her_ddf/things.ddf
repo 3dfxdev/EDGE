@@ -1,16 +1,16 @@
 // 
-//    EDGE THINGS.DDF -redefine or add new thing entries.
-//    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 6.1
-//
+//    3DGE THINGS.DDF -redefine or add new thing entries.
+//    For documentation, see http://3dfxdev.net/edgewiki
+//    DDF Version 8
+//    3DGE (C) Isotope SoftWorks and Contributors.
+//    HDF acknowledgements: CeeJay
 
 <THINGS>
 
-#VERSION 1.35
+#VERSION 1.36
 
-// HERETIC DDF code by C.J. Mullen (c_eejay@hotmail.com)
 
-[TELEPORT_MARKER:56]//I suspect this is supposed to be something like a teleport marker for D'Sparil
+[TELEPORT_MARKER:56]	//I suspect this is supposed to be something like a teleport marker for D'Sparil
 RADIUS=1;
 HEIGHT=1;
 SPECIAL=INERT,INVISIBLE,NOGRAVITY,NOFRICTION;
@@ -3912,11 +3912,6 @@ CASTORDER=17;
 CAST_TITLE=CyberdemonName;
 BLOOD=BLOOD;
 RESPAWN_EFFECT=RESPAWN_FLASH;
-ACTIVE_SOUND=DMACT;
-DEATH_SOUND=CYBDTH;
-PAIN_SOUND=DMPAIN;
-SIGHTING_SOUND=CYBSIT;
-WALK_SOUND=METAL;
 RANGE_ATTACK=CYBERDEMON_MISSILE;
 
 STATES(IDLE)=CYBR:A:10:NORMAL:LOOKOUT,
