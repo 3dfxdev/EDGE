@@ -1083,7 +1083,7 @@ static void IdentifyVersion(void)
 		else
 		{
 			// next lines check for Heretic mode, and set it to true
-			if (fn.compare(fn.size() - 11, 11, "heretic.wad") == 0)
+			if (fn.size() >= 11 && fn.compare(fn.size() - 11, 11, "heretic.wad") == 0)
 			{
 				I_Printf("DDF: Loading Heretic HDF\n");
 				ddf_dir = epi::PATH_Join(game_dir.c_str(), "her_ddf");
