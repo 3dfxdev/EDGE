@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Generalised Image Handling
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -139,7 +139,7 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 
 	while (patchcol->topdelta != P_SENTINEL)
 	{
-		int top = y + (int) patchcol->topdelta;
+		int top = ((int)patchcol->topdelta <= y) ? y + (int)patchcol->topdelta : (int)patchcol->topdelta;
 		int count = patchcol->length;
 
 		byte *src = (byte *) patchcol + 3;
@@ -163,7 +163,7 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 				dest[(h1-1-top) * w2] = *src;
 		}
 
-		patchcol = (const column_t *) ((const byte *) patchcol + 
+		patchcol = (const column_t *) ((const byte *) patchcol +
 									   patchcol->length + 4);
 	}
 }
@@ -260,7 +260,7 @@ static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
 	//---- If the image turns
 	//---- out to be solid instead of transparent, the transparent pixels
 	//---- will be blackened.
-  
+
 	if (rim->opacity == OPAC_Solid)
 		img->Clear(pal_black);
 	else
@@ -300,6 +300,24 @@ static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
 		W_DoneWithLump(realpatch);
 	}
 
+	// CW: Textures MUST tile! If actual size not total size, manually tile
+	if (rim->actual_w != rim->total_w)
+	{
+		// tile horizontally
+		byte *buf = img->pixels;
+		for (int x=0; x<(rim->total_w-rim->actual_w); x++)
+			for (int y=0; y<rim->total_h; y++)
+				buf[y*rim->total_w+rim->actual_w+x] = buf[y*rim->total_w+x];
+	}
+	if (rim->actual_h != rim->total_h)
+	{
+		// tile vertically
+		byte *buf = img->pixels;
+		for (int y=0; y<(rim->total_h-rim->actual_h); y++)
+			for (int x=0; x<rim->total_w; x++)
+				buf[(rim->actual_h+y)*rim->total_w+x] = buf[y*rim->total_w+x];
+	}
+
 	return img;
 }
 
@@ -334,7 +352,7 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 
 		if (! img)
 			I_Error("Error loading PNG image in lump: %s\n", W_GetLumpName(lump));
-				
+
 		return img;
 	}
 
@@ -349,7 +367,7 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 	//---- If the image turns
 	//---- out to be solid instead of transparent, the transparent pixels
 	//---- will be blackened.
-  
+
 	if (rim->opacity == OPAC_Solid)
 		img->Clear(pal_black);
 	else
@@ -362,7 +380,7 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 
 	SYS_ASSERT(rim->actual_w == EPI_LE_S16(realpatch->width));
 	SYS_ASSERT(rim->actual_h == EPI_LE_S16(realpatch->height));
-  
+
 	for (int x=0; x < rim->actual_w; x++)
 	{
 		int offset = EPI_LE_S32(realpatch->columnofs[x]);
@@ -593,7 +611,7 @@ static epi::image_data_c *ReadUserAsEpiBlock(image_c *rim)
 //
 // Never returns NULL.
 //
-epi::image_data_c *ReadAsEpiBlock(image_c *rim) 
+epi::image_data_c *ReadAsEpiBlock(image_c *rim)
 {
 	switch (rim->source_type)
 	{
@@ -611,10 +629,10 @@ epi::image_data_c *ReadAsEpiBlock(image_c *rim)
 
 		case IMSRC_Dummy:
 			return ReadDummyAsEpiBlock(rim);
-    
+
 		case IMSRC_User:
 			return ReadUserAsEpiBlock(rim);
-      
+
 		default:
 			I_Error("ReadAsBlock: unknown source_type %d !\n", rim->source_type);
 			return NULL;
