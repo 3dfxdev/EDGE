@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Player User Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -109,14 +109,14 @@ static void CalcHeight(player_t * player)
 
 	float bob_z = 0;
 
-	// Regular movement bobbing 
-	// (needs to be calculated for gun swing even if not on ground).  
+	// Regular movement bobbing
+	// (needs to be calculated for gun swing even if not on ground).
 	// -AJA- Moved up here, to prevent weapon jumps when running down
 	// stairs.
 
 	player->bob = (player->mo->mom.x * player->mo->mom.x
 		+ player->mo->mom.y * player->mo->mom.y) / 8;
-	
+
 	//if (bob_z == 0)
 	//	{
 	//		still = true;
@@ -161,12 +161,12 @@ static void CalcHeight(player_t * player)
 		}
 	}
 
-	
+
 	//----CALCULATE FREEFALL EFFECT, WITH SOUND EFFECTS (code based on HEXEN)
 	//  CORBIN, on:
 	//  6/6/2011 - Fix this so RTS does NOT interfere with fracunits (it does in Hypertension's E1M1 starting script)!
     //  6/7/2011 - Ajaped said to remove FRACUNIT...seeya oldness.
-    
+
 	if ((player->mo->mom.z <= -35.0)&&(player->mo->mom.z >= -40.0))
 	if (player->mo->info->falling_sound)
 	{
@@ -176,7 +176,7 @@ static void CalcHeight(player_t * player)
 			sfx_cat = SNCAT_Player;
 		else
 			sfx_cat = SNCAT_Opponent;
-            
+
 			{
 					S_StartFX(player->mo->info->falling_sound, sfx_cat, player->mo);
 			}
@@ -191,15 +191,17 @@ static void CalcHeight(player_t * player)
 			bob_z *= (6 - player->jumpwait) / 6.0;
 	}
 
-/*
+#if 0
 	if(onslope) {
 		//printf("VIEWZ %f Z %f TOTAL %f\n",player->viewz,player->mo->z,player->mo->floorz+slope_offset);
 		player->viewz=slope_total-player->mo->z+bob_z+player->std_viewheight;
 	}
-	else { */
+	else {
 		player->viewz = player->viewheight + bob_z;
-//	}
-
+	}
+#else
+	player->viewz = player->viewheight + bob_z;
+#endif
 
 #if 0  // DEBUG
 I_Debugf("Jump:%d bob_z:%1.2f  z:%1.2f  height:%1.2f delta:%1.2f --> viewz:%1.3f\n",
@@ -420,7 +422,7 @@ static void MovePlayer(player_t * player)
 			mo->height = MAX(mo->height - 2.0f, mo->info->crouchheight);
 
 			// update any things near the player
-			P_ChangeThingSize(mo);
+			//P_ChangeThingSize(mo);
 
 			mo->player->deltaviewheight = -1.0f;
 		}
@@ -435,7 +437,7 @@ static void MovePlayer(player_t * player)
 				mo->height = MIN(mo->height + 2, mo->info->height);
 
 				// update any things near the player
-				P_ChangeThingSize(mo);
+				//P_ChangeThingSize(mo);
 
 				mo->player->deltaviewheight = 1.0f;
 			}
@@ -493,7 +495,7 @@ static void DeathThink(player_t * player)
 	{
 		dx = player->attacker->x - player->mo->x;
 		dy = player->attacker->y - player->mo->y;
-		dz = (player->attacker->z + player->attacker->height/2) - 
+		dz = (player->attacker->z + player->attacker->height/2) -
 			(player->mo->z + player->viewheight);
 
 		angle = R_PointToAngle(0, 0, dx, dy);
@@ -513,13 +515,13 @@ static void DeathThink(player_t * player)
 			if (player->damagecount > 0)
 				player->damagecount--;
 		}
-		else 
+		else
 		{
 			if (delta < ANG180)
 				delta /= 5;
 			else
 				delta = (angle_t)(0 - (angle_t)(0 - delta) / 5);
-			
+
 			if (delta > ANG5 && delta < (angle_t)(0 - ANG5))
 				delta = (delta < ANG180) ? ANG5 : (angle_t)(0 - ANG5);
 
@@ -527,7 +529,7 @@ static void DeathThink(player_t * player)
 				delta_s /= 5;
 			else
 				delta_s = (angle_t)(0 - (angle_t)(0 - delta_s) / 5);
-			
+
 			if (delta_s > (ANG5/2) && delta_s < (angle_t)(0 - ANG5/2))
 				delta_s = (delta_s < ANG180) ? (ANG5/2) : (angle_t)(0 - ANG5/2);
 
@@ -681,7 +683,7 @@ void P_PlayerThink(player_t * player)
 	ticcmd_t *cmd;
 
 	SYS_ASSERT(player->mo);
-	
+
 
 #if 0  // DEBUG ONLY
 	{
@@ -1105,7 +1107,7 @@ void P_GiveInitialBenefits(player_t *p, const mobjtype_c *info)
 
 	epi::array_iterator_c it;
 	weapondef_c *w;
-	
+
 	p->ready_wp   = WPSEL_None;
 	p->pending_wp = WPSEL_NoChange;
 
