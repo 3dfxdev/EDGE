@@ -564,6 +564,54 @@ static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
 	SYS_ASSERT(rim->total_w == img->width);
 	SYS_ASSERT(rim->total_h == img->height);
 
+	// CW: Textures MUST tile! If actual size not total size, manually tile
+	if (img->bpp == 3)
+	{
+		if (rim->actual_w != rim->total_w)
+		{
+			// tile horizontally
+			byte *buf = img->pixels;
+			for (int x=0; x<(rim->total_w-rim->actual_w); x++)
+				for (int y=0; y<rim->total_h; y++)
+				{
+					buf[(y*rim->total_w+rim->actual_w+x)*3] = buf[(y*rim->total_w+x)*3];
+					buf[(y*rim->total_w+rim->actual_w+x)*3+2] = buf[(y*rim->total_w+x)*3+1];
+					buf[(y*rim->total_w+rim->actual_w+x)*3+2] = buf[(y*rim->total_w+x)*3+2];
+				}
+		}
+		if (rim->actual_h != rim->total_h)
+		{
+			// tile vertically
+			byte *buf = img->pixels;
+			for (int y=0; y<(rim->total_h-rim->actual_h); y++)
+				for (int x=0; x<rim->total_w; x++)
+				{
+					buf[((rim->actual_h+y)*rim->total_w+x)*3] = buf[(y*rim->total_w+x)*3];
+					buf[((rim->actual_h+y)*rim->total_w+x)*3+1] = buf[(y*rim->total_w+x)*3+1];
+					buf[((rim->actual_h+y)*rim->total_w+x)*3+2] = buf[(y*rim->total_w+x)*3+2];
+				}
+		}
+	}
+	else
+	{
+		if (rim->actual_w != rim->total_w)
+		{
+			// tile horizontally
+			uint *buf = (uint *)img->pixels;
+			for (int x=0; x<(rim->total_w-rim->actual_w); x++)
+				for (int y=0; y<rim->total_h; y++)
+					buf[y*rim->total_w+rim->actual_w+x] = buf[y*rim->total_w+x];
+		}
+		if (rim->actual_h != rim->total_h)
+		{
+			// tile vertically
+			uint *buf = (uint *)img->pixels;
+			for (int y=0; y<(rim->total_h-rim->actual_h); y++)
+				for (int x=0; x<rim->total_w; x++)
+					buf[(rim->actual_h+y)*rim->total_w+x] = buf[y*rim->total_w+x];
+		}
+	}
+
 	return img;
 }
 
