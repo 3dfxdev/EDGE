@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Moving, Aiming, Shooting & Collision code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -25,7 +25,7 @@
 //
 // -MH- 1998/07/02 "shootupdown" --> "true3dgameplay"
 //
-// -AJA- 1999/07/19: Removed P_LineOpening.  Gaps are now stored 
+// -AJA- 1999/07/19: Removed P_LineOpening.  Gaps are now stored
 //       in line_t, and updated whenever sector heights change.
 //
 // -AJA- 1999/07/21: Replaced some non-critical P_Randoms with M_Random.
@@ -142,7 +142,7 @@ static inline int PointOnLineSide(float x, float y, line_t *ld)
 
 //
 // TELEPORT MOVE
-// 
+//
 
 static bool PIT_StompThing(mobj_t * thing, void *data)
 {
@@ -215,7 +215,7 @@ bool P_TeleportMove(mobj_t * thing, float x, float y, float z)
 	//	spechit.ZeroiseCount();
 
 	float r = thing->radius;
-	
+
 	if (! P_BlockThingsIterator(x-r, y-r, x+r, y+r, PIT_StompThing))
 		return false;
 
@@ -246,7 +246,7 @@ static bool PIT_CheckAbsLine(line_t * ld, void *data)
 	if (tm_I.mover->player && ld->special &&
 		(ld->special->portal_effect & PORTFX_Standard))
 		return true;
-	
+
 	if (!ld->backsector || ld->gap_num == 0)
 		return false;  // one sided line
 
@@ -359,11 +359,11 @@ static bool PIT_CheckAbsThing(mobj_t * thing, void *data)
 //
 // Check whether the thing can be placed at the absolute position
 // (x,y,z).  Makes no assumptions about the thing's current position.
-// 
+//
 // This is purely informative, nothing is modified, nothing is picked
 // up, no special lines are recorded, no special things are touched, and
 // no information (apart from true/false) is returned.
-// 
+//
 // Only used for checking if an object can be spawned at a
 // particular location.
 //
@@ -474,7 +474,7 @@ static bool PIT_CheckRelLine(line_t * ld, void *data)
 	}
 
 	// handle ladders (players only !)
-	if (tm_I.mover->player && ld->special && 
+	if (tm_I.mover->player && ld->special &&
 		ld->special->ladder.height > 0)
 	{
 		float z1, z2;
@@ -486,7 +486,7 @@ static bool PIT_CheckRelLine(line_t * ld, void *data)
 		pz1 = tm_I.mover->z;
 		pz2 = tm_I.mover->z + tm_I.mover->height;
 
-		do 
+		do
 		{
 			// can't reach the ladder ?
 			if (pz1 > z2 || pz2 < z1)
@@ -702,7 +702,7 @@ static bool PIT_CheckRelThing(mobj_t * thing, void *data)
 // (except things picked up).
 //
 // Only used by P_TryMove and P_ThingHeightClip.
-// 
+//
 // in:
 //  a mobj_t (can be valid or invalid)
 //  a position to be checked
@@ -875,11 +875,11 @@ bool P_TryMove(mobj_t * thing, float x, float y)
 	{
 		// Thing doesn't change, so we check the notriggerlines flag once..
 		if (thing->player || (thing->extendedflags & EF_MONSTER) ||
-			!(thing->currentattack && 
+			!(thing->currentattack &&
 			(thing->currentattack->flags & AF_NoTriggerLines)))
-		{		
+		{
 			epi::array_iterator_c it;
-			
+
 			for (it=spechit.GetTailIterator(); it.IsValid(); it--)
 			{
 				ld = ITERATOR_TO_TYPE(it, line_t*);
@@ -887,10 +887,10 @@ bool P_TryMove(mobj_t * thing, float x, float y)
 				{
 					int side;
 					int oldside;
-		
+
 					side = PointOnLineSide(thing->x, thing->y, ld);
 					oldside = PointOnLineSide(oldx, oldy, ld);
-	
+
 					if (side != oldside)
 					{
 						if (thing->flags & MF_MISSILE)
@@ -1105,16 +1105,16 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 		{
 			/// ~CA~ FIXME (!!!) TODO (!!!)
 			/*TODO: This should eliminate player bobbing if pressed against a wall (...)
-					When a player hits a wall, this moves the weapon 
+					When a player hits a wall, this moves the weapon
 					to the center of the screen and disables bob, to appear
-					as if the player is actually really jammed up against 
+					as if the player is actually really jammed up against
 					the wall (and not bobbing against it like he's trying to
 					return some sort of interesting sexual pleasure to TEKWAL
 					...lol). So, yeah we kind of need this (!!!) */
             ///  if (!P_TryMove(mo, mo->x, mo->y + dy))
             ///  if (!P_TryMove(mo, mo->x + dx, mo->y))
             ///      dx = dy = 0;
-		
+
 			// the move must have hit the middle, so stairstep
 			break;  // goto stairstep
 		}
@@ -1217,7 +1217,7 @@ static bool PTR_AimTraverse(intercept_t * in, void *dataptr)
 
 	if (! (mo->flags & MF_SHOOTABLE))
 		return true;  // has to be able to be shot
-	
+
 	if (mo->hyperflags & HF_NO_AUTOAIM)
 		return true;  // never should be aimed at
 
@@ -1339,7 +1339,7 @@ static bool PTR_ShootTraverse(intercept_t * in, void *dataptr)
 				floor_h = ef->top_h;
 			}
 
-			if (! ShootCheckGap(z, floor_h, floor_s, 
+			if (! ShootCheckGap(z, floor_h, floor_s,
 				side->sector->c_h, &side->sector->ceil))
 			{
 				return false;
@@ -1462,8 +1462,8 @@ static bool PTR_ShootTraverse(intercept_t * in, void *dataptr)
 
 mobj_t * P_AimLineAttack(mobj_t * t1, angle_t angle, float distance, float *slope)
 {
-	float x2 = t1->x + distance * M_Cos(angle);
-	float y2 = t1->y + distance * M_Sin(angle);
+	float x2 = t1->x + distance * M_Cos(angle) * M_Cos(t1->vertangle);
+	float y2 = t1->y + distance * M_Sin(angle) * M_Cos(t1->vertangle);
 
 	Z_Clear(&aim_I, shoot_trav_info_t, 1);
 
@@ -1500,14 +1500,14 @@ mobj_t * P_AimLineAttack(mobj_t * t1, angle_t angle, float distance, float *slop
 }
 
 
-void P_LineAttack(mobj_t * t1, angle_t angle, float distance, 
+void P_LineAttack(mobj_t * t1, angle_t angle, float distance,
 				  float slope, float damage, const damage_c * damtype,
 				  const mobjtype_c *puff)
 {
 	// Note: Damtype can be NULL.
 
-	float x2 = t1->x + distance * M_Cos(angle);
-	float y2 = t1->y + distance * M_Sin(angle);
+	float x2 = t1->x + distance * M_Cos(angle) * M_Cos(M_ATan(slope));
+	float y2 = t1->y + distance * M_Sin(angle) * M_Cos(M_ATan(slope));
 
 	Z_Clear(&shoot_I, shoot_trav_info_t, 1);
 
@@ -1525,7 +1525,7 @@ void P_LineAttack(mobj_t * t1, angle_t angle, float distance,
 	shoot_I.prev_z = shoot_I.start_z;
 	shoot_I.puff = puff;
 
-	P_PathTraverse(t1->x, t1->y, x2, y2, PT_ADDLINES | PT_ADDTHINGS, 
+	P_PathTraverse(t1->x, t1->y, x2, y2, PT_ADDLINES | PT_ADDTHINGS,
 		PTR_ShootTraverse);
 }
 
@@ -1609,7 +1609,7 @@ mobj_t *DoMapTargetAutoAim(mobj_t * source, angle_t angle, float distance, bool 
 	aim_I.range = distance;
 	aim_I.target = NULL;
 
-	P_PathTraverse(source->x, source->y, x2, y2, PT_ADDLINES | PT_ADDTHINGS, 
+	P_PathTraverse(source->x, source->y, x2, y2, PT_ADDLINES | PT_ADDTHINGS,
 		PTR_AimTraverse);
 
 	if (! aim_I.target)
@@ -1826,7 +1826,7 @@ static bool PIT_RadiusAttack(mobj_t * thing, void *data)
 		if (bomb_I.thrust)
 			P_ThrustMobj(thing, bomb_I.spot, bomb_I.damage * dist);
 		else
-			P_DamageMobj(thing, bomb_I.spot, bomb_I.source, 
+			P_DamageMobj(thing, bomb_I.spot, bomb_I.source,
 			bomb_I.damage * dist, bomb_I.damtype);
 	}
 	return true;
@@ -1936,14 +1936,14 @@ static bool PIT_ChangeSector(mobj_t * thing, bool widening)
 		mo->mom.y = (float)(M_Random() - 128) / 4.0f;
 	}
 
-	// keep checking (crush other things) 
+	// keep checking (crush other things)
 	return true;
 }
 
 
 //
 // ChangeSectorHeights
-// 
+//
 // Checks all things in the given sector which is changing height.
 // The original space is in f_h..c_h, and the f_dh, c_dh parameters
 // give the amount the floor/ceiling is moving.
@@ -1951,9 +1951,9 @@ static bool PIT_ChangeSector(mobj_t * thing, bool widening)
 // Things will be moved vertically if they need to.  When
 // "crush_damage" is non-zero, things that no longer fit will be crushed
 // (and will also set the "nofit" variable).
-// 
+//
 // NOTE: the heights (f_h, c_h) currently broken.
-// 
+//
 static void ChangeSectorHeights(sector_t *sec, float f_h,
 								float c_h, float f_dh, float c_dh)
 {
@@ -2097,7 +2097,7 @@ bool P_CheckSolidSectorMove(sector_t *sec, bool is_ceiling,
 //
 // Moves the sector and any attached extrafloors.  You MUST call
 // P_CheckSolidSectorMove() first to check if move is possible.
-// 
+//
 // Things are checked here, and will be moved if they overlap the
 // move.  If they no longer fit and the "crush" parameter is non-zero,
 // they will take damage.  Returns true if at least one thing no
@@ -2133,7 +2133,7 @@ bool P_SolidSectorMove(sector_t *sec, bool is_ceiling,
 			float h = sec->top_ef ? sec->top_ef->top_h : sec->f_h;
 			ChangeSectorHeights(sec, h, sec->c_h, 0, dh);
 		}
-		else 
+		else
 		{
 			float h = sec->bottom_ef ? sec->bottom_ef->bottom_h : sec->c_h;
 			ChangeSectorHeights(sec, sec->f_h, h, dh, 0);
@@ -2282,7 +2282,7 @@ static bool PIT_CorpseCheck(mobj_t * thing, void *data)
 	// -ACB- 1998/08/22 Check making sure with have the correct radius & height.
 	thing->radius = thing->info->radius;
 	thing->height = thing->info->height;
-	
+
 	if (thing->info->flags & MF_SOLID)					// Should it be solid?
 		thing->flags |= MF_SOLID;
 
@@ -2370,7 +2370,7 @@ static bool PIT_CheckBlockingLine(line_t * line, void *data)
 		return true;
 
 	// -KM- 1999/01/31 Save ceilingline for bounce.
-	if ((crosser && (line->flags & MLF_ShootBlock)) || 
+	if ((crosser && (line->flags & MLF_ShootBlock)) ||
 		(!crosser && (line->flags & (MLF_Blocking | MLF_BlockMonsters))))
 	{
 		blockline = line;
