@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE <-> Wolf3D (Setup)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2000  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -71,7 +71,7 @@
 #define TILE_ELEVATOR     0x15
 #define TILE_SECRET_ELEV  0x6B
 
-extern void ShutdownLevel(void);
+extern void P_ShutdownLevel(void);
 extern void GroupLines(void);
 extern void GenerateBlockMap(int min_x, int min_y, int max_x, int max_y);
 
@@ -414,9 +414,9 @@ static void BuildSectors(void)
 
 	numsectors = marked_cur_sec;
 	//numsectors = W_LumpLength(lump) / sizeof(raw_sector_t);
-	
+
 	sectors = new sector_t[numsectors];
-	
+
 	Z_Clear(sectors, sector_t, numsectors);
 
 	//data = W_CacheLumpNum(lump);
@@ -450,7 +450,7 @@ static void BuildSectors(void)
 		sec->props.special = P_LookupSectorType(sec->props.type);
 
 		sec->props.colourmap = colourmaps.Lookup("NORMAL");
-		
+
 		sec->props.gravity   = GRAVITY;
 		sec->props.friction  = FRICTION;
 		sec->props.viscosity = VISCOSITY;
@@ -635,7 +635,7 @@ static void MakeTwoSided(line_t *ld, side_t *sd, int f_sec, int b_sec,
 }
 
 static void AddLinedef(int *l_index, int *s_index,
-		int sx, int sy, int ex, int ey, int f_sec, int b_sec, 
+		int sx, int sy, int ex, int ey, int f_sec, int b_sec,
 		int f_door, int f_dx, int f_dy, bool count_only)
 {
 	line_t *ld = NULL;
@@ -819,10 +819,10 @@ static void BuildLines(bool count_only)
 			b_door = (y >= WLFMAP_H) ? 0 : door_matrix[M_INDEX(x,y)];
 
 			if (f_sec == 0)
-				AddLinedef(&l_index, &s_index, x+1, y, x, y, b_sec, f_sec, 
+				AddLinedef(&l_index, &s_index, x+1, y, x, y, b_sec, f_sec,
 						b_door, x, y, count_only);
 			else
-				AddLinedef(&l_index, &s_index, x, y, x+1, y, f_sec, b_sec, 
+				AddLinedef(&l_index, &s_index, x, y, x+1, y, f_sec, b_sec,
 						f_door, x, y-1, count_only);
 		}
 	}
@@ -850,10 +850,10 @@ static void BuildLines(bool count_only)
 			b_door = (x <= 0) ? 0 : door_matrix[M_INDEX(x-1,y)];
 
 			if (f_sec == 0)
-				AddLinedef(&l_index, &s_index, x, y+1, x, y, b_sec, f_sec, 
+				AddLinedef(&l_index, &s_index, x, y+1, x, y, b_sec, f_sec,
 						b_door, x-1, y, count_only);
 			else
-				AddLinedef(&l_index, &s_index, x, y, x, y+1, f_sec, b_sec, 
+				AddLinedef(&l_index, &s_index, x, y, x, y+1, f_sec, b_sec,
 						f_door, x, y, count_only);
 		}
 	}
@@ -957,7 +957,7 @@ static void AnalyseMap(void)
 	TinyBSP(); ///build BSP -- will this ignore glBSP?
 
 ///---	SetupRootNode();
-	
+
 	// free stuff
 	if (analysis_points)
 		Z_Free(analysis_points);
@@ -1022,7 +1022,7 @@ static const mobjtype_c * LookupWolfObject(int obj, int *options, angle_t *angle
 
     // these enemies are patrolling versions
     if ((112 <= obj && obj <= 115) ||
-        (120 <= obj && obj <= 123) || 
+        (120 <= obj && obj <= 123) ||
         (130 <= obj && obj <= 133) ||
 //!!!   (138 <= obj && obj <= 141) ||
         (220 <= obj && obj <= 223))
@@ -1036,7 +1036,7 @@ static const mobjtype_c * LookupWolfObject(int obj, int *options, angle_t *angle
         (216 <= obj && obj <= 223))
     {
       *angle = FLOAT_2_ANG(((obj & 3) ^ 0) * 90);
-      
+
       obj &= ~3;
     }
     else if ((126 <= obj && obj <= 141))
@@ -1210,14 +1210,14 @@ void WF_SetupLevel(void)
 	//int gl_lumpnum;
 	//char gl_lumpname[16];
 	if (level_active)
-		ShutdownLevel();
+		P_ShutdownLevel();
 
 	// -ACB- 1998/08/27 NULL the head pointers for the linked lists....
 	itemquehead = NULL;
 	mobjlisthead = NULL;
-	
+
 	lumpnum = W_GetNumForName(currmap->lump);
-	
+
 
 	// clear CRC values
 	mapsector_CRC.Reset();
@@ -1226,7 +1226,7 @@ void WF_SetupLevel(void)
 
 
 	//wi_stats.kills = wi_stats.items = wi_stats.secret = 0;
-	
+
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
 		player_t *p = players[pnum];
@@ -1241,7 +1241,7 @@ void WF_SetupLevel(void)
 	// Initial height of PointOfView
 	// will be set by player think.
 	players[consoleplayer1]->viewz = FLO_UNUSED;
-    
+
 	if (consoleplayer2 >= 0)
 		players[consoleplayer2]->viewz = FLO_UNUSED;
 
@@ -1263,7 +1263,7 @@ else mapnum = 0;
   // read in stuff from files
   cur_map_num = mapnum;
   WF_LoadMap(cur_map_num);
- 
+
   // initialise lists
   numlines = 0;       lines = NULL;
   numsectors = 0;     sectors = NULL;
@@ -1281,7 +1281,7 @@ else mapnum = 0;
 
   subsectors = Z_New(subsector_t, max_segs);
   numsubsectors = 0;
- 
+
 //!!!!
 DumpMap(0);
 DumpMap(1);
