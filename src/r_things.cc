@@ -1010,8 +1010,6 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 
 		float xscale = mo->info->scale * mo->info->aspect;
 
-		//pos1 = (floorf(sprite_width/-2.0f) - side_offset) * xscale;
-		//pos2 = (floorf(sprite_width/+2.0f) - side_offset) * xscale;
 		pos1 = ((floorf((image)->actual_w/-2.0f + 0.5f) * (image)->scale_x) - side_offset) * xscale;
 		pos2 = ((floorf((image)->actual_w/+2.0f + 0.5f) * (image)->scale_x) - side_offset) * xscale;
 
