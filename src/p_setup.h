@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Level Loading/Setup Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -41,6 +41,7 @@ extern int mapthing_NUM;
 void P_Init(void);
 
 void P_SetupLevel(void);
+void P_ShutdownLevel(void);
 
 #endif /* __P_SETUP__ */
 
