@@ -1284,11 +1284,10 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				else
 					splash = false;
 			}
-
-			else
-
-				mo->mom.z = 0;
+			//else
+				//mo->mom.z = 0;
 		}
+		mo->mom.z = 0;
 
 		mo->z = mo->floorz;
 
