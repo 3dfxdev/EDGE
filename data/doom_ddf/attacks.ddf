@@ -1,4 +1,4 @@
-// 
+//
 //    3DGE ATTACKS.DDF -redefine or add new attacks.
 //    For documentation, see http://edge.sourceforge.net/
 //    DDF Version 7
@@ -6,7 +6,7 @@
 
 <ATTACKS>
 
-#VERSION 1.36
+#VERSION 2.10
 
 //------------------ Player Attacks ------------------
 

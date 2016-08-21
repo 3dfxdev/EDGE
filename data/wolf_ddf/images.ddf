@@ -1,4 +1,4 @@
-// 
+//
 //    EDGE IMAGES.DDF -redefine or add new images.
 //    For documentation, see http://edge.sourceforge.net/
 //    DDF Version 5.0
@@ -6,7 +6,7 @@
 
 <IMAGES>
 
-#VERSION 1.29
+#VERSION 2.10
 
 [gfx:EDGETTL]
 IMAGE_DATA=LUMP:PNG:"EDGTTL_P";
@@ -50,7 +50,7 @@ SPECIAL=FORCE_CLAMP,FORCE_NOMIP,FORCE_SMOOTH;  // Don't Copy This Line
 //    EPK:tex/foo.png
 //
 //    COMPOSED:256x256;
-// 
+//
 
 // pixel definitions for WAD images:
 //
@@ -75,7 +75,7 @@ SPECIAL=FORCE_CLAMP,FORCE_NOMIP,FORCE_SMOOTH;  // Don't Copy This Line
 // CONVERT.H = 200 +/- H;  // nothing else allowed
 
 // new specials:
-//    NO_ALPHA (blend with black) 
+//    NO_ALPHA (blend with black)
 
 // GL material definitions (shiny surfaces, etc) ???
 

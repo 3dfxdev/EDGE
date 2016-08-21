@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Version Header
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 2016 Isotope SoftWorks
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -18,9 +18,9 @@
 
 #define TITLE  "3DGE ENGINE"
 
-#define EDGEVER       2102//201
+#define EDGEVER     210
 #define EDGEVERHEX  0x210
-#define EDGEVERSTR  "2.1.0 - TEST 2" 
+#define EDGEVERSTR  "2.1.0 - TEST 2"
 
 // patch level (Savegames and Demos)
 #define EDGEPATCH  7

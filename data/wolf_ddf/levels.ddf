@@ -1,4 +1,4 @@
-// 
+//
 //    EDGE LEVELS.DDF -redefine or add new level information.
 //    For documentation, see http://edge.sourceforge.net/
 //    DDF Version 5.0
@@ -6,7 +6,7 @@
 
 <LEVELS>
 
-#VERSION 1.29
+#VERSION 2.10
 
 // -------- Episode 1 ----------------
 

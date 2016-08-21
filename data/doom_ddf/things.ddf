@@ -1,4 +1,4 @@
-// 
+//
 //    3DGE THINGS.DDF -redefine or add new thing entries.
 //    For documentation, see http://edge.sourceforge.net/
 //    DDF Version 7
@@ -6,7 +6,7 @@
 
 <THINGS>
 
-#VERSION 1.36
+#VERSION 2.10
 
 // ------------------------ Health Items ------------------------
 
@@ -20,7 +20,7 @@ TRANSLUCENCY=60%;
 RESPAWN_EFFECT=ITEM_RESPAWN;
 SPECIAL=COUNT_AS_ITEM,SPECIAL;
 
-STATES(IDLE)=BON1:A:6:NORMAL:NOTHING, 
+STATES(IDLE)=BON1:A:6:NORMAL:NOTHING,
              BON1:B:6:NORMAL:NOTHING,
              BON1:C:6:NORMAL:NOTHING,
              BON1:D:6:NORMAL:NOTHING,
@@ -814,43 +814,43 @@ STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
              TBLU:A:1:BRIGHT:dlight_colour(#2e43ff),
              NULL:A:0:BRIGHT:dlight_set(297),
              TBLU:A:2:BRIGHT:dlight_colour(#1921ff),
-             
+
              NULL:B:0:BRIGHT:dlight_set(266),
              TBLU:B:1:BRIGHT:dlight_colour(#0a0aff),
              NULL:B:0:BRIGHT:dlight_set(312),
              TBLU:B:2:BRIGHT:dlight_colour(#2432ff),
              NULL:B:0:BRIGHT:dlight_set(321),
              TBLU:B:1:BRIGHT:dlight_colour(#293bff),
-             
+
              NULL:C:0:BRIGHT:dlight_set(301),
              TBLU:C:2:BRIGHT:dlight_colour(#1f2aff),
              NULL:C:0:BRIGHT:dlight_set(329),
              TBLU:C:1:BRIGHT:dlight_colour(#293bff),
              NULL:C:0:BRIGHT:dlight_set(307),
              TBLU:C:1:BRIGHT:dlight_colour(#1f2aff),
-             
+
              NULL:D:0:BRIGHT:dlight_set(334),
              TBLU:D:2:BRIGHT:dlight_colour(#2e43ff),
              NULL:D:0:BRIGHT:dlight_set(308),
              TBLU:D:2:BRIGHT:dlight_colour(#1f2aff);
-             
+
 STATES(IDLE2)=NULL:A:0:BRIGHT:dlight_set(332),
              TBLU:A:2:BRIGHT:dlight_colour(#2e43ff),
              NULL:A:0:BRIGHT:dlight_set(314),
              TBLU:A:2:BRIGHT:dlight_colour(#2432ff),
-             
+
              NULL:B:0:BRIGHT:dlight_set(309),
              TBLU:B:1:BRIGHT:dlight_colour(#1f2aff),
              NULL:B:0:BRIGHT:dlight_set(319),
              TBLU:B:1:BRIGHT:dlight_colour(#2432ff),
              NULL:B:0:BRIGHT:dlight_set(340),
              TBLU:B:2:BRIGHT:dlight_colour(#2e43ff),
-             
+
              NULL:C:0:BRIGHT:dlight_set(261),
              TBLU:C:2:BRIGHT:dlight_colour(#0a0aff),
              NULL:C:0:BRIGHT:dlight_set(318),
              TBLU:C:2:BRIGHT:dlight_colour(#2432ff),
-             
+
              NULL:D:0:BRIGHT:dlight_set(275),
              TBLU:D:1:BRIGHT:dlight_colour(#0a0aff),
              NULL:D:0:BRIGHT:dlight_set(321),
@@ -858,32 +858,32 @@ STATES(IDLE2)=NULL:A:0:BRIGHT:dlight_set(332),
              NULL:D:0:BRIGHT:dlight_set(310),
              TBLU:D:1:BRIGHT:dlight_colour(#2432ff),
 		  #IDLE:1;
-          
+
 STATES(IDLE3)=NULL:A:0:BRIGHT:dlight_set(262),
              TBLU:A:2:BRIGHT:dlight_colour(#0a0aff),
              NULL:A:0:BRIGHT:dlight_set(326),
              TBLU:A:2:BRIGHT:dlight_colour(#293bff),
-             
+
              NULL:B:0:BRIGHT:dlight_set(303),
              TBLU:B:1:BRIGHT:dlight_colour(#1f2aff),
              NULL:B:0:BRIGHT:dlight_set(318),
              TBLU:B:2:BRIGHT:dlight_colour(#2432ff),
              NULL:B:0:BRIGHT:dlight_set(333),
              TBLU:B:1:BRIGHT:dlight_colour(#2e43ff),
-             
+
              NULL:C:0:BRIGHT:dlight_set(304),
              TBLU:C:1:BRIGHT:dlight_colour(#1f2aff),
              NULL:C:0:BRIGHT:dlight_set(259),
              TBLU:C:1:BRIGHT:dlight_colour(#0f53ff),
              NULL:C:0:BRIGHT:dlight_set(317),
              TBLU:C:2:BRIGHT:dlight_colour(#2432ff),
-             
+
              NULL:D:0:BRIGHT:dlight_set(252),
              TBLU:D:2:BRIGHT:dlight_colour(#0a0aff),
              NULL:D:0:BRIGHT:dlight_set(296),
              TBLU:D:2:BRIGHT:dlight_colour(#1921ff),
 		  #IDLE:1;
-          
+
 
 [BRONZE_GREEN_TORCH:45]
 RADIUS=16;
@@ -1087,43 +1087,43 @@ STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
              SMBT:A:1:BRIGHT:dlight_colour(#2448ff),
              NULL:A:0:BRIGHT:dlight_set(297),
              SMBT:A:2:BRIGHT:dlight_colour(#0f27ff),
-             
+
              NULL:B:0:BRIGHT:dlight_set(216),
              SMBT:B:1:BRIGHT:dlight_colour(#0a0aff),
              NULL:B:0:BRIGHT:dlight_set(262),
              SMBT:B:2:BRIGHT:dlight_colour(#1938ff),
              NULL:B:0:BRIGHT:dlight_set(321),
              SMBT:B:1:BRIGHT:dlight_colour(#1f40ff),
-             
+
              NULL:C:0:BRIGHT:dlight_set(251),
              SMBT:C:2:BRIGHT:dlight_colour(#1430ff),
              NULL:C:0:BRIGHT:dlight_set(279),
              SMBT:C:1:BRIGHT:dlight_colour(#1f40ff),
              NULL:C:0:BRIGHT:dlight_set(257),
              SMBT:C:1:BRIGHT:dlight_colour(#1430ff),
-             
+
              NULL:D:0:BRIGHT:dlight_set(284),
              SMBT:D:2:BRIGHT:dlight_colour(#2448ff),
              NULL:D:0:BRIGHT:dlight_set(258),
              SMBT:D:2:BRIGHT:dlight_colour(#1430ff);
-             
+
 STATES(IDLE2)=NULL:A:0:BRIGHT:dlight_set(282),
              SMBT:A:2:BRIGHT:dlight_colour(#2448ff),
              NULL:A:0:BRIGHT:dlight_set(264),
              SMBT:A:2:BRIGHT:dlight_colour(#1938ff),
-             
+
              NULL:B:0:BRIGHT:dlight_set(259),
              SMBT:B:1:BRIGHT:dlight_colour(#1430ff),
              NULL:B:0:BRIGHT:dlight_set(269),
              SMBT:B:1:BRIGHT:dlight_colour(#1938ff),
              NULL:B:0:BRIGHT:dlight_set(290),
              SMBT:B:2:BRIGHT:dlight_colour(#2448ff),
-             
+
              NULL:C:0:BRIGHT:dlight_set(211),
              SMBT:C:2:BRIGHT:dlight_colour(#0a0aff),
              NULL:C:0:BRIGHT:dlight_set(268),
              SMBT:C:2:BRIGHT:dlight_colour(#1938ff),
-             
+
              NULL:D:0:BRIGHT:dlight_set(225),
              SMBT:D:1:BRIGHT:dlight_colour(#0a0aff),
              NULL:D:0:BRIGHT:dlight_set(271),
@@ -1131,32 +1131,32 @@ STATES(IDLE2)=NULL:A:0:BRIGHT:dlight_set(282),
              NULL:D:0:BRIGHT:dlight_set(260),
              SMBT:D:1:BRIGHT:dlight_colour(#0f47ff),
 		  #IDLE:1;
-          
+
 STATES(IDLE3)=NULL:A:0:BRIGHT:dlight_set(212),
              SMBT:A:2:BRIGHT:dlight_colour(#0a0aff),
              NULL:A:0:BRIGHT:dlight_set(276),
              SMBT:A:2:BRIGHT:dlight_colour(#1f40ff),
-             
+
              NULL:B:0:BRIGHT:dlight_set(253),
              SMBT:B:1:BRIGHT:dlight_colour(#1430ff),
              NULL:B:0:BRIGHT:dlight_set(268),
              SMBT:B:2:BRIGHT:dlight_colour(#1938ff),
              NULL:B:0:BRIGHT:dlight_set(283),
              SMBT:B:1:BRIGHT:dlight_colour(#2448ff),
-             
+
              NULL:C:0:BRIGHT:dlight_set(254),
              SMBT:C:1:BRIGHT:dlight_colour(#1430ff),
              NULL:C:0:BRIGHT:dlight_set(209),
              SMBT:C:1:BRIGHT:dlight_colour(#0f53ff),
              NULL:C:0:BRIGHT:dlight_set(267),
              SMBT:C:2:BRIGHT:dlight_colour(#1938ff),
-             
+
              NULL:D:0:BRIGHT:dlight_set(202),
              SMBT:D:2:BRIGHT:dlight_colour(#0a0aff),
              NULL:D:0:BRIGHT:dlight_set(246),
              SMBT:D:2:BRIGHT:dlight_colour(#0f27ff),
 		  #IDLE:1;
-                         
+
 [WOODEN_GREEN_TORCH:56]
 RADIUS=16;
 HEIGHT=72;
@@ -1357,29 +1357,29 @@ STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
              FCAN:A:2:BRIGHT:dlight_colour(#d7bb43),
              NULL:A:0:BRIGHT:dlight_set(290),
              FCAN:A:2:BRIGHT:dlight_colour(#cf9b2f),
-             
+
              NULL:B:0:BRIGHT:dlight_set(307),
              FCAN:B:2:BRIGHT:dlight_colour(#d7bb43),
              NULL:B:0:BRIGHT:dlight_set(316),
              FCAN:B:2:BRIGHT:dlight_colour(#e0cc46),
-             
+
              NULL:C:0:BRIGHT:dlight_set(292),
              FCAN:C:2:BRIGHT:dlight_colour(#cf9b2f),
              NULL:C:0:BRIGHT:dlight_set(331),
              FCAN:C:2:BRIGHT:dlight_colour(#ffff73);
-             
+
 STATES(IDLE2)=NULL:A:0:BRIGHT:dlight_set(304),
              FCAN:A:1:BRIGHT:dlight_colour(#d7bb43),
              NULL:A:0:BRIGHT:dlight_set(345),
              FCAN:A:2:BRIGHT:dlight_colour(#ffff73),
              NULL:A:0:BRIGHT:dlight_set(289),
              FCAN:A:1:BRIGHT:dlight_colour(#cf9b2f),
-             
+
              NULL:B:0:BRIGHT:dlight_set(306),
              FCAN:B:3:BRIGHT:dlight_colour(#d7bb43),
              NULL:B:0:BRIGHT:dlight_set(311),
              FCAN:B:1:BRIGHT:dlight_colour(#e0cc46),
-             
+
              NULL:C:0:BRIGHT:dlight_set(301),
              FCAN:C:2:BRIGHT:dlight_colour(#d7bb43),
              NULL:C:0:BRIGHT:dlight_set(337),
@@ -1390,18 +1390,18 @@ STATES(IDLE3)=NULL:A:0:BRIGHT:dlight_set(317),
              FCAN:A:3:BRIGHT:dlight_colour(#e0cc46),
              NULL:A:0:BRIGHT:dlight_set(303),
              FCAN:A:1:BRIGHT:dlight_colour(#d7bb43),
-             
+
              NULL:B:0:BRIGHT:dlight_set(317),
              FCAN:B:1:BRIGHT:dlight_colour(#e0cc46),
              NULL:B:0:BRIGHT:dlight_set(292),
              FCAN:B:3:BRIGHT:dlight_colour(#cf9b2f),
-             
+
              NULL:C:0:BRIGHT:dlight_set(333),
              FCAN:C:2:BRIGHT:dlight_colour(#ffff73),
              NULL:C:0:BRIGHT:dlight_set(315),
              FCAN:C:2:BRIGHT:dlight_colour(#e0cc46),
              #IDLE:1;
-       
+
 // Note: mis-spelled entry (should be DEAD_GIBBED_PLAYER1), but can't
 //       be fixed because it breaks savegames.
 [DEAD_GIBBER_PLAYER1:10]
@@ -1507,7 +1507,7 @@ STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
              POL3:A:2:BRIGHT:dlight_set(266),
              POL3:A:1:BRIGHT:dlight_set(205),
              POL3:A:3:BRIGHT:dlight_set(248),
-             
+
              POL3:B:3:BRIGHT:dlight_set(233),
              POL3:B:1:BRIGHT:dlight_set(219),
              POL3:B:2:BRIGHT:dlight_set(226);
@@ -1515,7 +1515,7 @@ STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
 STATES(IDLE2)=POL3:A:2:BRIGHT:dlight_set(234),
              POL3:A:2:BRIGHT:dlight_set(259),
              POL3:A:2:BRIGHT:dlight_set(240),
-             
+
              POL3:B:1:BRIGHT:dlight_set(202),
              POL3:B:3:BRIGHT:dlight_set(231),
              POL3:B:2:BRIGHT:dlight_set(244),
@@ -1524,7 +1524,7 @@ STATES(IDLE2)=POL3:A:2:BRIGHT:dlight_set(234),
 STATES(IDLE3)=POL3:A:1:BRIGHT:dlight_set(266),
              POL3:A:1:BRIGHT:dlight_set(191),
              POL3:A:4:BRIGHT:dlight_set(227),
-             
+
              POL3:B:2:BRIGHT:dlight_set(237),
              POL3:B:3:BRIGHT:dlight_set(231),
              POL3:B:1:BRIGHT:dlight_set(250),
@@ -1574,7 +1574,7 @@ STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
             cand:a:1:bright:dlight_set(85),
             cand:a:3:bright:dlight_set(125),
             cand:a:1:bright:dlight_set(79);
-            
+
 STATES(IDLE2)=CAND:A:5:BRIGHT:dlight_set(110),
              CAND:A:2:BRIGHT:dlight_set(78),
              CAND:A:7:BRIGHT:dlight_set(120),
@@ -1607,7 +1607,7 @@ STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
              CBRA:a:1:bright:dlight_set(265),
              CBRA:a:3:bright:dlight_set(360),
              CBRA:a:1:bright:dlight_set(256);
-                         
+
 STATES(IDLE2)=CBRA:A:5:BRIGHT:dlight_set(328),
              CBRA:A:2:BRIGHT:dlight_set(257),
              CBRA:A:7:BRIGHT:dlight_set(299),
@@ -1654,7 +1654,7 @@ STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
             CEYE:a:1:bright:dlight_set(85),
             CEYE:a:3:bright:dlight_set(125),
             CEYE:a:1:bright:dlight_set(79);
-            
+
 STATES(IDLE2)=CEYE:A:5:BRIGHT:dlight_set(110),
              CEYE:A:2:BRIGHT:dlight_set(78),
              CEYE:A:7:BRIGHT:dlight_set(120),
@@ -1691,7 +1691,7 @@ STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
              FSKU:C:2:BRIGHT:dlight_set(285),
              FSKU:C:2:BRIGHT:dlight_set(300),
              FSKU:C:2:BRIGHT:dlight_set(320);
-             
+
 STATES(IDLE2)=FSKU:A:2:BRIGHT:dlight_set(300),
              FSKU:A:2:BRIGHT:dlight_set(295),
              FSKU:A:2:BRIGHT:dlight_set(279),
@@ -1899,12 +1899,12 @@ STATES(IDLE)=BAR1:A:6:NORMAL:NOTHING,
 STATES(DEATH)=BEXP:A:0:BRIGHT:DLIGHT_SET(900),
               BEXP:A:0:BRIGHT:DLIGHT_FADE(0),
               BEXP:A:5:BRIGHT:NOTHING,
-              BEXP:B:5:BRIGHT:MAKEDEATHSOUND,   
-              BEXP:C:5:BRIGHT:NOTHING,          
-              BEXP:D:10:BRIGHT:EXPLOSIONDAMAGE, 
-              BEXP:E:10:BRIGHT:NOTHING,        
-             #REMOVE;                    
-                    
+              BEXP:B:5:BRIGHT:MAKEDEATHSOUND,
+              BEXP:C:5:BRIGHT:NOTHING,
+              BEXP:D:10:BRIGHT:EXPLOSIONDAMAGE,
+              BEXP:E:10:BRIGHT:NOTHING,
+             #REMOVE;
+
 // This did not have an entry in the mobjinfo table, although sprite and
 // state were present, so it got added as a new item -ACB- 1998/07/19
 [BURNT_SPIKE_STUMP:7010]
@@ -2083,7 +2083,7 @@ STATES(CHASE)=BSPI:A:20:NORMAL:NOTHING,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:F:3:NORMAL:CHASE,
-              BSPI:F:3:NORMAL:CHASE, 
+              BSPI:F:3:NORMAL:CHASE,
               #CHASE:2;
 
 STATES(MISSILE)=BSPI:A:20:BRIGHT:FACETARGET,
@@ -2858,7 +2858,7 @@ STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
              NULL:A:0:NORMAL:dlight_set(199),
              NULL:A:0:NORMAL:dlight_colour(#ff430f),
              SKUL:A:2:BRIGHT:LOOKOUT,
-             
+
              NULL:A:0:NORMAL:dlight_set(218),
              NULL:A:0:NORMAL:dlight_colour(#ff530f),
              SKUL:B:2:BRIGHT:LOOKOUT,
@@ -2874,7 +2874,7 @@ STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
              NULL:A:0:NORMAL:dlight_set(200),
              NULL:A:0:NORMAL:dlight_colour(#ff4b0f),
              SKUL:B:2:BRIGHT:LOOKOUT;
-             
+
 STATES(IDLE2)=NULL:A:0:NORMAL:dlight_set(218),
              NULL:A:0:NORMAL:dlight_colour(#ff530f),
              SKUL:A:3:BRIGHT:LOOKOUT,
@@ -2890,7 +2890,7 @@ STATES(IDLE2)=NULL:A:0:NORMAL:dlight_set(218),
              NULL:A:0:NORMAL:dlight_set(206),
              NULL:A:0:NORMAL:dlight_colour(#ff4b0f),
              SKUL:A:2:BRIGHT:LOOKOUT,
-             
+
              NULL:A:0:NORMAL:dlight_set(229),
              NULL:A:0:NORMAL:dlight_colour(#ff5b0f),
              SKUL:B:1:BRIGHT:LOOKOUT,
@@ -2907,7 +2907,7 @@ STATES(IDLE2)=NULL:A:0:NORMAL:dlight_set(218),
              NULL:A:0:NORMAL:dlight_colour(#ff5b0f),
              SKUL:B:3:BRIGHT:LOOKOUT,
              #IDLE:1;
-             
+
 STATES(IDLE3)=NULL:A:0:NORMAL:dlight_set(195),
              NULL:A:0:NORMAL:dlight_colour(#ff430f),
              SKUL:A:2:BRIGHT:LOOKOUT,
@@ -2923,7 +2923,7 @@ STATES(IDLE3)=NULL:A:0:NORMAL:dlight_set(195),
              NULL:A:0:NORMAL:dlight_set(168),
              NULL:A:0:NORMAL:dlight_colour(#ff2b0f),
              SKUL:A:2:BRIGHT:LOOKOUT,
-             
+
              NULL:A:0:NORMAL:dlight_set(207),
              NULL:A:0:NORMAL:dlight_colour(#ff4b0f),
              SKUL:B:1:BRIGHT:LOOKOUT,
@@ -2950,7 +2950,7 @@ STATES(CHASE)=NULL:A:0:BRIGHT:dlight_set(209),
               NULL:A:0:BRIGHT:dlight_set(192),
               NULL:A:0:BRIGHT:dlight_colour(#ff430f),
               SKUL:A:1:BRIGHT:CHASE,
-              
+
               NULL:B:0:BRIGHT:dlight_set(211),
               NULL:B:0:BRIGHT:dlight_colour(#ff530f),
               SKUL:B:3:BRIGHT:CHASE,
@@ -2960,7 +2960,7 @@ STATES(CHASE)=NULL:A:0:BRIGHT:dlight_set(209),
               NULL:B:0:BRIGHT:dlight_set(214),
               NULL:B:0:BRIGHT:dlight_colour(#ff530f),
               SKUL:B:2:BRIGHT:CHASE;
-              
+
 STATES(CHASE2)=NULL:A:0:BRIGHT:dlight_set(224),
               NULL:A:0:BRIGHT:dlight_colour(#ff5b0f),
               SKUL:A:1:BRIGHT:CHASE,
@@ -2970,7 +2970,7 @@ STATES(CHASE2)=NULL:A:0:BRIGHT:dlight_set(224),
               NULL:A:0:BRIGHT:dlight_set(215),
               NULL:A:0:BRIGHT:dlight_colour(#ff530f),
               SKUL:A:3:BRIGHT:CHASE,
-              
+
               NULL:B:0:BRIGHT:dlight_set(222),
               NULL:B:0:BRIGHT:dlight_colour(#ff5b0f),
               SKUL:B:2:BRIGHT:CHASE,
@@ -2981,7 +2981,7 @@ STATES(CHASE2)=NULL:A:0:BRIGHT:dlight_set(224),
               NULL:B:0:BRIGHT:dlight_colour(#ff2b0f),
               SKUL:B:2:BRIGHT:CHASE,
               #CHASE:1;
-              
+
 STATES(CHASE3)=NULL:A:0:BRIGHT:dlight_set(201),
               NULL:A:0:BRIGHT:dlight_colour(#ff4b0f),
               SKUL:A:2:BRIGHT:CHASE,
@@ -2991,7 +2991,7 @@ STATES(CHASE3)=NULL:A:0:BRIGHT:dlight_set(201),
               NULL:A:0:BRIGHT:dlight_set(217),
               NULL:A:0:BRIGHT:dlight_colour(#ff530f),
               SKUL:A:2:BRIGHT:CHASE,
-              
+
               NULL:B:0:BRIGHT:dlight_set(227),
               NULL:B:0:BRIGHT:dlight_colour(#ff5b0f),
               SKUL:B:1:BRIGHT:CHASE,
@@ -3009,7 +3009,7 @@ STATES(MISSILE)=NULL:A:0:NORMAL:dlight_set(200),
                 NULL:A:0:NORMAL:dlight_set(234),
                 NULL:A:0:NORMAL:dlight_colour(#ff630f),
                 SKUL:D:4:BRIGHT:RANGE_ATTACK,
-                
+
                 //Repeat to here
                 NULL:C:0:BRIGHT:dlight_set(228),
                 NULL:C:0:BRIGHT:dlight_colour(#ff5b0f),
@@ -3017,7 +3017,7 @@ STATES(MISSILE)=NULL:A:0:NORMAL:dlight_set(200),
                 NULL:C:0:BRIGHT:dlight_set(237),
                 NULL:C:0:BRIGHT:dlight_colour(#ff630f),
                 SKUL:C:2:BRIGHT:NOTHING,
-                
+
                 NULL:D:0:BRIGHT:dlight_set(216),
                 NULL:D:0:BRIGHT:dlight_colour(#ff530f),
                 SKUL:D:2:BRIGHT:NOTHING,
@@ -3035,7 +3035,7 @@ STATES(PAIN)=NULL:E:0:NORMAL:JUMP(PAIN2:1,30%),
              NULL:E:0:BRIGHT:dlight_colour(#ff430f),
              SKUL:E:3:BRIGHT:MAKEPAINSOUND,
              #CHASE;
-             
+
 STATES(PAIN2)=NULL:E:0:BRIGHT:dlight_set(201),
              NULL:E:0:BRIGHT:dlight_colour(#ff4b0f),
              SKUL:E:3:BRIGHT:NOTHING,
@@ -3043,7 +3043,7 @@ STATES(PAIN2)=NULL:E:0:BRIGHT:dlight_set(201),
              NULL:E:0:BRIGHT:dlight_colour(#ff5b0f),
              SKUL:E:3:BRIGHT:MAKEPAINSOUND,
              #CHASE;
-             
+
 STATES(PAIN3)=NULL:E:0:BRIGHT:dlight_set(192),
              NULL:E:0:BRIGHT:dlight_colour(#ff430f),
              SKUL:E:3:BRIGHT:NOTHING,
@@ -3059,17 +3059,17 @@ STATES(DEATH)=NULL:F:0:BRIGHT:dlight_set(215),
               NULL:F:0:BRIGHT:dlight_set(225),
               NULL:F:0:BRIGHT:dlight_colour(#ff5b0f),
               SKUL:F:3:BRIGHT:NOTHING,
-              
+
               NULL:G:0:BRIGHT:dlight_set(230),     //Explosion starts here
               NULL:G:0:BRIGHT:dlight_colour(#d58d66),
               SKUL:G:2:BRIGHT:MAKEDEATHSOUND,
               SKUL:G:2:BRIGHT:dlight_set(245),
               SKUL:G:2:BRIGHT:dlight_set(260),
-              
+
               SKUL:H:2:BRIGHT:dlight_set(275),
               SKUL:H:2:BRIGHT:dlight_set(290),
               SKUL:H:2:BRIGHT:dlight_set(305),
-              
+
               NULL:I:0:BRIGHT:dlight_set(320),     //Maximum brightness on this frame
               NULL:I:0:BRIGHT:dlight_fade(0),
               SKUL:I:6:BRIGHT:MAKEDEAD,
@@ -4819,7 +4819,7 @@ STATES(CHASE)=BSPI:A:20:NORMAL:NOTHING,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:F:3:NORMAL:CHASE,
-              BSPI:F:3:NORMAL:CHASE, 
+              BSPI:F:3:NORMAL:CHASE,
               #CHASE:2;
 
 STATES(MISSILE)=BSPI:A:20:BRIGHT:FACETARGET,
@@ -5718,7 +5718,7 @@ STATES(CHASE)=BSPI:A:20:NORMAL:NOTHING,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:F:3:NORMAL:CHASE,
-              BSPI:F:3:NORMAL:CHASE, 
+              BSPI:F:3:NORMAL:CHASE,
               #CHASE:2;
 
 STATES(MISSILE)=BSPI:A:20:BRIGHT:FACETARGET,
@@ -5726,7 +5726,7 @@ STATES(MISSILE)=BSPI:A:20:BRIGHT:FACETARGET,
                 BSPI:H:1:BRIGHT:NOTHING,
                 BSPI:H:1:BRIGHT:REFIRE_CHECK,
                 #MISSILE:2;
- 
+
 STATES(PAIN)=BSPI:I:3:NORMAL:NOTHING,
            BSPI:I:3:NORMAL:MAKEPAINSOUND,
            #CHASE:2;

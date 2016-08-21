@@ -1,4 +1,4 @@
-// 
+//
 //    3DGE WEAPONS.DDF -redefine or add new weapons.
 //    For documentation, see http://edge.sourceforge.net/
 //    DDF Version 7
@@ -6,7 +6,7 @@
 
 <WEAPONS>
 
-#VERSION 1.36
+#VERSION 2.10
 
 [CHAINSAW]
 AMMOTYPE=NOAMMO;
