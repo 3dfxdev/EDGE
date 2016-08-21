@@ -1142,12 +1142,18 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	const char *image = W_ImageGetName(mo->subsector->sector->floor.image);
 	const char *names[]={
 	"FWATER4",
+	"FWATER1",
 	"NUKAGE3",
+	"NUKAGE1",
+	"SWATER1",
 	"SWATER4",
 	"BLOOD3",
+	"BLOOD1",
+	"SLIME01",
 	"SLIME04",
 	"SLIME08",
 	"SLIME12",
+	"LAVA1",
 	0
 	};
 	//Eventually Nukage and LAVA will have their own stuff. And this will become Terrain.DDF
@@ -1226,7 +1232,8 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				// ground (hard), and utter appropriate sound.
 				mo->player->deltaviewheight = zmove / 8.0f;
 				S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
-				}
+
+			}
 
 
 			// -KM- 1998/12/16 If bigger than max fall, take damage.
@@ -1249,23 +1256,22 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 					mo->mom.x = mo->mom.y = mo->mom.z = 0;
 				}
 			}
-/*			if (mo->player && gravity > 0 && -zmove > ! OOF_SPEED && ! fly_or_swim)
+
+			if (mo->player && gravity > 0 && -zmove > ! OOF_SPEED && ! fly_or_swim)
 			{
 		
- 			if(strcmp(image, "FWATER4"))
-			{
-					//DO NOT MAKE A SOUND (!!!)
-			}
-			else  if (image_array_contains(names,image)) //((strcmp(image, "FWATER4") == 0) && (mo->player->gloopwait == 0))//(strcmp(image, "NUKAGE3") == 0)
+				if (image_array_contains(names, image)) 
 				{
-				//DEBUG: CON_Message("Detected FWATER FLAT!");
-				//mo->player->deltaviewheight = zmove / 0.5f;
-				//S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo); // FIXME: BD: compile failed with "error: no member named 'gloopsound' in 'mobjtype_c'"
-				mo->player->gloopwait = TICRATE;// * 2;
+					//DEBUG: 
+					CON_Message("Detected FWATER FLAT!");
+					mo->player->deltaviewheight = zmove / 8.0f;
+					S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo);
+					//CA: Need to set a cooldown, and not have zmove go so far downward over time (or at all!)
 				}
-			} */
+			}
 
 			else
+
 				mo->mom.z = 0;
 		}
 
