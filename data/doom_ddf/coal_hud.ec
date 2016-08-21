@@ -247,8 +247,8 @@ function doom_status_bar() =
 
 function doom_overlay_status() = 
     {
-    if (player.has_power(player.NIGHT_VIS))
-        hud.draw_image(0, 0, "STVISOR")
+	if (player.has_power(player.GOGGLES))
+        hud.draw_image(247, 0, "STTPOWR6")
     if (player.has_power(player.NIGHT_VIS))
         hud.draw_image(247, 0, "STTPOWR1")
     if (player.has_power(player.ACID_SUIT))
@@ -565,6 +565,67 @@ else
 else
     if (player.power_left(player.INVULN) > 1)
         hud.draw_image(247, 100, "POWBAR20")
+// DOOM NV Goggles time bars
+
+    if (player.power_left(player.GOGGLES) > 114)
+        hud.draw_image(247, 0, "POWBAR01")
+else
+    if (player.power_left(player.GOGGLES) > 108)
+        hud.draw_image(247, 0, "POWBAR02")
+else
+    if (player.power_left(player.GOGGLES) > 102)
+        hud.draw_image(247, 0, "POWBAR03")
+else
+    if (player.power_left(player.GOGGLES) > 96)
+        hud.draw_image(247, 0, "POWBAR04")
+else
+    if (player.power_left(player.GOGGLES) > 90)
+        hud.draw_image(247, 0, "POWBAR05")
+else
+    if (player.power_left(player.GOGGLES) > 84)
+        hud.draw_image(247, 0, "POWBAR06")
+else
+    if (player.power_left(player.GOGGLES) > 78)
+        hud.draw_image(247, 0, "POWBAR07")
+else
+    if (player.power_left(player.GOGGLES) > 72)
+        hud.draw_image(247, 0, "POWBAR08")
+else
+    if (player.power_left(player.GOGGLES) > 66)
+        hud.draw_image(247, 0, "POWBAR09")
+else
+    if (player.power_left(player.GOGGLES) > 60)
+        hud.draw_image(247, 0, "POWBAR10")
+else
+    if (player.power_left(player.GOGGLES) > 54)
+        hud.draw_image(247, 0, "POWBAR11")
+else
+    if (player.power_left(player.GOGGLES) > 48)
+        hud.draw_image(247, 0, "POWBAR12")
+else
+    if (player.power_left(player.GOGGLES) > 42)
+        hud.draw_image(247, 0, "POWBAR13")
+else
+    if (player.power_left(player.GOGGLES) > 36)
+        hud.draw_image(247, 0, "POWBAR14")
+else
+    if (player.power_left(player.GOGGLES) > 30)
+        hud.draw_image(247, 0, "POWBAR15")
+else
+    if (player.power_left(player.GOGGLES) > 24)
+        hud.draw_image(247, 0, "POWBAR16")
+else
+    if (player.power_left(player.GOGGLES) > 18)
+        hud.draw_image(247, 0, "POWBAR17")
+else
+    if (player.power_left(player.GOGGLES) > 12)
+        hud.draw_image(247, 0, "POWBAR18")
+else
+    if (player.power_left(player.GOGGLES) > 6)
+        hud.draw_image(247, 0, "POWBAR19")
+else
+    if (player.power_left(player.GOGGLES) > 1)
+        hud.draw_image(247, 0, "POWBAR20")
 
     doomguy_face(0, 166)
 

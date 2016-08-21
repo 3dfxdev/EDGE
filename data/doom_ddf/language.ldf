@@ -50,7 +50,7 @@ GotArmour="Picked up the armor.";
 GotMegaArmour="Picked up the megaarmor!";
 
 GotHealthPotion="Picked up a health bonus.";
-GotArmourHelmet="Picked up a armour bonus.";
+GotArmourHelmet="Picked up an armour bonus.";
 
 GotStim="Picked up a stimpack.";
 GotMedi="Picked up a medikit.";
