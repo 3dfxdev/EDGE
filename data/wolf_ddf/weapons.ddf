@@ -1,4 +1,4 @@
-// 
+//
 //    EDGE WEAPONS.DDF -redefine or add new weapons.
 //    For documentation, see http://edge.sourceforge.net/
 //    DDF Version 5.0
@@ -6,7 +6,7 @@
 
 <WEAPONS>
 
-#VERSION 1.29
+#VERSION 2.10
 
 
 [Knife]

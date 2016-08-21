@@ -1,4 +1,4 @@
-// 
+//
 //    3DGE SWITCH.DDF -redefine or add new switch textures and sounds.
 //    For documentation, see http://edge.sourceforge.net/
 //    DDF Version 7
@@ -6,7 +6,7 @@
 
 <SWITCHES>
 
-#VERSION 1.36
+#VERSION 2.10
 
 [SW1BRCOM]
 ON_TEXTURE ="SW1BRCOM";

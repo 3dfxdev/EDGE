@@ -1,4 +1,4 @@
-// 
+//
 //    EDGE PLAYLIST.DDF -redefine music playing information.
 //    For documentation, see http://edge.sourceforge.net/
 //    DDF Version 6.1
@@ -6,7 +6,7 @@
 
 <PLAYLISTS>
 
-#VERSION 1.35
+#VERSION 2.10
 
 // HERETIC
 

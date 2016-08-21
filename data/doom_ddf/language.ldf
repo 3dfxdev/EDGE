@@ -6,7 +6,7 @@
 
 <LANGUAGES>
 
-#VERSION 1.36
+#VERSION 2.10
 
 // ------ English Language Definition File ----------
 
@@ -358,20 +358,20 @@ Episode4Text="the spider mastermind must have sent forth\n"
 "\n"
 "next stop, hell on earth!";
 
-Level7Text="YOU HAVE ENTERED DEEPLY INTO THE INFESTED\n" 
-           "STARPORT. BUT SOMETHING IS WRONG. THE\n" 
-           "MONSTERS HAVE BROUGHT THEIR OWN REALITY\n" 
-           "WITH THEM, AND THE STARPORT'S TECHNOLOGY\n" 
-           "IS BEING SUBVERTED BY THEIR PRESENCE.\n" 
+Level7Text="YOU HAVE ENTERED DEEPLY INTO THE INFESTED\n"
+           "STARPORT. BUT SOMETHING IS WRONG. THE\n"
+           "MONSTERS HAVE BROUGHT THEIR OWN REALITY\n"
+           "WITH THEM, AND THE STARPORT'S TECHNOLOGY\n"
+           "IS BEING SUBVERTED BY THEIR PRESENCE.\n"
            "\n"
-           "AHEAD, YOU SEE AN OUTPOST OF HELL, A\n" 
-           "FORTIFIED ZONE. IF YOU CAN GET PAST IT,\n" 
-           "YOU CAN PENETRATE INTO THE HAUNTED HEART\n" 
-           "OF THE STARBASE AND FIND THE CONTROLLING\n" 
-           "SWITCH WHICH HOLDS EARTH'S POPULATION\n" 
+           "AHEAD, YOU SEE AN OUTPOST OF HELL, A\n"
+           "FORTIFIED ZONE. IF YOU CAN GET PAST IT,\n"
+           "YOU CAN PENETRATE INTO THE HAUNTED HEART\n"
+           "OF THE STARBASE AND FIND THE CONTROLLING\n"
+           "SWITCH WHICH HOLDS EARTH'S POPULATION\n"
            "HOSTAGE.";
 
-Level12Text="YOU HAVE WON! YOUR VICTORY HAS ENABLED\n" 
+Level12Text="YOU HAVE WON! YOUR VICTORY HAS ENABLED\n"
             "HUMANKIND TO EVACUATE EARTH AND ESCAPE\n"
             "THE NIGHTMARE.  NOW YOU ARE THE ONLY\n"
             "HUMAN LEFT ON THE FACE OF THE PLANET.\n"
@@ -1112,7 +1112,7 @@ CyberdemonName=      "LE CYBERDEMON";
 SpiderMastermindName="L'ARAIGNEE CERVEAU";
 ZombiemanName=       "ZOMBIE";
 
-Notice = 
+Notice =
 "==============================================================================\n"
 " This is EDGE: a project that is based upon the Doom Source Code released by  \n"
 " John Carmack of Id Software in December 1997. The work on this project is    \n"
@@ -1562,7 +1562,7 @@ ShotgunGuyName=       "TIO DE ESCOPETA";
 SpiderMastermindName= "LA MAESTRA-MENTE ARANA";
 ZombiemanName=        "HOMBRE ZOMBIE";
 
-Notice = 
+Notice =
 "==============================================================================\n"
 " This is EDGE: a project that is based upon the Doom Source Code released by  \n"
 " John Carmack of Id Software in December 1997. The work on this project is    \n"
@@ -1605,12 +1605,12 @@ ModeSelErr = "Unable to Initialise\n"
 // =======================================================
 //         TRANSLATIONS MADE BY FREDRIK EHNBOM
 //             (fredrik.ehnbom@linux.nu)
-// 
+//
 //        Spelling corrections, interpunction,
 //        additional translations and overall
 //             a nice guy: Anton Berglin
 //            (berglin@mbox301.swipnet.se)
-// 
+//
 //   Additional fine-tuning by Team Member Erik Sandberg
 // =======================================================
 
@@ -2437,7 +2437,7 @@ SendNet = "verzenden netwerk start info...\n";
 TurboScale = "turbo schaal: %i%%\n";
 IsTurbo = "%s is turbo!";
 
-Notice = 
+Notice =
 "==============================================================================\n"
 " This is EDGE: a project that is based upon the Doom Source Code released by\n"
 " John Carmack of Id Software in December 1997. The work on this project is\n"
@@ -2867,7 +2867,7 @@ SendNet = "sending network start info...\n";
 TurboScale = "Turbo-Skala: %i%%\n";
 IsTurbo = "%s ist turbo!";
 
-Notice = 
+Notice =
 "==============================================================================\n"
 " This is EDGE: a project that is based upon the Doom Source Code released by\n"
 " John Carmack of Id Software in December 1997. The work on this project is\n"
@@ -3084,18 +3084,18 @@ CDPlayTrack="Soitetaan raitaa %d";
 LevelQ="Kent�n vaihto!\nAnna kent�n nimi:\n\n";
 MusicQ="Musiikin vaihto!\nAnna musiikin nimi:\n\n";
 
-Level7Text="OLET ASTUNUT SIS��N AVARUUSPORTISTA.\n" 
-           "JOKIN ON VINOSSA.HIRVI�T OVAT MANIPULOINEET\n" 
-           "AVARUUSASEMAN TEKNOLOGIAN OMAAN K�YTT��NS�.\n" 
+Level7Text="OLET ASTUNUT SIS��N AVARUUSPORTISTA.\n"
+           "JOKIN ON VINOSSA.HIRVI�T OVAT MANIPULOINEET\n"
+           "AVARUUSASEMAN TEKNOLOGIAN OMAAN K�YTT��NS�.\n"
            "\n"
-           "EDESS�SI N��T HELVETIN PORTIT, MIEHITETYN\n" 
-           "LINNAKKEEN T�YNN� DEMONEJA.\n" 
-           "JOS ONNISTUT P��SEM��N SEN L�PI, VOIT\n" 
-           "TUNKEUTUA AVARUUSASEMAN SYD�MMEEN JA L�YT��\n" 
-           "KYTKIMEN JOKA PIT�� MAIILMAN KANSAA\n" 
+           "EDESS�SI N��T HELVETIN PORTIT, MIEHITETYN\n"
+           "LINNAKKEEN T�YNN� DEMONEJA.\n"
+           "JOS ONNISTUT P��SEM��N SEN L�PI, VOIT\n"
+           "TUNKEUTUA AVARUUSASEMAN SYD�MMEEN JA L�YT��\n"
+           "KYTKIMEN JOKA PIT�� MAIILMAN KANSAA\n"
            "PANTTIVAKINAAN.";
 
-Level12Text="SIN� TEIT SEN! SAAVUTUKSESI MAHDOLLISTI\n" 
+Level12Text="SIN� TEIT SEN! SAAVUTUKSESI MAHDOLLISTI\n"
             "MAIILMAN KANSAN EVAKUOIMISEN JA\n"
             "PAKENEMISEN T�LT� PAINAJAISELTA.\n"
             "NYT OLET AINOA IHMINEN PLANEETALLA.\n"

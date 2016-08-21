@@ -1,4 +1,4 @@
-// 
+//
 //    EDGE SECTORS.DDF -redefine or add new sector types.
 //    For documentation, see http://edge.sourceforge.net/
 //    DDF Version 5.0
@@ -6,7 +6,7 @@
 
 <SECTORS>
 
-#VERSION 1.29
+#VERSION 2.10
 
 [9]  // Secret
 SECRET=TRUE;

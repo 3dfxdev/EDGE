@@ -1,4 +1,4 @@
-// 
+//
 //    3DGE THINGS.DDF -redefine or add new thing entries.
 //    For documentation, see http://3dfxdev.net/edgewiki
 //    DDF Version 8
@@ -7,7 +7,7 @@
 
 <THINGS>
 
-#VERSION 1.36
+#VERSION 2.10
 
 
 [TELEPORT_MARKER:56]	//I suspect this is supposed to be something like a teleport marker for D'Sparil
@@ -2857,7 +2857,7 @@ TRANSLUCENCY=60%;
 RESPAWN_EFFECT=ITEM_RESPAWN;
 SPECIAL=COUNT_AS_ITEM,SPECIAL;
 
-STATES(IDLE)=BON1:A:6:NORMAL:NOTHING, 
+STATES(IDLE)=BON1:A:6:NORMAL:NOTHING,
              BON1:B:6:NORMAL:NOTHING,
              BON1:C:6:NORMAL:NOTHING,
              BON1:D:6:NORMAL:NOTHING,
@@ -3466,7 +3466,7 @@ STATES(IDLE)=COLU:A:-1:BRIGHT:NOTHING;
 //             TGRN:B:4:BRIGHT:NOTHING,
 //             TGRN:C:4:BRIGHT:NOTHING,
 //             TGRN:D:4:BRIGHT:NOTHING;
-                         
+
 //[WOODEN_GREEN_TORCH:56]
 //RADIUS=16;
 //HEIGHT=72;
@@ -3494,7 +3494,7 @@ STATES(IDLE)=SMRT:A:4:BRIGHT:NOTHING,
              SMRT:B:4:BRIGHT:NOTHING,
              SMRT:C:4:BRIGHT:NOTHING,
              SMRT:D:4:BRIGHT:NOTHING;
-       
+
 // Note: mis-spelled entry (should be DEAD_GIBBED_PLAYER1), but can't
 //       be fixed because it breaks savegames
 
@@ -3628,12 +3628,12 @@ STATES(IDLE)=BAR1:A:6:NORMAL:NOTHING,
 STATES(DEATH)=BEXP:A:0:BRIGHT:DLIGHT_SET(900),
               BEXP:A:0:BRIGHT:DLIGHT_FADE(0),
               BEXP:A:5:BRIGHT:NOTHING,
-              BEXP:B:5:BRIGHT:MAKEDEATHSOUND,   
-              BEXP:C:5:BRIGHT:NOTHING,          
-              BEXP:D:10:BRIGHT:EXPLOSIONDAMAGE, 
-              BEXP:E:10:BRIGHT:NOTHING,        
-             #REMOVE;                    
-                    
+              BEXP:B:5:BRIGHT:MAKEDEATHSOUND,
+              BEXP:C:5:BRIGHT:NOTHING,
+              BEXP:D:10:BRIGHT:EXPLOSIONDAMAGE,
+              BEXP:E:10:BRIGHT:NOTHING,
+             #REMOVE;
+
 // This did not have an entry in the mobjinfo table, although sprite and
 // state were present, so it got added as a new item -ACB- 1998/07/19
 [BURNT_SPIKE_STUMP:7010]
@@ -5538,7 +5538,7 @@ STATES(CHASE)=BSPI:A:20:NORMAL:NOTHING,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:F:3:NORMAL:CHASE,
-              BSPI:F:3:NORMAL:CHASE, 
+              BSPI:F:3:NORMAL:CHASE,
               #CHASE:2;
 
 STATES(MISSILE)=BSPI:A:20:BRIGHT:FACETARGET,
@@ -6437,7 +6437,7 @@ STATES(CHASE)=BSPI:A:20:NORMAL:NOTHING,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:F:3:NORMAL:CHASE,
-              BSPI:F:3:NORMAL:CHASE, 
+              BSPI:F:3:NORMAL:CHASE,
               #CHASE:2;
 
 STATES(MISSILE)=BSPI:A:20:BRIGHT:FACETARGET,
@@ -6445,7 +6445,7 @@ STATES(MISSILE)=BSPI:A:20:BRIGHT:FACETARGET,
                 BSPI:H:1:BRIGHT:NOTHING,
                 BSPI:H:1:BRIGHT:REFIRE_CHECK,
                 #MISSILE:2;
- 
+
 STATES(PAIN)=BSPI:I:3:NORMAL:NOTHING,
            BSPI:I:3:NORMAL:MAKEPAINSOUND,
            #CHASE:2;

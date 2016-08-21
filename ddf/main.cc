@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition Files Code (Main)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE Team.
-//           
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -69,40 +69,40 @@ void DDF_Error(const char *err, ...)
 	va_start(argptr, err);
 	vsprintf(buffer, err, argptr);
 	va_end(argptr);
- 
+
 	pos = buffer + strlen(buffer);
 
 	if (!cur_ddf_filename.empty())
 	{
-		sprintf(pos, "Error occurred near line %d of %s\n", 
+		sprintf(pos, "Error occurred near line %d of %s\n",
 				cur_ddf_line_num, cur_ddf_filename.c_str());
-				
+
 		pos += strlen(pos);
 	}
 
 	if (!cur_ddf_entryname.empty())
 	{
-		sprintf(pos, "Error occurred in entry: %s\n", 
+		sprintf(pos, "Error occurred in entry: %s\n",
 				cur_ddf_entryname.c_str());
-				
+
 		pos += strlen(pos);
 	}
 
 	if (!cur_ddf_linedata.empty())
 	{
-		sprintf(pos, "Line contents: %s\n", 
+		sprintf(pos, "Line contents: %s\n",
 				cur_ddf_linedata.c_str());
-				
+
 		pos += strlen(pos);
 	}
 
 	// check for buffer overflow
 	if (buffer[2047] != 0)
 		I_Error("Buffer overflow in DDF_Error\n");
-  
+
 	// add a blank line for readability under DOS/Linux.
 	I_Printf("\n");
- 
+
 	I_Error("%s", buffer);
 }
 
@@ -122,19 +122,19 @@ void DDF_Warning(const char *err, ...)
 
 	if (!cur_ddf_filename.empty())
 	{
-		I_Printf("  problem occurred near line %d of %s\n", 
+		I_Printf("  problem occurred near line %d of %s\n",
 				  cur_ddf_line_num, cur_ddf_filename.c_str());
 	}
 
 	if (!cur_ddf_entryname.empty())
 	{
-		I_Printf("  problem occurred in entry: %s\n", 
+		I_Printf("  problem occurred in entry: %s\n",
 				  cur_ddf_entryname.c_str());
 	}
-	
+
 	if (!cur_ddf_linedata.empty())
 	{
-		I_Printf("  with line contents: %s\n", 
+		I_Printf("  with line contents: %s\n",
 				  cur_ddf_linedata.c_str());
 	}
 
@@ -168,7 +168,7 @@ void DDF_Init(int _engine_ver)
 	DDF_ImageInit();
 	DDF_FontInit();
 	DDF_StyleInit();
-	DDF_AttackInit(); 
+	DDF_AttackInit();
 	DDF_WeaponInit();
 	DDF_MobjInit();
 	DDF_LinedefInit();
@@ -287,7 +287,7 @@ static const char *tag_conversion_table[] =
 void DDF_GetLumpNameForFile(const char *filename, char *lumpname)
 {
 	FILE *fp = fopen(filename, "r");
-	
+
 	if (!fp)
 		I_Error("Couldn't open DDF file: %s\n", filename);
 
@@ -312,7 +312,7 @@ void DDF_GetLumpNameForFile(const char *filename, char *lumpname)
 				in_comment = false;
 			continue;
 		}
-		
+
 		if (ch == '[')
 			break;
 
@@ -409,11 +409,19 @@ static void *DDF_MainCacheFile(readinfo_t * readinfo)
 	return (void *)memfile;
 }
 
-static void DDF_ParseVersion(const char *str, int len)
+extern int M_CheckParm(const char *check);
+
+static void DDF_ParseVersion(const char *bstr, int len)
 {
+	char sstr[256];
+	char *str = (char *)sstr;
+
+	memcpy(str, bstr, len < 256 ? len : 255);
+	str[len < 256 ? len : 255] = 0;
+
 	if (len <= 0 || ! isspace(*str))
 		DDF_Error("Badly formed #VERSION directive.\n");
-	
+
 	for (; isspace(*str) && len > 0; str++, len--)
 	{ }
 
@@ -423,12 +431,17 @@ static void DDF_ParseVersion(const char *str, int len)
 		DDF_Error("Badly formed #VERSION directive.\n");
 	}
 
-	int ddf_version = ((str[0] - '0') * 100) |
-	                  ((str[2] - '0') *  10) |
+	int ddf_version = ((str[0] - '0') * 100) +
+	                  ((str[2] - '0') *  10) +
 				       (str[3] - '0');
 
-	if (ddf_version < 123)
-		DDF_Error("Illegal #VERSION number: %s\n", str);
+	if (ddf_version < 210)
+	{
+		if (ddf_version < 135)
+			DDF_Error("Illegal #VERSION number: (%d) %s\n", ddf_version, str);
+		if (ddf_version >= 135 && !M_CheckParm("-v135"))
+			DDF_Error("You need to use the -v135 command line arg to use this file\n");
+	}
 
 	if (ddf_version > engine_version)
 		DDF_Error("This version of EDGE cannot handle this DDF.\n");
@@ -550,7 +563,7 @@ static readchar_t DDF_MainProcessChar(char character, std::string& token, int st
 	// -AJA- 1999/09/26: Handle unmatched '}' better.
 	if (status != reading_string && character == '{')
 		return remark_start;
-  
+
 	if (status == reading_remark && character == '}')
 		return remark_stop;
 
@@ -624,25 +637,25 @@ static readchar_t DDF_MainProcessChar(char character, std::string& token, int st
 		case reading_data:
 			if (character == '\"')
 				return string_start;
-      
+
 			if (character == ';')
 				return terminator;
-      
+
 			if (character == ',')
 				return separator;
-      
+
 			if (character == '(')
 			{
 				token += (character);
 				return group_start;
 			}
-      
+
 			if (character == ')')
 			{
 				token += (character);
 				return group_stop;
 			}
-      
+
 			// Sprite Data - more than a few exceptions....
 			if (isalnum(character) || character == '_' || character == '-' ||
 				character == ':' || character == '.'  || character == '[' ||
@@ -743,10 +756,10 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 	int comment_level;
 	int bracket_level;
 	bool firstgo;
-	
+
 	int current_index = 0;
 	int entry_count = 0;
-  
+
 #if (DEBUG_DDFREAD)
 	char charcount = 0;
 #endif
@@ -769,7 +782,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 		// no file ?  No worries, we'll get it from edge.wad...
 		if (!readinfo->memfile)
 			return false;
-      
+
 		cur_ddf_filename = std::string(readinfo->filename);
 	}
 	else
@@ -829,7 +842,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 		// -AJA- 1999/10/27: Not the greatest place for it, but detect //
 		//       comments here and ignore them.  Ow the pain of long
 		//       identifier names...  Ow the pain of &memfile[size] :-)
-    
+
 		if (comment_level == 0 && status != reading_string &&
 			memfileptr+1 < &memfile[size] &&
 			memfileptr[0] == '/' && memfileptr[1] == '/')
@@ -840,7 +853,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 			if (memfileptr >= &memfile[size])
 				break;
 		}
-    
+
 		character = *memfileptr++;
 
 		if (character == '\n')
@@ -860,7 +873,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 			// -AJA- 2001/05/21: handle directives (lines beginning with #).
 			// This code is more hackitude -- to be fixed when the whole
 			// parsing code gets the overhaul it needs.
-      
+
 			if (strnicmp(memfileptr, "#CLEARALL", 9) == 0)
 			{
 				if (! firstgo)
@@ -923,7 +936,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 
 			case tag_stop:
 				if (stricmp(token.c_str(), readinfo->tag) != 0)
-					DDF_Error("Start tag <%s> expected, found <%s>!\n", 
+					DDF_Error("Start tag <%s> expected, found <%s>!\n",
 							  readinfo->tag, token.c_str());
 
 				status = waiting_newdef;
@@ -933,7 +946,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 			case def_start:
 				if (bracket_level > 0)
 					DDF_Error("Unclosed () brackets detected.\n");
-         
+
 				entry_count++;
 
 				if (firstgo)
@@ -949,7 +962,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 					(* readinfo->finish_entry)();
 
 					token.clear();
-					
+
 					status = reading_newdef;
 
 					cur_ddf_entryname.clear();
@@ -998,8 +1011,8 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 					DDF_WarnError("Command %s used outside of any entry\n",
 								   current_cmd.c_str());
 				else
-				{ 
-					(* readinfo->parse_field)(current_cmd.c_str(), 
+				{
+					(* readinfo->parse_field)(current_cmd.c_str(),
 						  DDF_MainGetDefine(token.c_str()), current_index, false);
 					current_index++;
 				}
@@ -1024,7 +1037,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 				if (bracket_level > 0)
 					DDF_Error("Missing ')' bracket in ddf command.\n");
 
-				(* readinfo->parse_field)(current_cmd.c_str(), 
+				(* readinfo->parse_field)(current_cmd.c_str(),
 					  DDF_MainGetDefine(token.c_str()), current_index, true);
 				current_index = 0;
 
@@ -1071,7 +1084,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 
 	if (status == reading_newdef)
 		DDF_Error("Unclosed [] brackets detected.\n");
-	
+
 	if (status == reading_data || status == reading_string)
 		DDF_WarnError("Unfinished DDF command on last line.\n");
 
@@ -1195,7 +1208,7 @@ void DDF_MainGetString(const char *info, void *storage)
 // Check if the command exists, and call the parser function if it
 // does (and return true), otherwise return false.
 //
-bool DDF_MainParseField(const commandlist_t *commands, 
+bool DDF_MainParseField(const commandlist_t *commands,
 						const char *field, const char *contents,
 						byte *obj_base)
 {
@@ -1207,7 +1220,7 @@ bool DDF_MainParseField(const commandlist_t *commands,
 
 		if (name[0] == '!')
 			name++;
-    
+
 		// handle subfields
 		if (name[0] == '*')
 		{
@@ -1216,15 +1229,15 @@ bool DDF_MainParseField(const commandlist_t *commands,
 			int len = strlen(name);
 			SYS_ASSERT(len > 0);
 
-			if (strncmp(field, name, len) == 0 && field[len] == '.' && 
+			if (strncmp(field, name, len) == 0 && field[len] == '.' &&
 				isalnum(field[len+1]))
 			{
 				// recursively parse the sub-field
-				return DDF_MainParseField(commands[i].sub_comms, 
+				return DDF_MainParseField(commands[i].sub_comms,
                         field + len + 1, contents,
 						obj_base + commands[i].offset);
 			}
-      
+
 			continue;
 		}
 
@@ -1386,7 +1399,7 @@ void DDF_MainGetPercent(const char *info, void *storage)
 	}
 
 	*p = 0;
-  
+
 	DoGetFloat(s, &f);
 	if (f < 0.0f || f > 100.0f)
 		DDF_Error("Bad percent value '%s': Must be between 0%% and 100%%\n", s);
@@ -1422,7 +1435,7 @@ void DDF_MainGetPercentAny(const char *info, void *storage)
 	}
 
 	*p = 0;
-  
+
 	DoGetFloat(s, &f);
 
 	*dest = f / 100.0f;
@@ -1475,7 +1488,7 @@ void DDF_MainGetColourmap(const char *info, void *storage)
 	*result = colourmaps.Lookup(info);
 	if (*result == NULL)
 		DDF_Error("DDF_MainGetColourmap: No such colourmap '%s'\n", info);
-	
+
 }
 
 //
@@ -1676,7 +1689,7 @@ void DDF_MainGetBitSet(const char *info, void *storage)
 	{
 		if (*info < 'A' || *info > 'Z')
 			continue;
-    
+
 		start = end = (*info) - 'A';
 
 		// handle ranges
@@ -1703,9 +1716,9 @@ static int FindSpecialFlag(const char *prefix, const char *name,
 
 		if (current[0] == '!')
 			current++;
-    
+
 		sprintf(try_name, "%s%s", prefix, current);
-    
+
 		if (DDF_CompareName(name, try_name) == 0)
 			return i;
 	}
@@ -1714,7 +1727,7 @@ static int FindSpecialFlag(const char *prefix, const char *name,
 }
 
 checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
-							 const specflags_t *flag_set, int *flag_value, 
+							 const specflags_t *flag_set, int *flag_value,
 							 bool allow_prefixes, bool allow_user)
 {
 	int index;
@@ -1723,7 +1736,7 @@ checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
 
 	// try plain name...
 	index = FindSpecialFlag("", name, flag_set);
-  
+
 	if (allow_prefixes)
 	{
 		// try name with ENABLE_ prefix...
@@ -1769,10 +1782,10 @@ checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
 
 	if (flag_set[index].negative)
 		negate = !negate;
-  
+
 	if (user)
 		return CHKF_User;
-  
+
 	if (negate)
 		return CHKF_Negative;
 
@@ -1791,13 +1804,13 @@ bool DDF_MainDecodeBrackets(const char *info, char *outer, char *inner,
 	int buf_len)
 {
 	const char *pos = info;
-	
+
 	while (*pos && *pos != '(')
 		pos++;
-	
+
 	if (*pos == 0 || pos == info)
 		return false;
-	
+
 	if (pos - info >= buf_len)  // overflow
 		return false;
 
@@ -1946,7 +1959,7 @@ void damage_c::Copy(damage_c &src)
 	pain = src.pain;
 	death = src.death;
 	overkill = src.overkill;
-	
+
 	no_armour = src.no_armour;
 }
 
@@ -1961,8 +1974,8 @@ void damage_c::Default(damage_c::default_e def)
 	{
 		case DEFAULT_MobjChoke:
 		{
-			nominal	= 6.0f;	
-			linear_max = 14.0f;	
+			nominal	= 6.0f;
+			linear_max = 14.0f;
 			error = -1.0f;
 			delay = 2 * TICRATE;
 			obituary = "OB_DROWN";
@@ -1979,15 +1992,15 @@ void damage_c::Default(damage_c::default_e def)
 			no_armour = false;
 			break;
 		}
-		
+
 		case DEFAULT_Attack:
 		case DEFAULT_Mobj:
 		default:
 		{
 			nominal = 0.0f;
-			linear_max = -1.0f;     
-			error = -1.0f;     
-			delay = 0;      
+			linear_max = -1.0f;
+			error = -1.0f;
+			delay = 0;
 			no_armour = false;
 			break;
 		}
@@ -2005,7 +2018,7 @@ damage_c& damage_c::operator=(damage_c &rhs)
 {
 	if (&rhs != this)
 		Copy(rhs);
-		
+
 	return *this;
 }
 
@@ -2060,7 +2073,7 @@ label_offset_c& label_offset_c::operator=(label_offset_c& rhs)
 {
 	if (&rhs != this)
 		Copy(rhs);
-		
+
 	return *this;
 }
 

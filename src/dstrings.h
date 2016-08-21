@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Strings
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -27,7 +27,7 @@
 #define __DOOM_STRINGS__
 
 // Misc. other strings.
-#define REQUIREDWAD    "EDGE2"
+#define REQUIREDWAD    "edge2"
 #define REQUIREDPAK    "edge2"
 #define EDGECONFIGFILE "EDGE2.cfg"
 #define EDGELOGFILE    "EDGE2.log"

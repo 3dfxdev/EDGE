@@ -1,4 +1,4 @@
-// 
+//
 //    EDGE IMAGES.DDF -redefine or add new images.
 //    For documentation, see http://edge.sourceforge.net/
 //    DDF Version 6.1
@@ -6,7 +6,7 @@
 
 <IMAGES>
 
-#VERSION 1.36
+#VERSION 2.10
 
 
 
@@ -19,7 +19,7 @@
 //eep! the cursor doesn't line up with this!
 // [gfx:M_OPTION]
 // image_data = LUMP:PNG:"M_OPTION";
-// Y_OFFSET=-6;    
+// Y_OFFSET=-6;
 
 // [gfx:M_LOADG]
 // image_data = LUMP:PNG:"M_LOADG";
