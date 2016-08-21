@@ -1142,19 +1142,32 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	//This code below stores known flats in a container (see image_array_contains)
 	const char *image = W_ImageGetName(mo->subsector->sector->floor.image);
 	const char *names[]={
-	"FWATER4",
 	"FWATER1",
-	"NUKAGE3",
-	"NUKAGE1",
+	"FWATER2",
+	"FWATER3",
+	"FWATER4",
 	"SWATER1",
+	"SWATER2",
+	"SWATER3",
 	"SWATER4",
-	"BLOOD3",
+	"NUKAGE1",
+	"NUKAGE2",
+	"NUKAGE3",
 	"BLOOD1",
+	"BLOOD2",
+	"BLOOD3",
 	"SLIME01",
+	"SLIME02",
+	"SLIME03",
 	"SLIME04",
+	"SLIME05",
+	"SLIME06",
+	"SLIME07",
 	"SLIME08",
+	"SLIME09",
+	"SLIME10",
+	"SLIME11",
 	"SLIME12",
-	"LAVA1",
 	0
 	};
 	//Eventually Nukage and LAVA will have their own stuff. And this will become Terrain.DDF
