@@ -71,67 +71,15 @@ function select_new_face() =
     // dead ?
     if (player.health() <= 0)
     {
-        face_image = "STFDEAD0"
+        face_image = "FACEB0"
         face_time  = 10
         return
     }
 
-    // evil grin when player just picked up a weapon
-    if (player.is_grinning())
-    {
-        face_image = "STFEVL" + pain_digit()
-        face_time  = 7
-        return
-    }
-
-    // being attacked ?
-    if (player.hurt_by())
-    {
-        if (player.hurt_pain() > 50)
-        {
-            face_image = "STFOUCH" + pain_digit()
-            face_time = 26
-            return
-        }
-
-        var dir = 0
-
-        if (player.hurt_by() == "enemy" ||
-            player.hurt_by() == "friend")
-        {
-            dir = player.hurt_dir()
-        }
-
-        if (dir < 0)
-            face_image = "STFTL" + pain_digit() + "0"
-        else if (dir > 0)
-            face_image = "STFTR" + pain_digit() + "0"
-        else
-            face_image = "STFKILL" + pain_digit()
-
-        face_time = 35
-        return
-    }
-
-    // rampaging?
-    if (player.is_rampaging())
-    {
-        face_image = "STFKILL" + pain_digit()
-        face_time  = 7
-        return
-    }
-
-    // god mode?
-    if (player.has_power(player.INVULN))
-    {
-        face_image = "STFGOD0"
-        face_time  = 7
-        return
-    }
-
+    
     // default: look about the place...
-    face_image = "STFST" + pain_digit() + turn_digit()
-    face_time  = 17
+    face_image = "FACEA0" //+ pain_digit() + turn_digit()
+    //face_time  = 17
 }
 
 function doomguy_face (x, y) =
@@ -168,11 +116,11 @@ function doom_little_ammo() =
 
 function doom_status_bar() =
 {
-    hud.draw_image(  0, 168, "STBAR")
-    hud.draw_image( 90, 171, "STTPRCNT")
-    hud.draw_image(221, 171, "STTPRCNT")
+    hud.draw_image(  0, 50, "STATBAR")
+    //hud.draw_image( 90, 171, "STTPRCNT")
+   // hud.draw_image(221, 171, "STTPRCNT")
 
-    hud.text_font("BIG_DIGIT")
+    //hud.text_font("BIG_DIGIT")
 
     hud.draw_num2( 44, 171, 3, player.main_ammo(1) )
     hud.draw_num2( 90, 171, 3, player.health()     )

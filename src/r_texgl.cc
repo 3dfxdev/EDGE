@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Texture Upload
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -66,7 +66,7 @@ epi::image_data_c *R_PalettisedToRGB(epi::image_data_c *src,
 {
 	int bpp = (opacity == OPAC_Solid) ? 3 : 4;
 
-	epi::image_data_c *dest = new epi::image_data_c(src->width, src->height, bpp);	
+	epi::image_data_c *dest = new epi::image_data_c(src->width, src->height, bpp);
 
 	dest->used_w = src->used_w;
 	dest->used_h = src->used_h;
@@ -81,7 +81,7 @@ epi::image_data_c *R_PalettisedToRGB(epi::image_data_c *src,
 		if (src_pix == TRANS_PIXEL)
 		{
 			dest_pix[0] = dest_pix[1] = dest_pix[2] = 0;
-			
+
 			if (bpp == 4)
 				dest_pix[3] = 0;
 		}
@@ -113,7 +113,7 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 	bool clamp  = (flags & UPL_Clamp)  ? true : false;
 	bool nomip  = (flags & UPL_MipMap) ? false : true;
 	bool smooth = (flags & UPL_Smooth) ? true : false;
-	
+
   	int total_w = img->width;
 	int total_h = img->height;
 
@@ -168,13 +168,13 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 		GL_NEAREST,
 		GL_NEAREST_MIPMAP_NEAREST,
 		GL_NEAREST_MIPMAP_LINEAR,
-	  
+
 		GL_LINEAR,
 		GL_LINEAR_MIPMAP_NEAREST,
 		GL_LINEAR_MIPMAP_LINEAR
 	};
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
 					minif_modes[(smooth ? 3 : 0) +
 							    (nomip ? 0 : mip_level)]);
 

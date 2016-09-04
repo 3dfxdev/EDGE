@@ -1,4 +1,4 @@
-// 
+//
 //    EDGE WEAPONS.DDF -redefine or add new weapons.
 //    For documentation, see http://edge.sourceforge.net/
 //    DDF Version 6.1
@@ -6,7 +6,7 @@
 
 <WEAPONS>
 
-#VERSION 1.35
+#VERSION 2.10
 
 // HERETIC DDF code by C.J. Mullen (c_eejay@hotmail.com)
 

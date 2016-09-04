@@ -1000,7 +1000,7 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 			return;
 
 		// calculate edges of the shape
-		float sprite_width  = IM_WIDTH(image);
+		//float sprite_width  = IM_WIDTH(image);
 		float sprite_height = IM_HEIGHT(image);
 		float side_offset   = IM_OFFSETX(image);
 		float top_offset    = IM_OFFSETY(image);
@@ -1010,8 +1010,8 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 
 		float xscale = mo->info->scale * mo->info->aspect;
 
-		pos1 = (sprite_width/-2.0f - side_offset) * xscale;
-		pos2 = (sprite_width/+2.0f - side_offset) * xscale;
+		pos1 = ((floorf((image)->actual_w/-2.0f + 0.5f) * (image)->scale_x) - side_offset) * xscale;
+		pos2 = ((floorf((image)->actual_w/+2.0f + 0.5f) * (image)->scale_x) - side_offset) * xscale;
 
 		switch (mo->info->yalign)
 		{

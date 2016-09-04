@@ -1,16 +1,16 @@
-// 
-//    EDGE THINGS.DDF -redefine or add new thing entries.
-//    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 6.1
 //
+//    3DGE THINGS.DDF -redefine or add new thing entries.
+//    For documentation, see http://3dfxdev.net/edgewiki
+//    DDF Version 8
+//    3DGE (C) Isotope SoftWorks and Contributors.
+//    HDF acknowledgements: CeeJay
 
 <THINGS>
 
-#VERSION 1.35
+#VERSION 2.10
 
-// HERETIC DDF code by C.J. Mullen (c_eejay@hotmail.com)
 
-[TELEPORT_MARKER:56]//I suspect this is supposed to be something like a teleport marker for D'Sparil
+[TELEPORT_MARKER:56]	//I suspect this is supposed to be something like a teleport marker for D'Sparil
 RADIUS=1;
 HEIGHT=1;
 SPECIAL=INERT,INVISIBLE,NOGRAVITY,NOFRICTION;
@@ -2857,7 +2857,7 @@ TRANSLUCENCY=60%;
 RESPAWN_EFFECT=ITEM_RESPAWN;
 SPECIAL=COUNT_AS_ITEM,SPECIAL;
 
-STATES(IDLE)=BON1:A:6:NORMAL:NOTHING, 
+STATES(IDLE)=BON1:A:6:NORMAL:NOTHING,
              BON1:B:6:NORMAL:NOTHING,
              BON1:C:6:NORMAL:NOTHING,
              BON1:D:6:NORMAL:NOTHING,
@@ -3466,7 +3466,7 @@ STATES(IDLE)=COLU:A:-1:BRIGHT:NOTHING;
 //             TGRN:B:4:BRIGHT:NOTHING,
 //             TGRN:C:4:BRIGHT:NOTHING,
 //             TGRN:D:4:BRIGHT:NOTHING;
-                         
+
 //[WOODEN_GREEN_TORCH:56]
 //RADIUS=16;
 //HEIGHT=72;
@@ -3494,7 +3494,7 @@ STATES(IDLE)=SMRT:A:4:BRIGHT:NOTHING,
              SMRT:B:4:BRIGHT:NOTHING,
              SMRT:C:4:BRIGHT:NOTHING,
              SMRT:D:4:BRIGHT:NOTHING;
-       
+
 // Note: mis-spelled entry (should be DEAD_GIBBED_PLAYER1), but can't
 //       be fixed because it breaks savegames
 
@@ -3628,12 +3628,12 @@ STATES(IDLE)=BAR1:A:6:NORMAL:NOTHING,
 STATES(DEATH)=BEXP:A:0:BRIGHT:DLIGHT_SET(900),
               BEXP:A:0:BRIGHT:DLIGHT_FADE(0),
               BEXP:A:5:BRIGHT:NOTHING,
-              BEXP:B:5:BRIGHT:MAKEDEATHSOUND,   
-              BEXP:C:5:BRIGHT:NOTHING,          
-              BEXP:D:10:BRIGHT:EXPLOSIONDAMAGE, 
-              BEXP:E:10:BRIGHT:NOTHING,        
-             #REMOVE;                    
-                    
+              BEXP:B:5:BRIGHT:MAKEDEATHSOUND,
+              BEXP:C:5:BRIGHT:NOTHING,
+              BEXP:D:10:BRIGHT:EXPLOSIONDAMAGE,
+              BEXP:E:10:BRIGHT:NOTHING,
+             #REMOVE;
+
 // This did not have an entry in the mobjinfo table, although sprite and
 // state were present, so it got added as a new item -ACB- 1998/07/19
 [BURNT_SPIKE_STUMP:7010]
@@ -3912,11 +3912,6 @@ CASTORDER=17;
 CAST_TITLE=CyberdemonName;
 BLOOD=BLOOD;
 RESPAWN_EFFECT=RESPAWN_FLASH;
-ACTIVE_SOUND=DMACT;
-DEATH_SOUND=CYBDTH;
-PAIN_SOUND=DMPAIN;
-SIGHTING_SOUND=CYBSIT;
-WALK_SOUND=METAL;
 RANGE_ATTACK=CYBERDEMON_MISSILE;
 
 STATES(IDLE)=CYBR:A:10:NORMAL:LOOKOUT,
@@ -4239,11 +4234,12 @@ CASTORDER=1;
 CAST_TITLE=OurHeroName;
 PAINCHANCE=100%;
 SPECIAL=SOLID,SHOOTABLE,DROPOFF,PICKUP,NODEATHMATCH,SLIDER,ATTACK_HURTS,DISLOYAL;
-DEATH_SOUND=PLDETH;
-PAIN_SOUND="PLPAIN";
+DEATH_SOUND="PLRDTH";
+PAIN_SOUND="PLRPAI";
 OVERKILL_SOUND="SLOP";
-NOWAY_SOUND="NOWAY";
-OOF_SOUND="OOF";
+NOWAY_SOUND="PLROOF";
+SECRET_SOUND="SECRET";
+OOF_SOUND="PLROOF";
 BLOOD=BLOOD;
 RESPAWN_EFFECT=RESPAWN_FLASH;
 RESPAWN_TIME=2;
@@ -5542,7 +5538,7 @@ STATES(CHASE)=BSPI:A:20:NORMAL:NOTHING,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:F:3:NORMAL:CHASE,
-              BSPI:F:3:NORMAL:CHASE, 
+              BSPI:F:3:NORMAL:CHASE,
               #CHASE:2;
 
 STATES(MISSILE)=BSPI:A:20:BRIGHT:FACETARGET,
@@ -6441,7 +6437,7 @@ STATES(CHASE)=BSPI:A:20:NORMAL:NOTHING,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:F:3:NORMAL:CHASE,
-              BSPI:F:3:NORMAL:CHASE, 
+              BSPI:F:3:NORMAL:CHASE,
               #CHASE:2;
 
 STATES(MISSILE)=BSPI:A:20:BRIGHT:FACETARGET,
@@ -6449,7 +6445,7 @@ STATES(MISSILE)=BSPI:A:20:BRIGHT:FACETARGET,
                 BSPI:H:1:BRIGHT:NOTHING,
                 BSPI:H:1:BRIGHT:REFIRE_CHECK,
                 #MISSILE:2;
- 
+
 STATES(PAIN)=BSPI:I:3:NORMAL:NOTHING,
            BSPI:I:3:NORMAL:MAKEPAINSOUND,
            #CHASE:2;

@@ -6,11 +6,21 @@
 //    DDF Version 6.1
 //
 
-#VERSION 1.35
+#VERSION 2.10
 
 // *******************
 // * HERETIC scripts *
 // *******************
+
+// START_MAP ALL
+// RADIUS_TRIGGER 0 0 -1
+// TAGGED_IMMEDIATE
+// TAGGED_REPEATABLE
+   // TIP_SET_COLOUR NORMAL
+   //TIP_SET_POS 38% 170%
+   // TIP "HEALTH" 90000
+   // END_RADIUS_TRIGGER
+// END_MAP
 
 START_MAP e1m8
   RADIUS_TRIGGER 0 0 -1

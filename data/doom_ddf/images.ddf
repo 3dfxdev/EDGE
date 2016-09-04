@@ -1,4 +1,4 @@
-// 
+//
 //    3DGE IMAGES.DDF -redefine or add new images.
 //    For documentation, see http://edge.sourceforge.net/
 //    DDF Version 7
@@ -6,7 +6,7 @@
 
 <IMAGES>
 
-#VERSION 1.36
+#VERSION 2.10
 
 [gfx:CONSOL_P]
 IMAGE_DATA=LUMP:PNG:"CONSOL_P";

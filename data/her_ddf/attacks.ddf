@@ -1,4 +1,4 @@
-// 
+//
 //    EDGE ATTACKS.DDF -redefine or add new attacks.
 //    For documentation, see http://edge.sourceforge.net/
 //    DDF Version 6.1
@@ -6,7 +6,7 @@
 
 <ATTACKS>
 
-#VERSION 1.35
+#VERSION 2.10
 
 // HERETIC DDF code by C.J. Mullen (c_eejay@hotmail.com)
 

@@ -1123,6 +1123,8 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	MIR_Coordinate(x1, y1);
 	MIR_Coordinate(x2, y2);
 
+#if 0
+	// CW: Seems to be handled by MIR_Coordinate?
 	if (MIR_Reflective())
 	{
 		float tmp_x = x1; x1 = x2; x2 = tmp_x;
@@ -1130,6 +1132,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 
    		tmp_x = tex_x1; tex_x1 = tex_x2; tex_x2 = tmp_x;
 	}
+#endif
 
 	SYS_ASSERT(currmap);
 

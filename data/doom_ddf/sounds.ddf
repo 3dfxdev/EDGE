@@ -1,4 +1,4 @@
-// 
+//
 //    3DGE SOUNDS.DDF -redefine or add new sounds.
 //    For documentation, see http://edge.sourceforge.net/
 //    DDF Version 7
@@ -6,7 +6,7 @@
 
 <SOUNDS>
 
-#VERSION 1.36
+#VERSION 2.10
 
 [DSGLOOP]
 LUMP_NAME="DSGLOOP";

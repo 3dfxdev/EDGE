@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Generalised Image Handling
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -102,7 +102,7 @@ typedef struct cached_image_s
 {
 	// parent image
 	image_c *parent;
-  
+
 	// colormap used for translated image, normally NULL
 	const colourmap_c *trans_map;
 
@@ -184,7 +184,7 @@ static void do_DebugDump(real_image_container_c& bucket)
 	for (it = bucket.begin(); it != bucket.end(); it++)
 	{
 		image_c *rim = *it;
-	
+
 		L_WriteDebug("   [%s] type %d: %dx%d < %dx%d\n",
 			rim->name, rim->source_type,
 			rim->actual_w, rim->actual_h,
@@ -298,9 +298,9 @@ static image_c *NewImage(int width, int height, int opacity = OPAC_Unknown)
 static image_c *CreateDummyImage(const char *name, rgbcol_t fg, rgbcol_t bg)
 {
 	image_c *rim;
-  
+
 	rim = NewImage(DUMMY_X, DUMMY_Y, (bg == TRANS_PIXEL) ? OPAC_Masked : OPAC_Solid);
- 
+
  	strcpy(rim->name, name);
 
 	rim->source_type = IMSRC_Dummy;
@@ -336,7 +336,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 
 	bool is_png = false;
 	bool solid  = false;
-  
+
 	if (epi::PNG_IsDataPNG(buffer, lump_len))
 	{
 		is_png = true;
@@ -367,7 +367,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 		    height <= 0 || height > 512 ||
 			ABS(offset_x) > 2048 || ABS(offset_y) > 1024)
 		{
-			// check for Heretic/Hexen images, which are raw 320x200 
+			// check for Heretic/Hexen images, which are raw 320x200
 			if (lump_len == 320*200 && type == IMSRC_Graphic)
 			{
 				image_c *rim = NewImage(320, 200, OPAC_Solid);
@@ -387,10 +387,10 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 			return NULL;
 		}
 	}
- 
+
 	// create new image
 	image_c *rim = NewImage(width, height, solid ? OPAC_Solid : OPAC_Unknown);
- 
+
 	rim->offset_x = offset_x;
 	rim->offset_y = offset_y;
 
@@ -422,9 +422,9 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 static image_c *AddImageTexture(const char *name, texturedef_t *tdef)
 {
 	image_c *rim;
- 
+
 	rim = NewImage(tdef->width, tdef->height);
- 
+
 	strcpy(rim->name, name);
 
 	if (tdef->scale_x) rim->scale_x = 8.0 / tdef->scale_x;
@@ -443,31 +443,31 @@ static image_c *AddImageFlat(const char *name, int lump)
 {
 	image_c *rim;
 	int len, size;
-  
+
 	len = W_LumpLength(lump);
-  
+
 	switch (len)
 	{
 		case 64 * 64: size = 64; break;
 
 		// support for odd-size Heretic flats
 		case 64 * 65: size = 64; break;
-  
+
 		// support for odd-size Hexen flats
 		case 64 * 128: size = 64; break;
-  
-		// -- EDGE2 feature: bigger than normal flats --  
+
+		// -- EDGE2 feature: bigger than normal flats --
 		case 128 * 128: size = 128; break;
 		case 256 * 256: size = 256; break;
 		case 512 * 512: size = 512; break;
 		case 1024 * 1024: size = 1024; break;
-    
+
 		default:
 			return NULL;
 	}
-   
+
 	rim = NewImage(size, size, OPAC_Solid);
- 
+
 	strcpy(rim->name, name);
 
 	rim->source_type = IMSRC_Flat;
@@ -508,7 +508,7 @@ static image_c *AddImageUser(imagedef_c *def)
 
 			if (! f)
 			{
-				I_Warning("Unable to add image %s: %s\n", 
+				I_Warning("Unable to add image %s: %s\n",
 					(def->type == IMGDT_Lump) ? "lump" : "file", basename);
 				return NULL;
 			}
@@ -523,7 +523,11 @@ static image_c *AddImageUser(imagedef_c *def)
 				got_info = epi::PNG_GetInfo(f, &w, &h, &solid);
 
 			if (! got_info)
-				I_Error("Error occurred scanning image: %s\n", basename);
+			{
+				CloseUserFileOrLump(def, f);
+				I_Warning("Error occurred scanning image: %s\n", basename);
+				return NULL;
+			}
 
 			CloseUserFileOrLump(def, f);
 #if 1
@@ -536,9 +540,9 @@ static image_c *AddImageUser(imagedef_c *def)
 			I_Error("AddImageUser: Coding error, unknown type %d\n", def->type);
 			return NULL; /* NOT REACHED */
 	}
- 
+
 	image_c *rim = NewImage(w, h, solid ? OPAC_Solid : OPAC_Unknown);
- 
+
 	rim->offset_x = def->x_offset;
 	rim->offset_y = def->y_offset;
 
@@ -584,7 +588,7 @@ static image_c *AddImageUser(imagedef_c *def)
 //
 // NOTE: should only be called once, as it assumes none of the flats
 // in the list have names colliding with existing flat images.
-// 
+//
 void W_ImageCreateFlats(int *lumps, int number)
 {
 	int i;
@@ -595,7 +599,7 @@ void W_ImageCreateFlats(int *lumps, int number)
 	{
 		if (lumps[i] < 0)
 			continue;
-    
+
 		AddImageFlat(W_GetLumpName(lumps[i]), lumps[i]);
 	}
 }
@@ -609,7 +613,7 @@ void W_ImageCreateFlats(int *lumps, int number)
 // NOTE: should only be called once, as it assumes none of the
 // textures in the list have names colliding with existing texture
 // images.
-// 
+//
 void W_ImageCreateTextures(struct texturedef_s ** defs, int number)
 {
 	int i;
@@ -620,20 +624,20 @@ void W_ImageCreateTextures(struct texturedef_s ** defs, int number)
 	{
 		if (defs[i] == NULL)
 			continue;
-    
+
 		AddImageTexture(defs[i]->name, defs[i]);
 	}
 }
 
 
-// 
+//
 // Used to fill in the image array with sprites from the WAD.  The
 // lumps come from those occurring between S_START and S_END markers
 // in each existing wad.
 //
 // NOTE: it is assumed that each new sprite is unique i.e. the name
 // does not collide with any existing sprite image.
-// 
+//
 const image_c *W_ImageCreateSprite(const char *name, int lump, bool is_weapon)
 {
 	SYS_ASSERT(lump >= 0);
@@ -658,7 +662,7 @@ const image_c *W_ImageCreateSprite(const char *name, int lump, bool is_weapon)
 }
 
 
-// 
+//
 // Add the images defined in IMAGES.DDF.
 //
 void W_ImageCreateUser(void)
@@ -763,7 +767,7 @@ const image_c ** W_ImageGetUserSprites(int *count)
 	for (it = real_sprites.begin(); it != real_sprites.end(); it++)
 	{
 		image_c *rim = *it;
-    
+
 		if (rim->source_type == IMSRC_User)
 			array[pos++] = rim;
 	}
@@ -779,7 +783,7 @@ const image_c ** W_ImageGetUserSprites(int *count)
 	for (pos = 0; pos < *count; pos++)
 		L_WriteDebug("   %p = [%s] %dx%d\n", array[pos], W_ImageGetName(array[pos]),
 			array[pos]->actual_w, array[pos]->actual_h);
-		
+
 	L_WriteDebug("}\n");
 #endif
 
@@ -830,7 +834,7 @@ static bool IM_ShouldMipmap(image_c *rim)
 		case IMSRC_Flat:
 		case IMSRC_TX_HI:
 			return true;
-		
+
 		case IMSRC_User:
 			switch (rim->source.user.def->belong)
 			{
@@ -863,7 +867,7 @@ static bool IM_ShouldHQ2X(image_c *rim)
 	// Note: no need to check IMSRC_User, since those images are
 	//       always PNG or JPEG (etc) and never palettised, hence
 	//       the Hq2x scaling would never apply.
-	
+
 	if (hq2x_scaling == 0)
 		return false;
 
@@ -909,7 +913,7 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	bool clamp  = IM_ShouldClamp(rim);
 	bool mip    = IM_ShouldMipmap(rim);
 	bool smooth = IM_ShouldSmooth(rim);
- 
+
  	int max_pix = IM_PixelLimit(rim);
 //#if DREAMCAST DEBUG
 //I_Printf("LoadImageOGL: Loading \"%.*s\"\n",16,rim->name);
@@ -952,7 +956,7 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	}
 
 	epi::image_data_c *tmp_img = ReadAsEpiBlock(rim);
-    
+
     /* add offsets if they were read from the file */
     if (tmp_img->grAb != nullptr)
     {
@@ -1002,7 +1006,7 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 
 	if (what_pal_cached)
 		W_DoneWithLump(what_palette);
-	
+
 	return tex_id;
 }
 
@@ -1141,12 +1145,12 @@ static const image_c *BackupGraphic(const char *gfx_name, int flags)
 		rim = do_Lookup(real_graphics, gfx_name, IMSRC_Raw320x200);
 		if (rim)
 			return rim;
-  
+
 		rim = do_Lookup(real_sprites, gfx_name);
 		if (rim)
 			return rim;
 	}
-  
+
 	// not already loaded ?  Check if lump exists in wad, if so add it.
 	if (! (flags & ILF_NoNew))
 	{
@@ -1214,7 +1218,7 @@ const image_c *W_ImageLookup(const char *name, image_namespace_e type, int flags
 	{
 	    return NULL;
 	}
-  
+
 	const image_c *rim;
 
 	if (type == INS_Texture)
@@ -1435,7 +1439,7 @@ GLuint W_ImageCache(const image_c *image, bool anim,
 {
 	// Intentional Const Override
 	image_c *rim = (image_c *) image;
- 
+
 	// handle animations
 	if (anim)
 		rim = rim->anim.cur;
@@ -1575,7 +1579,7 @@ void W_DeleteAllImages(void)
 // allowed to contain NULL entries.
 //
 // NOTE: modifies the input array of images.
-// 
+//
 void W_AnimateImageSet(const image_c ** images, int number, int speed)
 {
 	int i, total;
