@@ -1,0 +1,1 @@
+3DGE.exe -ddf .\her_ddf -modpalette

@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Level Loading/Setup Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -112,7 +112,7 @@ vertex_seclist_t *v_seclists;
 
 static line_t **linebuffer = NULL;
 
-// bbox used 
+// bbox used
 static float dummy_bbox[4];
 
 epi::crc32_c mapsector_CRC;
@@ -167,7 +167,7 @@ static void LoadVertexes(int lump)
 	vec2_t *li;
 
 	if (! W_VerifyLumpName(lump, "VERTEXES"))
-		I_Error("Bad WAD: level %s missing VERTEXES.\n", 
+		I_Error("Bad WAD: level %s missing VERTEXES.\n",
 				currmap->lump.c_str());
 
 	// Determine number of lumps:
@@ -175,7 +175,7 @@ static void LoadVertexes(int lump)
 	numvertexes = W_LumpLength(lump) / sizeof(raw_vertex_t);
 
 	if (numvertexes == 0)
-		I_Error("Bad WAD: level %s contains 0 vertexes.\n", 
+		I_Error("Bad WAD: level %s contains 0 vertexes.\n",
 				currmap->lump.c_str());
 
 	vertexes = new vec2_t[numvertexes];
@@ -678,17 +678,17 @@ static void LoadSectors(int lump)
 	sector_t *ss;
 
 	if (! W_VerifyLumpName(lump, "SECTORS"))
-		I_Error("Bad WAD: level %s missing SECTORS.\n", 
+		I_Error("Bad WAD: level %s missing SECTORS.\n",
 				currmap->lump.c_str());
 
 	numsectors = W_LumpLength(lump) / sizeof(raw_sector_t);
 
 	if (numsectors == 0)
-		I_Error("Bad WAD: level %s contains 0 sectors.\n", 
+		I_Error("Bad WAD: level %s contains 0 sectors.\n",
 				currmap->lump.c_str());
 
 	sectors = new sector_t[numsectors];
-		
+
 	Z_Clear(sectors, sector_t, numsectors);
 
 	data = W_CacheLumpNum(lump);
@@ -798,7 +798,7 @@ static void LoadV5Nodes(const void *data, int length)
 	numnodes = length / sizeof(raw_v5_node_t);
 
 	nodes = new node_t[numnodes+1];
-		
+
 	Z_Clear(nodes, node_t, numnodes);
 
 	mn = (const raw_v5_node_t *) data;
@@ -842,7 +842,7 @@ static void LoadNodes(int lump, const char *name)
 	node_t *nd;
 
 	if (! W_VerifyLumpName(lump, name))
-		I_Error("Bad WAD: level %s missing %s.\n", 
+		I_Error("Bad WAD: level %s missing %s.\n",
 				currmap->lump.c_str(), name);
 
 	// Note: zero numnodes is valid.
@@ -859,7 +859,7 @@ static void LoadNodes(int lump, const char *name)
 	numnodes = length / sizeof(raw_node_t);
 
 	nodes = new node_t[numnodes+1];
-		
+
 	Z_Clear(nodes, node_t, numnodes);
 
 	mn = (const raw_node_t *) data;
@@ -1046,13 +1046,13 @@ static void LoadThings(int lump)
 	unknown_thing_map.clear();
 
 	if (!W_VerifyLumpName(lump, "THINGS"))
-		I_Error("Bad WAD: level %s missing THINGS.\n", 
+		I_Error("Bad WAD: level %s missing THINGS.\n",
 				currmap->lump.c_str());
 
 	numthings = W_LumpLength(lump) / sizeof(raw_thing_t);
 
 	if (numthings == 0)
-		I_Error("Bad WAD: level %s contains 0 things.\n", 
+		I_Error("Bad WAD: level %s contains 0 things.\n",
 				currmap->lump.c_str());
 
 	data = W_CacheLumpNum(lump);
@@ -1109,9 +1109,9 @@ static void LoadThings(int lump)
 		}
 
 		sector_t *sec = R_PointInSubsector(x, y)->sector;
-		
+
 		z = sec->f_h;
-		
+
 		if (objtype->flags & MF_SPAWNCEILING)
 			z = sec->c_h - objtype->height;
 
@@ -1154,13 +1154,13 @@ static void LoadHexenThings(int lump)
 	unknown_thing_map.clear();
 
 	if (!W_VerifyLumpName(lump, "THINGS"))
-		I_Error("Bad WAD: level %s missing THINGS.\n", 
+		I_Error("Bad WAD: level %s missing THINGS.\n",
 				currmap->lump.c_str());
 
 	numthings = W_LumpLength(lump) / sizeof(raw_hexen_thing_t);
 
 	if (numthings == 0)
-		I_Error("Bad WAD: level %s contains 0 things.\n", 
+		I_Error("Bad WAD: level %s contains 0 things.\n",
 				currmap->lump.c_str());
 
 	data = W_CacheLumpNum(lump);
@@ -1190,7 +1190,7 @@ static void LoadHexenThings(int lump)
 		}
 
 		sector_t *sec = R_PointInSubsector(x, y)->sector;
-		
+
 		z += sec->f_h;
 
 		if (objtype->flags & MF_SPAWNCEILING)
@@ -1258,7 +1258,7 @@ static inline void ComputeLinedefData(line_t *ld, int side0, int side1)
 	if ((ld->flags & MLF_TwoSided) && ((side0 == -1) || (side1 == -1)))
 	{
 		I_Warning("Bad WAD: level %s has linedef #%d marked TWOSIDED, "
-			"but it has only one side.\n", 
+			"but it has only one side.\n",
 			currmap->lump.c_str(), (int)(ld - lines));
 
 		ld->flags &= ~MLF_TwoSided;
@@ -1279,17 +1279,17 @@ static void LoadLineDefs(int lump)
 	//       "wall tiles" properly.
 
 	if (! W_VerifyLumpName(lump, "LINEDEFS"))
-		I_Error("Bad WAD: level %s missing LINEDEFS.\n", 
+		I_Error("Bad WAD: level %s missing LINEDEFS.\n",
 				currmap->lump.c_str());
 
 	numlines = W_LumpLength(lump) / sizeof(raw_linedef_t);
 
 	if (numlines == 0)
-		I_Error("Bad WAD: level %s contains 0 linedefs.\n", 
+		I_Error("Bad WAD: level %s contains 0 linedefs.\n",
 				currmap->lump.c_str());
 
 	lines = new line_t[numlines];
-		
+
 	Z_Clear(lines, line_t, numlines);
 
 	temp_line_sides = new int[numlines * 2];
@@ -1338,17 +1338,17 @@ static void LoadHexenLineDefs(int lump)
 	// -AJA- 2001/08/04: wrote this, based on the Hexen specs.
 
 	if (! W_VerifyLumpName(lump, "LINEDEFS"))
-		I_Error("Bad WAD: level %s missing LINEDEFS.\n", 
+		I_Error("Bad WAD: level %s missing LINEDEFS.\n",
 				currmap->lump.c_str());
 
 	numlines = W_LumpLength(lump) / sizeof(raw_hexen_linedef_t);
 
 	if (numlines == 0)
-		I_Error("Bad WAD: level %s contains 0 linedefs.\n", 
+		I_Error("Bad WAD: level %s contains 0 linedefs.\n",
 				currmap->lump.c_str());
 
 	lines = new line_t[numlines];
-		
+
 	Z_Clear(lines, line_t, numlines);
 
 	temp_line_sides = new int[numlines * 2];
@@ -1441,22 +1441,6 @@ static void TransferMapSideDef(const raw_sidedef_t *msd, side_t *sd,
 		sd->middle.offset.y = 0;
 	}
 
-#if 0  // -AJA- 2005/01/13: DISABLED (see my log for explanation) 
-	{
-		// -AJA- 2004/09/20: fix texture alignment for some rare cases
-		//       where the texture height is non-POW2 (e.g. 64x72) and
-		//       a negative Y offset was used.
-
-		if (sd->top.offset.y < 0 && sd->top.image)
-			sd->top.offset.y += IM_HEIGHT(sd->top.image);
-
-		if (sd->middle.offset.y < 0 && sd->middle.image)
-			sd->middle.offset.y += IM_HEIGHT(sd->middle.image);
-
-		if (sd->bottom.offset.y < 0 && sd->bottom.image)
-			sd->bottom.offset.y += IM_HEIGHT(sd->bottom.image);
-	}
-#endif
 }
 
 static void LoadSideDefs(int lump)
@@ -1469,13 +1453,13 @@ static void LoadSideDefs(int lump)
 	int nummapsides;
 
 	if (! W_VerifyLumpName(lump, "SIDEDEFS"))
-		I_Error("Bad WAD: level %s missing SIDEDEFS.\n", 
+		I_Error("Bad WAD: level %s missing SIDEDEFS.\n",
 				currmap->lump.c_str());
 
 	nummapsides = W_LumpLength(lump) / sizeof(raw_sidedef_t);
 
 	if (nummapsides == 0)
-		I_Error("Bad WAD: level %s contains 0 sidedefs.\n", 
+		I_Error("Bad WAD: level %s contains 0 sidedefs.\n",
 				currmap->lump.c_str());
 
 	sides = new side_t[numsides];
@@ -1537,7 +1521,7 @@ static void LoadSideDefs(int lump)
 
 //
 // SetupExtrafloors
-// 
+//
 // This is done after loading sectors (which sets exfloor_max to 0)
 // and after loading linedefs (which increases it for each new
 // extrafloor).  So now we know the maximum number of extrafloors
@@ -1555,7 +1539,7 @@ static void SetupExtrafloors(void)
 		return;
 
 	extrafloors = new extrafloor_t[numextrafloors];
-		
+
 	Z_Clear(extrafloors, extrafloor_t, numextrafloors);
 
 	for (i=0, ss=sectors; i < numsectors; i++, ss++)
@@ -1601,7 +1585,7 @@ static void SetupSlidingDoors(void)
 //
 // SetupWallTiles
 //
-// Computes how many wall tiles we'll need.  The tiles themselves are 
+// Computes how many wall tiles we'll need.  The tiles themselves are
 // created elsewhere.
 //
 #if 0  // NO LONGER USED
@@ -1654,7 +1638,7 @@ static void SetupWallTiles(void)
 	SYS_ASSERT(numwalltiles > 0);
 
 	walltiles = new wall_tile_t[numwalltiles];
-		
+
 	Z_Clear(walltiles, wall_tile_t, numwalltiles);
 
 	for (i=0, wt_index=0; i < numlines; i++)
@@ -1723,7 +1707,7 @@ static void SetupVertGaps(void)
 	SYS_ASSERT(numvertgaps > 0);
 
 	vertgaps = new vgap_t[numvertgaps];
-	
+
 	Z_Clear(vertgaps, vgap_t, numvertgaps);
 
 	for (i=0, cur_gap=vertgaps; i < numlines; i++)
@@ -1911,7 +1895,7 @@ void GroupLines(void)
 		}
 	}
 
-	// build line tables for each sector 
+	// build line tables for each sector
 	linebuffer = new line_t* [total];
 
 	line_p = linebuffer;
@@ -2056,7 +2040,7 @@ static void CreateVertexSeclists(void)
 
 			if (! sec)
 				continue;
-			
+
 			extrafloor_t *ef;
 
 			for (ef = sec->bottom_ef; ef; ef = ef->higher)
@@ -2105,14 +2089,16 @@ static void P_RemoveSectorStuff(void)
 }
 
 
-void ShutdownLevel(void)
+void P_ShutdownLevel(void)
 {
 	// Destroys everything on the level.
 
-#ifdef DEVELOPERS
 	if (!level_active)
-		I_Error("ShutdownLevel: no level to shut down!");
-#endif
+	{
+		I_Warning("ShutdownLevel: no level to shut down!\n");
+		return;
+	}
+	printf("P_ShutdownLevel: shutting down level\n");
 
 	level_active = false;
 
@@ -2162,7 +2148,7 @@ void P_SetupLevel(void)
 	char gl_lumpname[16];
 
 	if (level_active)
-		ShutdownLevel();
+		P_ShutdownLevel();
 
 	// -ACB- 1998/08/27 NULL the head pointers for the linked lists....
 	itemquehead = NULL;
@@ -2244,7 +2230,7 @@ void P_SetupLevel(void)
 
 	LoadVertexes(lumpnum + ML_VERTEXES);
 	LoadSectors(lumpnum + ML_SECTORS);
-	
+
 	if (hexen_level)
 		LoadHexenLineDefs(lumpnum + ML_LINEDEFS);
 	else
@@ -2325,7 +2311,7 @@ void P_SetupLevel(void)
 void P_Init(void)
 {
 	E_ProgressMessage(language["PlayState"]);
-	
+
 	// There should not yet exist a player
 	SYS_ASSERT(numplayers == 0);
 
@@ -2350,7 +2336,7 @@ linetype_c *P_LookupLineType(int num)
 	I_Warning("P_LookupLineType(): Unknown linedef type %d\n", num);
 
 	return linetypes.Lookup(0);  // template line
-}	
+}
 
 
 sectortype_c *P_LookupSectorType(int num)

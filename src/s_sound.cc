@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Sound System
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -225,7 +225,7 @@ static int FindChannelToKill(int kill_cat, int real_cat, int new_score)
 
 		if (chan->category != kill_cat)
 			continue;
-		
+
 		int score = ChannelScore(chan->def, chan->category,
 								 chan->pos, chan->boss);
 //I_Printf("> [%d] '%s' = %d\n", j, chan->def->name.c_str(), score);
@@ -286,11 +286,11 @@ void S_Shutdown(void)
 }
 
 // Not-rejigged-yet stuff..
-sfxdef_c * LookupEffectDef(const sfx_t *s) 
-{ 
+sfxdef_c * LookupEffectDef(const sfx_t *s)
+{
 	SYS_ASSERT(s->num >= 1);
 
-	// need to use M_Random here to prevent demos and net games 
+	// need to use M_Random here to prevent demos and net games
 	// getting out of sync.
 
 	int num;
@@ -398,7 +398,7 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 
 		// decide which category to kill a sound in.
 		int kill_cat = category;
-			
+
 		if (cat_counts[category] < cat_limits[category])
 		{
 			// we haven't reached our quota yet, hence kill a hog.

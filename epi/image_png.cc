@@ -198,11 +198,15 @@ namespace epi
 		{
 			if (!memcmp(unknowns[i].name, "grAb", 4))
 			{
-				/* png_grAb_t *grAb = reinterpret_cast<png_grAb_t *>(unknowns[i].data); */
+				/* png_grAb_t *grAb = reinterpret_cast<png_grAb_t
+				*>(unknowns[i].data); */
 				png_grAb_t *grAb = new png_grAb_t;
 				memcpy(grAb, unknowns[i].data, sizeof(png_grAb_t));
-				grAb->x = EPI_BE_S32(grAb->x) + 160 - width / 2;
-				grAb->y = EPI_BE_S32(grAb->y) + 200 - 32 - height;
+				grAb->x = EPI_BE_S32(grAb->x);
+				grAb->y = EPI_BE_S32(grAb->y);
+				printf("Got grAb struct: %d/%d\n", grAb->x, grAb->y);
+				//                grAb->x += (160 - width / 2);
+				//                grAb->y += (200 - 32 - height);
 				img->grAb = grAb;
 				break;
 			}

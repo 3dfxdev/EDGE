@@ -1,4 +1,4 @@
-// 
+//
 //    3DGE THINGS.DDF -redefine or add new thing entries.
 //    For documentation, see http://edge.sourceforge.net/
 //    DDF Version 7
@@ -6,7 +6,7 @@
 
 <THINGS>
 
-#VERSION 1.36
+#VERSION 2.10
 
 // ------------------------ Health Items ------------------------
 
@@ -20,7 +20,7 @@ TRANSLUCENCY=60%;
 RESPAWN_EFFECT=ITEM_RESPAWN;
 SPECIAL=COUNT_AS_ITEM,SPECIAL;
 
-STATES(IDLE)=BON1:A:6:NORMAL:NOTHING, 
+STATES(IDLE)=BON1:A:6:NORMAL:NOTHING,
              BON1:B:6:NORMAL:NOTHING,
              BON1:C:6:NORMAL:NOTHING,
              BON1:D:6:NORMAL:NOTHING,
@@ -54,7 +54,7 @@ RADIUS=20;
 HEIGHT=16;
 DLIGHT.TYPE=QUADRATIC;
 DLIGHT.INTENSITY=100;
-DLIGHT.COLOUR=#FFFFFF;
+DLIGHT.COLOUR=#868ee9;
 PICKUP_BENEFIT=HEALTH(100:200);
 PICKUP_SOUND=GETPOW;
 PICKUP_MESSAGE=GotSoul;
@@ -62,19 +62,46 @@ TRANSLUCENCY=60%;
 SPECIAL=SPECIAL,COUNT_AS_ITEM,NOSHADOW;
 RESPAWN_EFFECT=ITEM_RESPAWN;
 
-STATES(IDLE)=SOUL:A:6:BRIGHT:NOTHING,
-             SOUL:B:6:BRIGHT:NOTHING,
-             SOUL:C:6:BRIGHT:NOTHING,
-             SOUL:D:6:BRIGHT:NOTHING,
-             SOUL:C:6:BRIGHT:NOTHING,
-             SOUL:B:6:BRIGHT:NOTHING;
+STATES(IDLE)=SOUL:D:0:BRIGHT:dlight_colour(#1919ff),
+             SOUL:D:2:BRIGHT:dlight_set(120),
+             SOUL:D:2:BRIGHT:dlight_set(125),
+             SOUL:D:2:BRIGHT:dlight_set(120),
+
+
+             SOUL:C:0:BRIGHT:dlight_colour(#3333ff),
+             SOUL:C:2:BRIGHT:dlight_set(115),
+             SOUL:C:2:BRIGHT:dlight_set(110),
+             SOUL:C:2:BRIGHT:dlight_set(105),
+
+             SOUL:B:0:BRIGHT:dlight_colour(#4d4dff),
+             SOUL:B:2:BRIGHT:dlight_set(100),
+             SOUL:B:2:BRIGHT:dlight_set(95),
+             SOUL:B:2:BRIGHT:dlight_set(90),
+
+             SOUL:A:0:BRIGHT:dlight_colour(#6666ff),
+             SOUL:A:2:BRIGHT:dlight_set(85),
+             SOUL:A:2:BRIGHT:dlight_set(80),
+             SOUL:A:2:BRIGHT:dlight_set(85),
+
+
+             SOUL:B:0:BRIGHT:dlight_colour(#4d4dff),
+             SOUL:B:2:BRIGHT:dlight_set(90),
+             SOUL:B:2:BRIGHT:dlight_set(95),
+             SOUL:B:2:BRIGHT:dlight_set(100),
+
+             SOUL:C:0:BRIGHT:dlight_colour(#3333ff),
+             SOUL:C:2:BRIGHT:dlight_set(105),
+             SOUL:C:2:BRIGHT:dlight_set(110),
+             SOUL:C:2:BRIGHT:dlight_set(115);
+
+
 
 [BERSERKER:2023]
 RADIUS=20;
 HEIGHT=16;
 DLIGHT.TYPE=QUADRATIC;
-DLIGHT.INTENSITY=100;
-DLIGHT.COLOUR=#FF0000;
+DLIGHT.INTENSITY=120;
+DLIGHT.COLOUR=#ff5555;
 PICKUP_BENEFIT=POWERUP_BERSERK(60:60),HEALTH(100:100);
 PICKUP_EFFECT=SWITCH_WEAPON(FIST),KEEP_POWERUP(BERSERK);
 PICKUP_SOUND=GETPOW;
@@ -90,7 +117,7 @@ RADIUS=20;
 HEIGHT=16;
 DLIGHT.TYPE=QUADRATIC;
 DLIGHT.INTENSITY=200;
-DLIGHT.COLOUR=#FFFFFF;
+DLIGHT.COLOUR=#af977f;
 PICKUP_BENEFIT=HEALTH(200:200),BLUE_ARMOUR(200:200);
 PICKUP_SOUND=GETPOW;
 PICKUP_MESSAGE=GotMega;
@@ -98,10 +125,26 @@ TRANSLUCENCY=60%;
 SPECIAL=SPECIAL,COUNT_AS_ITEM,NOSHADOW;
 RESPAWN_EFFECT=ITEM_RESPAWN;
 
-STATES(IDLE)=MEGA:A:6:BRIGHT:NOTHING,
-             MEGA:B:6:BRIGHT:NOTHING,
-             MEGA:C:6:BRIGHT:NOTHING,
-             MEGA:D:6:BRIGHT:NOTHING;
+STATES(IDLE)=MEGA:A:2:BRIGHT:DLight_set(200),
+             MEGA:A:2:BRIGHT:DLight_set(180),
+             MEGA:A:2:BRIGHT:DLight_set(160),
+
+
+             MEGA:B:2:BRIGHT:DLight_set(140),
+             MEGA:B:2:BRIGHT:DLight_set(120),
+             MEGA:B:2:BRIGHT:DLight_set(100),
+
+
+             MEGA:C:2:BRIGHT:DLight_set(80),
+             MEGA:C:2:BRIGHT:DLight_set(100),
+             MEGA:C:2:BRIGHT:DLight_set(120),
+
+
+             MEGA:D:2:BRIGHT:DLight_set(140),
+             MEGA:D:2:BRIGHT:DLight_set(160),
+             MEGA:D:2:BRIGHT:DLight_set(180);
+
+
 
 
 // ------------------------ Armour Items ------------------------
@@ -154,15 +197,15 @@ RADIUS=20;
 HEIGHT=16;
 DLIGHT.TYPE=QUADRATIC;
 DLIGHT.INTENSITY=100;
-DLIGHT.COLOUR=#0000FF;
+DLIGHT.COLOUR=#4040FF;
 PICKUP_BENEFIT=BLUE_CARD;
 PICKUP_SOUND=ITEMUP;
 PICKUP_MESSAGE=GotBlueCard;
 SPECIAL=SPECIAL,NODEATHMATCH,NOSHADOW;
 RESPAWN_EFFECT=ITEM_RESPAWN;
 
-STATES(IDLE)=BKEY:A:10:NORMAL:NOTHING,
-             BKEY:B:10:BRIGHT:NOTHING;
+STATES(IDLE)=BKEY:A:10:NORMAL:Dlight_set(50),
+             BKEY:B:10:BRIGHT:Dlight_set(100);
 
 [YELLOW_KEY:6]
 RADIUS=20;
@@ -176,68 +219,68 @@ PICKUP_MESSAGE=GotYellowCard;
 SPECIAL=SPECIAL,NODEATHMATCH,NOSHADOW;
 RESPAWN_EFFECT=ITEM_RESPAWN;
 
-STATES(IDLE)=YKEY:A:10:NORMAL:NOTHING,
-             YKEY:B:10:BRIGHT:NOTHING;
+STATES(IDLE)=YKEY:A:10:NORMAL:Dlight_set(50),
+             YKEY:B:10:BRIGHT:Dlight_set(100);
 
 [RED_KEY:13]
 RADIUS=20;
 HEIGHT=16;
 DLIGHT.TYPE=QUADRATIC;
 DLIGHT.INTENSITY=100;
-DLIGHT.COLOUR=#FF0000;
+DLIGHT.COLOUR=#ff4040;
 PICKUP_BENEFIT=RED_CARD;
 PICKUP_SOUND=ITEMUP;
 PICKUP_MESSAGE=GotRedCard;
 SPECIAL=SPECIAL,NODEATHMATCH,NOSHADOW;
 RESPAWN_EFFECT=ITEM_RESPAWN;
 
-STATES(IDLE)=RKEY:A:10:NORMAL:NOTHING,
-             RKEY:B:10:BRIGHT:NOTHING;
+STATES(IDLE)=RKEY:A:10:NORMAL:Dlight_set(50),
+             RKEY:B:10:BRIGHT:Dlight_set(100);
 
 [RED_SKULLKEY:38]
 RADIUS=20;
 HEIGHT=16;
 DLIGHT.TYPE=QUADRATIC;
 DLIGHT.INTENSITY=100;
-DLIGHT.COLOUR=#FF0000;
+DLIGHT.COLOUR=#ff1515;
 PICKUP_BENEFIT=RED_SKULL;
 PICKUP_SOUND=ITEMUP;
 PICKUP_MESSAGE=GotRedSkull;
 SPECIAL=SPECIAL,NODEATHMATCH,NOSHADOW;
 RESPAWN_EFFECT=ITEM_RESPAWN;
 
-STATES(IDLE)=RSKU:A:10:NORMAL:NOTHING,
-             RSKU:B:10:BRIGHT:NOTHING;
+STATES(IDLE)=RSKU:A:10:NORMAL:Dlight_set(50),
+             RSKU:B:10:BRIGHT:Dlight_set(100);
 
 [YELLOW_SKULLKEY:39]
 RADIUS=20;
 HEIGHT=16;
 DLIGHT.TYPE=QUADRATIC;
 DLIGHT.INTENSITY=100;
-DLIGHT.COLOUR=#FFFF40;
+DLIGHT.COLOUR=#FFFF15;
 PICKUP_BENEFIT=YELLOW_SKULL;
 PICKUP_SOUND=ITEMUP;
 PICKUP_MESSAGE=GotYellowSkull;
 SPECIAL=SPECIAL,NODEATHMATCH,NOSHADOW;
 RESPAWN_EFFECT=ITEM_RESPAWN;
 
-STATES(IDLE)=YSKU:A:10:NORMAL:NOTHING,
-             YSKU:B:10:BRIGHT:NOTHING;
+STATES(IDLE)=YSKU:A:10:NORMAL:Dlight_set(50),
+             YSKU:B:10:BRIGHT:Dlight_set(100);
 
 [BLUE_SKULLKEY:40]
 RADIUS=20;
 HEIGHT=16;
 DLIGHT.TYPE=QUADRATIC;
 DLIGHT.INTENSITY=100;
-DLIGHT.COLOUR=#0000FF;
+DLIGHT.COLOUR=#1515FF;
 PICKUP_BENEFIT=BLUE_SKULL;
 PICKUP_SOUND=ITEMUP;
 PICKUP_MESSAGE=GotBlueSkull;
 SPECIAL=SPECIAL,NODEATHMATCH,NOSHADOW;
 RESPAWN_EFFECT=ITEM_RESPAWN;
 
-STATES(IDLE)=BSKU:A:10:NORMAL:NOTHING,
-             BSKU:B:10:BRIGHT:NOTHING;
+STATES(IDLE)=BSKU:A:10:NORMAL:Dlight_set(50),
+             BSKU:B:10:BRIGHT:Dlight_set(100);
 
 // ------------------------ Weapons ------------------------
 
@@ -422,12 +465,12 @@ DLIGHT.TYPE=QUADRATIC;
 DLIGHT.INTENSITY=100;
 DLIGHT.COLOUR=#FFFFFF;
 
-STATES(IDLE)=PMAP:A:6:BRIGHT:NOTHING,
-             PMAP:B:6:BRIGHT:NOTHING,
-             PMAP:C:6:BRIGHT:NOTHING,
-             PMAP:D:6:BRIGHT:NOTHING,
-             PMAP:C:6:BRIGHT:NOTHING,
-             PMAP:B:6:BRIGHT:NOTHING;
+STATES(IDLE)=PMAP:A:6:BRIGHT:Dlight_colour(#509050),
+             PMAP:B:6:BRIGHT:Dlight_colour(#608060),
+             PMAP:C:6:BRIGHT:Dlight_colour(#507050),
+             PMAP:D:6:BRIGHT:Dlight_colour(#606060),
+             PMAP:C:6:BRIGHT:Dlight_colour(#507050),
+             PMAP:B:6:BRIGHT:Dlight_colour(#608060);
 
 [BLURSPHERE:2024]
 RADIUS=20;
@@ -438,13 +481,13 @@ PICKUP_MESSAGE=GotInvis;
 SPECIAL=SPECIAL,NO_RESPAWN,COUNT_AS_ITEM,NOSHADOW;
 TRANSLUCENCY=60%;
 DLIGHT.TYPE=QUADRATIC;
-DLIGHT.INTENSITY=150;
-DLIGHT.COLOUR=#FFFFFF;
+DLIGHT.INTENSITY=120;
+DLIGHT.COLOUR=#aa3980;
 
-STATES(IDLE)=PINS:A:6:BRIGHT:NOTHING,
-             PINS:B:6:BRIGHT:NOTHING,
-             PINS:C:6:BRIGHT:NOTHING,
-             PINS:D:6:BRIGHT:NOTHING;
+STATES(IDLE)=PINS:A:6:BRIGHT:Dlight_colour(#763ec0),
+             PINS:B:6:BRIGHT:Dlight_colour(#aa3980),
+             PINS:C:6:BRIGHT:Dlight_colour(#bc2757),
+             PINS:D:6:BRIGHT:Dlight_colour(#cb1000);
 
 [INVULNERABILITY_SPHERE:2022]
 RADIUS=20;
@@ -455,13 +498,21 @@ PICKUP_MESSAGE=GotInvulner;
 SPECIAL=SPECIAL,NO_RESPAWN,COUNT_AS_ITEM,NOSHADOW;
 TRANSLUCENCY=70%;
 DLIGHT.TYPE=QUADRATIC;
-DLIGHT.INTENSITY=300;
-DLIGHT.COLOUR=#FFFFFF;
+DLIGHT.INTENSITY=256;
+DLIGHT.COLOUR=#3f832f;
 
-STATES(IDLE)=PINV:A:6:BRIGHT:NOTHING,
-             PINV:B:6:BRIGHT:NOTHING,
-             PINV:C:6:BRIGHT:NOTHING,
-             PINV:D:6:BRIGHT:NOTHING;
+STATES(IDLE)=PINV:A:2:BRIGHT:Dlight_set(256),
+             PINV:A:2:BRIGHT:Dlight_set(235),
+             PINV:A:2:BRIGHT:Dlight_set(213),
+             PINV:B:2:BRIGHT:Dlight_set(191),
+             PINV:B:2:BRIGHT:Dlight_set(170),
+             PINV:B:2:BRIGHT:Dlight_set(149),
+             PINV:C:2:BRIGHT:Dlight_set(128),
+             PINV:C:2:BRIGHT:Dlight_set(149),
+             PINV:C:2:BRIGHT:Dlight_set(170),
+             PINV:D:2:BRIGHT:Dlight_set(191),
+             PINV:D:2:BRIGHT:Dlight_set(213),
+             PINV:D:2:BRIGHT:Dlight_set(235);
 
 [LIGHT_SPECS:2045]
 RADIUS=20;
@@ -472,11 +523,11 @@ PICKUP_MESSAGE=GotVisor;
 RESPAWN_EFFECT=ITEM_RESPAWN;
 SPECIAL=SPECIAL,COUNT_AS_ITEM,NOSHADOW;
 DLIGHT.TYPE=QUADRATIC;
-DLIGHT.INTENSITY=100;
+DLIGHT.INTENSITY=55;
 DLIGHT.COLOUR=#FFFFFF;
 
-STATES(IDLE)=PVIS:A:6:BRIGHT:NOTHING,
-             PVIS:B:6:NORMAL:NOTHING;
+STATES(IDLE)=PVIS:A:6:BRIGHT:Dlight_colour(#999999),
+             PVIS:B:6:NORMAL:Dlight_colour(#555555);
 
 [RADIATION_SUIT:2025]
 RADIUS=20;
@@ -706,7 +757,7 @@ SPECIAL=SOLID,PASS_MISSILE,CLIMBABLE,NOSHADOW;
 
 DLIGHT.TYPE=QUADRATIC;
 DLIGHT.INTENSITY=150;
-DLIGHT.COLOUR=#FFFFFF;
+DLIGHT.COLOUR=#FFFFcc;
 
 STATES(IDLE)=COLU:A:-1:BRIGHT:NOTHING;
 
@@ -716,13 +767,17 @@ HEIGHT=58;
 SPECIAL=SOLID,PASS_MISSILE,CLIMBABLE,NOSHADOW;
 
 DLIGHT.TYPE=QUADRATIC;
-DLIGHT.INTENSITY=200;
-DLIGHT.COLOUR=#FFFFFF;
+DLIGHT.INTENSITY=180;
+DLIGHT.COLOUR=#f0f0ff;
 
-STATES(IDLE)=TLP2:A:4:BRIGHT:NOTHING,
-             TLP2:B:4:BRIGHT:NOTHING,
-             TLP2:C:4:BRIGHT:NOTHING,
-             TLP2:D:4:BRIGHT:NOTHING;
+STATES(IDLE)=TLP2:A:2:BRIGHT:dlight_colour(#ffffff),
+             TLP2:A:2:BRIGHT:dlight_colour(#f8f8ff),
+             TLP2:B:2:BRIGHT:dlight_colour(#f0f0ff),
+             TLP2:B:2:BRIGHT:dlight_colour(#e8e8ff),
+             TLP2:C:2:BRIGHT:dlight_colour(#e0e0ff),
+             TLP2:C:2:BRIGHT:dlight_colour(#e8e8ff),
+             TLP2:D:2:BRIGHT:dlight_colour(#f0f0ff),
+             TLP2:D:2:BRIGHT:dlight_colour(#f8f8ff);
 
 [TALL_TECH_LAMP:85]
 RADIUS=16;
@@ -731,12 +786,16 @@ SPECIAL=SOLID,PASS_MISSILE,CLIMBABLE,NOSHADOW;
 
 DLIGHT.TYPE=QUADRATIC;
 DLIGHT.INTENSITY=300;
-DLIGHT.COLOUR=#FFFFFF;
+DLIGHT.COLOUR=#f0f0ff;
 
-STATES(IDLE)=TLMP:A:4:BRIGHT:NOTHING,
-             TLMP:B:4:BRIGHT:NOTHING,
-             TLMP:C:4:BRIGHT:NOTHING,
-             TLMP:D:4:BRIGHT:NOTHING;
+STATES(IDLE)=TLMP:A:2:BRIGHT:dlight_colour(#ffffff),
+             TLMP:A:2:BRIGHT:dlight_colour(#f8f8ff),
+             TLMP:B:2:BRIGHT:dlight_colour(#f0f0ff),
+             TLMP:B:2:BRIGHT:dlight_colour(#e8e8ff),
+             TLMP:C:2:BRIGHT:dlight_colour(#e0e0ff),
+             TLMP:C:2:BRIGHT:dlight_colour(#e8e8ff),
+             TLMP:D:2:BRIGHT:dlight_colour(#f0f0ff),
+             TLMP:D:2:BRIGHT:dlight_colour(#f8f8ff);
 
 [BRONZE_BLUE_TORCH:44]
 RADIUS=16;
@@ -747,24 +806,175 @@ DLIGHT.TYPE=QUADRATIC;
 DLIGHT.INTENSITY=300;
 DLIGHT.COLOUR=#0000C0;
 
-STATES(IDLE)=TBLU:A:4:BRIGHT:NOTHING,
-             TBLU:B:4:BRIGHT:NOTHING,
-             TBLU:C:4:BRIGHT:NOTHING,
-             TBLU:D:4:BRIGHT:NOTHING;
+STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
+             NULL:A:0:NORMAL:JUMP(IDLE3:1,30%),
+             NULL:A:0:BRIGHT:dlight_set(307),
+             TBLU:A:1:BRIGHT:dlight_colour(#1f2aff),
+             NULL:A:0:BRIGHT:dlight_set(347),
+             TBLU:A:1:BRIGHT:dlight_colour(#2e43ff),
+             NULL:A:0:BRIGHT:dlight_set(297),
+             TBLU:A:2:BRIGHT:dlight_colour(#1921ff),
+
+             NULL:B:0:BRIGHT:dlight_set(266),
+             TBLU:B:1:BRIGHT:dlight_colour(#0a0aff),
+             NULL:B:0:BRIGHT:dlight_set(312),
+             TBLU:B:2:BRIGHT:dlight_colour(#2432ff),
+             NULL:B:0:BRIGHT:dlight_set(321),
+             TBLU:B:1:BRIGHT:dlight_colour(#293bff),
+
+             NULL:C:0:BRIGHT:dlight_set(301),
+             TBLU:C:2:BRIGHT:dlight_colour(#1f2aff),
+             NULL:C:0:BRIGHT:dlight_set(329),
+             TBLU:C:1:BRIGHT:dlight_colour(#293bff),
+             NULL:C:0:BRIGHT:dlight_set(307),
+             TBLU:C:1:BRIGHT:dlight_colour(#1f2aff),
+
+             NULL:D:0:BRIGHT:dlight_set(334),
+             TBLU:D:2:BRIGHT:dlight_colour(#2e43ff),
+             NULL:D:0:BRIGHT:dlight_set(308),
+             TBLU:D:2:BRIGHT:dlight_colour(#1f2aff);
+
+STATES(IDLE2)=NULL:A:0:BRIGHT:dlight_set(332),
+             TBLU:A:2:BRIGHT:dlight_colour(#2e43ff),
+             NULL:A:0:BRIGHT:dlight_set(314),
+             TBLU:A:2:BRIGHT:dlight_colour(#2432ff),
+
+             NULL:B:0:BRIGHT:dlight_set(309),
+             TBLU:B:1:BRIGHT:dlight_colour(#1f2aff),
+             NULL:B:0:BRIGHT:dlight_set(319),
+             TBLU:B:1:BRIGHT:dlight_colour(#2432ff),
+             NULL:B:0:BRIGHT:dlight_set(340),
+             TBLU:B:2:BRIGHT:dlight_colour(#2e43ff),
+
+             NULL:C:0:BRIGHT:dlight_set(261),
+             TBLU:C:2:BRIGHT:dlight_colour(#0a0aff),
+             NULL:C:0:BRIGHT:dlight_set(318),
+             TBLU:C:2:BRIGHT:dlight_colour(#2432ff),
+
+             NULL:D:0:BRIGHT:dlight_set(275),
+             TBLU:D:1:BRIGHT:dlight_colour(#0a0aff),
+             NULL:D:0:BRIGHT:dlight_set(321),
+             TBLU:D:2:BRIGHT:dlight_colour(#293bff),
+             NULL:D:0:BRIGHT:dlight_set(310),
+             TBLU:D:1:BRIGHT:dlight_colour(#2432ff),
+		  #IDLE:1;
+
+STATES(IDLE3)=NULL:A:0:BRIGHT:dlight_set(262),
+             TBLU:A:2:BRIGHT:dlight_colour(#0a0aff),
+             NULL:A:0:BRIGHT:dlight_set(326),
+             TBLU:A:2:BRIGHT:dlight_colour(#293bff),
+
+             NULL:B:0:BRIGHT:dlight_set(303),
+             TBLU:B:1:BRIGHT:dlight_colour(#1f2aff),
+             NULL:B:0:BRIGHT:dlight_set(318),
+             TBLU:B:2:BRIGHT:dlight_colour(#2432ff),
+             NULL:B:0:BRIGHT:dlight_set(333),
+             TBLU:B:1:BRIGHT:dlight_colour(#2e43ff),
+
+             NULL:C:0:BRIGHT:dlight_set(304),
+             TBLU:C:1:BRIGHT:dlight_colour(#1f2aff),
+             NULL:C:0:BRIGHT:dlight_set(259),
+             TBLU:C:1:BRIGHT:dlight_colour(#0f53ff),
+             NULL:C:0:BRIGHT:dlight_set(317),
+             TBLU:C:2:BRIGHT:dlight_colour(#2432ff),
+
+             NULL:D:0:BRIGHT:dlight_set(252),
+             TBLU:D:2:BRIGHT:dlight_colour(#0a0aff),
+             NULL:D:0:BRIGHT:dlight_set(296),
+             TBLU:D:2:BRIGHT:dlight_colour(#1921ff),
+		  #IDLE:1;
+
 
 [BRONZE_GREEN_TORCH:45]
 RADIUS=16;
 HEIGHT=96;
 SPECIAL=SOLID,PASS_MISSILE,NOSHADOW;
 
-DLIGHT.TYPE=QUADRATIC;
+DLIGHT.TYPE=quadratic;
 DLIGHT.INTENSITY=300;
-DLIGHT.COLOUR=#00C000;
+DLIGHT.COLOUR=#33ff33;
 
-STATES(IDLE)=TGRN:A:4:BRIGHT:NOTHING,
-             TGRN:B:4:BRIGHT:NOTHING,
-             TGRN:C:4:BRIGHT:NOTHING,
-             TGRN:D:4:BRIGHT:NOTHING;
+STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
+             NULL:A:0:NORMAL:JUMP(IDLE3:1,30%),
+             NULL:A:0:BRIGHT:dlight_set(330),
+             TGRN:A:2:BRIGHT:dlight_colour(#33ff33),
+             NULL:A:0:BRIGHT:dlight_set(301),
+             TGRN:A:1:BRIGHT:dlight_colour(#52ff52),
+             NULL:A:0:BRIGHT:dlight_set(310),
+             TGRN:A:1:BRIGHT:dlight_colour(#47ff47),
+
+             NULL:B:0:BRIGHT:dlight_set(307),
+             TGRN:B:2:BRIGHT:dlight_colour(#52ff52),
+             NULL:B:0:BRIGHT:dlight_set(344),
+             TGRN:B:1:BRIGHT:dlight_colour(#33ff33),
+             NULL:B:0:BRIGHT:dlight_set(312),
+             TGRN:B:1:BRIGHT:dlight_colour(#47ff47),
+
+             NULL:C:0:BRIGHT:dlight_set(260),
+             TGRN:C:2:BRIGHT:dlight_colour(#66ff66),
+             NULL:C:0:BRIGHT:dlight_set(295),
+             TGRN:C:2:BRIGHT:dlight_colour(#5cff5c),
+
+             NULL:D:0:BRIGHT:dlight_set(314),
+             TGRN:D:1:BRIGHT:dlight_colour(#47ff47),
+             NULL:D:0:BRIGHT:dlight_set(322),
+             TGRN:D:1:BRIGHT:dlight_colour(#3dff3d),
+             NULL:D:0:BRIGHT:dlight_set(300),
+             TGRN:D:2:BRIGHT:dlight_colour(#52ff52);
+
+STATES(IDLE2)=NULL:A:0:BRIGHT:dlight_set(316),
+             TGRN:A:2:BRIGHT:dlight_colour(#47ff47),
+             NULL:A:0:BRIGHT:dlight_set(255),
+             TGRN:A:2:BRIGHT:dlight_colour(#66ff66),
+
+             NULL:B:0:BRIGHT:dlight_set(300),
+             TGRN:B:1:BRIGHT:dlight_colour(#52ff52),
+             NULL:B:0:BRIGHT:dlight_set(280),
+             TGRN:B:2:BRIGHT:dlight_colour(#5cff5c),
+             NULL:B:0:BRIGHT:dlight_set(320),
+             TGRN:B:1:BRIGHT:dlight_colour(#3dff3d),
+
+             NULL:C:0:BRIGHT:dlight_set(261),
+             TGRN:C:1:BRIGHT:dlight_colour(#66ff66),
+             NULL:C:0:BRIGHT:dlight_set(313),
+             TGRN:C:1:BRIGHT:dlight_colour(#47ff47),
+             NULL:C:0:BRIGHT:dlight_set(341),
+             TGRN:C:2:BRIGHT:dlight_colour(#33ff33),
+
+             NULL:D:0:BRIGHT:dlight_set(333),
+             TGRN:D:2:BRIGHT:dlight_colour(#33ff33),
+             NULL:D:0:BRIGHT:dlight_set(252),
+             TGRN:D:1:BRIGHT:dlight_colour(#66ff66),
+             NULL:D:0:BRIGHT:dlight_set(307),
+             TGRN:D:1:BRIGHT:dlight_colour(#52ff52),
+		  #IDLE:1;
+
+STATES(IDLE3)=NULL:A:0:BRIGHT:dlight_set(251),
+             TGRN:A:1:BRIGHT:dlight_colour(#66ff66),
+             NULL:A:0:BRIGHT:dlight_set(301),
+             TGRN:A:1:BRIGHT:dlight_colour(#52ff52),
+             NULL:A:0:BRIGHT:dlight_set(318),
+             TGRN:A:2:BRIGHT:dlight_colour(#47ff47),
+
+             NULL:B:0:BRIGHT:dlight_set(303),
+             TGRN:B:1:BRIGHT:dlight_colour(#52ff52),
+             NULL:B:0:BRIGHT:dlight_set(297),
+             TGRN:B:2:BRIGHT:dlight_colour(#5cff5c),
+             NULL:B:0:BRIGHT:dlight_set(330),
+             TGRN:B:1:BRIGHT:dlight_colour(#33ff33),
+
+             NULL:C:0:BRIGHT:dlight_set(258),
+             TGRN:C:1:BRIGHT:dlight_colour(#66ff66),
+             NULL:C:0:BRIGHT:dlight_set(302),
+             TGRN:C:2:BRIGHT:dlight_colour(#52ff52),
+             NULL:C:0:BRIGHT:dlight_set(266),
+             TGRN:C:1:BRIGHT:dlight_colour(#66ff66),
+
+             NULL:D:0:BRIGHT:dlight_set(327),
+             TGRN:D:2:BRIGHT:dlight_colour(#3dff3d),
+             NULL:D:0:BRIGHT:dlight_set(269),
+             TGRN:D:2:BRIGHT:dlight_colour(#66ff66),
+		  #IDLE:1;
 
 [BRONZE_RED_TORCH:46]
 RADIUS=16;
@@ -773,12 +983,91 @@ SPECIAL=SOLID,PASS_MISSILE,NOSHADOW;
 
 DLIGHT.TYPE=QUADRATIC;
 DLIGHT.INTENSITY=300;
-DLIGHT.COLOUR=#FF0000;
+DLIGHT.COLOUR=#ffbb10;
 
-STATES(IDLE)=TRED:A:4:BRIGHT:NOTHING,
-             TRED:B:4:BRIGHT:NOTHING,
-             TRED:C:4:BRIGHT:NOTHING,
-             TRED:D:4:BRIGHT:NOTHING;
+STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
+             NULL:A:0:NORMAL:JUMP(IDLE3:1,35%),
+             NULL:A:0:BRIGHT:dlight_set(310),
+             TRED:A:2:BRIGHT:dlight_colour(#ff530f),
+             NULL:A:0:BRIGHT:dlight_set(320),
+             TRED:A:1:BRIGHT:dlight_colour(#ff5b0f),
+             NULL:A:0:BRIGHT:dlight_set(298),
+             TRED:A:1:BRIGHT:dlight_colour(#ff430f),
+
+             TRED:B:1:BRIGHT:NOTHING,
+             NULL:B:0:BRIGHT:dlight_set(290),
+             TRED:B:2:BRIGHT:dlight_colour(#ff430f),
+             NULL:B:0:BRIGHT:dlight_set(305),
+             TRED:B:1:BRIGHT:dlight_colour(#ff4b0f),
+
+             NULL:C:0:BRIGHT:dlight_set(311),
+             TRED:C:2:BRIGHT:dlight_colour(#ff530f),
+             NULL:C:0:BRIGHT:dlight_set(256),
+             TRED:C:2:BRIGHT:dlight_colour(#ff2b0f),
+
+             NULL:D:0:BRIGHT:dlight_set(324),
+             TRED:D:1:BRIGHT:dlight_colour(#ff5b0f),
+             NULL:D:0:BRIGHT:dlight_set(310),
+             TRED:D:1:BRIGHT:dlight_colour(#ff530f),
+             NULL:D:0:BRIGHT:dlight_set(260),
+             TRED:D:1:BRIGHT:dlight_colour(#ff2b0f),
+             NULL:D:0:BRIGHT:dlight_set(330),
+             TRED:D:1:BRIGHT:dlight_colour(#ff630f);
+
+STATES(IDLE2)=NULL:A:0:BRIGHT:dlight_set(307),
+             TRED:A:2:BRIGHT:dlight_colour(#ff4b0f),
+             NULL:A:0:BRIGHT:dlight_set(321),
+             TRED:A:2:BRIGHT:dlight_colour(#ff5b0f),
+
+             NULL:B:0:BRIGHT:dlight_set(335),
+             TRED:B:1:BRIGHT:dlight_colour(#ff630f),
+             NULL:B:0:BRIGHT:dlight_set(265),
+             TRED:B:2:BRIGHT:dlight_colour(#ff2b0f),
+             NULL:B:0:BRIGHT:dlight_set(301),
+             TRED:B:1:BRIGHT:dlight_colour(#ff4b0f),
+
+             NULL:C:0:BRIGHT:dlight_set(326),
+             TRED:C:2:BRIGHT:dlight_colour(#ff5b0f),
+             NULL:C:0:BRIGHT:dlight_set(318),
+             TRED:C:1:BRIGHT:dlight_colour(#ff530f),
+             NULL:C:0:BRIGHT:dlight_set(296),
+             TRED:C:1:BRIGHT:dlight_colour(#ff430f),
+
+             NULL:D:0:BRIGHT:dlight_set(260),
+             TRED:D:1:BRIGHT:dlight_colour(#ff2b0f),
+             NULL:D:0:BRIGHT:dlight_set(299),
+             TRED:D:2:BRIGHT:dlight_colour(#ff430f),
+             NULL:D:0:BRIGHT:dlight_set(269),
+             TRED:D:1:BRIGHT:dlight_colour(#ff2b0f),
+		  #IDLE:1;
+
+STATES(IDLE3)=NULL:A:0:BRIGHT:dlight_set(298),
+             TRED:A:1:BRIGHT:dlight_colour(#ff430f),
+             NULL:A:0:BRIGHT:dlight_set(314),
+             TRED:A:1:BRIGHT:dlight_colour(#ff530f),
+             NULL:A:0:BRIGHT:dlight_set(308),
+             TRED:A:1:BRIGHT:dlight_colour(#ff4b0f),
+             NULL:A:0:BRIGHT:dlight_set(321),
+             TRED:A:1:BRIGHT:dlight_colour(#ff5b0f),
+
+             NULL:B:0:BRIGHT:dlight_set(345),
+             TRED:B:2:BRIGHT:dlight_colour(#ff630f),
+             NULL:B:0:BRIGHT:dlight_set(299),
+             TRED:B:1:BRIGHT:dlight_colour(#ff430f),
+             NULL:B:0:BRIGHT:dlight_set(300),
+             TRED:B:1:BRIGHT:dlight_colour(#ff4b0f),
+
+             TRED:C:1:BRIGHT:NOTHING,
+             NULL:C:0:BRIGHT:dlight_set(250),
+             TRED:C:1:BRIGHT:dlight_colour(#ff2b0f),
+             NULL:C:0:BRIGHT:dlight_set(326),
+             TRED:C:2:BRIGHT:dlight_colour(#ff5b0f),
+
+             NULL:D:0:BRIGHT:dlight_set(261),
+             TRED:D:2:BRIGHT:dlight_colour(#ff2b0f),
+             NULL:D:0:BRIGHT:dlight_set(346),
+             TRED:D:2:BRIGHT:dlight_colour(#ff630f),
+		  #IDLE:1;
 
 [WOODEN_BLUE_TORCH:55]
 RADIUS=16;
@@ -786,27 +1075,178 @@ HEIGHT=72;
 SPECIAL=SOLID,PASS_MISSILE,NOSHADOW;
 
 DLIGHT.TYPE=QUADRATIC;
-DLIGHT.INTENSITY=300;
+DLIGHT.INTENSITY=256;
 DLIGHT.COLOUR=#0000C0;
 
-STATES(IDLE)=SMBT:A:4:BRIGHT:NOTHING,
-             SMBT:B:4:BRIGHT:NOTHING,
-             SMBT:C:4:BRIGHT:NOTHING,
-             SMBT:D:4:BRIGHT:NOTHING;
-                         
+
+STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
+             NULL:A:0:NORMAL:JUMP(IDLE3:1,30%),
+             NULL:A:0:BRIGHT:dlight_set(257),
+             SMBT:A:1:BRIGHT:dlight_colour(#1430ff),
+             NULL:A:0:BRIGHT:dlight_set(297),
+             SMBT:A:1:BRIGHT:dlight_colour(#2448ff),
+             NULL:A:0:BRIGHT:dlight_set(297),
+             SMBT:A:2:BRIGHT:dlight_colour(#0f27ff),
+
+             NULL:B:0:BRIGHT:dlight_set(216),
+             SMBT:B:1:BRIGHT:dlight_colour(#0a0aff),
+             NULL:B:0:BRIGHT:dlight_set(262),
+             SMBT:B:2:BRIGHT:dlight_colour(#1938ff),
+             NULL:B:0:BRIGHT:dlight_set(321),
+             SMBT:B:1:BRIGHT:dlight_colour(#1f40ff),
+
+             NULL:C:0:BRIGHT:dlight_set(251),
+             SMBT:C:2:BRIGHT:dlight_colour(#1430ff),
+             NULL:C:0:BRIGHT:dlight_set(279),
+             SMBT:C:1:BRIGHT:dlight_colour(#1f40ff),
+             NULL:C:0:BRIGHT:dlight_set(257),
+             SMBT:C:1:BRIGHT:dlight_colour(#1430ff),
+
+             NULL:D:0:BRIGHT:dlight_set(284),
+             SMBT:D:2:BRIGHT:dlight_colour(#2448ff),
+             NULL:D:0:BRIGHT:dlight_set(258),
+             SMBT:D:2:BRIGHT:dlight_colour(#1430ff);
+
+STATES(IDLE2)=NULL:A:0:BRIGHT:dlight_set(282),
+             SMBT:A:2:BRIGHT:dlight_colour(#2448ff),
+             NULL:A:0:BRIGHT:dlight_set(264),
+             SMBT:A:2:BRIGHT:dlight_colour(#1938ff),
+
+             NULL:B:0:BRIGHT:dlight_set(259),
+             SMBT:B:1:BRIGHT:dlight_colour(#1430ff),
+             NULL:B:0:BRIGHT:dlight_set(269),
+             SMBT:B:1:BRIGHT:dlight_colour(#1938ff),
+             NULL:B:0:BRIGHT:dlight_set(290),
+             SMBT:B:2:BRIGHT:dlight_colour(#2448ff),
+
+             NULL:C:0:BRIGHT:dlight_set(211),
+             SMBT:C:2:BRIGHT:dlight_colour(#0a0aff),
+             NULL:C:0:BRIGHT:dlight_set(268),
+             SMBT:C:2:BRIGHT:dlight_colour(#1938ff),
+
+             NULL:D:0:BRIGHT:dlight_set(225),
+             SMBT:D:1:BRIGHT:dlight_colour(#0a0aff),
+             NULL:D:0:BRIGHT:dlight_set(271),
+             SMBT:D:2:BRIGHT:dlight_colour(#1f40ff),
+             NULL:D:0:BRIGHT:dlight_set(260),
+             SMBT:D:1:BRIGHT:dlight_colour(#0f47ff),
+		  #IDLE:1;
+
+STATES(IDLE3)=NULL:A:0:BRIGHT:dlight_set(212),
+             SMBT:A:2:BRIGHT:dlight_colour(#0a0aff),
+             NULL:A:0:BRIGHT:dlight_set(276),
+             SMBT:A:2:BRIGHT:dlight_colour(#1f40ff),
+
+             NULL:B:0:BRIGHT:dlight_set(253),
+             SMBT:B:1:BRIGHT:dlight_colour(#1430ff),
+             NULL:B:0:BRIGHT:dlight_set(268),
+             SMBT:B:2:BRIGHT:dlight_colour(#1938ff),
+             NULL:B:0:BRIGHT:dlight_set(283),
+             SMBT:B:1:BRIGHT:dlight_colour(#2448ff),
+
+             NULL:C:0:BRIGHT:dlight_set(254),
+             SMBT:C:1:BRIGHT:dlight_colour(#1430ff),
+             NULL:C:0:BRIGHT:dlight_set(209),
+             SMBT:C:1:BRIGHT:dlight_colour(#0f53ff),
+             NULL:C:0:BRIGHT:dlight_set(267),
+             SMBT:C:2:BRIGHT:dlight_colour(#1938ff),
+
+             NULL:D:0:BRIGHT:dlight_set(202),
+             SMBT:D:2:BRIGHT:dlight_colour(#0a0aff),
+             NULL:D:0:BRIGHT:dlight_set(246),
+             SMBT:D:2:BRIGHT:dlight_colour(#0f27ff),
+		  #IDLE:1;
+
 [WOODEN_GREEN_TORCH:56]
 RADIUS=16;
 HEIGHT=72;
 SPECIAL=SOLID,PASS_MISSILE,NOSHADOW;
 
 DLIGHT.TYPE=QUADRATIC;
-DLIGHT.INTENSITY=300;
+DLIGHT.INTENSITY=256;
 DLIGHT.COLOUR=#00C000;
 
-STATES(IDLE)=SMGT:A:4:BRIGHT:NOTHING,
-             SMGT:B:4:BRIGHT:NOTHING,
-             SMGT:C:4:BRIGHT:NOTHING,
-             SMGT:D:4:BRIGHT:NOTHING;
+STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
+             NULL:A:0:NORMAL:JUMP(IDLE3:1,30%),
+             NULL:A:0:BRIGHT:dlight_set(270),
+             SMGT:A:2:BRIGHT:dlight_colour(#33ff33),
+             NULL:A:0:BRIGHT:dlight_set(251),
+             SMGT:A:1:BRIGHT:dlight_colour(#52ff52),
+             NULL:A:0:BRIGHT:dlight_set(260),
+             SMGT:A:1:BRIGHT:dlight_colour(#47ff47),
+
+             NULL:B:0:BRIGHT:dlight_set(257),
+             SMGT:B:2:BRIGHT:dlight_colour(#52ff52),
+             NULL:B:0:BRIGHT:dlight_set(294),
+             SMGT:B:1:BRIGHT:dlight_colour(#33ff33),
+             NULL:B:0:BRIGHT:dlight_set(262),
+             SMGT:B:1:BRIGHT:dlight_colour(#47ff47),
+
+             NULL:C:0:BRIGHT:dlight_set(210),
+             SMGT:C:2:BRIGHT:dlight_colour(#66ff66),
+             NULL:C:0:BRIGHT:dlight_set(245),
+             SMGT:C:2:BRIGHT:dlight_colour(#5cff5c),
+
+             NULL:D:0:BRIGHT:dlight_set(264),
+             SMGT:D:1:BRIGHT:dlight_colour(#47ff47),
+             NULL:D:0:BRIGHT:dlight_set(272),
+             SMGT:D:1:BRIGHT:dlight_colour(#3dff3d),
+             NULL:D:0:BRIGHT:dlight_set(250),
+             SMGT:D:2:BRIGHT:dlight_colour(#52ff52);
+
+STATES(IDLE2)=NULL:A:0:BRIGHT:dlight_set(266),
+             SMGT:A:2:BRIGHT:dlight_colour(#47ff47),
+             NULL:A:0:BRIGHT:dlight_set(205),
+             SMGT:A:2:BRIGHT:dlight_colour(#66ff66),
+
+             NULL:B:0:BRIGHT:dlight_set(250),
+             SMGT:B:1:BRIGHT:dlight_colour(#52ff52),
+             NULL:B:0:BRIGHT:dlight_set(230),
+             SMGT:B:2:BRIGHT:dlight_colour(#5cff5c),
+             NULL:B:0:BRIGHT:dlight_set(270),
+             SMGT:B:1:BRIGHT:dlight_colour(#3dff3d),
+
+             NULL:C:0:BRIGHT:dlight_set(211),
+             SMGT:C:1:BRIGHT:dlight_colour(#66ff66),
+             NULL:C:0:BRIGHT:dlight_set(263),
+             SMGT:C:1:BRIGHT:dlight_colour(#47ff47),
+             NULL:C:0:BRIGHT:dlight_set(291),
+             SMGT:C:2:BRIGHT:dlight_colour(#33ff33),
+
+             NULL:D:0:BRIGHT:dlight_set(283),
+             SMGT:D:2:BRIGHT:dlight_colour(#33ff33),
+             NULL:D:0:BRIGHT:dlight_set(202),
+             SMGT:D:1:BRIGHT:dlight_colour(#66ff66),
+             NULL:D:0:BRIGHT:dlight_set(257),
+             SMGT:D:1:BRIGHT:dlight_colour(#52ff52),
+		  #IDLE:1;
+
+STATES(IDLE3)=NULL:A:0:BRIGHT:dlight_set(201),
+             SMGT:A:1:BRIGHT:dlight_colour(#66ff66),
+             NULL:A:0:BRIGHT:dlight_set(251),
+             SMGT:A:1:BRIGHT:dlight_colour(#52ff52),
+             NULL:A:0:BRIGHT:dlight_set(268),
+             SMGT:A:2:BRIGHT:dlight_colour(#47ff47),
+
+             NULL:B:0:BRIGHT:dlight_set(253),
+             SMGT:B:1:BRIGHT:dlight_colour(#52ff52),
+             NULL:B:0:BRIGHT:dlight_set(247),
+             SMGT:B:2:BRIGHT:dlight_colour(#5cff5c),
+             NULL:B:0:BRIGHT:dlight_set(280),
+             SMGT:B:1:BRIGHT:dlight_colour(#33ff33),
+
+             NULL:C:0:BRIGHT:dlight_set(208),
+             SMGT:C:1:BRIGHT:dlight_colour(#66ff66),
+             NULL:C:0:BRIGHT:dlight_set(252),
+             SMGT:C:2:BRIGHT:dlight_colour(#52ff52),
+             NULL:C:0:BRIGHT:dlight_set(216),
+             SMGT:C:1:BRIGHT:dlight_colour(#66ff66),
+
+             NULL:D:0:BRIGHT:dlight_set(277),
+             SMGT:D:2:BRIGHT:dlight_colour(#3dff3d),
+             NULL:D:0:BRIGHT:dlight_set(219),
+             SMGT:D:2:BRIGHT:dlight_colour(#66ff66),
+		  #IDLE:1;
 
 [WOODEN_RED_TORCH:57]
 RADIUS=16;
@@ -814,13 +1254,92 @@ HEIGHT=72;
 SPECIAL=SOLID,PASS_MISSILE,NOSHADOW;
 
 DLIGHT.TYPE=QUADRATIC;
-DLIGHT.INTENSITY=300;
+DLIGHT.INTENSITY=256;
 DLIGHT.COLOUR=#FF0000;
 
-STATES(IDLE)=SMRT:A:4:BRIGHT:NOTHING,
-             SMRT:B:4:BRIGHT:NOTHING,
-             SMRT:C:4:BRIGHT:NOTHING,
-             SMRT:D:4:BRIGHT:NOTHING;
+STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
+             NULL:A:0:NORMAL:JUMP(IDLE3:1,35%),
+             NULL:A:0:BRIGHT:dlight_set(260),
+             SMRT:A:2:BRIGHT:dlight_colour(#ff530f),
+             NULL:A:0:BRIGHT:dlight_set(270),
+             SMRT:A:1:BRIGHT:dlight_colour(#ff5b0f),
+             NULL:A:0:BRIGHT:dlight_set(248),
+             SMRT:A:1:BRIGHT:dlight_colour(#ff430f),
+
+             SMRT:B:1:BRIGHT:NOTHING,
+             NULL:B:0:BRIGHT:dlight_set(240),
+             SMRT:B:2:BRIGHT:dlight_colour(#ff430f),
+             NULL:B:0:BRIGHT:dlight_set(255),
+             SMRT:B:1:BRIGHT:dlight_colour(#ff4b0f),
+
+             NULL:C:0:BRIGHT:dlight_set(261),
+             SMRT:C:2:BRIGHT:dlight_colour(#ff530f),
+             NULL:C:0:BRIGHT:dlight_set(206),
+             SMRT:C:2:BRIGHT:dlight_colour(#ff2b0f),
+
+             NULL:D:0:BRIGHT:dlight_set(274),
+             SMRT:D:1:BRIGHT:dlight_colour(#ff5b0f),
+             NULL:D:0:BRIGHT:dlight_set(260),
+             SMRT:D:1:BRIGHT:dlight_colour(#ff530f),
+             NULL:D:0:BRIGHT:dlight_set(210),
+             SMRT:D:1:BRIGHT:dlight_colour(#ff2b0f),
+             NULL:D:0:BRIGHT:dlight_set(280),
+             SMRT:D:1:BRIGHT:dlight_colour(#ff630f);
+
+STATES(IDLE2)=NULL:A:0:BRIGHT:dlight_set(257),
+             SMRT:A:2:BRIGHT:dlight_colour(#ff4b0f),
+             NULL:A:0:BRIGHT:dlight_set(271),
+             SMRT:A:2:BRIGHT:dlight_colour(#ff5b0f),
+
+             NULL:B:0:BRIGHT:dlight_set(285),
+             SMRT:B:1:BRIGHT:dlight_colour(#ff630f),
+             NULL:B:0:BRIGHT:dlight_set(215),
+             SMRT:B:2:BRIGHT:dlight_colour(#ff2b0f),
+             NULL:B:0:BRIGHT:dlight_set(251),
+             SMRT:B:1:BRIGHT:dlight_colour(#ff4b0f),
+
+             NULL:C:0:BRIGHT:dlight_set(276),
+             SMRT:C:2:BRIGHT:dlight_colour(#ff5b0f),
+             NULL:C:0:BRIGHT:dlight_set(268),
+             SMRT:C:1:BRIGHT:dlight_colour(#ff530f),
+             NULL:C:0:BRIGHT:dlight_set(246),
+             SMRT:C:1:BRIGHT:dlight_colour(#ff430f),
+
+             NULL:D:0:BRIGHT:dlight_set(210),
+             SMRT:D:1:BRIGHT:dlight_colour(#ff2b0f),
+             NULL:D:0:BRIGHT:dlight_set(249),
+             SMRT:D:2:BRIGHT:dlight_colour(#ff430f),
+             NULL:D:0:BRIGHT:dlight_set(219),
+             SMRT:D:1:BRIGHT:dlight_colour(#ff2b0f),
+		  #IDLE:1;
+
+STATES(IDLE3)=NULL:A:0:BRIGHT:dlight_set(248),
+             SMRT:A:1:BRIGHT:dlight_colour(#ff430f),
+             NULL:A:0:BRIGHT:dlight_set(264),
+             SMRT:A:1:BRIGHT:dlight_colour(#ff530f),
+             NULL:A:0:BRIGHT:dlight_set(258),
+             SMRT:A:1:BRIGHT:dlight_colour(#ff4b0f),
+             NULL:A:0:BRIGHT:dlight_set(271),
+             SMRT:A:1:BRIGHT:dlight_colour(#ff5b0f),
+
+             NULL:B:0:BRIGHT:dlight_set(295),
+             SMRT:B:2:BRIGHT:dlight_colour(#ff630f),
+             NULL:B:0:BRIGHT:dlight_set(249),
+             SMRT:B:1:BRIGHT:dlight_colour(#ff430f),
+             NULL:B:0:BRIGHT:dlight_set(250),
+             SMRT:B:1:BRIGHT:dlight_colour(#ff4b0f),
+
+             SMRT:C:1:BRIGHT:NOTHING,
+             NULL:C:0:BRIGHT:dlight_set(200),
+             SMRT:C:1:BRIGHT:dlight_colour(#ff2b0f),
+             NULL:C:0:BRIGHT:dlight_set(276),
+             SMRT:C:2:BRIGHT:dlight_colour(#ff5b0f),
+
+             NULL:D:0:BRIGHT:dlight_set(211),
+             SMRT:D:2:BRIGHT:dlight_colour(#ff2b0f),
+             NULL:D:0:BRIGHT:dlight_set(296),
+             SMRT:D:2:BRIGHT:dlight_colour(#ff630f),
+		  #IDLE:1;
 
 [BURNING_BARREL:70]
 RADIUS=16;
@@ -832,10 +1351,57 @@ DLIGHT.COLOUR=#FFFF40;
 
 SPECIAL=SOLID,PASS_MISSILE,CLIMBABLE,NOSHADOW;
 
-STATES(IDLE)=FCAN:A:4:BRIGHT:NOTHING,
-             FCAN:B:4:BRIGHT:NOTHING,
-             FCAN:C:4:BRIGHT:NOTHING;
-       
+STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
+             NULL:A:0:NORMAL:JUMP(IDLE3:1,35%),
+             NULL:A:0:BRIGHT:dlight_set(300),
+             FCAN:A:2:BRIGHT:dlight_colour(#d7bb43),
+             NULL:A:0:BRIGHT:dlight_set(290),
+             FCAN:A:2:BRIGHT:dlight_colour(#cf9b2f),
+
+             NULL:B:0:BRIGHT:dlight_set(307),
+             FCAN:B:2:BRIGHT:dlight_colour(#d7bb43),
+             NULL:B:0:BRIGHT:dlight_set(316),
+             FCAN:B:2:BRIGHT:dlight_colour(#e0cc46),
+
+             NULL:C:0:BRIGHT:dlight_set(292),
+             FCAN:C:2:BRIGHT:dlight_colour(#cf9b2f),
+             NULL:C:0:BRIGHT:dlight_set(331),
+             FCAN:C:2:BRIGHT:dlight_colour(#ffff73);
+
+STATES(IDLE2)=NULL:A:0:BRIGHT:dlight_set(304),
+             FCAN:A:1:BRIGHT:dlight_colour(#d7bb43),
+             NULL:A:0:BRIGHT:dlight_set(345),
+             FCAN:A:2:BRIGHT:dlight_colour(#ffff73),
+             NULL:A:0:BRIGHT:dlight_set(289),
+             FCAN:A:1:BRIGHT:dlight_colour(#cf9b2f),
+
+             NULL:B:0:BRIGHT:dlight_set(306),
+             FCAN:B:3:BRIGHT:dlight_colour(#d7bb43),
+             NULL:B:0:BRIGHT:dlight_set(311),
+             FCAN:B:1:BRIGHT:dlight_colour(#e0cc46),
+
+             NULL:C:0:BRIGHT:dlight_set(301),
+             FCAN:C:2:BRIGHT:dlight_colour(#d7bb43),
+             NULL:C:0:BRIGHT:dlight_set(337),
+             FCAN:C:2:BRIGHT:dlight_colour(#ffff73),
+             #IDLE:1;
+
+STATES(IDLE3)=NULL:A:0:BRIGHT:dlight_set(317),
+             FCAN:A:3:BRIGHT:dlight_colour(#e0cc46),
+             NULL:A:0:BRIGHT:dlight_set(303),
+             FCAN:A:1:BRIGHT:dlight_colour(#d7bb43),
+
+             NULL:B:0:BRIGHT:dlight_set(317),
+             FCAN:B:1:BRIGHT:dlight_colour(#e0cc46),
+             NULL:B:0:BRIGHT:dlight_set(292),
+             FCAN:B:3:BRIGHT:dlight_colour(#cf9b2f),
+
+             NULL:C:0:BRIGHT:dlight_set(333),
+             FCAN:C:2:BRIGHT:dlight_colour(#ffff73),
+             NULL:C:0:BRIGHT:dlight_set(315),
+             FCAN:C:2:BRIGHT:dlight_colour(#e0cc46),
+             #IDLE:1;
+
 // Note: mis-spelled entry (should be DEAD_GIBBED_PLAYER1), but can't
 //       be fixed because it breaks savegames.
 [DEAD_GIBBER_PLAYER1:10]
@@ -932,12 +1498,37 @@ STATES(IDLE)=POL2:A:-1:NORMAL:NOTHING;
 RADIUS=20;
 HEIGHT=40;
 DLIGHT.TYPE=QUADRATIC;
-DLIGHT.INTENSITY=300;
-DLIGHT.COLOUR=#FFFF40;
+DLIGHT.INTENSITY=200;
+DLIGHT.COLOUR=#d75f0b;
 SPECIAL=SOLID,PASS_MISSILE,NOSHADOW;
 
-STATES(IDLE)=POL3:A:6:BRIGHT:NOTHING,
-             POL3:B:6:BRIGHT:NOTHING;
+STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
+             NULL:A:0:NORMAL:JUMP(IDLE3:1,30%),
+             POL3:A:2:BRIGHT:dlight_set(266),
+             POL3:A:1:BRIGHT:dlight_set(205),
+             POL3:A:3:BRIGHT:dlight_set(248),
+
+             POL3:B:3:BRIGHT:dlight_set(233),
+             POL3:B:1:BRIGHT:dlight_set(219),
+             POL3:B:2:BRIGHT:dlight_set(226);
+
+STATES(IDLE2)=POL3:A:2:BRIGHT:dlight_set(234),
+             POL3:A:2:BRIGHT:dlight_set(259),
+             POL3:A:2:BRIGHT:dlight_set(240),
+
+             POL3:B:1:BRIGHT:dlight_set(202),
+             POL3:B:3:BRIGHT:dlight_set(231),
+             POL3:B:2:BRIGHT:dlight_set(244),
+             #IDLE:1;
+
+STATES(IDLE3)=POL3:A:1:BRIGHT:dlight_set(266),
+             POL3:A:1:BRIGHT:dlight_set(191),
+             POL3:A:4:BRIGHT:dlight_set(227),
+
+             POL3:B:2:BRIGHT:dlight_set(237),
+             POL3:B:3:BRIGHT:dlight_set(231),
+             POL3:B:1:BRIGHT:dlight_set(250),
+             #IDLE:1;
 
 [TALL_GREEN_COLUMN:30]
 RADIUS=16;
@@ -972,20 +1563,65 @@ RADIUS=16;
 HEIGHT=16;
 DLIGHT.TYPE=QUADRATIC;
 DLIGHT.INTENSITY=100;
-DLIGHT.COLOUR=#FFFFFF;
+DLIGHT.COLOUR=#ffe74b;
 SPECIAL=NOSHADOW;
 
-STATES(IDLE)=CAND:A:-1:BRIGHT:NOTHING;
+STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
+            NULL:A:0:NORMAL:JUMP(IDLE3:1,30%),
+            CAND:A:5:BRIGHT:dlight_set(110),
+            cand:a:2:bright:dlight_set(80),
+            cand:a:8:bright:dlight_set(100),
+            cand:a:1:bright:dlight_set(85),
+            cand:a:3:bright:dlight_set(125),
+            cand:a:1:bright:dlight_set(79);
+
+STATES(IDLE2)=CAND:A:5:BRIGHT:dlight_set(110),
+             CAND:A:2:BRIGHT:dlight_set(78),
+             CAND:A:7:BRIGHT:dlight_set(120),
+             CAND:A:1:BRIGHT:dlight_set(81),
+             #IDLE:1;
+
+STATES(IDLE3)=CAND:A:5:BRIGHT:dlight_set(123),
+             CAND:A:3:BRIGHT:dlight_set(95),
+             CAND:A:1:BRIGHT:dlight_set(82),
+             CAND:A:4:BRIGHT:dlight_set(118),
+             CAND:A:2:BRIGHT:dlight_set(79),
+             CAND:A:8:BRIGHT:dlight_set(105),
+             CAND:A:1:BRIGHT:dlight_set(80),
+             CAND:A:8:BRIGHT:dlight_set(121),
+             #IDLE:1;
 
 [CANDELABRA:35]
 RADIUS=16;
 HEIGHT=56;
 DLIGHT.TYPE=QUADRATIC;
 DLIGHT.INTENSITY=300;
-DLIGHT.COLOUR=#FFFFFF;
+DLIGHT.COLOUR=#ffe74b;
 SPECIAL=SOLID,PASS_MISSILE,NOSHADOW;
 
-STATES(IDLE)=CBRA:A:-1:BRIGHT:NOTHING;
+STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
+             NULL:A:0:NORMAL:JUMP(IDLE3:1,30%),
+             CBRA:a:3:BRIGHT:dlight_set(330),
+             CBRA:a:2:bright:dlight_set(280),
+             CBRA:a:4:bright:dlight_set(300),
+             CBRA:a:1:bright:dlight_set(265),
+             CBRA:a:3:bright:dlight_set(360),
+             CBRA:a:1:bright:dlight_set(256);
+
+STATES(IDLE2)=CBRA:A:5:BRIGHT:dlight_set(328),
+             CBRA:A:2:BRIGHT:dlight_set(257),
+             CBRA:A:7:BRIGHT:dlight_set(299),
+             CBRA:A:1:BRIGHT:dlight_set(261),
+             #IDLE:1;
+
+STATES(IDLE3)=CBRA:A:5:BRIGHT:dlight_set(340),
+             CBRA:A:1:BRIGHT:dlight_set(252),
+             CBRA:A:4:BRIGHT:dlight_set(320),
+             CBRA:A:2:BRIGHT:dlight_set(250),
+             CBRA:A:8:BRIGHT:dlight_set(315),
+             CBRA:A:1:BRIGHT:dlight_set(259),
+             CBRA:A:8:BRIGHT:dlight_set(322),
+             #IDLE:1;
 
 [BEATING_HEART_COLUMN:36]
 RADIUS=16;
@@ -1005,12 +1641,35 @@ STATES(IDLE)=COL6:A:-1:NORMAL:NOTHING;
 [EYE_SYMBOL:41]
 RADIUS=16;
 HEIGHT=56;
+DLIGHT.TYPE=QUADRATIC;
+DLIGHT.INTENSITY=100;
+DLIGHT.COLOUR=#ffe74b;
 SPECIAL=SOLID,PASS_MISSILE;
 
-STATES(IDLE)=CEYE:A:6:BRIGHT:NOTHING,
-             CEYE:B:6:BRIGHT:NOTHING,
-             CEYE:C:6:BRIGHT:NOTHING,
-             CEYE:B:6:BRIGHT:NOTHING;
+STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
+            NULL:A:0:NORMAL:JUMP(IDLE3:1,30%),
+            CEYE:A:5:BRIGHT:dlight_set(110),
+            CEYE:a:2:bright:dlight_set(80),
+            CEYE:a:8:bright:dlight_set(100),
+            CEYE:a:1:bright:dlight_set(85),
+            CEYE:a:3:bright:dlight_set(125),
+            CEYE:a:1:bright:dlight_set(79);
+
+STATES(IDLE2)=CEYE:A:5:BRIGHT:dlight_set(110),
+             CEYE:A:2:BRIGHT:dlight_set(78),
+             CEYE:A:7:BRIGHT:dlight_set(120),
+             CEYE:A:1:BRIGHT:dlight_set(81),
+             #IDLE:1;
+
+STATES(IDLE3)=CEYE:A:5:BRIGHT:dlight_set(123),
+             CEYE:A:3:BRIGHT:dlight_set(95),
+             CEYE:A:1:BRIGHT:dlight_set(82),
+             CEYE:A:4:BRIGHT:dlight_set(118),
+             CEYE:A:2:BRIGHT:dlight_set(79),
+             CEYE:A:8:BRIGHT:dlight_set(105),
+             CEYE:A:1:BRIGHT:dlight_set(80),
+             CEYE:A:8:BRIGHT:dlight_set(121),
+             #IDLE:1;
 
 [FLOATING_SKULLROCK:42]
 RADIUS=16;
@@ -1022,9 +1681,27 @@ DLIGHT.COLOUR=#FFFF40;
 
 SPECIAL=SOLID,PASS_MISSILE,CLIMBABLE,NOSHADOW;
 
-STATES(IDLE)=FSKU:A:6:BRIGHT:NOTHING,
-             FSKU:B:6:BRIGHT:NOTHING,
-             FSKU:C:6:BRIGHT:NOTHING;
+STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
+             FSKU:A:2:BRIGHT:dlight_set(308),
+             FSKU:A:2:BRIGHT:dlight_set(295),
+             FSKU:A:2:BRIGHT:dlight_set(268),
+             FSKU:B:2:BRIGHT:dlight_set(255),
+             FSKU:B:2:BRIGHT:dlight_set(260),
+             FSKU:B:2:BRIGHT:dlight_set(270),
+             FSKU:C:2:BRIGHT:dlight_set(285),
+             FSKU:C:2:BRIGHT:dlight_set(300),
+             FSKU:C:2:BRIGHT:dlight_set(320);
+
+STATES(IDLE2)=FSKU:A:2:BRIGHT:dlight_set(300),
+             FSKU:A:2:BRIGHT:dlight_set(295),
+             FSKU:A:2:BRIGHT:dlight_set(279),
+             FSKU:B:2:BRIGHT:dlight_set(270),
+             FSKU:B:2:BRIGHT:dlight_set(260),
+             FSKU:B:2:BRIGHT:dlight_set(290),
+             FSKU:C:2:BRIGHT:dlight_set(320),
+             FSKU:C:2:BRIGHT:dlight_set(315),
+             FSKU:C:2:BRIGHT:dlight_set(305),
+             #IDLE:1;
 
 [TORCHED_TREE:43]
 RADIUS=16;
@@ -1211,7 +1888,7 @@ RADIUS=10;
 HEIGHT=42;
 DLIGHT.TYPE=QUADRATIC;
 DLIGHT.INTENSITY=0;
-DLIGHT.COLOUR=#FFFFFF;
+DLIGHT.COLOUR=#FFaa77;
 EXPLODE_DAMAGE.VAL=128;
 EXPLODE_DAMAGE.OBITUARY="OB_EXPLODE";
 DEATH_SOUND="BAREXP";
@@ -1222,12 +1899,12 @@ STATES(IDLE)=BAR1:A:6:NORMAL:NOTHING,
 STATES(DEATH)=BEXP:A:0:BRIGHT:DLIGHT_SET(900),
               BEXP:A:0:BRIGHT:DLIGHT_FADE(0),
               BEXP:A:5:BRIGHT:NOTHING,
-              BEXP:B:5:BRIGHT:MAKEDEATHSOUND,   
-              BEXP:C:5:BRIGHT:NOTHING,          
-              BEXP:D:10:BRIGHT:EXPLOSIONDAMAGE, 
-              BEXP:E:10:BRIGHT:NOTHING,        
-             #REMOVE;                    
-                    
+              BEXP:B:5:BRIGHT:MAKEDEATHSOUND,
+              BEXP:C:5:BRIGHT:NOTHING,
+              BEXP:D:10:BRIGHT:EXPLOSIONDAMAGE,
+              BEXP:E:10:BRIGHT:NOTHING,
+             #REMOVE;
+
 // This did not have an entry in the mobjinfo table, although sprite and
 // state were present, so it got added as a new item -ACB- 1998/07/19
 [BURNT_SPIKE_STUMP:7010]
@@ -1406,7 +2083,7 @@ STATES(CHASE)=BSPI:A:20:NORMAL:NOTHING,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:F:3:NORMAL:CHASE,
-              BSPI:F:3:NORMAL:CHASE, 
+              BSPI:F:3:NORMAL:CHASE,
               #CHASE:2;
 
 STATES(MISSILE)=BSPI:A:20:BRIGHT:FACETARGET,
@@ -2154,33 +2831,247 @@ CAST_TITLE=LostSoulName;
 BLOOD=BLOOD;
 FLOAT_SPEED=2;
 SPECIAL=SOLID,SHOOTABLE,TRIGGER_HAPPY,FLOATER,NOGRAV_KILL,MONSTER,DISLOYAL,ATTACK_HURTS;
-TRANSLUCENCY=66%;
+//TRANSLUCENCY=66%;
+DLIGHT.TYPE=QUADRATIC;
+DLIGHT.INTENSITY=200;
+DLIGHT.COLOUR=#d58d66;
 MINATTACK_CHANCE=22%;
 ACTIVE_SOUND=DMACT;
 DEATH_SOUND=FIRXPL;
 PAIN_SOUND=DMPAIN;
 RANGE_ATTACK=SKULL_ASSAULT;
 
-STATES(IDLE)=SKUL:A:10:BRIGHT:LOOKOUT,
-             SKUL:B:10:BRIGHT:LOOKOUT;
+STATES(IDLE)=NULL:A:0:NORMAL:JUMP(IDLE2:1,30%),
+             NULL:A:0:NORMAL:JUMP(IDLE3:1,30%),
+             NULL:A:0:NORMAL:dlight_set(205),
+             NULL:A:0:NORMAL:dlight_colour(#ff4b0f),
+             SKUL:A:2:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(212),
+             NULL:A:0:NORMAL:dlight_colour(#ff530f),
+             SKUL:A:2:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(201),
+             NULL:A:0:NORMAL:dlight_colour(#ff4b0f),
+             SKUL:A:2:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(161),
+             NULL:A:0:NORMAL:dlight_colour(#ff2b0f),
+             SKUL:A:2:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(199),
+             NULL:A:0:NORMAL:dlight_colour(#ff430f),
+             SKUL:A:2:BRIGHT:LOOKOUT,
 
-STATES(CHASE)=SKUL:A:6:BRIGHT:CHASE,
-              SKUL:B:6:BRIGHT:CHASE;
+             NULL:A:0:NORMAL:dlight_set(218),
+             NULL:A:0:NORMAL:dlight_colour(#ff530f),
+             SKUL:B:2:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(224),
+             NULL:A:0:NORMAL:dlight_colour(#ff5b0f),
+             SKUL:B:2:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(207),
+             NULL:A:0:NORMAL:dlight_colour(#ff4b0f),
+             SKUL:B:2:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(215),
+             NULL:A:0:NORMAL:dlight_colour(#ff530f),
+             SKUL:B:2:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(200),
+             NULL:A:0:NORMAL:dlight_colour(#ff4b0f),
+             SKUL:B:2:BRIGHT:LOOKOUT;
 
-STATES(MISSILE)=SKUL:C:10:BRIGHT:FACETARGET,
+STATES(IDLE2)=NULL:A:0:NORMAL:dlight_set(218),
+             NULL:A:0:NORMAL:dlight_colour(#ff530f),
+             SKUL:A:3:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(226),
+             NULL:A:0:NORMAL:dlight_colour(#ff5b0f),
+             SKUL:A:2:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(194),
+             NULL:A:0:NORMAL:dlight_colour(#ff430f),
+             SKUL:A:1:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(218),
+             NULL:A:0:NORMAL:dlight_colour(#ff530f),
+             SKUL:A:2:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(206),
+             NULL:A:0:NORMAL:dlight_colour(#ff4b0f),
+             SKUL:A:2:BRIGHT:LOOKOUT,
+
+             NULL:A:0:NORMAL:dlight_set(229),
+             NULL:A:0:NORMAL:dlight_colour(#ff5b0f),
+             SKUL:B:1:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(207),
+             NULL:A:0:NORMAL:dlight_colour(#ff4b0f),
+             SKUL:B:3:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(168),
+             NULL:A:0:NORMAL:dlight_colour(#ff2b0f),
+             SKUL:B:1:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(209),
+             NULL:A:0:NORMAL:dlight_colour(#ff4b0f),
+             SKUL:B:2:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(221),
+             NULL:A:0:NORMAL:dlight_colour(#ff5b0f),
+             SKUL:B:3:BRIGHT:LOOKOUT,
+             #IDLE:1;
+
+STATES(IDLE3)=NULL:A:0:NORMAL:dlight_set(195),
+             NULL:A:0:NORMAL:dlight_colour(#ff430f),
+             SKUL:A:2:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(215),
+             NULL:A:0:NORMAL:dlight_colour(#ff530f),
+             SKUL:A:2:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(222),
+             NULL:A:0:NORMAL:dlight_colour(#ff5b0f),
+             SKUL:A:1:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(211),
+             NULL:A:0:NORMAL:dlight_colour(#ff530f),
+             SKUL:A:3:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(168),
+             NULL:A:0:NORMAL:dlight_colour(#ff2b0f),
+             SKUL:A:2:BRIGHT:LOOKOUT,
+
+             NULL:A:0:NORMAL:dlight_set(207),
+             NULL:A:0:NORMAL:dlight_colour(#ff4b0f),
+             SKUL:B:1:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(219),
+             NULL:A:0:NORMAL:dlight_colour(#ff530f),
+             SKUL:B:3:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(169),
+             NULL:A:0:NORMAL:dlight_colour(#ff2b0f),
+             SKUL:B:2:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(209),
+             NULL:A:0:NORMAL:dlight_colour(#ff4b0f),
+             SKUL:B:3:BRIGHT:LOOKOUT,
+             NULL:A:0:NORMAL:dlight_set(217),
+             NULL:A:0:NORMAL:dlight_colour(#ff530f),
+             SKUL:B:1:BRIGHT:LOOKOUT,
+             #IDLE:1;
+
+STATES(CHASE)=NULL:A:0:BRIGHT:dlight_set(209),
+              NULL:A:0:BRIGHT:dlight_colour(#ff4b0f),
+              SKUL:A:2:BRIGHT:CHASE,
+              NULL:A:0:BRIGHT:dlight_set(218),
+              NULL:A:0:BRIGHT:dlight_colour(#ff530f),
+              SKUL:A:3:BRIGHT:CHASE,
+              NULL:A:0:BRIGHT:dlight_set(192),
+              NULL:A:0:BRIGHT:dlight_colour(#ff430f),
+              SKUL:A:1:BRIGHT:CHASE,
+
+              NULL:B:0:BRIGHT:dlight_set(211),
+              NULL:B:0:BRIGHT:dlight_colour(#ff530f),
+              SKUL:B:3:BRIGHT:CHASE,
+              NULL:B:0:BRIGHT:dlight_set(168),
+              NULL:B:0:BRIGHT:dlight_colour(#ff2b0f),
+              SKUL:B:1:BRIGHT:CHASE,
+              NULL:B:0:BRIGHT:dlight_set(214),
+              NULL:B:0:BRIGHT:dlight_colour(#ff530f),
+              SKUL:B:2:BRIGHT:CHASE;
+
+STATES(CHASE2)=NULL:A:0:BRIGHT:dlight_set(224),
+              NULL:A:0:BRIGHT:dlight_colour(#ff5b0f),
+              SKUL:A:1:BRIGHT:CHASE,
+              NULL:A:0:BRIGHT:dlight_set(207),
+              NULL:A:0:BRIGHT:dlight_colour(#ff4b0f),
+              SKUL:A:2:BRIGHT:CHASE,
+              NULL:A:0:BRIGHT:dlight_set(215),
+              NULL:A:0:BRIGHT:dlight_colour(#ff530f),
+              SKUL:A:3:BRIGHT:CHASE,
+
+              NULL:B:0:BRIGHT:dlight_set(222),
+              NULL:B:0:BRIGHT:dlight_colour(#ff5b0f),
+              SKUL:B:2:BRIGHT:CHASE,
+              NULL:B:0:BRIGHT:dlight_set(194),
+              NULL:B:0:BRIGHT:dlight_colour(#ff430f),
+              SKUL:B:2:BRIGHT:CHASE,
+              NULL:B:0:BRIGHT:dlight_set(167),
+              NULL:B:0:BRIGHT:dlight_colour(#ff2b0f),
+              SKUL:B:2:BRIGHT:CHASE,
+              #CHASE:1;
+
+STATES(CHASE3)=NULL:A:0:BRIGHT:dlight_set(201),
+              NULL:A:0:BRIGHT:dlight_colour(#ff4b0f),
+              SKUL:A:2:BRIGHT:CHASE,
+              NULL:A:0:BRIGHT:dlight_set(164),
+              NULL:A:0:BRIGHT:dlight_colour(#ff2b0f),
+              SKUL:A:2:BRIGHT:CHASE,
+              NULL:A:0:BRIGHT:dlight_set(217),
+              NULL:A:0:BRIGHT:dlight_colour(#ff530f),
+              SKUL:A:2:BRIGHT:CHASE,
+
+              NULL:B:0:BRIGHT:dlight_set(227),
+              NULL:B:0:BRIGHT:dlight_colour(#ff5b0f),
+              SKUL:B:1:BRIGHT:CHASE,
+              NULL:B:0:BRIGHT:dlight_set(204),
+              NULL:B:0:BRIGHT:dlight_colour(#ff4b0f),
+              SKUL:B:2:BRIGHT:CHASE,
+              NULL:B:0:BRIGHT:dlight_set(219),
+              NULL:B:0:BRIGHT:dlight_colour(#ff530f),
+              SKUL:B:3:BRIGHT:CHASE,
+              #CHASE:1;
+
+STATES(MISSILE)=NULL:A:0:NORMAL:dlight_set(200),
+                NULL:A:0:NORMAL:dlight_colour(#d58d66),
+                SKUL:C:10:BRIGHT:FACETARGET,
+                NULL:A:0:NORMAL:dlight_set(234),
+                NULL:A:0:NORMAL:dlight_colour(#ff630f),
                 SKUL:D:4:BRIGHT:RANGE_ATTACK,
-                SKUL:C:4:BRIGHT:NOTHING,
-                SKUL:D:4:BRIGHT:NOTHING,
-                #MISSILE:3;
 
-STATES(PAIN)=SKUL:E:3:BRIGHT:NOTHING,
+                //Repeat to here
+                NULL:C:0:BRIGHT:dlight_set(228),
+                NULL:C:0:BRIGHT:dlight_colour(#ff5b0f),
+                SKUL:C:2:BRIGHT:NOTHING,
+                NULL:C:0:BRIGHT:dlight_set(237),
+                NULL:C:0:BRIGHT:dlight_colour(#ff630f),
+                SKUL:C:2:BRIGHT:NOTHING,
+
+                NULL:D:0:BRIGHT:dlight_set(216),
+                NULL:D:0:BRIGHT:dlight_colour(#ff530f),
+                SKUL:D:2:BRIGHT:NOTHING,
+                NULL:D:0:BRIGHT:dlight_set(234),
+                NULL:D:0:BRIGHT:dlight_colour(#ff630f),
+                SKUL:D:2:BRIGHT:NOTHING,
+                #MISSILE:7;
+
+STATES(PAIN)=NULL:E:0:NORMAL:JUMP(PAIN2:1,30%),
+             NULL:E:0:NORMAL:JUMP(PAIN3:1,30%),
+             NULL:E:0:BRIGHT:dlight_set(219),
+             NULL:E:0:BRIGHT:dlight_colour(#ff530f),
+             SKUL:E:3:BRIGHT:NOTHING,
+             NULL:E:0:BRIGHT:dlight_set(192),
+             NULL:E:0:BRIGHT:dlight_colour(#ff430f),
              SKUL:E:3:BRIGHT:MAKEPAINSOUND,
              #CHASE;
 
-STATES(DEATH)=SKUL:F:0:BRIGHT:TRANS_FADE(0%),
-              SKUL:F:6:BRIGHT:NOTHING,
-              SKUL:G:6:BRIGHT:MAKEDEATHSOUND,
-              SKUL:H:6:BRIGHT:NOTHING,
+STATES(PAIN2)=NULL:E:0:BRIGHT:dlight_set(201),
+             NULL:E:0:BRIGHT:dlight_colour(#ff4b0f),
+             SKUL:E:3:BRIGHT:NOTHING,
+             NULL:E:0:BRIGHT:dlight_set(223),
+             NULL:E:0:BRIGHT:dlight_colour(#ff5b0f),
+             SKUL:E:3:BRIGHT:MAKEPAINSOUND,
+             #CHASE;
+
+STATES(PAIN3)=NULL:E:0:BRIGHT:dlight_set(192),
+             NULL:E:0:BRIGHT:dlight_colour(#ff430f),
+             SKUL:E:3:BRIGHT:NOTHING,
+             NULL:E:0:BRIGHT:dlight_set(209),
+             NULL:E:0:BRIGHT:dlight_colour(#ff4b0f),
+             SKUL:E:3:BRIGHT:MAKEPAINSOUND,
+             #CHASE;
+
+STATES(DEATH)=NULL:F:0:BRIGHT:dlight_set(215),
+              NULL:F:0:BRIGHT:dlight_colour(#ff530f),
+              //Originally, transparency fade started here.
+              SKUL:F:3:BRIGHT:NOTHING,
+              NULL:F:0:BRIGHT:dlight_set(225),
+              NULL:F:0:BRIGHT:dlight_colour(#ff5b0f),
+              SKUL:F:3:BRIGHT:NOTHING,
+
+              NULL:G:0:BRIGHT:dlight_set(230),     //Explosion starts here
+              NULL:G:0:BRIGHT:dlight_colour(#d58d66),
+              SKUL:G:2:BRIGHT:MAKEDEATHSOUND,
+              SKUL:G:2:BRIGHT:dlight_set(245),
+              SKUL:G:2:BRIGHT:dlight_set(260),
+
+              SKUL:H:2:BRIGHT:dlight_set(275),
+              SKUL:H:2:BRIGHT:dlight_set(290),
+              SKUL:H:2:BRIGHT:dlight_set(305),
+
+              NULL:I:0:BRIGHT:dlight_set(320),     //Maximum brightness on this frame
+              NULL:I:0:BRIGHT:dlight_fade(0),
               SKUL:I:6:BRIGHT:MAKEDEAD,
               SKUL:J:6:NORMAL:NOTHING,
               SKUL:K:6:NORMAL:NOTHING,
@@ -3928,7 +4819,7 @@ STATES(CHASE)=BSPI:A:20:NORMAL:NOTHING,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:F:3:NORMAL:CHASE,
-              BSPI:F:3:NORMAL:CHASE, 
+              BSPI:F:3:NORMAL:CHASE,
               #CHASE:2;
 
 STATES(MISSILE)=BSPI:A:20:BRIGHT:FACETARGET,
@@ -4827,7 +5718,7 @@ STATES(CHASE)=BSPI:A:20:NORMAL:NOTHING,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:E:3:NORMAL:CHASE,
               BSPI:F:3:NORMAL:CHASE,
-              BSPI:F:3:NORMAL:CHASE, 
+              BSPI:F:3:NORMAL:CHASE,
               #CHASE:2;
 
 STATES(MISSILE)=BSPI:A:20:BRIGHT:FACETARGET,
@@ -4835,7 +5726,7 @@ STATES(MISSILE)=BSPI:A:20:BRIGHT:FACETARGET,
                 BSPI:H:1:BRIGHT:NOTHING,
                 BSPI:H:1:BRIGHT:REFIRE_CHECK,
                 #MISSILE:2;
- 
+
 STATES(PAIN)=BSPI:I:3:NORMAL:NOTHING,
            BSPI:I:3:NORMAL:MAKEPAINSOUND,
            #CHASE:2;

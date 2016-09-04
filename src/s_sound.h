@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Sound FX Handling Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -73,7 +73,7 @@ typedef enum
 
 	// monster bosses: sound is not diminished by distance
 	FX_Boss = (1 << 1),
-	
+
 	// only play one instance of this sound at this location.
 	FX_Single = (1 << 2),
 

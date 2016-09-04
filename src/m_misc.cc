@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Misc: Screenshots, Menu and defaults Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -111,7 +111,7 @@ static default_t defaults[] =
     {CFGT_Boolean,	"directx",			 &force_directx,  0},
     {CFGT_Boolean,	"waveout",			 &force_waveout,  0},
     {CFGT_Int,      "usegamma",          &var_gamma,  CFGDEF_CURRENT_GAMMA},
- 
+
     {CFGT_Int,      "sfx_volume",        &sfx_volume,     CFGDEF_SOUND_VOLUME},
     {CFGT_Int,      "music_volume",      &mus_volume,     CFGDEF_MUSIC_VOLUME},
     {CFGT_Int,      "music_device",      &var_music_dev,  CFGDEF_MUSIC_DEVICE},
@@ -434,6 +434,7 @@ void M_LoadDefaults(void)
 	return;
 }
 
+extern bool modpalette;
 
 void M_InitMiscConVars(void)
 {
@@ -441,6 +442,9 @@ void M_InitMiscConVars(void)
 		hq2x_scaling = 3;
 	else if (M_CheckParm("-nohqscale"))
 		hq2x_scaling = 0;
+
+	if (M_CheckParm("-modpalette"))
+		modpalette = true;
 }
 
 
@@ -450,7 +454,7 @@ void M_DisplayDisk(void)
 
 	if (!m_diskicon.d || !display_disk)
 		return;
-   
+
 	if (!disk_image)
 		disk_image = W_ImageLookup("STDISK");
 
@@ -473,7 +477,7 @@ void M_ScreenShot(bool show_msg)
 {
 	const char *extension;
 
-    if (png_scrshots) 
+    if (png_scrshots)
 		extension = "png";
 	else
 		extension = "jpg";
@@ -486,7 +490,7 @@ void M_ScreenShot(bool show_msg)
 		std::string base(epi::STR_Format("shot%02d.%s", i, extension));
 
 		fn = epi::PATH_Join(shot_dir.c_str(), base.c_str());
-  
+
 		if (! epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
         {
 			break; // file doesn't exist
@@ -558,7 +562,7 @@ void M_MakeSaveScreenShot(void)
 			top += viewwindowy * main_scr->pitch + viewwindowx;
 
 			for (y=0; y < 100; y++)
-				for (x=0; x < 160; x++)    
+				for (x=0; x < 160; x++)
 				{
 					ax = x * viewwindowwidth  / 160;
 					ay = y * viewwindowheight / 100;
@@ -571,7 +575,7 @@ void M_MakeSaveScreenShot(void)
 					rgb = ((PIXEL_RED(pixel) & 0xF8) << 7) |
 						((PIXEL_GRN(pixel) & 0xF8) << 2) |
 						((PIXEL_BLU(pixel) & 0xF8) >> 3);
-        
+
 					save_screenshot[x][y] = rgb;
 				}
 		}
@@ -584,7 +588,7 @@ void M_MakeSaveScreenShot(void)
 			top += viewwindowy * main_scr->pitch/2 + viewwindowx;
 
 			for (y=0; y < 100; y++)
-				for (x=0; x < 160; x++)    
+				for (x=0; x < 160; x++)
 				{
 					ax = x * viewwindowwidth  / 160;
 					ay = y * viewwindowheight / 100;
@@ -597,7 +601,7 @@ void M_MakeSaveScreenShot(void)
 					// hack !
 					if (colinfo.green_bits == 6)
 						rgb = ((rgb & 0xFFC0) >> 1) | (rgb & 0x001F);
-        
+
 					save_screenshot[x][y] = rgb;
 				}
 		}
@@ -608,7 +612,7 @@ void M_MakeSaveScreenShot(void)
 
 //
 // Creates the file name "dir/file", or
-// just "file" in the given string if it 
+// just "file" in the given string if it
 // was an absolute address.
 //
 std::string M_ComposeFileName(const char *dir, const char *file)
@@ -648,7 +652,7 @@ byte* M_GetFileData(const char *filename, int *length)
 	SYS_ASSERT(filename);
 	SYS_ASSERT(length);
 
-	lumpfile = fopen(filename, "rb");  
+	lumpfile = fopen(filename, "rb");
 	if (!lumpfile)
 	{
 		I_Warning("M_GetFileData: Cannot open '%s'\n", filename);

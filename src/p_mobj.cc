@@ -1,11 +1,11 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Moving Object Handling Code
 //----------------------------------------------------------------------------
-// (C) EDGE2 Team, 2011. 
-//  
-//  
+// (C) EDGE2 Team, 2011.
+//
+//
 //  Mainfile Copyright (c) 1999-2009  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -24,12 +24,12 @@
 //    Copyright (C) 1993-1996 by id Software, Inc.
 //
 //
-//  Some code based on the Hexen source, adapted by the EDGE2 Team. 
+//  Some code based on the Hexen source, adapted by the EDGE2 Team.
 //
-//   Copyright (C) 2008 Activison, Inc. 
+//   Copyright (C) 2008 Activison, Inc.
 //
 //
-//  Some code adapted from Doom Legacy, 
+//  Some code adapted from Doom Legacy,
 //   Copyright (C) Doom Legacy Team, 1998-2010.
 //----------------------------------------------------------------------------
 //
@@ -409,11 +409,11 @@ static void ResurrectRespawn(mobj_t * mobj)
 extern float N_GetInterpolater(void);
 epi::vec3_c mobj_t::GetInterpolatedPosition(void)
 {
-	
+
 	float interp = N_GetInterpolater();
 	epi::vec3_c lastpos(lastticrender.x,lastticrender.y,lastticrender.z);
 	epi::vec3_c curpos(x,y,z);
-	
+
 	if (lerp_num > 0) {
 		//using interpolated position
 		float along = lerp_pos / (float)lerp_num;
@@ -421,7 +421,7 @@ epi::vec3_c mobj_t::GetInterpolatedPosition(void)
 		curpos.y = lerp_from.y + (y - lerp_from.y) * along;
 		curpos.z = lerp_from.z + (z - lerp_from.z) * along;
 	}
-	
+
 	if (interp != 1) {
 		return lastpos.Lerp(curpos, interp);
 	} else {
@@ -513,7 +513,7 @@ void mobj_t::ClearStaleRefs()
 static void DeleteMobj(mobj_t * mo)
 {
 #if (DEBUG_MOBJ > 0)
-	L_WriteDebug("tics=%05d  DELETE %p [%s]\n", leveltime, mo, 
+	L_WriteDebug("tics=%05d  DELETE %p [%s]\n", leveltime, mo,
 		mo->info ? mo->info->name.c_str() : "???");
 #endif
 
@@ -701,7 +701,7 @@ void P_SetMobjDirAndSpeed(mobj_t * mo, angle_t angle, float slope, float speed)
 }
 
 //
-// P_MobjExplodeMissile  
+// P_MobjExplodeMissile
 //
 // -AJA- 1999/09/12: Now uses P_SetMobjStateDeferred, since this
 //       routine can be called by TryMove/PIT_CheckRelThing.
@@ -722,7 +722,7 @@ void P_MobjExplodeMissile(mobj_t * mo)
 
 
 static inline void AddRegionProperties(const mobj_t *mo,
-									   float bz, float tz, region_properties_t *new_p, 
+									   float bz, float tz, region_properties_t *new_p,
 									   float f_h, float c_h, const region_properties_t *p)
 {
 	int flags = p->special ? p->special->special_flags : SECSP_PushConstant;
@@ -833,7 +833,7 @@ void P_CalcFullProperties(const mobj_t *mo, region_properties_t *new_p)
 }
 
 //
-// P_XYMovement  
+// P_XYMovement
 //
 static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 {
@@ -951,39 +951,39 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 
 		// unable to complete desired move ?
 		if (!did_move)
-		{ 
+		{
 			// check for missiles hitting shootable lines
 			// NOTE: this is for solid lines.  The "pass over" case is
 			// handled in P_TryMove().
 
-			if ((mo->flags & MF_MISSILE) && 
+			if ((mo->flags & MF_MISSILE) &&
 				(! mo->currentattack ||
 				! (mo->currentattack->flags & AF_NoTriggerLines)))
 			{
 				//
-				// -AJA- Seems this is called to handle this situation: 
-				// P_TryMove is called, but fails because missile would hit 
-				// solid line.  BUT missile did pass over some special lines.  
-				// These special lines were not activated in P_TryMove since it 
+				// -AJA- Seems this is called to handle this situation:
+				// P_TryMove is called, but fails because missile would hit
+				// solid line.  BUT missile did pass over some special lines.
+				// These special lines were not activated in P_TryMove since it
 				// failed.  Ugh !
 				//
 				if (spechit.GetSize() > 0)
 				{
 					epi::array_iterator_c it;
 					line_t* ld;
-					
+
 					for (it=spechit.GetTailIterator(); it.IsValid(); it--)
 					{
 						ld = ITERATOR_TO_TYPE(it, line_t*);
-						
-						P_ShootSpecialLine(ld, PointOnLineSide(mo->x, mo->y, ld), 
+
+						P_ShootSpecialLine(ld, PointOnLineSide(mo->x, mo->y, ld),
 											mo->source);
-					}	
+					}
 				}
-				
+
 				if (blockline && blockline->special)
 				{
-					P_ShootSpecialLine(blockline, 
+					P_ShootSpecialLine(blockline,
 						PointOnLineSide(mo->x, mo->y, blockline), mo->source);
 				}
 			}
@@ -998,7 +998,7 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 				float ground_h;
 
 				int i = P_FindThingGap(blockline->gaps, blockline->gap_num,
-				                       mo->z + mo->height, mo->z + 2 * mo->height); 
+				                       mo->z + mo->height, mo->z + 2 * mo->height);
 				if (i >= 0)
 				{
 					ground_h = blockline->gaps[i].f;
@@ -1102,7 +1102,7 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 // I_Debugf("Actual speed = %1.4f\n", mo->player->actual_speed);
 
 		if (fabs(mo->mom.x) < STOPSPEED && fabs(mo->mom.y) < STOPSPEED &&
-			mo->player->cmd.forwardmove == 0 && 
+			mo->player->cmd.forwardmove == 0 &&
 			mo->player->cmd.sidemove == 0)
 		{
 			mo->mom.x = mo->mom.y = 0;
@@ -1116,11 +1116,11 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 /// I actually got this code to *work*, but there was no timer so the sound
 /// looped forever. This is a TODO, as I want this to mature and eventually
 /// become TERRAIN.DDF...
-bool image_array_contains(const char **names, const char *image) 
+bool image_array_contains(const char **names, const char *image)
 {
- for(int i=0;names[i];i++) 
+ for(int i=0;names[i];i++)
  {
-  if(strcmp(names[i],image)==0) 
+  if(strcmp(names[i],image)==0)
   {
    return true;
   }
@@ -1137,26 +1137,46 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	float dist;
 	float delta;
 	float zmove;
-	
+	static bool splash = false;
+
 	//This code below stores known flats in a container (see image_array_contains)
 	const char *image = W_ImageGetName(mo->subsector->sector->floor.image);
 	const char *names[]={
+	"FWATER1",
+	"FWATER2",
+	"FWATER3",
 	"FWATER4",
-	"NUKAGE3",
+	"SWATER1",
+	"SWATER2",
+	"SWATER3",
 	"SWATER4",
+	"NUKAGE1",
+	"NUKAGE2",
+	"NUKAGE3",
+	"BLOOD1",
+	"BLOOD2",
 	"BLOOD3",
+	"SLIME01",
+	"SLIME02",
+	"SLIME03",
 	"SLIME04",
+	"SLIME05",
+	"SLIME06",
+	"SLIME07",
 	"SLIME08",
+	"SLIME09",
+	"SLIME10",
+	"SLIME11",
 	"SLIME12",
 	0
 	};
 	//Eventually Nukage and LAVA will have their own stuff. And this will become Terrain.DDF
-	
+
 	/// DEBUG CURRENT FLOOR: CON_Message("Image is: '%s'\n",image);
-	
+
 	//int img_num;
 
-	float gravity = props->gravity / 8.0f * 
+	float gravity = props->gravity / 8.0f *
 		(float)level_flags.menu_grav / (float)MENU_GRAV_NORMAL;
 
 	// check for smooth step up
@@ -1164,8 +1184,8 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	{
 		mo->player->viewheight -= (mo->floorz - mo->z);
 		mo->player->viewz      -= (mo->floorz - mo->z);
-		
-		mo->player->deltaviewheight = (mo->player->std_viewheight - 
+
+		mo->player->deltaviewheight = (mo->player->std_viewheight -
 			mo->player->viewheight) / 8.0f;
 	}
 
@@ -1188,10 +1208,10 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				mo->z += mo->info->float_speed;
 		}
 	}
-	        
+
 	if (mo->flags & MF_SKULLFLY)
 			mo->mom.z = -mo->mom.z;
-	
+
 	//TeleportRespawn(mobj);
 
 
@@ -1207,26 +1227,22 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				mo->player->powers[PW_Jetpack] > 0 || mo->on_ladder >= 0);
 
 			if (mo->player && gravity > 0 && -zmove > OOF_SPEED && ! fly_or_swim)
-				{
-					/* FIXME: THIS CODE WORKS, JUST NEEDS PROPER COOLDOWN TIMER SO SOUND EFFECT DOESNT LOOP EVERY 3 SECONDS!!!
-					if(strcmp(image, "NUKAGE3"))
-					{
-					//DEBUG: CON_Message("Normal Floor!");
-					mo->player->deltaviewheight = zmove / 8.0f;
-					S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
-					} else 
-					if (image_array_contains(names,image))//(strcmp(image, "NUKAGE3") == 0)
-					{
-					//DEBUG: CON_Message("Detected FWATER FLAT!");
-					mo->player->deltaviewheight = zmove / 8.0f;
-					//S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo); // FIXME: BD: compile failed with "error: no member named 'gloopsound' in 'mobjtype_c'"
-					} */
-				
+			{
 				// Squat down. Decrease viewheight for a moment after hitting the
 				// ground (hard), and utter appropriate sound.
-				mo->player->deltaviewheight = zmove / 8.0f;
-				S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
+				if (image_array_contains(names, image))
+				{
+					if (!splash)
+					{
+						mo->player->deltaviewheight = zmove / 8.0f;
+						S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
+						splash = true;
+					}
 				}
+				else
+					splash = false;
+
+			}
 
 
 			// -KM- 1998/12/16 If bigger than max fall, take damage.
@@ -1249,25 +1265,29 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 					mo->mom.x = mo->mom.y = mo->mom.z = 0;
 				}
 			}
-/*			if (mo->player && gravity > 0 && -zmove > ! OOF_SPEED && ! fly_or_swim)
-			{
-		
- 			if(strcmp(image, "FWATER4"))
-			{
-					//DO NOT MAKE A SOUND (!!!)
-			}
-			else  if (image_array_contains(names,image)) //((strcmp(image, "FWATER4") == 0) && (mo->player->gloopwait == 0))//(strcmp(image, "NUKAGE3") == 0)
-				{
-				//DEBUG: CON_Message("Detected FWATER FLAT!");
-				//mo->player->deltaviewheight = zmove / 0.5f;
-				//S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo); // FIXME: BD: compile failed with "error: no member named 'gloopsound' in 'mobjtype_c'"
-				mo->player->gloopwait = TICRATE;// * 2;
-				}
-			} */
 
-			else
-				mo->mom.z = 0;
+			if (mo->player && gravity > 0 && -zmove > ! OOF_SPEED && ! fly_or_swim)
+			{
+
+				if (image_array_contains(names, image))
+				{
+					//DEBUG:
+					//CON_Message("Detected FWATER FLAT!");
+					if (!splash)
+					{
+						mo->player->deltaviewheight = zmove / 8.0f;
+						S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo);
+						splash = true;
+						//CA: Need to set a cooldown, and not have zmove go so far downward over time (or at all!)
+					}
+				}
+				else
+					splash = false;
+			}
+			//else
+				//mo->mom.z = 0;
 		}
+		mo->mom.z = 0;
 
 		mo->z = mo->floorz;
 
@@ -1301,18 +1321,24 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 			return;
 		}
 	}
-	else if (gravity > 0.0f)
+	else
 	{
-		// thing is above the ground, therefore apply gravity
+		// jumped/flew up out of water, splash when come down
+		splash = false;
 
-		// -MH- 1998/08/18 - Disable gravity while player has jetpack
-		//                   (nearly forgot this one:-)
-
-		if (!(mo->flags & MF_NOGRAVITY) &&
-			!(mo->player && mo->player->powers[PW_Jetpack] > 0) &&
-			!(mo->on_ladder >= 0))
+		if (gravity > 0.0f)
 		{
-			mo->mom.z -= gravity;
+			// thing is above the ground, therefore apply gravity
+
+			// -MH- 1998/08/18 - Disable gravity while player has jetpack
+			//                   (nearly forgot this one:-)
+
+			if (!(mo->flags & MF_NOGRAVITY) &&
+				!(mo->player && mo->player->powers[PW_Jetpack] > 0) &&
+				!(mo->on_ladder >= 0))
+			{
+				mo->mom.z -= gravity;
+			}
 		}
 	}
 
@@ -1641,7 +1667,7 @@ void P_UpdateInterpolationHistory(void)
 	{
 		mo->UpdateLastTicRender();
 	}
-	
+
 	//update floor/ceiling interpolation
 	sector_t *sect = sectors;
 	int i = numsectors;
@@ -1650,7 +1676,7 @@ void P_UpdateInterpolationHistory(void)
 		sect->lc_h = sect->c_h;
 		sect++;
 	}
-	
+
 	extrafloor_t *exfloor = extrafloors;
 	i = numextrafloors;
 	while(i--) {
@@ -1681,7 +1707,7 @@ void P_RemoveQueuedMobjs(bool force_all)
 		mo->fuse--;
 
 		if (!force_all && mo->fuse == 1 && mo->refcount != 0)
-			I_Warning("Bad ref count for %s = %d.\n", 
+			I_Warning("Bad ref count for %s = %d.\n",
 						mo->info->name.c_str(), mo->refcount);
 
 		if (force_all || (mo->fuse <= 0 && mo->refcount == 0))
@@ -1713,7 +1739,7 @@ static void AddMobjToList(mobj_t *mo)
 	mobjlisthead = mo;
 
 #if (DEBUG_MOBJ > 0)
-	L_WriteDebug("tics=%05d  ADD %p [%s]\n", leveltime, mo, 
+	L_WriteDebug("tics=%05d  ADD %p [%s]\n", leveltime, mo,
 		mo->info ? mo->info->name.c_str() : "???");
 #endif
 }
@@ -1753,7 +1779,7 @@ static void RemoveMobjFromList(mobj_t *mo)
 void P_RemoveMobj(mobj_t *mo)
 {
 #if (DEBUG_MOBJ > 0)
-	L_WriteDebug("tics=%05d  REMOVE %p [%s]\n", leveltime, mo, 
+	L_WriteDebug("tics=%05d  REMOVE %p [%s]\n", leveltime, mo,
 		mo->info ? mo->info->name.c_str() : "???");
 #endif
 
@@ -1764,7 +1790,7 @@ void P_RemoveMobj(mobj_t *mo)
 		return;
 	}
 
-	if ((mo->info->flags & MF_SPECIAL) && 
+	if ((mo->info->flags & MF_SPECIAL) &&
 	    ! (mo->flags & MF_MISSILE) &&
 		(deathmatch >= 2 || level_flags.itemrespawn) &&
 		!(mo->extendedflags & EF_NORESPAWN) &&
@@ -1889,7 +1915,7 @@ void P_SpawnBlood(float x, float y, float z, float damage,
 
 	angle += ANG180;
 
-	num = (int) (!level_flags.more_blood ? 1.0f : (M_Random() % 7) + 
+	num = (int) (!level_flags.more_blood ? 1.0f : (M_Random() % 7) +
 		(float)((MAX(damage / 4.0f, 7.0f))));
 
 	while (num--)
@@ -1900,7 +1926,7 @@ void P_SpawnBlood(float x, float y, float z, float damage,
 
 		th = P_MobjCreateObject(x, y, z, blood);
 
-		P_SetMobjDirAndSpeed(th, angle, ((float)num + 12.0f) / 6.0f, 
+		P_SetMobjDirAndSpeed(th, angle, ((float)num + 12.0f) / 6.0f,
 			(float)num / 4.0f);
 
 		th->tics -= P_Random() & 3;
@@ -2035,7 +2061,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 	Z_Clear(mobj, mobj_t, 1);
 
 #if (DEBUG_MOBJ > 0)
-	L_WriteDebug("tics=%05d  CREATE %p [%s]  AT %1.0f,%1.0f,%1.0f\n", 
+	L_WriteDebug("tics=%05d  CREATE %p [%s]  AT %1.0f,%1.0f,%1.0f\n",
 		leveltime, mobj, info->name.c_str(), x, y, z);
 #endif
 
@@ -2143,7 +2169,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 	// -AJA- 1999/09/15: now adds to _head_ of list (for speed).
 	//
 	AddMobjToList(mobj);
-	
+
 	mobj->UpdateLastTicRender();
 
 	return mobj;
@@ -2163,12 +2189,12 @@ int P_MobjGetSfxCategory(const mobj_t *mo)
 
         if (mo->player == players[displayplayer])
             return SNCAT_Player;
-        
+
 		return SNCAT_Opponent;
     }
     else
     {
-        if (mo->extendedflags & EF_MONSTER) 
+        if (mo->extendedflags & EF_MONSTER)
             return SNCAT_Monster;
 
 		return SNCAT_Object;

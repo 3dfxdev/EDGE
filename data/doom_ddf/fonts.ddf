@@ -1,4 +1,4 @@
-// 
+//
 //    3DGE FONTS.DDF -redefine or add new fonts.
 //    For documentation, see http://edge.sourceforge.net/
 //    DDF Version 7
@@ -6,7 +6,7 @@
 
 <FONTS>
 
-#VERSION 1.36
+#VERSION 2.10
 
 [DOOM]
 TYPE=PATCH;
@@ -19,7 +19,6 @@ TYPE=PATCH;
 PATCHES=MENFN033("!":"_"),MENFN121("|"),
           MENFN132("ä"),MENFN134("å"),MENFN148("ö");  // FIXME: charset
 MISSING_PATCH="MENFN000";
-
 
 [HERETIC]
 TYPE=PATCH;

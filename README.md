@@ -14,7 +14,7 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
 ## Build System for 3DGE
 ---
-To build 3DGE, [please see](../blob/master/build_guide) and choose
+To build 3DGE, please see the [build guides](https://github.com/3dfxdev/hyper3DGE/tree/master/build_guide) and choose
 based on your platform and compiler. They are step-by-step guides
 in order to lessen the amount of fumbling around that was previously
 noted for new users.
