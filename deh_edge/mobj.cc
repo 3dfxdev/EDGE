@@ -4146,6 +4146,33 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES_BEX] =
 	sfx_posact,  // activesound
 	MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL|MF_STEALTH,             // flags
 	S_POSS_RAISE1  // raisestate
+	},
+
+	{  // MT_CAMERAMAN
+		"CAMERAMAN",       // name
+		-1,		// doomednum
+		S_PLAY,		// spawnstate
+		100,		// spawnhealth
+		S_PLAY_RUN1,		// seestate
+		sfx_None,		// seesound
+		0,		// reactiontime
+		sfx_None,		// attacksound
+		S_PLAY_PAIN,		// painstate
+		255,		// painchance
+		sfx_plpain,		// painsound
+		S_NULL,		// meleestate
+		S_PLAY_ATK1,		// missilestate
+		S_PLAY_DIE1,		// deathstate
+		S_PLAY_XDIE1,		// xdeathstate
+		sfx_pldeth,		// deathsound
+		0,		// speed
+		16 * FRACUNIT,		// radius
+		56 * FRACUNIT,		// height
+		100,		// mass
+		0,		// damage
+		sfx_None,		// activesound
+		MF_SOLID | MF_SHOOTABLE | MF_DROPOFF | MF_PICKUP | MF_NOTDMATCH,		// flags
+		S_NULL		// raisestate
 	}
 };
 

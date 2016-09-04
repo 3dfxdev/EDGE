@@ -48,6 +48,7 @@
 #include "r_units.h"
 
 #include "n_network.h"  // N_NetUpdate
+#include "con_main.h"
 
 
 #define DEBUG  0
@@ -3314,3 +3315,15 @@ void R_Render(int x, int y, int w, int h, mobj_t *camera,
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
+
+// Fixed camera (camera-man)
+// Add new fixed camera MOBJ with the fallowing call:
+// mobj_t *cameraman = P_MobjCreateObject(pos.x, pos.y, pos.z, mobjtypes.Lookup("CAMERAMAN"));
+//
+// When using multiple camera-man they have to be store in a collection in the order in which they are supposed to be interpolated between.
+// In 'InitCamera' view position and angles (direction) have to be setup according to the two closest camera-man, given by the interpolation time.
+// Trigger will have to setup camera with only one camera-man data.
+//
+// New camera-man should possible to be created via console command (saving current view location and angles) and script function.
+// The same thing goes with destroying camera-man.
+// Trigger should be set up in the very same manner.
