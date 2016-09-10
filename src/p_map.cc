@@ -822,9 +822,9 @@ bool P_TryMove(mobj_t * thing, float x, float y)
 		}
 
 		if (!(thing->flags & MF_TELEPORT) &&
-			(thing->z + thing->info->step_size) < tm_I.floorz)
+			(thing->z + (thing->flags & MF_CORPSE ? 0 : thing->info->step_size)) < tm_I.floorz)
 		{
-			// too big a step up.
+			// too big a step up (CW: or corpse - ain't no corpse climbing no steps)
 			if (!blockline && tm_I.line_count>=1) blockline=tm_I.line_which;
 			return false;
 		}
