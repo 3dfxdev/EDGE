@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Generalised Image Handling
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -67,6 +67,7 @@ public:
 	// with black pixels if solid, or transparent pixels otherwise.
 	unsigned short actual_w;
 	unsigned short actual_h;
+	unsigned short max_h;
 
 	// total image size, must be a power of two on each axis.
 	unsigned short total_w;
@@ -91,7 +92,7 @@ public:
 	char name[16];
 
 	int source_type;  // image_source_e
- 
+
 	union
 	{
 		// case IMSRC_Graphic:

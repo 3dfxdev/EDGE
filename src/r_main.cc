@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 OpenGL Rendering (Main Stuff)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -103,7 +103,7 @@ void RGL_SetupMatrices2D(void)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0.0f, (float)SCREENWIDTH, 
+	glOrtho(0.0f, (float)SCREENWIDTH,
 			0.0f, (float)SCREENHEIGHT, -1.0f, 1.0f);
 
 	glMatrixMode(GL_MODELVIEW);
@@ -213,7 +213,7 @@ void RGL_CheckExtensions(void)
 		if (stricmp(glstr_renderer.c_str(), "GDI Generic") == 0)
 		{
 			I_Error("OpenGL: SOFTWARE Renderer!\n");
-		}		
+		}
 	}
 
 	// Check for various extensions
@@ -245,7 +245,7 @@ void RGL_CheckExtensions(void)
 
 
 	// --- Detect buggy drivers, enable workarounds ---
-	
+
 	for (int j = 0; j < (int)NUM_DRIVER_BUGS; j++)
 	{
 		const driver_bug_t *bug = &driver_bugs[j];
@@ -281,7 +281,7 @@ void RGL_CheckExtensions(void)
 	I_Printf("OpenGL: Version: %s\n", glstr_version.c_str());
 	I_Printf("OpenGL: Renderer: %s\n", glstr_renderer.c_str());
 	I_Printf("OpenGL: Vendor: %s\n", glstr_vendor.c_str());
-	
+
 	r_dumbcombine = 1;
 	r_colorlighting = 1;
 	r_colormaterial = 1;
@@ -294,10 +294,10 @@ void RGL_CheckExtensions(void)
 // RGL_SoftInit
 //
 // All the stuff that can be re-initialised multiple times.
-// 
+//
 void RGL_SoftInit(void)
 {
-    
+
 	glDisable(GL_FOG);
 	glDisable(GL_BLEND);
 	glDisable(GL_LIGHTING);
@@ -347,12 +347,12 @@ void RGL_Init(void)
 
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE,  &max_tex_size);
 		glmax_tex_size = max_tex_size;
-		
+
 #ifndef DREAMCAST
 		GLint max_lights;
 		GLint max_clip_planes;
 		GLint max_tex_units;
-		
+
 		glGetIntegerv(GL_MAX_LIGHTS,        &max_lights);
 		glGetIntegerv(GL_MAX_CLIP_PLANES,   &max_clip_planes);
 		glGetIntegerv(GL_MAX_TEXTURE_UNITS, &max_tex_units);
@@ -370,7 +370,7 @@ void RGL_Init(void)
 	I_Printf("OpenGL: Lights: %d  Clips: %d  Tex: %d  Units: %d\n",
 			 glmax_lights, glmax_clip_planes, glmax_tex_size, glmax_tex_units);
 	I_Printf("==============================================================================\n");
-  
+
 	RGL_SoftInit();
 
 	R2_InitUtil();
