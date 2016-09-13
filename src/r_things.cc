@@ -608,8 +608,9 @@ void RGL_DrawWeaponModel(player_t * p)
 
 		//TODO: w->model_bias
 		MD5_RenderModel(md,p->mo->model_last_animfile,last_frame,p->mo->state->animfile,psp->state->frame,lerp,
-				x,y,z,
-				w->model_aspect,w->model_aspect,w->model_zaspect,
+				epi::vec3_c(x,y,z),
+				epi::vec3_c(w->model_aspect,w->model_aspect,w->model_zaspect),
+				epi::vec3_c(0,0,w->model_bias),
 				p->mo);
 		break;
 	}
@@ -1169,8 +1170,8 @@ static void RGL_DrawModel(drawthing_t *dthing)
 		MD5_RenderModel(md,
 			mo->model_last_animfile, last_frame,
 			mo->state->animfile, mo->state->frame, lerp,
-			dthing->mx, dthing->my, z,
-			1.0f,1.0f,1.0f,mo);
+			epi::vec3_c(dthing->mx, dthing->my, z),
+			epi::vec3_c(1.0f,1.0f,1.0f),epi::vec3_c(0,0,0),mo);
 	}
 }
 
