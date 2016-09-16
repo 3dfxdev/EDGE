@@ -90,8 +90,8 @@ namespace Things
 
 		WAD::Printf("<THINGS>\n\n");
 
-		if (target_version >= 129)
-			WAD::Printf("#VERSION 1.29\n");
+		if (target_version >= 210)
+			WAD::Printf("#VERSION 2.10\n");
 	}
 
 	void FinishLump(void)
@@ -648,7 +648,7 @@ namespace Things
 		WAD::Printf(    "GRENADES.LIMIT(%d), ", 50);
 		WAD::Printf(    "GAS.LIMIT(%d),\n",    300);
 		
-		if (target_version >= 129)
+		if (target_version >= 210)
 		{
 			WAD::Printf("    AMMO9.LIMIT(%d), ",   100);
 			WAD::Printf(    "AMMO10.LIMIT(%d), ",  200);
