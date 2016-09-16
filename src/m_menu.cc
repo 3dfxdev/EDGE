@@ -1105,7 +1105,7 @@ void M_DrawSaveLoadBorder(float x, float y, int len)
 	if (heretic_mode)
 	{
 		const image_c *L = W_ImageLookup("NULL");
-		const image_c *C = W_ImageLookup("M_FSLOT");
+		const image_c *C = W_ImageLookup("H_FSLOT");
 		const image_c *R = W_ImageLookup("NULL");
 
 		HUD_DrawImage(x - IM_WIDTH(L), y + 7, L);
@@ -2569,7 +2569,7 @@ void M_Drawer(void)
 	}
 
 	style_c *style = currentMenu->style_var[0];
-	SYS_ASSERT(style);
+	//SYS_ASSERT(style);
 	HUD_SetAlpha(0.64f);
 	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
 	HUD_SetAlpha();
@@ -2823,13 +2823,13 @@ void H_Init(void)
 
 	// lookup required images
 
-	therm_l = W_ImageLookup("M_SLDLT");
+	therm_l = W_ImageLookup("H_THERML");
 
-	therm_m = W_ImageLookup("M_SLDMD1");
+	therm_m = W_ImageLookup("H_THERMM");
 
-	therm_r = W_ImageLookup("M_SLDRT");
+	therm_r = W_ImageLookup("H_THERMR");
 
-	therm_o = W_ImageLookup("M_SLDKB"); //Heretic: M_SLDKB */
+	therm_o = W_ImageLookup("H_THERMO"); //Heretic: M_SLDKB */
 
 	menu_loadg = W_ImageLookup("H_LOADG");
 	menu_saveg = W_ImageLookup("H_SAVEG");
