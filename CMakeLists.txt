@@ -262,6 +262,13 @@ set(3DGE_SOURCES
 	glbsp/src/system.cc
 	glbsp/src/util.cc
 	glbsp/src/wad.cc
+
+	physfs_src/byteorder.cc
+	physfs_src/physfs.cc
+	physfs_src/unicode.cc
+	physfs_src/arch_dir.cc
+	physfs_src/arch_zip.cc
+	physfs_src/sys_win.cc
 	
 	timidity/common.cc
 	timidity/instrum.cc
