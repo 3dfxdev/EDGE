@@ -199,7 +199,7 @@ public:
 	define_c() : name(NULL), value(NULL)
 	{ }
 
-	define_c(char *N, char *V) : name(N), value(V)
+	define_c(char *_name, char *_value) : name(_name), value(_value)
 	{ }
 
 	~define_c()
