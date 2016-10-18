@@ -1462,8 +1462,18 @@ static bool PTR_ShootTraverse(intercept_t * in, void *dataptr)
 
 mobj_t * P_AimLineAttack(mobj_t * t1, angle_t angle, float distance, float *slope)
 {
-	float x2 = t1->x + distance * M_Cos(angle) * M_Cos(t1->vertangle);
-	float y2 = t1->y + distance * M_Sin(angle) * M_Cos(t1->vertangle);
+	// CW: Restrict player to look slope, don't restrict mobs
+	float x2, y2;
+	if (t1->player)
+	{
+		x2 = t1->x + distance * M_Cos(angle) * M_Cos(t1->vertangle);
+		y2 = t1->y + distance * M_Sin(angle) * M_Cos(t1->vertangle);
+	}
+	else
+	{
+		x2 = t1->x + distance * M_Cos(angle);
+		y2 = t1->y + distance * M_Sin(angle);
+	}
 
 	Z_Clear(&aim_I, shoot_trav_info_t, 1);
 
@@ -1478,15 +1488,16 @@ mobj_t * P_AimLineAttack(mobj_t * t1, angle_t angle, float distance, float *slop
 
 		aim_I.topslope = (vertslope * 256.0f + 100.0f) / 160.0f;
 		aim_I.bottomslope = (vertslope * 256.0f - 100.0f) / 160.0f;
+		aim_I.range = distance * M_Cos(t1->vertangle);
 	}
 	else
 	{
-		aim_I.topslope = 100.0f / 160.0f;
-		aim_I.bottomslope = -100.0f / 160.0f;
+		aim_I.topslope = 10000.0f / 160.0f;
+		aim_I.bottomslope = -10000.0f / 160.0f;
+		aim_I.range = distance;
 	}
 
 	aim_I.source = t1;
-	aim_I.range = distance;
 	aim_I.angle = angle;
 	aim_I.slope = 0.0f;
 	aim_I.target = NULL;
@@ -1517,7 +1528,7 @@ void P_LineAttack(mobj_t * t1, angle_t angle, float distance,
 		shoot_I.start_z = t1->z + t1->height / 2 + 8;
 
 	shoot_I.source = t1;
-	shoot_I.range = distance;
+	shoot_I.range = distance * M_Cos(M_ATan(slope));
 	shoot_I.angle = angle;
 	shoot_I.slope = slope;
 	shoot_I.damage  = damage;
