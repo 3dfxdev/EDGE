@@ -205,7 +205,8 @@ void MD5_RenderModel(modeldef_c *md, int last_anim, int last_frame,
 	float cos_a=cos(ang);
 	float sin_a=sin(ang);
 
-	float vertang=ANG_2_FLOAT(mo->GetInterpolatedVertAngle())*M_PI/180.0f;
+	//float vertang=ANG_2_FLOAT(mo->GetInterpolatedVertAngle())*M_PI/180.0f;
+	float vertang=0.0f; //vert angle disabled
 	float cos_va=cos(vertang);
 	float sin_va=sin(vertang);
 
