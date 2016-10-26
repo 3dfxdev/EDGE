@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Sprite Management
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -48,7 +48,7 @@ class spritedef_c
 public:
 	// four letter sprite name (e.g. "TROO").
 	char name[6];
-  
+
     // total number of frames.  Zero for missing sprites.
 	int numframes;
 
@@ -215,7 +215,7 @@ static void InstallSpriteLump(spritedef_c *def, int lump,
 
 	if (frame->images[rot])
 	{
-		I_Warning("Sprite %s has two lumps mapped to it (frame %c).\n", 
+		I_Warning("Sprite %s has two lumps mapped to it (frame %c).\n",
 				lumpname, lumpname[pos]);
 		return;
 	}
@@ -243,7 +243,7 @@ static void InstallSpriteImage(spritedef_c *def, const image_c *img,
 
 	if (frame->images[rot])
 	{
-		I_Warning("Sprite %s has two images mapped to it (frame %c)\n", 
+		I_Warning("Sprite %s has two images mapped to it (frame %c)\n",
 				img_name, img_name[pos]);
 		return;
 	}
@@ -423,6 +423,30 @@ static void CheckSpriteFrames(spritedef_c *def)
 {
 	int missing = 0;
 
+	unsigned short hmax = 0;
+	for (int i = 0; i < def->numframes; i++)
+		if (def->frames[i].finished)
+		{
+			for (int j = 0; j < 16; j++)
+				if (def->frames[i].images[j])
+				{
+					if (def->frames[i].images[j]->actual_h > hmax)
+					hmax = def->frames[i].images[j]->actual_h;
+				}
+		}
+	for (int i = 0; i < def->numframes; i++)
+		if (def->frames[i].finished)
+		{
+			for (int j = 0; j < 16; j++)
+				if (def->frames[i].images[j])
+				{
+					if (def->frames[i].images[j]->total_h > hmax)
+						*(unsigned short*)&def->frames[i].images[j]->max_h = hmax;
+					else
+						*(unsigned short*)&def->frames[i].images[j]->max_h = def->frames[i].images[j]->total_h;
+				}
+		}
+
 	for (int i = 0; i < def->numframes; i++)
 		if (! def->frames[i].finished)
 		{
@@ -451,9 +475,9 @@ static void CheckSpriteFrames(spritedef_c *def)
 // parsing DDF) with images.
 //
 // Checking for missing frames still done at run time.
-// 
+//
 // -AJA- 2001/02/01: rewrote this stuff.
-// 
+//
 void W_InitSprites(void)
 {
 	numsprites = (int)ddf_sprite_names.size();
@@ -464,7 +488,7 @@ void W_InitSprites(void)
 	I_Printf("W_InitSprites: Finding sprite patches\n");
 
 	// 1. Allocate sprite definitions (ignore NULL sprite, #0)
-	
+
 	sprites = new spritedef_c* [numsprites];
 	sprites[SPR_NULL] = NULL;
 
@@ -477,7 +501,7 @@ void W_InitSprites(void)
 		sprites[i] = new spritedef_c(name);
 	}
 
-	// 2. Scan the state table, count frames 
+	// 2. Scan the state table, count frames
 
 	for (int stnum = 1; stnum < num_states; stnum++)
 	{
@@ -525,7 +549,7 @@ void W_InitSprites(void)
 	}
 
 	// 5. Fill in frames using wad lumps + images.ddf
-	
+
 	// create a sorted list (ignore NULL entry, #0)
 	sprite_map_len = numsprites - 1;
 
@@ -540,7 +564,7 @@ void W_InitSprites(void)
 
 	// iterate over each file.  Order is important, we must go from
 	// newest wad to oldest, so that new sprites override the old ones.
-	// Completely finished sprites get removed from the list as we go.  
+	// Completely finished sprites get removed from the list as we go.
 	//
 	// NOTE WELL: override granularity is single frames.
 
@@ -576,7 +600,7 @@ bool W_CheckSpritesExist(const state_group_t& group)
 				continue;
 
 			if (sprites[states[i].sprite]->frames > 0)
-				return true;	
+				return true;
 
 			// -AJA- only check one per group.  It _should_ check them all,
 			//       however this maintains compatibility.
@@ -592,7 +616,7 @@ spriteframe_c *W_GetSpriteFrame(int spr_num, int framenum)
 {
 	// spr_num comes from the 'sprite' field of state_t, and
 	// is also an index into ddf_sprite_names vector.
-	
+
 	SYS_ASSERT(spr_num > 0);
 	SYS_ASSERT(spr_num < numsprites);
 	SYS_ASSERT(framenum >= 0);
