@@ -82,7 +82,7 @@ int num_inputs = 0;
 
 const char *output_file = NULL;
 
-#define DEFAULT_TARGET  128
+#define DEFAULT_TARGET  210
 
 int target_version;
 bool quiet_mode;
@@ -405,12 +405,12 @@ dehret_e ValidateArgs(void)
 		return DEH_E_BadArgs;
 	}
 
-//	if (target_version < 123 || target_version >= 300)
-//	{
-//		SetErrorMsg("Illegal version number: %d.%02d\n", target_version / 100,
-//			target_version % 100);
-//		return DEH_E_BadArgs;
-//	}
+	if (target_version < 123 || target_version >= 300)
+	{
+		SetErrorMsg("Illegal version number: %d.%02d\n", target_version / 100,
+			target_version % 100);
+		return DEH_E_BadArgs;
+	}
 
 	if (! output_file)
 	{
@@ -428,7 +428,7 @@ dehret_e ValidateArgs(void)
 	if (CheckExtension(output_file, NULL))
 	{
 		output_file = StringDup(ReplaceExtension(output_file,
-			(target_version >= 128) ? "hwa" : "wad"));
+			(target_version >= 210) ? "hwa" : "wad"));
 	}
 
 	return DEH_OK;

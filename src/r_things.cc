@@ -608,8 +608,9 @@ void RGL_DrawWeaponModel(player_t * p)
 
 		//TODO: w->model_bias
 		MD5_RenderModel(md,p->mo->model_last_animfile,last_frame,p->mo->state->animfile,psp->state->frame,lerp,
-				x,y,z,
-				w->model_aspect,w->model_aspect,w->model_zaspect,
+				epi::vec3_c(x,y,z),
+				epi::vec3_c(w->model_aspect,w->model_aspect,w->model_zaspect),
+				epi::vec3_c(0,0,w->model_bias),
 				p->mo);
 		break;
 	}
@@ -1001,7 +1002,8 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 
 		// calculate edges of the shape
 		//float sprite_width  = IM_WIDTH(image);
-		float sprite_height = IM_HEIGHT(image);
+		//float sprite_height = IM_HEIGHT(image);
+		float sprite_height = (image)->max_h * (image)->scale_y;
 		float side_offset   = IM_OFFSETX(image);
 		float top_offset    = IM_OFFSETY(image);
 
@@ -1010,8 +1012,8 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 
 		float xscale = mo->info->scale * mo->info->aspect;
 
-		pos1 = ((floorf((image)->actual_w/-2.0f + 0.5f) * (image)->scale_x) - side_offset) * xscale;
-		pos2 = ((floorf((image)->actual_w/+2.0f + 0.5f) * (image)->scale_x) - side_offset) * xscale;
+		pos1 = ((floorf((image)->actual_w * -0.5f + 0.5f) * (image)->scale_x) - side_offset) * xscale;
+		pos2 = ((floorf((image)->actual_w * +0.5f + 0.5f) * (image)->scale_x) - side_offset) * xscale;
 
 		switch (mo->info->yalign)
 		{
@@ -1169,8 +1171,8 @@ static void RGL_DrawModel(drawthing_t *dthing)
 		MD5_RenderModel(md,
 			mo->model_last_animfile, last_frame,
 			mo->state->animfile, mo->state->frame, lerp,
-			dthing->mx, dthing->my, z,
-			1.0f,1.0f,1.0f,mo);
+			epi::vec3_c(dthing->mx, dthing->my, z),
+			epi::vec3_c(1.0f,1.0f,1.0f),epi::vec3_c(0,0,0),mo);
 	}
 }
 
