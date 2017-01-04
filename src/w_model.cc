@@ -109,7 +109,7 @@ modeldef_c *LoadModelFromLump(int model_num)
 	sprintf(lumpname, "%sMD3", basename);
 
 	if (W_CheckNumForName(lumpname) >= 0) {
-		I_Debugf("Loading model from lump : %s\n", lumpname);
+		I_Debugf("Loading MD3 model from lump : %s\n", lumpname);
 
 		f = W_OpenLump(lumpname);
 		SYS_ASSERT(f);
@@ -119,7 +119,7 @@ modeldef_c *LoadModelFromLump(int model_num)
 	} else {
 		sprintf(lumpname, "%sMD2", basename);
 		if (W_CheckNumForName(lumpname) >= 0) {
-			I_Debugf("Loading model from lump : %s\n", lumpname);;
+			I_Debugf("Loading MD2 model from lump : %s\n", lumpname);
 			f = W_OpenLump(lumpname);
 			if (! f)
 				I_Error("Missing model lump: %s\n", lumpname);
@@ -128,7 +128,7 @@ modeldef_c *LoadModelFromLump(int model_num)
 			def->modeltype = MODEL_MD2;
 		} else {
 			sprintf(lumpname, "%sMD5", basename);
-			
+			I_Debugf("Loading MD5 model from lump : %s\n", lumpname);
 			f = W_OpenLump(lumpname);
 			SYS_ASSERT(f);
 			byte *modeltext = f->LoadIntoMemory();
