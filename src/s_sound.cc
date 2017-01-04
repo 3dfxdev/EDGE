@@ -344,6 +344,8 @@ static void S_PlaySound(int idx, sfxdef_c *def, int category, position_c *pos, i
 			chan->split = 2;
 ///I_Printf("%s : split %d  cat %d\n", def->name.c_str(), chan->split, category);
 	}
+	// nukeyt added random pitch (like Doom 1.2)
+	chan->pitch = 128 + 16 - (M_Random() & 31);
 
 	chan->ComputeDelta();
 
