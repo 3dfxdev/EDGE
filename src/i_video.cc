@@ -55,6 +55,9 @@ static int display_W, display_H;
 
 SDL_GLContext   glContext;
 
+#ifdef LINUX
+static float gamma_settings = 0.0f;
+#endif
 
 // Possible Windowed Modes
 static struct { int w, h; } possible_modes[] =
@@ -320,6 +323,22 @@ void I_FinishFrame(void)
 		wglSwapIntervalEXT(r_vsync.d != 0);
 	}
 	#endif
+	
+	#ifdef LINUX
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBegin(GL_QUADS);
+	glColor4f(255.0f,
+			  255.0f, 
+			  255.0f,
+			 gamma_settings);
+	glVertex3i(0,0,0);
+	glVertex3i(display_W,0,0);
+	glVertex3i(display_W,display_H,0);
+	glVertex3i(0,display_H,0);
+	glEnd();
+	glColor4f(1, 1, 1, 1);
+	#endif
 
 	SDL_GL_SwapWindow(my_vis);
 	if (r_vsync.d > 0)
@@ -336,8 +355,12 @@ void I_PutTitle(const char *title)
 
 void I_SetGamma(float gamma)
 {
+	#ifdef LINUX
+		gamma_settings = 0.05f * gamma;
+	#else
 	if (SDL_SetWindowBrightness(my_vis, gamma) < 0)
 		I_Printf("Failed to change gamma.\n");
+	#endif
 }
 
 
