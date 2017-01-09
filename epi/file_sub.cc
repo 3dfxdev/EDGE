@@ -20,6 +20,10 @@
 
 #include "file_sub.h"
 
+#ifdef HAVE_PHYSFS
+#include <physfs.h>
+#endif
+
 namespace epi
 {
 
@@ -29,6 +33,14 @@ namespace epi
 sub_file_c::sub_file_c(file_c *_par, int _start, int _len) :
 	parent(_par), start(_start), length(_len), remain(_len)
 {
+#ifdef HAVE_PHYSFS
+	if (start == -1)
+	{
+		// PHYSFS controlled file
+		PHYSFS_seek((PHYSFS_File*)parent, 0);
+		return;
+	}
+#endif
 	SYS_ASSERT(parent);
 	SYS_ASSERT(start >= 0);
 	SYS_ASSERT(length >= 0);
@@ -41,25 +53,20 @@ sub_file_c::sub_file_c(file_c *_par, int _start, int _len) :
 //
 sub_file_c::~sub_file_c()
 {
+#ifdef HAVE_PHYSFS
+	if ((start == -1) && (length != -1))
+	{
+		// PHYSFS controlled file
+		I_Printf("Close PHYSFS_File %p\n", parent);
+		PHYSFS_close((PHYSFS_File*)parent);
+	}
+#endif
 	start = length = -1;
 }
 
 int sub_file_c::GetPosition()
 {
 	return length - remain;
-#if 0
-	int par_pos = parent->GetPosition();
-
-	int result = par_pos - start;
-
-	if (result < 0) // oopsie
-		return 0;
-
-	if (result > length)
-		return length;
-	
-	return result;
-#endif
 }
 
 unsigned int sub_file_c::Read(void *dest, unsigned int size)
@@ -70,8 +77,18 @@ unsigned int sub_file_c::Read(void *dest, unsigned int size)
 	if (size <= 0)
 		return 0;  // EOF
 
-	int read_len = parent->Read(dest, size);
+#ifdef HAVE_PHYSFS
+	if (start == -1)
+	{
+		// PHYSFS controlled file
+		int read_len = PHYSFS_read((PHYSFS_File*)parent, dest, size, 1) * size;
+		//I_Printf("  PHYSFS_read: returned %d bytes\n", read_len);
+		remain -= read_len;
 
+		return read_len;
+	}
+#endif
+	int read_len = parent->Read(dest, size);
 	remain -= read_len;
 
 	return read_len;
@@ -98,7 +115,15 @@ bool sub_file_c::Seek(int offset, int seekpoint)
 		return false;
 
 	remain = length - new_pos;
-		
+
+#ifdef HAVE_PHYSFS
+	if (start == -1)
+	{
+		// PHYSFS controlled file
+		return PHYSFS_seek((PHYSFS_File*)parent, new_pos);
+	}
+#endif
+
 	return parent->Seek(start + new_pos, SEEKPOINT_START);
 }
 

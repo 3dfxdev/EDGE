@@ -77,6 +77,10 @@
 #include "w_pak.h"
 #include "z_zone.h"
 
+#ifdef HAVE_PHYSFS
+#include <physfs.h>
+#endif
+
 // -KM- 1999/01/31 Order is important, Languages are loaded before sfx, etc...
 typedef struct ddf_reader_s
 {
@@ -224,10 +228,16 @@ typedef enum
 }
 lump_kind_e;
 
+#ifdef __GNUC__
+	typedef long long Int64;
+#else
+	typedef __int64 Int64;
+#endif
+
 typedef struct
 {
 	char name[10];
-	int position;
+	Int64 position; // can be a pointer to a filepath string on a 64-bit system
 	int size;
 
 	// file number (an index into data_files[]).
@@ -296,6 +306,8 @@ static bool within_patch_list;
 static bool within_colmap_list;
 static bool within_tex_list;
 static bool within_hires_list;
+
+static int num_paks = 0;
 
 byte *W_ReadLumpAlloc(int lump, int *length);
 
@@ -608,6 +620,7 @@ static void SortSpriteLumps(data_file_c *df)
 //  for the lump name.
 //
 
+#if 0
 static void FreeLump(lumpheader_t *h)
 {
 	int lumpnum = h->lumpindex;
@@ -629,7 +642,7 @@ static void FreeLump(lumpheader_t *h)
 	h->next->prev = h->prev;
 	Z_Free(h);
 }
-
+#endif
 
 //
 // MarkAsCached
@@ -653,11 +666,16 @@ static void MarkAsCached(lumpheader_t *item)
 //
 // AddLump
 //
-static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
+static void AddLump(data_file_c *df, int lump, Int64 pos, int size, int file,
 	int sort_index, const char *name, bool allow_ddf)
 {
 	int j;
 	lumpinfo_t *lump_p = lumpinfo + lump;
+
+#if 0
+	I_Printf("AddLump: %llx, %d, %llx, %d, %d, %d, %s, %d\n",
+		(Int64)df, lump, pos, size, file, sort_index, name, allow_ddf);
+#endif
 
 	lump_p->position = pos;
 	lump_p->size = size;
@@ -667,6 +685,13 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 
 	Z_StrNCpy(lump_p->name, name, 8);
 	strupr(lump_p->name);
+	// strip any extension
+	for (j=7; j>=0; j--)
+		if (lump_p->name[j] == '.')
+		{
+			lump_p->name[j] = 0;
+			break;
+		}
 
 	// -- handle special names --
 
@@ -1060,6 +1085,103 @@ static bool FindCacheFilename(std::string& out_name,
 	return false;
 }
 
+typedef struct {
+	data_file_c *dfile;
+	const char *name;
+	int kind;
+	int index;
+	int dfindex;
+} file_info_t;
+
+static void SpriteNamespace(void *userData, const char *origDir, const char *fname)
+{
+#ifdef HAVE_PHYSFS
+	file_info_t *user_data = (file_info_t *)userData;
+	char path[256];
+	strcpy(path,origDir);
+	strcat(path, "/");
+	strcat(path, fname);
+
+	I_Printf("  SpriteNamespace: processing %s\n", path);
+
+	if (PHYSFS_isDirectory(path))
+	{
+		// sprite subdirectory... recurse
+		PHYSFS_enumerateFilesCallback(path, SpriteNamespace, userData);
+		return;
+	}
+
+	// add sprite lump
+	I_Printf("    opening sprite lump %s\n", fname);
+	Int64 file = (Int64)PHYSFS_openRead(path);
+	if (!file)
+		return; // couldn't open file - skip
+	int length = PHYSFS_fileLength((PHYSFS_File*)file);
+	PHYSFS_close((PHYSFS_File*)file);
+	file = (Int64)strdup(path);
+
+	I_Printf("    adding sprite lump %s\n", fname);
+	numlumps++;
+	Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+	AddLump(user_data->dfile, numlumps - 1, file, length,
+		user_data->dfindex, user_data->index, fname, 0);
+#endif
+}
+
+static void TopLevel(void *userData, const char *origDir, const char *fname)
+{
+#ifdef HAVE_PHYSFS
+	file_info_t *user_data = (file_info_t *)userData;
+	char path[256];
+	strcpy(path,origDir);
+	strcat(path, "/");
+	strcat(path, fname);
+
+	I_Printf("TopLevel: processing %s\n", path);
+
+	if (PHYSFS_isDirectory(path))
+	{
+		I_Printf("TopLevel: found subdirectory %s\n", fname);
+
+		// check for supported namespace directory
+		if (stricmp(fname, "sprites") == 0)
+		{
+			// add fake S_START lump
+			numlumps++;
+			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "S_START", 0);
+
+			// enumerate all entries in the sprites directory
+			PHYSFS_enumerateFilesCallback(path, SpriteNamespace, userData);
+
+			// add fake S_END lump
+			numlumps++;
+			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "S_END", 0);
+		}
+
+
+
+		return;
+	}
+
+	// add global lump
+	I_Printf("  opening global lump %s\n", fname);
+	Int64 file = (Int64)PHYSFS_openRead(path);
+	if (!file)
+		return; // couldn't open file - skip
+	int length = PHYSFS_fileLength((PHYSFS_File*)file);
+	PHYSFS_close((PHYSFS_File*)file);
+	file = (Int64)strdup(path);
+
+	I_Printf("  adding global lump %s\n", fname);
+	numlumps++;
+	Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+	AddLump(user_data->dfile, numlumps - 1, file, length,
+		user_data->dfindex, user_data->index, fname, 1);
+#endif
+}
+
 extern void MapsReadHeaders(); //<--- This makes wlf_maps able to start the header identification
 //
 // AddFile
@@ -1081,11 +1203,6 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	raw_wad_header_t header;
 	raw_wad_entry_t *curinfo;
 
-	raw_pak_header_t r_header;
-	raw_pak_entry_t *r_directory;
-
-
-
 	/* Wolfenstein 3D headers/entries/etc*/ //TODO
 
 
@@ -1093,6 +1210,73 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	within_sprite_list = within_flat_list = false;
 	within_patch_list = within_colmap_list = false;
 	within_tex_list = within_hires_list = false;
+
+	// handle pak/pk3/pk7 files before default file handling
+	if ((kind == FLKIND_PAK) || (kind == FLKIND_PK3) || (kind == FLKIND_PK7))
+	{
+#ifdef HAVE_PHYSFS
+		file_info_t userData;
+		char pakdir[16];
+		char number[8];
+
+		// make mount name for PHYSFS for this pack file
+		strcpy(pakdir, "/pack");
+		sprintf(number, "%x", num_paks);
+		strcat(pakdir, number);
+
+		startlump = numlumps;
+
+		int datafile = (int)data_files.size();
+		data_file_c *df = new data_file_c(filename, kind, NULL);
+		data_files.push_back(df);
+
+		int pakErr = PHYSFS_mount(filename, pakdir, 0); // add to head of temp search list
+		if (!pakErr)
+			I_Error("Error adding %s to search list\n", filename);
+
+		I_Printf("  Adding %s\n", filename);
+
+		userData.dfile = df;
+		userData.name = filename;
+		userData.kind = kind;
+		userData.index = (dyn_index >= 0) ? dyn_index : datafile;
+		userData.dfindex = datafile;
+
+		PHYSFS_enumerateFilesCallback(pakdir, TopLevel, (void *)&userData);
+
+		SortLumps();
+		SortSpriteLumps(df);
+
+		// set up caching
+		Z_Resize(lumplookup, lumpheader_t *, numlumps);
+
+		for (j = startlump; j < numlumps; j++)
+			lumplookup[j] = NULL;
+
+		// check for unclosed sprite/flat/patch lists
+		if (within_sprite_list)
+			I_Warning("Missing S_END marker in %s.\n", filename);
+
+		if (within_flat_list)
+			I_Warning("Missing F_END marker in %s.\n", filename);
+
+		if (within_patch_list)
+			I_Warning("Missing P_END marker in %s.\n", filename);
+
+		if (within_colmap_list)
+			I_Warning("Missing C_END marker in %s.\n", filename);
+
+		if (within_tex_list)
+			I_Warning("Missing TX_END marker in %s.\n", filename);
+
+		if (within_hires_list)
+			I_Warning("Missing HI_END marker in %s.\n", filename);
+
+		return;
+#else
+		I_Error("PHYSFS support not compiled. Attempt to open file %s\n", filename);
+#endif
+	}
 
 	// open the file and add to directory
 	epi::file_c *file = epi::FS_Open(filename, epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
@@ -1107,7 +1291,6 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	startlump = numlumps;
 
 	int datafile = (int)data_files.size();
-
 	data_file_c *df = new data_file_c(filename, kind, file);
 	data_files.push_back(df);
 
@@ -1122,46 +1305,6 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		return;
 	}
 #endif // 0
-
-	/// For this, we are using everything defined in /source. This has been EPI::fied, so we will eventually use that!!
-	if (kind == FLKIND_PAK) // -CA PAK support
-	{
-
-		// PAK File
-		file->Read(&r_header, sizeof(raw_pak_header_t));
-
-		r_header.dir_start = EPI_LE_S32(r_header.dir_start);
-		r_header.entry_num = EPI_LE_S32(r_header.entry_num);
-
-		length = r_header.entry_num * sizeof(raw_pak_entry_t);
-
-		raw_pak_entry_t *fileinfo = new raw_pak_entry_t[r_header.entry_num];
-
-		file->Seek(r_header.dir_start, epi::file_c::SEEKPOINT_START);
-		file->Read(fileinfo, length);
-
-		//Compute MD5 hash over PAK dir structure. . .
-		df->dir_hash.Compute((const byte *)fileinfo, length);
-
-		// Fill in LumpInfo
-		numlumps += r_header.entry_num;
-		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
-
-		for (j = startlump, r_directory = fileinfo; j < numlumps; j++, r_directory++)
-		{
-
-			AddLump(df, j, EPI_LE_S32(r_directory->offset), EPI_LE_S32(r_directory->length),
-				datafile,
-				(dyn_index >= 0) ? dyn_index : datafile,
-				r_directory->name,
-				(kind == FLKIND_PAK));/// || (kind == FLKIND_EPK) ); <--- EPK can be 3DGE PAK, for edge.epk or something?
-		}
-
-
-
-		///I_Printf(" %4d: %08x %08x : %s\n", j, r_directory->offset, r_directory->length, r_directory->name);
-		delete[] fileinfo;
-	}
 
 	if (kind <= FLKIND_HWad)
 	{
@@ -1588,14 +1731,26 @@ epi::file_c *W_OpenLump(int lump)
 	lumpinfo_t *l = lumpinfo + lump;
 
 	data_file_c *df = data_files[l->file];
+	I_Printf("W_OpenLump: %d(%s)\n", lump, l->name);
 
-	SYS_ASSERT(df->file);
+	if (df->file == NULL)
+	{
+#ifdef HAVE_PHYSFS
+		// PHYSFS controlled file
+		PHYSFS_File *file = PHYSFS_openRead((char*)l->position);
+		SYS_ASSERT(file != NULL);
+		return new epi::sub_file_c((epi::file_c*)file, -1, l->size);
+#else
+		SYS_ASSERT(df->file);
+#endif
+	}
 
 	return new epi::sub_file_c(df->file, l->position, l->size);
 }
 
 epi::file_c *W_OpenLump(const char *name)
 {
+	//I_Printf("W_OpenLump: %s\n", name);
 	return W_OpenLump(W_GetNumForName(name));
 }
 
@@ -1932,17 +2087,37 @@ static void W_ReadLump(int lump, void *dest)
 		I_Error("W_ReadLump: %i >= numlumps", lump);
 
 	lumpinfo_t *L = lumpinfo + lump;
+
 	data_file_c *df = data_files[L->file];
 
 	// -KM- 1998/07/31 This puts the loading icon in the corner of the screen :-)
 	display_disk = true;
 
-	df->file->Seek(L->position, epi::file_c::SEEKPOINT_START);
-
-	int c = df->file->Read(dest, L->size);
-
-	if (c < L->size)
-		I_Error("W_ReadLump: only read %i of %i on lump %i", c, L->size, lump);
+	if ((df->kind == FLKIND_PAK) || (df->kind == FLKIND_PK3) || (df->kind == FLKIND_PK7))
+	{
+#ifdef HAVE_PHYSFS
+		// do PHSYFS read of data
+		char *fname = (char *)L->position;
+		PHYSFS_File *handle = PHYSFS_openRead(fname);
+		if (handle)
+		{
+			PHYSFS_seek(handle, 0);
+			int c = PHYSFS_read(handle, dest, L->size, 1);
+			if (c < 1)
+				I_Error("W_ReadLump: PHYSFS_read returned %i on lump %i", c, lump);
+			PHYSFS_close(handle);
+		}
+		else
+			I_Error("W_ReadLump: PHYSFS_openRead failed on lump %i", lump);
+#endif
+	}
+	else
+	{
+		df->file->Seek(L->position, epi::file_c::SEEKPOINT_START);
+		int c = df->file->Read(dest, L->size);
+		if (c < L->size)
+			I_Error("W_ReadLump: only read %i of %i on lump %i", c, L->size, lump);
+	}
 }
 
 // FIXME !!! merge W_ReadLumpAlloc and W_LoadLumpNum into one good function
@@ -2213,7 +2388,7 @@ void W_ShowLumps(int for_file, const char *match)
 			if (!strstr(L->name, match))
 				continue;
 
-		I_Printf(" %4d %-9s %2d %-6s %7d @ 0x%08x\n",
+		I_Printf(" %4d %-9s %2d %-6s %7d @ 0x%016llx\n",
 			i + 1, L->name,
 			L->file + 1, LumpKind_Strings[L->kind],
 			L->size, L->position);
