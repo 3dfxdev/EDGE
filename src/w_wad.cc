@@ -1400,7 +1400,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 	}
 
 	// check if add global lump - TODO
-	if (0)
+	if (1)
 	{
 		// add global lump
 		I_Printf("  opening global lump %s\n", fname);
