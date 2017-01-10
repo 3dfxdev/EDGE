@@ -1481,9 +1481,12 @@ static void AddSingleCmdLineFile(const char *name)
 	int kind = FLKIND_Lump;
 
 	// no need to check for GWA (shouldn't be added manually)
+	// cw - check for GWA... need to add manually for pak/pk3/pk7
 
 	if (stricmp(ext.c_str(), "edm") == 0)
 		I_Error("Demos are no longer supported\n");
+	else if (stricmp(ext.c_str(), "gwa") == 0)
+		kind = FLKIND_GWad;
 	else if (stricmp(ext.c_str(), "wad") == 0)
 		kind = FLKIND_PWad;
 	else if (stricmp(ext.c_str(), "wl6") == 0)
