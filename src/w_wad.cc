@@ -670,7 +670,7 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 	int j;
 	lumpinfo_t *lump_p = lumpinfo + lump;
 
-#if 1
+#if 0
 	I_Printf("AddLumpEx: %p, %d, %d, %d, %d, %d, %s, %d, %s\n",
 		df, lump, pos, size, file, sort_index, name, allow_ddf, path);
 #endif
@@ -1099,7 +1099,7 @@ typedef struct {
 	int dfindex;
 } file_info_t;
 
-static void SpriteNamespace(void *userData, const char *origDir, const char *fname)
+static void LumpNamespace(void *userData, const char *origDir, const char *fname)
 {
 #ifdef HAVE_PHYSFS
 	file_info_t *user_data = (file_info_t *)userData;
@@ -1108,28 +1108,66 @@ static void SpriteNamespace(void *userData, const char *origDir, const char *fna
 	strcat(path, "/");
 	strcat(path, fname);
 
-	I_Printf("  SpriteNamespace: processing %s\n", path);
+	I_Printf("  LumpNamespace: processing %s\n", path);
 
 	if (PHYSFS_isDirectory(path))
 	{
-		// sprite subdirectory... recurse
-		PHYSFS_enumerateFilesCallback(path, SpriteNamespace, userData);
+		// subdirectory... recurse
+		PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
 		return;
 	}
 
-	// add sprite lump
-	I_Printf("    opening sprite lump %s\n", fname);
+	// add lump
+	I_Printf("    opening lump %s\n", fname);
 	PHYSFS_File *file = PHYSFS_openRead(path);
 	if (!file)
 		return; // couldn't open file - skip
 	int length = PHYSFS_fileLength(file);
 	PHYSFS_close(file);
 
-	I_Printf("    adding sprite lump %s\n", fname);
+	I_Printf("    adding lump %s\n", fname);
 	numlumps++;
 	Z_Resize(lumpinfo, lumpinfo_t, numlumps);
 	AddLumpEx(user_data->dfile, numlumps - 1, 0, length,
 		user_data->dfindex, user_data->index, fname, 0, path);
+#endif
+}
+
+static void WadNamespace(void *userData, const char *origDir, const char *fname)
+{
+#ifdef HAVE_PHYSFS
+	file_info_t *user_data = (file_info_t *)userData;
+	char path[256];
+	strcpy(path,origDir);
+	strcat(path, "/");
+	strcat(path, fname);
+
+	I_Printf("  WadNamespace: processing %s\n", path);
+
+	if (PHYSFS_isDirectory(path))
+	{
+		// subdirectory... recurse
+		PHYSFS_enumerateFilesCallback(path, WadNamespace, userData);
+		return;
+	}
+
+	// open wad lump
+	I_Printf("    opening wad %s\n", fname);
+	PHYSFS_File *file = PHYSFS_openRead(path);
+	if (!file)
+		return; // couldn't open file - skip
+	int length = PHYSFS_fileLength(file);
+
+	// loop over wad directory entries
+
+
+		I_Printf("    adding wad lump %s\n", fname);
+		numlumps++;
+		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+		AddLumpEx(user_data->dfile, numlumps - 1, 0, length,
+			user_data->dfindex, user_data->index, fname, 0, path);
+
+	PHYSFS_close(file);
 #endif
 }
 
@@ -1149,23 +1187,162 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 		I_Printf("TopLevel: found subdirectory %s\n", fname);
 
 		// check for supported namespace directory
-		if (stricmp(fname, "sprites") == 0)
+		if (stricmp(fname, "colormaps") == 0)
+		{
+			// add fake C_START lump
+			I_Printf("  adding fake lump C_START\n");
+			numlumps++;
+			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "C_START", 0);
+
+			// enumerate all entries in the colormaps directory
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+
+			// add fake C_END lump
+			I_Printf("  adding fake lump C_END\n");
+			numlumps++;
+			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "C_END", 0);
+		}
+		else if (stricmp(fname, "flats") == 0)
+		{
+			// add fake F_START lump
+			I_Printf("  adding fake lump F_START\n");
+			numlumps++;
+			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "F_START", 0);
+
+			// enumerate all entries in the flats directory
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+
+			// add fake F_END lump
+			I_Printf("  adding fake lump F_END\n");
+			numlumps++;
+			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "F_END", 0);
+		}
+		else if (stricmp(fname, "hires") == 0)
+		{
+			// add fake HI_START lump
+			I_Printf("  adding fake lump HI_START\n");
+			numlumps++;
+			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "HI_START", 0);
+
+			// enumerate all entries in the hires directory
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+
+			// add fake HI_END lump
+			I_Printf("  adding fake lump HI_END\n");
+			numlumps++;
+			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "HI_END", 0);
+		}
+		else if (stricmp(fname, "patches") == 0)
+		{
+			// add fake P_START lump
+			I_Printf("  adding fake lump P_START\n");
+			numlumps++;
+			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "P_START", 0);
+
+			// enumerate all entries in the flats directory
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+
+			// add fake P_END lump
+			I_Printf("  adding fake lump P_END\n");
+			numlumps++;
+			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "P_END", 0);
+		}
+		else if (stricmp(fname, "sprites") == 0)
 		{
 			// add fake S_START lump
+			I_Printf("  adding fake lump S_START\n");
 			numlumps++;
 			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "S_START", 0);
 
 			// enumerate all entries in the sprites directory
-			PHYSFS_enumerateFilesCallback(path, SpriteNamespace, userData);
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
 
 			// add fake S_END lump
+			I_Printf("  adding fake lump S_END\n");
 			numlumps++;
 			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "S_END", 0);
 		}
+		else if (stricmp(fname, "textures") == 0)
+		{
+			// add fake TX_START lump
+			I_Printf("  adding fake lump TX_START\n");
+			numlumps++;
+			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "TX_START", 0);
 
+			// enumerate all entries in the textures directory
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
 
+			// add fake TX_END lump
+			I_Printf("  adding fake lump TX_END\n");
+			numlumps++;
+			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "TX_END", 0);
+		}
+		else if (stricmp(fname, "voices") == 0)
+		{
+			// add fake V_START lump
+			I_Printf("  adding fake lump V_START\n");
+			numlumps++;
+			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "V_START", 0);
+
+			// enumerate all entries in the voices directory
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+
+			// add fake V_END lump
+			I_Printf("  adding fake lump V_END\n");
+			numlumps++;
+			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "V_END", 0);
+		}
+		else if (stricmp(fname, "voxels") == 0)
+		{
+			// add fake VX_START lump
+			I_Printf("  adding fake lump VX_START\n");
+			numlumps++;
+			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "VX_START", 0);
+
+			// enumerate all entries in the voxels directory
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+
+			// add fake VX_END lump
+			I_Printf("  adding fake lump VX_END\n");
+			numlumps++;
+			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "VX_END", 0);
+		}
+		else if (stricmp(fname, "graphics") == 0)
+		{
+			// enumerate all entries in the graphics directory
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+		}
+		else if (stricmp(fname, "maps") == 0)
+		{
+			// enumerate all entries in the maps directory
+			PHYSFS_enumerateFilesCallback(path, WadNamespace, userData);
+		}
+		else if (stricmp(fname, "music") == 0)
+		{
+			// enumerate all entries in the music directory
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+		}
+		else if (stricmp(fname, "sounds") == 0)
+		{
+			// enumerate all entries in the sounds directory
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+		}
 
 		return;
 	}
