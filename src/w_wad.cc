@@ -670,11 +670,6 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 	int j;
 	lumpinfo_t *lump_p = lumpinfo + lump;
 
-#if 0
-	I_Printf("AddLumpEx: %p, %d, %d, %d, %d, %d, %s, %d, %s\n",
-		df, lump, pos, size, file, sort_index, name, allow_ddf, path);
-#endif
-
 	lump_p->position = pos;
 	lump_p->size = size;
 	lump_p->file = file;
@@ -692,6 +687,11 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		}
 
 	Z_StrNCpy(lump_p->path, path, 255);
+
+#if 1
+	I_Printf("AddLumpEx: %p, %d, %d, %d, %d, %d, %s, %d, %s\n",
+		df, lump, pos, size, file, sort_index, lump_p->name, allow_ddf, lump_p->path);
+#endif
 
 	// -- handle special names --
 
@@ -1137,6 +1137,9 @@ static void WadNamespace(void *userData, const char *origDir, const char *fname)
 {
 #ifdef HAVE_PHYSFS
 	file_info_t *user_data = (file_info_t *)userData;
+	raw_wad_header_t header;
+	raw_wad_entry_t entry;
+	char tname[10];
 	char path[256];
 	strcpy(path,origDir);
 	strcat(path, "/");
@@ -1156,16 +1159,35 @@ static void WadNamespace(void *userData, const char *origDir, const char *fname)
 	PHYSFS_File *file = PHYSFS_openRead(path);
 	if (!file)
 		return; // couldn't open file - skip
-	int length = PHYSFS_fileLength(file);
+
+	PHYSFS_read(file, &header, sizeof(raw_wad_header_t), 1);
+
+	if (strncmp(header.identification, "IWAD", 4) != 0)
+	{
+		// Homebrew levels?
+		if (strncmp(header.identification, "PWAD", 4) != 0)
+		{
+			I_Error("Wad file %s doesn't have IWAD or PWAD id\n", fname);
+		}
+	}
+
+	header.num_entries = EPI_LE_S32(header.num_entries);
+	header.dir_start = EPI_LE_S32(header.dir_start);
+	PHYSFS_seek(file, header.dir_start);
 
 	// loop over wad directory entries
-
-
-		I_Printf("    adding wad lump %s\n", fname);
+	for (int i=0; i<header.num_entries; i++)
+	{
+		PHYSFS_read(file, &entry, sizeof(raw_wad_entry_t), 1);
+		int pos = EPI_LE_S32(entry.pos);
+		int size = EPI_LE_S32(entry.size);
+		Z_StrNCpy(tname, entry.name, 8);
+		I_Printf("    adding wad lump %s\n", tname);
 		numlumps++;
 		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
-		AddLumpEx(user_data->dfile, numlumps - 1, 0, length,
-			user_data->dfindex, user_data->index, fname, 0, path);
+		AddLumpEx(user_data->dfile, numlumps - 1, pos, size,
+			user_data->dfindex, user_data->index, tname, 0, path);
+	}
 
 	PHYSFS_close(file);
 #endif
@@ -1175,6 +1197,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 {
 #ifdef HAVE_PHYSFS
 	file_info_t *user_data = (file_info_t *)userData;
+	char check[16];
 	char path[256];
 	strcpy(path,origDir);
 	strcat(path, "/");
@@ -1348,22 +1371,51 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 	}
 
 	// check for special lumps, like map wad lumps
+	strcpy(check, "E1M1.wad");
+	for (int i=1; i<5; i++)
+	{
+		check[1] = '0' + i;
+		for (int j=1; j<10; j++)
+		{
+			check[3] = '0' + j;
+			if (strncmp(fname, check, 8) == 0)
+			{
+				// process wad lump
+				WadNamespace(userData, origDir, fname);
+				return;
+			}
+		}
+	}
+	strcpy(check, "MAP01.wad");
+	for (int i=1; i<100; i++)
+	{
+		check[3] = '0' + i/10;
+		check[4] = '0' + i%10;
+		if (strncmp(fname, check, 9) == 0)
+		{
+			// process wad lump
+			WadNamespace(userData, origDir, fname);
+			return;
+		}
+	}
 
+	// check if add global lump - TODO
+	if (0)
+	{
+		// add global lump
+		I_Printf("  opening global lump %s\n", fname);
+		PHYSFS_File *file = PHYSFS_openRead(path);
+		if (!file)
+			return; // couldn't open file - skip
+		int length = PHYSFS_fileLength(file);
+		PHYSFS_close(file);
 
-
-	// add global lump
-	I_Printf("  opening global lump %s\n", fname);
-	PHYSFS_File *file = PHYSFS_openRead(path);
-	if (!file)
-		return; // couldn't open file - skip
-	int length = PHYSFS_fileLength(file);
-	PHYSFS_close(file);
-
-	I_Printf("  adding global lump %s\n", fname);
-	numlumps++;
-	Z_Resize(lumpinfo, lumpinfo_t, numlumps);
-	AddLumpEx(user_data->dfile, numlumps - 1, 0, length,
-		user_data->dfindex, user_data->index, fname, 1, path);
+		I_Printf("  adding global lump %s\n", fname);
+		numlumps++;
+		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+		AddLumpEx(user_data->dfile, numlumps - 1, 0, length,
+			user_data->dfindex, user_data->index, fname, 1, path);
+	}
 #endif
 }
 
