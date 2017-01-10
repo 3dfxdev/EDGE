@@ -1182,6 +1182,11 @@ static void WadNamespace(void *userData, const char *origDir, const char *fname)
 		int pos = EPI_LE_S32(entry.pos);
 		int size = EPI_LE_S32(entry.size);
 		Z_StrNCpy(tname, entry.name, 8);
+		// check for ExMy/MAPxx - some map wads have bad map marker lump
+		if (strncmp(tname, "MAP", 3) == 0)
+			Z_StrNCpy(tname, fname, 5);
+		else if ((tname[0] == 'E') && (tname[2] == 'M'))
+			Z_StrNCpy(tname, fname, 4);
 		I_Printf("    adding wad lump %s\n", tname);
 		numlumps++;
 		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
@@ -2324,6 +2329,7 @@ static void W_ReadLump(int lump, void *dest)
 		I_Error("W_ReadLump: %i >= numlumps", lump);
 
 	lumpinfo_t *L = lumpinfo + lump;
+	I_Printf("W_ReadLump: %d (%s)\n", lump, L->name);
 
 	data_file_c *df = data_files[L->file];
 
@@ -2337,7 +2343,7 @@ static void W_ReadLump(int lump, void *dest)
 		PHYSFS_File *handle = PHYSFS_openRead(L->path);
 		if (handle)
 		{
-			PHYSFS_seek(handle, 0);
+			PHYSFS_seek(handle, L->position);
 			int c = PHYSFS_read(handle, dest, L->size, 1);
 			if (c < 1)
 				I_Error("W_ReadLump: PHYSFS_read returned %i on lump %i", c, lump);
