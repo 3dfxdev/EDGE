@@ -228,16 +228,10 @@ typedef enum
 }
 lump_kind_e;
 
-#ifdef __GNUC__
-	typedef long long Int64;
-#else
-	typedef __int64 Int64;
-#endif
-
 typedef struct
 {
 	char name[10];
-	Int64 position; // can be a pointer to a filepath string on a 64-bit system
+	int position;
 	int size;
 
 	// file number (an index into data_files[]).
@@ -252,6 +246,10 @@ typedef struct
 	// one of the LMKIND values.  For sorting, this is the least
 	// significant aspect (but still necessary).
 	short kind;
+#ifdef HAVE_PHYSFS
+	// pathname for PHYSFS file - wasteful, but no biggy on a PC
+	char path[256];
+#endif
 }
 lumpinfo_t;
 
@@ -664,17 +662,17 @@ static void MarkAsCached(lumpheader_t *item)
 }
 
 //
-// AddLump
+// AddLump/AddLumpEx
 //
-static void AddLump(data_file_c *df, int lump, Int64 pos, int size, int file,
-	int sort_index, const char *name, bool allow_ddf)
+static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
+	int sort_index, const char *name, bool allow_ddf, const char *path)
 {
 	int j;
 	lumpinfo_t *lump_p = lumpinfo + lump;
 
-#if 0
-	I_Printf("AddLump: %llx, %d, %llx, %d, %d, %d, %s, %d\n",
-		(Int64)df, lump, pos, size, file, sort_index, name, allow_ddf);
+#if 1
+	I_Printf("AddLumpEx: %p, %d, %d, %d, %d, %d, %s, %d, %s\n",
+		df, lump, pos, size, file, sort_index, name, allow_ddf, path);
 #endif
 
 	lump_p->position = pos;
@@ -692,6 +690,8 @@ static void AddLump(data_file_c *df, int lump, Int64 pos, int size, int file,
 			lump_p->name[j] = 0;
 			break;
 		}
+
+	Z_StrNCpy(lump_p->path, path, 255);
 
 	// -- handle special names --
 
@@ -900,6 +900,12 @@ static void AddLump(data_file_c *df, int lump, Int64 pos, int size, int file,
 			df->hires_lumps.Insert(lump);
 		}
 	}
+}
+
+static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
+	int sort_index, const char *name, bool allow_ddf)
+{
+	AddLumpEx(df, lump, pos, size, file, sort_index, name, allow_ddf, "");
 }
 
 //
@@ -1113,18 +1119,17 @@ static void SpriteNamespace(void *userData, const char *origDir, const char *fna
 
 	// add sprite lump
 	I_Printf("    opening sprite lump %s\n", fname);
-	Int64 file = (Int64)PHYSFS_openRead(path);
+	PHYSFS_File *file = PHYSFS_openRead(path);
 	if (!file)
 		return; // couldn't open file - skip
-	int length = PHYSFS_fileLength((PHYSFS_File*)file);
-	PHYSFS_close((PHYSFS_File*)file);
-	file = (Int64)strdup(path);
+	int length = PHYSFS_fileLength(file);
+	PHYSFS_close(file);
 
 	I_Printf("    adding sprite lump %s\n", fname);
 	numlumps++;
 	Z_Resize(lumpinfo, lumpinfo_t, numlumps);
-	AddLump(user_data->dfile, numlumps - 1, file, length,
-		user_data->dfindex, user_data->index, fname, 0);
+	AddLumpEx(user_data->dfile, numlumps - 1, 0, length,
+		user_data->dfindex, user_data->index, fname, 0, path);
 #endif
 }
 
@@ -1165,20 +1170,23 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 		return;
 	}
 
+	// check for special lumps, like map wad lumps
+
+
+
 	// add global lump
 	I_Printf("  opening global lump %s\n", fname);
-	Int64 file = (Int64)PHYSFS_openRead(path);
+	PHYSFS_File *file = PHYSFS_openRead(path);
 	if (!file)
 		return; // couldn't open file - skip
-	int length = PHYSFS_fileLength((PHYSFS_File*)file);
-	PHYSFS_close((PHYSFS_File*)file);
-	file = (Int64)strdup(path);
+	int length = PHYSFS_fileLength(file);
+	PHYSFS_close(file);
 
 	I_Printf("  adding global lump %s\n", fname);
 	numlumps++;
 	Z_Resize(lumpinfo, lumpinfo_t, numlumps);
-	AddLump(user_data->dfile, numlumps - 1, file, length,
-		user_data->dfindex, user_data->index, fname, 1);
+	AddLumpEx(user_data->dfile, numlumps - 1, 0, length,
+		user_data->dfindex, user_data->index, fname, 1, path);
 #endif
 }
 
@@ -1737,9 +1745,9 @@ epi::file_c *W_OpenLump(int lump)
 	{
 #ifdef HAVE_PHYSFS
 		// PHYSFS controlled file
-		PHYSFS_File *file = PHYSFS_openRead((char*)l->position);
+		PHYSFS_File *file = PHYSFS_openRead(l->path);
 		SYS_ASSERT(file != NULL);
-		return new epi::sub_file_c((epi::file_c*)file, -1, l->size);
+		return new epi::sub_file_c((epi::file_c*)file, l->position | 0x40000000, l->size);
 #else
 		SYS_ASSERT(df->file);
 #endif
@@ -2097,8 +2105,7 @@ static void W_ReadLump(int lump, void *dest)
 	{
 #ifdef HAVE_PHYSFS
 		// do PHSYFS read of data
-		char *fname = (char *)L->position;
-		PHYSFS_File *handle = PHYSFS_openRead(fname);
+		PHYSFS_File *handle = PHYSFS_openRead(L->path);
 		if (handle)
 		{
 			PHYSFS_seek(handle, 0);
@@ -2388,7 +2395,7 @@ void W_ShowLumps(int for_file, const char *match)
 			if (!strstr(L->name, match))
 				continue;
 
-		I_Printf(" %4d %-9s %2d %-6s %7d @ 0x%016llx\n",
+		I_Printf(" %4d %-9s %2d %-6s %7d @ 0x%08x\n",
 			i + 1, L->name,
 			L->file + 1, LumpKind_Strings[L->kind],
 			L->size, L->position);

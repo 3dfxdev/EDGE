@@ -34,13 +34,18 @@ sub_file_c::sub_file_c(file_c *_par, int _start, int _len) :
 	parent(_par), start(_start), length(_len), remain(_len)
 {
 #ifdef HAVE_PHYSFS
-	if (start == -1)
+	physfs = 0;
+	if (start & 0x40000000)
 	{
 		// PHYSFS controlled file
-		PHYSFS_seek((PHYSFS_File*)parent, 0);
+		start &= 0x3FFFFFFF;
+		physfs = 1;
+
+		PHYSFS_seek((PHYSFS_File*)parent, start);
 		return;
 	}
 #endif
+
 	SYS_ASSERT(parent);
 	SYS_ASSERT(start >= 0);
 	SYS_ASSERT(length >= 0);
@@ -54,13 +59,15 @@ sub_file_c::sub_file_c(file_c *_par, int _start, int _len) :
 sub_file_c::~sub_file_c()
 {
 #ifdef HAVE_PHYSFS
-	if ((start == -1) && (length != -1))
+	if (physfs)
 	{
 		// PHYSFS controlled file
 		I_Printf("Close PHYSFS_File %p\n", parent);
 		PHYSFS_close((PHYSFS_File*)parent);
+		physfs = 0;
 	}
 #endif
+
 	start = length = -1;
 }
 
@@ -78,7 +85,7 @@ unsigned int sub_file_c::Read(void *dest, unsigned int size)
 		return 0;  // EOF
 
 #ifdef HAVE_PHYSFS
-	if (start == -1)
+	if (physfs)
 	{
 		// PHYSFS controlled file
 		int read_len = PHYSFS_read((PHYSFS_File*)parent, dest, size, 1) * size;
@@ -88,6 +95,7 @@ unsigned int sub_file_c::Read(void *dest, unsigned int size)
 		return read_len;
 	}
 #endif
+
 	int read_len = parent->Read(dest, size);
 	remain -= read_len;
 
@@ -117,10 +125,10 @@ bool sub_file_c::Seek(int offset, int seekpoint)
 	remain = length - new_pos;
 
 #ifdef HAVE_PHYSFS
-	if (start == -1)
+	if (physfs)
 	{
 		// PHYSFS controlled file
-		return PHYSFS_seek((PHYSFS_File*)parent, new_pos);
+		return PHYSFS_seek((PHYSFS_File*)parent, start + new_pos);
 	}
 #endif
 
