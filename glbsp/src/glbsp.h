@@ -49,7 +49,7 @@
 typedef signed char  sint8_g;
 typedef signed short sint16_g;
 typedef signed int   sint32_g;
-   
+
 typedef unsigned char  uint8_g;
 typedef unsigned short uint16_g;
 typedef unsigned int   uint32_g;
@@ -70,13 +70,13 @@ typedef int boolean_g;
 
 /* ----- complex types --------------------------- */
 
-// Node Build Information Structure 
+// Node Build Information Structure
 //
 // Memory note: when changing the string values here (and in
 // nodebuildcomms_t) they should be freed using GlbspFree() and
 // allocated with GlbspStrDup().  The application has the final
 // responsibility to free the strings in here.
-// 
+//
 typedef struct nodebuildinfo_s
 {
   const char *input_file;
@@ -103,7 +103,7 @@ typedef struct nodebuildinfo_s
   boolean_g load_all;
   boolean_g no_normal;
   boolean_g force_normal;
-  boolean_g gwa_mode;  
+  boolean_g gwa_mode;
   boolean_g prune_sect;
   boolean_g no_prune;
   boolean_g merge_vert;
@@ -155,13 +155,13 @@ typedef struct nodebuildfuncs_s
   // Fatal errors are called as a last resort when something serious
   // goes wrong, e.g. out of memory.  This routine should show the
   // error to the user and abort the program.
-  // 
+  //
   void (* fatal_error)(const char *str, ...) GCCATTR((format (printf, 1, 2)));
 
   // The print_msg routine is used to display the various messages
   // that occur, e.g. "Building GL nodes on MAP01" and that kind of
   // thing.
-  // 
+  //
   void (* print_msg)(const char *str, ...) GCCATTR((format (printf, 1, 2)));
 
   // This routine is called frequently whilst building the nodes, and
@@ -176,12 +176,12 @@ typedef struct nodebuildfuncs_s
   // bar, namely: building nodes, loading the wad, and saving the wad.
   // The command line version could show a percentage value, or even
   // draw a bar using characters.
- 
+
   // Display_open is called at the beginning, and 'type' holds the
   // type of progress (and determines how many bars to display).
   // Returns TRUE if all went well, or FALSE if it failed (in which
   // case the other routines should do nothing when called).
-  // 
+  //
   boolean_g (* display_open)(displaytype_e type);
 
   // For GUI versions this can be used to set the title of the
@@ -194,7 +194,7 @@ typedef struct nodebuildfuncs_s
   // the bar.  Display_setBarLimit sets the integer limit of the
   // progress (the target value), and display_setBar sets the current
   // value (which will count up from 0 to the limit, inclusive).
-  // 
+  //
   void (* display_setBar)(int barnum, int count);
   void (* display_setBarLimit)(int barnum, int limit);
   void (* display_setBarText)(int barnum, const char *str);
@@ -243,7 +243,7 @@ glbsp_ret_e;
 // values.  Calling this routine is not compulsory.  Note that the set
 // of arguments does not include the program's name.
 //
-glbsp_ret_e ParseArgs(nodebuildinfo_t *info,
+glbsp_ret_e GlbspParseArgs(nodebuildinfo_t *info,
     volatile nodebuildcomms_t *comms,
     const char ** argv, int argc);
 
@@ -276,7 +276,7 @@ glbsp_ret_e GlbspCheckInfo(nodebuildinfo_t *info,
 // comms->message field usually contains a string describing it.
 //
 glbsp_ret_e GlbspBuildNodes(const nodebuildinfo_t *info,
-    const nodebuildfuncs_t *funcs, 
+    const nodebuildfuncs_t *funcs,
     volatile nodebuildcomms_t *comms);
 
 // string memory routines.  These should be used for all strings
