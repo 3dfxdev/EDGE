@@ -24,7 +24,7 @@ RANLIB=i586-mingw32msvc-ranlib
 STRIP=i586-mingw32msvc-strip --strip-unneeded
 WINDRES=i586-mingw32msvc-windres
 
-BASE_FLAGS=-Wall -O2 -I./src -DWIN32 -DINLINE_G=inline -fpermissive
+BASE_FLAGS=-Wall -O2 -I./src -DWIN32 -DINLINE_G=inline -fpermissive -Dstricmp=strcasecmp
 
 ZLIB_DIR=./zlib-1.2.3-win32
 FLTK_DIR=./fltk-1.1.7-win32

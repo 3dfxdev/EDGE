@@ -24,7 +24,7 @@ AR=ar rc
 RANLIB=ranlib
 STRIP=strip --strip-unneeded
 
-BASE_FLAGS=-Wall -O2 -I./src -DUNIX -DINLINE_G=inline -fpermissive
+BASE_FLAGS=-Wall -O2 -I./src -DUNIX -DINLINE_G=inline -fpermissive -Dstricmp=strcasecmp
 
 FLTK_DIR=./fltk-1.1.7
 
@@ -71,7 +71,7 @@ $(LIB_NAME): $(LIB_OBJS)
 # ----- CMDLINE PROGRAM ---------------------------------------------
 
 CMD_FLAGS=$(BASE_FLAGS)
-CMD_LIBS=-lm -lz
+CMD_LIBS=-lphysfs -lm -lz
 
 CMD_OBJS=cmdline/main.o cmdline/display.o
 

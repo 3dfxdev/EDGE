@@ -147,12 +147,14 @@ typedef struct lump_s
 
   // various flags
   int flags;
- 
+
   // data of lump
   void *data;
 
   // level information, usually NULL
   level_t *lev_info;
+
+  char fname[256];
 }
 lump_t;
 
