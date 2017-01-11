@@ -1176,22 +1176,47 @@ static void WadNamespace(void *userData, const char *origDir, const char *fname)
 	PHYSFS_seek(file, header.dir_start);
 
 	// loop over wad directory entries
-	for (int i=0; i<header.num_entries; i++)
+	for (int i=0; i<(int)header.num_entries; i++)
 	{
 		PHYSFS_read(file, &entry, sizeof(raw_wad_entry_t), 1);
 		int pos = EPI_LE_S32(entry.pos);
 		int size = EPI_LE_S32(entry.size);
+		int marker = 0;
 		Z_StrNCpy(tname, entry.name, 8);
 		// check for ExMy/MAPxx - some map wads have bad map marker lump
 		if (strncmp(tname, "MAP", 3) == 0)
+		{
 			Z_StrNCpy(tname, fname, 5);
+			marker = 1;
+		}
 		else if ((tname[0] == 'E') && (tname[2] == 'M'))
+		{
 			Z_StrNCpy(tname, fname, 4);
+			marker = 1;
+		}
 		I_Printf("    adding wad lump %s\n", tname);
 		numlumps++;
 		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
 		AddLumpEx(user_data->dfile, numlumps - 1, pos, size,
 			user_data->dfindex, user_data->index, tname, 0, path);
+
+		if (marker)
+		{
+			// insert level marker
+			data_file_c *df = user_data->dfile;
+
+			// check for duplicates (Slige sometimes does this)
+			for (int L = 0; L < df->level_markers.GetSize(); L++)
+			{
+				if (strcmp(lumpinfo[df->level_markers[L]].name, tname) == 0)
+				{
+					I_Warning("Duplicate level '%s' ignored.\n", tname);
+					return;
+				}
+			}
+
+			df->level_markers.Insert(numlumps - 1);
+		}
 	}
 
 	PHYSFS_close(file);
@@ -1513,6 +1538,48 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 		if (within_hires_list)
 			I_Warning("Missing HI_END marker in %s.\n", filename);
+
+		// check if pack has level maps
+		if (df->level_markers.GetSize() > 0)
+		{
+			// yes - check for existing GL node file, or make one
+			if (HasInternalGLNodes(df, datafile))
+			{
+				I_Printf("Using internal GL nodes\n");
+				df->companion_gwa = datafile;
+			}
+			else
+			{
+				SYS_ASSERT(dyn_index < 0);
+
+				std::string gwa_filename;
+
+				bool exists = FindCacheFilename(gwa_filename, filename, df, EDGEGWAEXT);
+
+				I_Debugf("Actual_GWA_filename: %s\n", gwa_filename.c_str());
+
+				if (!exists)
+				{
+					I_Printf("Building GL Nodes for: %s\n", filename);
+
+					if (!GB_BuildNodes(pakdir, gwa_filename.c_str()))
+						I_Error("Failed to build GL nodes for: %s\n", filename);
+				}
+				else
+				{
+					I_Printf("Using cached GWA file: %s\n", gwa_filename.c_str());
+				}
+
+				// Load it.  This recursion bit is rather sneaky,
+				// hopefully it doesn't break anything...
+				AddFile(gwa_filename.c_str(), FLKIND_GWad, datafile);
+
+				df->companion_gwa = datafile + 1;
+			}
+		}
+		else
+			I_Printf("No levels in this pack\n");
+
 
 		return;
 #else
