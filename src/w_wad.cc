@@ -695,7 +695,7 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 
 	// -- handle special names --
 
-	if (strncmp(name, "PLAYPAL", 8) == 0)
+	if (strncmp(lump_p->name, "PLAYPAL", 8) == 0)
 	{
 		lump_p->kind = LMKIND_WadTex;
 		df->wadtex.palette = lump;
@@ -704,43 +704,43 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		palette_lastfile = file;
 		return;
 	}
-	else if (strncmp(name, "PNAMES", 8) == 0)
+	else if (strncmp(lump_p->name, "PNAMES", 8) == 0)
 	{
 		lump_p->kind = LMKIND_WadTex;
 		df->wadtex.pnames = lump;
 		return;
 	}
-	else if (strncmp(name, "TEXTURE1", 8) == 0)
+	else if (strncmp(lump_p->name, "TEXTURE1", 8) == 0)
 	{
 		lump_p->kind = LMKIND_WadTex;
 		df->wadtex.texture1 = lump;
 		return;
 	}
-	else if (strncmp(name, "TEXTURE2", 8) == 0)
+	else if (strncmp(lump_p->name, "TEXTURE2", 8) == 0)
 	{
 		lump_p->kind = LMKIND_WadTex;
 		df->wadtex.texture2 = lump;
 		return;
 	}
-	else if (strncmp(name, "DEHACKED", 8) == 0)
+	else if (strncmp(lump_p->name, "DEHACKED", 8) == 0)
 	{
 		lump_p->kind = LMKIND_DDFRTS;
 		df->deh_lump = lump;
 		return;
 	}
-	else if (strncmp(name, "COALHUDS", 8) == 0)
+	else if (strncmp(lump_p->name, "COALHUDS", 8) == 0)
 	{
 		lump_p->kind = LMKIND_DDFRTS;
 		df->coal_huds = lump;
 		return;
 	}
-	else if (strncmp(name, "ANIMATED", 8) == 0)
+	else if (strncmp(lump_p->name, "ANIMATED", 8) == 0)
 	{
 		lump_p->kind = LMKIND_DDFRTS;
 		df->animated = lump;
 		return;
 	}
-	else if (strncmp(name, "SWITCHES", 8) == 0)
+	else if (strncmp(lump_p->name, "SWITCHES", 8) == 0)
 	{
 		lump_p->kind = LMKIND_DDFRTS;
 		df->switches = lump;
@@ -752,7 +752,7 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 	{
 		for (j = 0; j < NUM_DDF_READERS; j++)
 		{
-			if (strncmp(name, DDF_Readers[j].name, 8) == 0)
+			if (strncmp(lump_p->name, DDF_Readers[j].name, 8) == 0)
 			{
 				lump_p->kind = LMKIND_DDFRTS;
 				df->ddf_lumps[j] = lump;
@@ -1580,6 +1580,33 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		else
 			I_Printf("No levels in this pack\n");
 
+		// handle DeHackEd patch files
+		if (df->deh_lump >= 0)
+		{
+			std::string hwa_filename;
+
+			char base_name[64];
+			sprintf(base_name, "DEH_%04d.%s", datafile, EDGEHWAEXT);
+
+			hwa_filename = epi::PATH_Join(cache_dir.c_str(), base_name);
+
+			I_Debugf("Actual_HWA_filename: %s\n", hwa_filename.c_str());
+
+			const char *lump_name = lumpinfo[df->deh_lump].name;
+
+			I_Printf("Converting [%s] lump in: %s\n", lump_name, filename);
+
+			const byte *data = (const byte *)W_CacheLumpNum(df->deh_lump);
+			int length = W_LumpLength(df->deh_lump);
+
+			if (!DH_ConvertLump(data, length, lump_name, hwa_filename.c_str()))
+				I_Error("Failed to convert DeHackEd LUMP in: %s\n", filename);
+
+			W_DoneWithLump(data);
+
+			// Load it (using good ol' recursion again).
+			AddFile(hwa_filename.c_str(), FLKIND_HWad, -1);
+		}
 
 		return;
 #else
