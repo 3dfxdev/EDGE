@@ -1129,7 +1129,7 @@ static void LumpNamespace(void *userData, const char *origDir, const char *fname
 	numlumps++;
 	Z_Resize(lumpinfo, lumpinfo_t, numlumps);
 	AddLumpEx(user_data->dfile, numlumps - 1, 0, length,
-		user_data->dfindex, user_data->index, fname, 0, path);
+		user_data->dfindex, user_data->index, fname, 1, path);
 #endif
 }
 
