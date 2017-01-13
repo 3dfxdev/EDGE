@@ -1,7 +1,10 @@
-EPI Library V1.0
+EPI Library V2.0
 
 This is a general purpose library written in C++, but with no
 reliance on templates and other advanced C++ features. The
 intention is a lightweight lib biases towards use in game engines.
+
+This version of EPI is much improved over the previous EPI V1.0,
+which was included in the original EDGE. 
 
 Please refer to INSTALL for installation instructions.
