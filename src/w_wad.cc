@@ -1386,9 +1386,19 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			// enumerate all entries in the maps directory
 			PHYSFS_enumerateFilesCallback(path, WadNamespace, userData);
 		}
+		else if (stricmp(fname, "models") == 0)
+		{
+			// enumerate all entries in the models directory
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+		}
 		else if (stricmp(fname, "music") == 0)
 		{
 			// enumerate all entries in the music directory
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+		}
+		else if (stricmp(fname, "skins") == 0)
+		{
+			// enumerate all entries in the skins directory
 			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
 		}
 		else if (stricmp(fname, "sounds") == 0)
