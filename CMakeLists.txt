@@ -3,11 +3,12 @@ project(3DGE)
 
 # MSVC
 if(MSVC)
-	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
 endif()
 
 add_definitions(
 	-DDEH_EDGE_PLUGIN
+	-DHAVE_PHYSFS
 )
 
 # Module Paths
@@ -200,6 +201,7 @@ set(3DGE_SOURCES
 	src/w_model.cc
 	src/w_sprite.cc
 	src/w_texture.cc
+	src/w_file.cc
 	src/w_wad.cc
 	src/z_zone.cc
 	src/vm_coal.cc
@@ -221,10 +223,10 @@ set(3DGE_SOURCES
 	epi/exe_path.cc
 	epi/file.cc
 	epi/filesystem.cc
-	epi/file_memory.cc
-	epi/file_sub.cc
 	epi/file_grp.cc
+	epi/file_memory.cc
 	epi/file_pak.cc
+	epi/file_sub.cc
 	epi/file_zip.cc
 	epi/image_data.cc
 	epi/image_hq2x.cc
@@ -262,13 +264,6 @@ set(3DGE_SOURCES
 	glbsp/src/system.cc
 	glbsp/src/util.cc
 	glbsp/src/wad.cc
-
-	physfs_src/byteorder.cc
-	physfs_src/physfs.cc
-	physfs_src/unicode.cc
-	physfs_src/arch_dir.cc
-	physfs_src/arch_zip.cc
-	physfs_src/sys_win.cc
 	
 	timidity/common.cc
 	timidity/instrum.cc
@@ -282,7 +277,7 @@ set(3DGE_SOURCES
 	opllib/opl3.cc
 	opllib/oplapi.cc
 
-	
+
 	
 )
 
