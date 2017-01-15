@@ -453,7 +453,6 @@ static void SpecialWadVerify(void)
 			EDGE_WAD_VERSION / 100.0);
 	}
 }
-#if 0
 
 //
 // SpecialPAKVerify
@@ -489,7 +488,7 @@ static void SpecialPAKVerify(void)
 			EDGE_PAK_VERSION / 100.0);
 	}
 }
-#endif // 0
+
 
 //
 // ShowNotice
@@ -926,7 +925,7 @@ void InitDirectories(void)
 	}
 
 	// EDGE2.pak file
-	/* 	s = M_GetParm("-epak");
+	s = M_GetParm("-epak");
 	if (s)
 	{
 	epakfile = M_ComposeFileName(home_dir.c_str(), s);
@@ -934,7 +933,7 @@ void InitDirectories(void)
 	else
 	{
 	epakfile = epi::PATH_Join(home_dir.c_str(), "edge.pak");
-	} */
+	}
 
 	// cache directory
 	cache_dir = epi::PATH_Join(home_dir.c_str(), CACHEDIR);
@@ -1166,7 +1165,7 @@ static void IdentifyVersion(void)
 
 	// Look for the required wad in the IWADs dir and then the gamedir
 
-	std::string reqwad(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEWADEXT));
+	std::string reqwad(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT));
 
 
 	///this one will join pak files with IWAD.
@@ -1174,16 +1173,16 @@ static void IdentifyVersion(void)
 
 	if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
 	{
-		reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEWADEXT);
+		reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT);
 
 		if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
 		{
 			I_Error("IdentifyVersion: Could not find required %s.%s!\n",
-				REQUIREDWAD, EDGEWADEXT);
+				REQUIREDWAD, EDGEPAKEXT);
 		}
 	}
 
-	W_AddRawFilename(reqwad.c_str(), FLKIND_EWad);
+	W_AddRawFilename(reqwad.c_str(), FLKIND_PAK);
 }
 
 //WLF_EXTENSION ADDS ALL WL6 FILES ALL AT ONCE FOR WOLFENSTEIN, JUST FOR TESTING, MAYBE MAKE THIS MORE ROBUST IN THE FUTURE...?
@@ -1319,16 +1318,16 @@ static void IdentifyWolfenstein(void)
 														   // Emulate this behaviour?
 
 	//All this function below does is add EDGE2.WAD to whatever the fuck we are adding as well.
-	std::string reqwad(epi::PATH_Join(wolf_dir.c_str(), REQUIREDWAD "." EDGEWADEXT));
+	std::string reqwad(epi::PATH_Join(wolf_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT));
 
 	if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
 	{
-		reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEWADEXT);
+		reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT);
 
 		if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
 		{
 			I_Error("IdentifyWolfenstein: Could not find required Wolf3D data: %s.%s!\n",
-				REQUIREDWAD, EDGEWADEXT);
+				REQUIREDWAD, EDGEPAKEXT);
 		}
 	}
 
@@ -1671,7 +1670,7 @@ startuporder_t startcode[] =
 	{ 3, W_InitFlats },
 	{ 10, W_InitTextures },
 	{ 1, CON_Start },
-	{ 1, SpecialWadVerify }, //<---- Change to SpecialPAKVerify for testing. . .
+	{ 1, SpecialPAKVerify }, //<---- Change to SpecialPAKVerify for testing. . .
 	{ 1, M_InitMiscConVars },
 	{ 20, W_ReadDDF },
 	{ 1, DDF_CleanUp },
