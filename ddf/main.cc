@@ -440,9 +440,9 @@ static void DDF_ParseVersion(const char *bstr, int len)
 		if (ddf_version < 129)
 			DDF_Error("Illegal #VERSION number: (%d) %s\n", ddf_version, str);
 		if (ddf_version >= 129 && ddf_version < 135 && !M_CheckParm("-v129"))
-			DDF_Error("You need to use the -v129 command line arg to use this file\n");
+			DDF_WarnError("You need to use the -v129 command line arg to use this file\n");
 		if (ddf_version >= 135 && !M_CheckParm("-v135"))
-			DDF_Error("You need to use the -v135 command line arg to use this file\n");
+			DDF_WarnError("You need to use the -v135 command line arg to use this file\n");
 	}
 
 	if (ddf_version > engine_version)
