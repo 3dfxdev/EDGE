@@ -201,7 +201,6 @@ set(3DGE_SOURCES
 	src/w_model.cc
 	src/w_sprite.cc
 	src/w_texture.cc
-	src/w_file.cc
 	src/w_wad.cc
 	src/z_zone.cc
 	src/vm_coal.cc
