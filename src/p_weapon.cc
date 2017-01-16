@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Weapon (player sprites) Action Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -46,7 +46,7 @@ static sound_category_e WeapSfxCat(player_t *p)
     if (p == players[consoleplayer1])
 	//if (p->playerflags & PFL_Console)
 		return SNCAT_Weapon;
-        
+
 	return SNCAT_Opponent;
 }
 
@@ -90,7 +90,7 @@ static void P_SetPsprite(player_t * p, int position, int stnum, weapondef_c *inf
 
 	psp->state = st;
 	psp->tics  = st->tics;
-	psp->next_state = (st->nextstate == S_NULL) ? NULL : 
+	psp->next_state = (st->nextstate == S_NULL) ? NULL :
 		(states + st->nextstate);
 
 	// call action routine
@@ -139,7 +139,7 @@ bool P_CheckWeaponSprite(weapondef_c *info)
 		return false;
 
 	return W_CheckSpritesExist(info->state_grp);
-	
+
 	///Hypertension (and 3D projects need this fix):
 	/// return true;
 }
@@ -286,7 +286,7 @@ static void GotoReadyState(player_t *p)
 static void GotoEmptyState(player_t *p)
 {
 	weapondef_c *info = p->weapons[p->ready_wp].info;
-	
+
 	int newstate = info->empty_state;
 
 	P_SetPspriteDeferred(p, ps_weapon, newstate);
@@ -383,7 +383,7 @@ static void SwitchAway(player_t * p, int ATK, int reload)
 		P_SelectNewWeapon(p, -100, AM_DontCare);
 	else if (info->empty_state && ! WeaponCouldAutoFire(p, p->ready_wp, 0))
 		GotoEmptyState(p);
-	else 
+	else
 		GotoReadyState(p);
 }
 
@@ -704,7 +704,7 @@ void P_TrySwitchNewWeapon(player_t *p, int new_weap, ammotype_e new_ammo)
 	}
 
 	SYS_ASSERT(new_ammo >= 0);
-	
+
 	// We were down to zero ammo, so select a new weapon.
 	// Choose the next highest priority weapon than the current one.
 	// Don't override any weapon change already underway.
@@ -785,7 +785,7 @@ void P_FillWeapon(player_t *p, int slot)
 		p->weapons[slot].clip_size[ATK] = info->clip_size[ATK];
 	}
 }
-	
+
 
 void P_DropWeapon(player_t * p)
 {
@@ -892,7 +892,7 @@ static void BobWeapon(player_t *p, weapondef_c *info)
 
 	float new_sx = 0;
 	float new_sy = 0;
-	
+
 	// bob the weapon based on movement speed
 	if (! hasjetpack)
 	{
@@ -1367,7 +1367,7 @@ void A_FriendJump(mobj_t * mo)
 static void DoGunFlash(mobj_t * mo, int ATK)
 {
 	player_t *p = mo->player;
-	
+
 	SYS_ASSERT(p->ready_wp >= 0);
 
 	weapondef_c *info = p->weapons[p->ready_wp].info;
@@ -1636,7 +1636,7 @@ void A_WeaponDlightSet(mobj_t * mo)
 
 	SYS_ASSERT(p->ready_wp >= 0);
 	//weapondef_c *info = p->weapons[p->ready_wp].info;
-	
+
 	const state_t *st = mo->state;
 
 	if (st && st->action_par)

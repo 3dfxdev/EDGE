@@ -199,7 +199,8 @@ static void BounceOffWall(mobj_t * mo, line_t * wall)
 		// random angle to bounce away.  And don't attenuate the speed (so
 		// we can get far enough away).
 
-		angle = P_Random() << (ANGLEBITS - 8);
+		//angle = P_Random() << (ANGLEBITS - 8);
+		angle = wall_angle - ANG90; // -CW- 2017/01/15 bounce perpendicular to wall
 	}
 	else
 	{
