@@ -114,8 +114,16 @@ static void CalcHeight(player_t * player)
 	// -AJA- Moved up here, to prevent weapon jumps when running down
 	// stairs.
 
-	player->bob = (player->mo->mom.x * player->mo->mom.x
-		+ player->mo->mom.y * player->mo->mom.y) / 8;
+	if (! disable_bob)
+	{
+		player->bob = (player->mo->mom.x * player->mo->mom.x
+			+ player->mo->mom.y * player->mo->mom.y) / 8;
+	}
+	else
+	{
+		player->bob = 0;
+		disable_bob = false;
+	}
 
 	//if (bob_z == 0)
 	//	{
