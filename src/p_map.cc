@@ -89,6 +89,9 @@ try_move_info_t;
 
 static try_move_info_t tm_I;
 
+// set to stop weapon bobbing
+bool disable_bob = false;
+
 bool mobj_hit_sky;
 line_t *blockline;
 
@@ -1148,9 +1151,15 @@ bool P_SlideMove(mobj_t * mo, float x, float y)
 		dx = tmxmove;
 		dy = tmymove;
 
+		if (bestslidefrac > 0.99f)
+			disable_bob = true;
+
 		if (P_TryMove(mo, mo->x + tmxmove, mo->y + tmymove))
 			return true;
 	}
+
+	if (bestslidefrac > 0.99f)
+		disable_bob = true;
 
 	// stairstep: last ditch attempt
 	if (! P_TryMove(mo, mo->x, mo->y + dy))

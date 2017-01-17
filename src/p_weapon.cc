@@ -894,7 +894,7 @@ static void BobWeapon(player_t *p, weapondef_c *info)
 	float new_sy = 0;
 
 	// bob the weapon based on movement speed
-	if (! hasjetpack)
+	if (! hasjetpack && ! disable_bob)
 	{
 		angle_t angle = (128 * leveltime) << 19;
 		new_sx = p->bob * PERCENT_2_FLOAT(info->swaying) * M_Cos(angle);

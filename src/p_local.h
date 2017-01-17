@@ -275,6 +275,8 @@ extern line_t *blockline;
 
 extern linelist_c spechit;
 
+extern bool disable_bob;
+
 void P_MapInit(void);
 bool P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing);
 mobj_t *P_MapFindCorpse(mobj_t * thing);
