@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Weapon (player sprites) Action Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -76,7 +76,7 @@ playerweapon_flags_e;
 
 //
 // Per-player Weapon Info.
-// 
+//
 typedef struct
 {
 	weapondef_c *info;
@@ -89,6 +89,9 @@ typedef struct
 
 	// current clip sizes
 	int clip_size[2];
+
+	// reload clip counts
+	int reload_count[2];
 
 	int model_skin;
 }

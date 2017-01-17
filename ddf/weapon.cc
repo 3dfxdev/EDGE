@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition File Code (Weapons)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -143,6 +143,7 @@ static const actioncode_t weapon_actions[] =
 	{"DLIGHT_FADE",       P_ActDLightFade, DDF_StateGetInteger},
 	{"SET_SKIN",          A_WeaponSetSkin,   DDF_StateGetInteger},
 	{"JUMP",              A_WeaponJump, DDF_StateGetJump},
+	{"DJNE",              A_WeaponDJNE, DDF_StateGetJump},
 	{"UNZOOM",            A_WeaponUnzoom, NULL},
 
 	{"RTS_ENABLE_TAGGED", A_WeaponEnableRadTrig,  DDF_StateGetInteger},
@@ -269,7 +270,7 @@ static void WeaponDoTemplate(const char *contents)
 static void WeaponParseField(const char *field, const char *contents,
     int index, bool is_last)
 {
-#if (DEBUG_DDF)  
+#if (DEBUG_DDF)
 	I_Debugf("WEAPON_PARSE: %s = %s;\n", field, contents);
 #endif
 
@@ -518,7 +519,7 @@ bool DDF_WeaponIsUpgrade(weapondef_c *weap, weapondef_c *old)
 {
 	if (!weap || !old || weap == old)
 		return false;
-	
+
 	for (int loop = 0; loop < 10; loop++)
 	{
 		if (! weap->upgrade_weap)
@@ -526,7 +527,7 @@ bool DDF_WeaponIsUpgrade(weapondef_c *weap, weapondef_c *old)
 
 		if (weap->upgrade_weap == old)
 			return true;
-	
+
 		weap = weap->upgrade_weap;
 	}
 
@@ -709,7 +710,7 @@ void weapondef_c::Default(void)
 //
 // weapondef_container_c Constructor
 //
-weapondef_container_c::weapondef_container_c() 
+weapondef_container_c::weapondef_container_c()
 	: epi::array_c(sizeof(weapondef_c*))
 {
 }
