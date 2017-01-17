@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Play Simulation Action routines
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -38,6 +38,7 @@ void A_WeaponEmpty(struct mobj_s *mo);
 void A_WeaponShoot(struct mobj_s *mo);
 void A_WeaponEject(struct mobj_s *mo);
 void A_WeaponJump(struct mobj_s *mo);
+void A_WeaponDJNE(struct mobj_s *mo);
 void A_Lower(struct mobj_s *mo);
 void A_Raise(struct mobj_s *mo);
 void A_ReFire(struct mobj_s *mo);
