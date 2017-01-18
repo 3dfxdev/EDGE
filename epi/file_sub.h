@@ -32,6 +32,9 @@ private:
 	int start;
 	int length;
 	int remain;
+#ifdef HAVE_PHYSFS
+	int physfs;
+#endif
 
 public:
     sub_file_c(file_c *_par, int _start, int _len);

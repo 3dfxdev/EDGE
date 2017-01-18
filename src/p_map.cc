@@ -89,6 +89,9 @@ try_move_info_t;
 
 static try_move_info_t tm_I;
 
+// set to stop weapon bobbing
+bool disable_bob = false;
+
 bool mobj_hit_sky;
 line_t *blockline;
 
@@ -1056,7 +1059,7 @@ static bool PTR_SlideTraverse(intercept_t * in, void *dataptr)
 //
 // -ACB- 1998/07/28 This is NO LONGER a kludgy mess; removed goto rubbish.
 //
-void P_SlideMove(mobj_t * mo, float x, float y)
+bool P_SlideMove(mobj_t * mo, float x, float y)
 {
 	slidemo = mo;
 
@@ -1138,7 +1141,7 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 			bestslidefrac = 1.0f;
 
 		if (bestslidefrac <= 0.0f)
-			return;
+			return false;
 
 		tmxmove = dx * bestslidefrac;
 		tmymove = dy * bestslidefrac;
@@ -1148,13 +1151,21 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 		dx = tmxmove;
 		dy = tmymove;
 
+		if (bestslidefrac > 0.99f)
+			disable_bob = true;
+
 		if (P_TryMove(mo, mo->x + tmxmove, mo->y + tmymove))
-			return;
+			return true;
 	}
+
+	if (bestslidefrac > 0.99f)
+		disable_bob = true;
 
 	// stairstep: last ditch attempt
 	if (! P_TryMove(mo, mo->x, mo->y + dy))
-		P_TryMove(mo, mo->x + dx, mo->y);
+		return P_TryMove(mo, mo->x + dx, mo->y);
+
+	return true;
 }
 
 //

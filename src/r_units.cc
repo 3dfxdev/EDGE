@@ -66,7 +66,8 @@ static bool tmp_init=false;
 static int bmap_light_count=0;
 
 
-#define MAX_L_VERT  4096
+//#define MAX_L_VERT  4096  //old vert limit, was not enough for particular md5 models
+#define MAX_L_VERT 16384
 #define MAX_L_UNIT  (MAX_L_VERT / 4)
 
 #define DUMMY_CLAMP  789
@@ -273,6 +274,7 @@ void RGL_EndUnit(int actual_vert)
 	local_gl_unit_t *unit;
 
 	SYS_ASSERT(actual_vert > 0);
+	SYS_ASSERT(cur_unit<MAX_L_UNIT);
 
 	unit = local_units + cur_unit;
 

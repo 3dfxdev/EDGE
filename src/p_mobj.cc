@@ -199,7 +199,8 @@ static void BounceOffWall(mobj_t * mo, line_t * wall)
 		// random angle to bounce away.  And don't attenuate the speed (so
 		// we can get far enough away).
 
-		angle = P_Random() << (ANGLEBITS - 8);
+		//angle = P_Random() << (ANGLEBITS - 8);
+		angle = wall_angle - ANG90; // -CW- 2017/01/15 bounce perpendicular to wall
 	}
 	else
 	{
@@ -1020,7 +1021,12 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 
 			if (mo->info->flags & MF_SLIDE)
 			{
-				P_SlideMove(mo, ptryx, ptryy);
+				if (! P_SlideMove(mo, ptryx, ptryy))
+				{
+					// -CW- 2017/01/12 Can't slide, clear momentum
+					xmove = ymove = 0;
+					mo->mom.x = mo->mom.y = 0;
+				}
 			}
 			else if (mo->extendedflags & EF_BOUNCE)
 			{

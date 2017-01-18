@@ -3,11 +3,12 @@ project(3DGE)
 
 # MSVC
 if(MSVC)
-	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
 endif()
 
 add_definitions(
 	-DDEH_EDGE_PLUGIN
+	-DHAVE_PHYSFS
 )
 
 # Module Paths
@@ -221,10 +222,10 @@ set(3DGE_SOURCES
 	epi/exe_path.cc
 	epi/file.cc
 	epi/filesystem.cc
-	epi/file_memory.cc
-	epi/file_sub.cc
 	epi/file_grp.cc
+	epi/file_memory.cc
 	epi/file_pak.cc
+	epi/file_sub.cc
 	epi/file_zip.cc
 	epi/image_data.cc
 	epi/image_hq2x.cc
@@ -275,7 +276,7 @@ set(3DGE_SOURCES
 	opllib/opl3.cc
 	opllib/oplapi.cc
 
-	
+
 	
 )
 

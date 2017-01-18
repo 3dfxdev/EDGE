@@ -60,6 +60,10 @@ CFLAGS_GLBSP=-O -Wall -fno-strict-aliasing
 CFLAGS_GLBSP += -DGLBSP_PLUGIN
 CFLAGS_GLBSP += -DINLINE_G=inline
 
+# PHYSFS
+
+CFLAGS += -DHAVE_PHYSFS
+LDFLAGS += -lphysfs
 
 # SDL
 
@@ -356,8 +360,7 @@ GLBSP_OBJS= \
 $(OBJDIR)/glbsp/%.o: glbsp/src/%.cc
 	$(CC) $(CFLAGS_GLBSP) -o $@ -c $<
 
-
-# ---------- Timidity ---------------
+# --------- Timidity -------------
 
 TIMIDITY_OBJS= \
 	$(OBJDIR)/timidity/common.o    \
@@ -384,14 +387,15 @@ $(OBJDIR)/opllib/%.o: opllib/%.cc
 
 # ---------- FINAL LINK STEP -----------
 
-$(PROGRAM) : $(COAL_OBJS) \
-             $(DDF_OBJS)  \
-	     $(DEHEDGE_OBJS) \
-	     $(EDGE_OBJS) \
-	     $(EPI_OBJS) \
-	     $(GLBSP_OBJS) \
-	     $(TIMIDITY_OBJS) \
-	     $(OPLLIB_OBJS)
+$(PROGRAM) : \
+		$(COAL_OBJS) \
+		$(DDF_OBJS)  \
+		$(DEHEDGE_OBJS) \
+		$(EDGE_OBJS) \
+		$(EPI_OBJS) \
+		$(GLBSP_OBJS) \
+		$(TIMIDITY_OBJS) \
+		$(OPLLIB_OBJS)
 	$(CXX) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 

@@ -42,6 +42,9 @@
 #else
 #include <libcpuid/libcpuid.h>
 #endif
+#ifdef HAVE_PHYSFS
+#include <physfs.h>
+#endif
 
 #include "../epi/exe_path.h"
 #include "../epi/file.h"
@@ -450,7 +453,6 @@ static void SpecialWadVerify(void)
 			EDGE_WAD_VERSION / 100.0);
 	}
 }
-#if 0
 
 //
 // SpecialPAKVerify
@@ -486,7 +488,7 @@ static void SpecialPAKVerify(void)
 			EDGE_PAK_VERSION / 100.0);
 	}
 }
-#endif // 0
+
 
 //
 // ShowNotice
@@ -923,7 +925,7 @@ void InitDirectories(void)
 	}
 
 	// EDGE2.pak file
-	/* 	s = M_GetParm("-epak");
+	s = M_GetParm("-epak");
 	if (s)
 	{
 	epakfile = M_ComposeFileName(home_dir.c_str(), s);
@@ -931,7 +933,7 @@ void InitDirectories(void)
 	else
 	{
 	epakfile = epi::PATH_Join(home_dir.c_str(), "edge.pak");
-	} */
+	}
 
 	// cache directory
 	cache_dir = epi::PATH_Join(home_dir.c_str(), CACHEDIR);
@@ -1163,7 +1165,7 @@ static void IdentifyVersion(void)
 
 	// Look for the required wad in the IWADs dir and then the gamedir
 
-	std::string reqwad(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEWADEXT));
+	std::string reqwad(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT));
 
 
 	///this one will join pak files with IWAD.
@@ -1171,16 +1173,16 @@ static void IdentifyVersion(void)
 
 	if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
 	{
-		reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEWADEXT);
+		reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT);
 
 		if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
 		{
 			I_Error("IdentifyVersion: Could not find required %s.%s!\n",
-				REQUIREDWAD, EDGEWADEXT);
+				REQUIREDWAD, EDGEPAKEXT);
 		}
 	}
 
-	W_AddRawFilename(reqwad.c_str(), FLKIND_EWad);
+	W_AddRawFilename(reqwad.c_str(), FLKIND_PAK);
 }
 
 //WLF_EXTENSION ADDS ALL WL6 FILES ALL AT ONCE FOR WOLFENSTEIN, JUST FOR TESTING, MAYBE MAKE THIS MORE ROBUST IN THE FUTURE...?
@@ -1316,16 +1318,16 @@ static void IdentifyWolfenstein(void)
 														   // Emulate this behaviour?
 
 	//All this function below does is add EDGE2.WAD to whatever the fuck we are adding as well.
-	std::string reqwad(epi::PATH_Join(wolf_dir.c_str(), REQUIREDWAD "." EDGEWADEXT));
+	std::string reqwad(epi::PATH_Join(wolf_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT));
 
 	if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
 	{
-		reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEWADEXT);
+		reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT);
 
 		if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
 		{
 			I_Error("IdentifyWolfenstein: Could not find required Wolf3D data: %s.%s!\n",
-				REQUIREDWAD, EDGEWADEXT);
+				REQUIREDWAD, EDGEPAKEXT);
 		}
 	}
 
@@ -1477,32 +1479,39 @@ static void AddSingleCmdLineFile(const char *name)
 	std::string ext = epi::PATH_GetExtension(name);
 	int kind = FLKIND_Lump;
 
+	// no need to check for GWA (shouldn't be added manually)
+	// cw - check for GWA... need to add manually for pak/pk3/pk7
+
 	if (stricmp(ext.c_str(), "edm") == 0)
 		I_Error("Demos are no longer supported\n");
-
-	/* 	if (stricmp(ext.c_str(), "pak") == 0) /// ~CA~ 5.7.2016 - new PAK class file
-	I_Error("DETECTED PAK FILE, ABORTING. . .\n"); */
-
-	if (stricmp(ext.c_str(), "pk3") == 0) /// ~CA~ 5.7.2016 - new PAK class file
-		I_Error(".pk3 not supported yet! Aborting...\n");
-
-	// no need to check for GWA (shouldn't be added manually)
-
-	if (stricmp(ext.c_str(), "wad") == 0)
+	else if (stricmp(ext.c_str(), "gwa") == 0)
+		kind = FLKIND_GWad;
+	else if (stricmp(ext.c_str(), "wad") == 0)
 		kind = FLKIND_PWad;
-	if (stricmp(ext.c_str(), "wl6") == 0)
+	else if (stricmp(ext.c_str(), "wl6") == 0)
 		kind = FLKIND_WL6;
-	if (stricmp(ext.c_str(), "pak") == 0) /// ~CA~ 5.7.2016 - new PAK class file
-		kind = FLKIND_PAK;//I_Error("DETECTED PAK FILE, ABORTING. . .\n");
+#ifdef HAVE_PHYSFS
+	else if (stricmp(ext.c_str(), "pak") == 0) /// ~CA~ 5.7.2016 - new PAK class file
+		kind = FLKIND_PAK;
+	else if (stricmp(ext.c_str(), "pk3") == 0) /// ~CW~ 1.7.2017 - new PK3 class file
+		kind = FLKIND_PK3;
+	else if (stricmp(ext.c_str(), "pk7") == 0) /// ~CW~ 1.8.2017 - new PK7 class file
+		kind = FLKIND_PK7;
+#else
+	else if (stricmp(ext.c_str(), "pak") == 0)
+		I_Error("PAK files not supported\n");
+	else if (stricmp(ext.c_str(), "pk3") == 0)
+		I_Error("PK3 files not supported\n");
+	else if (stricmp(ext.c_str(), "pk7") == 0)
+		I_Error("PK7 files not supported\n");
+#endif
 	else if (stricmp(ext.c_str(), "hwa") == 0)
 		kind = FLKIND_HWad;
 	else if (stricmp(ext.c_str(), "rts") == 0)
 		kind = FLKIND_RTS;
-	else if (stricmp(ext.c_str(), "ddf") == 0 ||
-		stricmp(ext.c_str(), "ldf") == 0)
+	else if (stricmp(ext.c_str(), "ddf") == 0 || stricmp(ext.c_str(), "ldf") == 0)
 		kind = FLKIND_DDF;
-	else if (stricmp(ext.c_str(), "deh") == 0 ||
-		stricmp(ext.c_str(), "bex") == 0)
+	else if (stricmp(ext.c_str(), "deh") == 0 || stricmp(ext.c_str(), "bex") == 0)
 		kind = FLKIND_Deh;
 
 	std::string fn = M_ComposeFileName(game_dir.c_str(), name);
@@ -1564,6 +1573,7 @@ static void AddCommandLineFiles(void)
 			if (stricmp(ext.c_str(), "wad") == 0 ||
 				stricmp(ext.c_str(), "wl6") == 0 ||
 				stricmp(ext.c_str(), "pak") == 0 ||
+				stricmp(ext.c_str(), "pk3") == 0 ||
 				stricmp(ext.c_str(), "gwa") == 0 ||
 				stricmp(ext.c_str(), "hwa") == 0 ||
 				stricmp(ext.c_str(), "ddf") == 0 ||
@@ -1660,7 +1670,7 @@ startuporder_t startcode[] =
 	{ 3, W_InitFlats },
 	{ 10, W_InitTextures },
 	{ 1, CON_Start },
-	{ 1, SpecialWadVerify }, //<---- Change to SpecialPAKVerify for testing. . .
+	{ 1, SpecialPAKVerify }, //<---- Change to SpecialPAKVerify for testing. . .
 	{ 1, M_InitMiscConVars },
 	{ 20, W_ReadDDF },
 	{ 1, DDF_CleanUp },
@@ -1690,7 +1700,7 @@ extern void WF_InitMaps(void); //!!!
 
 								// Local Prototypes
 extern void E_SplashScreen(void);
-static void E_Startup();
+static void E_Startup(void);
 static void E_Shutdown(void);
 
 
@@ -1717,7 +1727,6 @@ static void E_Startup(void)
 	// -AJA- 2000/02/02: initialise global gameflags to defaults
 	global_flags = default_gameflags;
 
-
 	InitDirectories();
 
 	SetupLogAndDebugFiles();
@@ -1734,6 +1743,10 @@ static void E_Startup(void)
 	CON_HandleProgramArgs();
 	SetGlobalVars();
 
+#ifdef HAVE_PHYSFS
+	PHYSFS_init(M_GetArgument(0));
+#endif
+
 	DoSystemStartup();
 	//Splash Screen Check
 
@@ -1741,7 +1754,6 @@ static void E_Startup(void)
 	if (ps)
 	{
 		E_SplashScreen();
-
 	}
 
 #if 0
@@ -1780,7 +1792,9 @@ static void E_Startup(void)
 
 static void E_Shutdown(void)
 {
-	/* TODO: E_Shutdown */
+#ifdef HAVE_PHYSFS
+	PHYSFS_deinit();
+#endif
 }
 
 
