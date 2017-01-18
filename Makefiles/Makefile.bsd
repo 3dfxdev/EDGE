@@ -52,6 +52,11 @@ CFLAGS_GLBSP=-O -Wall -fno-strict-aliasing
 CFLAGS_GLBSP += -DGLBSP_PLUGIN
 CFLAGS_GLBSP += -DINLINE_G=inline
 
+# PHYSFS
+
+CFLAGS_PHYSFS += -DHAVE_PHYSFS -I/usr/local/include
+CFLAGS += $(CFLAGS_PHYSFS)
+LDFLAGS += -lphysfs
 
 # SDL
 
@@ -351,7 +356,7 @@ GLBSP_OBJS= \
 	$(OBJDIR)/glbsp/wad.o
 
 $(OBJDIR)/glbsp/%.o: glbsp/src/%.cc
-	$(CC) $(CFLAGS_GLBSP) -o $@ -c $< 
+	$(CC) $(CFLAGS_GLBSP) $(CFLAGS_PHYSFS) -o $@ -c $<
 
 
 # ---------- Timidity ---------------
