@@ -1,6 +1,6 @@
 # 3DGE Engine Authors
 ![alt text](http://3dfxdev.net/edgewiki/images/1/18/3DGElogo.gif "Isotope SoftWorks")
-# (C) 2011-2016 Isotope SoftWorks & Contributors
+# (C) 2011-20 Isotope SoftWorks & Contributors
 ##### Original DOOM engine (C) id Software, LLC
 #### Licensed under the GPLv2
 http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
@@ -29,7 +29,7 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
 ## Codebase Contributors
 ---
-* AlexeyNukeyT (OPL)
+* AlexeyNukeyT (OP
 * CeeJay (writing the Heretic definitions)
 * plums  (adding to the Heretic definitions)
 
