@@ -1,6 +1,6 @@
 # 3DGE Engine Authors
 ![alt text](http://3dfxdev.net/edgewiki/images/1/18/3DGElogo.gif "Isotope SoftWorks")
-# (C) 2011-20 Isotope SoftWorks & Contributors
+# (C) 2011-2017 Isotope SoftWorks & Contributors
 ##### Original DOOM engine (C) id Software, LLC
 #### Licensed under the GPLv2
 http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
@@ -18,24 +18,24 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 ---
 * Coraline "Chu" Annis
 * Damir Srpcic
-* Brendan "Brendoe1" Doe
-* Alex "TapamN" Nesemann
-* UsernameAK
-* Josh "Ph3nom" Pearson
-* Benjamin Moir
-* Gameblabla
 * Joseph Fenton (Chilly Willy)
-* ryan-sg
+* Brendan "Brendoe1" Doe
+* Alex Nesemann
+* UsernameAK
+* Josh "Ph3nom" Pearson (KallistiGL code)
+* Gameblabla (Linux support)
+* Ryan Freeman (OpenBSD support)
 
 ## Codebase Contributors
 ---
-* AlexeyNukeyT (OP
+* Benjamin Moir (VS support)
+* AlexeyNukeyT (OPL and sound code)
 * CeeJay (writing the Heretic definitions)
 * plums  (adding to the Heretic definitions)
 
 ## Special Thanks
 ---
-* Andrew Apted
+* Andrew Apted (programming, bug fixes)
 * Graf Zahl (for his ongoing wisdom, contributions, and guidance)
 * Fraggle (Chocolate Doom SDL2 help)
 * Crispy Doom Guys (fabian, alexmax) for helping with lerp
@@ -44,6 +44,7 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 * KnightMare (KMQ2 backends)
 * Kaiser (Doom64-ex, KEX-lib support)
 * Marisa Heit (most amazing woman in the community, TBH ;)
+* Eruianna (DRD Team Builds Hosting)
 * ctd1500
 * Dan Loosen
 * Gary Heil
@@ -75,6 +76,6 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
  ---
 ##### We've tried to include everyone, but if you've made a contribution to the 3DGE engine and are not listed, please feel free to open an issue or pull request with your name and contribution.
 
-(C) Isotope SoftWorks, 2016
+(C) Isotope SoftWorks, 2017
 
 
