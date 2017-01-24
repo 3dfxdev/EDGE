@@ -141,6 +141,7 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 	{
 		int top = ((int)patchcol->topdelta <= y) ? y + (int)patchcol->topdelta : (int)patchcol->topdelta;
 		int count = patchcol->length;
+		y = top;
 
 		byte *src = (byte *) patchcol + 3;
 		byte *dest = img->pixels + x;
