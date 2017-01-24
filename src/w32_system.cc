@@ -278,7 +278,7 @@ void I_Sleep(int millisecs)
 //
 // Force Feedback
 //
-void I_Tactile (int frequency, int intensity, int select)
+void I_Tactile(int frequency, int intensity, int select)
 {
 	player_t *p = players[select];
 	if (p)
