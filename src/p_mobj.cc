@@ -1239,6 +1239,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				{
 					if (!splash)
 					{
+						//I_Printf("z: %f, fz: %f, sz: %d\n", mo->z, mo->floorz, mo->subsector->sector->f_h);
 						mo->player->deltaviewheight = zmove / 8.0f;
 						S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
 						splash = true;
@@ -1246,7 +1247,6 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				}
 				else
 					splash = false;
-
 			}
 
 
@@ -1274,12 +1274,13 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 			if (mo->player && gravity > 0 && -zmove > ! OOF_SPEED && ! fly_or_swim)
 			{
 
-				if (image_array_contains(names, image))
+				if (image_array_contains(names, image) && (mo->z <= mo->subsector->sector->f_h))
 				{
 					//DEBUG:
 					//CON_Message("Detected FWATER FLAT!");
 					if (!splash)
 					{
+						//I_Printf("z: %f, fz: %f, sz: %f\n", mo->z, mo->floorz, mo->subsector->sector->f_h);
 						mo->player->deltaviewheight = zmove / 8.0f;
 						S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo);
 						splash = true;
