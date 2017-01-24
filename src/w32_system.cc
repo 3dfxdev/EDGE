@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Win32 Misc System Interface Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -46,6 +46,11 @@
 extern FILE* debugfile;
 extern FILE* logfile;
 
+bool ff_shake[MAXPLAYERS];
+int ff_frequency[MAXPLAYERS];
+int ff_intensity[MAXPLAYERS];
+int ff_timeout[MAXPLAYERS];
+
 // output string buffer
 #define MSGBUFSIZE 4096
 static char msgbuf[MSGBUFSIZE];
@@ -55,7 +60,7 @@ static char msgbuf[MSGBUFSIZE];
 //
 // FlushMessageQueue
 //
-// Hacktastic work around for SDL_Quit() 
+// Hacktastic work around for SDL_Quit()
 //
 void FlushMessageQueue()
 {
@@ -105,6 +110,9 @@ void I_SystemStartup(void)
 {
 	if (SDL_Init(0) < 0)
 		I_Error("Couldn't init SDL!!\n%s\n", SDL_GetError());
+
+	if (M_CheckParm("-ffshake"))
+		ff_shake[0] = true;
 
 	I_StartupGraphics(); // SDL requires this to be called first
 	I_StartupControl();
@@ -267,6 +275,19 @@ void I_Sleep(int millisecs)
 	::Sleep(millisecs);
 }
 
+//
+// Force Feedback
+//
+void I_Tactile (int frequency, int intensity, int select)
+{
+	player_t *p = players[select];
+	if (p)
+	{
+		ff_frequency[select] = frequency;
+		ff_intensity[select] = intensity;
+		ff_timeout[select] = I_GetMillies() + 500;
+	}
+}
 
 //
 // I_SystemShutdown

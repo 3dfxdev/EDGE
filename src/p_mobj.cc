@@ -200,17 +200,16 @@ static void BounceOffWall(mobj_t * mo, line_t * wall)
 		// we can get far enough away).
 
 		//angle = P_Random() << (ANGLEBITS - 8);
-		angle = wall_angle - ANG90; // -CW- 2017/01/15 bounce perpendicular to wall
+		mo->speed = 0; // -CW- Almost certainly stuck in wall. Kill motion.
 	}
 	else
 	{
 		angle += diff << 1;
 	}
 
-	// calculate new momentum
-
 	mo->speed *= mo->info->bounce_speed;
 
+	// calculate new momentum
 	mo->mom.x = M_Cos(angle) * mo->speed;
 	mo->mom.y = M_Sin(angle) * mo->speed;
 	mo->angle = angle;

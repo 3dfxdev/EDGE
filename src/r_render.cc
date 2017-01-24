@@ -3163,6 +3163,10 @@ static void RGL_RenderTrueBSP(void)
 #endif
 }
 
+extern bool ff_shake[MAXPLAYERS];
+extern int ff_frequency[MAXPLAYERS];
+extern int ff_intensity[MAXPLAYERS];
+extern int ff_timeout[MAXPLAYERS];
 
 /// rendering view point based on the camera's location.
 static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
@@ -3204,6 +3208,16 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 	//viewangle = mo->angle;
 	viewangle = mo->GetInterpolatedAngle();
 
+	// -CW- shake screen
+	if (mo->player && ff_shake[mo->player->pnum] && ff_timeout[mo->player->pnum])
+	{
+		if (I_GetMillies() < ff_timeout[mo->player->pnum])
+		{
+			viewz += (float)ff_intensity[mo->player->pnum] / 10.0f * sin((double)(I_GetMillies()/ ff_frequency[mo->player->pnum]));
+		}
+		else
+			ff_timeout[mo->player->pnum] = 0;
+	}
 
 	extern float N_GetInterpolater(void);
 	float lerpv = N_GetInterpolater();
