@@ -26,7 +26,12 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <time.h>
+
+#ifdef MACOSX
+
+#else
 #include <linux/input.h>
+#endif
 
 #include "../epi/timestamp.h"
 
@@ -55,10 +60,12 @@ extern FILE *logfile;
 extern FILE *debugfile;
 
 bool ff_shake[MAXPLAYERS];
-int ff_rumble[MAXPLAYERS];
 int ff_frequency[MAXPLAYERS];
 int ff_intensity[MAXPLAYERS];
 int ff_timeout[MAXPLAYERS];
+
+int ff_rumble[MAXPLAYERS];
+struct ff_effect effect[MAXPLAYERS];
 
 #ifdef USE_FLTK
 
@@ -407,6 +414,9 @@ void I_SystemStartup(void)
 
 	if (M_CheckParm("-ffrumble"))
 	{
+#ifdef MACOSX
+
+#else
 		ff_rumble[0] = open("/dev/input/event0", O_RDWR);
 		if (ff_rumble[0] >= 0)
 		{
@@ -415,7 +425,19 @@ void I_SystemStartup(void)
 			{
 				if (test_bit(FF_RUMBLE, features))
 				{
-					I_Printf("Rumble available\n");
+					effect[0].type = FF_RUMBLE;
+					effect[0].id = -1;
+					effect[0].u.rumble.strong_magnitude = 0;
+					effect[0].u.rumble.weak_magnitude   = 0xc000;
+					effect[0].replay.length = 5000;
+					effect[0].replay.delay  = 0;
+					if (ioctl(ff_rumble[0], EVIOCSFF, &effect[0]) == -1)
+					{
+						close(ff_rumble[0]);
+						ff_rumble[0] = -1;
+					}
+					else
+						I_Printf("Rumble available\n");
 				}
 				else
 				{
@@ -429,6 +451,7 @@ void I_SystemStartup(void)
 				ff_rumble[0] = -1;
 			}
 		}
+#endif
 	}
 	else
 		ff_rumble[0] = -1;
@@ -456,11 +479,15 @@ void I_SystemShutdown(void)
 	I_ShutdownControl();
 	I_ShutdownGraphics();
 
+#ifdef MACOSX
+
+#else
 	if (ff_rumble[0] >= 0)
 	{
 		close(ff_rumble[0]);
 		ff_rumble[0] = -1;
 	}
+#endif
 
 	if (logfile)
 	{
@@ -510,7 +537,7 @@ void I_Sleep(int millisecs)
 //
 // Force Feedback
 //
-void I_Tactile (int frequency, int intensity, int select)
+void I_Tactile(int frequency, int intensity, int select)
 {
 	player_t *p = players[select];
 	if (p)

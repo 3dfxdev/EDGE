@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 SDL Controller Stuff
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -24,9 +24,27 @@
 #include "e_event.h"
 #include "e_input.h"
 #include "e_main.h"
+#include "e_player.h"
 #include "m_argv.h"
 #include "r_modes.h"
 
+#ifdef WIN32
+// put win32 specific ff stuff here
+
+#elif defined (MACOSX)
+// put osx specific ff stuff here
+
+#else
+// put linux specific ff stuff here
+#include <unistd.h>
+#include <linux/input.h>
+extern struct ff_effect effect[MAXPLAYERS];
+#endif
+
+extern int ff_frequency[MAXPLAYERS];
+extern int ff_intensity[MAXPLAYERS];
+extern int ff_timeout[MAXPLAYERS];
+extern int ff_rumble[MAXPLAYERS];
 
 #undef DEBUG_KB
 
@@ -84,7 +102,7 @@ int TranslateSDLKey(int key)
 		}
 	}
 
-	switch (key) 
+	switch (key)
 	{
 		case SDLK_TAB: return KEYD_TAB;
 		case SDLK_RETURN: return KEYD_ENTER;
@@ -180,7 +198,7 @@ void HandleFocusLost(void)
 	E_Idle();
 
 	// No longer active
-	app_state &= ~APP_STATE_ACTIVE;							
+	app_state &= ~APP_STATE_ACTIVE;
 }
 
 static int I_SDLtoDoomMouseState(Uint8 buttonstate) {
@@ -192,16 +210,16 @@ static int I_SDLtoDoomMouseState(Uint8 buttonstate) {
 
 
 void HandleKeyEvent(SDL_Event* ev)
-{	
+{
 	SDL_PumpEvents();
-//	if (ev->type != SDL_KEYDOWN && ev->type != SDL_KEYUP) 
+//	if (ev->type != SDL_KEYDOWN && ev->type != SDL_KEYUP)
 //		return;
 
 	// For SDL2, we no longer require the SYM codes.
 	///int sym = (int)ev->key.keysym.sym;
 	event_t event;
-	
-    switch(ev->type) 
+
+    switch(ev->type)
 	{
 	case SDL_KEYDOWN:
 		if(ev->key.repeat)
@@ -229,9 +247,9 @@ void HandleKeyEvent(SDL_Event* ev)
 
 		E_PostEvent(&event);
 		break;*/
-		
+
 	/*case SDL_WINDOWEVENT:
-		switch (ev->window.event) 
+		switch (ev->window.event)
 		{
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
 			window_focused = true;
@@ -276,7 +294,7 @@ void HandleKeyEvent(SDL_Event* ev)
         mwheeldowntic = 0;
     }
 	*/
-	
+
 
 //	E_PostEvent(&event);
 return;
@@ -287,14 +305,14 @@ void HandleMouseButtonEvent(SDL_Event * ev)
 {
 	event_t event;
 	SDL_PumpEvents();
-	
-	if (ev->type == SDL_MOUSEBUTTONDOWN) 
+
+	if (ev->type == SDL_MOUSEBUTTONDOWN)
 //		event.type = ev_mousedown;
 		event.type = ev_keydown;
-	else if (ev->type == SDL_MOUSEBUTTONUP) 
+	else if (ev->type == SDL_MOUSEBUTTONUP)
 //		event.type = ev_mouseup;
 		event.type = ev_keyup;
-	else 
+	else
 		return;
 
 	switch (ev->button.button)
@@ -304,8 +322,8 @@ void HandleMouseButtonEvent(SDL_Event * ev)
 		case 3: event.data1 = KEYD_MOUSE3; break;
 
 		// handle the mouse wheel
-		case 4: event.data1 = KEYD_WHEEL_UP; break; 
-		case 5: event.data1 = KEYD_WHEEL_DN; break; 
+		case 4: event.data1 = KEYD_WHEEL_UP; break;
+		case 5: event.data1 = KEYD_WHEEL_DN; break;
 
 		case 6: event.data1 = KEYD_MOUSE4; break;
 		case 7: event.data1 = KEYD_MOUSE5; break;
@@ -337,7 +355,7 @@ void HandleMouseMotionEvent(SDL_Event * ev)
 		event.data3 = -dy;  /// mouseY
 
 		E_PostEvent(&event);
-		
+
 	}
 }
 
@@ -345,15 +363,15 @@ void HandleMouseWheelEvent(SDL_Event * ev)
 {
 	event_t event;
 	SDL_PumpEvents();
-	
+
 	if (ev->wheel.y > 0) {
 		event.type = ev_keydown;
 		event.data1 = KEYD_WHEEL_UP;
-	} 
+	}
 	else if (ev->wheel.y < 0) {
 		event.type = ev_keydown;
 		event.data1 = KEYD_WHEEL_DN;
-	} 
+	}
 	else
 		return; //TODO: determine if we need to handle this case. This event shouldn't ever fire with a value of 0 anyway.
     event.data2 = event.data3 = 0;
@@ -372,11 +390,11 @@ void HandleJoystickButtonEvent(SDL_Event * ev)
 
 	event_t event;
 
-	if (ev->type == SDL_JOYBUTTONDOWN) 
+	if (ev->type == SDL_JOYBUTTONDOWN)
 		event.type = ev_keydown;
-	else if (ev->type == SDL_JOYBUTTONUP) 
+	else if (ev->type == SDL_JOYBUTTONUP)
 		event.type = ev_keyup;
-	else 
+	else
 		return;
 
 	if (ev->jbutton.button > 14)
@@ -397,7 +415,7 @@ int I_JoyGetAxis(int n)  // n begins at 0
 
 	if (n < joy_num_axes)
 		return SDL_JoystickGetAxis(joy_info, n);
-	
+
 	n -= joy_num_axes;
 
 	// -AJA- handle joystick HATS by mapping it to axes
@@ -429,7 +447,7 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 	switch(sdl_ev->type)
 	{
 		case SDL_WINDOWEVENT:
-		switch (sdl_ev->window.event) 
+		switch (sdl_ev->window.event)
 		{
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
 			window_focused = true;
@@ -451,24 +469,24 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 			break;
 		}
 		break;
-		
+
 		case SDL_KEYDOWN:
 		case SDL_KEYUP:
 			HandleKeyEvent(sdl_ev);
 			break;
-				
+
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
 			HandleMouseButtonEvent(sdl_ev);
 			break;
-		
+
 		case SDL_JOYBUTTONDOWN:
 		case SDL_JOYBUTTONUP:
 			HandleJoystickButtonEvent(sdl_ev);
 			break;
 
 		case SDL_MOUSEMOTION:
-			if (eat_mouse_motion) 
+			if (eat_mouse_motion)
 			{
 				eat_mouse_motion = false; // One motion needs to be discarded
 				break;
@@ -476,17 +494,17 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 
 			HandleMouseMotionEvent(sdl_ev);
 			break;
-		
+
 		case SDL_MOUSEWHEEL:
 			HandleMouseWheelEvent(sdl_ev);
 			break;
-		
+
 		case SDL_QUIT:
-			// Note we deliberate clear all other flags here. Its our method of 
+			// Note we deliberate clear all other flags here. Its our method of
 			// ensuring nothing more is done with events.
 			app_state = APP_STATE_PENDING_QUIT;
 			break;
-				
+
 		default:
 			break; // Don't care
 	}
@@ -502,21 +520,21 @@ void InactiveEventProcess(SDL_Event *sdl_ev)
 		case SDL_WINDOWEVENT:
 			if (app_state & APP_STATE_PENDING_QUIT)
 				break; // Don't care: we're going to exit
-			
+
 			 if (!sdl_ev->window.event)
 				break;
-				
+
 			if (sdl_ev->window.event & SDL_APPACTIVE ||
                 sdl_ev->window.event & SDL_APPINPUTFOCUS)
 				window_focused = true;
 			break;
 
 		case SDL_QUIT:
-			// Note we deliberate clear all other flags here. Its our method of 
+			// Note we deliberate clear all other flags here. Its our method of
 			// ensuring nothing more is done with events.
 			app_state = APP_STATE_PENDING_QUIT;
 			break;
-					
+
 		default:
 			break; // Don't care
 	} */
@@ -526,7 +544,7 @@ void InactiveEventProcess(SDL_Event *sdl_ev)
 void I_CentreMouse(void)
 {
 	SDL_SetRelativeMouseMode(SDL_TRUE);//(SCREENWIDTH/2, SCREENHEIGHT/2);
-	
+
 }
 
 
@@ -659,7 +677,7 @@ void I_StartupControl(void)
 void I_ControlGetEvents(void)
 {
 	CheckJoystickChanged();
-	
+
 	SDL_PumpEvents();
 
 	SDL_Event sdl_ev;
@@ -669,14 +687,53 @@ void I_ControlGetEvents(void)
 #ifdef DEBUG_KB
 		L_WriteDebug("#I_ControlGetEvents: type=%d\n", sdl_ev.type);
 #endif
-		if (app_state & APP_STATE_ACTIVE) 
+		if (app_state & APP_STATE_ACTIVE)
 		{
-			ActiveEventProcess(&sdl_ev); 
+			ActiveEventProcess(&sdl_ev);
 		}
 		else
 		{
-			InactiveEventProcess(&sdl_ev);	
-		}	
+			InactiveEventProcess(&sdl_ev);
+		}
+	}
+
+	// -CW- poll force feedback rumble
+	if (ff_rumble[0])
+	{
+#ifdef WIN32
+
+#elif defined (MACOSX)
+
+#else
+		struct input_event play;
+		static bool ff_on = false;
+
+		if (I_GetMillies() >= ff_timeout[0])
+			ff_timeout[0] = 0;
+
+		if (ff_timeout[0])
+		{
+			if (!ff_on)
+			{
+				ff_on = true;
+				play.type = EV_FF;
+				play.code =  effect[0].id;	/* the id we got when uploading the effect */
+				play.value = 1;				/* play: 1, stop: 0 */
+				write(ff_rumble[0], (const void*) &play, sizeof(play));
+			}
+		}
+		else
+		{
+			if (ff_on)
+			{
+				ff_on = false;
+				play.type = EV_FF;
+				play.code =  effect[0].id;	/* the id we got when uploading the effect */
+				play.value = 0;				/* play: 1, stop: 0 */
+				write(ff_rumble[0], (const void*) &play, sizeof(play));
+			}
+		}
+#endif
 	}
 }
 
