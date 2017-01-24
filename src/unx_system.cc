@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Linux Misc System Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <time.h>
+#include <linux/input.h>
 
 #include "../epi/timestamp.h"
 
@@ -43,9 +44,21 @@
 
 #include "unx_sysinc.h"
 
+#define BITS_PER_LONG (sizeof(long) * 8)
+#define OFF(x)  ((x)%BITS_PER_LONG)
+#define BIT(x)  (1UL<<OFF(x))
+#define LONG(x) ((x)/BITS_PER_LONG)
+#define test_bit(bit, array)    ((array[LONG(bit)] >> OFF(bit)) & 1)
+
 // FIXME: Use file_c handles
 extern FILE *logfile;
 extern FILE *debugfile;
+
+bool ff_shake[MAXPLAYERS];
+int ff_rumble[MAXPLAYERS];
+int ff_frequency[MAXPLAYERS];
+int ff_intensity[MAXPLAYERS];
+int ff_timeout[MAXPLAYERS];
 
 #ifdef USE_FLTK
 
@@ -62,7 +75,7 @@ extern FILE *debugfile;
 #ifndef USE_FLTK
 
 static char cp437_to_ascii[160] =
-{ 
+{
 	'.', '.', '.', '.', '.', '.', '.', '.',   // 0x00 - 0x07
 	'.', '.', '.', '.', '.', '.', '.', '.',   // 0x08 - 0x0F
 	'>', '<', '.', '.', '.', '.', '.', '.',   // 0x10 - 0x17
@@ -155,8 +168,8 @@ void I_WaitVBL (int count)
 // I_GetTime
 //
 
-// CPhipps - believe it or not, it is possible with consecutive calls to 
-// gettimeofday to receive times out of order, e.g you query the time twice and 
+// CPhipps - believe it or not, it is possible with consecutive calls to
+// gettimeofday to receive times out of order, e.g you query the time twice and
 // the second time is earlier than the first. Cheap'n'cheerful fix here.
 // NOTE: only occurs with bad kernel drivers loaded, e.g. pc speaker drv
 
@@ -344,7 +357,7 @@ void TextAttr (int attr)
 }
 
 void ClearScreen (void)
-{  
+{
 	I_Printf("\n");
 }
 
@@ -389,6 +402,37 @@ void I_SystemStartup(void)
 	if (SDL_Init(flags) < 0)
 		I_Error("Couldn't init SDL!!\n%s\n", SDL_GetError());
 
+	if (M_CheckParm("-ffshake"))
+		ff_shake[0] = true;
+
+	if (M_CheckParm("-ffrumble"))
+	{
+		ff_rumble[0] = open("/dev/input/event0", O_RDWR);
+		if (ff_rumble[0] >= 0)
+		{
+			unsigned long features[4];
+			if (ioctl(ff_rumble[0], EVIOCGBIT(EV_FF, sizeof(features)), features) != -1)
+			{
+				if (test_bit(FF_RUMBLE, features))
+				{
+					I_Printf("Rumble available\n");
+				}
+				else
+				{
+					close(ff_rumble[0]);
+					ff_rumble[0] = -1;
+				}
+			}
+			else
+			{
+				close(ff_rumble[0]);
+				ff_rumble[0] = -1;
+			}
+		}
+	}
+	else
+		ff_rumble[0] = -1;
+
 	I_StartupGraphics();
 	I_StartupControl();
 	I_StartupSound();    // -ACB- 1999/09/20 Sets nosound directly
@@ -411,6 +455,12 @@ void I_SystemShutdown(void)
 	I_ShutdownSound();
 	I_ShutdownControl();
 	I_ShutdownGraphics();
+
+	if (ff_rumble[0] >= 0)
+	{
+		close(ff_rumble[0]);
+		ff_rumble[0] = -1;
+	}
 
 	if (logfile)
 	{
@@ -457,6 +507,19 @@ void I_Sleep(int millisecs)
 	usleep(millisecs * 1000);
 }
 
+//
+// Force Feedback
+//
+void I_Tactile (int frequency, int intensity, int select)
+{
+	player_t *p = players[select];
+	if (p)
+	{
+		ff_frequency[select] = frequency;
+		ff_intensity[select] = intensity;
+		ff_timeout[select] = I_GetMillies() + 500;
+	}
+}
 
 #ifndef MACOSX // Defined separately under Mac OS X. -ACB- 2010/12/20
 //
@@ -466,7 +529,7 @@ void I_MessageBox(const char *message, const char *title)
 {
 #ifdef USE_FLTK
 	Fl::scheme(NULL);
-	fl_message_font(FL_HELVETICA /*_BOLD*/, 18);	
+	fl_message_font(FL_HELVETICA /*_BOLD*/, 18);
 	fl_message("%s", message);
 
 #else // USE_FLTK

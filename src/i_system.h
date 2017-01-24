@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Platform Interface (EPI) Header
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -95,6 +95,9 @@ void I_Warning(const char *warning,...) GCCATTR((format(printf, 1, 2)));
 
 void I_Sleep(int millisecs);
 // -AJA- 2005/01/21: sleep for the given number of milliseconds.
+
+void I_Tactile (int frequency, int intensity, int select);
+// -CW- 2017/01/23 Force Feedback
 
 void I_MessageBox(const char *message, const char *title);
 // -AJA- 2007/04/13: display a system message box with the
@@ -205,7 +208,7 @@ void I_ShutdownSound(void);
 // I_StartupSound().  This must be called by I_SystemShutdown(), the
 // main code never calls this function.
 
-bool I_LoadSfx(const unsigned char *data, unsigned int length, 
+bool I_LoadSfx(const unsigned char *data, unsigned int length,
 					unsigned int freq, unsigned int handle);
 // Loads the given `handle' with the specified sound data.  Handle is
 // a small integer value from 0 onwards.  If no such handle exists
@@ -303,7 +306,7 @@ bool I_SetScreenSize(scrmode_c *mode);
 // Tries to set the video card to the given mode (or open a window).
 // If there already was a valid mode (or open window), this call
 // should replace it.  The previous contents (including the palette)
-// is assumed to be lost. 
+// is assumed to be lost.
 //
 // Returns true if successful, otherwise false.  The platform is free
 // to select a working mode if the given mode was not possible, in
