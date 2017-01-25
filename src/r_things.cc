@@ -58,7 +58,7 @@
 
 #include "m_misc.h"  // !!!! model test
 
-
+#define SHADOW_PROTOTYPE 1
 #define DEBUG  0
 
 cvar_c r_spriteflip;
@@ -87,6 +87,8 @@ extern float view_expand_w;
 
 static const image_c *crosshair_image;
 static int crosshair_which;
+
+static const image_c *shadow_image = NULL;
 
 
 static float GetHoverDZ(mobj_t *mo)
@@ -659,13 +661,13 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 
 	int rot = 0;
 	// ~CA: 5.7.2016 - 3DGE feature to randomly decide to flip front-facing sprites in-game
-#if 0
+
 	if (r_spriteflip.d > 0)
 	{
-		srand(P_RandomTest(*flip));	// value below in brackets would technically be "A0"
+		srand(M_RandomTest(*flip));	// value below in brackets would technically be "A0"
 		(*flip) = frame->flip[0] += true;
 	}
-#endif // 0
+
 
 	if (frame->rots >= 8)
 	{
@@ -1441,6 +1443,67 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 		RGL_EndUnit(4);
 	}
+
+
+#ifdef SHADOW_PROTOTYPE
+	if (!shadow_image)
+	{
+		shadow_image = W_ImageLookup("SHADOWST");
+		if (!shadow_image)
+		{
+			I_Printf("Couldn't find SHADOWST image\n");
+			return;
+		}
+	}
+
+	if (level_flags.shadows)
+	{
+		if (dthing->mo->info->shadow_trans <= 0 || dthing->mo->floorz >= viewz)
+			return;
+
+		tex_id = W_ImageCache(shadow_image);
+
+		data.vert[0].Set(dthing->mo->x - dthing->mo->radius,
+			dthing->mo->y - dthing->mo->radius, dthing->mo->floorz + 0.1);
+		data.vert[1].Set(dthing->mo->x + dthing->mo->radius,
+			dthing->mo->y - dthing->mo->radius, dthing->mo->floorz + 0.1);
+		data.vert[2].Set(dthing->mo->x + dthing->mo->radius,
+			dthing->mo->y + dthing->mo->radius, dthing->mo->floorz + 0.1);
+		data.vert[3].Set(dthing->mo->x - dthing->mo->radius,
+			dthing->mo->y + dthing->mo->radius, dthing->mo->floorz + 0.1);
+
+		data.texc[0].Set(0, 0);
+		data.texc[1].Set(1, 0);
+		data.texc[2].Set(1, 1);
+		data.texc[3].Set(0, 1);
+
+		data.normal.Set(0, 0, 1);
+
+		data.col[0].Clear();
+		data.col[1].Clear();
+		data.col[2].Clear();
+		data.col[3].Clear();
+
+		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
+			GL_MODULATE, tex_id, ENV_NONE, 0, 2, 4);
+
+		for (int v_idx = 0; v_idx < 4; v_idx++)
+		{
+			local_gl_vert_t *dest = glvert + v_idx;
+
+			dest->pos = data.vert[v_idx];
+			dest->texc[0] = data.texc[v_idx];
+			dest->normal = data.normal;
+
+			dest->rgba[0] = data.col[v_idx].add_R / 255.0;
+			dest->rgba[1] = data.col[v_idx].add_G / 255.0;
+			dest->rgba[2] = data.col[v_idx].add_B / 255.0;
+			dest->rgba[3] = 0.75; //.5 waS TOO light! ^_^
+		}
+
+		RGL_EndUnit(4);
+	}
+#endif
 }
 
 

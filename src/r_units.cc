@@ -23,11 +23,9 @@
 #include "i_defs_gl.h"
 #include "i_sdlinc.h"
 
-#ifdef MACOSX
+
 #include <SDL2/SDL_opengl.h>
-#else
-#include "SDL_opengl.h"
-#endif
+
 
 #include <vector>
 #include <algorithm>

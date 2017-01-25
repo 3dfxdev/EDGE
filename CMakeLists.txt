@@ -222,7 +222,6 @@ set(3DGE_SOURCES
 	epi/exe_path.cc
 	epi/file.cc
 	epi/filesystem.cc
-	epi/file_grp.cc
 	epi/file_memory.cc
 	epi/file_pak.cc
 	epi/file_sub.cc
@@ -275,8 +274,6 @@ set(3DGE_SOURCES
 
 	opllib/opl3.cc
 	opllib/oplapi.cc
-
-
 	
 )
 

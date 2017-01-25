@@ -20,7 +20,8 @@
 
 #define EDGEVER     210
 #define EDGEVERHEX  0x210
-#define EDGEVERSTR  "2.1.0 - TEST 3"
+#define EDGEVERSTR  "2.1.0 - TEST3"
+#define EDGEBUILDSTR "(205af44)"
 
 // patch level (Savegames and Demos)
 #define EDGEPATCH  7

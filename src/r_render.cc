@@ -49,7 +49,6 @@
 
 #include "n_network.h"  // N_NetUpdate
 
-
 #define DEBUG  0
 
 #define FLOOD_DIST    1024.0f
@@ -149,9 +148,6 @@ static bool solid_mode;
 
 static std::list<drawsub_c *> drawsubs;
 
-//#ifdef SHADOW_PROTOTYPE
-static const image_c *shadow_image = NULL;
-//#endif
 
 
 // ========= MIRROR STUFF ===========
@@ -2561,49 +2557,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 							 GLOWLIT_Plane, &data);
 	}
 
-#if 0
-
-	if (level_flags.shadows && solid_mode && face_dir > 0)
-	{
-		I_Printf("Render: Simple Shadows Initilised!");
-		wall_coord_data_t dat2;
-		memcpy(&dat2, &data, sizeof(dat2));
-
-		//		light = NULL;
-		dat2.trans = 0.5;
-		//dat2.image = shadow_image;
-
-		GLuint tex_id = W_ImageCache(shadow_image);
-
-
-		for (drawthing_t *dthing = dfloor->things; dthing; dthing = dthing->next)
-		{
-			if (dthing->mo->info->shadow_trans <= 0 || dthing->mo->floorz >= viewz)
-				continue;
-
-			dat2.tx0 = -(dthing->mo->x - dthing->mo->radius);
-			dat2.ty0 = -(dthing->mo->y - dthing->mo->radius);
-
-			dat2.x_mat.x = 0.5f / dthing->mo->radius;
-			dat2.x_mat.y = 0;
-
-			dat2.y_mat.y = 0.5f / dthing->mo->radius;
-			dat2.y_mat.x = 0;
-
-			for (seg = cur_sub->segs, i = 0; seg && (i < MAX_PLVERT);
-				seg = seg->sub_next, i++)
-			{
-				glVertex3f(seg->v1->x, seg->v1->y, h);
-			}
-
-			local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, &dat2, ShadowCoordFunc, tex_id, 0,
-				/* pass */0, 2, BL_Alpha);
-
-		}
-	}
-#endif // 0
-
-
 
 }
 
@@ -3095,9 +3048,7 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 //
 void RGL_LoadLights(void)
 {
-//#ifdef SHADOW_PROTOTYPE
-	shadow_image = W_ImageLookup("SHADOW_STD");
-//#endif
+
 }
 
 //

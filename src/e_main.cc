@@ -1373,7 +1373,7 @@ static void ShowDateAndVersion(void)
 	I_Debugf("[Debug file created at %s]\n\n", timebuf);
 
 	// 23-6-98 KM Changed to hex to allow versions such as 0.65a etc
-	I_Printf("3DGE v" EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
+	I_Printf("3DGE v" EDGEVERSTR EDGEBUILDSTR " compiled on " __DATE__ " at " __TIME__ "\n");
 	I_Printf("hyper3DGE homepage is at http://edge2.sourceforge.net/\n");
 	I_Printf("hyper3DGE is based on DOOM by id Software http://www.idsoftware.com/\n");
 	I_Printf("hyper3DGE problems should be reported at http://tdgmods.net/smf\n");
@@ -1935,7 +1935,7 @@ void E_Main(int argc, const char **argv)
 		E_InitialState();
 
 		CON_MessageColor(RGB_MAKE(255, 255, 0));
-		I_Printf("EDGE2 v" EDGEVERSTR " system ready.\n");
+		I_Printf("EDGE2 v" EDGEVERSTR EDGEBUILDSTR " system ready.\n");
 
 		I_Debugf("- Entering game loop...\n");
 
