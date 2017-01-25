@@ -67,7 +67,6 @@ public:
 	// with black pixels if solid, or transparent pixels otherwise.
 	unsigned short actual_w;
 	unsigned short actual_h;
-	unsigned short max_h;
 
 	// total image size, must be a power of two on each axis.
 	unsigned short total_w;

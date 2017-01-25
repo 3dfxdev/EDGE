@@ -1006,8 +1006,6 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 		// calculate edges of the shape
 		//float sprite_width  = IM_WIDTH(image);
 		float sprite_height = IM_HEIGHT(image);
-//		if ((image->max_h <= image->total_h) && ((image->max_h - image->actual_h) < 8))
-//			sprite_height = image->max_h * image->scale_y;
 		float side_offset   = IM_OFFSETX(image);
 		float top_offset    = IM_OFFSETY(image);
 
@@ -1262,17 +1260,20 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		if (mo->radius >= 1.0f && h > mo->radius)
 			skew2 = mo->radius;
 
-		float dx = viewcos * sprite_skew * skew2;
-		float dy = viewsin * sprite_skew * skew2;
+		dx = viewcos * sprite_skew * skew2;
+		dy = viewsin * sprite_skew * skew2;
 
 		float top_q    = ((dthing->top - dthing->orig_bottom)  / h) - 0.5f;
 		float bottom_q = ((dthing->orig_top - dthing->bottom)  / h) - 0.5f;
 
-		x1t += top_q * dx; y1t += top_q * dy;
-		x2t += top_q * dx; y2t += top_q * dy;
+		dx *= (top_q - bottom_q);
+		dy *= (top_q - bottom_q);
 
-		x1b -= bottom_q * dx; y1b -= bottom_q * dy;
-		x2b -= bottom_q * dx; y2b -= bottom_q * dy;
+//		x1t += top_q * dx; y1t += top_q * dy;
+//		x2t += top_q * dx; y2t += top_q * dy;
+//
+//		x1b -= bottom_q * dx; y1b -= bottom_q * dy;
+//		x2b -= bottom_q * dx; y2b -= bottom_q * dy;
 	}
 
 	float tex_x1 = 0.001f;
@@ -1465,14 +1466,15 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 		tex_id = W_ImageCache(shadow_image);
 
+		float offs = 0.1f;
 		data.vert[0].Set(dthing->mo->x - dthing->mo->radius,
-			dthing->mo->y - dthing->mo->radius, dthing->mo->floorz + 0.1);
+			dthing->mo->y - dthing->mo->radius, dthing->mo->floorz + offs);
 		data.vert[1].Set(dthing->mo->x + dthing->mo->radius,
-			dthing->mo->y - dthing->mo->radius, dthing->mo->floorz + 0.1);
+			dthing->mo->y - dthing->mo->radius, dthing->mo->floorz + offs);
 		data.vert[2].Set(dthing->mo->x + dthing->mo->radius,
-			dthing->mo->y + dthing->mo->radius, dthing->mo->floorz + 0.1);
+			dthing->mo->y + dthing->mo->radius, dthing->mo->floorz + offs);
 		data.vert[3].Set(dthing->mo->x - dthing->mo->radius,
-			dthing->mo->y + dthing->mo->radius, dthing->mo->floorz + 0.1);
+			dthing->mo->y + dthing->mo->radius, dthing->mo->floorz + offs);
 
 		data.texc[0].Set(0, 0);
 		data.texc[1].Set(1, 0);
@@ -1487,7 +1489,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		data.col[3].Clear();
 
 		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
-			GL_MODULATE, tex_id, ENV_NONE, 0, 2, 4);
+			GL_MODULATE, tex_id, ENV_NONE, 0, 2, BL_Alpha);
 
 		for (int v_idx = 0; v_idx < 4; v_idx++)
 		{
