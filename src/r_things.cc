@@ -1300,10 +1300,10 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	data.mo = mo;
 
-	data.vert[0].Set(x1b+dx, y1b+dy, z1b);
+	data.vert[0].Set(x1b-dx, y1b-dy, z1b);
 	data.vert[1].Set(x1t+dx, y1t+dy, z1t);
 	data.vert[2].Set(x2t+dx, y2t+dy, z2t);
-	data.vert[3].Set(x2b+dx, y2b+dy, z2b);
+	data.vert[3].Set(x2b-dx, y2b-dy, z2b);
 
 	data.texc[0].Set(tex_x1, tex_y1);
 	data.texc[1].Set(tex_x1, tex_y2);
