@@ -84,6 +84,7 @@ extern cvar_c debug_mouse,      debug_joyaxis;
 extern cvar_c debug_fps,        debug_pos;
 
 extern cvar_c r_lerp, r_maxfps, r_vsync;
+extern cvar_c r_shadows;
 extern cvar_c r_md5scale;
 
 extern cvar_c debug_nomonsters, debug_subsector;
@@ -109,15 +110,17 @@ cvar_link_t  all_cvars[] =
 {
 	/* General Stuff */
 
-    { "language",       &m_language,     "c",   "ENGLISH" },
+	{ "language",       &m_language,     "c",   "ENGLISH" },
 
-    { "ddf_strict",     &ddf_strict,     "c",   "0"  },
-    { "ddf_lax",        &ddf_lax,        "c",   "0"  },
-    { "ddf_quiet",      &ddf_quiet,      "c",   "0"  },
+	{ "ddf_strict",     &ddf_strict,     "c",   "0"  },
+	{ "ddf_lax",        &ddf_lax,        "c",   "0"  },
+	{ "ddf_quiet",      &ddf_quiet,      "c",   "0"  },
 
-    { "aggression",     &g_aggression,   "c",   "0"  },
-	
+	{ "aggression",     &g_aggression,   "c",   "0"  },
+
 	{ "spriteflip",      &r_spriteflip,       "c",   "0"  },
+
+	{ "shadows",         &r_shadows,          "c",   "0" },
 
 	/* Input Stuff */
 

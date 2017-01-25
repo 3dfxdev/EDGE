@@ -124,6 +124,7 @@ extern cvar_c debug_mouse;
 extern cvar_c debug_joyaxis;
 extern cvar_c g_aggression;
 extern cvar_c m_busywait;
+extern cvar_c r_shadows;
 //extern cvar_c mouse_accel;
 
 static int menu_crosshair;  // temp hack
@@ -162,6 +163,7 @@ static void M_ChangeJumping(int keypressed);
 static void M_ChangeCrouching(int keypressed);
 static void M_ChangeExtra(int keypressed);
 static void M_ChangeGamma(int keypressed);
+static void M_ChangeShadows(int keypressed);
 static void M_ChangeMonitorSize(int keypressed);
 static void M_ChangeKicking(int keypressed);
 static void M_ChangeWeaponSwitch(int keypressed);
@@ -432,7 +434,7 @@ static optmenuitem_t advancedoptions[] =
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
 
-	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
+	{ OPT_Boolean, "Shadows", YesNo, 2,  &r_shadows, NULL, "Simple (1), Sprite, Complex"},
 
 	{OPT_Plain,   "---Debugging---",  NULL, 0, NULL, NULL, NULL},
 
@@ -1792,7 +1794,7 @@ static void M_ChangeMipMap(int keypressed)
 	W_DeleteAllImages();
 }
 
-#if 0
+
 static void M_ChangeShadows(int keypressed)
 {
 	if (currmap && ((currmap->force_on | currmap->force_off) & MPF_Shadows))
@@ -1801,6 +1803,7 @@ static void M_ChangeShadows(int keypressed)
 	level_flags.shadows = global_flags.shadows;
 }
 
+#if 0
 static void M_ChangeHalos(int keypressed)
 {
 	if (currmap && ((currmap->force_on | currmap->force_off) & MPF_Halos))

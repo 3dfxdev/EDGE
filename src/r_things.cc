@@ -62,6 +62,7 @@
 #define DEBUG  0
 
 cvar_c r_spriteflip;
+cvar_c r_shadows;
 
 cvar_c r_crosshair;    // shape
 cvar_c r_crosscolor;   // 0 .. 7
@@ -1456,7 +1457,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		}
 	}
 
-	if (level_flags.shadows)
+	if (r_shadows.d > 0)
 	{
 		if (dthing->mo->info->shadow_trans <= 0 || dthing->mo->floorz >= viewz)
 			return;
@@ -1503,6 +1504,8 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 		RGL_EndUnit(4);
 	}
+	else
+		;
 #endif
 }
 
