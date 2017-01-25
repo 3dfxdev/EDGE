@@ -1005,8 +1005,9 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 
 		// calculate edges of the shape
 		//float sprite_width  = IM_WIDTH(image);
-		//float sprite_height = IM_HEIGHT(image);
-		float sprite_height = (image)->max_h * (image)->scale_y;
+		float sprite_height = IM_HEIGHT(image);
+//		if ((image->max_h <= image->total_h) && ((image->max_h - image->actual_h) < 8))
+//			sprite_height = image->max_h * image->scale_y;
 		float side_offset   = IM_OFFSETX(image);
 		float top_offset    = IM_OFFSETY(image);
 

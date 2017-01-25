@@ -431,7 +431,7 @@ static void CheckSpriteFrames(spritedef_c *def)
 				if (def->frames[i].images[j])
 				{
 					if (def->frames[i].images[j]->actual_h > hmax)
-					hmax = def->frames[i].images[j]->actual_h;
+						hmax = def->frames[i].images[j]->actual_h;
 				}
 		}
 	for (int i = 0; i < def->numframes; i++)
@@ -440,10 +440,8 @@ static void CheckSpriteFrames(spritedef_c *def)
 			for (int j = 0; j < 16; j++)
 				if (def->frames[i].images[j])
 				{
-					if (def->frames[i].images[j]->total_h > hmax)
-						*(unsigned short*)&def->frames[i].images[j]->max_h = hmax;
-					else
-						*(unsigned short*)&def->frames[i].images[j]->max_h = def->frames[i].images[j]->total_h;
+					*(unsigned short*)&def->frames[i].images[j]->max_h = hmax;
+					//I_Printf("%s: actual=%d, max=%d\n", def->name, def->frames[i].images[j]->actual_h, def->frames[i].images[j]->max_h);
 				}
 		}
 
