@@ -57,9 +57,17 @@ static char *pFilename = NULL;
 
 #define ALIGN_LEN(len)  ((((len) + 3) / 4) * 4)
 
+#ifdef _MSC_VER 
+//not #if defined(_WIN32) || defined(_WIN64) because we have strncasecmp in mingw
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#endif
+
 #ifndef stricmp
 #define stricmp strcasecmp
-#endif
+#endif  
+
+
 
 // current wad info
 static wad_t wad;

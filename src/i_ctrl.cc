@@ -44,7 +44,7 @@ extern struct ff_effect effect[MAXPLAYERS];
 extern int ff_frequency[MAXPLAYERS];
 extern int ff_intensity[MAXPLAYERS];
 extern int ff_timeout[MAXPLAYERS];
-extern int ff_rumble[MAXPLAYERS];
+//extern int ff_rumble[MAXPLAYERS];
 
 #undef DEBUG_KB
 
@@ -696,6 +696,7 @@ void I_ControlGetEvents(void)
 			InactiveEventProcess(&sdl_ev);
 		}
 	}
+#if 0
 
 	// -CW- poll force feedback rumble
 	if (ff_rumble[0])
@@ -717,9 +718,9 @@ void I_ControlGetEvents(void)
 			{
 				ff_on = true;
 				play.type = EV_FF;
-				play.code =  effect[0].id;	/* the id we got when uploading the effect */
+				play.code = effect[0].id;	/* the id we got when uploading the effect */
 				play.value = 1;				/* play: 1, stop: 0 */
-				write(ff_rumble[0], (const void*) &play, sizeof(play));
+				write(ff_rumble[0], (const void*)&play, sizeof(play));
 			}
 		}
 		else
@@ -728,13 +729,15 @@ void I_ControlGetEvents(void)
 			{
 				ff_on = false;
 				play.type = EV_FF;
-				play.code =  effect[0].id;	/* the id we got when uploading the effect */
+				play.code = effect[0].id;	/* the id we got when uploading the effect */
 				play.value = 0;				/* play: 1, stop: 0 */
-				write(ff_rumble[0], (const void*) &play, sizeof(play));
+				write(ff_rumble[0], (const void*)&play, sizeof(play));
 			}
-		}
-#endif
 	}
+#endif
+}
+#endif // 0
+
 }
 
 void I_ShutdownControl(void)

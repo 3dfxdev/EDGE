@@ -293,6 +293,7 @@ public:
 
 extern int detail_level;
 extern int use_dlights;
+extern int simple_shadows;
 extern int sprite_kludge;
 
 const image_c * R2_GetThingSprite(mobj_t *mo, bool *flip);

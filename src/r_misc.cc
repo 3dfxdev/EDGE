@@ -99,6 +99,7 @@ int telept_active = 0;
 int telept_effect = 0;
 int telept_flash = 1;
 int telept_reverse = 0;
+int simple_shadows = 0;
 
 int var_invul_fx;
 

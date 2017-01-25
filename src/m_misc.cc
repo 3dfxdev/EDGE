@@ -74,6 +74,7 @@ int monitor_size;
 cvar_c m_diskicon;
 extern cvar_c r_vsync;
 extern cvar_c r_lerp;
+extern cvar_c r_shadows;
 
 bool display_disk = false;
 int  display_desync = 0;
@@ -146,7 +147,7 @@ static default_t defaults[] =
     // -KM- 1998/07/21 Save the blood setting
     {CFGT_Boolean,  "blood",             &global_flags.more_blood, CFGDEF_MORE_BLOOD},
     {CFGT_Boolean,  "extra",             &global_flags.have_extra, CFGDEF_HAVE_EXTRA},
-    {CFGT_Boolean,  "shadows",           &global_flags.shadows, CFGDEF_SHADOWS},
+	{ CFGT_Boolean,  "r_shadows",        &r_shadows, CFGDEF_SHADOWS},
     {CFGT_Boolean,  "halos",             &global_flags.halos, 0},
     {CFGT_Boolean,  "weaponkick",        &global_flags.kicking, CFGDEF_KICKING},
     {CFGT_Boolean,  "weaponswitch",      &global_flags.weapon_switch, CFGDEF_WEAPON_SWITCH},

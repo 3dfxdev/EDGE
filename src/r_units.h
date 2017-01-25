@@ -90,7 +90,7 @@ typedef struct
 } GLShadow;
 
 
-extern simple_shadow_params_t simple_shadows;
+
 extern int gl_shadows_maxdist;
 extern int gl_shadows_factor;
 
