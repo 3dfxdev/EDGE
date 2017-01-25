@@ -21,17 +21,15 @@
 #include "i_defs_gl.h"
 
 #ifdef WIN32
-#include "GL/wglew.h"
+#include <GL/wglew.h>
 /// If you don't hardlink under Win32, replace with ---> ^___________________^
 #else
 #include <GL/glew.h>
 #endif
 
-#if defined(MACOSX) || defined(LINUX)
+
 #include <SDL2/SDL_opengl.h>
-#else
-#include <SDL_opengl.h>
-#endif
+
 
 
 #include <signal.h>

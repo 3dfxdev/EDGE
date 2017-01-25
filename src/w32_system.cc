@@ -111,7 +111,7 @@ void I_SystemStartup(void)
 	if (SDL_Init(0) < 0)
 		I_Error("Couldn't init SDL!!\n%s\n", SDL_GetError());
 
-	if (M_CheckParm("-ffshake"))
+	//if (M_CheckParm("-ffshake"))
 		ff_shake[0] = true;
 
 	I_StartupGraphics(); // SDL requires this to be called first
