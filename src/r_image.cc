@@ -920,12 +920,10 @@ static void CreateUserBuiltinShadow(epi::image_data_c *img)
 		float dy = (hh - y) / float(hh);
 		float dst = 0.7071 * sqrt(dx * dx + dy * dy);
 		int v = int(dst * 192.0f);
-		if (v < 0 || !(dest[0] | dest[1] | dest[2] | dest[3]))
-			v = 0; // alpha negative or no pixel
 		*dest++ = 0;
 		*dest++ = 0;
 		*dest++ = 0;
-		*dest   = v;
+		*dest   = *dest != 0 ? v : 0;
 	}
 }
 
