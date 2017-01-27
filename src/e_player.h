@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Player Definition
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -184,8 +184,11 @@ typedef struct player_s
 	// Kick offset for vertangle (in mobj_t)
 	float kick_offset;
 
-	// when > 0, the player has activated zoom 
+	// when > 0, the player has activated zoom
 	int zoom_fov;
+
+	// teleport fov zoom
+	int telept_fov;
 
 	// This is only used between levels,
 	// mo->health is used during levels.
