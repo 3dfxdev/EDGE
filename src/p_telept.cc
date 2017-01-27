@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Teleport Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -36,6 +36,7 @@
 
 
 #define TELE_FUDGE  0.1f
+
 
 static mobj_t *FindTeleportMan(int tag, const mobjtype_c *info)
 {
@@ -249,7 +250,7 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
 
     if (!P_TeleportMove(thing, new_x, new_y, new_z))
         return false;
-    
+
     if (player)
 	{
 		player->viewheight = player->std_viewheight;
@@ -282,10 +283,14 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
     {
         // don't move for a bit
         thing->reactiontime = def->delay;
+        I_Printf("Delay = %d\n", def->delay);
 
         // -ES- 1998/10/29 Start the fading
         if (telept_effect && player == players[displayplayer])
             R_StartFading(0, (def->delay * 5) / 2);
+
+        if (player == players[displayplayer] && !telept_flash)
+			player->telept_fov = def->delay * 5;
 
         thing->mom.x = thing->mom.y = thing->mom.z = 0;
 

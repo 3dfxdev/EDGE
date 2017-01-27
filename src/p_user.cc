@@ -746,7 +746,10 @@ void P_PlayerThink(player_t * player)
 	// bit after a teleport.
 
 	if (player->mo->reactiontime)
+	{
 		player->mo->reactiontime--;
+		player->telept_fov = player->telept_fov >= 5 ? player->telept_fov - 5 : 0;
+	}
 	else
 		MovePlayer(player);
 

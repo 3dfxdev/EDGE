@@ -3122,7 +3122,8 @@ extern int ff_timeout[MAXPLAYERS];
 /// rendering view point based on the camera's location.
 static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 {
-	float fov = CLAMP(5, r_fov.f, 175);
+	int t_fov = mo->player ? mo->player->telept_fov : 0;
+	float fov = CLAMP(5, r_fov.f + t_fov, 175);
 
 	if (splitscreen_mode)
 		fov = fov / 1.5;
