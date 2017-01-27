@@ -1229,19 +1229,121 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	if (trans <= 0)
 		return;
 
-
 	const image_c *image = dthing->image;
 
-	GLuint tex_id = W_ImageCache(image, false,
-	                  ren_fx_colmap ? ren_fx_colmap : dthing->mo->info->palremap);
+	thing_coord_data_t data;
+	data.mo = mo;
 
-//	float w = IM_WIDTH(image);
+	float w = IM_WIDTH(image);
 	float h = IM_HEIGHT(image);
 	float right = IM_RIGHT(image);
 	float top   = IM_TOP(image);
 
 	float x1b, y1b, z1b, x1t, y1t, z1t;
 	float x2b, y2b, z2b, x2t, y2t, z2t;
+
+	GLuint tex_id;
+
+#ifdef SHADOW_PROTOTYPE
+	if (r_shadows.d == 1 && !shadow_image)
+	{
+		// get simple shadow image
+		shadow_image = W_ImageLookup("SHADOWST");
+		if (!shadow_image)
+		{
+			I_Printf("Couldn't find SHADOWST image\n");
+			r_shadows.d = 0;
+			goto skip_shadow;
+		}
+	}
+
+	if (r_shadows.d > 0)
+	{
+		float tex_x1, tex_x2, tex_y1, tex_y2;
+
+		if (dthing->mo->info->shadow_trans <= 0 || dthing->mo->floorz >= viewz)
+			goto skip_shadow;
+
+		if (r_shadows.d == 1)
+		{
+			tex_id = W_ImageCache(shadow_image); // simple shadows
+			tex_x1 = 0.001f;
+			tex_x2 = 0.999f;
+			tex_y1 = 0.001f;
+			tex_y2 = 0.999f;
+		}
+		else if (r_shadows.d == 2)
+		{
+			tex_id = W_ImageCache(image, false, (const colourmap_c *)-1); // sprite shadows
+
+			tex_x1 = 0.001f;
+			tex_x2 = right - 0.001f;
+			tex_y1 = dthing->bottom - dthing->orig_bottom;
+			tex_y2 = tex_y1 + (dthing->top - dthing->bottom);
+
+			float yscale = mo->info->scale * MIR_ZScale();
+
+			SYS_ASSERT(h > 0);
+			tex_y1 = top * tex_y1 / (h * yscale);
+			tex_y2 = top * tex_y2 / (h * yscale);
+
+			if (dthing->flip)
+			{
+				float temp = tex_x2;
+				tex_x1 = right - tex_x1;
+				tex_x2 = right - temp;
+			}
+		}
+		else
+			goto skip_shadow;
+
+		float offs = 0.1f;
+		float w1 = r_shadows.d == 1 ? w / 2.0f : w / 3.0f;
+		float h1 = r_shadows.d == 1 ? h / 2.0f : 0;
+		float h2 = r_shadows.d == 1 ? h / 2.0f : h;
+
+		data.vert[0].Set(dthing->mo->x + w1, dthing->mo->y - h1, dthing->mo->floorz + offs);
+		data.vert[1].Set(dthing->mo->x + w1, dthing->mo->y + h2, dthing->mo->floorz + offs);
+		data.vert[2].Set(dthing->mo->x - w1, dthing->mo->y + h2, dthing->mo->floorz + offs);
+		data.vert[3].Set(dthing->mo->x - w1, dthing->mo->y - h1, dthing->mo->floorz + offs);
+
+		data.texc[0].Set(tex_x1, tex_y1);
+		data.texc[1].Set(tex_x1, tex_y2);
+		data.texc[2].Set(tex_x2, tex_y2);
+		data.texc[3].Set(tex_x2, tex_y1);
+
+		data.normal.Set(0, 0, 1);
+
+		data.col[0].Clear();
+		data.col[1].Clear();
+		data.col[2].Clear();
+		data.col[3].Clear();
+
+		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
+			GL_MODULATE, tex_id, ENV_NONE, 0, 0, BL_Alpha);
+
+		for (int v_idx = 0; v_idx < 4; v_idx++)
+		{
+			local_gl_vert_t *dest = glvert + v_idx;
+
+			dest->pos = data.vert[v_idx];
+			dest->texc[0] = data.texc[v_idx];
+			dest->normal = data.normal;
+
+			dest->rgba[0] = 0;
+			dest->rgba[1] = 0;
+			dest->rgba[2] = 0;
+			dest->rgba[3] = dthing->mo->info->shadow_trans;
+		}
+
+		RGL_EndUnit(4);
+	}
+
+skip_shadow:
+#endif
+
+	tex_id = W_ImageCache(image, false,
+		ren_fx_colmap ? ren_fx_colmap : dthing->mo->info->palremap);
 
 	x1b = x1t = dthing->mx + dthing->left_dx;
 	y1b = y1t = dthing->my + dthing->left_dy;
@@ -1295,11 +1397,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		tex_x2 = right - temp;
 	}
 
-
-	thing_coord_data_t data;
-
-	data.mo = mo;
-
 	data.vert[0].Set(x1b-dx, y1b-dy, z1b);
 	data.vert[1].Set(x1t+dx, y1t+dy, z1t);
 	data.vert[2].Set(x2t+dx, y2t+dy, z2t);
@@ -1312,12 +1409,10 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	data.normal.Set(-viewcos, -viewsin, 0);
 
-
 	data.col[0].Clear();
 	data.col[1].Clear();
 	data.col[2].Clear();
 	data.col[3].Clear();
-
 
 	int blending = BL_Masked;
 
@@ -1329,7 +1424,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	if (mo->hyperflags & HF_NOZBUFFER)
 		blending |= BL_NoZBuf;
-
 
 	float  fuzz_mul = 0;
 	vec2_t fuzz_add;
@@ -1372,7 +1466,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 					DLIT_Thing, &data);
 		}
 	}
-
 
 	/* draw the sprite */
 
@@ -1447,69 +1540,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		RGL_EndUnit(4);
 	}
 
-
-#ifdef SHADOW_PROTOTYPE
-	if (!shadow_image)
-	{
-		shadow_image = W_ImageLookup("SHADOWST");
-		if (!shadow_image)
-		{
-			I_Printf("Couldn't find SHADOWST image\n");
-			return;
-		}
-	}
-
-	if (r_shadows.d > 0)
-	{
-		if (dthing->mo->info->shadow_trans <= 0 || dthing->mo->floorz >= viewz)
-			return;
-
-		tex_id = W_ImageCache(shadow_image);
-
-		float offs = 0.1f;
-		data.vert[0].Set(dthing->mo->x - dthing->mo->radius,
-			dthing->mo->y - dthing->mo->radius, dthing->mo->floorz + offs);
-		data.vert[1].Set(dthing->mo->x + dthing->mo->radius,
-			dthing->mo->y - dthing->mo->radius, dthing->mo->floorz + offs);
-		data.vert[2].Set(dthing->mo->x + dthing->mo->radius,
-			dthing->mo->y + dthing->mo->radius, dthing->mo->floorz + offs);
-		data.vert[3].Set(dthing->mo->x - dthing->mo->radius,
-			dthing->mo->y + dthing->mo->radius, dthing->mo->floorz + offs);
-
-		data.texc[0].Set(0, 0);
-		data.texc[1].Set(1, 0);
-		data.texc[2].Set(1, 1);
-		data.texc[3].Set(0, 1);
-
-		data.normal.Set(0, 0, 1);
-
-		data.col[0].Clear();
-		data.col[1].Clear();
-		data.col[2].Clear();
-		data.col[3].Clear();
-
-		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
-			GL_MODULATE, tex_id, ENV_NONE, 0, 2, BL_Alpha);
-
-		for (int v_idx = 0; v_idx < 4; v_idx++)
-		{
-			local_gl_vert_t *dest = glvert + v_idx;
-
-			dest->pos = data.vert[v_idx];
-			dest->texc[0] = data.texc[v_idx];
-			dest->normal = data.normal;
-
-			dest->rgba[0] = data.col[v_idx].add_R / 255.0;
-			dest->rgba[1] = data.col[v_idx].add_G / 255.0;
-			dest->rgba[2] = data.col[v_idx].add_B / 255.0;
-			dest->rgba[3] = 0.75; //.5 waS TOO light! ^_^
-		}
-
-		RGL_EndUnit(4);
-	}
-	else
-		;
-#endif
 }
 
 
