@@ -907,14 +907,38 @@ static int IM_PixelLimit(image_c *rim)
 	return (1 << 24);
 }
 
+static void CreateUserBuiltinShadow(epi::image_data_c *img)
+{
+	SYS_ASSERT(img->bpp == 4);
+	int hw = img->width / 2;
+	int hh = img->height;
+	for (int y = 0; y < img->height; y++)
+	for (int x = 0; x < img->width; x++)
+	{
+		byte *dest = img->pixels + (y * img->width + x) * 4;
+		float dx = 1.0f - abs(x - hw) / float(hw);
+		float dy = (hh - y) / float(hh);
+		float dst = 0.7071 * sqrt(dx * dx + dy * dy);
+		int v = int(dst * 192.0f);
+		if (v < 0 || !(dest[0] | dest[1] | dest[2] | dest[3]))
+			v = 0; // alpha negative or no pixel
+		*dest++ = 0;
+		*dest++ = 0;
+		*dest++ = 0;
+		*dest   = v;
+	}
+}
 
-static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
+static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans2)
 {
 	bool clamp  = IM_ShouldClamp(rim);
 	bool mip    = IM_ShouldMipmap(rim);
 	bool smooth = IM_ShouldSmooth(rim);
 
  	int max_pix = IM_PixelLimit(rim);
+
+	const colourmap_c *trans = trans2 == (const colourmap_c *)-1 ? NULL : trans2;
+
 //#if DREAMCAST DEBUG
 //I_Printf("LoadImageOGL: Loading \"%.*s\"\n",16,rim->name);
 //#endif
@@ -933,7 +957,6 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 		else if (rim->source.user.def->special & IMGSP_NoSmooth)
 			smooth = false;
 	}
-
 
 	const byte *what_palette = (const byte *) &playpal_data[0];
 	bool what_pal_cached = false;
@@ -995,6 +1018,8 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 			R_PaletteRemapRGBA(tmp_img, what_palette, (const byte *) &playpal_data[0]);
 	}
 
+	if (trans2 == (const colourmap_c *)-1)
+		CreateUserBuiltinShadow(tmp_img); // make shadow
 
 	GLuint tex_id = R_UploadTexture(tmp_img,
 		(clamp  ? UPL_Clamp  : 0) |

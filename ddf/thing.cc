@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition File Code (Things - MOBJs)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -534,7 +534,7 @@ static void ThingDoTemplate(const char *contents)
 void ThingParseField(const char *field, const char *contents,
 					 int index, bool is_last)
 {
-#if (DEBUG_DDF)  
+#if (DEBUG_DDF)
 	I_Debugf("THING_PARSE: %s = %s;\n", field, contents);
 #endif
 
@@ -594,7 +594,7 @@ static void ThingFinishEntry(void)
 	{
 		if (! dynamic_mobj->chase_state)
 			DDF_Error("Cast object must have CHASE states !\n");
-		
+
 	//	if (! dynamic_mobj->swim_state)
 	//		DDF_Error("Cast object must have SWIM states !\n");
 
@@ -712,9 +712,9 @@ void DDF_MobjCleanUp(void)
 		m->dropitem = m->dropitem_ref ? mobjtypes.Lookup(m->dropitem_ref) : NULL;
 		m->blood = m->blood_ref ? mobjtypes.Lookup(m->blood_ref) : mobjtypes.Lookup("BLOOD");
 
-		m->respawneffect = m->respawneffect_ref ? 
+		m->respawneffect = m->respawneffect_ref ?
 			mobjtypes.Lookup(m->respawneffect_ref) :
-			(m->flags & MF_SPECIAL) ? mobjtypes.Lookup("ITEM_RESPAWN") 
+			(m->flags & MF_SPECIAL) ? mobjtypes.Lookup("ITEM_RESPAWN")
 				                    : mobjtypes.Lookup("RESPAWN_FLASH");
 
 		m->spitspot = m->spitspot_ref ? mobjtypes.Lookup(m->spitspot_ref) : NULL;
@@ -787,7 +787,7 @@ static int ParseBenefitString(const char *info, char *name, char *param,
 static bool BenefitTryAmmo(const char *name, benefit_t *be,
 								int num_vals)
 {
-	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, ammo_types, 
+	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, ammo_types,
 		&be->sub.type, false, false))
 	{
 		return false;
@@ -829,7 +829,7 @@ static bool BenefitTryAmmoLimit(const char *name, benefit_t *be,
 	len -= 6;
 	Z_StrNCpy(namebuf, name, len);
 
-	if (CHKF_Positive != DDF_MainCheckSpecialFlag(namebuf, ammo_types, 
+	if (CHKF_Positive != DDF_MainCheckSpecialFlag(namebuf, ammo_types,
 		&be->sub.type, false, false))
 	{
 		return false;
@@ -892,7 +892,7 @@ static bool BenefitTryWeapon(const char *name, benefit_t *be,
 static bool BenefitTryKey(const char *name, benefit_t *be,
 							   int num_vals)
 {
-	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, keytype_names, 
+	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, keytype_names,
 		&be->sub.type, false, false))
 	{
 		return false;
@@ -942,7 +942,7 @@ static bool BenefitTryHealth(const char *name, benefit_t *be,
 static bool BenefitTryArmour(const char *name, benefit_t *be,
 								  int num_vals)
 {
-	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, armourtype_names, 
+	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, armourtype_names,
 		&be->sub.type, false, false))
 	{
 		return false;
@@ -974,7 +974,7 @@ static bool BenefitTryArmour(const char *name, benefit_t *be,
 
 static bool BenefitTryPowerup(const char *name, benefit_t *be, int num_vals)
 {
-	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, powertype_names, 
+	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, powertype_names,
 		&be->sub.type, false, false))
 	{
 		return false;
@@ -1219,7 +1219,7 @@ void DDF_MobjGetPickupEffect(const char *info, void *storage)
 		if (DDF_CompareName(pick_fx_parsers[i].name, namebuf) != 0)
 			continue;
 
-		(* pick_fx_parsers[i].parser)(fx_list, num_vals, 
+		(* pick_fx_parsers[i].parser)(fx_list, num_vals,
 			temp.amount, temp.limit, parambuf);
 
 		return;
@@ -1359,7 +1359,7 @@ void DDF_MobjGetSpecial(const char *info)
 		return;
 	}
 
-	int *flag_ptr = &dynamic_mobj->flags; 
+	int *flag_ptr = &dynamic_mobj->flags;
 
 	checkflag_result_e res =
 		DDF_MainCheckSpecialFlag(info, normal_specials,
@@ -1424,7 +1424,7 @@ void DDF_MobjGetDLight(const char *info, void *storage)
 
 	SYS_ASSERT(dtype);
 
-	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info, 
+	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info,
 		dlight_type_names, &flag_value, false, false))
 	{
 		DDF_WarnError("Unknown dlight type '%s'\n", info);
@@ -1560,7 +1560,7 @@ static void DDF_MobjGetAngleRange(const char *info, void *storage)
 static bool ConditionTryAmmo(const char *name, const char *sub,
 								  condition_check_t *cond)
 {
-	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, ammo_types, 
+	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, ammo_types,
 		&cond->sub.type, false, false))
 	{
 		return false;
@@ -1596,7 +1596,7 @@ static bool ConditionTryWeapon(const char *name, const char *sub,
 static bool ConditionTryKey(const char *name, const char *sub,
 								 condition_check_t *cond)
 {
-	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, keytype_names, 
+	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, keytype_names,
 		&cond->sub.type, false, false))
 	{
 		return false;
@@ -1626,7 +1626,7 @@ static bool ConditionTryArmour(const char *name, const char *sub,
 	{
 		cond->sub.type = ARMOUR_Total;
 	}
-	else if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, armourtype_names, 
+	else if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, armourtype_names,
 		&cond->sub.type, false, false))
 	{
 		return false;
@@ -1642,7 +1642,7 @@ static bool ConditionTryArmour(const char *name, const char *sub,
 static bool ConditionTryPowerup(const char *name, const char *sub,
 									 condition_check_t *cond)
 {
-	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, powertype_names, 
+	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, powertype_names,
 		&cond->sub.type, false, false))
 	{
 		return false;
@@ -1662,7 +1662,7 @@ static bool ConditionTryPowerup(const char *name, const char *sub,
 static bool ConditionTryPlayerState(const char *name, const char *sub,
 										 condition_check_t *cond)
 {
-	return (CHKF_Positive == DDF_MainCheckSpecialFlag(name, 
+	return (CHKF_Positive == DDF_MainCheckSpecialFlag(name,
 		simplecond_names, (int *)&cond->cond_type, false, false));
 }
 
@@ -1752,63 +1752,63 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	for (unsigned int i = 0; i < src.state_grp.size(); i++)
 		state_grp.push_back(src.state_grp[i]);
 
-    spawn_state = src.spawn_state; 
-    idle_state = src.idle_state; 
-    chase_state = src.chase_state; 
+    spawn_state = src.spawn_state;
+    idle_state = src.idle_state;
+    chase_state = src.chase_state;
 	//swim_state = src.swim_state;
-    pain_state = src.pain_state; 
-    missile_state = src.missile_state; 
-    melee_state = src.melee_state; 
-    death_state = src.death_state; 
-    overkill_state = src.overkill_state; 
-    raise_state = src.raise_state; 
-    res_state = src.res_state; 
-    meander_state = src.meander_state; 
-    bounce_state = src.bounce_state; 
-    touch_state = src.touch_state; 
-    reload_state = src.reload_state; 
-    gib_state = src.gib_state; 
+    pain_state = src.pain_state;
+    missile_state = src.missile_state;
+    melee_state = src.melee_state;
+    death_state = src.death_state;
+    overkill_state = src.overkill_state;
+    raise_state = src.raise_state;
+    res_state = src.res_state;
+    meander_state = src.meander_state;
+    bounce_state = src.bounce_state;
+    touch_state = src.touch_state;
+    reload_state = src.reload_state;
+    gib_state = src.gib_state;
 
-    reactiontime = src.reactiontime; 
-	painchance = src.painchance; 
-	spawnhealth = src.spawnhealth; 
-    speed = src.speed; 
-	float_speed = src.float_speed; 
-    radius = src.radius; 
-    height = src.height; 
-	step_size = src.step_size; 
-	mass = src.mass; 
+    reactiontime = src.reactiontime;
+	painchance = src.painchance;
+	spawnhealth = src.spawnhealth;
+    speed = src.speed;
+	float_speed = src.float_speed;
+    radius = src.radius;
+    height = src.height;
+	step_size = src.step_size;
+	mass = src.mass;
 
-    flags = src.flags; 
-    extendedflags = src.extendedflags; 
-    hyperflags = src.hyperflags; 
+    flags = src.flags;
+    extendedflags = src.extendedflags;
+    hyperflags = src.hyperflags;
 
-	explode_damage = src.explode_damage;	
+	explode_damage = src.explode_damage;
 	explode_radius = src.explode_radius;
 
-	lose_benefits = src.lose_benefits; 
-	pickup_benefits = src.pickup_benefits; 
-	pickup_effects = src.pickup_effects; 
-	pickup_message = src.pickup_message; 
-	initial_benefits = src.initial_benefits; 
+	lose_benefits = src.lose_benefits;
+	pickup_benefits = src.pickup_benefits;
+	pickup_effects = src.pickup_effects;
+	pickup_message = src.pickup_message;
+	initial_benefits = src.initial_benefits;
 
-    castorder = src.castorder; 
-	cast_title = src.cast_title; 
-	respawntime = src.respawntime; 
-	translucency = src.translucency; 
-	minatkchance = src.minatkchance; 
-	palremap = src.palremap; 
+    castorder = src.castorder;
+	cast_title = src.cast_title;
+	respawntime = src.respawntime;
+	translucency = src.translucency;
+	minatkchance = src.minatkchance;
+	palremap = src.palremap;
 
-	jump_delay = src.jump_delay; 
-    jumpheight = src.jumpheight; 
-    crouchheight = src.crouchheight; 
-	viewheight = src.viewheight; 
-	shotheight = src.shotheight; 
-    maxfall = src.maxfall; 
-	fast = src.fast; 
-	
-	scale = src.scale; 
-	aspect = src.aspect; 
+	jump_delay = src.jump_delay;
+    jumpheight = src.jumpheight;
+    crouchheight = src.crouchheight;
+	viewheight = src.viewheight;
+	shotheight = src.shotheight;
+    maxfall = src.maxfall;
+	fast = src.fast;
+
+	scale = src.scale;
+	aspect = src.aspect;
 	yalign = src.yalign;
 
 	model_skin = src.model_skin;
@@ -1816,53 +1816,53 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	model_aspect = src.model_aspect;
 	model_bias = src.model_bias;
 
-	bounce_speed = src.bounce_speed; 
-	bounce_up = src.bounce_up; 
-	sight_slope = src.sight_slope; 
-	sight_angle = src.sight_angle; 
-	ride_friction = src.ride_friction; 
-	shadow_trans = src.shadow_trans; 
-	glow_type = src.glow_type; 
+	bounce_speed = src.bounce_speed;
+	bounce_up = src.bounce_up;
+	sight_slope = src.sight_slope;
+	sight_angle = src.sight_angle;
+	ride_friction = src.ride_friction;
+	shadow_trans = src.shadow_trans;
+	glow_type = src.glow_type;
 
-	seesound = src.seesound; 
-	attacksound = src.attacksound; 
-	painsound = src.painsound; 
-	deathsound = src.deathsound; 
-	secretsound=src.secretsound;	
-	overkill_sound = src.overkill_sound; 
-	activesound = src.activesound; 
-	walksound = src.walksound; 
-	jump_sound = src.jump_sound; 
+	seesound = src.seesound;
+	attacksound = src.attacksound;
+	painsound = src.painsound;
+	deathsound = src.deathsound;
+	secretsound=src.secretsound;
+	overkill_sound = src.overkill_sound;
+	activesound = src.activesound;
+	walksound = src.walksound;
+	jump_sound = src.jump_sound;
 	falling_sound = src.falling_sound;
-	noway_sound = src.noway_sound; 
-	oof_sound = src.oof_sound; 
-	gasp_sound = src.gasp_sound; 
+	noway_sound = src.noway_sound;
+	oof_sound = src.oof_sound;
+	gasp_sound = src.gasp_sound;
 	gloopsound = src.gloopsound;
 
-    fuse = src.fuse; 
+    fuse = src.fuse;
 	reload_shots = src.reload_shots;
 	armour_protect = src.armour_protect;
 	armour_deplete = src.armour_deplete;
 	armour_class = src.armour_class;
 
-	side = src.side; 
-    playernum = src.playernum; 
-	lung_capacity = src.lung_capacity; 
-	gasp_start = src.gasp_start; 
+	side = src.side;
+    playernum = src.playernum;
+	lung_capacity = src.lung_capacity;
+	gasp_start = src.gasp_start;
 
 	// choke_damage
-	choke_damage = src.choke_damage;	
+	choke_damage = src.choke_damage;
 
-	bobbing = src.bobbing; 
-	immunity = src.immunity; 
-	resistance = src.resistance; 
-	resist_multiply = src.resist_multiply; 
-	resist_painchance = src.resist_painchance; 
-	ghost = src.ghost; 
+	bobbing = src.bobbing;
+	immunity = src.immunity;
+	resistance = src.resistance;
+	resist_multiply = src.resist_multiply;
+	resist_painchance = src.resist_painchance;
+	ghost = src.ghost;
 
-	closecombat = src.closecombat; 
-	rangeattack = src.rangeattack; 
-	spareattack = src.spareattack; 
+	closecombat = src.closecombat;
+	rangeattack = src.rangeattack;
+	spareattack = src.spareattack;
 
 	// dynamic light info
 	dlight[0] = src.dlight[0];
@@ -1870,14 +1870,14 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 
 	weak = src.weak;
 
-	dropitem = src.dropitem; 
-	dropitem_ref = src.dropitem_ref; 
-	blood = src.blood; 
-	blood_ref = src.blood_ref; 
-	respawneffect = src.respawneffect; 
-	respawneffect_ref = src.respawneffect_ref; 
-	spitspot = src.spitspot; 
-	spitspot_ref = src.spitspot_ref; 
+	dropitem = src.dropitem;
+	dropitem_ref = src.dropitem_ref;
+	blood = src.blood;
+	blood_ref = src.blood_ref;
+	respawneffect = src.respawneffect;
+	respawneffect_ref = src.respawneffect_ref;
+	spitspot = src.spitspot;
+	spitspot_ref = src.spitspot_ref;
 }
 
 
@@ -1953,7 +1953,7 @@ void mobjtype_c::Default()
 	sight_slope = 16.0f;
 	sight_angle = ANG90;
 	ride_friction = RIDE_FRICTION;
-	shadow_trans = PERCENT_MAKE(50);
+	shadow_trans = PERCENT_MAKE(75); // 50 is too low!
 	glow_type = GLOW_None;
 
 	seesound = sfx_None;
@@ -2134,11 +2134,11 @@ bool mobjtype_container_c::MoveToEnd(int idx)
 	if (idx == (array_entries - 1))
 		return true;					// Already at the end
 
-	// Get a copy of the pointer 
+	// Get a copy of the pointer
 	m = (*this)[idx];
 
-	memmove(&array[idx*array_block_objsize], 
-		&array[(idx+1)*array_block_objsize], 
+	memmove(&array[idx*array_block_objsize],
+		&array[(idx+1)*array_block_objsize],
 		(array_entries-(idx+1))*array_objsize);
 
 	memcpy(&array[(array_entries-1)*array_block_objsize], (void*)&m, sizeof(mobjtype_c*));
@@ -2240,7 +2240,7 @@ const mobjtype_c *mobjtype_container_c::LookupCastMember(int castpos)
 				else
 				{
 					// We only care about updating this if the
-					// best match was also prior to current 
+					// best match was also prior to current
 					// entry. In this case we are looking for
 					// the first entry to wrap around to.
 					if (best->castorder < castpos)
