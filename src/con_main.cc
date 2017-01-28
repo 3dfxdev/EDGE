@@ -36,6 +36,13 @@
 #include "version.h"
 #include "z_zone.h"
 
+// [SP] Headers for cheat codes (need access to player and mobjs)
+#include "p_local.h"
+#include "p_mobj.h"
+#include "p_bot.h"
+#include "dm_state.h"
+// [SP] Externals
+extern cvar_c debug_fps, debug_pos;
 
 #define MAX_CON_ARGS  64
 
@@ -413,6 +420,273 @@ int CMD_Map(char **argv, int argc)
 }
 
 
+// [SP] --- BEGIN CHEAT CODES ---
+// TODO: There's *WAY* too much code duplication here. The code in both the menu and the console need to be exported to
+// a single file and called appropriately.
+bool CheckCheats()
+{
+#ifdef NOCHEATS
+	// we should never see this message, since this define removes the console entries anyway...
+	I_Printf("Cheats are disabled in this build!\n");
+	return false;
+#endif
+
+	// disable cheats while in RTS menu, or demos
+	if (rts_menuactive)
+		return false;
+
+	// no cheating in netgames or if disallowed in levels.ddf
+	if (!level_flags.cheats)
+	{
+		I_Printf("Cheats are currently disabled here!\n");
+		return false;
+	}
+
+#if 0 //!!!! TEMP DISABLED, NETWORK DEBUGGING
+	if (netgame)
+	{
+		I_Printf("Cheats are disabled in net game!\n");
+		return false;
+	}
+#endif
+	return true;
+}
+
+static void CheatGiveWeapons(player_t *pl, int key = -2)
+{
+	epi::array_iterator_c it;
+	
+	for (it = weapondefs.GetIterator(0); it.IsValid(); it++)
+	{
+		weapondef_c *info = ITERATOR_TO_TYPE(it, weapondef_c*);
+
+		if (info && !info->no_cheat && (key<0 || info->bind_key==key))
+		{
+			P_AddWeapon(pl, info, NULL);
+		}
+	}
+
+	if (key < 0)
+	{
+		for (int slot=0; slot < MAXWEAPONS; slot++)
+		{
+			if (pl->weapons[slot].info)
+				P_FillWeapon(pl, slot);
+		}
+	}
+
+	P_UpdateAvailWeapons(pl);
+}
+
+int CMD_CheatGod(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	player_t *pl = players[consoleplayer1];
+
+	pl->cheats ^= CF_GODMODE;
+	if (pl->cheats & CF_GODMODE)
+	{
+		if (pl->mo)
+		{
+			pl->health = pl->mo->health = pl->mo->info->spawnhealth;
+		}
+		CON_MessageLDF("GodModeOn");
+	}
+	else
+		CON_MessageLDF("GodModeOff");
+	return 0;
+}
+
+int CMD_CheatNoClip(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	player_t *pl = players[consoleplayer1];
+
+	pl->cheats ^= CF_NOCLIP;
+
+	if (pl->cheats & CF_NOCLIP)
+		CON_MessageLDF("ClipOn");
+	else
+		CON_MessageLDF("ClipOff");
+	return 0;
+}
+
+int CMD_CheatAmmoNoKey(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	player_t *pl = players[consoleplayer1];
+
+	pl->armours[CHEATARMOURTYPE] = CHEATARMOUR;
+
+	P_UpdateTotalArmour(pl);
+
+	for (int i = 0; i < NUMAMMO; i++)
+		pl->ammo[i].num = pl->ammo[i].max;
+
+	CheatGiveWeapons(pl);
+
+	CON_MessageLDF("AmmoAdded");
+
+	return 0;
+}
+
+int CMD_CheatVeryHappyAmmo(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	player_t *pl = players[consoleplayer1];
+
+	pl->armours[CHEATARMOURTYPE] = CHEATARMOUR;
+
+	P_UpdateTotalArmour(pl);
+
+	for (int i = 0; i < NUMAMMO; i++)
+		pl->ammo[i].num = pl->ammo[i].max;
+
+	pl->cards = KF_MASK;
+
+	CheatGiveWeapons(pl);
+
+	CON_MessageLDF("VeryHappyAmmo");
+
+	return 0;
+}
+
+int CMD_CheatChainSaw(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	player_t *pl = players[consoleplayer1];
+	weapondef_c *w = weapondefs.Lookup("CHAINSAW");
+
+	if (w)
+	{
+		P_AddWeapon(pl, w, NULL);
+		pl->powers[PW_Invulnerable] = 1;
+		CON_MessageLDF("CHOPPERSNote");
+	}
+
+	return 0;
+}
+
+int CMD_CheatUnlockDoors(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	player_t *pl = players[consoleplayer1];
+
+	pl->cards = KF_MASK;
+
+	CON_MessageLDF("UnlockCheat");
+
+	return 0;
+}
+
+int CMD_CheatShowHOM(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	debug_hom = debug_hom.d ? 0 : 1;
+
+	if (debug_hom.d)
+		CON_MessageLDF("HomDetectOn");
+	else
+		CON_MessageLDF("HomDetectOff");
+
+	return 0;
+}
+
+int CMD_CheatShowPos(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	player_t *pl = players[consoleplayer1];
+
+	CON_Message("ang=%f;x,y=(%f,%f)",
+		ANG_2_FLOAT(pl->mo->angle), pl->mo->x, pl->mo->y);
+
+	return 0;
+}
+
+int CMD_CheatKillAll(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	int killcount = 0;
+
+	mobj_t *mo;
+	mobj_t *next;
+
+	for (mo = mobjlisthead; mo; mo = next)
+	{
+		next = mo->next;
+
+		if ((mo->extendedflags & EF_MONSTER) && (mo->health > 0))
+		{
+			P_TelefragMobj(mo, NULL, NULL);
+			killcount++;
+		}
+	}
+
+	CON_MessageLDF("MonstersKilled", killcount);
+
+	return 0;
+}
+
+int CMD_CheatSuicide(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	player_t *pl = players[consoleplayer1];
+
+	P_TelefragMobj(pl->mo, pl->mo, NULL);
+
+	CON_MessageLDF("SuicideCheat");
+
+	return 0;
+}
+
+int CMD_CheatInfo(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	debug_fps = debug_fps.d ? 0 : 1;
+	debug_pos = debug_fps.d;
+
+	return 0;
+}
+
+int CMD_CheatLoaded(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	player_t *pl = players[consoleplayer1];
+
+	for (int i = 0; i < NUMAMMO; i++)
+		pl->ammo[i].num = pl->ammo[i].max;
+
+	CON_MessageLDF("LoadedCheat");
+
+	return 0;
+}
+
+
+
 //----------------------------------------------------------------------------
 
 // oh lordy....
@@ -503,6 +777,24 @@ const con_cmd_t builtin_commands[] =
 	{ "version",        CMD_Version },
 	{ "quit",           CMD_QuitEDGE },
 	{ "exit",           CMD_QuitEDGE },
+
+#ifndef NOCHEATS
+	// [SP] Cheats
+	{ "god",            CMD_CheatGod },
+	{ "noclip",         CMD_CheatNoClip },
+	{ "idfa",           CMD_CheatAmmoNoKey },
+	{ "idkfa",          CMD_CheatVeryHappyAmmo },
+	{ "idchoppers",     CMD_CheatChainSaw },
+	{ "idunlock",       CMD_CheatUnlockDoors },
+	{ "showhom",        CMD_CheatShowHOM },
+	{ "showpos",        CMD_CheatShowPos },
+	{ "killall",        CMD_CheatKillAll },
+	{ "massacre",       CMD_CheatKillAll },
+	{ "kill",           CMD_CheatSuicide },
+	{ "suicide",        CMD_CheatSuicide },
+	{ "info",           CMD_CheatInfo },
+	{ "loaded",         CMD_CheatLoaded },
+#endif
 
 	// end of list
 	{ NULL, NULL }
