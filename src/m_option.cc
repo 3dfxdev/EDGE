@@ -205,6 +205,7 @@ static char MonitSiz[]  = "4:3/16:9/16:10/3:2/24:10";
 static char GLMode[]    = "1/2";
 static char VsyncValue[] = "1/2/3";
 static char Shadows[]   = "None/Simple/Sprite/Complex";
+static char TeleEff[]   = "None/Fade In/Warp In";
 
 // for CVar enums
 const char WIPE_EnumStr[] = "none/melt/crossfade/pixelfade/top/bottom/left/right/spooky/doors";
@@ -419,6 +420,7 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Slider,  "Crosshair Scale",  NULL, 15, &menu_crosshair2, M_ChangeCrossHairSize, NULL}, /// -- New Crosshair Size Slider (like Global MD5 Scale), define this in LDF!
 	{OPT_Boolean, "Map Rotation",    YesNo,   2, &rotatemap, NULL, NULL},
 	{OPT_Switch,  "Teleport Flash",  YesNo,   2, &telept_flash, NULL, NULL},
+	{OPT_Switch,  "Teleport Effect",  TeleEff,   3, &telept_effect, NULL, NULL},
 	{OPT_Switch,  "Wipe method",     WIPE_EnumStr, WIPE_NUMWIPES, &wipe_method, NULL, NULL},
 	{OPT_Boolean, "Screenshot Format", JpgPng, 2, &png_scrshots, NULL, NULL}
 
