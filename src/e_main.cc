@@ -1573,6 +1573,7 @@ static void AddCommandLineFiles(void)
 			if (stricmp(ext.c_str(), "wad") == 0 ||
 				stricmp(ext.c_str(), "wl6") == 0 ||
 				stricmp(ext.c_str(), "pak") == 0 ||
+				stricmp(ext.c_str(), "pk7") == 0 ||
 				stricmp(ext.c_str(), "pk3") == 0 ||
 				stricmp(ext.c_str(), "gwa") == 0 ||
 				stricmp(ext.c_str(), "hwa") == 0 ||
@@ -1748,10 +1749,14 @@ static void E_Startup(void)
 #endif
 
 	DoSystemStartup();
-	//Splash Screen Check
 
-	ps = M_GetParm("-showsplash");
+	//Splash Screen Check
+	ps = M_GetParm("-nosplash");
 	if (ps)
+	{
+		//E_SplashScreen();
+	}
+	else
 	{
 		E_SplashScreen();
 	}
