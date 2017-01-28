@@ -17,9 +17,12 @@ list(APPEND CMAKE_MODULE_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/modules
 )
 
-# Phys
-find_package(PHYSFS REQUIRED)
-include_directories(${PHYSFS_INCLUDE_DIR})
+# Gitinfo Puller thingy
+add_custom_target(revision_check ALL
+   COMMAND updaterevision src/gitinfo.h
+   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+   DEPENDS updaterevision 
+)
 
 # SDL
 find_package(SDL2 REQUIRED)
@@ -120,6 +123,7 @@ set(3DGE_SOURCES
 	src/f_finale.cc
 	src/f_interm.cc
 	src/e_splash.cc
+	src/gitinfo.cc
 	src/g_game.cc
 	src/hu_draw.cc
 	src/hu_font.cc
@@ -303,6 +307,8 @@ set(3DGE_DREAMCAST_SOURCES
 	src/i_videodc.cc
 )
 
+add_subdirectory( tools )
+
 if(WIN32)
 	set(3DGE_SOURCES ${3DGE_SOURCES}
 		${3DGE_WIN32_SOURCES}
@@ -332,7 +338,6 @@ target_link_libraries(3DGE
 	${GLEW_LIBRARIES}
 	${PNG_LIBRARIES}
 	${JPEG_LIBRARIES}
-	${PHYSFS_LIBRARY}
 	opengl32
 )
 
