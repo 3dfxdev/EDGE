@@ -17,6 +17,10 @@ list(APPEND CMAKE_MODULE_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/modules
 )
 
+# Phys
+find_package(PHYSFS REQUIRED)
+include_directories(${PHYSFS_INCLUDE_DIR})
+
 # SDL
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIR})
@@ -328,6 +332,7 @@ target_link_libraries(3DGE
 	${GLEW_LIBRARIES}
 	${PNG_LIBRARIES}
 	${JPEG_LIBRARIES}
+	${PHYSFS_LIBRARY}
 	opengl32
 )
 
