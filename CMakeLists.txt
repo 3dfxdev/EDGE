@@ -332,7 +332,7 @@ target_link_libraries(3DGE
 	${GLEW_LIBRARIES}
 	${PNG_LIBRARIES}
 	${JPEG_LIBRARIES}
-	${PHYSFS_LIBRARIES}
+	${PHYSFS_LIBRARY}
 	opengl32
 )
 
