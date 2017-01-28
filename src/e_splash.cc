@@ -28,7 +28,7 @@
 
 
 extern unsigned char rndtable[256];
-
+#include <ctime>
 
 static int color;  // 0 to 7
 
@@ -626,8 +626,8 @@ bool E_DrawSplash(int millies)
 
 void E_SplashScreen(void)
 {
-	//srand(time(NULL));
-	srand(I_PureRandom());
+	//srand(I_PureRandom());
+	srand(time(NULL));
 
 	color = rand() & 7;
 

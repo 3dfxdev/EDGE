@@ -63,7 +63,7 @@ extern cvar_c r_colormaterial, r_colorlighting;
 extern cvar_c r_dumbsky, r_dumbmulti, r_dumbcombine, r_dumbclamp;
 extern cvar_c r_nearclip, r_farclip, r_fadepower;
 extern cvar_c r_fov, r_zoomfov, r_aspect;
-extern cvar_c r_mipmapping, r_smoothing;
+extern cvar_c r_mipmapping, r_smoothing, r_anisotropy;
 extern cvar_c r_dithering, r_hq2x;
 extern cvar_c r_dynlight, r_invultex;
 extern cvar_c r_gamma, r_detaillevel;
@@ -120,7 +120,7 @@ cvar_link_t  all_cvars[] =
 
 	{ "spriteflip",      &r_spriteflip,       "c",   "0"  },
 
-	{ "shadows",         &r_shadows,          "c",   "0" },
+	{ "shadows",         &r_shadows,          "c",   "1" },
 
 	/* Input Stuff */
 
