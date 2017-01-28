@@ -286,10 +286,10 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
         I_Printf("Delay = %d\n", def->delay);
 
         // -ES- 1998/10/29 Start the fading
-        if (telept_effect && player == players[displayplayer])
+        if (telept_effect == 1 && player == players[displayplayer])
             R_StartFading(0, (def->delay * 5) / 2);
 
-        if (player == players[displayplayer] && !telept_flash)
+        if (telept_effect == 2 && player == players[displayplayer])
 			player->telept_fov = def->delay * 5;
 
         thing->mom.x = thing->mom.y = thing->mom.z = 0;
