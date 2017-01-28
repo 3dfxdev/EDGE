@@ -223,6 +223,13 @@ void RGL_CheckExtensions(void)
 	else
 		I_Error("OpenGL driver does not support Multitexturing.\n");
 
+	if (GLEW_VERSION_1_3 || GLEW_EXT_texture_filter_anisotropic)
+	{
+		I_Printf("OpenGL driver verified to support anisotropic filtering!\n");
+		r_anisotropy = 1;
+
+	}
+
 	if (GLEW_VERSION_1_3 ||
 		GLEW_ARB_texture_env_combine ||
 		GLEW_EXT_texture_env_combine)
