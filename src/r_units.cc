@@ -50,6 +50,7 @@ cvar_c r_dumbsky;
 cvar_c r_dumbmulti;
 cvar_c r_dumbcombine;
 cvar_c r_dumbclamp;
+cvar_c r_anisotropy;
 
 cvar_c r_gl2_path;
 
