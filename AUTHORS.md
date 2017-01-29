@@ -4,7 +4,9 @@
 ##### Original DOOM engine (C) id Software, LLC
 #### Licensed under the GPLv2
 http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
-# See our 3DGE Wiki (http://3dfxdev.net/edgewiki/index.php/Main_Page)
+# See our 3DGE Wiki 
+![alt text](http://3dfxdev.net/edgewiki/images/7/79/Navbar-brand.png "3DGE Wiki")
+(http://3dfxdev.net/edgewiki/index.php/Main_Page)
 ---
 ## A successful open-source project relies upon the community to:
 * discuss requirements and possible designs
@@ -20,6 +22,7 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 * Damir Srpcic
 * Joseph Fenton (Chilly Willy)
 * Brendan "Brendoe1" Doe
+* Rachael Alexanderson (eruanna)
 * Alex Nesemann
 * UsernameAK
 * Josh "Ph3nom" Pearson (KallistiGL code)
@@ -37,20 +40,26 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 ---
 * Andrew Apted (programming, bug fixes)
 * Graf Zahl (for his ongoing wisdom, contributions, and guidance)
+* Marisa Heit (most amazing woman in the community, TBH ;)
 * Fraggle (Chocolate Doom SDL2 help)
 * Crispy Doom Guys (fabian, alexmax) for helping with lerp
 * Quasar (dynaBSP/midi_RPC stuff)
 * Maciej Kadlubowski (Splines library)
 * KnightMare (KMQ2 backends)
 * Kaiser (Doom64-ex, KEX-lib support)
-* Marisa Heit (most amazing woman in the community, TBH ;)
-* Eruianna (DRD Team Builds Hosting)
 * ctd1500
 * Dan Loosen
 * Gary Heil
 * Winston "Zardoz" Branyon 
 
+---
+##### Since 3DGE is a direct continuation of EDGE, and DOSDoom became
+##### EDGE, both projects team members are listed here, because without
+##### them, there would be no 3DGE engine. <3
+---
+
 ## Original EDGE Team:
+![alt text](http://3dfxdev.net/edgewiki/images/f/f6/EDGElogo.jpg "EDGE")
 ---
 * Andrew Apted (aka "andrewj")     : programming
 * Andrew Baker (aka "Darkknight")  : programming
@@ -61,8 +70,9 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 * Luke Brennan (aka "Lobo")        : support & documentation
 
 ## Original DOSDoom Team:
+![alt text](http://3dfxdev.net/edgewiki/images/a/ac/DOSDoomlogo.png "DOSDoom")
 ---
-* Chi Hoang                        : DOSDoom Author
+* Chi Hoang                        : programming
 * Kester Maddock                   : programming
 * Martin Howe                      : programming, cat lover
 * John Cole, Rasem Brsiq           : programming
@@ -71,11 +81,10 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 * Matt Cooke, Eric Simpson         : support
 
 ### Doom Engine
+![alt text](http://logos-download.com/wp-content/uploads/2016/09/Doom_logo_small.png "(C) id Software, LLC")
  * id Software
 
  ---
 ##### We've tried to include everyone, but if you've made a contribution to the 3DGE engine and are not listed, please feel free to open an issue or pull request with your name and contribution.
 
 (C) Isotope SoftWorks, 2017
-
-

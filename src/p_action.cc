@@ -1779,8 +1779,8 @@ static void ShotAttack(mobj_t * mo)
 	if (attack->sound)
 		S_StartFX(attack->sound, AttackSfxCat(mo), mo);
 
-	if (mo->player)
-		I_Tactile(100, 10, mo->player->pnum);
+	//if (mo->player)
+		//I_Tactile(100, 10, mo->player->pnum);
 
 	// -AJA- 1999/09/10: apply the attack's angle offsets.
 	objangle -= attack->angle_offset;

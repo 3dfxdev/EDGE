@@ -34,7 +34,7 @@
 #include <list>
 #include <vector>
 
-
+extern cvar_c r_anisotropy;
 extern cvar_c r_colorlighting;
 extern cvar_c r_colormaterial;
 
