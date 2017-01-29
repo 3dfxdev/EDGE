@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Main Rendering Organisation Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -93,8 +93,11 @@ mobj_t *background_camera_mo = NULL;
 angle_t viewanglebaseoffset;
 angle_t viewangleoffset;
 
-int telept_starttic;
-int telept_active = 0;
+extern float gamma_settings;
+extern float fade_gdelta;
+extern float fade_gamma;
+int fade_starttic;
+bool fade_active = false;
 
 int telept_effect = 0;
 int telept_flash = 1;
@@ -204,8 +207,12 @@ region_properties_t *R_PointGetProps(subsector_t *sub, float z)
 
 void R_StartFading(int start, int range)
 {
-	telept_active = true;
-	telept_starttic = start + leveltime;
+	if (range == 0)
+		return;
+	fade_active = true;
+	fade_starttic = start + leveltime;
+	fade_gamma = range > 0 ? 0.0f : 1.0f;
+	fade_gdelta = 1.0f / range;
 }
 
 

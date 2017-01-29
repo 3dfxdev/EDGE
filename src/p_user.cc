@@ -39,6 +39,11 @@
 #include "s_sound.h"
 #include "z_zone.h"
 
+extern float fade_gdelta;
+extern float fade_gamma;
+extern int fade_starttic;
+extern bool fade_active;
+
 static void P_UpdatePowerups(player_t *player);
 
 #define MAXBOB  16.0f
@@ -751,7 +756,27 @@ void P_PlayerThink(player_t * player)
 		player->telept_fov = player->telept_fov >= 5 ? player->telept_fov - 5 : 0;
 	}
 	else
+	{
 		MovePlayer(player);
+	}
+
+	if (fade_active)
+	{
+		if (fade_starttic <= leveltime)
+		{
+			fade_gamma += fade_gdelta;
+			if (fade_gdelta < 0)
+			{
+				if (fade_gamma <= 0.0f)
+					fade_active = false;
+			}
+			else
+			{
+				if (fade_gamma >= 1.0f)
+					fade_active = false;
+			}
+		}
+	}
 
 	CalcHeight(player);
 
