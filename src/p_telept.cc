@@ -283,12 +283,13 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
     {
         // don't move for a bit
         thing->reactiontime = def->delay;
-        I_Printf("Delay = %d\n", def->delay);
+        //I_Printf("Delay = %d\n", def->delay);
 
         // -ES- 1998/10/29 Start the fading
         if (telept_effect == 1 && player == players[displayplayer])
-            R_StartFading(0, (def->delay * 5) / 2);
+            R_StartFading(0, def->delay);
 
+		// -CW- 2017/01/27 Start the FOV warp
         if (telept_effect == 2 && player == players[displayplayer])
 			player->telept_fov = def->delay * 5;
 
