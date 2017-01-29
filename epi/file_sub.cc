@@ -62,7 +62,7 @@ sub_file_c::~sub_file_c()
 	if (physfs)
 	{
 		// PHYSFS controlled file
-		I_Printf("Close PHYSFS_File %p\n", parent);
+		I_Debugf("Close PHYSFS_File %p\n", parent);
 		PHYSFS_close((PHYSFS_File*)parent);
 		physfs = 0;
 	}

@@ -689,7 +689,7 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 	Z_StrNCpy(lump_p->path, path, 255);
 
 #if 1
-	I_Printf("AddLumpEx: %p, %d, %d, %d, %d, %d, %s, %d, %s\n",
+	I_Debugf("AddLumpEx: %p, %d, %d, %d, %d, %d, %s, %d, %s\n",
 		df, lump, pos, size, file, sort_index, lump_p->name, allow_ddf, lump_p->path);
 #endif
 
@@ -1108,7 +1108,7 @@ static void LumpNamespace(void *userData, const char *origDir, const char *fname
 	strcat(path, "/");
 	strcat(path, fname);
 
-	I_Printf("  LumpNamespace: processing %s\n", path);
+	I_Debugf("  LumpNamespace: processing %s\n", path);
 
 	if (PHYSFS_isDirectory(path))
 	{
@@ -1118,14 +1118,14 @@ static void LumpNamespace(void *userData, const char *origDir, const char *fname
 	}
 
 	// add lump
-	I_Printf("    opening lump %s\n", fname);
+	I_Debugf("    opening lump %s\n", fname);
 	PHYSFS_File *file = PHYSFS_openRead(path);
 	if (!file)
 		return; // couldn't open file - skip
 	int length = PHYSFS_fileLength(file);
 	PHYSFS_close(file);
 
-	I_Printf("    adding lump %s\n", fname);
+	I_Debugf("    adding lump %s\n", fname);
 	numlumps++;
 	Z_Resize(lumpinfo, lumpinfo_t, numlumps);
 	AddLumpEx(user_data->dfile, numlumps - 1, 0, length,
@@ -1155,7 +1155,7 @@ static void WadNamespace(void *userData, const char *origDir, const char *fname)
 	}
 
 	// open wad lump
-	I_Printf("    opening wad %s\n", fname);
+	I_Debugf("    opening wad %s\n", fname);
 	PHYSFS_File *file = PHYSFS_openRead(path);
 	if (!file)
 		return; // couldn't open file - skip
@@ -1194,7 +1194,7 @@ static void WadNamespace(void *userData, const char *origDir, const char *fname)
 			Z_StrNCpy(tname, fname, 4);
 			marker = 1;
 		}
-		I_Printf("    adding wad lump %s\n", tname);
+		I_Debugf("    adding wad lump %s\n", tname);
 		numlumps++;
 		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
 		AddLumpEx(user_data->dfile, numlumps - 1, pos, size,
@@ -2082,7 +2082,7 @@ epi::file_c *W_OpenLump(int lump)
 	lumpinfo_t *l = lumpinfo + lump;
 
 	data_file_c *df = data_files[l->file];
-	I_Printf("W_OpenLump: %d(%s)\n", lump, l->name);
+	I_Debugf("W_OpenLump: %d(%s)\n", lump, l->name);
 
 	if (df->file == NULL)
 	{
@@ -2438,7 +2438,7 @@ static void W_ReadLump(int lump, void *dest)
 		I_Error("W_ReadLump: %i >= numlumps", lump);
 
 	lumpinfo_t *L = lumpinfo + lump;
-	I_Printf("W_ReadLump: %d (%s)\n", lump, L->name);
+	I_Debugf("W_ReadLump: %d (%s)\n", lump, L->name);
 
 	data_file_c *df = data_files[L->file];
 

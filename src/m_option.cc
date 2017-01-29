@@ -198,6 +198,7 @@ static char DLMode[]    = "Off/On";
 static char JpgPng[]    = "JPEG/PNG";  // basic on/off
 static char AAim[]      = "Off/On/Mlook";
 static char MipMaps[]   = "None/Bilinear/Trilinear"; ///CA - Renamed for better understanding of what they are changing
+static char Anisotropy[] = "Off/On";
 static char Details[]   = "Low/Medium/High";
 static char Hq2xMode[]  = "Off/UI Only/UI & Sprites/All";
 static char Invuls[]    = "Simple/Complex/Textured";
@@ -413,7 +414,7 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch,  "H.Q.2x Scaling", Hq2xMode, 4, &hq2x_scaling, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Detail Level",   Details,  3, &detail_level, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Texture Filtering",     MipMaps,  3, &var_mipmapping, M_ChangeMipMap, NULL},
-	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
+	{OPT_Switch,  "Texture Anisotropy",  Anisotropy,  2,  &r_anisotropy, NULL, "Experimental"},
 	{OPT_Boolean, "Show Disk Icon",  YesNo, 1, &m_diskicon, NULL, NULL},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Switch,  "Crosshair",       CrossH, 10, &menu_crosshair, M_ChangeCrossHair, NULL},
