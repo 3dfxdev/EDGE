@@ -463,27 +463,11 @@ ZombiemanName=       "ZOMBIEMAN";
 
 
 Notice=
-"											\n"
- "°º¤ø,¸¸,ø¤º°`°º¤ø,¸,ø¤°º¤ø,¸¸,ø¤º°`°º¤ø,¸\n"
- "								   \n"
- "██████╗ ██████╗  ██████╗ ███████╗\n"
- "╚════██╗██╔══██╗██╔════╝ ██╔════╝\n"
- " █████╔╝██║  ██║██║  ███╗█████╗  \n"
- " ╚═══██╗██║  ██║██║   ██║██╔══╝  \n"
- "██████╔╝██████╔╝╚██████╔╝███████╗\n"
- "╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝\n"
- "			     இڿڰۣ-ڰۣ—				\n"
- "   (C) Isotope SoftWorks			\n"
- "									\n"
- " 									\n"
- " Visit the Wiki @ 			    \n"
- "  http://3dfxdev.net/edgewiki 	\n"
- "									\n"
- "									\n"
- "			 DDFVer 7.0				\n"
- " 									\n"
- "°º¤ø,¸¸,ø¤º°`°º¤ø,¸,ø¤°º¤ø,¸¸,ø¤º°`°º¤ø,¸\n"
-"											\n";
+ "_________________________________\n"
+ "		   3DGE Engine	           \n"
+ "   (C) Isotope SoftWorks		   \n"
+ "	http://3dfxdev.net/edgewiki	   \n"
+ "____Licensed under the GPLv2____ \n";
 
 JoystickCentre= "CENTRE the joystick\n\npress a key.";
 JoystickTL=     "Push the joystick to the UPPER LEFT corner\n\npress a key.";
