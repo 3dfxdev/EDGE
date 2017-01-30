@@ -36,7 +36,7 @@
 //
 
 #include "i_defs.h"
-#include "m_cheat.h"
+#include "m_cheatcodes.h"
 
 #include "con_main.h"
 #include "../ddf/main.h"

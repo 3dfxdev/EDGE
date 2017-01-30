@@ -39,7 +39,7 @@
 #include "e_main.h"
 #include "f_finale.h"
 #include "g_game.h"
-#include "m_cheat.h"
+#include "m_cheatcodes.h"
 #include "m_menu.h"
 #include "m_random.h"
 #include "n_network.h"

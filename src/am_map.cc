@@ -32,7 +32,7 @@
 #include "hu_style.h"
 #include "m_argv.h"
 #include "m_bbox.h"
-#include "m_cheat.h"
+#include "m_cheatcodes.h"
 #include "m_misc.h"
 #include "n_network.h"
 #include "p_local.h"
