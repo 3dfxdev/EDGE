@@ -16,4 +16,4 @@ obj_bsd
 build
 releases
 backups
-
+/src/gitinfo.h
