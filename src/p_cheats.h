@@ -36,6 +36,46 @@
 #ifndef __P_CHEATS__
 #define __P_CHEATS__
 
-static void CheatGiveWeapons(player_t *pl, int key = -2);
+bool CheckCheats(bool silent = false);
+
+void Cheat_ToggleGodMode();
+void Cheat_NoClip();
+void Cheat_IDFA();
+void Cheat_IDKFA();
+void Cheat_Choppers();
+void Cheat_Unlock();
+void Cheat_HOM();
+void Cheat_Loaded();
+void Cheat_Suicide();
+void Cheat_ShowPos();
+void Cheat_KillAll();
+void Cheat_Info();
+
+static void CheatGiveWeapons(player_t *pl, int key = -2)
+{
+	epi::array_iterator_c it;
+	
+	for (it = weapondefs.GetIterator(0); it.IsValid(); it++)
+	{
+		weapondef_c *info = ITERATOR_TO_TYPE(it, weapondef_c*);
+
+		if (info && !info->no_cheat && (key<0 || info->bind_key==key))
+		{
+			P_AddWeapon(pl, info, NULL);
+		}
+	}
+
+	if (key < 0)
+	{
+		for (int slot=0; slot < MAXWEAPONS; slot++)
+		{
+			if (pl->weapons[slot].info)
+				P_FillWeapon(pl, slot);
+		}
+	}
+
+	P_UpdateAvailWeapons(pl);
+}
+
 
 #endif  // __P_CHEATS__

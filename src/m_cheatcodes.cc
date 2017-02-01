@@ -205,39 +205,15 @@ bool M_CheatResponder(event_t * ev)
 	int i;
 	player_t *pl = players[consoleplayer1];
 
-	// disable cheats while in RTS menu, or demos
-	if (rts_menuactive)
-		return false;
-
-	// if a user keypress...
-	if (ev->type != ev_keydown)
-		return false;
-
 	char key = (char) ev->data1;
 
-	// no cheating in netgames or if disallowed in levels.ddf
-	if (!level_flags.cheats)
+	if (!CheckCheats(true))
 		return false;
-
-#if 0 //!!!! TEMP DISABLED, NETWORK DEBUGGING
-	if (netgame)
-		return false;
-#endif
 
 	// 'dqd' cheat for toggleable god mode
 	if (M_CheckCheat(&cheat_god, key))
 	{
-		pl->cheats ^= CF_GODMODE;
-		if (pl->cheats & CF_GODMODE)
-		{
-			if (pl->mo)
-			{
-				pl->health = pl->mo->health = pl->mo->info->spawnhealth;
-			}
-			CON_MessageLDF("GodModeOn");
-		}
-		else
-			CON_MessageLDF("GodModeOff");
+		Cheat_ToggleGodMode();
 	}
 
 	// 'fa' cheat for killer fucking arsenal
@@ -246,16 +222,7 @@ bool M_CheatResponder(event_t * ev)
 	//
 	else if (M_CheckCheat(&cheat_ammonokey, key))
 	{
-		pl->armours[CHEATARMOURTYPE] = CHEATARMOUR;
-
-		P_UpdateTotalArmour(pl);
-
-		for (i = 0; i < NUMAMMO; i++)
-			pl->ammo[i].num = pl->ammo[i].max;
-
-		CheatGiveWeapons(pl);
-
-		CON_MessageLDF("AmmoAdded");
+		Cheat_IDFA();
 	}
 
 	// 'kfa' cheat for key full ammo
@@ -264,31 +231,15 @@ bool M_CheatResponder(event_t * ev)
 	//
 	else if (M_CheckCheat(&cheat_ammo, key))
 	{
-		pl->armours[CHEATARMOURTYPE] = CHEATARMOUR;
-
-		P_UpdateTotalArmour(pl);
-
-		for (i = 0; i < NUMAMMO; i++)
-			pl->ammo[i].num = pl->ammo[i].max;
-
-		pl->cards = KF_MASK;
-
-		CheatGiveWeapons(pl);
-
-		CON_MessageLDF("VeryHappyAmmo");
+		Cheat_IDKFA();
 	}
 	else if (M_CheckCheat(&cheat_keys, key))
 	{
-		pl->cards = KF_MASK;
-
-		CON_MessageLDF("UnlockCheat");
+		Cheat_Unlock();
 	}
 	else if (M_CheckCheat(&cheat_loaded, key))
 	{
-		for (i = 0; i < NUMAMMO; i++)
-			pl->ammo[i].num = pl->ammo[i].max;
-
-		CON_MessageLDF("LoadedCheat");
+		Cheat_Loaded();
 	}
 #if 0  // FIXME: this crashes ?
 	else if (M_CheckCheat(&cheat_takeall, key))
@@ -301,52 +252,23 @@ bool M_CheatResponder(event_t * ev)
 #endif
 	else if (M_CheckCheat(&cheat_suicide, key))
 	{
-		P_TelefragMobj(pl->mo, pl->mo, NULL);
-
-		// -ACB- 1998/08/26 Suicide language reference
-		CON_MessageLDF("SuicideCheat");
+		Cheat_Suicide();
 	}
 	// -ACB- 1998/08/27 Used Mobj linked-list code, much cleaner.
 	else if (M_CheckCheat(&cheat_killall, key))
 	{
-		int killcount = 0;
-
-		mobj_t *mo;
-		mobj_t *next;
-
-		for (mo = mobjlisthead; mo; mo = next)
-		{
-			next = mo->next;
-
-			if ((mo->extendedflags & EF_MONSTER) && (mo->health > 0))
-			{
-				P_TelefragMobj(mo, NULL, NULL);
-				killcount++;
-			}
-		}
-
-		CON_MessageLDF("MonstersKilled", killcount);
+		Cheat_KillAll();
 	}
 	// Simplified, accepting both "noclip" and "idspispopd".
 	// no clipping mode cheat
 	else if (M_CheckCheat(&cheat_noclip,  key)
 		  || M_CheckCheat(&cheat_noclip2, key))
 	{
-		pl->cheats ^= CF_NOCLIP;
-
-		if (pl->cheats & CF_NOCLIP)
-			CON_MessageLDF("ClipOn");
-		else
-			CON_MessageLDF("ClipOff");
+		Cheat_NoClip();
 	}
 	else if (M_CheckCheat(&cheat_hom, key))
 	{
-		debug_hom = debug_hom.d ? 0 : 1;
-
-		if (debug_hom.d)
-			CON_MessageLDF("HomDetectOn");
-		else
-			CON_MessageLDF("HomDetectOff");
+		Cheat_HOM();
 	}
 
 	// 'behold?' power-up cheats
@@ -386,20 +308,13 @@ bool M_CheatResponder(event_t * ev)
 	// 'choppers' invulnerability & chainsaw
 	if (M_CheckCheat(&cheat_choppers, key))
 	{
-		weapondef_c *w = weapondefs.Lookup("CHAINSAW");
-		if (w)
-		{
-			P_AddWeapon(pl, w, NULL);
-			pl->powers[PW_Invulnerable] = 1;
-			CON_MessageLDF("CHOPPERSNote");
-		}
+		Cheat_Choppers();
 	}
 
 	// 'mypos' for player position
 	else if (M_CheckCheat(&cheat_mypos, key))
 	{
-		CON_Message("ang=%f;x,y=(%f,%f)",
-			ANG_2_FLOAT(pl->mo->angle), pl->mo->x, pl->mo->y);
+		Cheat_ShowPos();
 	}
 
 	if (M_CheckCheat(&cheat_clev, key))
@@ -414,8 +329,7 @@ bool M_CheatResponder(event_t * ev)
 	}
 	else if (M_CheckCheat(&cheat_showstats, key))
 	{
-		debug_fps = debug_fps.d ? 0 : 1;
-		debug_pos = debug_fps.d;
+		Cheat_Info();
 	}
 
 	return false;
