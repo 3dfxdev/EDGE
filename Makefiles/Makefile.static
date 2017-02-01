@@ -202,6 +202,7 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/p_action.o       \
 	$(OBJDIR)/edge/p_blockmap.o     \
 	$(OBJDIR)/edge/p_bot.o          \
+	$(OBJDIR)/edge/p_cheats.o       \
 	$(OBJDIR)/edge/p_enemy.o        \
 	$(OBJDIR)/edge/p_inter.o        \
 	$(OBJDIR)/edge/p_lights.o       \

@@ -147,6 +147,7 @@ set(3DGE_SOURCES
 	src/p_action.cc
 	src/p_blockmap.cc
 	src/p_bot.cc
+	src/p_cheats.cc
 	src/p_enemy.cc
 	src/p_inter.cc
 	src/p_lights.cc

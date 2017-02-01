@@ -49,7 +49,7 @@
 #include "p_mobj.h"
 #include "p_bot.h"
 #include "w_wad.h"
-
+#include "p_cheats.h"
 
 extern cvar_c debug_fps;
 extern cvar_c debug_pos;
@@ -194,32 +194,6 @@ static void M_ChangeMusicCheat(const char *string)
 
 	S_ChangeMusic(entry_num, true);
 	CON_MessageLDF("MusChange");
-}
-
-static void CheatGiveWeapons(player_t *pl, int key = -2)
-{
-	epi::array_iterator_c it;
-	
-	for (it = weapondefs.GetIterator(0); it.IsValid(); it++)
-	{
-		weapondef_c *info = ITERATOR_TO_TYPE(it, weapondef_c*);
-
-		if (info && !info->no_cheat && (key<0 || info->bind_key==key))
-		{
-			P_AddWeapon(pl, info, NULL);
-		}
-	}
-
-	if (key < 0)
-	{
-		for (int slot=0; slot < MAXWEAPONS; slot++)
-		{
-			if (pl->weapons[slot].info)
-				P_FillWeapon(pl, slot);
-		}
-	}
-
-	P_UpdateAvailWeapons(pl);
 }
 
 bool M_CheatResponder(event_t * ev)
