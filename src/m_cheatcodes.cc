@@ -205,6 +205,10 @@ bool M_CheatResponder(event_t * ev)
 	int i;
 	player_t *pl = players[consoleplayer1];
 
+	// if a user keypress...
+	if (ev->type != ev_keydown)
+		return false;
+
 	char key = (char) ev->data1;
 
 	if (!CheckCheats(true))
