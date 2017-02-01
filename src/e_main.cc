@@ -69,7 +69,7 @@
 #include "l_glbsp.h"
 #include "m_argv.h"
 #include "m_bbox.h"
-#include "m_cheat.h"
+#include "m_cheatcodes.h"
 #include "m_misc.h"
 #include "m_menu.h"
 #include "n_network.h"

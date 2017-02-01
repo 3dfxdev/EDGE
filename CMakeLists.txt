@@ -133,7 +133,7 @@ set(3DGE_SOURCES
 	src/l_deh.cc
 	src/m_argv.cc
 	src/m_bbox.cc
-	src/m_cheat.cc
+	src/m_cheatcodes.cc
 	src/m_math.cc
 	src/m_menu.cc
 	src/m_misc.cc
@@ -147,6 +147,7 @@ set(3DGE_SOURCES
 	src/p_action.cc
 	src/p_blockmap.cc
 	src/p_bot.cc
+	src/p_cheats.cc
 	src/p_enemy.cc
 	src/p_inter.cc
 	src/p_lights.cc
