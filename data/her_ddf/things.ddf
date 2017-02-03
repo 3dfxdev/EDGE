@@ -861,7 +861,7 @@ DLIGHT.COLOUR=#40FF40;
 STATES(IDLE)=AKYY:A:3:BRIGHT:NOTHING,
              AKYY:B:3:BRIGHT:NOTHING,
              AKYY:C:3:BRIGHT:NOTHING,
-//             AKYY:D:3:BRIGHT:NOTHING, // The animation looks wrong with it included
+             AKYY:D:3:BRIGHT:NOTHING, // The animation looks wrong with it included
              AKYY:E:3:BRIGHT:NOTHING,
              AKYY:F:3:BRIGHT:NOTHING,
              AKYY:G:3:BRIGHT:NOTHING,

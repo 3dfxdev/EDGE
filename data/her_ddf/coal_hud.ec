@@ -27,7 +27,10 @@
 var face_time  : float
 var face_image : string
 
-var chain_wiggle : float
+var ChainWiggle : float //0
+
+var HealthMarker : float //0
+
 
 
 
@@ -187,13 +190,13 @@ function heretic_status_bar() =
 		// player picks up keys and stuff
 		
 		
-	if (player.has_key(1))
+	if (player.has_key(2))
     hud.draw_image(  153, 164, "ykeyicon")
 
-	if (player.has_key(2))
+	if (player.has_key(4))
     hud.draw_image(  153, 172, "gkeyicon")
 
-	if (player.has_key(3))
+	if (player.has_key(1))
     hud.draw_image(  153, 180, "bkeyicon")
 
 		
@@ -330,12 +333,12 @@ function draw_all() =
 	// there are three standard HUDs
 	var which = hud.which_hud() % 3
 
-    if (which == 0) //heretic_overlay_status()
+    if (which == 1) //heretic_overlay_status()
         hud.render_world(0, 0, 320, 200)// 0, 0, 320, 200. . //0, 200 - 32 - 10,
     else //heretic_status_bar()
         hud.render_world(0, 0, 320, 200 - 30)
 
-    if (which == 0)
+    if (which == 1)
         heretic_overlay_status()
     else if (which == 2)
 		
