@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Data
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -55,7 +55,7 @@ enum
    ML_SSECTORS,  // SubSectors, list of LineSegs
    ML_NODES,     // BSP nodes
    ML_SECTORS,   // Sectors, from editing
-   ML_REJECT,    // LUT, sector-sector visibility 
+   ML_REJECT,    // LUT, sector-sector visibility
    ML_BLOCKMAP,  // LUT, motion clipping, walls/grid element
    ML_BEHAVIOR   // Hexen scripting stuff
 };
@@ -148,14 +148,14 @@ sectorflag_e;
 //
 typedef struct patch_s
 {
-	// bounding box size 
+	// bounding box size
 	short width;
 	short height;
 
-	// pixels to the left of origin 
+	// pixels to the left of origin
 	short leftoffset;
 
-	// pixels below the origin 
+	// pixels below the origin
 	short topoffset;
 
 	int columnofs[1];  // only [width] used

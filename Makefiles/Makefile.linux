@@ -27,6 +27,10 @@ CFLAGS += -I.
 
 CFLAGS += -DLINUX
 
+# debug
+
+#CFLAGS += -ggdb -O0
+
 # libcpuid
 
 CFLAGS += -DHAVE_STDINT_H
