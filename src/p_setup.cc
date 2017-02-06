@@ -146,8 +146,8 @@ static int *temp_line_sides;
 cvar_c m_goobers;
 
 typedef struct {
-	char *buffer;
-	char line[512];
+	uint8_t *buffer;
+	uint8_t line[512];
 	int length;
 	int next;
 	int prev;
@@ -160,107 +160,132 @@ static bool GetNextLine(parser_t *psr)
 	if (psr->next >= psr->length)
 		return false; // no more lines
 
+	int i;
 	// get next line
 	psr->prev = psr->next;
-	char *lp = strpbrk(&psr->buffer[psr->next], "\n\r");
-	if (!lp)
+	uint8_t *lp = &psr->buffer[psr->next];
+	for (i=0; i<(psr->length - psr->next); i++, lp++)
+		if (*lp == 0x0A || *lp == 0x0D)
+			break;
+	if (i == (psr->length - psr->next))
 		lp = &psr->buffer[psr->length - 1]; // last line
 	psr->next = (int)(lp - psr->buffer) + 1;
 	memcpy(psr->line, &psr->buffer[psr->prev], MIN(511, psr->next - psr->prev - 1));
 	psr->line[MIN(511, psr->next - psr->prev) - 1] = 0;
 	// skip any more CR/LF
-	while (psr->buffer[psr->next] == '\n' || psr->buffer[psr->next] == '\r')
+	while (psr->buffer[psr->next] == 0x0A || psr->buffer[psr->next] == 0x0D)
 		psr->next++;
 
 	// check for comments
-	lp = strstr(psr->line, "//");
-	if (lp)
+	lp = psr->line;
+	while (lp[0] != 0 && lp[0] != 0x2F && lp[1] != 0x2F)
+		lp++; // find full line comment start (if present)
+	if (lp[0] != 0)
 	{
 		*lp = 0; // terminate at full line comment start
 	}
 	else
 	{
-		lp = strstr(psr->line, "/*");
-		if (lp)
+		lp = psr->line;
+		while (lp[0] != 0 && lp[0] != 0x2F && lp[1] != 0x2A)
+			lp++; // find multi-line comment start (if present)
+		if (lp[0] != 0)
 		{
 			*lp = 0; // terminate at multi-line comment start
-			char *ep = strstr(&lp[2], "*/");
-			if (!ep)
-				ep = strstr(&psr->buffer[psr->next], "*/");
-					if (!ep)
-						ep = &psr->buffer[psr->length - 2];
+			uint8_t *ep = &lp[2];
+			while (ep[0] != 0 && ep[0] != 0x2A && ep[1] != 0x2F)
+				ep++; // find multi-line comment end (if present)
+			if (ep[0] == 0)
+			{
+				ep = &psr->buffer[psr->next];
+				for (i=0; i<(psr->length - psr->next); i++, ep++)
+					if (ep[0] == 0x2A && ep[1] == 0x2F)
+						break;
+				if (i == (psr->length - psr->next))
+					ep = &psr->buffer[psr->length - 2];
+			}
 			psr->next = (int)(ep - psr->buffer) + 2; // skip comment for next line
 		}
 	}
 
-	//I_Debugf(" parser next line: %s\n", psr->line);
+	I_Debugf(" parser next line: %s\n", (char *)psr->line);
 	return true;
 }
 
-static bool GetNextAssign(parser_t *psr, char *ident, char *val)
+static bool GetNextAssign(parser_t *psr, uint8_t *ident, uint8_t *val)
 {
 	if (!GetNextLine(psr))
 		return false; // no more lines
 
-	if (strlen(psr->line) < 4)
+	int len = 0;
+	while (psr->line[len] != 0 && psr->line[len] != 0x7D)
+		len++;
+	if (psr->line[len] == 0x7D)
 	{
-		//if (strpbrk(psr->line, "}"))
-			//I_Debugf(" parser: block end\n");
-		return false; // line too short
+		I_Debugf(" parser: block end\n");
+		return false;
 	}
+	else if (len < 4)
+		return false; //line too short for assignment
 
-	char *lp = strpbrk(psr->line, "=");
-	if (!lp)
+	uint8_t *lp = psr->line;
+	while (*lp != 0x3D && *lp != 0)
+		lp++; // find '='
+	if (lp[0] != 0x3D)
 		return false; // not an assignment line
 
 	*lp++ = 0; // split at assignment operator
 	int i = 0;
-	while (psr->line[i] == ' ' || psr->line[i] == '\t')
-		i++; // skip whitespace
-	strcpy(ident, &psr->line[i]);
-	i = strlen(ident) - 1;
-	while (ident[i] == ' ' || ident[i] == '\t')
-		i--; // skip whitespace
+	while (psr->line[i] == 0x20 || psr->line[i] == 0x09)
+		i++; // skip whitespace before indentifier
+	memcpy(ident, &psr->line[i], lp - &psr->line[i] - 1);
+	i = lp - &psr->line[i] - 2;
+	while (ident[i] == 0x20 || ident[i] == 0x09)
+		i--; // skip whitespace after identifier
 	ident[i+1] = 0;
 
 	i = 0;
-	while (lp[i] == ' ' || lp[i] == '\t' || lp[i] == '\"')
-		i++; // skip whitespace
-	strcpy(val, &lp[i]);
-	i = strlen(val) - 1;
-	while (val[i] == ' ' || val[i] == '\t' || val[i] == ';'  || val[i] == '\"')
-		i--; // skip whitespace
+	while (lp[i] == 0x20 || lp[i] == 0x09 || lp[i] == 0x22)
+		i++; // skip whitespace and quotes before value
+	memcpy(val, &lp[i], &psr->line[len] - &lp[i]);
+	i = (int)(&psr->line[len] - &lp[i]) - 2;
+	while (val[i] == 0x20 || val[i] == 0x09 || val[i] == 0x22  || val[i] == 0x3B)
+		i--; // skip whitespace, quote, and semi-colon after value
 	val[i+1] = 0;
 
-	//I_Debugf(" parser: ident = %s, val = %s\n", ident, val);
+	I_Debugf(" parser: ident = %s, val = %s\n", (char *)ident, (char *)val);
 	return true;
 }
 
-static bool GetNextBlock(parser_t *psr, char *ident)
+static bool GetNextBlock(parser_t *psr, uint8_t *ident)
 {
 	if (!GetNextLine(psr))
 		return false; // no more lines
 
-	int i = 0;
-	while (psr->line[i] == ' ' || psr->line[i] == '\t')
+	int len, i = 0;
+	while (psr->line[i] == 0x20 || psr->line[i] == 0x09)
 		i++; // skip whitespace
 blk_loop:
-	strcpy(ident, &psr->line[i]);
-	i = strlen(ident) - 1;
-	while (ident[i] == ' ' || ident[i] == '\t')
-		i--; // skip whitespace
+	len = 0;
+	while (psr->line[len] != 0)
+		len++;
+
+	memcpy(ident, &psr->line[i], len - i);
+	i = len - i - 1;
+	while (ident[i] == 0x20 || ident[i] == 0x09)
+		i--; // skip whitespace from end of line
 	ident[i+1] = 0;
 
 	if (!GetNextLine(psr))
 		return false; // no more lines
 
 	i = 0;
-	while (psr->line[i] == ' ' || psr->line[i] == '\t')
-		i++; // skip whitespace
-	if (psr->line[i] != '{')
+	while (psr->line[i] == 0x20 || psr->line[i] == 0x09)
+		i++; // skip whitespace before indentifier or block start
+	if (psr->line[i] != 0x7B)
 		goto blk_loop; // not a block start
 
-	//I_Debugf(" parser: block start = %s\n", ident);
+	I_Debugf(" parser: block start = %s\n", ident);
 	return true;
 }
 
@@ -1693,7 +1718,7 @@ static void LoadZNodes(int lumpnum)
 			side = (int)(*td);
 			td += 1;
 		}
-		I_Debugf("  seg %d: v1 = %d, part = %d, line = %d, side = %d\n", i, v1num, partner, linedef, (int)side);
+		I_Debugf("  seg %d: v1 = %d, part = %d, line = %d, side = %d\n", i, v1num, partner, linedef, side);
 
 		if (v1num < (uint)numvertexes)
 			seg->v1 = &vertexes[v1num];
@@ -1848,6 +1873,7 @@ static void LoadZNodes(int lumpnum)
 				ss->bbox = &nd->bbox[j][0];
 			}
 		}
+		//I_Debugf("   nd %d: c1=%x, c2=%x, dlen=%f\n", i, nd->children[0], nd->children[1], nd->div_len);
 	}
 
 	I_Debugf("LoadZNodes: Setup root node\n");
@@ -1868,7 +1894,7 @@ static void LoadUDMFVertexes(parser_t *psr)
 	psr->next = 0; // restart from start of lump
 	while (1)
 	{
-		if (!GetNextBlock(psr, ident))
+		if (!GetNextBlock(psr, (uint8_t*)ident))
 			break;
 
 		if (strcasecmp(ident, "vertex") == 0)
@@ -1876,9 +1902,12 @@ static void LoadUDMFVertexes(parser_t *psr)
 			// count vertex blocks
 			while (1)
 			{
-				if (!GetNextAssign(psr, ident, val))
+				if (!GetNextAssign(psr, (uint8_t*)ident, (uint8_t*)val))
 				{
-					if (strpbrk(psr->line, "}"))
+					uint8_t *lp = psr->line;
+					while (*lp != 0 && *lp != 0x7D)
+						lp++; // find end of line or '}'
+					if (*lp == 0x7D)
 					{
 						numvertexes++;
 						break; // end of block
@@ -1900,7 +1929,7 @@ static void LoadUDMFVertexes(parser_t *psr)
 	psr->next = 0; // restart from start of lump
 	while (1)
 	{
-		if (!GetNextBlock(psr, ident))
+		if (!GetNextBlock(psr, (uint8_t*)ident))
 			break;
 
 		if (strcasecmp(ident, "vertex") == 0)
@@ -1911,9 +1940,12 @@ static void LoadUDMFVertexes(parser_t *psr)
 			// process vertex block
 			while (1)
 			{
-				if (!GetNextAssign(psr, ident, val))
+				if (!GetNextAssign(psr, (uint8_t*)ident, (uint8_t*)val))
 				{
-					if (strpbrk(psr->line, "}"))
+					uint8_t *lp = psr->line;
+					while (*lp != 0 && *lp != 0x7D)
+						lp++; // find end of line or '}'
+					if (*lp == 0x7D)
 					{
 						break; // end of block
 					}
@@ -1958,7 +1990,7 @@ static void LoadUDMFSectors(parser_t *psr)
 	psr->next = 0; // restart from start of lump
 	while (1)
 	{
-		if (!GetNextBlock(psr, ident))
+		if (!GetNextBlock(psr, (uint8_t*)ident))
 			break;
 
 		if (strcasecmp(ident, "sector") == 0)
@@ -1966,9 +1998,12 @@ static void LoadUDMFSectors(parser_t *psr)
 			// count sector blocks
 			while (1)
 			{
-				if (!GetNextAssign(psr, ident, val))
+				if (!GetNextAssign(psr, (uint8_t*)ident, (uint8_t*)val))
 				{
-					if (strpbrk(psr->line, "}"))
+					uint8_t *lp = psr->line;
+					while (*lp != 0 && *lp != 0x7D)
+						lp++; // find end of line or '}'
+					if (*lp == 0x7D)
 					{
 						numsectors++;
 						break; // end of block
@@ -1991,7 +2026,7 @@ static void LoadUDMFSectors(parser_t *psr)
 	psr->next = 0; // restart from start of lump
 	while (1)
 	{
-		if (!GetNextBlock(psr, ident))
+		if (!GetNextBlock(psr, (uint8_t*)ident))
 			break;
 
 		if (strcasecmp(ident, "sector") == 0)
@@ -2005,9 +2040,12 @@ static void LoadUDMFSectors(parser_t *psr)
 			// process sector block
 			while (1)
 			{
-				if (!GetNextAssign(psr, ident, val))
+				if (!GetNextAssign(psr, (uint8_t*)ident, (uint8_t*)val))
 				{
-					if (strpbrk(psr->line, "}"))
+					uint8_t *lp = psr->line;
+					while (*lp != 0 && *lp != 0x7D)
+						lp++; // find end of line or '}'
+					if (*lp == 0x7D)
 					{
 						break; // end of block
 					}
@@ -2049,6 +2087,8 @@ static void LoadUDMFSectors(parser_t *psr)
 				}
 
 			}
+			//I_Debugf("   sec %d: fz %f, cz %f, ft %s, ct %s, lt %d, typ %d, tag %d\n",
+			//	i, fz, cz, floor_tex, ceil_tex, light, type, tag);
 
 			sector_t *ss = sectors + i;
 
@@ -2130,7 +2170,7 @@ static void LoadUDMFSideDefs(parser_t *psr)
 	psr->next = 0; // restart from start of lump
 	while (1)
 	{
-		if (!GetNextBlock(psr, ident))
+		if (!GetNextBlock(psr, (uint8_t*)ident))
 			break;
 
 		if (strcasecmp(ident, "sidedef") == 0)
@@ -2147,9 +2187,12 @@ static void LoadUDMFSideDefs(parser_t *psr)
 			// process sidedef block
 			while (1)
 			{
-				if (!GetNextAssign(psr, ident, val))
+				if (!GetNextAssign(psr, (uint8_t*)ident, (uint8_t*)val))
 				{
-					if (strpbrk(psr->line, "}"))
+					uint8_t *lp = psr->line;
+					while (*lp != 0 && *lp != 0x7D)
+						lp++; // find end of line or '}'
+					if (*lp == 0x7D)
 					{
 						nummapsides++;
 						break; // end of block
@@ -2319,7 +2362,7 @@ static void LoadUDMFLineDefs(parser_t *psr)
 	psr->next = 0; // restart from start of lump
 	while (1)
 	{
-		if (!GetNextBlock(psr, ident))
+		if (!GetNextBlock(psr, (uint8_t*)ident))
 			break;
 
 		if (strcasecmp(ident, "linedef") == 0)
@@ -2327,9 +2370,12 @@ static void LoadUDMFLineDefs(parser_t *psr)
 			// count linedef blocks
 			while (1)
 			{
-				if (!GetNextAssign(psr, ident, val))
+				if (!GetNextAssign(psr, (uint8_t*)ident, (uint8_t*)val))
 				{
-					if (strpbrk(psr->line, "}"))
+					uint8_t *lp = psr->line;
+					while (*lp != 0 && *lp != 0x7D)
+						lp++; // find end of line or '}'
+					if (*lp == 0x7D)
 					{
 						numlines++;
 						break; // end of block
@@ -2353,7 +2399,7 @@ static void LoadUDMFLineDefs(parser_t *psr)
 	psr->next = 0; // restart from start of lump
 	while (1)
 	{
-		if (!GetNextBlock(psr, ident))
+		if (!GetNextBlock(psr, (uint8_t*)ident))
 			break;
 
 		if (strcasecmp(ident, "linedef") == 0)
@@ -2366,9 +2412,12 @@ static void LoadUDMFLineDefs(parser_t *psr)
 			// process lindef block
 			while (1)
 			{
-				if (!GetNextAssign(psr, ident, val))
+				if (!GetNextAssign(psr, (uint8_t*)ident, (uint8_t*)val))
 				{
-					if (strpbrk(psr->line, "}"))
+					uint8_t *lp = psr->line;
+					while (*lp != 0 && *lp != 0x7D)
+						lp++; // find end of line or '}'
+					if (*lp == 0x7D)
 					{
 						break; // end of block
 					}
@@ -2505,7 +2554,7 @@ static void LoadUDMFThings(parser_t *psr)
 	psr->next = 0; // restart from start of lump
 	while (1)
 	{
-		if (!GetNextBlock(psr, ident))
+		if (!GetNextBlock(psr, (uint8_t*)ident))
 			break;
 
 		if (strcasecmp(ident, "thing") == 0)
@@ -2526,9 +2575,12 @@ static void LoadUDMFThings(parser_t *psr)
 			// process thing block
 			while (1)
 			{
-				if (!GetNextAssign(psr, ident, val))
+				if (!GetNextAssign(psr, (uint8_t*)ident, (uint8_t*)val))
 				{
-					if (strpbrk(psr->line, "}"))
+					uint8_t *lp = psr->line;
+					while (*lp != 0 && *lp != 0x7D)
+						lp++; // find end of line or '}'
+					if (*lp == 0x7D)
 						break; // end of block
 					if (psr->next >= psr->length)
 						break; // end of lump
@@ -3524,7 +3576,7 @@ void P_SetupLevel(void)
 		if (!udmf_lump)
 			I_Error("Internal error: can't load UDMF lump.\n");
 		// initialize the parser
-		udmf_psr.buffer = udmf_lump;
+		udmf_psr.buffer = (uint8_t *)udmf_lump;
 		udmf_psr.length = W_LumpLength(udmf_lumpnum);
 		udmf_psr.next = 0; // start at first line
 	}
@@ -3619,7 +3671,7 @@ void P_SetupLevel(void)
 		char ident[128];
 		char value[128];
 
-		if (!GetNextAssign(&udmf_psr, ident, value) || strcasecmp(ident, "namespace"))
+		if (!GetNextAssign(&udmf_psr, (uint8_t*)ident, (uint8_t*)value) || strcasecmp(ident, "namespace"))
 			I_Error("UDMF: TEXTMAP must start with namespace assignment.\n");
 
 		if (strcasecmp(value, "doom") == 0)
