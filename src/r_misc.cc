@@ -106,6 +106,7 @@ int simple_shadows = 0;
 
 int var_invul_fx;
 
+#if 0 // testing new variant of this function
 //
 // To get a global angle from cartesian coordinates,
 // the coordinates are flipped until they are in
@@ -120,6 +121,39 @@ angle_t R_PointToAngle(float x1, float y1, float x, float y)
 	y -= y1;
 	return (x == 0) && (y == 0) ? 0 : FLOAT_2_ANG(atan2(y, x) * (180 / M_PI));
 }
+#else
+//-----------------------------------------------------------------------------
+//
+// ! Returns the pseudoangle between the line p1 to (infinity, p1.y) and the 
+// line from p1 to p2. The pseudoangle has the property that the ordering of 
+// points by true angle around p1 and ordering of points by pseudoangle are the 
+// same.
+//
+// For clipping exact angles are not needed. Only the ordering matters.
+// This is about as fast as the fixed point R_PointToAngle2 but without
+// the precision issues associated with that function.
+//
+//-----------------------------------------------------------------------------
+angle_t R_PointToAngle(float x1, float y1, float x, float y)
+{
+	float vecx = x - x1;
+	float vecy = y - y1;
+
+	if (vecx == 0 && vecy == 0)
+	{
+		return 0;
+	}
+	else
+	{
+		float result = vecy / (fabs(vecx) + fabs(vecy));
+		if (vecx < 0)
+		{
+			result = 2.f - result;
+		}
+		return (angle_t)(result * (1 << 30));
+	}
+}
+#endif
 
 
 float R_PointToDist(float x1, float y1, float x2, float y2)
