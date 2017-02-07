@@ -1890,6 +1890,7 @@ static void LoadUDMFVertexes(parser_t *psr)
 	int i = 0;
 
 	I_Debugf("LoadUDMFVertexes: parsing TEXTMAP\n");
+	numvertexes = 0;
 
 	psr->next = 0; // restart from start of lump
 	while (1)
@@ -1986,6 +1987,7 @@ static void LoadUDMFSectors(parser_t *psr)
 	int i = 0;
 
 	I_Debugf("LoadUDMFSectors: parsing TEXTMAP\n");
+	numsectors = 0;
 
 	psr->next = 0; // restart from start of lump
 	while (1)
@@ -2168,6 +2170,7 @@ static void LoadUDMFSideDefs(parser_t *psr)
 	//I_Debugf("LoadUDMFSideDefs: #sides = %d\n", numsides);
 
 	I_Debugf("LoadUDMFSideDefs: parsing TEXTMAP\n");
+	nummapsides = 0;
 
 	psr->next = 0; // restart from start of lump
 	while (1)
@@ -2360,6 +2363,7 @@ static void LoadUDMFLineDefs(parser_t *psr)
 	int i = 0;
 
 	I_Debugf("LoadUDMFLineDefs: parsing TEXTMAP\n");
+	numlines = 0;
 
 	psr->next = 0; // restart from start of lump
 	while (1)
