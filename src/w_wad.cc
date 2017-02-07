@@ -307,6 +307,8 @@ static bool within_hires_list;
 
 static int num_paks = 0;
 
+static int zmarker;
+
 byte *W_ReadLumpAlloc(int lump, int *length);
 
 //
@@ -1194,6 +1196,11 @@ static void WadNamespace(void *userData, const char *origDir, const char *fname)
 			Z_StrNCpy(tname, fname, 4);
 			marker = 1;
 		}
+		if (strncmp(tname, "TEXTMAP", 7) == 0)
+		{
+			I_Debugf("    found UDMF map file\n");
+			zmarker = 1;
+		}
 		I_Debugf("    adding wad lump %s\n", tname);
 		numlumps++;
 		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
@@ -1448,7 +1455,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 	if (1)
 	{
 		// add global lump
-		I_Printf("  opening global lump %s\n", fname);
+		I_Printf("  checking global lump %s\n", fname);
 		PHYSFS_File *file = PHYSFS_openRead(path);
 		if (!file)
 			return; // couldn't open file - skip
@@ -1503,7 +1510,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 		// make mount name for PHYSFS for this pack file
 		strcpy(pakdir, "/pack");
-		sprintf(number, "%x", num_paks);
+		sprintf(number, "%x", num_paks++);
 		strcat(pakdir, number);
 
 		startlump = numlumps;
@@ -1523,6 +1530,8 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		userData.kind = kind;
 		userData.index = (dyn_index >= 0) ? dyn_index : datafile;
 		userData.dfindex = datafile;
+
+		zmarker = 0;
 
 		PHYSFS_enumerateFilesCallback(pakdir, TopLevel, (void *)&userData);
 
@@ -1554,8 +1563,8 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		if (within_hires_list)
 			I_Warning("Missing HI_END marker in %s.\n", filename);
 
-		// check if pack has level maps
-		if (df->level_markers.GetSize() > 0)
+		// check if pack has non-UDMF level maps
+		if (df->level_markers.GetSize() > 0 && !zmarker)
 		{
 			// yes - check for existing GL node file, or make one
 			if (HasInternalGLNodes(df, datafile))
@@ -1592,6 +1601,8 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 				df->companion_gwa = datafile + 1;
 			}
 		}
+		else if (zmarker)
+			I_Printf("UDMF levels in this pack\n");
 		else
 			I_Printf("No levels in this pack\n");
 

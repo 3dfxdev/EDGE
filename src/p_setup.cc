@@ -133,7 +133,7 @@ static bool strife_level;
 // other namespaces
 static bool zdoom_level;
 static bool zdoomxlt_level;
-static bool vavoom_level;
+static bool eternity_level;
 
 static bool udmf_level;
 static int udmf_lumpnum;
@@ -1649,7 +1649,7 @@ static void LoadZNodes(int lumpnum)
 		td += 4;
 		vv->y = (float)EPI_LE_S32(*(int *)td) / 65536.0f;
 		td += 4;
-		//I_Debugf("   new vert %d: %f/%f\n", i+oVerts, vv->x, vv->y);
+		I_Debugf("   new vert %d: %f/%f\n", i+oVerts, vv->x, vv->y);
 	}
 
 	I_Debugf("LoadZNodes: Read subsectors\n");
@@ -2032,9 +2032,11 @@ static void LoadUDMFSectors(parser_t *psr)
 		if (strcasecmp(ident, "sector") == 0)
 		{
 			float cz = 0.0f, fz = 0.0f;
+			int light = 160, type = 0, tag = 0;
 			char floor_tex[10];
 			char ceil_tex[10];
-			int light = 160, type = 0, tag = 0;
+			strcpy(floor_tex, "-");
+			strcpy(ceil_tex, "-");
 
 			I_Debugf("    parsing sector %d\n", i);
 			// process sector block
@@ -3652,7 +3654,7 @@ void P_SetupLevel(void)
 	heretic_level = false;
 	hexen_level = false;
 	strife_level = false;
-	vavoom_level = false;
+	eternity_level = false;
 	wolf3d_level = false;
 	zdoom_level = false;
 	zdoomxlt_level = false;
@@ -3676,14 +3678,14 @@ void P_SetupLevel(void)
 
 		if (strcasecmp(value, "doom") == 0)
 			doom_level = true;
+		else if (strcasecmp(value, "eternity") == 0)
+			eternity_level = true;
 		else if (strcasecmp(value, "heretic") == 0)
 			heretic_level = true;
 		else if (strcasecmp(value, "hexen") == 0)
 			hexen_level = true;
 		else if (strcasecmp(value, "strife") == 0)
 			strife_level = true;
-		else if (strcasecmp(value, "vavoom") == 0)
-			vavoom_level = true;
 		else if (strcasecmp(value, "zdoom") == 0)
 			zdoom_level = true;
 		else if (strcasecmp(value, "zdoomt") == 0)
