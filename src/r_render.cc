@@ -82,7 +82,7 @@ static inline float ExFloorLerpedTop(extrafloor_t *exf)
 
 
 cvar_c debug_hom;
-
+extern cvar_c r_stretchworld;
 
 side_t *sidedef;
 line_t *linedef;
@@ -3131,9 +3131,9 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 	view_x_slope = tan(fov * M_PI / 360.0);
 
 	if (full_height)
-		view_y_slope = DOOM_YSLOPE_FULL;
+		view_y_slope = DOOM_YSLOPE_FULL * ((r_stretchworld.d == 1) ? 1.2 : 1.0);
 	else
-		view_y_slope = DOOM_YSLOPE;
+		view_y_slope = DOOM_YSLOPE * ((r_stretchworld.d == 1) ? 1.2 : 1.0);
 
 	viewiszoomed = false;
 
