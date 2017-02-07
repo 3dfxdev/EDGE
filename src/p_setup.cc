@@ -2436,6 +2436,7 @@ static void LoadUDMFLineDefs(parser_t *psr)
 			int flags = 0, v1 = 0, v2 = 0;
 			int side0 = -1, side1 = -1, tag = -1;
 			int special = 0;
+			int arg0 = 0, arg1 = 0, arg2 = 0, arg3 = 0, arg4 = 0;
 
 			I_Debugf("    parsing linedef %d\n", i);
 			// process lindef block
@@ -2473,6 +2474,26 @@ static void LoadUDMFLineDefs(parser_t *psr)
 				else if (strcasecmp(ident, "special") == 0)
 				{
 					special = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "arg0") == 0)
+				{
+					arg0 = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "arg1") == 0)
+				{
+					arg1 = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "arg2") == 0)
+				{
+					arg2 = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "arg3") == 0)
+				{
+					arg3 = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "arg4") == 0)
+				{
+					arg4 = str2int(val, 0);
 				}
 				else if (strcasecmp(ident, "sidefront") == 0)
 				{
@@ -2558,7 +2579,10 @@ static void LoadUDMFLineDefs(parser_t *psr)
 			ld->v1 = &vertexes[v1];
 			ld->v2 = &vertexes[v2];
 
-			ld->special = P_LookupLineType(MAX(0, special));
+			if (!hexen_level && !zdoom_level && !zdoomxlt_level)
+				ld->special = P_LookupLineType(MAX(0, special));
+			else
+				ld->special = (special == 0) ? NULL : linetypes.Lookup(1000 + special);
 
 			ComputeLinedefData(ld, side0, side1);
 
