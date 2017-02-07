@@ -1812,6 +1812,29 @@ static void LoadZNodes(int lumpnum)
 	}
 	delete ss_temp;
 
+	if (M_CheckParm("-fixsegs"))
+	{
+		seg_t *seg = segs;
+
+		/* fix older ZDBSP problem where it assigned wrong side to the
+		 *  segs if both sides were the same sidedef
+		 */
+		I_Debugf("LoadZNodes: fixing seg sidedefs\n");
+		for (i = 0; i < numsegs; i++, seg++)
+		{
+			if (seg->backsector == seg->frontsector && seg->linedef)
+			{
+				float d1 = P_ApproxDistance(seg->v1->x - seg->linedef->v1->x, seg->v1->y - seg->linedef->v1->y);
+				float d2 = P_ApproxDistance(seg->v2->x - seg->linedef->v1->x, seg->v2->y - seg->linedef->v1->y);
+
+				if (d2<d1)	// backside
+					seg->sidedef = seg->linedef->side[1];
+				else	// front side
+					seg->sidedef = seg->linedef->side[0];
+			}
+		}
+	}
+
 	I_Debugf("LoadZNodes: Read GL nodes\n");
 	// finally, read the nodes
 	numnodes = EPI_LE_U32(*(uint*)td);
