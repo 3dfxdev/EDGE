@@ -1282,7 +1282,8 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 					{
 						//I_Printf("z: %f, fz: %f, sz: %f\n", mo->z, mo->floorz, mo->subsector->sector->f_h);
 						mo->player->deltaviewheight = zmove / 8.0f;
-						S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo);
+						// [SP] This seems to crash, disabling for now.
+						//S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo);
 						splash = true;
 						//CA: Need to set a cooldown, and not have zmove go so far downward over time (or at all!)
 					}
