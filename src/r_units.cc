@@ -464,7 +464,7 @@ void RGL_DrawUnits(void)
 
 	glPolygonOffset(0, 0);
 
-#if 0
+#if 1
 	if (fade_color)
 	{
 
@@ -706,6 +706,7 @@ void RGL_DrawUnits(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glAlphaFunc(GL_GREATER, 0);
 
+	glDisable(GL_FOG);
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
 	glDisable(GL_CULL_FACE);
