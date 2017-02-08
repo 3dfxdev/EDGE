@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Colour Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -68,6 +68,7 @@ int var_gamma;
 
 static bool old_gamma = -1;
 
+extern int light_color;
 
 // text translation tables
 const byte *font_whitener = NULL;
@@ -217,9 +218,9 @@ void V_InitColour(void)
 	InitTranslationTables();
 }
 
-// 
+//
 // Find the closest matching colour in the palette.
-// 
+//
 int V_FindColour(int r, int g, int b)
 {
 	int i;
@@ -249,10 +250,10 @@ int V_FindColour(int r, int g, int b)
 }
 
 
-// 
+//
 // Find the best match for the pure colour.  `which' is 0 for red, 1
 // for green and 2 for blue.
-// 
+//
 static int V_FindPureColour(int which)
 {
 	int i;
@@ -338,7 +339,7 @@ static void LoadColourmap(const colourmap_c * colm)
 	data = (const byte*)W_CacheLumpNum(lump);
 
 	if ((colm->start + colm->length) * 256 > size)
-		I_Error("Colourmap [%s] is too small ! (LENGTH too big)\n", 
+		I_Error("Colourmap [%s] is too small ! (LENGTH too big)\n",
 		colm->name.c_str());
 
 	data_in = data + (colm->start * 256);
@@ -615,7 +616,7 @@ rgbcol_t V_ParseFontColor(const char *name, bool strict)
 
 	if (rgb == RGB_NO_VALUE)
 		rgb ^= 0x000101;
-	
+
 	return rgb;
 }
 
@@ -663,7 +664,7 @@ static void SetupLightMap(lighting_model_e model)
 {
 	for (i=0; i < 256; i++)
 	{
-		// Approximation of standard Doom lighting: 
+		// Approximation of standard Doom lighting:
 		// (based on side-by-side comparison)
 		//    [0,72] --> [0,16]
 		//    [72,112] --> [16,56]
@@ -789,7 +790,7 @@ private:
 		float dist = DistFromViewplane(lit_pos->x, lit_pos->y, lit_pos->z);
 
 		int L = light_lev / 4;  // need integer range 0-63
-		
+
 		v->texc[t].x = dist / 1600.0;
 		v->texc[t].y = (L + 0.5) / 64.0;
 	}
@@ -802,7 +803,7 @@ public:
 		float dist = DistFromViewplane(x, y, z);
 
 		int cmap_idx;
-		
+
 		if (lt_model >= LMODEL_Flat)
 			cmap_idx = CLAMP(0, 42-light_lev/6, 31);
 		else
@@ -870,7 +871,7 @@ private:
 
 		const byte *map = NULL;
 		int length = 32;
-		
+
  		if (colmap && colmap->length > 0)
 		{
 			map = V_GetTranslationTable(colmap);
@@ -879,7 +880,7 @@ private:
 			for (int ci = 0; ci < 32; ci++)
 			{
  				int cmap_idx = length * ci / 32;
-  
+
  				// +4 gets the white pixel -- FIXME: doom specific
  				const byte new_col = map[cmap_idx*256 + 4];
 
@@ -968,6 +969,9 @@ private:
 					dest[2] = dest[0];
 					dest[3] = 255;
 				}
+				dest[0] = dest[0] * RGB_RED(light_color) / 255;
+				dest[1] = dest[1] * RGB_GRN(light_color) / 255;
+				dest[2] = dest[2] * RGB_BLU(light_color) / 255;
 			}
 		}
 
@@ -1059,7 +1063,7 @@ void DeleteColourmapTextures(void)
 {
 	if (std_cmap_shader)
 		std_cmap_shader->DeleteTex();
-	
+
 	std_cmap_shader = NULL;
 
 	for (int i = 0; i < colourmaps.GetSize(); i++)

@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Lighting Shaders
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -117,7 +117,7 @@ static light_image_c *GetLightImage(const mobjtype_c *info, int DL)
 {
 	// Intentional Const Overrides
 	dlight_info_c *D_info = (dlight_info_c *) &info->dlight[DL];
-	
+
 	if (! D_info->cache_data)
 	{
 		// FIXME !!!! share light_image_c instances
@@ -267,9 +267,9 @@ public:
 			if (new_col != RGB_MAKE(0,0,0) && L > 1/256.0)
 			{
 				if (WhatType(DL) == DLITE_Add)
-					col->add_Give(new_col, L); 
+					col->add_Give(new_col, L);
 				else
-					col->mod_Give(new_col, L); 
+					col->mod_Give(new_col, L);
 			}
 		}
 	}
@@ -322,9 +322,9 @@ public:
 			if (new_col != RGB_MAKE(0,0,0) && L > 1/256.0)
 			{
 				if (WhatType(DL) == DLITE_Add)
-					col->add_Give(new_col, L); 
+					col->add_Give(new_col, L);
 				else
-					col->mod_Give(new_col, L); 
+					col->mod_Give(new_col, L);
 			}
 		}
 	}
@@ -471,9 +471,9 @@ public:
 			if (new_col != RGB_MAKE(0,0,0) && L > 1/256.0)
 			{
 				if (WhatType(DL) == DLITE_Add)
-					col->add_Give(new_col, L); 
+					col->add_Give(new_col, L);
 				else
-					col->mod_Give(new_col, L); 
+					col->mod_Give(new_col, L);
 			}
 		}
 	}
@@ -500,7 +500,7 @@ public:
 			dist = mod_pos->z - sec->f_h;
 		else
 			dist = sec->c_h - (mod_pos->z + mod_pos->height);
-		
+
 		dist = MAX(1.0, fabs(dist));
 
 
@@ -519,9 +519,9 @@ public:
 			if (new_col != RGB_MAKE(0,0,0) && L > 1/256.0)
 			{
 				if (WhatType(DL) == DLITE_Add)
-					col->add_Give(new_col, L); 
+					col->add_Give(new_col, L);
 				else
-					col->mod_Give(new_col, L); 
+					col->mod_Give(new_col, L);
 			}
 		}
 	}
@@ -557,7 +557,7 @@ public:
 						(is_additive && !masked) ? 0 : tex,
 						GL_MODULATE, lim[DL]->tex_id(),
 						*pass_var, blending);
-			
+
 			for (int v_idx=0; v_idx < num_vert; v_idx++)
 			{
 				local_gl_vert_t *dest = glvert + v_idx;
@@ -629,9 +629,9 @@ public:
 		if (L > 1/256.0)
 		{
 			if (mo->info->dlight[0].type == DLITE_Add)
-				col->add_Give(mo->dlight.color, L); 
+				col->add_Give(mo->dlight.color, L);
 			else
-				col->mod_Give(mo->dlight.color, L); 
+				col->mod_Give(mo->dlight.color, L);
 		}
 	}
 
@@ -716,7 +716,7 @@ public:
 		z -= s.z;
 
 		/* get perpendicular and along distances */
-		
+
 		// dot product
 		float along = x*normal.x + y*normal.y + z*normal.z;
 
@@ -747,9 +747,9 @@ public:
 			if (new_col != RGB_MAKE(0,0,0) && L > 1/256.0)
 			{
 				if (WhatType(DL) == DLITE_Add)
-					col->add_Give(new_col, L); 
+					col->add_Give(new_col, L);
 				else
-					col->mod_Give(new_col, L); 
+					col->mod_Give(new_col, L);
 			}
 		}
 	}
