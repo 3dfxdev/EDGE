@@ -61,8 +61,11 @@
 #define SHADOW_PROTOTYPE 1
 #define DEBUG  0
 
+#define SCALE_FIX ((r_fixspritescale.d == 1) ? 1.1 : 1.0)
+
 cvar_c r_spriteflip;
 cvar_c r_shadows;
+cvar_c r_fixspritescale;
 
 cvar_c r_crosshair;    // shape
 cvar_c r_crosscolor;   // 0 .. 7
@@ -1020,14 +1023,14 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 		switch (mo->info->yalign)
 		{
 			case SPYA_TopDown:
-				gzt = mo->z + mo->height + top_offset * mo->info->scale;
-				gzb = gzt - sprite_height * mo->info->scale;
+				gzt = mo->z + mo->height + top_offset * mo->info->scale / SCALE_FIX;
+				gzb = gzt - sprite_height * mo->info->scale / SCALE_FIX;
 				break;
 
 			case SPYA_Middle:
 			{
-				float mz = mo->z + mo->height * 0.5 + top_offset * mo->info->scale;
-				float dz = sprite_height * 0.5 * mo->info->scale;
+				float mz = mo->z + mo->height * 0.5 + top_offset * mo->info->scale / SCALE_FIX;
+				float dz = sprite_height * 0.5 * mo->info->scale / SCALE_FIX;
 
 				gzt = mz + dz;
 				gzb = mz - dz;
@@ -1035,8 +1038,8 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 			}
 
 			case SPYA_BottomUp: default:
-				gzb = mo->z +  top_offset * mo->info->scale;
-				gzt = gzb + sprite_height * mo->info->scale;
+				gzb = mo->z +  top_offset * mo->info->scale / SCALE_FIX;
+				gzt = gzb + sprite_height * mo->info->scale / SCALE_FIX;
 				break;
 		}
 
@@ -1384,7 +1387,7 @@ skip_shadow:
 	float tex_y1 = dthing->bottom - dthing->orig_bottom;
 	float tex_y2 = tex_y1 + (z1t - z1b);
 
-	float yscale = mo->info->scale * MIR_ZScale();
+	float yscale = mo->info->scale * MIR_ZScale() / SCALE_FIX;
 
 	SYS_ASSERT(h > 0);
 	tex_y1 = top * tex_y1 / (h * yscale);
