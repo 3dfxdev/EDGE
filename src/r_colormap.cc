@@ -682,7 +682,6 @@ static void SetupLightMap(lighting_model_e model)
 }
 #endif
 
-
 // -AJA- 1999/07/03: Rewrote this routine, since the palette handling
 // has been moved to v_colour.c/h (and made more flexible).  Later on it
 // might be good to DDF-ify all this, allowing other palette lumps and
@@ -969,6 +968,7 @@ private:
 					dest[2] = dest[0];
 					dest[3] = 255;
 				}
+				// modulate with per sector light color
 				dest[0] = dest[0] * RGB_RED(light_color) / 255;
 				dest[1] = dest[1] * RGB_GRN(light_color) / 255;
 				dest[2] = dest[2] * RGB_BLU(light_color) / 255;
@@ -1011,8 +1011,17 @@ public:
 };
 
 
-static colormap_shader_c *std_cmap_shader;
+colormap_shader_c *std_cmap_shader;
 
+
+void R_ColorMapUpdate(void)
+{
+	if(std_cmap_shader)
+	{
+		std_cmap_shader->DeleteTex();
+		std_cmap_shader->Update();
+	}
+}
 
 abstract_shader_c *R_GetColormapShader(const struct region_properties_s *props,
 		int light_add)

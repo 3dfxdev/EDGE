@@ -99,6 +99,7 @@ int doom_fading = 1;
 
 int light_color;
 int fade_color;
+static int last_light = 0;
 
 float view_x_slope;
 float view_y_slope;
@@ -2649,9 +2650,6 @@ static void RGL_WalkSubsector(int num)
 	cur_sub = sub;
 	sector = cur_sub->sector;
 
-	light_color = sector->lightcolor;
-	fade_color = sector->fadecolor;
-
 	drawsub_c *K = R_GetDrawSub();
 	K->Clear(sub);
 
@@ -2666,6 +2664,14 @@ static void RGL_WalkSubsector(int num)
 	if (IS_SKY(cur_sub->sector->ceil) && viewz < cur_sub->sector->sky_h)
 	{
 		RGL_DrawSkyPlane(cur_sub, cur_sub->sector->sky_h);
+	}
+
+	light_color = sector->lightcolor;
+	fade_color = sector->fadecolor;
+	if (light_color != last_light)
+	{
+		last_light = light_color;
+		R_ColorMapUpdate();
 	}
 
 	// add in each extrafloor, traversing strictly upwards

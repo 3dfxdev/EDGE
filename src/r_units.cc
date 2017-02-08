@@ -42,6 +42,15 @@
 #include "r_texgl.h"
 #include "r_shader.h"
 #include "r_bumpmap.h"
+#include "r_colormap.h"
+
+// define to enable light color and fog per sector code
+#define USE_FOG
+
+#ifdef USE_FOG
+extern int light_color;
+extern int fade_color;
+#endif
 
 cvar_c r_colorlighting;
 cvar_c r_colormaterial;
@@ -427,8 +436,6 @@ void calc_tan(local_gl_vert_t* v1,local_gl_vert_t* v2,local_gl_vert_t* v3) {
 	v1->tangent.z= r*( d_pos1.z * d_uv2.y - d_pos2.z * d_uv1.y );
 }
 
-extern int fade_color;
-
 //
 // RGL_DrawUnits
 //
@@ -464,7 +471,7 @@ void RGL_DrawUnits(void)
 
 	glPolygonOffset(0, 0);
 
-#if 1
+#ifdef USE_FOG
 	if (fade_color)
 	{
 
@@ -706,7 +713,9 @@ void RGL_DrawUnits(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glAlphaFunc(GL_GREATER, 0);
 
+#ifdef USE_FOG
 	glDisable(GL_FOG);
+#endif
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
 	glDisable(GL_CULL_FACE);
