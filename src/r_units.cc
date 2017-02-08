@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 OpenGL Rendering (Unit batching)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -222,7 +222,7 @@ static inline void myMultiTexCoord2f(GLuint id, GLfloat s, GLfloat t)
 // contains "holes" (like sprites).  `blended' should be true if the
 // texture should be blended (like for translucent water or sprites).
 //
-local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert, 
+local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert,
 		                       GLuint env1, GLuint tex1,
 							   GLuint env2, GLuint tex2,
 							   int pass, int blending)
@@ -427,6 +427,8 @@ void calc_tan(local_gl_vert_t* v1,local_gl_vert_t* v2,local_gl_vert_t* v3) {
 	v1->tangent.z= r*( d_pos1.z * d_uv2.y - d_pos2.z * d_uv1.y );
 }
 
+extern int fade_color;
+
 //
 // RGL_DrawUnits
 //
@@ -462,33 +464,25 @@ void RGL_DrawUnits(void)
 
 	glPolygonOffset(0, 0);
 
-#if 0
-	//glClearColor(0.0f,0.0f,0.01,0.0f);          // We'll Clear To The Color Of The Fog ( Modified )
-	//float fog_col[4] = { 0, 0, 0.1, 0};
-	
-   // glEnable(GL_FOG);                   // Enables GL_FOG
-	//glFogi(GL_FOG_MODE, GL_LINEAR);        // Fog Mode
-	//glFogf(GL_FOG_DENSITY, 0.001f);              // How Dense Will The Fog Be
-	//glHint(GL_FOG_HINT, GL_NICEST);	// Fog Hint Value
-	//glFogfv(GL_FOG_COLOR, fog_col);            // Set Fog Color
-	//glFogf(GL_FOG_START, 0.01f);             // Fog Start Depth
-	//glFogf(GL_FOG_END, 5.0f);               // Fog End Depth
-	float fog_col[4] = { 0, 139, 1, 0};
+#if 1
+	if (fade_color)
+	{
 
-    glEnable(GL_FOG);                   // Enables GL_FOG
-	glFogi(GL_FOG_MODE, GL_EXP2);        // Fog Mode
-	glFogf(GL_FOG_DENSITY, 0.0005f);              // How Dense Will The Fog Be
-	glFogfv(GL_FOG_COLOR, fog_col);            // Set Fog Color
-	glHint(GL_FOG_HINT, GL_NICEST);          // Fog Hint Value
-	//glFogf(GL_FOG_START, 1.0f);             // Fog Start Depth
-	//glFogf(GL_FOG_END, 5.0f);               // Fog End Depth
-	
-	//float fog_col[4] = { 0, 0, 0.1, 0};
-	
-	//glEnable(GL_FOG);
-	//glFogi(GL_FOG_MODE, GL_EXP);
-	//glFogf(GL_FOG_DENSITY, 0.6f); //0.0001
-	//glFogfv(GL_FOG_COLOR, fog_col);
+		float fog_col[4];
+		fog_col[0] = (float)((fade_color >> 16) & 255) / 255.0f;
+		fog_col[1] = (float)((fade_color >> 8) & 255) / 255.0f;
+		fog_col[2] = (float)(fade_color & 255) / 255.0f;
+		fog_col[3] = 1.0f;
+
+		glClearColor(0.5f,0.5f,0.5f,1.0f);   // We'll Clear To The Color Of The Fog ( Modified )
+		glFogi(GL_FOG_MODE, GL_EXP2);        // Fog Mode
+		glFogf(GL_FOG_DENSITY, 0.002f);      // How Dense Will The Fog Be
+		glFogfv(GL_FOG_COLOR, fog_col);      // Set Fog Color
+		glHint(GL_FOG_HINT, GL_NICEST);      // Fog Hint Value
+		glFogf(GL_FOG_START, 1.0f);          // Fog Start Depth
+		glFogf(GL_FOG_END, 5.0f);            // Fog End Depth
+		glEnable(GL_FOG);                    // Enables GL_FOG
+	}
 #endif
 
 	for (int j=0; j < cur_unit; j++)

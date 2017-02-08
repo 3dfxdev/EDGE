@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Rendering Definitions Header
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -75,7 +75,7 @@ struct region_properties_s;
 // part is that we only need to unlink the node from the sector list
 // (and relink) if the sector in that node is different.  Thus saving
 // work for the common case where the sector(s) don't change.
-// 
+//
 // CAVEAT: this means that very little should be done in between
 // P_UnsetThingPos and P_SetThingPos calls, ideally just load some new
 // x/y position.  Avoid especially anything that scans the sector
@@ -134,7 +134,7 @@ region_properties_t;
 //
 //   tx = wx * x_mat.x + wy * x_mat.y
 //   ty = wx * y_mat.x + wy * y_mat.y
-// 
+//
 typedef struct surface_s
 {
 	const image_c *image;
@@ -167,7 +167,7 @@ typedef struct extrafloor_s
 	// bottom_h as the reference.  This is important, especially when a
 	// liquid extrafloor overlaps a solid one: using this rule, the
 	// liquid region will be higher than the solid one.
-	// 
+	//
 	struct extrafloor_s *higher;
 	struct extrafloor_s *lower;
 
@@ -179,7 +179,7 @@ typedef struct extrafloor_s
     // extrafloor.
     //
 	float top_h, bottom_h;
-	
+
 	//Last gametic top and bottom of floor, for interpolation
 	float last_top_h, last_bottom_h;
 
@@ -206,7 +206,7 @@ typedef struct extrafloor_s
 extrafloor_t;
 
 // Vertical gap between a floor & a ceiling.
-// -AJA- 1999/07/19. 
+// -AJA- 1999/07/19.
 //
 typedef struct
 {
@@ -269,9 +269,9 @@ typedef struct sector_s
     // properties that are active for this sector (top-most extrafloor).
     // This may be different than the sector's actual properties (the
     // "props" field) due to flooders.
-    // 
+    //
 	region_properties_t *p;
- 
+
  	// slope information, normally NULL
 	slope_plane_t *f_slope;
 	slope_plane_t *c_slope;
@@ -280,7 +280,7 @@ typedef struct sector_s
 	// that this sector is not a controller.
 	//
 	extrafloor_t *control_floors;
- 
+
 	// movement thinkers, for quick look-up
 	struct plane_move_s *floor_move;
 	struct plane_move_s *ceil_move;
@@ -299,17 +299,17 @@ typedef struct sector_s
 
 	// touch list: objects in or touching this sector
 	touch_node_t *touch_things;
-    
+
 	// list of sector glow things (linked via dlnext/dlprev)
 	mobj_t *glow_things;
-	
+
 	// sky height for GL renderer
 	float sky_h;
- 
+
 	// keep track of vertical sight gaps within the sector.  This is
 	// just a much more convenient form of the info in the extrafloor
 	// list.
-	// 
+	//
 	short max_gaps;
 	short sight_gap_num;
 
@@ -324,6 +324,10 @@ typedef struct sector_s
 
 	// -AJA- 2000/03/30: Keep a list of child subsectors.
 	struct subsector_s *subsectors;
+
+	// -CW- 2017/02/07: light and fade vars for UDMF
+	int lightcolor;
+	int fadecolor;
 }
 sector_t;
 
@@ -445,7 +449,7 @@ typedef struct subsector_s
 {
 	// link in sector list
 	struct subsector_s *sec_next;
-  
+
 	sector_t *sector;
 	struct seg_s *segs;
 
@@ -480,7 +484,7 @@ typedef struct seg_s
 	// link in subsector list.
 	// (NOTE: sorted in clockwise order)
 	struct seg_s *sub_next;
-  
+
 	// -AJA- 1999/12/20: Reference to partner seg, or NULL if the seg
 	//       lies along a one-sided line.
 	struct seg_s *partner;
@@ -490,7 +494,7 @@ typedef struct seg_s
 	//       (Addendum: back_sub is obsolete with new `partner' field)
 	subsector_t *front_sub;
 	subsector_t *back_sub;
-  
+
 	// -AJA- 1999/09/23: For "True BSP rendering", we keep track of the
 	//       `minisegs' which define all the non-wall borders of the
 	//       subsector.  Thus all the segs (normal + mini) define a

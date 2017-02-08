@@ -80,6 +80,7 @@ extern void TinyBSP(void); /// Add #IFDEF DREAMCAST TO REMOVE GLBSP LINKAGE
 //
 int numvertexes;
 vec2_t *vertexes;
+vec2_t *zvertexes;
 
 int num_gl_vertexes;
 vec2_t *gl_vertexes;
@@ -1949,6 +1950,7 @@ static void LoadUDMFVertexes(parser_t *psr)
 	}
 
 	vertexes = new vec2_t[numvertexes];
+	zvertexes = new vec2_t[numvertexes];
 
 	psr->next = 0; // restart from start of lump
 	while (1)
@@ -2057,7 +2059,11 @@ static void LoadUDMFSectors(parser_t *psr)
 		if (strcasecmp(ident, "sector") == 0)
 		{
 			float cz = 0.0f, fz = 0.0f;
-			int light = 160, type = 0, tag = 0;
+			float rc = 0.0f, rf = 0.0f;
+			float xpf = 0.0f, ypf = 0.0f, xpc = 0.0f, ypc = 0.0f;
+			float xsf = 1.0f, ysf = 1.0f, xsc = 1.0f, ysc = 1.0f;
+			float grav = 1.0f;
+			int light = 160, lc = 0x00FFFFFF, fc = 0, type = 0, tag = 0;
 			char floor_tex[10];
 			char ceil_tex[10];
 			strcpy(floor_tex, "-");
@@ -2092,6 +2098,50 @@ static void LoadUDMFSectors(parser_t *psr)
 				{
 					cz = str2float(val, 0.0f);
 				}
+				else if (strcasecmp(ident, "xpanningfloor") == 0)
+				{
+					xpf = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "ypanningfloor") == 0)
+				{
+					ypf = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "xpanningceiling") == 0)
+				{
+					xpc = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "ypanningceiling") == 0)
+				{
+					ypc = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "xscalefloor") == 0)
+				{
+					xsf = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "yscalefloor") == 0)
+				{
+					ysf = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "xscaleceiling") == 0)
+				{
+					xsc = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "yscaleceiling") == 0)
+				{
+					ysc = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "rotationfloor") == 0)
+				{
+					rf = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "rotationceiling") == 0)
+				{
+					rc = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "gravity") == 0)
+				{
+					grav = str2float(val, 1.0f);
+				}
 				else if (strcasecmp(ident, "texturefloor") == 0)
 				{
 					Z_StrNCpy(floor_tex, val, 8);
@@ -2103,6 +2153,14 @@ static void LoadUDMFSectors(parser_t *psr)
 				else if (strcasecmp(ident, "lightlevel") == 0)
 				{
 					light = str2int(val, 160);
+				}
+				else if (strcasecmp(ident, "lightcolor") == 0)
+				{
+					lc = str2int(val, 0x00FFFFFF);
+				}
+				else if (strcasecmp(ident, "fadecolor") == 0)
+				{
+					fc = str2int(val, 0);
 				}
 				else if (strcasecmp(ident, "special") == 0)
 				{
@@ -2130,10 +2188,16 @@ static void LoadUDMFSectors(parser_t *psr)
 			}
 
 			ss->floor.translucency = VISIBLE;
-			ss->floor.x_mat.x = 1;  ss->floor.x_mat.y = 0;
-			ss->floor.y_mat.x = 0;  ss->floor.y_mat.y = 1;
+			ss->floor.x_mat.x = xsf * cosf(rf * 0.0174533f);  ss->floor.x_mat.y = -ysf * sinf(rf * 0.0174533f);
+			ss->floor.y_mat.x = xsf * sinf(rf * 0.0174533f);  ss->floor.y_mat.y = ysf * cosf(rf * 0.0174533f);
+			ss->floor.offset.x = xpf;
+			ss->floor.offset.y = ypf;
 
-			ss->ceil = ss->floor;
+			ss->ceil.translucency = VISIBLE;
+			ss->ceil.x_mat.x = xsc * cosf(rc * 0.0174533f);  ss->ceil.x_mat.y = -ysc * sinf(rc * 0.0174533f);
+			ss->ceil.y_mat.x = xsc * sinf(rc * 0.0174533f);  ss->ceil.y_mat.y = ysc * cosf(rc * 0.0174533f);
+			ss->ceil.offset.x = xpc;
+			ss->ceil.offset.y = ypc;
 
 			ss->floor.image = W_ImageLookup(floor_tex, INS_Flat);
 			ss->ceil.image = W_ImageLookup(ceil_tex, INS_Flat);
@@ -2162,12 +2226,15 @@ static void LoadUDMFSectors(parser_t *psr)
 
 			ss->props.colourmap = NULL;
 
-			ss->props.gravity   = GRAVITY;
+			ss->props.gravity   = grav * GRAVITY;
 			ss->props.friction  = FRICTION;
 			ss->props.viscosity = VISCOSITY;
 			ss->props.drag      = DRAG;
 
 			ss->p = &ss->props;
+
+			ss->lightcolor = lc;
+			ss->fadecolor = fc;
 
 			ss->sound_player = -1;
 
@@ -2204,6 +2271,8 @@ static void LoadUDMFSideDefs(parser_t *psr)
 		if (strcasecmp(ident, "sidedef") == 0)
 		{
 			int x = 0, y = 0, sec_num = 0;
+			float bx = 0.0f, by = 0.0f, mx = 0.0f, my = 0.0f, tx = 0.0f, ty = 0.0f;
+			float bxs = 1.0f, bys = 1.0f, mxs = 1.0f, mys = 1.0f, txs = 1.0f, tys = 1.0f;
 			char top_tex[10];
 			char bottom_tex[10];
 			char middle_tex[10];
@@ -2242,6 +2311,54 @@ static void LoadUDMFSideDefs(parser_t *psr)
 				{
 					y = str2int(val, 0);
 				}
+				else if (strcasecmp(ident, "offsetx_bottom") == 0)
+				{
+					bx = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "offsety_bottom") == 0)
+				{
+					by = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "offsetx_mid") == 0)
+				{
+					mx = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "offsety_mid") == 0)
+				{
+					my = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "offsetx_top") == 0)
+				{
+					tx = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "offsety_top") == 0)
+				{
+					ty = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "scalex_bottom") == 0)
+				{
+					bxs = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "scaley_bottom") == 0)
+				{
+					bys = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "scalex_mid") == 0)
+				{
+					mxs = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "scaley_mid") == 0)
+				{
+					mys = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "scalex_top") == 0)
+				{
+					txs = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "scaley_top") == 0)
+				{
+					tys = str2float(val, 1.0f);
+				}
 				else if (strcasecmp(ident, "texturetop") == 0)
 				{
 					Z_StrNCpy(top_tex, val, 8);
@@ -2268,11 +2385,23 @@ static void LoadUDMFSideDefs(parser_t *psr)
 			sd->top.translucency = VISIBLE;
 			sd->top.offset.x = x;
 			sd->top.offset.y = y;
-			sd->top.x_mat.x = 1;  sd->top.x_mat.y = 0;
-			sd->top.y_mat.x = 0;  sd->top.y_mat.y = 1;
 
 			sd->middle = sd->top;
 			sd->bottom = sd->top;
+
+			sd->top.offset.x += tx;
+			sd->top.offset.y += ty;
+			sd->middle.offset.x += mx;
+			sd->middle.offset.y += my;
+			sd->bottom.offset.x += bx;
+			sd->bottom.offset.y += by;
+
+			sd->top.x_mat.x = txs;  sd->top.x_mat.y = 0;
+			sd->top.y_mat.x = 0;  sd->top.y_mat.y = tys;
+			sd->middle.x_mat.x = mxs;  sd->middle.x_mat.y = 0;
+			sd->middle.y_mat.x = 0;  sd->middle.y_mat.y = mys;
+			sd->bottom.x_mat.x = bxs;  sd->bottom.x_mat.y = 0;
+			sd->bottom.y_mat.x = 0;  sd->bottom.y_mat.y = bys;
 
 			sd->sector = &sectors[sec_num];
 
@@ -3558,6 +3687,9 @@ void P_ShutdownLevel(void)
 
 	delete[] vertexes;
 	vertexes = NULL;
+
+	delete[] zvertexes;
+	zvertexes = NULL;
 
 	delete[] sides;
 	sides = NULL;
