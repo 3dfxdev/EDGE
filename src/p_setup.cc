@@ -3312,85 +3312,6 @@ static void SetupVertGaps(void)
 	SYS_ASSERT(cur_gap == (vertgaps + numvertgaps));
 }
 
-static void SetupVertexSlopes(void)
-{
-	int i, j, k;
-
-	for (i=0; i<numsectors; i++)
-	{
-		sector_t *sec = sectors + i;
-		line_t *ld = NULL;
-		int v1i, v2i;
-		vec2_t *zv1, *zv2;
-
-		for (j=0; j<sec->linecount; j++)
-		{
-			ld = sec->lines[j];
-			v1i = ld->v1 - vertexes;
-			v2i = ld->v2 - vertexes;
-			zv1 = zvertexes + v1i;
-			zv2 = zvertexes + v2i;
-			if (zv1->x > -1000000.0f && zv2->x > -1000000.0f)
-				break;
-			ld = NULL;
-		}
-		//I_Debugf("    sec %d, line %d, zv1 %f, zv2 %f\n", i, j, zv1->x, zv2->x);
-
-		if (ld == NULL)
-			continue;
-
-		// determine slope's 2D coordinates
-		float d_close = 0;
-		float d_far   = 0;
-
-		float nx =  ld->dy / ld->length;
-		float ny = -ld->dx / ld->length;
-
-		float dz1 = (zv1->x - sec->f_h);
-		float dz2 = (zv2->x - sec->f_h);
-
-		if (sec == ld->backsector)
-		{
-			nx = -nx;
-			ny = -ny;
-		}
-
-		for (k = 0; k < sec->linecount; k++)
-		{
-			for (int vert = 0; vert < 2; vert++)
-			{
-				vec2_t *V = (vert == 0) ? sec->lines[k]->v1 : sec->lines[k]->v2;
-
-				float dist = nx * (V->x - ld->v1->x) +
-							 ny * (V->y - ld->v1->y);
-
-				d_close = MIN(d_close, dist);
-				d_far   = MAX(d_far,   dist);
-			}
-		}
-
-		L_WriteDebug("Vertex slope in sec #%d: nx %f, ny %f, dists %f -> %f\n", sec - sectors, nx, ny, d_close, d_far);
-
-		if (d_far - d_close < 0.5)
-		{
-			I_Warning("Vertex slope in sector #%d too small\n", sec - sectors);
-			return;
-		}
-
-		slope_plane_t *result = new slope_plane_t;
-
-		result->x1  = ld->v1->x + nx * d_close;
-		result->y1  = ld->v1->y + ny * d_close;
-		result->dz1 = dz1;
-
-		result->x2  = ld->v1->x + nx * d_far;
-		result->y2  = ld->v1->y + ny * d_far;
-		result->dz2 = dz2;
-
-		sec->f_slope = result;
-	}
-}
-
 static void DetectDeepWaterTrick(void)
 {
 	byte *self_subs = new byte[numsubsectors];
@@ -4026,9 +3947,6 @@ void P_SetupLevel(void)
 	DoBlockMap(); // BLOCKMAP lump ignored
 
 	GroupLines();
-
-	if (udmf_level)
-		SetupVertexSlopes();
 
 	DetectDeepWaterTrick();
 

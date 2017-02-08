@@ -2478,6 +2478,17 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 			float x = seg->v1->x;
 			float y = seg->v1->y;
 			float z = h;
+			int vi = seg->v1 - vertexes;
+
+			if (face_dir > 0 && dfloor->is_lowest)
+				if (vi >= 0 && vi < numvertexes)
+					if (zvertexes[vi].x > -1000000.0f)
+						z = zvertexes[vi].x;
+
+			if (face_dir < 0 && dfloor->is_highest)
+				if (vi >= 0 && vi < numvertexes)
+					if (zvertexes[vi].y > -1000000.0f)
+						z = zvertexes[vi].y;
 
 			// must do this before mirror adjustment
 			M_AddToBox(v_bbox, x, y);
