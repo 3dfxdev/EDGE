@@ -464,14 +464,14 @@ void RGL_DrawUnits(void)
 
 	glPolygonOffset(0, 0);
 
-#if 1
+#if 0
 	if (fade_color)
 	{
 
 		float fog_col[4];
-		fog_col[0] = (float)((fade_color >> 16) & 255) / 255.0f;
-		fog_col[1] = (float)((fade_color >> 8) & 255) / 255.0f;
-		fog_col[2] = (float)(fade_color & 255) / 255.0f;
+		fog_col[0] = (float)RGB_RED(fade_color) / 255.0f;
+		fog_col[1] = (float)RGB_GRN(fade_color) / 255.0f;
+		fog_col[2] = (float)RGB_BLU(fade_color) / 255.0f;
 		fog_col[3] = 1.0f;
 
 		glClearColor(0.5f,0.5f,0.5f,1.0f);   // We'll Clear To The Color Of The Fog ( Modified )
