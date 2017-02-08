@@ -82,7 +82,7 @@ static inline float ExFloorLerpedTop(extrafloor_t *exf)
 
 
 cvar_c debug_hom;
-extern cvar_c r_stretchworld;
+
 
 side_t *sidedef;
 line_t *linedef;
@@ -97,6 +97,8 @@ int use_dlights = 0;
 
 int doom_fading = 1;
 
+int light_color;
+int fade_color;
 
 float view_x_slope;
 float view_y_slope;
@@ -2636,6 +2638,9 @@ static void RGL_WalkSubsector(int num)
 	cur_sub = sub;
 	sector = cur_sub->sector;
 
+	light_color = sector->lightcolor;
+	fade_color = sector->fadecolor;
+
 	drawsub_c *K = R_GetDrawSub();
 	K->Clear(sub);
 
@@ -3131,9 +3136,9 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 	view_x_slope = tan(fov * M_PI / 360.0);
 
 	if (full_height)
-		view_y_slope = DOOM_YSLOPE_FULL * ((r_stretchworld.d == 1) ? 1.2 : 1.0);
+		view_y_slope = DOOM_YSLOPE_FULL;
 	else
-		view_y_slope = DOOM_YSLOPE * ((r_stretchworld.d == 1) ? 1.2 : 1.0);
+		view_y_slope = DOOM_YSLOPE;
 
 	viewiszoomed = false;
 
