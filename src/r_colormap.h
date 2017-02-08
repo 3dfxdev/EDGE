@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Colour Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -61,6 +61,7 @@ int V_FindColour(int r, int g, int b);
 void V_SetPalette(int type, float amount);
 void V_ColourNewFrame(void);
 void R_PaletteStuff(void);
+void R_ColorMapUpdate(void);
 
 
 #define PAL_RED(pix)  ((float)(playpal_data[0][pix][0]) / 255.0f)
