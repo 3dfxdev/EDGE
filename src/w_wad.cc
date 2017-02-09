@@ -1420,6 +1420,11 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			// enumerate all entries in the sounds directory
 			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
 		}
+		else if (stricmp(fname, "scripts") == 0)
+		{
+			// recurse scripts subdirectory to TopLevel
+			PHYSFS_enumerateFilesCallback(path, TopLevel, userData);
+		}
 		else if (strncasecmp(fname, "root", 4) == 0)
 		{
 			// recurse root subdirectory to TopLevel
