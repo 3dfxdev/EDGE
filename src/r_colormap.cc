@@ -754,6 +754,7 @@ private:
 
 	int light_lev;
 	int light_color;
+	float desat_lev;
 
 	GLuint fade_tex;
 	GLuint fade_que[16];
@@ -767,7 +768,7 @@ private:
 
 public:
 	colormap_shader_c(const colourmap_c *CM) : colmap(CM),
-		light_lev(255), fade_tex(0),
+		light_lev(255), light_color(0), desat_lev(0.0f), fade_tex(0),
 		simple_cmap(true), lt_model(LMODEL_Doom)
 	{
 		for (int i=0; i<16; i++)
@@ -849,7 +850,7 @@ public:
 	{
 		local_gl_vert_t * glvert = RGL_BeginUnit(shape, num_vert,
 				GL_MODULATE, tex,
-				(simple_cmap || r_dumbmulti.d) ? GL_MODULATE : GL_DECAL,
+				(desat_lev > 0.1f) ? GL_DECAL : (simple_cmap || r_dumbmulti.d) ? GL_MODULATE : GL_DECAL,
 				fade_tex, *pass_var, blending);
 
 		for (int v_idx=0; v_idx < num_vert; v_idx++)
@@ -980,6 +981,14 @@ private:
 				dest[0] = dest[0] * RGB_RED(light_color) / 255;
 				dest[1] = dest[1] * RGB_GRN(light_color) / 255;
 				dest[2] = dest[2] * RGB_BLU(light_color) / 255;
+				// simulate desaturation
+				if (desat_lev > 0.1f)
+				{
+					dest[0] = dest[0] / 4;
+					dest[1] = dest[1] / 4;
+					dest[2] = dest[2] / 4;
+					dest[3] = 255 * (desat_lev - 0.1f);
+				}
 			}
 		}
 
@@ -1062,6 +1071,11 @@ public:
 	{
 		light_color = _color;
 	}
+
+	void SetDesaturation(float _level)
+	{
+		desat_lev = _level;
+	}
 };
 
 
@@ -1070,22 +1084,10 @@ colormap_shader_c *std_cmap_shader;
 
 void R_ColorMapUpdate(int col, float desat)
 {
-	int ds = (int)(255.0f * desat);
-	int ids = (int)(255.0f * (1.0f - desat));
-	int r = RGB_RED(col);
-	int g = RGB_GRN(col);
-	int b = RGB_BLU(col);
-	int i = ((r * 77 + g * 143 + b * 37) * ds) >> 8;
-	r = (r * ids + i) >> 8;
-	g = (g * ids + i) >> 8;
-	b = (b * ids + i) >> 8;
-	int lc = (r << 16) | (g << 8) | b;
-
-	//I_Debugf("R_ColorMapUpdate: %x, %f, %x\n", col, desat, lc);
-
 	if(std_cmap_shader)
 	{
-		std_cmap_shader->SetLightColor(lc);
+		std_cmap_shader->SetLightColor(col | ((int)(desat * 127.0f) << 24));
+		std_cmap_shader->SetDesaturation(desat);
 		std_cmap_shader->ClearTex();
 		std_cmap_shader->Update();
 	}
