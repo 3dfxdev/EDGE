@@ -328,6 +328,7 @@ typedef struct sector_s
 	// -CW- 2017/02/07: light and fade vars for UDMF
 	int lightcolor;
 	int fadecolor;
+	int desaturation;
 }
 sector_t;
 

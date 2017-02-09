@@ -97,9 +97,7 @@ int use_dlights = 0;
 
 int doom_fading = 1;
 
-int light_color;
 int fade_color;
-static int last_light = 0;
 
 float view_x_slope;
 float view_y_slope;
@@ -953,6 +951,8 @@ static void DLIT_Wall(mobj_t *mo, void *dataptr)
 			return;
 	}
 
+	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
+
 	SYS_ASSERT(mo->dlight.shader);
 
 	int blending = (data->blending & ~BL_Alpha) | BL_Add;
@@ -965,6 +965,8 @@ static void DLIT_Wall(mobj_t *mo, void *dataptr)
 static void GLOWLIT_Wall(mobj_t *mo, void *dataptr)
 {
 	wall_coord_data_t *data = (wall_coord_data_t *)dataptr;
+
+	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
 
 	SYS_ASSERT(mo->dlight.shader);
 
@@ -994,6 +996,8 @@ static void DLIT_Plane(mobj_t *mo, void *dataptr)
 
 	// NOTE: distance already checked in P_DynamicLightIterator
 
+	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
+
 	SYS_ASSERT(mo->dlight.shader);
 
 	int blending = (data->blending & ~BL_Alpha) | BL_Add;
@@ -1006,6 +1010,8 @@ static void DLIT_Plane(mobj_t *mo, void *dataptr)
 static void GLOWLIT_Plane(mobj_t *mo, void *dataptr)
 {
 	plane_coord_data_t *data = (plane_coord_data_t *)dataptr;
+
+	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
 
 	SYS_ASSERT(mo->dlight.shader);
 
@@ -1272,6 +1278,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	data.trans = trans;
 	data.mid_masked = mid_masked;
 
+	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
 
 	abstract_shader_c *cmap_shader = R_GetColormapShader(props, lit_adjust);
 
@@ -1799,6 +1806,8 @@ static void DLIT_Flood(mobj_t *mo, void *dataptr)
 			data->vert[col*2 + 1].Set(x, y, z + data->dh / data->piece_row);
 		}
 
+		R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
+
 		mo->dlight.shader->WorldMix(GL_QUAD_STRIP, data->v_count,
 				data->tex_id, 1.0, &data->pass, blending, false,
 				data, FloodCoordFunc);
@@ -1923,6 +1932,8 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 		data.R = (64 + 190 * (row & 1)) / 255.0;
 		data.B = (64 + 90 * (row & 2))  / 255.0;
 #endif
+
+		R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
 
 		cmap_shader->WorldMix(GL_QUAD_STRIP, data.v_count,
 				data.tex_id, 1.0, &data.pass, BL_NONE, false,
@@ -2482,12 +2493,12 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 			int vi = seg->v1 - vertexes;
 
 			if (face_dir > 0 && dfloor->is_lowest)
-				if (vi >= 0 && vi < numvertexes)
+				if (vi >= 0 && vi < numvertexes && zvertexes)
 					if (zvertexes[vi].x > -1000000.0f)
 						z = zvertexes[vi].x;
 
 			if (face_dir < 0 && dfloor->is_highest)
-				if (vi >= 0 && vi < numvertexes)
+				if (vi >= 0 && vi < numvertexes && zvertexes)
 					if (zvertexes[vi].y > -1000000.0f)
 						z = zvertexes[vi].y;
 
@@ -2552,6 +2563,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	data.trans = trans;
 	data.slope = slope;
 
+	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
 
 	abstract_shader_c *cmap_shader = R_GetColormapShader(props);
 
@@ -2666,13 +2678,8 @@ static void RGL_WalkSubsector(int num)
 		RGL_DrawSkyPlane(cur_sub, cur_sub->sector->sky_h);
 	}
 
-	light_color = sector->lightcolor;
+	// set the fog color
 	fade_color = sector->fadecolor;
-	if (light_color != last_light)
-	{
-		last_light = light_color;
-		R_ColorMapUpdate();
-	}
 
 	// add in each extrafloor, traversing strictly upwards
 	floor_s = &sector->floor;

@@ -946,6 +946,9 @@ static void LoadSectors(int lump)
 
 		ss->p = &ss->props;
 
+		ss->lightcolor = 0x00FFFFFF;
+		ss->desaturation = 0.0f;
+
 		ss->sound_player = -1;
 
 		// -AJA- 1999/07/29: Keep sectors with same tag in a list.
@@ -2075,7 +2078,7 @@ static void LoadUDMFSectors(parser_t *psr)
 			float rc = 0.0f, rf = 0.0f;
 			float xpf = 0.0f, ypf = 0.0f, xpc = 0.0f, ypc = 0.0f;
 			float xsf = 1.0f, ysf = 1.0f, xsc = 1.0f, ysc = 1.0f;
-			float grav = 1.0f;
+			float desat = 0.0f, grav = 1.0f;
 			int light = 160, lc = 0x00FFFFFF, fc = 0, type = 0, tag = 0;
 			char floor_tex[10];
 			char ceil_tex[10];
@@ -2183,10 +2186,14 @@ static void LoadUDMFSectors(parser_t *psr)
 				{
 					tag = str2int(val, 0);
 				}
+				else if (strcasecmp(ident, "desaturation") == 0)
+				{
+					desat = str2float(val, 0.0f);
+				}
 
 			}
-			//I_Debugf("   sec %d: fz %f, cz %f, ft %s, ct %s, lt %d, typ %d, tag %d\n",
-			//	i, fz, cz, floor_tex, ceil_tex, light, type, tag);
+			//I_Debugf("   sec %d: fz %f, cz %f, ft %s, ct %s, lt %d, typ %d, tag %d, dsat %f\n",
+			//	i, fz, cz, floor_tex, ceil_tex, light, type, tag, desat);
 
 			sector_t *ss = sectors + i;
 
@@ -2248,6 +2255,7 @@ static void LoadUDMFSectors(parser_t *psr)
 
 			ss->lightcolor = lc;
 			ss->fadecolor = fc;
+			ss->desaturation = desat;
 
 			ss->sound_player = -1;
 
@@ -3701,7 +3709,8 @@ void P_ShutdownLevel(void)
 	delete[] vertexes;
 	vertexes = NULL;
 
-	delete[] zvertexes;
+	if (zvertexes)
+		delete[] zvertexes;
 	zvertexes = NULL;
 
 	delete[] sides;

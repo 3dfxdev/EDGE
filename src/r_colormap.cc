@@ -68,8 +68,6 @@ int var_gamma;
 
 static bool old_gamma = -1;
 
-extern int light_color;
-
 // text translation tables
 const byte *font_whitener = NULL;
 const colourmap_c *font_whiten_map = NULL;
@@ -755,8 +753,12 @@ private:
 	const colourmap_c *colmap;
 
 	int light_lev;
+	int light_color;
 
 	GLuint fade_tex;
+	GLuint fade_que[16];
+	int fade_key[16];
+	int fade_cnt[16];
 
 	bool simple_cmap;
 	lighting_model_e lt_model;
@@ -767,7 +769,13 @@ public:
 	colormap_shader_c(const colourmap_c *CM) : colmap(CM),
 		light_lev(255), fade_tex(0),
 		simple_cmap(true), lt_model(LMODEL_Doom)
-	{ }
+	{
+		for (int i=0; i<16; i++)
+		{
+			fade_cnt[i] = fade_que[i] = 0;
+			fade_key[i] = -1;
+		}
+	}
 
 	virtual ~colormap_shader_c()
 	{
@@ -984,29 +992,75 @@ public:
 		if (fade_tex == 0 ||
 		    lt_model != currmap->episode->lighting)
 		{
-			if (fade_tex != 0)
+			int i;
+			// look for cached colormap texture
+			for (i=0; i<16; i++)
+				if (fade_key[i] == light_color)
+				{
+					fade_tex = fade_que[i];
+					fade_cnt[i]++;
+					return;
+				}
+
+			// look for free cache entry
+			for (i=0; i<16; i++)
+				if (fade_key[i] == -1)
+					break;
+
+			// if no free entry, free the least used entry
+			if (i == 16)
 			{
-				glDeleteTextures(1, &fade_tex);
+				int mc = fade_cnt[0], mi = 0;
+				for (i=1; i<16; i++)
+				{
+					if (fade_cnt[i] < mc)
+					{
+						mc = fade_cnt[i];
+						mi = i;
+					}
+				}
+				i = mi;
+				glDeleteTextures(1, &fade_que[i]);
+				fade_que[i] = fade_cnt[i] = 0;
+				fade_key[i] = -1;
 			}
 
 			lt_model = currmap->episode->lighting;
 
 			MakeColormapTexture(0);
+
+			// save in queue
+			fade_que[i] = fade_tex;
+			fade_key[i] = light_color;
+			fade_cnt[i]++;
 		}
 	}
 
 	void DeleteTex()
 	{
-		if (fade_tex != 0)
-		{
-			glDeleteTextures(1, &fade_tex);
-			fade_tex = 0;
-		}
+		for (int i=0; i<16; i++)
+			if (fade_que[i])
+			{
+				glDeleteTextures(1, &fade_que[i]);
+				fade_que[i] = fade_cnt[i] = 0;
+				fade_key[i] = -1;
+			}
+		fade_tex = 0;
+	}
+
+	void ClearTex()
+	{
+		fade_tex = 0;
 	}
 
 	void SetLight(int _level)
 	{
 		light_lev = _level;
+	}
+
+	void SetLightColor(int _color)
+	{
+		light_color = _color;
 	}
 };
 
@@ -1014,11 +1068,25 @@ public:
 colormap_shader_c *std_cmap_shader;
 
 
-void R_ColorMapUpdate(void)
+void R_ColorMapUpdate(int col, float desat)
 {
+	int ds = (int)(255.0f * desat);
+	int ids = (int)(255.0f * (1.0f - desat));
+	int r = RGB_RED(col);
+	int g = RGB_GRN(col);
+	int b = RGB_BLU(col);
+	int i = ((r * 77 + g * 143 + b * 37) * ds) >> 8;
+	r = (r * ids + i) >> 8;
+	g = (g * ids + i) >> 8;
+	b = (b * ids + i) >> 8;
+	int lc = (r << 16) | (g << 8) | b;
+
+	I_Debugf("R_ColorMapUpdate: %x, %f, %x\n", col, desat, lc);
+
 	if(std_cmap_shader)
 	{
-		std_cmap_shader->DeleteTex();
+		std_cmap_shader->SetLightColor(lc);
+		std_cmap_shader->ClearTex();
 		std_cmap_shader->Update();
 	}
 }
