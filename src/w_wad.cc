@@ -736,6 +736,12 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		df->coal_huds = lump;
 		return;
 	}
+	else if (strncmp(lump_p->name, "COALAPI", 8) == 0)
+	{
+		lump_p->kind = LMKIND_DDFRTS;
+		df->coal_huds = lump;
+		return;
+	}
 	else if (strncmp(lump_p->name, "ANIMATED", 8) == 0)
 	{
 		lump_p->kind = LMKIND_DDFRTS;
