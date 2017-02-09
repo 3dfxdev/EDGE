@@ -573,7 +573,7 @@ static bool PIT_CheckRelLine(line_t * ld, void *data)
 
 	// check for vertex height
 	int vi = ld->v1 - vertexes;
-	if (vi >= 0 && vi < numvertexes)
+	if (vi >= 0 && vi < numvertexes && zvertexes)
 		if (zvertexes[vi].x > -1000000.0f)
 			tm_I.floorz = zvertexes[vi].x;
 

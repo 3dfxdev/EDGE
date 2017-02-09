@@ -61,7 +61,7 @@ int V_FindColour(int r, int g, int b);
 void V_SetPalette(int type, float amount);
 void V_ColourNewFrame(void);
 void R_PaletteStuff(void);
-void R_ColorMapUpdate(void);
+void R_ColorMapUpdate(int col, float desat);
 
 
 #define PAL_RED(pix)  ((float)(playpal_data[0][pix][0]) / 255.0f)
