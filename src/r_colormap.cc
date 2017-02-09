@@ -1081,7 +1081,7 @@ void R_ColorMapUpdate(int col, float desat)
 	b = (b * ids + i) >> 8;
 	int lc = (r << 16) | (g << 8) | b;
 
-	I_Debugf("R_ColorMapUpdate: %x, %f, %x\n", col, desat, lc);
+	//I_Debugf("R_ColorMapUpdate: %x, %f, %x\n", col, desat, lc);
 
 	if(std_cmap_shader)
 	{
