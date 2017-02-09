@@ -155,6 +155,7 @@ public:
 
 	// COAL scripts
 	int coal_huds;
+	int coal_api;
 
 	// BOOM stuff
 	int animated, switches;
@@ -175,7 +176,7 @@ public:
 		colmap_lumps(), tx_lumps(), hires_lumps(),
 		level_markers(), skin_markers(),
 		wadtex(), deh_lump(-1), coal_huds(-1),
-		animated(-1), switches(-1),
+		coal_api(-1), animated(-1), switches(-1),
 		companion_gwa(-1), dir_hash()
 	{
 		file_name = strdup(_fname);
@@ -739,7 +740,7 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 	else if (strncmp(lump_p->name, "COALAPI", 8) == 0)
 	{
 		lump_p->kind = LMKIND_DDFRTS;
-		df->coal_huds = lump;
+		df->coal_api = lump;
 		return;
 	}
 	else if (strncmp(lump_p->name, "ANIMATED", 8) == 0)
@@ -2085,10 +2086,11 @@ void W_ReadCoalLumps(void)
 		if (df->kind > FLKIND_Lump)
 			continue;
 
-		if (df->coal_huds < 0)
-			continue;
+		if (df->coal_huds >= 0)
+			VM_LoadLumpOfCoal(df->coal_huds);
 
-		VM_LoadLumpOfCoal(df->coal_huds);
+		if (df->coal_api >= 0)
+			VM_LoadLumpOfCoal(df->coal_api);
 	}
 }
 
