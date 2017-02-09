@@ -1108,6 +1108,8 @@ typedef struct {
 	int dfindex;
 } file_info_t;
 
+static void TopLevel(void *userData, const char *origDir, const char *fname);
+
 static void LumpNamespace(void *userData, const char *origDir, const char *fname)
 {
 #ifdef HAVE_PHYSFS
@@ -1234,6 +1236,79 @@ static void WadNamespace(void *userData, const char *origDir, const char *fname)
 	}
 
 	PHYSFS_close(file);
+#endif
+}
+
+static void ScriptNamespace(void *userData, const char *origDir, const char *fname)
+{
+#ifdef HAVE_PHYSFS
+	file_info_t *user_data = (file_info_t *)userData;
+	char check[16];
+	char path[256];
+	strcpy(path,origDir);
+	strcat(path, "/");
+	strcat(path, fname);
+
+	I_Printf("ScriptNamespace: processing %s\n", path);
+
+	if (PHYSFS_isDirectory(path))
+	{
+		I_Printf("ScriptNamespace: found subdirectory %s\n", fname);
+
+		// check for supported namespace directory
+		if (wolf3d_mode)
+		{
+			if (stricmp(fname, "wolf3d") == 0)
+			{
+				// recurse wolf3d subdirectory to TopLevel
+				PHYSFS_enumerateFilesCallback(path, TopLevel, userData);
+			}
+		}
+		else if (rott_mode)
+		{
+			if (stricmp(fname, "rott") == 0)
+			{
+				// recurse rott subdirectory to TopLevel
+				PHYSFS_enumerateFilesCallback(path, TopLevel, userData);
+			}
+		}
+		else if (heretic_mode)
+		{
+			if (stricmp(fname, "heretic") == 0)
+			{
+				// recurse heretic subdirectory to TopLevel
+				PHYSFS_enumerateFilesCallback(path, TopLevel, userData);
+			}
+		}
+		else // default to doom mode
+		{
+			if (stricmp(fname, "doom") == 0)
+			{
+				// recurse doom subdirectory to TopLevel
+				PHYSFS_enumerateFilesCallback(path, TopLevel, userData);
+			}
+		}
+
+		return;
+	}
+
+	// check if add global lump - TODO
+	if (1)
+	{
+		// add global lump
+		I_Printf("  checking global lump %s\n", fname);
+		PHYSFS_File *file = PHYSFS_openRead(path);
+		if (!file)
+			return; // couldn't open file - skip
+		int length = PHYSFS_fileLength(file);
+		PHYSFS_close(file);
+
+		I_Printf("  adding global lump %s\n", fname);
+		numlumps++;
+		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+		AddLumpEx(user_data->dfile, numlumps - 1, 0, length,
+			user_data->dfindex, user_data->index, fname, 1, path);
+	}
 #endif
 }
 
@@ -1422,8 +1497,8 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 		}
 		else if (stricmp(fname, "scripts") == 0)
 		{
-			// recurse scripts subdirectory to TopLevel
-			PHYSFS_enumerateFilesCallback(path, TopLevel, userData);
+			// enumerate scripts subdirectory
+			PHYSFS_enumerateFilesCallback(path, ScriptNamespace, userData);
 		}
 		else if (strncasecmp(fname, "root", 4) == 0)
 		{
