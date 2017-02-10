@@ -2729,10 +2729,16 @@ static void LoadUDMFLineDefs(parser_t *psr)
 			ld->v1 = &vertexes[v1];
 			ld->v2 = &vertexes[v2];
 
-			if (!hexen_level && !zdoom_level && !zdoomxlt_level)
+			if (!hexen_level && !zdoom_level)
 				ld->special = P_LookupLineType(MAX(0, special));
 			else
 				ld->special = (special == 0) ? NULL : linetypes.Lookup(1000 + special);
+
+			ld->args[0] = arg0;
+			ld->args[1] = arg1;
+			ld->args[2] = arg2;
+			ld->args[3] = arg3;
+			ld->args[4] = arg4;
 
 			ComputeLinedefData(ld, side0, side1);
 
@@ -3893,7 +3899,7 @@ void P_SetupLevel(void)
 			strife_level = true;
 		else if (strcasecmp(value, "zdoom") == 0)
 			zdoom_level = true;
-		else if (strcasecmp(value, "zdoomt") == 0)
+		else if (strncasecmp(value, "zdoomt", 6) == 0)
 			zdoomxlt_level = true;
 		else
 			doom_level = true;

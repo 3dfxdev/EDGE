@@ -392,6 +392,7 @@ typedef struct line_s
 	int count;
 
 	const linetype_c *special;
+	int args[5];
 
     // Visual appearance: SideDefs.
     // side[1] will be NULL if one sided.
