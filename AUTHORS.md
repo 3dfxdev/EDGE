@@ -19,33 +19,34 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 # 3DGE TEAM:
 ---
 * Coraline "Chu" Annis
+* Joseph "Chilly Willy" Fenton
 * Damir Srpcic
-* Joseph Fenton (Chilly Willy)
+* Rachael "Eruanna" Alexanderson
 * Brendan "Brendoe1" Doe
-* Rachael Alexanderson (eruanna)
-* Alex Nesemann
+* Alex "TapamN" Nesemann
 * UsernameAK
 * Josh "Ph3nom" Pearson (KallistiGL code)
 * Gameblabla (Linux support)
-* Ryan Freeman (OpenBSD support)
+* Ryan "ryan-sg" Freeman (OpenBSD support)
 
 ## Codebase Contributors
 ---
-* Benjamin Moir (VS support)
+* Benjamin "The Zombie Killer" Moir (Visual Studio/CMake support)
 * AlexeyNukeyT (OPL and sound code)
 * CeeJay (writing the Heretic definitions)
-* plums  (adding to the Heretic definitions)
+* plums  (Heretic definition accuracy checks)
 
 ## Special Thanks
 ---
-* Andrew Apted (programming, bug fixes)
+* Andrew Apted (additional programming, bug fixes)
 * Graf Zahl (for his ongoing wisdom, contributions, and guidance)
+* dpJudas (optimizations, help)
 * Marisa Heit (most amazing woman in the community, TBH ;)
 * Fraggle (Chocolate Doom SDL2 help)
 * Crispy Doom Guys (fabian, alexmax) for helping with lerp
-* Quasar (dynaBSP/midi_RPC stuff)
+* Quasar (Eternity Engine, dynaBSP/midi_RPC stuff)
 * Maciej Kadlubowski (Splines library)
-* KnightMare (KMQ2 backends)
+* KnightMare (KMQuake 2 backends, Splines help)
 * Kaiser (Doom64-ex, KEX-lib support)
 * ctd1500
 * Dan Loosen

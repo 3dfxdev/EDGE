@@ -68,7 +68,7 @@ static void MapsReadHeaders()
 		//This should be I_Printf, but we want to see if we can
 		//get far enough here to at least display the maphead
 		//offsets!!
-	//I_Printf("Header offset[%d] = %d\n", i, map_head.offsets[i]);
+	I_Printf("Header offset[%d] = %d\n", i, map_head.offsets[i]);
 		map_count++;
 	}
 
@@ -149,7 +149,7 @@ fprintf(stderr, "Reading %d bytes...\n", complen);
 
 	delete[] buf2;
 
-	// flip plane upsidedown
+	// flip plane upside down
 	for (int y=0; y < height/2; y++)
 	for (int x=0; x < width; x++)
 	{
@@ -226,7 +226,7 @@ void WF_InitMaps(void)
 {
 	MapsReadHeaders();
 
-	//WF_LoadMap(0);  // !!!! TEST
+	WF_LoadMap(0);  // !!!! TEST
 }
 
 void WF_Init(void)
