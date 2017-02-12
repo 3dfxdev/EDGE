@@ -1151,6 +1151,10 @@ static void DrawWallPart(drawfloor_t *dfloor,
 			lit_adjust += 16;
 	}
 
+	if (cur_seg->sidedef->lit_abs)
+		lit_adjust += cur_seg->sidedef->light - props->lightlevel;
+	else
+		lit_adjust += cur_seg->sidedef->light;
 
 
 	float total_w = IM_TOTAL_WIDTH(image);
@@ -1910,8 +1914,23 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 	data.h1 = h1;
 	data.dh = dh;
 
+	int lit_adjust = 0;
+	if (face_dir > 0)
+	{
+		if (cur_sub->sector->f_lit_abs)
+			lit_adjust = cur_sub->sector->f_light - props->lightlevel;
+		else
+			lit_adjust = cur_sub->sector->f_light;
+	}
+	else
+	{
+		if (cur_sub->sector->c_lit_abs)
+			lit_adjust = cur_sub->sector->c_light - props->lightlevel;
+		else
+			lit_adjust = cur_sub->sector->c_light;
+	}
 
-	abstract_shader_c *cmap_shader = R_GetColormapShader(props);
+	abstract_shader_c *cmap_shader = R_GetColormapShader(props, lit_adjust);
 
 	data.v_count = (piece_col+1) * 2;
 
@@ -2565,7 +2584,23 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
 
-	abstract_shader_c *cmap_shader = R_GetColormapShader(props);
+	int lit_adjust = 0;
+	if (face_dir > 0)
+	{
+		if (cur_sub->sector->f_lit_abs)
+			lit_adjust = cur_sub->sector->f_light - props->lightlevel;
+		else
+			lit_adjust = cur_sub->sector->f_light;
+	}
+	else
+	{
+		if (cur_sub->sector->c_lit_abs)
+			lit_adjust = cur_sub->sector->c_light - props->lightlevel;
+		else
+			lit_adjust = cur_sub->sector->c_light;
+	}
+
+	abstract_shader_c *cmap_shader = R_GetColormapShader(props, lit_adjust);
 
 	cmap_shader->WorldMix(GL_POLYGON, data.v_count, data.tex_id,
 			trans, &data.pass, data.blending, false /* masked */,

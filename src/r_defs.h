@@ -329,6 +329,9 @@ typedef struct sector_s
 	int lightcolor;
 	int fadecolor;
 	int desaturation;
+
+	int f_light, c_light;
+	bool f_lit_abs, c_lit_abs;
 }
 sector_t;
 
@@ -347,6 +350,9 @@ typedef struct side_s
 
 	// midmasker Y offset
 	float midmask_offset;
+
+	int light;
+	bool lit_abs;
 }
 side_t;
 
