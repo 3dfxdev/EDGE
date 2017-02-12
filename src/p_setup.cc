@@ -209,7 +209,7 @@ static bool GetNextLine(parser_t *psr)
 		}
 	}
 
-	I_Debugf(" parser next line: %s\n", (char *)psr->line);
+	//I_Debugf(" parser next line: %s\n", (char *)psr->line);
 	return true;
 }
 
@@ -223,7 +223,7 @@ static bool GetNextAssign(parser_t *psr, uint8_t *ident, uint8_t *val)
 		len++;
 	if (psr->line[len] == 0x7D)
 	{
-		I_Debugf(" parser: block end\n");
+		//I_Debugf(" parser: block end\n");
 		return false;
 	}
 	else if (len < 4)
@@ -254,7 +254,7 @@ static bool GetNextAssign(parser_t *psr, uint8_t *ident, uint8_t *val)
 		i--; // skip whitespace, quote, and semi-colon after value
 	val[i+1] = 0;
 
-	I_Debugf(" parser: ident = %s, val = %s\n", (char *)ident, (char *)val);
+	//I_Debugf(" parser: ident = %s, val = %s\n", (char *)ident, (char *)val);
 	return true;
 }
 
@@ -286,7 +286,7 @@ blk_loop:
 	if (psr->line[i] != 0x7B)
 		goto blk_loop; // not a block start
 
-	I_Debugf(" parser: block start = %s\n", ident);
+	//I_Debugf(" parser: block start = %s\n", ident);
 	return true;
 }
 
@@ -948,6 +948,11 @@ static void LoadSectors(int lump)
 
 		ss->lightcolor = 0x00FFFFFF;
 		ss->desaturation = 0.0f;
+
+		ss->f_light = 0;
+		ss->c_light = 0;
+		ss->f_lit_abs = false;
+		ss->c_lit_abs = false;
 
 		ss->sound_player = -1;
 
@@ -2080,6 +2085,8 @@ static void LoadUDMFSectors(parser_t *psr)
 			float xsf = 1.0f, ysf = 1.0f, xsc = 1.0f, ysc = 1.0f;
 			float desat = 0.0f, grav = 1.0f;
 			int light = 160, lc = 0x00FFFFFF, fc = 0, type = 0, tag = 0;
+			int f_lit = 0, c_lit = 0;
+			bool f_lit_abs = false, c_lit_abs = false;
 			char floor_tex[10];
 			char ceil_tex[10];
 			strcpy(floor_tex, "-");
@@ -2190,6 +2197,22 @@ static void LoadUDMFSectors(parser_t *psr)
 				{
 					desat = str2float(val, 0.0f);
 				}
+				else if (strcasecmp(ident, "lightfloor") == 0)
+				{
+					f_lit = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "lightfloorabsolute") == 0)
+				{
+					f_lit_abs = str2bool(val);
+				}
+				else if (strcasecmp(ident, "lightceiling") == 0)
+				{
+					c_lit = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "lightceilingabsolute") == 0)
+				{
+					c_lit_abs = str2bool(val);
+				}
 
 			}
 			//I_Debugf("   sec %d: fz %f, cz %f, ft %s, ct %s, lt %d, typ %d, tag %d, dsat %f\n",
@@ -2257,6 +2280,11 @@ static void LoadUDMFSectors(parser_t *psr)
 			ss->fadecolor = fc;
 			ss->desaturation = desat;
 
+			ss->f_light = f_lit;
+			ss->c_light = c_lit;
+			ss->f_lit_abs = f_lit_abs;
+			ss->c_lit_abs = c_lit_abs;
+
 			ss->sound_player = -1;
 
 			// -AJA- 1999/07/29: Keep sectors with same tag in a list.
@@ -2291,7 +2319,8 @@ static void LoadUDMFSideDefs(parser_t *psr)
 
 		if (strcasecmp(ident, "sidedef") == 0)
 		{
-			int x = 0, y = 0, sec_num = 0;
+			int x = 0, y = 0, sec_num = 0, lit = 0;
+			bool lit_abs = false;
 			float bx = 0.0f, by = 0.0f, mx = 0.0f, my = 0.0f, tx = 0.0f, ty = 0.0f;
 			float bxs = 1.0f, bys = 1.0f, mxs = 1.0f, mys = 1.0f, txs = 1.0f, tys = 1.0f;
 			char top_tex[10];
@@ -2396,6 +2425,14 @@ static void LoadUDMFSideDefs(parser_t *psr)
 				{
 					sec_num = str2int(val, 0);
 				}
+				else if (strcasecmp(ident, "light") == 0)
+				{
+					lit = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "lightabsolute") == 0)
+				{
+					lit_abs = str2bool(val);
+				}
 
 			}
 
@@ -2425,6 +2462,9 @@ static void LoadUDMFSideDefs(parser_t *psr)
 			sd->bottom.y_mat.x = 0;  sd->bottom.y_mat.y = bys;
 
 			sd->sector = &sectors[sec_num];
+
+			sd->light = lit;
+			sd->lit_abs = lit_abs;
 
 			sd->top.image = W_ImageLookup(top_tex, INS_Texture, ILF_Null);
 
@@ -2992,6 +3032,9 @@ static void TransferMapSideDef(const raw_sidedef_t *msd, side_t *sd,
 		sec_num = 0;
 	}
 	sd->sector = &sectors[sec_num];
+
+	sd->light = 0;
+	sd->lit_abs = false;
 
 	Z_StrNCpy(buffer, msd->upper_tex, 8);
 	sd->top.image = W_ImageLookup(buffer, INS_Texture, ILF_Null);
