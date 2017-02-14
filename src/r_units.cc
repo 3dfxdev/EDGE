@@ -704,8 +704,6 @@ void RGL_DrawUnits(void)
 
 		}
 		else {
-			RGL_BatchShape(unit->shape);
-
 			// Simplify things into triangles as that allows us to keep a single glBegin open for longer
 			if (unit->shape == GL_POLYGON || unit->shape == GL_TRIANGLE_FAN)
 			{
