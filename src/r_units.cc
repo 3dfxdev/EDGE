@@ -436,6 +436,23 @@ void calc_tan(local_gl_vert_t* v1,local_gl_vert_t* v2,local_gl_vert_t* v3) {
 	v1->tangent.z= r*( d_pos1.z * d_uv2.y - d_pos2.z * d_uv1.y );
 }
 
+// Only open/close a glBegin/glEnd if needed
+void RGL_BatchShape(GLuint shape)
+{
+	static GLuint current_shape = 0;
+
+	if (current_shape == shape)
+		return;
+
+	if (current_shape != 0)
+		glEnd();
+
+	current_shape = shape;
+
+	if (current_shape != 0)
+		glBegin(shape);
+}
+
 //
 // RGL_DrawUnits
 //
@@ -503,12 +520,13 @@ void RGL_DrawUnits(void)
 		if (active_pass != unit->pass)
 		{
 			active_pass = unit->pass;
-
+			RGL_BatchShape(0);
 			glPolygonOffset(0, -active_pass);
 		}
 
 		if ((active_blending ^ unit->blending) & (BL_Masked | BL_Less))
 		{
+			RGL_BatchShape(0);
 			if (unit->blending & BL_Less)
 			{
 				// glAlphaFunc is updated below, because the alpha
@@ -527,6 +545,7 @@ void RGL_DrawUnits(void)
 
 		if ((active_blending ^ unit->blending) & (BL_Alpha | BL_Add))
 		{
+			RGL_BatchShape(0);
 			if (unit->blending & BL_Add)
 			{
 				glEnable(GL_BLEND);
@@ -543,6 +562,7 @@ void RGL_DrawUnits(void)
 
 		if ((active_blending ^ unit->blending) & BL_CULL_BOTH)
 		{
+			RGL_BatchShape(0);
 			if (unit->blending & BL_CULL_BOTH)
 			{
 				glEnable(GL_CULL_FACE);
@@ -554,6 +574,7 @@ void RGL_DrawUnits(void)
 
 		if ((active_blending ^ unit->blending) & BL_NoZBuf)
 		{
+			RGL_BatchShape(0);
 			glDepthMask((unit->blending & BL_NoZBuf) ? GL_FALSE : GL_TRUE);
 		}
 
@@ -563,13 +584,17 @@ void RGL_DrawUnits(void)
 		{
 			// NOTE: assumes alpha is constant over whole polygon
 			float a = local_verts[unit->first].rgba[3];
-
+			RGL_BatchShape(0);
 			glAlphaFunc(GL_GREATER, a * 0.66f);
 		}
 
 		for (int t=1; t >= 0; t--)
 		{
-			myActiveTexture(GL_TEXTURE0 + t);
+			if (active_tex[t] != unit->tex[t] || active_env[t] != unit->env[t])
+			{
+				RGL_BatchShape(0);
+				myActiveTexture(GL_TEXTURE0 + t);
+			}
 
 			if (active_tex[t] != unit->tex[t])
 			{
@@ -608,6 +633,7 @@ void RGL_DrawUnits(void)
 
 		if ((active_blending & BL_ClampY) && active_tex[0] != 0)
 		{
+			RGL_BatchShape(0);
 			glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &old_clamp);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
 				r_dumbclamp.d ? GL_CLAMP : GL_CLAMP_TO_EDGE);
@@ -616,6 +642,8 @@ void RGL_DrawUnits(void)
 
 		//disable if unit has multiple textures (level geometry lightmap for instance)
 		if(RGL_GL2Enabled() && unit->tex[1]==0) {
+			RGL_BatchShape(0);
+
 			//use normal and specular map
 			bmap_shader.bind();
 			bmap_shader.lightApply();
@@ -676,18 +704,52 @@ void RGL_DrawUnits(void)
 
 		}
 		else {
-			glBegin(unit->shape);
-			for (int v_idx=0; v_idx < unit->count; v_idx++)
+			RGL_BatchShape(unit->shape);
+
+			// Simplify things into triangles as that allows us to keep a single glBegin open for longer
+			if (unit->shape == GL_POLYGON || unit->shape == GL_TRIANGLE_FAN)
 			{
-				RGL_SendRawVector(local_verts + unit->first + v_idx);
+				RGL_BatchShape(GL_TRIANGLES);
+				for (int v_idx = 2; v_idx < unit->count; v_idx++)
+				{
+					RGL_SendRawVector(local_verts + unit->first);
+					RGL_SendRawVector(local_verts + unit->first + v_idx - 1);
+					RGL_SendRawVector(local_verts + unit->first + v_idx);
+				}
 			}
-			glEnd();
+			else if (unit->shape == GL_QUADS)
+			{
+				RGL_BatchShape(GL_TRIANGLES);
+				for (int v_idx = 0; v_idx + 3 < unit->count; v_idx += 4)
+				{
+					RGL_SendRawVector(local_verts + unit->first + v_idx);
+					RGL_SendRawVector(local_verts + unit->first + v_idx + 1);
+					RGL_SendRawVector(local_verts + unit->first + v_idx + 2);
+
+					RGL_SendRawVector(local_verts + unit->first + v_idx);
+					RGL_SendRawVector(local_verts + unit->first + v_idx + 2);
+					RGL_SendRawVector(local_verts + unit->first + v_idx + 3);
+				}
+			}
+			else
+			{
+				RGL_BatchShape(unit->shape);
+				for (int v_idx = 0; v_idx < unit->count; v_idx++)
+				{
+					RGL_SendRawVector(local_verts + unit->first + v_idx);
+				}
+			}
 		}
 
 		// restore the clamping mode
 		if (old_clamp != DUMMY_CLAMP)
+		{
+			RGL_BatchShape(0);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, old_clamp);
+		}
 	}
+
+	RGL_BatchShape(0);
 
 	// all done
 	cur_vert = cur_unit = 0;
