@@ -1523,26 +1523,39 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 	float secfh = SecLerpedFloor(sec);
 	float secch = SecLerpedCeil(sec);
 
-	float slope_fh = secfh;
-	if (sec->f_slope)
-		slope_fh += MIN(sec->f_slope->dz1, sec->f_slope->dz2);
-
-	float slope_ch = secch;
-	if (sec->c_slope)
-		slope_ch += MAX(sec->c_slope->dz1, sec->c_slope->dz2);
-
 	if (! other)
 	{
 		if (! sd->middle.image && ! debug_hom.d)
 			return;
 
+		if (sec->f_slope || sec->c_slope)
+		{
+			float lz1 = secch + (sec->c_slope ? Slope_GetHeight(sec->c_slope, seg->v1->x, seg->v1->y) : 0);
+			float rz1 = secch + (sec->c_slope ? Slope_GetHeight(sec->c_slope, seg->v2->x, seg->v2->y) : 0);
+
+			float lz2 = secfh + (sec->f_slope ? Slope_GetHeight(sec->f_slope, seg->v1->x, seg->v1->y) : 0);
+			float rz2 = secfh + (sec->f_slope ? Slope_GetHeight(sec->f_slope, seg->v2->x, seg->v2->y) : 0);
+
+			AddWallTile2(seg, dfloor,
+				&sd->middle, lz1, lz2, rz1, rz2,
+				(ld->flags & MLF_LowerUnpegged) ?
+				secfh + IM_HEIGHT_SAFE(sd->middle.image) : secch, 0);
+			return;
+		}
 		AddWallTile(seg, dfloor,
-			&sd->middle, slope_fh, slope_ch,
+			&sd->middle, secfh, secch,
 			(ld->flags & MLF_LowerUnpegged) ?
 			secfh + IM_HEIGHT_SAFE(sd->middle.image) : secch,
 			0, f_min, c_max);
 		return;
 	}
+
+	float slope_fh = secfh;
+	if (sec->f_slope)
+		slope_fh += MIN(sec->f_slope->dz1, sec->f_slope->dz2);
+	float slope_ch = secch;
+	if (sec->c_slope)
+		slope_ch += MAX(sec->c_slope->dz1, sec->c_slope->dz2);
 
 	float otherfh = SecLerpedFloor(other);
 	float otherch = SecLerpedCeil(other);
@@ -1641,9 +1654,7 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 
 		if (c2 > f2)
 		{
-			AddWallTile(seg, dfloor,
-						&sd->middle, f2, c2, tex_z, WTILF_MidMask,
-						f_min, c_max);
+			AddWallTile(seg, dfloor, &sd->middle, f2, c2, tex_z, WTILF_MidMask, f_min, c_max);
 		}
 	}
 
@@ -1708,8 +1719,19 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 			tex_z = (C->ef_line->flags & MLF_LowerUnpegged) ?
 				Cbottomh + IM_HEIGHT_SAFE(surf->image) : Ctoph;
 
-			AddWallTile(seg, dfloor, surf, Cbottomh, Ctoph,
-						tex_z, flags, f_min, c_max);
+			sector_t *csec = C->ef_line->frontsector;
+			if (csec->f_slope || csec->c_slope)
+			{
+				float lz1 = Ctoph + (csec->c_slope ? Slope_GetHeight(csec->c_slope, seg->v1->x, seg->v1->y) : 0);
+				float rz1 = Ctoph + (csec->c_slope ? Slope_GetHeight(csec->c_slope, seg->v2->x, seg->v2->y) : 0);
+
+				float lz2 = Cbottomh + (csec->f_slope ? Slope_GetHeight(csec->f_slope, seg->v1->x, seg->v1->y) : 0);
+				float rz2 = Cbottomh + (csec->f_slope ? Slope_GetHeight(csec->f_slope, seg->v2->x, seg->v2->y) : 0);
+
+				AddWallTile2(seg, dfloor, surf, lz1, lz2, rz1, rz2, tex_z, 0);
+			}
+			else
+				AddWallTile(seg, dfloor, surf, Cbottomh, Ctoph, tex_z, flags, Cbottomh, Ctoph);
 		}
 
 		floor_h = Ctoph;
@@ -2458,6 +2480,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 		return;
 
 	// ignore non-facing planes
+// -CW- 2017/02/14: if left in, skips extrafloor floors
 //	if ((viewz > h) != (face_dir > 0) && !slope)
 //		return;
 

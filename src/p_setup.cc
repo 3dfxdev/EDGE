@@ -2552,7 +2552,7 @@ static void LoadUDMFSideDefs(parser_t *psr)
 		if (zdoom_level && ld->action == 160 && (ld->args[1] & 3) == 1)
 		{
 			ld->tag = ld->args[0];
-			ld->special = P_LookupLineType(281); // make a legacy 3D floor special
+			ld->special = P_LookupLineType(400); // make an EDGE Thick Extrafloor special
 
 			for (int j=0; j < numsectors; j++)
 			{
@@ -2605,8 +2605,25 @@ static void LoadUDMFSideDefs(parser_t *psr)
 			}
 			else if (ld->args[0] == 2)
 			{
-				zvertexes[v1i].x = ld->frontsector->f_h;
-				zvertexes[v2i].x = ld->frontsector->f_h;
+				if (lt)
+				{
+					slope_plane_t *result = new slope_plane_t;
+
+					result->x1  = lt->v1->x;
+					result->y1  = lt->v1->y;
+					result->dz1 = 0;
+
+					result->x2  = lt->v2->x;
+					result->y2  = lt->v2->y;
+					result->dz2 = ld->frontsector->f_h - ld->backsector->f_h;
+
+					ld->backsector->f_slope = result;
+				}
+				else
+				{
+					zvertexes[v1i].x = ld->frontsector->f_h;
+					zvertexes[v2i].x = ld->frontsector->f_h;
+				}
 			}
 
 			if (ld->args[1] == 1)
@@ -2633,8 +2650,25 @@ static void LoadUDMFSideDefs(parser_t *psr)
 			}
 			else if (ld->args[1] == 2)
 			{
-				zvertexes[v1i].y = ld->frontsector->c_h;
-				zvertexes[v2i].y = ld->frontsector->c_h;
+				if (lt)
+				{
+					slope_plane_t *result = new slope_plane_t;
+
+					result->x1  = lt->v1->x;
+					result->y1  = lt->v1->y;
+					result->dz1 = 0;
+
+					result->x2  = lt->v2->x;
+					result->y2  = lt->v2->y;
+					result->dz2 = ld->frontsector->c_h - ld->backsector->c_h;
+
+					ld->backsector->c_slope = result;
+				}
+				else
+				{
+					zvertexes[v1i].y = ld->frontsector->c_h;
+					zvertexes[v2i].y = ld->frontsector->c_h;
+				}
 			}
 		}
 
