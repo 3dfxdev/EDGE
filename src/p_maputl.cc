@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Movement, Collision & Blockmap utility functions
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -25,7 +25,7 @@
 //
 // DESCRIPTION:
 //   Movement/collision utility functions,
-//   as used by function in p_map.c. 
+//   as used by function in p_map.c.
 //   BLOCKMAP Iterator functions,
 //   and some PIT_* functions to use for iteration.
 //   Gap/extrafloor utility functions.
@@ -732,7 +732,7 @@ void P_AddExtraFloor(sector_t *sec, line_t *line)
 
 	//
 	// -- create new extrafloor --
-	// 
+	//
 
 	SYS_ASSERT(sec->exfloor_used <= sec->exfloor_max);
 
