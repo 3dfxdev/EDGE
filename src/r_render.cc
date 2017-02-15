@@ -2021,11 +2021,11 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 #endif
 
 	// handle TRANSLUCENT + THICK floors (a bit of a hack)
-	if (dfloor->ef && !dfloor->is_highest &&
-		(dfloor->ef->ef_info->type & EXFL_Thick) &&
-		(dfloor->ef->top->translucency < 0.99f))
+	if (dfloor->c_ef && !dfloor->is_highest &&
+		(dfloor->c_ef->ef_info->type & EXFL_Thick) &&
+		(dfloor->c_ef->top->translucency < 0.99f))
 	{
-		c_max = dfloor->ef->top_h;
+		c_max = dfloor->c_ef->top_h;
 	}
 
 
@@ -2458,8 +2458,8 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 		return;
 
 	// ignore non-facing planes
-	if ((viewz > h) != (face_dir > 0) && !slope)
-		return;
+//	if ((viewz > h) != (face_dir > 0) && !slope)
+//		return;
 
 	// ignore dud regions (floor >= ceiling)
 	if (dfloor->f_h > dfloor->c_h && !slope)
@@ -2511,21 +2511,37 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 			float z = h;
 			int vi = seg->v1 - vertexes;
 
-			if (face_dir > 0 && dfloor->is_lowest)
+			// must do this before mirror adjustment
+			M_AddToBox(v_bbox, x, y);
+
+			if (face_dir > 0)
+			{
+				// floor - check vertex heights
 				if (vi >= 0 && vi < numvertexes && zvertexes)
 					if (zvertexes[vi].x > -1000000.0f)
 						z = zvertexes[vi].x;
 
-			if (face_dir < 0 && dfloor->is_highest)
+				// now check 3D slope
+				if (dfloor->f_ef)
+					slope = dfloor->f_ef->ef_line->frontsector->f_slope;
+			}
+
+			if (face_dir < 0)
+			{
+				// ceiling - check vertex heights
 				if (vi >= 0 && vi < numvertexes && zvertexes)
 					if (zvertexes[vi].y > -1000000.0f)
 						z = zvertexes[vi].y;
 
-			// must do this before mirror adjustment
-			M_AddToBox(v_bbox, x, y);
+				// now check 3D slope
+				if (dfloor->c_ef)
+					slope = dfloor->c_ef->ef_line->frontsector->c_slope;
+			}
 
+			// handle slope
 			if (slope)
 			{
+				// use orig_h to prevent vertex height from affecting slope above it
 				z = orig_h + Slope_GetHeight(slope, x, y);
 
 				MIR_Height(z);
@@ -2621,7 +2637,8 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 
 }
 
-static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
+static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *f_ef,
+								   extrafloor_t *c_ef,
 								   float f_h, float c_h, float top_h,
 								   surface_t *floor, surface_t *ceil,
 								   region_properties_t *props)
@@ -2636,7 +2653,8 @@ static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
 	dfloor->top_h = top_h;
 	dfloor->floor = floor;
 	dfloor->ceil  = ceil;
-	dfloor->ef    = ef;
+	dfloor->f_ef  = f_ef;
+	dfloor->c_ef  = c_ef;
 	dfloor->props = props;
 
 	// link it in, height order
@@ -2688,7 +2706,7 @@ static void RGL_WalkSubsector(int num)
 	surface_t *floor_s;
 	float floor_h;
 
-	extrafloor_t *S, *L, *C;
+	extrafloor_t *S, *L, *C, *F;
 
 #if (DEBUG >= 1)
 	L_WriteDebug( "\nVISITING SUBSEC %d (sector %d)\n\n", num, sub->sector - sectors);
@@ -2720,6 +2738,7 @@ static void RGL_WalkSubsector(int num)
 	floor_s = &sector->floor;
 	//floor_h = sector->f_h;
 	floor_h = SecLerpedFloor(sector); //N_Interpolate(sector->lf_h, sector->f_h);
+	F = NULL;
 
 	S = sector->bottom_ef;
 	L = sector->bottom_liq;
@@ -2761,12 +2780,13 @@ static void RGL_WalkSubsector(int num)
 
 		bool de_f = (cur_sub->deep_ref && K->floors.size() == 0);
 
-		AddNewDrawFloor(K, C,
+		AddNewDrawFloor(K, F, C,
 			de_f ? cur_sub->deep_ref->f_h : floor_h,
 			cboth, ctoph,
 			de_f ? &cur_sub->deep_ref->floor : floor_s,
 			C->bottom, C->p);
 
+		F = C;
 		floor_s = C->top;
 		floor_h = ctoph;
 	}
@@ -2779,7 +2799,7 @@ static void RGL_WalkSubsector(int num)
 	//float ceilh = de_c ? cur_sub->deep_ref->c_h : sector->c_h;
 	//ceilh = N_Interpolate(de_c ? cur_sub->deep_ref->lc_h : sector->lc_h, ceilh);
 
-	AddNewDrawFloor(K, NULL,
+	AddNewDrawFloor(K, F, NULL,
 		de_f ? cur_sub->deep_ref->f_h : floor_h,
 		ceilh, ceilh,
 		de_f ? &cur_sub->deep_ref->floor : floor_s,

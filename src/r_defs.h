@@ -398,6 +398,7 @@ typedef struct line_s
 	int count;
 
 	const linetype_c *special;
+	int action;
 	int args[5];
 
     // Visual appearance: SideDefs.

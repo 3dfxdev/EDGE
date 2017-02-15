@@ -142,6 +142,40 @@ static inline int PointOnLineSide(float x, float y, line_t *ld)
 	return P_PointOnDivlineSide(x, y, &div);
 }
 
+extern float Slope_GetHeight(slope_plane_t *slope, float x, float y);
+
+// Check for sector slope
+static void P_CheckSlope(void)
+{
+	sector_t *sec = tm_I.sub->sector;
+	extrafloor_t *botef = sec->bottom_ef;
+
+	while(botef)
+	{
+		if (tm_I.z <= botef->top_h)
+		{
+			// check for control sector f_slope
+			sector_t *csec = botef->ef_line->frontsector;
+			if (csec->f_slope)
+			{
+				tm_I.ceilnz = botef->higher ? botef->higher->top_h : sec->c_h;
+				float fz = botef->top_h + Slope_GetHeight(csec->f_slope, tm_I.x, tm_I.y);
+				if (fz < tm_I.ceilnz)
+					tm_I.floorz = fz;
+				return;
+			}
+
+			return;
+		}
+		botef = botef->higher;
+	}
+
+	// check for sector f_slope
+	if (sec->f_slope)
+		tm_I.floorz = sec->f_h + Slope_GetHeight(sec->f_slope, tm_I.x, tm_I.y);
+
+	return;
+}
 
 //
 // TELEPORT MOVE
@@ -406,7 +440,6 @@ bool P_CheckAbsPosition(mobj_t * thing, float x, float y, float z)
 	return true;
 }
 
-
 //
 // RELATIVE MOVEMENT CLIPPING
 //
@@ -559,6 +592,9 @@ static bool PIT_CheckRelLine(line_t * ld, void *data)
 	{
 		tm_I.ceilnz = tm_I.floorz;
 	}
+
+	// check for slope
+	P_CheckSlope();
 
 	if (tm_I.ceilnz < tm_I.floorz + tm_I.mover->height)
 		blockline = ld;
@@ -756,6 +792,9 @@ static bool P_CheckRelPosition(mobj_t * thing, float x, float y)
 	// point.  Any contacted lines the step closer together will adjust them.
 	// -AJA- 1999/07/19: Extra floor support.
 	P_ComputeThingGap(thing, tm_I.sub->sector, tm_I.z, &tm_I.floorz, &tm_I.ceilnz);
+
+	// check for slope
+	P_CheckSlope();
 
 	tm_I.dropoff = tm_I.floorz;
 	tm_I.above = NULL;

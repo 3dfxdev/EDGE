@@ -2549,15 +2549,92 @@ static void LoadUDMFSideDefs(parser_t *psr)
 
 		// check for possible extrafloors, updating the exfloor_max count
 		// for the sectors in question.
-		if (ld->tag && ld->special && ld->special->ef.type)
+		if (zdoom_level && ld->action == 160 && (ld->args[1] & 3) == 1)
 		{
+			ld->tag = ld->args[0];
+			ld->special = P_LookupLineType(281); // make a legacy 3D floor special
+
 			for (int j=0; j < numsectors; j++)
 			{
-				if (sectors[j].tag != ld->tag)
+				if (sectors[j].tag != ld->args[0])
 					continue;
 
 				sectors[j].exfloor_max++;
 				numextrafloors++;
+			}
+		}
+
+		// check for plane_align
+		if (zdoom_level && ld->action == 181)
+		{
+			int v1i = ld->v1 - vertexes;
+			int v2i = ld->v2 - vertexes;
+
+			int j;
+			line_t *lt = lines;
+			for (j=0; j<numlines; j++, lt++)
+			{
+				if (lt->v1 == ld->v2)
+					break;
+			}
+			if (j == numlines)
+				lt = NULL;
+
+			if (ld->args[0] == 1)
+			{
+				if (lt)
+				{
+					slope_plane_t *result = new slope_plane_t;
+
+					result->x1  = lt->v1->x;
+					result->y1  = lt->v1->y;
+					result->dz1 = ld->backsector->f_h - ld->frontsector->f_h;
+
+					result->x2  = lt->v2->x;
+					result->y2  = lt->v2->y;
+					result->dz2 = 0;
+
+					ld->frontsector->f_slope = result;
+				}
+				else
+				{
+					zvertexes[v1i].x = ld->backsector->f_h;
+					zvertexes[v2i].x = ld->backsector->f_h;
+				}
+
+			}
+			else if (ld->args[0] == 2)
+			{
+				zvertexes[v1i].x = ld->frontsector->f_h;
+				zvertexes[v2i].x = ld->frontsector->f_h;
+			}
+
+			if (ld->args[1] == 1)
+			{
+				if (lt)
+				{
+					slope_plane_t *result = new slope_plane_t;
+
+					result->x1  = lt->v1->x;
+					result->y1  = lt->v1->y;
+					result->dz1 = ld->backsector->c_h - ld->frontsector->c_h;
+
+					result->x2  = lt->v2->x;
+					result->y2  = lt->v2->y;
+					result->dz2 = 0;
+
+					ld->frontsector->c_slope = result;
+				}
+				else
+				{
+					zvertexes[v1i].y = ld->backsector->c_h;
+					zvertexes[v2i].y = ld->backsector->c_h;
+				}
+			}
+			else if (ld->args[1] == 2)
+			{
+				zvertexes[v1i].y = ld->frontsector->c_h;
+				zvertexes[v2i].y = ld->frontsector->c_h;
 			}
 		}
 
@@ -2774,6 +2851,7 @@ static void LoadUDMFLineDefs(parser_t *psr)
 			else
 				ld->special = (special == 0) ? NULL : linetypes.Lookup(1000 + special);
 
+			ld->action = special;
 			ld->args[0] = arg0;
 			ld->args[1] = arg1;
 			ld->args[2] = arg2;

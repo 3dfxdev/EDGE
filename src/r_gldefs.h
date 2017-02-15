@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 OpenGL Rendering (Definitions)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -160,7 +160,7 @@ public:
 	float orig_top, orig_bottom;
 
 	// Rendering order
-	struct drawthing_s *rd_l, *rd_r, *rd_prev, *rd_next; 
+	struct drawthing_s *rd_l, *rd_r, *rd_prev, *rd_next;
 
 public:
 	void Clear()
@@ -195,7 +195,7 @@ public:
 
 	surface_t *floor, *ceil;
 
-	extrafloor_t *ef;
+	extrafloor_t *f_ef, *c_ef;
 
 	// properties used herein
 	region_properties_t *props;
@@ -210,7 +210,7 @@ public:
 		is_highest = is_lowest = false;
 		next_R = prev_R = NULL;
 		floor = ceil = NULL;
-		ef = NULL;
+		f_ef = c_ef = NULL;
 		props = NULL;
 		things = NULL;
 	}
