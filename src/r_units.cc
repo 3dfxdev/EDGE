@@ -736,6 +736,10 @@ void RGL_DrawUnits(void)
 				{
 					RGL_SendRawVector(local_verts + unit->first + v_idx);
 				}
+
+				// Force a glEnd if it is a type that can't be kept open.
+				if (unit->shape != GL_TRIANGLES && unit->shape != GL_LINES && unit->shape != GL_QUADS)
+					RGL_BatchShape(0);
 			}
 		}
 
