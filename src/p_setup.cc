@@ -2547,6 +2547,39 @@ static void LoadUDMFSideDefs(parser_t *psr)
 			sd++;
 		}
 
+		if (zdoom_level && ld->action == 70)
+		{
+			// Teleport
+			if (ld->flags & 0x0200)
+			{
+				// repeatable
+				ld->tag = ld->args[1];
+				ld->special = P_LookupLineType(97); // repeatable TELEPORT
+			}
+			else
+			{
+				// one-shot
+				ld->tag = ld->args[1];
+				ld->special = P_LookupLineType(39); // one-shot TELEPORT
+			}
+		}
+
+		if (zdoom_level && ld->action == 71)
+		{
+			// Teleport_NoFog
+			int action = 900;
+
+			if (ld->args[3])
+				action |= 1; // keep height
+
+			if (ld->flags & 0x0200)
+				action |= 2; // repeatable
+
+			ld->tag = ld->args[2];
+			ld->special = linetypes.Lookup(action); // silent/instant TELEPORT with options
+			I_Printf("line %d special = %p\n", ld - lines, ld->special);
+		}
+
 		// check for possible extrafloors, updating the exfloor_max count
 		// for the sectors in question.
 		if (zdoom_level && ld->action == 160 && (ld->args[1] & 3) == 1)
