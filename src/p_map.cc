@@ -452,6 +452,7 @@ static bool PIT_CheckRelLine(line_t * ld, void *data)
 		return true;
 
 	// A line has been hit
+	//I_Printf("Hit line: %d special %p\n", ld - lines, ld->special);
 
 	// The moving thing's destination position will cross the given line.
 	// If this should not be allowed, return false.
