@@ -3747,6 +3747,7 @@ static void SetupUDMFSpecials(void)
 					linetype_c *lt = (linetype_c *)malloc(sizeof(linetype_c));
 					memcpy(lt, ls, sizeof(linetype_c));
 					// make changes
+					lt->number = -1; // custom copy - no lookup on load
 					lt->t.delay = 0;
 					lt->t.special = (teleportspecial_e)(TELSP_SameSpeed | TELSP_Silent);
 					if (ld->args[1] == 1)
