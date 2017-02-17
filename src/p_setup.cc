@@ -2547,164 +2547,6 @@ static void LoadUDMFSideDefs(parser_t *psr)
 			sd++;
 		}
 
-		if (zdoom_level && ld->action == 70)
-		{
-			// Teleport
-			if (ld->flags & 0x0200)
-			{
-				// repeatable
-				ld->tag = ld->args[1];
-				ld->special = P_LookupLineType(97); // repeatable TELEPORT
-			}
-			else
-			{
-				// one-shot
-				ld->tag = ld->args[1];
-				ld->special = P_LookupLineType(39); // one-shot TELEPORT
-			}
-		}
-
-		if (zdoom_level && ld->action == 71)
-		{
-			// Teleport_NoFog
-			int action = 900;
-
-			if (ld->args[3])
-				action |= 1; // keep height
-
-			if (ld->flags & 0x0200)
-				action |= 2; // repeatable
-
-			ld->tag = ld->args[2];
-			ld->special = linetypes.Lookup(action); // silent/instant TELEPORT with options
-			I_Printf("line %d special = %p\n", ld - lines, ld->special);
-		}
-
-		// check for possible extrafloors, updating the exfloor_max count
-		// for the sectors in question.
-		if (zdoom_level && ld->action == 160 && (ld->args[1] & 3) == 1)
-		{
-			ld->tag = ld->args[0];
-			ld->special = P_LookupLineType(400); // make an EDGE Thick Extrafloor special
-
-			for (int j=0; j < numsectors; j++)
-			{
-				if (sectors[j].tag != ld->args[0])
-					continue;
-
-				sectors[j].exfloor_max++;
-				numextrafloors++;
-			}
-		}
-
-		// check for plane_align
-		if (zdoom_level && ld->action == 181)
-		{
-			int v1i = ld->v1 - vertexes;
-			int v2i = ld->v2 - vertexes;
-
-			int j;
-			line_t *lt = lines;
-			for (j=0; j<numlines; j++, lt++)
-			{
-				if (lt->v1 == ld->v2)
-					break;
-			}
-			if (j == numlines)
-				lt = NULL;
-
-			if (ld->args[0] == 1)
-			{
-				if (lt)
-				{
-					slope_plane_t *result = new slope_plane_t;
-
-					result->x1  = lt->v1->x;
-					result->y1  = lt->v1->y;
-					result->dz1 = ld->backsector->f_h - ld->frontsector->f_h;
-
-					result->x2  = lt->v2->x;
-					result->y2  = lt->v2->y;
-					result->dz2 = 0;
-
-					ld->frontsector->f_slope = result;
-				}
-				else
-				{
-					zvertexes[v1i].x = ld->backsector->f_h;
-					zvertexes[v2i].x = ld->backsector->f_h;
-				}
-
-			}
-			else if (ld->args[0] == 2)
-			{
-				if (lt)
-				{
-					slope_plane_t *result = new slope_plane_t;
-
-					result->x1  = lt->v1->x;
-					result->y1  = lt->v1->y;
-					result->dz1 = 0;
-
-					result->x2  = lt->v2->x;
-					result->y2  = lt->v2->y;
-					result->dz2 = ld->frontsector->f_h - ld->backsector->f_h;
-
-					ld->backsector->f_slope = result;
-				}
-				else
-				{
-					zvertexes[v1i].x = ld->frontsector->f_h;
-					zvertexes[v2i].x = ld->frontsector->f_h;
-				}
-			}
-
-			if (ld->args[1] == 1)
-			{
-				if (lt)
-				{
-					slope_plane_t *result = new slope_plane_t;
-
-					result->x1  = lt->v1->x;
-					result->y1  = lt->v1->y;
-					result->dz1 = ld->backsector->c_h - ld->frontsector->c_h;
-
-					result->x2  = lt->v2->x;
-					result->y2  = lt->v2->y;
-					result->dz2 = 0;
-
-					ld->frontsector->c_slope = result;
-				}
-				else
-				{
-					zvertexes[v1i].y = ld->backsector->c_h;
-					zvertexes[v2i].y = ld->backsector->c_h;
-				}
-			}
-			else if (ld->args[1] == 2)
-			{
-				if (lt)
-				{
-					slope_plane_t *result = new slope_plane_t;
-
-					result->x1  = lt->v1->x;
-					result->y1  = lt->v1->y;
-					result->dz1 = 0;
-
-					result->x2  = lt->v2->x;
-					result->y2  = lt->v2->y;
-					result->dz2 = ld->frontsector->c_h - ld->backsector->c_h;
-
-					ld->backsector->c_slope = result;
-				}
-				else
-				{
-					zvertexes[v1i].y = ld->frontsector->c_h;
-					zvertexes[v2i].y = ld->frontsector->c_h;
-				}
-			}
-		}
-
 		SYS_ASSERT(sd <= sides + numsides);
 	}
 
@@ -2913,6 +2755,7 @@ static void LoadUDMFLineDefs(parser_t *psr)
 			ld->v1 = &vertexes[v1];
 			ld->v2 = &vertexes[v2];
 
+			// check if special is in DDF
 			if (!hexen_level && !zdoom_level)
 				ld->special = P_LookupLineType(MAX(0, special));
 			else
@@ -3851,6 +3694,215 @@ static void CreateVertexSeclists(void)
 	delete[] branches;
 }
 
+static void SetupUDMFSpecials(void)
+{
+	for (int i=0; i<numlines; i++)
+	{
+		line_t *ld = lines + i;
+
+		if (zdoom_level)
+		{
+			// process zdoom line actions
+			if (ld->action == 12)
+			{
+				// Door_Raise
+				ld->special = P_LookupLineType(1); // standard Doom door
+				if (ld->args[0] == 0 && ld->args[1] == 16 && ld->args[2] == 150)
+				{
+					// standard Doom door
+					ld->tag = ld->args[3];
+					continue;
+				}
+				// duplicate and alter settings - TODO
+
+			}
+			if (ld->action == 70)
+			{
+				// Teleport
+				if (ld->flags & 0x0200)
+				{
+					// repeatable
+					ld->tag = ld->args[1];
+					ld->special = P_LookupLineType(97); // repeatable TELEPORT
+				}
+				else
+				{
+					// one-shot
+					ld->tag = ld->args[1];
+					ld->special = P_LookupLineType(39); // one-shot TELEPORT
+				}
+			}
+
+			if (ld->action == 71)
+			{
+				// Teleport_NoFog
+				linetype_c *ls = NULL;
+				if (ld->flags & 0x0200)
+					ls = P_LookupLineType(97); // repeatable TELEPORT
+				else
+					ls = P_LookupLineType(39); // one-shot TELEPORT
+				if (ls)
+				{
+					// duplicate special
+					linetype_c *lt = (linetype_c *)malloc(sizeof(linetype_c));
+					memcpy(lt, ls, sizeof(linetype_c));
+					// make changes
+					lt->t.delay = 0;
+					lt->t.special = (teleportspecial_e)(TELSP_SameSpeed | TELSP_Silent);
+					if (ld->args[1] == 1)
+						lt->t.special = (teleportspecial_e)(lt->t.special | TELSP_SameAbsDir);
+					else if (ld->args[1] == 2)
+						lt->t.special = (teleportspecial_e)(lt->t.special | TELSP_Relative | TELSP_Flipped);
+					else if (ld->args[1] == 3)
+						lt->t.special = (teleportspecial_e)(lt->t.special | TELSP_Relative);
+					if (ld->args[3])
+						lt->t.special = (teleportspecial_e)(lt->t.special | TELSP_SameHeight);
+
+					ld->special = (const linetype_c *)lt;
+				}
+			}
+
+			// check for possible extrafloors, updating the exfloor_max count
+			// for the sectors in question.
+			if (ld->action == 160 && (ld->args[1] & 3) == 1)
+			{
+				ld->tag = ld->args[0];
+				ld->special = P_LookupLineType(400); // make an EDGE Thick Extrafloor special
+
+				for (int j=0; j < numsectors; j++)
+				{
+					if (sectors[j].tag != ld->args[0])
+						continue;
+
+					sectors[j].exfloor_max++;
+					numextrafloors++;
+				}
+			}
+
+			// check for plane_align
+			if (zdoom_level && ld->action == 181)
+			{
+				int v1i = ld->v1 - vertexes;
+				int v2i = ld->v2 - vertexes;
+
+				int j;
+				line_t *lt = lines;
+				for (j=0; j<numlines; j++, lt++)
+				{
+					if (lt->v1 == ld->v2)
+						break;
+				}
+				if (j == numlines)
+					lt = NULL;
+
+				if (ld->args[0] == 1)
+				{
+					if (lt)
+					{
+						slope_plane_t *result = new slope_plane_t;
+
+						result->x1  = lt->v1->x;
+						result->y1  = lt->v1->y;
+						result->dz1 = ld->backsector->f_h - ld->frontsector->f_h;
+
+						result->x2  = lt->v2->x;
+						result->y2  = lt->v2->y;
+						result->dz2 = 0;
+
+						ld->frontsector->f_slope = result;
+					}
+					else
+					{
+						zvertexes[v1i].x = ld->backsector->f_h;
+						zvertexes[v2i].x = ld->backsector->f_h;
+					}
+
+				}
+				else if (ld->args[0] == 2)
+				{
+					if (lt)
+					{
+						slope_plane_t *result = new slope_plane_t;
+
+						result->x1  = lt->v1->x;
+						result->y1  = lt->v1->y;
+						result->dz1 = 0;
+
+						result->x2  = lt->v2->x;
+						result->y2  = lt->v2->y;
+						result->dz2 = ld->frontsector->f_h - ld->backsector->f_h;
+
+						ld->backsector->f_slope = result;
+					}
+					else
+					{
+						zvertexes[v1i].x = ld->frontsector->f_h;
+						zvertexes[v2i].x = ld->frontsector->f_h;
+					}
+				}
+
+				if (ld->args[1] == 1)
+				{
+					if (lt)
+					{
+						slope_plane_t *result = new slope_plane_t;
+
+						result->x1  = lt->v1->x;
+						result->y1  = lt->v1->y;
+						result->dz1 = ld->backsector->c_h - ld->frontsector->c_h;
+
+						result->x2  = lt->v2->x;
+						result->y2  = lt->v2->y;
+						result->dz2 = 0;
+
+						ld->frontsector->c_slope = result;
+					}
+					else
+					{
+						zvertexes[v1i].y = ld->backsector->c_h;
+						zvertexes[v2i].y = ld->backsector->c_h;
+					}
+				}
+				else if (ld->args[1] == 2)
+				{
+					if (lt)
+					{
+						slope_plane_t *result = new slope_plane_t;
+
+						result->x1  = lt->v1->x;
+						result->y1  = lt->v1->y;
+						result->dz1 = 0;
+
+						result->x2  = lt->v2->x;
+						result->y2  = lt->v2->y;
+						result->dz2 = ld->frontsector->c_h - ld->backsector->c_h;
+
+						ld->backsector->c_slope = result;
+					}
+					else
+					{
+						zvertexes[v1i].y = ld->frontsector->c_h;
+						zvertexes[v2i].y = ld->frontsector->c_h;
+					}
+				}
+			}
+		}
+	}
+}
+
+static void CleanupUDMFSpecials(void)
+{
+	for (int i=0; i<numlines; i++)
+	{
+		line_t *ld = lines + i;
+
+		if (zdoom_level)
+		{
+			if (ld->action == 71 && ld->special)
+				free((void*)ld->special);
+		}
+	}
+}
 
 static void P_RemoveSectorStuff(void)
 {
@@ -3893,6 +3945,9 @@ void P_ShutdownLevel(void)
 	P_DestroyAllAmbientSFX();
 
 	DDF_BoomClearGenTypes();
+
+	if (udmf_level)
+		CleanupUDMFSpecials();
 
 	delete[] segs;
 	segs = NULL;
@@ -4121,6 +4176,7 @@ void P_SetupLevel(void)
 		LoadUDMFSectors(&udmf_psr);
 		LoadUDMFLineDefs(&udmf_psr);
 		LoadUDMFSideDefs(&udmf_psr);
+		SetupUDMFSpecials();
 	}
 
 	SetupExtrafloors();
