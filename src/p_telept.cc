@@ -175,7 +175,8 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
     {
         if (! def->outspawnobj)
         {
-			// zdoom teleport to sector
+			// no teleport dest object
+			I_Debugf("EV_Teleport: No destination object specified. Using center of sector.\n");
 			sector_t *sec = FindTeleportSec(tag);
 			if (!sec)
 				return false;
@@ -190,13 +191,25 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
 			currmobj = FindTeleportMan(tag, def->outspawnobj);
 
 			if (! currmobj)
-				return false;
+			{
+				// couldn't find teleport dest in sector
+				I_Debugf("EV_Teleport: No destination object found. Using center of sector.\n");
+				sector_t *sec = FindTeleportSec(tag);
+				if (!sec)
+					return false;
 
-			new_x = currmobj->x;
-			new_y = currmobj->y;
-			new_z = currmobj->z;
+				new_x = sec->sfx_origin.x;
+				new_y = sec->sfx_origin.y;
+				new_z = sec->f_h;
+			}
+			else
+			{
+				new_x = currmobj->x;
+				new_y = currmobj->y;
+				new_z = currmobj->z;
 
-			dest_ang = currmobj->angle;
+				dest_ang = currmobj->angle;
+			}
 		}
     }
 
