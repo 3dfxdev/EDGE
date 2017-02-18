@@ -665,7 +665,10 @@ static void G_DoCompleted(void)
 
 	BOT_EndLevel();
 
-	P_ShutdownLevel();
+	// -CW- Interferes with HUBs.
+	//P_ShutdownLevel();
+	S_StopLevelFX();
+	S_StopMusic();
 
 	automapactive = false;
 
@@ -1220,7 +1223,11 @@ static void G_DoEndGame(void)
 	{
 		BOT_EndLevel();
 
-		P_ShutdownLevel();
+		// -CW- You would normally shut down the level here, which would stop
+		// SFX, but this causes problems with HUBs.
+		//P_ShutdownLevel();
+		S_StopLevelFX();
+		S_StopMusic();
 	}
 
 	gamestate = GS_NOTHING;
