@@ -23,6 +23,7 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 * Damir Srpcic
 * Rachael "Eruanna" Alexanderson
 * Brendan "Brendoe1" Doe
+* dpJudas
 * Alex "TapamN" Nesemann
 * UsernameAK
 * Josh "Ph3nom" Pearson (KallistiGL code)
@@ -40,7 +41,6 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 ---
 * Andrew Apted (additional programming, bug fixes)
 * Graf Zahl (for his ongoing wisdom, contributions, and guidance)
-* dpJudas (optimizations, help)
 * Marisa Heit (most amazing woman in the community, TBH ;)
 * Fraggle (Chocolate Doom SDL2 help)
 * Crispy Doom Guys (fabian, alexmax) for helping with lerp
