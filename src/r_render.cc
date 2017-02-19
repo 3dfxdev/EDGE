@@ -49,6 +49,8 @@
 
 #include "n_network.h"  // N_NetUpdate
 
+#define ZDOOM_OCCLUSION // Use screen space clipping instead of angles for 1d occlusion buffer, as zdoom does
+
 #define DEBUG  0
 
 #define FLOOD_DIST    1024.0f
@@ -57,6 +59,7 @@
 #define DOOM_YSLOPE       (0.525)
 #define DOOM_YSLOPE_FULL  (0.625)
 
+bool RGL_OcclusionTestLine(double x1, double y1, double x2, double y2, angle_t &sx1, angle_t &sx2);
 
 static inline float SecLerpedCeil(sector_t *sec)
 {
@@ -2138,15 +2141,25 @@ static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 //
 static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 {
-	// ignore segs sitting on current mirror
-	if (MIR_SegOnPortal(seg))
-		return;
-
 	float sx1 = seg->v1->x;
 	float sy1 = seg->v1->y;
 
 	float sx2 = seg->v2->x;
 	float sy2 = seg->v2->y;
+
+	// Reject lines not facing viewer
+	{
+		float pt1x = sx1 - viewx;
+		float pt1y = sy1 - viewy;
+		float pt2x = sx2 - viewx;
+		float pt2y = sy2 - viewy;
+		if (pt1y * (pt1x - pt2x) + pt1x * (pt2y - pt1y) >= 0)
+			return;
+	}
+
+	// ignore segs sitting on current mirror
+	if (MIR_SegOnPortal(seg))
+		return;
 
 	// when there are active mirror planes, segs not only need to
 	// be flipped across them but also clipped across them.
@@ -2194,8 +2207,13 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 		}
 	}
 
-	angle_t angle_L = R_PointToAngle(viewx, viewy, sx1, sy1);
-	angle_t angle_R = R_PointToAngle(viewx, viewy, sx2, sy2);
+#ifdef ZDOOM_OCCLUSION
+	angle_t angle_L, angle_R;
+	if (!RGL_OcclusionTestLine(sx1, sy1, sx2, sy2, angle_L, angle_R))
+		return;
+#else
+	angle_t angle_L = R_PointToAngle(sx1, sy1);
+	angle_t angle_R = R_PointToAngle(sx2, sy2);
 
 	// Clip to view edges.
 
@@ -2244,10 +2262,11 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 		return;
 	}
 #endif
+#endif
 
 	dsub->visible = true;
 
-	if (seg->miniseg || span == 0)
+	if (seg->miniseg || angle_L == angle_R)
 		return;
 
 	if (num_active_mirrors < MAX_MIRRORS)
@@ -2338,6 +2357,119 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 // clipping stuff in it.
 //
 
+#ifdef ZDOOM_OCCLUSION // ZDoom's clipsegs adjusted to use fake angles in range 0-180
+
+bool RGL_OcclusionTestLine(double x1, double y1, double x2, double y2, angle_t &sx2, angle_t &sx1)
+{
+	x1 -= viewx;
+	y1 -= viewy;
+	x2 -= viewx;
+	y2 -= viewy;
+
+	// Sitting on a line?
+	double EQUAL_EPSILON = (1 / 65536.);
+	if (y1 * (x1 - x2) + x1 * (y2 - y1) >= -EQUAL_EPSILON)
+		return true;
+
+	double rx1 = x1 * viewsin - y1 * viewcos;
+	double rx2 = x2 * viewsin - y2 * viewcos;
+	double ry1 = x1 * viewcos + y1 * viewsin;
+	double ry2 = x2 * viewcos + y2 * viewsin;
+
+	if (num_active_mirrors % 2 == 1)
+	{
+		double t = -rx1;
+		rx1 = -rx2;
+		rx2 = t;
+		std::swap(ry1, ry2);
+	}
+
+	if (rx1 >= -ry1)
+	{
+		if (rx1 > ry1) return false;	// left edge is off the right side
+		if (ry1 == 0) return false;
+		sx1 = (angle_t)std::round(ANG180 + rx1 * ANG90 / ry1);
+	}
+	else
+	{
+		if (rx2 < -ry2) return false;	// wall is off the left side
+		if (rx1 - rx2 - ry2 + ry1 == 0) return false;	// wall does not intersect view volume
+		sx1 = ANG90;
+	}
+
+	if (rx2 <= ry2)
+	{
+		if (rx2 < -ry2) return false;	// right edge is off the left side
+		if (ry2 == 0) return false;
+		sx2 = (angle_t)std::round(ANG180 + rx2 * ANG90 / ry2);
+	}
+	else
+	{
+		if (rx1 > ry1) return false;	// wall is off the right side
+		if (ry2 - ry1 - rx2 + rx1 == 0) return false;	// wall does not intersect view volume
+		sx2 = ANG270;
+	}
+
+	// Find the first clippost that touches the source post
+	//	(adjacent pixels are touching).
+	return !RGL_1DOcclusionTest(sx1, sx2);
+}
+
+bool RGL_CheckBBox(float *bspcoord)
+{
+	static const int checkcoord[12][4] =
+	{
+		{ 3,0,2,1 },
+		{ 3,0,2,0 },
+		{ 3,1,2,0 },
+		{ 0 },
+		{ 2,0,2,1 },
+		{ 0,0,0,0 },
+		{ 3,1,3,0 },
+		{ 0 },
+		{ 2,0,3,1 },
+		{ 2,1,3,1 },
+		{ 2,1,3,0 }
+	};
+
+	int 				boxx;
+	int 				boxy;
+	int 				boxpos;
+
+	double	 			x1, y1, x2, y2;
+	angle_t				sx1, sx2;
+
+	// Find the corners of the box
+	// that define the edges from current viewpoint.
+	if (viewx <= bspcoord[BOXLEFT])
+		boxx = 0;
+	else if (viewx < bspcoord[BOXRIGHT])
+		boxx = 1;
+	else
+		boxx = 2;
+
+	if (viewy >= bspcoord[BOXTOP])
+		boxy = 0;
+	else if (viewy > bspcoord[BOXBOTTOM])
+		boxy = 1;
+	else
+		boxy = 2;
+
+	boxpos = (boxy << 2) + boxx;
+	if (boxpos == 5)
+		return true;
+
+	x1 = bspcoord[checkcoord[boxpos][0]];
+	y1 = bspcoord[checkcoord[boxpos][1]];
+	x2 = bspcoord[checkcoord[boxpos][2]];
+	y2 = bspcoord[checkcoord[boxpos][3]];
+
+	// check clip list for an open space
+
+	return RGL_OcclusionTestLine(x1, y1, x2, y2, sx1, sx2);
+}
+
+#else
 bool RGL_CheckBBox(float *bspcoord)
 {
 	if (num_active_mirrors > 0)
@@ -2431,7 +2563,7 @@ bool RGL_CheckBBox(float *bspcoord)
 
 	return ! RGL_1DOcclusionTest(angle_R, angle_L);
 }
-
+#endif
 
 static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 						  surface_t *surf, int face_dir)
