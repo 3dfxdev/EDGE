@@ -49,7 +49,7 @@
 
 #include "n_network.h"  // N_NetUpdate
 
-#define ZDOOM_OCCLUSION // Use screen space clipping instead of angles for 1d occlusion buffer, as zdoom does
+//#define ZDOOM_OCCLUSION // Use screen space clipping instead of angles for 1d occlusion buffer, as zdoom does
 
 #define DEBUG  0
 
@@ -2212,8 +2212,10 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 	if (!RGL_OcclusionTestLine(sx1, sy1, sx2, sy2, angle_L, angle_R))
 		return;
 #else
-	angle_t angle_L = R_PointToAngle(sx1, sy1);
-	angle_t angle_R = R_PointToAngle(sx2, sy2);
+	//angle_t angle_L = R_PointToAngle(sx1, sy1);
+	//angle_t angle_R = R_PointToAngle(sx2, sy2);
+	angle_t angle_L = R_PointToAngle(viewx, viewy, sx1, sy1);
+	angle_t angle_R = R_PointToAngle(viewx, viewy, sx2, sy2);
 
 	// Clip to view edges.
 
