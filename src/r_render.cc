@@ -2214,8 +2214,8 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 #else
 	//angle_t angle_L = R_PointToAngle(sx1, sy1);
 	//angle_t angle_R = R_PointToAngle(sx2, sy2);
-	angle_t angle_L = R_PointToAngle(viewx, viewy, sx1, sy1);
-	angle_t angle_R = R_PointToAngle(viewx, viewy, sx2, sy2);
+	angle_t angle_L = BSP_PointToAngle(viewx, viewy, sx1, sy1);
+	angle_t angle_R = BSP_PointToAngle(viewx, viewy, sx2, sy2);
 
 	// Clip to view edges.
 
@@ -2524,8 +2524,8 @@ bool RGL_CheckBBox(float *bspcoord)
 	float y2 = bspcoord[checkcoord[boxpos][3]];
 
 	// check clip list for an open space
-	angle_t angle_L = R_PointToAngle(viewx, viewy, x1, y1);
-	angle_t angle_R = R_PointToAngle(viewx, viewy, x2, y2);
+	angle_t angle_L = BSP_PointToAngle(viewx, viewy, x1, y1);
+	angle_t angle_R = BSP_PointToAngle(viewx, viewy, x2, y2);
 
 	angle_t span = angle_L - angle_R;
 
