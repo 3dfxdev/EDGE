@@ -121,6 +121,26 @@ angle_t R_PointToAngle(float x1, float y1, float x, float y)
 	return (x == 0) && (y == 0) ? 0 : FLOAT_2_ANG(atan2(y, x) * (180 / M_PI));
 }
 
+angle_t BSP_PointToAngle(float x1, float y1, float x, float y)
+{
+	float vecx = x - x1;
+	float vecy = y - y1;
+
+	if (vecx == 0 && vecy == 0)
+	{
+		return 0;
+	}
+	else
+	{
+		float result = vecy / (fabs(vecx) + fabs(vecy));
+		if (vecx < 0)
+		{
+			result = 2.f - result;
+		}
+		return (angle_t)(result * (1 << 30));
+	}
+}
+
 
 float R_PointToDist(float x1, float y1, float x2, float y2)
 {
