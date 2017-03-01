@@ -192,6 +192,8 @@ cvar_c ddf_strict;
 cvar_c ddf_lax;
 cvar_c ddf_quiet;
 
+cvar_c r_gpuswitch;
+
 static void E_TitleDrawer(void);
 
 
@@ -507,6 +509,22 @@ static void DoSystemStartup(void)
 	W_InitImages();
 
 	I_Debugf("- System startup begun.\n");
+
+	// [SP] Set up Optimus to use desired GPU by setting environment variable before init.
+	if (r_gpuswitch.d == 1)
+	{
+		I_Debugf("* Setting Optimus High-Performance GPU.\n");
+		putenv("SHIM_MCCOMPAT=0x800000001");
+	}
+	else if (r_gpuswitch.d == 2)
+	{
+		I_Debugf("* Setting Optimus Power-Saving GPU.\n");
+		putenv("SHIM_MCCOMPAT=0x800000000");
+	}
+	else
+	{
+		I_Debugf("* Optimus GPU setting not set.\n");
+	}
 
 	I_SystemStartup();
 
