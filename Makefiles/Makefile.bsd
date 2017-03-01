@@ -173,6 +173,7 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/i_video.o        \
 	$(OBJDIR)/edge/i_sound.o        \
 	$(OBJDIR)/edge/i_net.o	        \
+	$(OBJDIR)/edge/i_ffmpeg.o       \
 	$(OBJDIR)/edge/am_map.o         \
 	$(OBJDIR)/edge/con_con.o        \
 	$(OBJDIR)/edge/con_main.o       \
