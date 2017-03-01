@@ -202,6 +202,7 @@ float P_ApproxDistance(float dx, float dy);
 float P_ApproxDistance(float dx, float dy, float dz);
 float P_ApproxSlope(float dx, float dy, float dz);
 int P_PointOnDivlineSide(float x, float y, divline_t *div);
+inline int R_PointOnSide(float x, float y, divline_t *div);
 int P_PointOnDivlineThick(float x, float y, divline_t *div,
 						  float div_len, float thickness);
 void P_ComputeIntersection(divline_t *div,
