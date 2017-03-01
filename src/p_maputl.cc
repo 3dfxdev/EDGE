@@ -130,8 +130,15 @@ void P_ComputeIntersection(divline_t *div,
 //
 int P_PointOnDivlineSide(float x, float y, divline_t *div)
 {
-	return (div->dx * (y - div->y) - div->dy * (x - div->x)) >= 0; // FIXME: returns back / left if the point is *on* the line. We should find a way to use a tri-state instead of boolean logic. Besides, there's currently no way to *tell* the engine the state is undefined... maybe there is upstream logic for this?
+	return (div->dx * (y - div->y) - div->dy * (x - div->x)) >= 0; // FIXME: returns back / left if the point is *on* the line.
+	//We should find a way to use a tri-state instead of boolean logic. Besides, there's currently no way to *tell* the engine the state is undefined... maybe there is upstream logic for this?
 }
+
+inline int R_PointOnSide (float x, float y, divline_t *div)
+{
+	return DMulScale32 (y-div->y, div->dx, div->x-x, div->dy) > 0;
+}
+
 
 //
 // P_PointOnDivlineThick
