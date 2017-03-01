@@ -24,40 +24,73 @@ add_custom_target(revision_check ALL
    DEPENDS updaterevision 
 )
 
+set( CPUID_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libcpuid/include" )
+set( CPUID_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libcpuid/lib/libcpuid.lib" )
+set( GLEW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-1.13.0/include" )
+set( GLEW_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-1.13.0/lib/Release/Win32/glew32s.lib" )
+set( GLEW_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-1.13.0/lib/Release/Win32/glew32s.lib" )
+set( JPEG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libjpeg-turbo/include" )
+set( JPEG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libjpeg-turbo/lib/turbojpeg-static.lib" )
+set( OGG_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg-1.3.2/lib/libogg_static.lib" )
+set( OGG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg-1.3.2/include" )
+set( OGG_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg-1.3.2/lib/libogg_static.lib" )
+set( PHYSFS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/physfs/include" )
+set( PHYSFS_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/physfs/lib/physfs.lib" )
+set( PNG_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/lpng1620/lib/libpng16_static.lib" )
+set( PNG_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/lpng1620/lib/libpng16_static.lib" )
+set( PNG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/lpng1620/include" )
+set( SDL2MAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2-2.0.3/lib/x86/SDL2main.lib" )
+set( SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2-2.0.3/include" )
+set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2-2.0.3/lib/x86/SDL2.lib" )
+set( SDL2_NET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2_net-2.0.1/include" )
+set( SDL2_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2_net-2.0.1/lib/x86/SDL2_net.lib" )
+set( VORBISFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis-1.3.5/lib/libvorbisfile_static.lib" )
+set( VORBISFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis-1.3.5/lib/libvorbisfile_static.lib" )
+set( VORBIS_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis-1.3.5/lib/libvorbis_static.lib" )
+set( VORBIS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis-1.3.5/include" )
+set( VORBIS_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis-1.3.5/lib/libvorbis_static.lib" )
+set( ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.8/include" )
+set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.8/lib/zlibstatic.lib" )
+set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.8/lib/zlibstatic.lib" )
+
+# Phys
+#find_package(PHYSFS REQUIRED)
+include_directories(${PHYSFS_INCLUDE_DIR})
+
 # SDL
-find_package(SDL2 REQUIRED)
+#find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIR})
 
 # SDL_net
-find_package(SDL2_net REQUIRED)
+#find_package(SDL2_net REQUIRED)
 include_directories(${SDL2_NET_INCLUDE_DIR})
 
 # GLEW
-find_package(GLEW REQUIRED)
-include_directories(${GLEW_INCLUDE_DIRS})
+#find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIR})
 
 # libvorbis/libogg
-find_package(OGG REQUIRED)
-find_package(Vorbis REQUIRED)
+#find_package(OGG REQUIRED)
+#find_package(Vorbis REQUIRED)
 include_directories(
 	${OGG_INCLUDE_DIR}
 	${VORBIS_INCLUDE_DIR}
 )
 
 # zlib
-find_package(ZLIB REQUIRED)
-include_directories(${ZLIB_INCLUDE_DIRS})
+#find_package(ZLIB REQUIRED)
+include_directories(${ZLIB_INCLUDE_DIR})
 
 # libcpuid
-find_package(cpuid REQUIRED)
+#find_package(cpuid REQUIRED)
 include_directories(${CPUID_INCLUDE_DIR})
 
 # png
-find_package(PNG REQUIRED)
-include_directories(${PNG_INCLUDE_DIRS})
+#find_package(PNG REQUIRED)
+include_directories(${PNG_INCLUDE_DIR})
 
 # jpeg
-find_package(JPEG REQUIRED)
+#find_package(JPEG REQUIRED)
 include_directories(${JPEG_INCLUDE_DIR})
 
 # 3DGE
@@ -129,6 +162,7 @@ set(3DGE_SOURCES
 	src/hu_font.cc
 	src/hu_stuff.cc
 	src/hu_style.cc
+	src/i_ffmpeg.cc
 	src/l_glbsp.cc
 	src/l_deh.cc
 	src/m_argv.cc
@@ -332,13 +366,15 @@ target_link_libraries(3DGE
 	${SDL2_LIBRARY}
 	${SDL2MAIN_LIBRARY}
 	${SDL2_NET_LIBRARY}
-	${OGG_LIBRARIES}
-	${VORBIS_LIBRARIES}
+	${OGG_RELEASE_LIBRARY}
+	${VORBIS_RELEASE_LIBRARY}
+	${VORBISFILE_RELEASE_LIBRARY}
 	${CPUID_LIBRARY}
-	${ZLIB_LIBRARIES}
-	${GLEW_LIBRARIES}
-	${PNG_LIBRARIES}
-	${JPEG_LIBRARIES}
+	${ZLIB_LIBRARY_RELEASE}
+	${GLEW_LIBRARY_RELEASE}
+	${PNG_LIBRARY_RELEASE}
+	${JPEG_LIBRARY}
+	${PHYSFS_LIBRARY}
 	opengl32
 )
 

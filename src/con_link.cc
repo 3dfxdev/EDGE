@@ -77,6 +77,8 @@ extern cvar_c r_gl2_path;
 extern cvar_c r_stretchworld;
 extern cvar_c r_fixspritescale;
 
+extern cvar_c r_gpuswitch;
+
 extern cvar_c s_volume, s_mixchan, s_quietfactor;
 extern cvar_c s_rate, s_bits, s_stereo;
 extern cvar_c s_musicvol, s_musicdevice;
@@ -169,6 +171,8 @@ cvar_link_t  all_cvars[] =
 	{ "r_dumbcombine",  &r_dumbcombine,   "",   "0"  },
 	{ "r_dumbclamp",    &r_dumbclamp,     "",   "0"  },
 	{ "r_gl2_path",     &r_gl2_path,      "",   "0"  },
+
+	{ "r_gpuswitch",    &r_gpuswitch,     "c",   "0"  }, // notebook optimus gpu selector
 
 	{ "r_stretchworld", &r_stretchworld, "c",   "1"  },
 	{ "r_fixspritescale", &r_fixspritescale, "c", "1" },
