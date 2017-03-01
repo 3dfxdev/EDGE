@@ -76,7 +76,9 @@ extern float pixel_aspect;
 //
 // Utility functions.
 angle_t R_PointToAngle(float x1, float y1, float x2, float y2);
-angle_t BSP_PointToAngle(float x1, float y1, float x2, float y2);
+angle_t R_PointToPseudoAngle(float x, float y);
+angle_t R_GetVertexViewAngle(vertex_t *v);
+angle_t R_GetVertexViewAngleGL(vertex_t *v);
 float R_PointToDist(float x1, float y1, float x2, float y2);
 float R_ScaleFromGlobalAngle(angle_t visangle);
 subsector_t *R_PointInSubsector(float x, float y);

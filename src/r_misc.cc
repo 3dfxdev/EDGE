@@ -58,6 +58,7 @@ int viewwindow_h;
 angle_t viewangle = 0;
 angle_t viewvertangle = 0;
 
+
 vec3_t viewforward;
 vec3_t viewup;
 vec3_t viewright;
@@ -106,6 +107,45 @@ int simple_shadows = 0;
 
 int var_invul_fx;
 
+
+// e6y
+// The precision of the code above is abysmal so use the CRT atan2 function instead!
+
+// FIXME - use of this function should be disabled on architectures with
+// poor floating point support! Imagine how slow this would be on ARM, say.
+
+#if 0
+angle_t R_PointToAngleEx(float x, float y)
+{
+	static uint64_t old_y_viewy;
+	static uint64_t old_x_viewx;
+	static int old_result;
+
+	uint64_t y_viewy = (uint64_t)y - viewy;
+	uint64_t x_viewx = (uint64_t)x - viewx;
+
+	if (!render_precise)
+	{
+		// e6y: here is where "slime trails" can SOMETIMES occur
+
+		if (y_viewy < INT_MAX / 4 && x_viewx < INT_MAX / 4
+			&& y_viewy > -INT_MAX / 4 && x_viewx > -INT_MAX / 4)
+
+			return R_PointToAngle(x, y);
+	}
+
+	if (old_y_viewy != y_viewy || old_x_viewx != x_viewx)
+	{
+		old_y_viewy = y_viewy;
+		old_x_viewx = x_viewx;
+
+		old_result = (int)((float)atan2((float)y_viewy, (float)x_viewx) * (ANG180 / M_PI));
+	}
+	return old_result;
+}
+
+#endif // 0
+
 //
 // To get a global angle from cartesian coordinates,
 // the coordinates are flipped until they are in
@@ -121,26 +161,51 @@ angle_t R_PointToAngle(float x1, float y1, float x, float y)
 	return (x == 0) && (y == 0) ? 0 : FLOAT_2_ANG(atan2(y, x) * (180 / M_PI));
 }
 
-angle_t BSP_PointToAngle(float x1, float y1, float x, float y)
-{
-	float vecx = x - x1;
-	float vecy = y - y1;
 
-	if (vecx == 0 && vecy == 0)
-	{
-		return 0;
-	}
-	else
-	{
-		float result = vecy / (fabs(vecx) + fabs(vecy));
-		if (vecx < 0)
-		{
-			result = 2.f - result;
-		}
-		return (angle_t)(result * (1 << 30));
-	}
+angle_t R_PointToPseudoAngle (double x, double y)
+{
+  // Note: float won't work here as it's less precise than the BAM values being passed as parameters!
+  double vecx = (double)x - viewx;
+  double vecy = (double)y - viewy;
+
+  if (vecx == 0 && vecy == 0)
+  {
+    return 0;
+  }
+  else
+  {
+    double result = vecy / (fabs(vecx) + fabs(vecy));
+    if (vecx < 0)
+    {
+      result = 2.0 - result;
+    }
+    return (angle_t)(result * (1 << 30));
+  }
 }
 
+angle_t R_GetVertexViewAngleGL(vertex_t *v)
+{
+  if (v->angletime != framecount)
+  {
+    v->angletime = framecount;
+    v->viewangle = R_PointToPseudoAngle(v->x, v->y);
+  }
+  return v->viewangle;
+}
+
+
+#if 0
+angle_t R_GetVertexViewAngle(vertex_t *v)
+{
+  if (v->angletime != framecount)
+  {
+    v->angletime = framecount;
+    v->viewangle = R_PointToAngle(v->px, v->py);
+  }
+  return v->viewangle;
+}
+
+#endif // 0
 
 float R_PointToDist(float x1, float y1, float x2, float y2)
 {
@@ -176,7 +241,7 @@ subsector_t *R_PointInSubsector(float x, float y)
 	while (!(nodenum & NF_V5_SUBSECTOR))
 	{
 		node = &nodes[nodenum];
-		side = P_PointOnDivlineSide(x, y, &node->div);
+		side = R_PointOnSide(x, y, &node->div);
 		nodenum = node->children[side];
 	}
 
