@@ -129,6 +129,7 @@ set(3DGE_SOURCES
 	src/hu_font.cc
 	src/hu_stuff.cc
 	src/hu_style.cc
+	src/i_ffmpeg.cc
 	src/l_glbsp.cc
 	src/l_deh.cc
 	src/m_argv.cc
