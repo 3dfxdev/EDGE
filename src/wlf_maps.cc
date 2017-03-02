@@ -26,21 +26,15 @@ static int map_count;
 
 static raw_maphead_t map_head;
 
-
-#if 0
 inline void FROM_LE_U16(u16_t& val)
 {
 	val = EPI_LE_U16(val);
 }
-#endif // 0
-#define EPI_LE_U16(val)  ((u16_t)(val))
-#define EPI_LE_U32(val)  ((u32_t)(val))
-#if 0
+
 inline void FROM_LE_U32(u32_t& val)
 {
 	val = EPI_LE_U32(val);
 }
-#endif // 0
 
 
 static void MapsReadHeaders()
