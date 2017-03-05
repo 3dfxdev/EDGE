@@ -134,10 +134,11 @@ int P_PointOnDivlineSide(float x, float y, divline_t *div)
 	//We should find a way to use a tri-state instead of boolean logic. Besides, there's currently no way to *tell* the engine the state is undefined... maybe there is upstream logic for this?
 }
 
-inline int R_PointOnSide (float x, float y, divline_t *div)
-{
-	return DMulScale32 (y-div->y, div->dx, div->x-x, div->dy) > 0;
-}
+// [SP] -- might we be able to license this code for later use? ---> __forceinline int32_t DMulScale32(int32_t a, int32_t b, int32_t c, int32_t d) { return (int32_t)(((int64_t)a*b + (int64_t)c*d) >> 32); } // used by R_PointOnSide.
+//inline int R_PointOnSide (float x, float y, divline_t *div)
+//{
+//	return DMulScale32 (y-div->y, div->dx, div->x-x, div->dy) > 0;
+//}
 
 
 //
