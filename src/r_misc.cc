@@ -203,15 +203,15 @@ angle_t R_PointToPseudoAngle (double x, double y)
   }
 }
 
-angle_t R_GetVertexViewAngleGL(vertex_t *v)
-{
-  if (v->angletime != framecount)
-  {
-    v->angletime = framecount;
-    v->viewangle = R_PointToPseudoAngle(v->x, v->y);
-  }
-  return v->viewangle;
-}
+//angle_t R_GetVertexViewAngleGL(vertex_t *v)
+//{
+//  if (v->angletime != framecount)
+//  {
+//    v->angletime = framecount;
+//    v->viewangle = R_PointToPseudoAngle(v->x, v->y);
+//  }
+//  return v->viewangle;
+//}
 
 
 #if 0
@@ -261,7 +261,8 @@ subsector_t *R_PointInSubsector(float x, float y)
 	while (!(nodenum & NF_V5_SUBSECTOR))
 	{
 		node = &nodes[nodenum];
-		side = R_PointOnSide(x, y, &node->div);
+		//		side = R_PointOnSide(x, y, &node->div); // we're not ready for this, yet
+		side = P_PointOnDivlineSide(x, y, &node->div);
 		nodenum = node->children[side];
 	}
 
