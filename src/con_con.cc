@@ -1021,7 +1021,7 @@ bool CON_Responder(event_t * ev)
 	}
 
 	if (con_visible == vs_notvisible)
-	{   paused = false;
+	{   
 		return false;
 	}
 	
