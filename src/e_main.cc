@@ -96,6 +96,7 @@
 #include "version.h"
 #include "vm_coal.h"
 #include "z_zone.h"
+#include "r_renderbuffers.h"
 
 
 
@@ -632,6 +633,15 @@ void E_Display(void)
 	I_Printf("I: %f\n", N_GetInterpolater());
 #endif
 
+	// Setup render buffers, if needed
+	auto renderbuffers = FGLRenderBuffers::Instance();
+	if (renderbuffers->Setup(SCREENWIDTH, SCREENHEIGHT, viewwindow_w, viewwindow_h))
+	{
+		// Render buffers are availabe and active.
+		// Redirect rendering to the scene frame buffer object (FBO)
+		renderbuffers->BindSceneFB(false);
+	}
+
 	// Start the frame - should we need to.
 	I_StartFrame();
 
@@ -680,6 +690,18 @@ void E_Display(void)
 
 	case GS_NOTHING:
 		break;
+	}
+
+	if (renderbuffers->IsEnabled())
+	{
+		// Copy scene rendering to the first post processing texture
+		renderbuffers->BlitSceneToTexture();
+
+		// Copy the result back to back buffer
+		renderbuffers->BindCurrentFB();
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glBlitFramebuffer(0, 0, SCREENWIDTH, SCREENHEIGHT, 0, 0, SCREENWIDTH, SCREENHEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	}
 
 	if (wipe_gl_active)

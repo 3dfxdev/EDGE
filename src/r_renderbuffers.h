@@ -1,8 +1,12 @@
 
 #pragma once
 
+#include "i_defs_gl.h"
+
 #include <vector>
 #include <string>
+
+void RGL_InitRenderBuffers();
 
 class FGLBloomTextureLevel
 {
@@ -27,8 +31,10 @@ public:
 class FGLRenderBuffers
 {
 public:
+	static FGLRenderBuffers *Instance();
+
 	FGLRenderBuffers();
-	~FGLRenderBuffers();
+	//~FGLRenderBuffers();
 
 	bool Setup(int width, int height, int sceneWidth, int sceneHeight);
 
