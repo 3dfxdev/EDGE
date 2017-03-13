@@ -2,11 +2,15 @@
 #pragma once
 
 #include "i_defs_gl.h"
+#include "r_lensdistortion.h"
 
 #include <vector>
 #include <string>
 
 void RGL_InitRenderBuffers();
+
+std::string RGL_ScreenQuadVertexCode();
+void RGL_RenderScreenQuad();
 
 class FGLBloomTextureLevel
 {
@@ -86,6 +90,8 @@ public:
 
 	int GetSceneWidth() const { return mSceneWidth; }
 	int GetSceneHeight() const { return mSceneHeight; }
+
+	FLensShader Lens;
 
 private:
 	void ClearScene();

@@ -225,6 +225,7 @@ set(3DGE_SOURCES
 	src/r_renderbuffers.cc
 	src/r_postprocessstate.cc
 	src/r_shaderprogram.cc
+	src/r_lensdistortion.cc
 	src/s_blit.cc
 	src/s_cache.cc
 	src/s_sound.cc

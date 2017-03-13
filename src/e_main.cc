@@ -695,7 +695,11 @@ void E_Display(void)
 	if (renderbuffers->IsEnabled())
 	{
 		// Copy scene rendering to the first post processing texture
+		glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT);
 		renderbuffers->BlitSceneToTexture();
+
+		// Apply post processing effects
+		RGL_LensDistortScene();
 
 		// Copy the result back to back buffer
 		renderbuffers->BindCurrentFB();
