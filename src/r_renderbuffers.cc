@@ -56,6 +56,67 @@ void RGL_InitRenderBuffers()
 	renderbuffers.reset(new FGLRenderBuffers());
 }
 
+void RGL_RenderScreenQuad()
+{
+	float pos[6 * 2] =
+	{
+		-1.0f, -1.0f,
+		1.0f, -1.0f,
+		-1.0f,  1.0f,
+		1.0f, -1.0f,
+		-1.0f,  1.0f,
+		1.0f,  1.0f
+	};
+	float uv[6 * 2] =
+	{
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		0.0f, 1.0f,
+		1.0f, 0.0f,
+		0.0f, 1.0f,
+		1.0f, 1.0f
+	};
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, false, sizeof(float) * 2, pos);
+	glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(float) * 2, uv);
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+}
+
+std::string RGL_ScreenQuadVertexCode()
+{
+	return R"(
+		in vec4 PositionInProjection;
+		in vec2 UV;
+		out vec2 TexCoord;
+
+		void main()
+		{
+			gl_Position = PositionInProjection;
+			TexCoord = UV;
+		}
+	)";
+}
+
+std::string RGL_ScreenQuadScaleVertexCode()
+{
+	return R"(
+		in vec4 PositionInProjection;
+		in vec2 UV;
+		uniform vec2 UVScale;
+		out vec2 TexCoord;
+
+		void main()
+		{
+			gl_Position = PositionInProjection;
+			TexCoord = UV * UVScale;
+		}
+	)";
+}
+
 FGLRenderBuffers *FGLRenderBuffers::Instance()
 {
 	return renderbuffers.get();
