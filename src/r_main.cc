@@ -27,6 +27,7 @@
 #include "r_draw.h"
 #include "r_modes.h"
 #include "r_image.h"
+#include "r_renderbuffers.h"
 
 #define DEBUG  0
 
@@ -408,6 +409,8 @@ void RGL_Init(void)
 	RGL_InitUnits();
 
 	RGL_SetupMatrices2D();
+
+	RGL_InitRenderBuffers();
 }
 
 

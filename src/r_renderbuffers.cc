@@ -26,6 +26,7 @@
 #include <SDL2/SDL_opengl.h>
 #include "r_renderbuffers.h"
 #include <random>
+#include <memory>
 
 namespace
 {
@@ -46,6 +47,18 @@ namespace
 	{
 		return false; // gl.legacyMode
 	}
+
+	std::unique_ptr<FGLRenderBuffers> renderbuffers;
+}
+
+void RGL_InitRenderBuffers()
+{
+	renderbuffers.reset(new FGLRenderBuffers());
+}
+
+FGLRenderBuffers *FGLRenderBuffers::Instance()
+{
+	return renderbuffers.get();
 }
 
 //==========================================================================
@@ -77,6 +90,7 @@ FGLRenderBuffers::FGLRenderBuffers()
 //
 //==========================================================================
 
+/* Maybe this should be called before the opengl context is destroyed..
 FGLRenderBuffers::~FGLRenderBuffers()
 {
 	ClearScene();
@@ -86,6 +100,7 @@ FGLRenderBuffers::~FGLRenderBuffers()
 	ClearExposureLevels();
 	ClearAmbientOcclusion();
 }
+*/
 
 void FGLRenderBuffers::ClearScene()
 {
