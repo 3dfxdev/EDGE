@@ -43,7 +43,7 @@ extern cvar_c r_dumbmulti;
 extern cvar_c r_dumbcombine;
 extern cvar_c r_dumbclamp;
 
-extern cvar_c r_gl2_path;
+extern cvar_c r_gl3_path;
 
 //
 //  RGL_MAIN
