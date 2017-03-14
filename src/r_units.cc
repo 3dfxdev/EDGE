@@ -61,7 +61,7 @@ cvar_c r_dumbcombine;
 cvar_c r_dumbclamp;
 cvar_c r_anisotropy;
 
-cvar_c r_gl2_path;
+cvar_c r_gl3_path;
 
 static bump_map_shader bmap_shader;
 
@@ -119,15 +119,15 @@ static int cur_unit;
 
 static bool batch_sort;
 
-bool RGL_GL2Enabled() {
-	return (r_gl2_path.d && bmap_shader.supported());
+bool RGL_GL3Enabled() {
+	return (r_gl3_path.d && bmap_shader.supported());
 }
 
 void RGL_SetAmbientLight(short r,short g,short b) {	//rgb 0-255
 	bmap_shader.lightParamAmbient((float)r/255.0f,(float)g/255.0f,(float)b/255.0f);
 }
 void RGL_ClearLights() {
-	if(!RGL_GL2Enabled()) {
+	if(!RGL_GL3Enabled()) {
 		return;
 	}
 	for(int i=0;i<bmap_light_count;i++) {
@@ -641,7 +641,7 @@ void RGL_DrawUnits(void)
 
 
 		//disable if unit has multiple textures (level geometry lightmap for instance)
-		if(RGL_GL2Enabled() && unit->tex[1]==0) {
+		if(RGL_GL3Enabled() && unit->tex[1]==0) {
 			RGL_BatchShape(0);
 
 			//use normal and specular map
