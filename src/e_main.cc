@@ -635,9 +635,16 @@ void E_Display(void)
 
 	// Setup render buffers, if needed
 	auto renderbuffers = FGLRenderBuffers::Instance();
-	if (renderbuffers->Setup(SCREENWIDTH, SCREENHEIGHT, viewwindow_w, viewwindow_h))
+	int sceneWidth = viewwindow_w;
+	int sceneHeight = viewwindow_h;
+	if (sceneWidth == 0 || sceneHeight == 0)
 	{
-		// Render buffers are availabe and active.
+		sceneWidth = SCREENWIDTH;
+		sceneHeight = SCREENHEIGHT;
+	}
+	if (renderbuffers->Setup(SCREENWIDTH, SCREENHEIGHT, sceneWidth, sceneHeight))
+	{
+		// Render buffers are available and active.
 		// Redirect rendering to the scene frame buffer object (FBO)
 		renderbuffers->BindSceneFB(false);
 	}
@@ -692,6 +699,7 @@ void E_Display(void)
 		break;
 	}
 
+	bool copiedToBackBuffer = false;
 	if (renderbuffers->IsEnabled())
 	{
 		// Copy scene rendering to the first post processing texture
@@ -699,13 +707,20 @@ void E_Display(void)
 		renderbuffers->BlitSceneToTexture();
 
 		// Apply post processing effects
+		RGL_UpdateCameraExposure();
+		RGL_BloomScene();
 		RGL_LensDistortScene();
 
-		// Copy the result back to back buffer
-		renderbuffers->BindCurrentFB();
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		glBlitFramebuffer(0, 0, SCREENWIDTH, SCREENHEIGHT, 0, 0, SCREENWIDTH, SCREENHEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+		// Copy the result back to back buffer immediately to make wipe stuff work
+		// Otherwise wait because the renderbuffers are using rgba16f, which is higher quality than the back buffer
+		if (wipe_gl_active || need_wipe)
+		{
+			renderbuffers->BindCurrentFB();
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+			glBlitFramebuffer(0, 0, SCREENWIDTH, SCREENHEIGHT, 0, 0, SCREENWIDTH, SCREENHEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+			copiedToBackBuffer = true;
+		}
 	}
 
 	if (wipe_gl_active)
@@ -767,6 +782,14 @@ void E_Display(void)
 	CON_Drawer();
 
 	M_DisplayDisk();
+
+	if (renderbuffers->IsEnabled() && !copiedToBackBuffer)
+	{
+		renderbuffers->BindCurrentFB();
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glBlitFramebuffer(0, 0, SCREENWIDTH, SCREENHEIGHT, 0, 0, SCREENWIDTH, SCREENHEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	}
 
 	I_FinishFrame();  // page flip or blit buffer
 }

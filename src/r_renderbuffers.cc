@@ -53,6 +53,7 @@ namespace
 
 void RGL_InitRenderBuffers()
 {
+	renderbuffers.reset();
 	renderbuffers.reset(new FGLRenderBuffers());
 }
 
@@ -151,7 +152,6 @@ FGLRenderBuffers::FGLRenderBuffers()
 //
 //==========================================================================
 
-/* Maybe this should be called before the opengl context is destroyed..
 FGLRenderBuffers::~FGLRenderBuffers()
 {
 	ClearScene();
@@ -161,7 +161,6 @@ FGLRenderBuffers::~FGLRenderBuffers()
 	ClearExposureLevels();
 	ClearAmbientOcclusion();
 }
-*/
 
 void FGLRenderBuffers::ClearScene()
 {

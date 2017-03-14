@@ -3,6 +3,7 @@
 
 #include "i_defs_gl.h"
 #include "r_lensdistortion.h"
+#include "r_bloom.h"
 
 #include <vector>
 #include <string>
@@ -38,7 +39,7 @@ public:
 	static FGLRenderBuffers *Instance();
 
 	FGLRenderBuffers();
-	//~FGLRenderBuffers();
+	~FGLRenderBuffers();
 
 	bool Setup(int width, int height, int sceneWidth, int sceneHeight);
 
@@ -92,6 +93,12 @@ public:
 	int GetSceneHeight() const { return mSceneHeight; }
 
 	FLensShader Lens;
+	FBloomExtractShader BloomExtract;
+	FBloomCombineShader BloomCombine;
+	FExposureExtractShader ExposureExtract;
+	FExposureAverageShader ExposureAverage;
+	FExposureCombineShader ExposureCombine;
+	FBlurShader Blur;
 
 private:
 	void ClearScene();
