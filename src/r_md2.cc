@@ -1366,9 +1366,9 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 		data.im_right = IM_RIGHT(skin->img);
 		data.im_top   = IM_TOP(skin->img);
 
-		bool use_gl2_shader=RGL_GL2Enabled();
+		bool use_gl3_shader=RGL_GL3Enabled();
 
-		if(!use_gl2_shader) {
+		if(!use_gl3_shader) {
 			abstract_shader_c *shader = R_GetColormapShader(props, mo->state->bright);
 			ShadeNormals(shader, &data);
 		}
@@ -1377,7 +1377,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 		{
 			float r = mo->radius;
 
-			if(use_gl2_shader) {
+			if(use_gl3_shader) {
 				short l=CLAMP(0,props->lightlevel+mo->state->bright,255);
 				RGL_SetAmbientLight(l,l,l);
 				RGL_ClearLights();

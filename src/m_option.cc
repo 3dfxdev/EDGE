@@ -112,7 +112,7 @@ extern cvar_c m_language;
 extern cvar_c r_crosshair;
 extern cvar_c r_crosssize;
 extern cvar_c r_lerp;
-extern cvar_c r_gl2_path;
+extern cvar_c r_gl3_path;
 extern cvar_c r_md5scale;
 extern cvar_c debug_fps;
 extern cvar_c debug_pos;
@@ -190,6 +190,7 @@ static void M_LanguageDrawer(int x, int y, int deltay);
 static void M_ChangeLanguage(int keypressed);
 
 static char YesNo[]     = "Off/On";  // basic on/off
+static char Lerp[]		= "None/1(worst)/2(better)/3(best)";
 static char CrossH[]    = "None/Dot/Angle/Plus/Spiked/Thin/Cross/Carat/Circle/Double";
 static char Respw[]     = "Teleport/Resurrect";  // monster respawning
 static char Axis[]      = "Off/+Turn/-Turn/+MLook/-MLook/+Forward/-Forward/+Strafe/-Strafe/+Fly/-Fly";
@@ -430,11 +431,11 @@ static optmenuitem_t vidoptions[] =
 
 static optmenuitem_t advancedoptions[] =
 {
-	{OPT_Boolean, "OpenGL Mode",    GLMode,   2, &r_gl2_path, NULL, "OpenGL"}, /// Change from GL1 to GL2
+	{OPT_Switch, "OpenGL 3x",     YesNo, 2, &r_gl3_path, NULL, "OpenGL 3.x mode. Disable for OpenGL 1.x renderer!"}, /// Change from GL1 to GL3
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
-	{OPT_Switch, "Interpolation",    YesNo,   2, &r_lerp, NULL, "Lerping"},
+	{OPT_Switch, "Interpolation",    YesNo,   2, &r_lerp, NULL, "Frame Prediction"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
-	{OPT_Boolean, "Video Sync",   YesNo,   2, &r_vsync, NULL, "0/1 = OFF/ON, 2 & 3 are stronger"},
+	{OPT_Boolean, "Video Sync",   Lerp,   3, &r_vsync, NULL, "Check value in console with 'r_vsync'"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
 
