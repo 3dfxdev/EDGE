@@ -72,7 +72,7 @@ extern cvar_c r_teleportflash;
 extern cvar_c r_crosshair, r_crosscolor;
 extern cvar_c r_crosssize, r_crossbright;
 extern cvar_c r_precache_tex, r_precache_sprite, r_precache_model;
-extern cvar_c r_gl2_path;
+extern cvar_c r_gl3_path;
 
 extern cvar_c r_stretchworld;
 extern cvar_c r_fixspritescale;
@@ -170,7 +170,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_dumbmulti",    &r_dumbmulti,     "",   "0"  },
 	{ "r_dumbcombine",  &r_dumbcombine,   "",   "0"  },
 	{ "r_dumbclamp",    &r_dumbclamp,     "",   "0"  },
-	{ "r_gl2_path",     &r_gl2_path,      "",   "0"  },
+	{ "r_gl3_path",     &r_gl3_path,      "",   "0"  },
 
 	{ "r_gpuswitch",    &r_gpuswitch,     "c",   "0"  }, // notebook optimus gpu selector
 
