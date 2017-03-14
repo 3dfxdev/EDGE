@@ -371,38 +371,7 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 {
 	UpdateForces();
 
-#if 0
-	if (splitscreen_mode && cmd->player_idx == consoleplayer1)
-	{
-		E_BuildTiccmd_Other(cmd);
-		return;
-	}
-#endif // 0
-
 	Z_Clear(cmd, ticcmd_t, 1);
-
-#if 0
-	//player_t *player_idx; //Mirror Doom Legacy's controller handling between two players.
-	int(*gcc)[2]; //Mirror Doom Legacy's controller handling between two players.
-
-	if (which_player == 0)
-	{
-		cmd->player_idx == consoleplayer1;
-		gamekeydown[];
-	}
-	else
-	{
-		cmd->player_idx = consoleplayer2;
-		gamekeydown2[];
-		///pitch = localaiming2;
-	}
-
-	// Exit now if locked
-	if (cmd->player_idx->locked)
-		goto done;
-#endif // 0
-
-
 
 	bool strafe = E_IsKeyPressed(key_strafe);
 	int  speed  = E_IsKeyPressed(key_speed) ? 1 : 0;
@@ -455,14 +424,35 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 
 	// MLook
 	{
-		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
-		float mlook = mlookturn[m_speed] * joy_forces[AXIS_MLOOK];
+		if (!splitscreen_mode)
+		{
+			// -ACB- 1998/07/02 Use VertAngle for Look/up down.
+			float mlook = mlookturn[m_speed] * joy_forces[AXIS_MLOOK];
 
-		mlook *= speed_factors[var_mlookspeed];
+			mlook *= speed_factors[var_mlookspeed];
 
-		mlook += mlookturn[m_speed] * ball_deltas[AXIS_MLOOK] / 64.0;
+			mlook += mlookturn[m_speed] * ball_deltas[AXIS_MLOOK] / 64.0;
 
-		cmd->mlookturn = I_ROUND(mlook);
+			cmd->mlookturn = I_ROUND(mlook);
+		}
+		else if (which_player == consoleplayer2)
+		{
+			float mlook = 0;
+
+			mlook += mlookturn[m_speed] * ball_deltas[AXIS_MLOOK] / 64.0;
+
+			cmd->mlookturn = I_ROUND(mlook);	
+		}
+		else
+		{
+			float mlook = mlookturn[m_speed] * joy_forces[AXIS_MLOOK];
+
+			mlook *= speed_factors[var_mlookspeed];
+
+			mlook += mlookturn[m_speed] * ball_deltas[AXIS_MLOOK] / 64.0;
+
+			cmd->mlookturn = I_ROUND(mlook);
+		}
 	}
 
 	// Forward
@@ -588,23 +578,6 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 	else
 		allowzoom = true;
 	
-//	if (E_IsKeyPressed(key_fog) && !gp)
-//	{
-	//	bool gp = E_IsKeyPressed(key_fog);
-      //  gp=TRUE;                    // gp Is Set To TRUE
-		//	fogfilter+=1;                   // Increase fogfilter By One
-	//	if (fogfilter>2)             // Is fogfilter Greater Than 2?
-	//	{
-     //   fogfilter=0;                // If So, Set fogfilter To Zero
-	//	}
-    //glFogi (GL_FOG_MODE, fogMode[fogfilter]);   // Fog Mode
-	//}
-		//if (!keys['G'])                     // Has The G Key Been Released?
-	//	if (!E_IsKeyPressed(key_fog))
-	//	{
-	//	gp=FALSE;                   // If So, gp Is Set To FALSE
-		//}
-
 	// -AJA- 2000/04/14: Autorun toggle
 	if (E_IsKeyPressed(key_autorun))
 	{
@@ -635,12 +608,6 @@ bool INP_Responder(event_t * ev)
 	{
 		case ev_keydown:
 		case ev_mousedown:
-			if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
-			{
-				mouse_ss_hack |= (1 << (sym - KEYD_MOUSE1));
-				return true;
-			}
-
 			if (ev->data1 < NUMKEYS)
 			{
 				gamekeydown[ev->data1] &= ~GK_UP;
@@ -652,12 +619,6 @@ bool INP_Responder(event_t * ev)
 
 		case ev_keyup:
 		case ev_mouseup:
-			if (splitscreen_mode && sym >= KEYD_MOUSE1 && sym <= KEYD_MOUSE6)
-			{
-				mouse_ss_hack &= ~(1 << (sym - KEYD_MOUSE1));
-				return false;
-			}
-
 			if (ev->data1 < NUMKEYS)
 			{
 				gamekeydown[ev->data1] |= GK_UP;
