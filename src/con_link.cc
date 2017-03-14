@@ -94,6 +94,7 @@ extern cvar_c r_md5scale;
 
 extern cvar_c debug_nomonsters, debug_subsector;
 
+extern cvar_c r_bloom;
 
 #ifndef LINUX
 #define S_MUSICDEV_CFG  "0"  // native
@@ -195,6 +196,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_lerp",        &r_lerp,        "c", "1" },
 	{ "r_maxfps",        &r_maxfps,        "c", "0" },
 	{ "r_vsync",           &r_vsync,        "c", "0" },
+	{ "r_bloom",           &r_bloom,        "c", "1" },
 
 #if 0 // FIXME
     { "edge_compat",    &edge_compat,    "",    "0"  },

@@ -30,9 +30,12 @@
 #include "r_misc.h"
 #include "r_modes.h"
 
+cvar_c r_bloom;
+#define gl_bloom (bool)(r_bloom.d != 0)
+
 namespace
 {
-	bool gl_bloom = true; // CVAR(Bool, gl_bloom, false, CVAR_ARCHIVE);
+	//bool gl_bloom = true; // CVAR(Bool, gl_bloom, false, CVAR_ARCHIVE);
 	float gl_bloom_amount = 1.4f; // CUSTOM_CVAR(Float, gl_bloom_amount, 1.4f, CVAR_ARCHIVE)
 	float gl_exposure_scale = 2.0f; // CVAR(Float, gl_exposure_scale, 1.3f, CVAR_ARCHIVE)
 	float gl_exposure_min = 0.1f; // CVAR(Float, gl_exposure_min, 0.35f, CVAR_ARCHIVE)
