@@ -31,6 +31,7 @@
 #include "r_modes.h"
 #include "r_image.h"
 #include "r_misc.h"     //  R_Render
+#include "r_renderbuffers.h"
 
 
 #define DUMMY_WIDTH(font)  (4)
@@ -666,8 +667,42 @@ void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera)
 	float width = COORD_X(x2) - COORD_X(x1);
 	float expand_w = (xy[2] - xy[0]) / width;
 
-	R_Render(xy[0], xy[1], xy[2]-xy[0], xy[3]-xy[1],
-	         camera, full_height, expand_w);
+	int sceneX = xy[0];
+	int sceneY = xy[1];
+	int sceneWidth = xy[2] - xy[0];
+	int sceneHeight = xy[3] - xy[1];
+
+	auto renderbuffers = FGLRenderBuffers::Instance();
+	if (renderbuffers->Setup(SCREENWIDTH, SCREENHEIGHT, sceneWidth, sceneHeight))
+	{
+		GLint oldViewport[4];
+		glGetIntegerv(GL_VIEWPORT, oldViewport);
+
+		// Render scene into the scene renderbuffer
+		renderbuffers->BindSceneFB(false);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		R_Render(sceneX, sceneY, sceneWidth, sceneHeight, camera, full_height, expand_w);
+
+		// Copy scene rendering to the first post processing texture
+		renderbuffers->BlitSceneToTexture();
+
+		// Apply post processing effects
+		RGL_UpdateCameraExposure();
+		RGL_BloomScene();
+		RGL_LensDistortScene();
+
+		// Copy result back to back buffer
+		renderbuffers->BindCurrentFB();
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glBlitFramebuffer(sceneX, sceneY, sceneWidth, sceneHeight, sceneX, sceneY, sceneWidth, sceneHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+		glViewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
+	}
+	else
+	{
+		R_Render(sceneX, sceneY, sceneWidth, sceneHeight, camera, full_height, expand_w);
+	}
 
 	HUD_PopScissor();
 }
