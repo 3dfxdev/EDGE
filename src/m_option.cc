@@ -125,6 +125,7 @@ extern cvar_c debug_joyaxis;
 extern cvar_c g_aggression;
 extern cvar_c m_busywait;
 extern cvar_c r_shadows;
+extern cvar_c r_bloom;
 //extern cvar_c mouse_accel;
 
 static int menu_crosshair;  // temp hack
@@ -432,10 +433,11 @@ static optmenuitem_t vidoptions[] =
 static optmenuitem_t advancedoptions[] =
 {
 	{OPT_Switch, "OpenGL 3x",     YesNo, 2, &r_gl3_path, NULL, "OpenGL 3.x mode. Disable for OpenGL 1.x renderer!"}, /// Change from GL1 to GL3
-	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
-	{OPT_Switch, "Interpolation",    YesNo,   2, &r_lerp, NULL, "Frame Prediction"},
+	{OPT_Switch,   "Bloom Processing",  YesNo,  2,  &r_bloom, NULL, "Toggle Bloom Shader On or Off"},
+	{OPT_Plain,   "Lens Distortion",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Boolean, "Video Sync",   Lerp,   3, &r_vsync, NULL, "Check value in console with 'r_vsync'"},
+	{OPT_Switch,  "Interpolation",    YesNo,   2, &r_lerp, NULL, "Frame Prediction"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
 
@@ -451,8 +453,8 @@ static optmenuitem_t advancedoptions[] =
 	{OPT_Switch,  "Show HOM Errors",    YesNo,  2,  &debug_hom, NULL, "showhom"},
 	{OPT_Switch,  "Show Position Coords",    YesNo,  2,  &debug_pos, NULL, NULL},
 	{OPT_Switch,  "CPU Busy/Wait", 		YesNo,  2,  &m_busywait, NULL, "busywait"}, //TODO:
-	{OPT_Switch,  "Goobers!",   YesNo, 2,  &m_goobers, NULL, "Requires map restart!"},
-	{OPT_Slider,  "Global MD5 Scale",    NULL,  4,  &r_md5scale, NULL, "(debugging)"}
+	{OPT_Switch,  "Get Psyched!",   YesNo, 2,  &m_goobers, NULL, "Requires map restart!"}
+	//{OPT_Slider,  "Global MD5 Scale",    NULL,  4,  &r_md5scale, NULL, "(debugging)"}
 
 };
 
