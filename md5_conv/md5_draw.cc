@@ -59,7 +59,7 @@
 #include "../src/r_units.h"
 
 
-#define PREMULTIPLY 0
+#define PREMULTIPLY 1
  
 #include <xmmintrin.h>
 
@@ -78,7 +78,7 @@ __m128 m4x4v_colSSE(const __m128 cols[4], const __m128 v) {
 }
 
 void md5_transform_vertices_sse(MD5mesh *msh, epi::mat4_c *posemats, basevert *dst) {
-/*
+
 	epi::mat4_c *mats = posemats + 1;
 	MD5vertex *vs = msh->verts;
 	MD5weight *ws = msh->weights;
@@ -105,7 +105,7 @@ void md5_transform_vertices_sse(MD5mesh *msh, epi::mat4_c *posemats, basevert *d
 		_mm_store_ps((float*)&cv->pos, pos);
 		_mm_store_ps((float*)&cv->norm, norm);
 	}
-*/
+
 void md5_transform_vertices(MD5mesh *msh, epi::mat4_c *posemats, basevert *dst); //FIXME: temporary workaround to the SSE version crashing the system somehow
 }
 
