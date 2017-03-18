@@ -30,9 +30,12 @@
 #include "r_misc.h"
 #include "r_modes.h"
 
+cvar_c r_lens;
+#define gl_lens (bool)(r_lens.d != 0)
+
 namespace
 {
-	bool gl_lens = true; // CVAR(Bool, gl_lens, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+	//bool gl_lens = true; // CVAR(Bool, gl_lens, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 	float gl_lens_k = -0.12f; // CVAR(Float, gl_lens_k, -0.12f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 	float gl_lens_kcube = 0.1f; // CVAR(Float, gl_lens_kcube, 0.1f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 	float gl_lens_chromatic = 1.12f; // CVAR(Float, gl_lens_chromatic, 1.12f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)

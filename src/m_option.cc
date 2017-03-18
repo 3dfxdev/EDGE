@@ -126,6 +126,7 @@ extern cvar_c g_aggression;
 extern cvar_c m_busywait;
 extern cvar_c r_shadows;
 extern cvar_c r_bloom;
+extern cvar_c r_lens;
 //extern cvar_c mouse_accel;
 
 static int menu_crosshair;  // temp hack
@@ -432,18 +433,18 @@ static optmenuitem_t vidoptions[] =
 
 static optmenuitem_t advancedoptions[] =
 {
-	{OPT_Switch, "OpenGL 3x",     YesNo, 2, &r_gl3_path, NULL, "OpenGL 3.x mode. Disable for OpenGL 1.x renderer!"}, /// Change from GL1 to GL3
+	{OPT_Switch, "OpenGL 3x",     YesNo, 2, &r_gl3_path, NULL, "OpenGL 3.x mode. Disable for OpenGL 1.1 renderer!"}, /// Change from GL1 to GL3
 	{OPT_Switch,   "Bloom Processing",  YesNo,  2,  &r_bloom, NULL, "Toggle Bloom Shader On or Off"},
-	{OPT_Plain,   "Lens Distortion",  NULL,  0,  NULL, NULL, NULL},
+	{OPT_Switch,   "Lens Distortion",  YesNo,  2,  &r_lens, NULL, "Toggle Lens Distortion Effect"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Boolean, "Video Sync",   Lerp,   3, &r_vsync, NULL, "Check value in console with 'r_vsync'"},
 	{OPT_Switch,  "Interpolation",    YesNo,   2, &r_lerp, NULL, "Frame Prediction"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
 
-	{OPT_Switch,  "Shadows", Shadows, 4,  &r_shadows, NULL, "Simple (1), Sprite, Complex"},
+	{OPT_Switch,  "Shadows", Shadows, 4,  &r_shadows, NULL, "Simple, Sprite, Complex"},
 
-	{OPT_Plain,   "---Debugging---",  NULL, 0, NULL, NULL, NULL},
+	{OPT_Plain,   "<---Debugging--->",  NULL, 0, NULL, NULL, NULL},
 
 /* 	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL}, */
 	/* {OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  &var_invul_fx, NULL, NULL}, */
