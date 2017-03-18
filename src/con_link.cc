@@ -75,6 +75,7 @@ extern cvar_c r_precache_tex, r_precache_sprite, r_precache_model;
 extern cvar_c r_gl3_path;
 
 extern cvar_c r_bloom;
+extern cvar_c r_lens;
 
 extern cvar_c r_stretchworld;
 extern cvar_c r_fixspritescale;
@@ -131,7 +132,7 @@ cvar_link_t  all_cvars[] =
 
 	/* Input Stuff */
 
-    { "in_grab",        &in_grab,        "c",   "1"  },
+	{ "in_grab",        &in_grab,        "c",   "1"  },
 	{ "in_keypad",      &in_keypad,      "c",   "1"  },
 	{ "in_running",     &in_running,     "c",   "0"  },
 	{ "in_stageturn",   &in_stageturn,   "c",   "1"  },
@@ -141,7 +142,7 @@ cvar_link_t  all_cvars[] =
 	{ "joy_peak",       &joy_peak,       "c",   "0.95" },
 	{ "joy_tuning",     &joy_peak,       "c",   "1.0"  },
 
-  	{ "mouse_filter",   &mouse_filter,   "c",   "0"  },
+	{ "mouse_filter",   &mouse_filter,   "c",   "0"  },
 
 	{ "goobers",        &m_goobers,      "",    "0" },
 	{ "m_diskicon",     &m_diskicon,     "c",   "0"  },
@@ -192,12 +193,13 @@ cvar_link_t  all_cvars[] =
 	{ "debug_mouse",      &debug_mouse,      "",  "0" },
 	{ "debug_pos",        &debug_pos,        "h", "0" },
 	{ "debug_fps",        &debug_fps,        "c", "0" },
-	
+
 	{ "r_md5scale",        &r_md5scale,        "c", "0" },
 	{ "r_lerp",        &r_lerp,        "c", "1" },
 	{ "r_maxfps",        &r_maxfps,        "c", "0" },
 	{ "r_vsync",           &r_vsync,        "c", "0" },
 	{ "r_bloom",           &r_bloom,        "c", "1" },
+	{ "r_lens",		       &r_lens,			"c", "1" },
 
 #if 0 // FIXME
     { "edge_compat",    &edge_compat,    "",    "0"  },
