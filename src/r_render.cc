@@ -34,6 +34,8 @@
 #include "g_game.h"
 #include "m_bbox.h"
 #include "p_local.h"
+#include "p_mobj.h"
+#include "p_pobj.h"
 #include "r_defs.h"
 #include "r_misc.h"
 #include "r_modes.h"
@@ -2212,10 +2214,10 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 	if (!RGL_OcclusionTestLine(sx1, sy1, sx2, sy2, angle_L, angle_R))
 		return;
 #else
-	//angle_t angle_L = R_PointToAngle(sx1, sy1);
+	// angle_L = R_PointToAngle(sx1, sy1);
 	//angle_t angle_R = R_PointToAngle(sx2, sy2);
-	angle_t angle_L = BSP_PointToAngle(viewx, viewy, sx1, sy1);
-	angle_t angle_R = BSP_PointToAngle(viewx, viewy, sx2, sy2);
+	angle_t angle_L = R_PointToAngle(viewx, viewy, sx1, sy1);
+	angle_t angle_R = R_PointToAngle(viewx, viewy, sx2, sy2);
 
 	// Clip to view edges.
 
@@ -2524,8 +2526,8 @@ bool RGL_CheckBBox(float *bspcoord)
 	float y2 = bspcoord[checkcoord[boxpos][3]];
 
 	// check clip list for an open space
-	angle_t angle_L = BSP_PointToAngle(viewx, viewy, x1, y1);
-	angle_t angle_R = BSP_PointToAngle(viewx, viewy, x2, y2);
+	angle_t angle_L = R_PointToAngle(viewx, viewy, x1, y1);
+	angle_t angle_R = R_PointToAngle(viewx, viewy, x2, y2);
 
 	angle_t span = angle_L - angle_R;
 
@@ -2846,6 +2848,28 @@ static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *f_ef,
 	}
 }
 
+//
+// RGL_WalkPolyobject
+//
+// Visit a PolyObject anchor, collecting where walls need to be drawn.
+//
+static void RGL_WalkPolyobject(drawsub_c *dsub, mobj_t *mo)
+{
+	polyobj_t *po = P_GetPolyobject(mo->po_ix);
+	if (!po)
+	{
+		I_Debugf("RGL_WalkPolyobject: No PO %d!\n", po->index);
+		return;
+	}
+
+	//I_Printf("RGL_WalkPolyobject: Adding render info for PO %d\n", po->index);
+	seg_t *seg = po->segs;
+	for (int i=0; i<po->count; i++, seg++)
+	{
+		//I_Printf("RGL_WalkPolyobject: Walking seg %p\n", po->segs[i]);
+		RGL_WalkSeg(dsub, seg);
+	}
+}
 
 //
 // RGL_WalkSubsector
@@ -2965,15 +2989,23 @@ static void RGL_WalkSubsector(int num)
 	K->floors[0]->is_lowest = true;
 	K->floors[K->floors.size() - 1]->is_highest = true;
 
-	// handle each sprite in the subsector.  Must be done before walls,
+	// Handle each sprite in the subsector.  Must be done before walls,
 	// since the wall code will update the 1D occlusion buffer.
 
 	for (mo=cur_sub->thinglist; mo; mo=mo->snext)
 	{
-		RGL_WalkThing(K, mo);
+		if ((mo->typenum & ~3) != 9300)
+			RGL_WalkThing(K, mo);
 	}
 
-	// clip 1D occlusion buffer.
+	// Handle each polyobject in the subsector. Will update 1D occlusion buffer.
+	for (mo=cur_sub->thinglist; mo; mo=mo->snext)
+	{
+		if ((mo->typenum == 9301) || (mo->typenum == 9302) || (mo->typenum == 9303))
+			RGL_WalkPolyobject(K, mo);
+	}
+
+	// Handle each segment in the subsector. Will update 1D occlusion buffer.
 	for (seg=sub->segs; seg; seg=seg->sub_next)
 	{
 		RGL_WalkSeg(K, seg);

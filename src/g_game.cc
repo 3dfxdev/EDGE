@@ -352,12 +352,14 @@ bool G_Responder(event_t * ev)
 
 		if (paused)
 		{
+			I_Printf("PAUSED\n");
 			S_PauseMusic();
 			S_PauseSound();
 			I_GrabCursor(false);
 		}
 		else
 		{
+			I_Printf("RESUMED\n");
 			S_ResumeMusic();
 			S_ResumeSound();
 			I_GrabCursor(true);
@@ -1162,6 +1164,7 @@ static void InitNew(newgame_params_c& params)
 
 	if (paused)
 	{
+		I_Printf("RESUMED\n");
 		paused = false;
 		S_ResumeMusic(); // -ACB- 1999/10/07 New Music API
 		S_ResumeSound();

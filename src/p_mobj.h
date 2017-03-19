@@ -244,6 +244,11 @@ struct mobj_s : public position_c
 	int model_last_frame;
 	short model_last_animfile;
 
+	// type (for special types)
+	int typenum;
+	// index if polyobject
+	int po_ix;
+
 	// tag ID (for special operations)
 	int tag;
 

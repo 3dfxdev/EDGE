@@ -71,6 +71,7 @@
 #include "m_argv.h"
 #include "m_random.h"
 #include "p_local.h"
+#include "p_pobj.h"
 #include "r_image.h" //W_ImageGetName
 #include "r_misc.h"
 #include "r_shader.h"
@@ -1283,7 +1284,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 						//I_Printf("z: %f, fz: %f, sz: %f\n", mo->z, mo->floorz, mo->subsector->sector->f_h);
 						mo->player->deltaviewheight = zmove / 8.0f;
 						// [SP] This seems to crash, disabling for now.
-						//S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo);
+						S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo);
 						splash = true;
 						//CA: Need to set a cooldown, and not have zmove go so far downward over time (or at all!)
 					}
@@ -1471,6 +1472,13 @@ static void P_MobjThinker(mobj_t * mobj)
 
 	SYS_ASSERT_MSG(mobj->next != (mobj_t *)-1,
 		("P_MobjThinker INTERNAL ERROR: mobj has been Z_Freed"));
+
+	if ((mobj->typenum & ~3) == 9300)
+	{
+		//I_Printf("P_MobjThinker: handling PO %d\n", mobj->po_ix);
+		P_UpdatePolyObj(mobj);
+		return;
+	}
 
 	SYS_ASSERT(mobj->state);
 	SYS_ASSERT(mobj->refcount >= 0);
