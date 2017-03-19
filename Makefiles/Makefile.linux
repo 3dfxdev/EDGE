@@ -221,6 +221,7 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/p_maputl.o       \
 	$(OBJDIR)/edge/p_mobj.o         \
 	$(OBJDIR)/edge/p_plane.o        \
+	$(OBJDIR)/edge/p_pobj.o         \
 	$(OBJDIR)/edge/p_setup.o        \
 	$(OBJDIR)/edge/p_sight.o        \
 	$(OBJDIR)/edge/p_spec.o         \

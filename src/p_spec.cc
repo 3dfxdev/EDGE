@@ -40,6 +40,7 @@
 #include "m_argv.h"
 #include "m_random.h"
 #include "p_local.h"
+#include "p_pobj.h"
 #include "p_spec.h"
 #include "rad_trig.h"
 #include "s_sound.h"
@@ -938,16 +939,27 @@ static bool P_ActivateSpecialLine(line_t * line,
 
 	int i;
 
-#ifdef DEVELOPERS
 	if (!special)
 	{
 		if (line == NULL)
 			I_Error("P_ActivateSpecialLine: Special type is 0\n");
-		else
+
+		if (line->action == 0)
 			I_Error("P_ActivateSpecialLine: Line %d is not Special\n",
 					(int)(line - lines));
+
+		// do line action (zdoom)
+		if (line->action == 2)
+		{
+			PO_RotateLeft(line->args[0], line->args[1], line->args[2]);
+			return true;
+		}
+
+
+
+
+		return false;
 	}
-#endif
 
 	if (!G_CheckWhenAppear(special->appear))
 	{

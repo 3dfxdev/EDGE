@@ -47,6 +47,8 @@
 #include "p_local.h"
 #include "p_bot.h"
 #include "p_setup.h"
+#include "p_mobj.h"
+#include "p_pobj.h"
 #include "am_map.h"
 #include "r_gldefs.h"
 #include "r_sky.h"
@@ -1117,10 +1119,10 @@ static void UnknownThingWarning(int type, float x, float y)
 }
 
 
-extern void SpawnMapThing(const mobjtype_c *info,
+static void SpawnMapThingEx(const mobjtype_c *info,
 						  float x, float y, float z,
 						  sector_t *sec, angle_t angle,
-						  int options, int tag)
+						  int options, int tag, int typenum)
 {
 	spawnpoint_t point;
 
@@ -1213,8 +1215,32 @@ extern void SpawnMapThing(const mobjtype_c *info,
 	// Use MobjCreateObject -ACB- 1998/08/06
 	mobj_t * mo = P_MobjCreateObject(x, y, z, info);
 
+	mo->typenum = typenum; // set if extended level data, else 0
 	mo->angle = angle;
 	mo->spawnpoint = point;
+
+	if ((typenum & ~3) == 9300)
+	{
+		int ix = (int)(ANG_2_FLOAT(angle) + 0.5f);
+		polyobj_t *po = P_GetPolyobject(ix);
+		if (po)
+		{
+			if (typenum == 9300)
+			{
+				po->anchor = mo;
+				I_Printf("  PO anchor at (%f, %f)\n", mo->x, mo->y);
+			}
+			else
+			{
+				po->mobj = mo;
+				I_Printf("  PO mobj at (%f, %f)\n", mo->x, mo->y);
+			}
+		}
+
+		mo->radius = 20;
+		mo->angle = 0;
+		mo->po_ix = ix;
+	}
 
 	if (mo->state && mo->state->tics > 1)
 		mo->tics = 1 + (P_Random() % mo->state->tics);
@@ -1228,6 +1254,14 @@ extern void SpawnMapThing(const mobjtype_c *info,
 	// -AJA- 2000/09/22: MBF compatibility flag
 	if (options & MTF_FRIEND)
 		mo->side = ~0;
+}
+
+extern void SpawnMapThing(const mobjtype_c *info,
+						  float x, float y, float z,
+						  sector_t *sec, angle_t angle,
+						  int options, int tag)
+{
+	SpawnMapThingEx(info, x, y, z, sec, angle, options, tag, 0);
 }
 
 static void LoadThings(int lump)
@@ -2986,7 +3020,7 @@ static void LoadUDMFThings(parser_t *psr)
 			else
 				z += sec->f_h;
 
-			SpawnMapThing(objtype, x, y, z, sec, angle, options, tag);
+			SpawnMapThingEx(objtype, x, y, z, sec, angle, options, tag, typenum);
 
 			numthings++;
 		}
@@ -3703,6 +3737,17 @@ static void SetupUDMFSpecials(void)
 		if (zdoom_level)
 		{
 			// process zdoom line actions
+			if (ld->action == 1)
+			{
+				P_AddPolyobject(ld->args[0], ld);
+				// set PO fields
+				polyobj_t *po = P_GetPolyobject(ld->args[0]);
+				if (po)
+				{
+					po->mirror = ld->args[1];
+					po->sound = ld->args[2];
+				}
+			}
 			if (ld->action == 12)
 			{
 				// Door_Raise
@@ -3946,6 +3991,8 @@ void P_ShutdownLevel(void)
 	P_DestroyAllAmbientSFX();
 
 	DDF_BoomClearGenTypes();
+
+	P_ClearPolyobjects();
 
 	if (udmf_level)
 		CleanupUDMFSpecials();
@@ -4238,6 +4285,9 @@ void P_SetupLevel(void)
 
 		W_DoneWithLump(udmf_lump);
 	}
+
+	// adjust PO vertexes
+	P_PostProcessPolyObjs();
 
 	// OK, CRC values have now been computed
 #ifdef DEVELOPERS

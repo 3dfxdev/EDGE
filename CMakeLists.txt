@@ -189,6 +189,7 @@ set(3DGE_SOURCES
 	src/p_maputl.cc
 	src/p_mobj.cc
 	src/p_plane.cc
+	src/p_pobj.cc
 	src/p_setup.cc
 	src/p_sight.cc
 	src/p_spec.cc
