@@ -41,14 +41,14 @@ CFLAGS += -DWIN32
 # CFLAGS += -I$(LIBDIR)/SDL/include
 
 # LDFLAGS += -L$(LIBDIR)/SDL/lib
-# LDFLAGS += -lmingw32 $(LIBDIR)/SDL/build/libSDL2main.a $(LIBDIR)/SDL/build/.libs/SDL2.dll 
+# LDFLAGS += -lmingw32 $(LIBDIR)/SDL/build/libSDL2main.a $(LIBDIR)/SDL/build/.libs/SDL2.dll
 
 # SDL 1.X
 
  CFLAGS += -I$(LIBDIR)/SDL/include
 
  LDFLAGS += -L$(LIBDIR)/SDL/lib
- LDFLAGS += -lmingw32 $(LIBDIR)/SDL/build/.libs/libSDLmain.a $(LIBDIR)/SDL/build/.libs/SDL.dll 
+ LDFLAGS += -lmingw32 $(LIBDIR)/SDL/build/.libs/libSDLmain.a $(LIBDIR)/SDL/build/.libs/SDL.dll
 
 
 
@@ -132,7 +132,7 @@ stripped: $(PROGRAM)
 	strip --strip-unneeded $(PROGRAM)
 
 clean:
-	rm -f $(PROGRAM) $(OBJDIR)/*/*.* $(OBJDIR)/*/*/*.* 
+	rm -f $(PROGRAM) $(OBJDIR)/*/*.* $(OBJDIR)/*/*/*.*
 
 halfclean:
 	rm -f $(PROGRAM) $(OBJDIR)/ddf/*.* $(OBJDIR)/edge/*.* $(OBJDIR)/md5_conv/*.* $(OBJDIR)/md5_conv/kmq2/*.*
@@ -167,7 +167,7 @@ COAL_OBJS= \
 	$(OBJDIR)/coal/c_memory.o
 
 $(OBJDIR)/coal/%.o: coal/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 
 # --------- DDF ----------------
@@ -194,7 +194,7 @@ DDF_OBJS= \
 	$(OBJDIR)/ddf/weapon.o
 
 $(OBJDIR)/ddf/%.o: ddf/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 
 # ---------- Deh_EDGE ---------------
@@ -221,7 +221,7 @@ DEHEDGE_OBJS= \
 	$(OBJDIR)/deh_edge/rscript.o
 
 $(OBJDIR)/deh_edge/%.o: deh_edge/%.cc
-	$(CXX) $(CFLAGS) -DDEH_EDGE_PLUGIN -o $@ -c $< 
+	$(CXX) $(CFLAGS) -DDEH_EDGE_PLUGIN -o $@ -c $<
 
 
 # ---------- EDGE ---------------
@@ -305,6 +305,11 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/r_doomtex.o      \
 	$(OBJDIR)/edge/r_texgl.o        \
 	$(OBJDIR)/edge/r_bumpmap.o      \
+	$(OBJDIR)/edge/r_renderbuffers.o    \
+	$(OBJDIR)/edge/r_postprocessstate.o \
+	$(OBJDIR)/edge/r_shaderprogram.o    \
+	$(OBJDIR)/edge/r_lensdistortion.o   \
+	$(OBJDIR)/edge/r_bloom.o        \
 	$(OBJDIR)/edge/s_blit.o         \
 	$(OBJDIR)/edge/s_cache.o        \
 	$(OBJDIR)/edge/s_sound.o        \
@@ -344,13 +349,13 @@ $(OBJDIR)/edge/w32_res.o: src/w32_res.rc
 	windres $^ -o $@
 
 $(OBJDIR)/edge/%.o: src/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 $(OBJDIR)/md5_conv/%.o: md5_conv/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 $(OBJDIR)/md5_conv/kmq2/%.o: md5_conv/kmq2/%.c
-	$(CC) $(CFLAGS) -o $@ -c $< 
+	$(CC) $(CFLAGS) -o $@ -c $<
 
 
 # ---------- EPI ---------------
@@ -391,7 +396,7 @@ EPI_OBJS= \
 	$(OBJDIR)/epi/filesystem_win32.o
 
 $(OBJDIR)/epi/%.o: epi/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 
 # ---------- glBSP ---------------
@@ -409,7 +414,7 @@ GLBSP_OBJS= \
 	$(OBJDIR)/glbsp/wad.o
 
 $(OBJDIR)/glbsp/%.o: glbsp/src/%.c
-	$(CC) $(CFLAGS_GLBSP) -o $@ -c $< 
+	$(CC) $(CFLAGS_GLBSP) -o $@ -c $<
 
 
 # ---------- Timidity ---------------
@@ -425,12 +430,12 @@ TIMIDITY_OBJS= \
 	$(OBJDIR)/timidity/timidity.o
 
 $(OBJDIR)/timidity/%.o: timidity/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
- 
+
 
 # ---------- FINAL LINK STEP -----------
-  
+
 $(PROGRAM) : $(COAL_OBJS) \
              $(DDF_OBJS)  \
 	     $(DEHEDGE_OBJS) \

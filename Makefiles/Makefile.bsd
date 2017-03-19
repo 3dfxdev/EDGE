@@ -80,7 +80,7 @@ stripped: $(PROGRAM)
 	strip --strip-unneeded $(PROGRAM)
 
 clean:
-	rm -f $(PROGRAM) $(OBJDIR)/*/*.* 
+	rm -f $(PROGRAM) $(OBJDIR)/*/*.*
 
 halfclean:
 	rm -f $(PROGRAM) $(OBJDIR)/ddf/*.* $(OBJDIR)/edge/*.*
@@ -108,7 +108,7 @@ COAL_OBJS= \
 	$(OBJDIR)/coal/c_memory.o
 
 $(OBJDIR)/coal/%.o: coal/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 
 # --------- DDF ----------------
@@ -135,7 +135,7 @@ DDF_OBJS= \
 	$(OBJDIR)/ddf/weapon.o
 
 $(OBJDIR)/ddf/%.o: ddf/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 
 # ---------- Deh_EDGE ---------------
@@ -162,7 +162,7 @@ DEHEDGE_OBJS= \
 	$(OBJDIR)/deh_edge/rscript.o
 
 $(OBJDIR)/deh_edge/%.o: deh_edge/%.cc
-	$(CXX) $(CFLAGS) -DDEH_EDGE_PLUGIN -o $@ -c $< 
+	$(CXX) $(CFLAGS) -DDEH_EDGE_PLUGIN -o $@ -c $<
 
 
 # ---------- EDGE ---------------
@@ -250,6 +250,11 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/r_texgl.o        \
 	$(OBJDIR)/edge/r_bumpmap.o      \
 	$(OBJDIR)/edge/r_playpal.o      \
+	$(OBJDIR)/edge/r_renderbuffers.o    \
+	$(OBJDIR)/edge/r_postprocessstate.o \
+	$(OBJDIR)/edge/r_shaderprogram.o    \
+	$(OBJDIR)/edge/r_lensdistortion.o   \
+	$(OBJDIR)/edge/r_bloom.o        \
 	$(OBJDIR)/edge/s_blit.o         \
 	$(OBJDIR)/edge/s_cache.o        \
 	$(OBJDIR)/edge/s_sound.o        \
@@ -290,13 +295,13 @@ EDGE_OBJS= \
 	$(OBJDIR)/md5_conv/kmq2/q2stuff.o \
 
 $(OBJDIR)/edge/%.o: src/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 $(OBJDIR)/md5_conv/%.o: md5_conv/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 $(OBJDIR)/md5_conv/kmq2/%.o: md5_conv/kmq2/%.c
-	$(CC) $(CFLAGS) -o $@ -c $< 
+	$(CC) $(CFLAGS) -o $@ -c $<
 
 
 # ---------- EPI ---------------
@@ -340,7 +345,7 @@ EPI_OBJS= \
 	$(OBJDIR)/epi/filesystem_linux.o
 
 $(OBJDIR)/epi/%.o: epi/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 
 # ---------- glBSP ---------------
@@ -374,9 +379,9 @@ TIMIDITY_OBJS= \
 	$(OBJDIR)/timidity/timidity.o
 
 $(OBJDIR)/timidity/%.o: timidity/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
- 
+
 # ---------- OPL ---------------------
 
 OPLLIB_OBJS= \
@@ -387,7 +392,7 @@ $(OBJDIR)/opllib/%.o: opllib/%.cc
 	$(CXX) $(CFLAGS) -o $@ -c $<
 
 # ---------- FINAL LINK STEP -----------
-  
+
 $(PROGRAM) : $(COAL_OBJS) \
 	     $(DDF_OBJS)  \
 	     $(DEHEDGE_OBJS) \

@@ -256,6 +256,11 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/r_texgl.o        \
 	$(OBJDIR)/edge/r_bumpmap.o      \
 	$(OBJDIR)/edge/r_playpal.o      \
+	$(OBJDIR)/edge/r_renderbuffers.o    \
+	$(OBJDIR)/edge/r_postprocessstate.o \
+	$(OBJDIR)/edge/r_shaderprogram.o    \
+	$(OBJDIR)/edge/r_lensdistortion.o   \
+	$(OBJDIR)/edge/r_bloom.o        \
 	$(OBJDIR)/edge/s_blit.o         \
 	$(OBJDIR)/edge/s_cache.o        \
 	$(OBJDIR)/edge/s_sound.o        \
