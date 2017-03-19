@@ -60,7 +60,7 @@ CFLAGS_GLBSP += -DGLBSP_PLUGIN
 CFLAGS_GLBSP += -DINLINE_G=inline
 
 # libcpuid
-CFLAGS += -I/usr/local/include/libcpuid 
+CFLAGS += -I/usr/local/include/libcpuid
 LDFLAGS += -lcpuid
 
 # ----------
@@ -98,7 +98,7 @@ COAL_OBJS= \
 	$(OBJDIR)/coal/c_memory.o
 
 $(OBJDIR)/coal/%.o: coal/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 
 # --------- DDF ----------------
@@ -125,7 +125,7 @@ DDF_OBJS= \
 	$(OBJDIR)/ddf/weapon.o
 
 $(OBJDIR)/ddf/%.o: ddf/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 
 # ---------- Deh_EDGE ---------------
@@ -152,7 +152,7 @@ DEHEDGE_OBJS= \
 	$(OBJDIR)/deh_edge/rscript.o
 
 $(OBJDIR)/deh_edge/%.o: deh_edge/%.cc
-	$(CXX) $(CFLAGS) -DDEH_EDGE_PLUGIN -o $@ -c $< 
+	$(CXX) $(CFLAGS) -DDEH_EDGE_PLUGIN -o $@ -c $<
 
 
 # ---------- EDGE ---------------
@@ -237,6 +237,11 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/r_doomtex.o      \
 	$(OBJDIR)/edge/r_texgl.o        \
 	$(OBJDIR)/edge/r_bumpmap.o      \
+	$(OBJDIR)/edge/r_renderbuffers.o    \
+	$(OBJDIR)/edge/r_postprocessstate.o \
+	$(OBJDIR)/edge/r_shaderprogram.o    \
+	$(OBJDIR)/edge/r_lensdistortion.o   \
+	$(OBJDIR)/edge/r_bloom.o        \
 	$(OBJDIR)/edge/s_blit.o         \
 	$(OBJDIR)/edge/s_cache.o        \
 	$(OBJDIR)/edge/s_sound.o        \
@@ -275,13 +280,13 @@ $(OBJDIR)/edge/%.o: src/%.cc
 	$(CXX) $(CFLAGS) -o $@ -c $<
 
 $(OBJDIR)/edge/%.o: src/%.mm
-	$(CC) $(CFLAGS) -o $@ -c $< 
+	$(CC) $(CFLAGS) -o $@ -c $<
 
 $(OBJDIR)/md5_conv/%.o: md5_conv/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 $(OBJDIR)/md5_conv/kmq2/%.o: md5_conv/kmq2/%.c
-	$(CC) $(CFLAGS) -o $@ -c $< 
+	$(CC) $(CFLAGS) -o $@ -c $<
 
 
 # ---------- EPI ---------------
@@ -325,7 +330,7 @@ EPI_OBJS= \
 	$(OBJDIR)/epi/filesystem_linux.o
 
 $(OBJDIR)/epi/%.o: epi/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 
 # ---------- glBSP ---------------
@@ -343,7 +348,7 @@ GLBSP_OBJS= \
 	$(OBJDIR)/glbsp/wad.o
 
 $(OBJDIR)/glbsp/%.o: glbsp/src/%.cc
-	$(CXX) $(CFLAGS_GLBSP) -o $@ -c $< 
+	$(CXX) $(CFLAGS_GLBSP) -o $@ -c $<
 
 
 # ---------- Timidity ---------------
@@ -359,11 +364,11 @@ TIMIDITY_OBJS= \
 	$(OBJDIR)/timidity/timidity.o
 
 $(OBJDIR)/timidity/%.o: timidity/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
- 
+
 # ---------- FINAL LINK STEP -----------
-  
+
 $(PROGRAM) : $(COAL_OBJS) \
              $(DDF_OBJS)  \
 	     $(DEHEDGE_OBJS) \
