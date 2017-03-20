@@ -53,6 +53,7 @@ namespace
 
 void RGL_InitRenderBuffers()
 {
+	I_Printf("RGL_InitRenderBuffers..\n");
 	renderbuffers.reset();
 	renderbuffers.reset(new FGLRenderBuffers());
 }
@@ -270,6 +271,7 @@ void FGLRenderBuffers::DeleteFrameBuffer(GLuint &handle)
 
 bool FGLRenderBuffers::Setup(int width, int height, int sceneWidth, int sceneHeight)
 {
+	//I_Printf("GLSL: Setting up GL Render Buffers.../n");
 	if (gl_renderbuffers != BuffersActive)
 	{
 		if (BuffersActive)

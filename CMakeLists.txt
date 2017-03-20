@@ -228,6 +228,7 @@ set(3DGE_SOURCES
 	src/r_postprocessstate.cc
 	src/r_shaderprogram.cc
 	src/r_lensdistortion.cc
+	src/r_fxaa.cc
 	src/r_bloom.cc
 	src/s_blit.cc
 	src/s_cache.cc
