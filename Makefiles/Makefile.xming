@@ -1,16 +1,16 @@
 #
 # EDGE Makefile : WIN32 cross-compile (SDL2 VERSION)
 #
-## Improved this makefile, this should be much less of a hassle to setup on Win32 now. 
+## Improved this makefile, this should be much less of a hassle to setup on Win32 now.
 ## Also, removed all hardcoded paths, EXCEPT in this makefile (notably, libmingw32.a)
 
 #########
 #########
 #########
 #########
-# 
+#
 # THIS WAY OF BUILDING WINDOWS IS UNSUPPORTED!! THEREFORE, WE WILL STOP UPDATING IT IMMEDIATELY. WINDOWS USERS NEED TO MOVE TO VISUAL STUDIO!!
-# 
+#
 #########
 #########
 #########
@@ -32,9 +32,9 @@ UPX=upx/upx.exe
 # -mstackrealign:
 # Realign the stack at entry. On the Intel x86, the -mstackrealign option will generate
 # an alternate prologue and epilogue that realigns the runtime stack if necessary. This
-# supports mixing legacy codes that keep a 4-byte aligned stack with modern codes that 
-# keep a 16-byte stack for SSE compatibility. See also the attribute force_align_arg_pointer, 
-# applicable to individual functions. 
+# supports mixing legacy codes that keep a 4-byte aligned stack with modern codes that
+# keep a 16-byte stack for SSE compatibility. See also the attribute force_align_arg_pointer,
+# applicable to individual functions.
 #
 # Without defining this flag along with SSE2 flags, 3DGE *will* crash before startup.
 
@@ -43,7 +43,7 @@ UPX=upx/upx.exe
 # Assume the incoming stack is aligned to a 2 raised to NUM byte
 # boundary.  If '-mincoming-stack-boundary' is not specified, the one
 # specified by '-mpreferred-stack-boundary' is used.
-# 
+#
 # For glBSP, we define -mincoming-stack-boundary=3 to its CFLAGS
 #
 # Without defining this flag along with -mstackrealign, glBSP *will* crash before startup.
@@ -57,7 +57,7 @@ CFLAGS=-O3 -ffast-math -fno-strict-aliasing -Wall -msse2 -mfpmath=sse -mstackrea
 CFLAGS += -I
 
 
-#LDFLAGS=-pg -Wl,--warn-common -I  
+#LDFLAGS=-pg -Wl,--warn-common -I
 LDFLAGS=-Wl,--warn-common -I -mfpmath=sse
 #LDFLAGS=-pg -Wl,--warn-common -I
 
@@ -72,7 +72,7 @@ CFLAGS += -DWIN32 -DSSE2
 CFLAGS += -I$(LIBDIR)/SDL_2/include
 
 LDFLAGS += -L$(LIBDIR)/SDL_2/lib
-LDFLAGS += -lmingw32 $(LIBDIR)/SDL_2/build/libSDL2main.a $(LIBDIR)/SDL_2/build/.libs/SDL2.dll 
+LDFLAGS += -lmingw32 $(LIBDIR)/SDL_2/build/libSDL2main.a $(LIBDIR)/SDL_2/build/.libs/SDL2.dll
 
 # CPUID
 CFLAGS  += -I$(LIBDIR)/libcpuid/libcpuid/
@@ -145,7 +145,7 @@ stripped: $(PROGRAM)
 	strip --strip-unneeded $(PROGRAM)
 
 clean:
-	rm -f $(PROGRAM) $(OBJDIR)/*/*.* $(OBJDIR)/*/*/*.* 
+	rm -f $(PROGRAM) $(OBJDIR)/*/*.* $(OBJDIR)/*/*/*.*
 
 halfclean:
 	rm -f $(PROGRAM) $(OBJDIR)/ddf/*.* $(OBJDIR)/edge/*.* $(OBJDIR)/md5_conv/*.* $(OBJDIR)/md5_conv/kmq2/*.*
@@ -180,7 +180,7 @@ COAL_OBJS= \
 	$(OBJDIR)/coal/c_memory.o
 
 $(OBJDIR)/coal/%.o: coal/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 
 # --------- DDF ----------------
@@ -207,7 +207,7 @@ DDF_OBJS= \
 	$(OBJDIR)/ddf/weapon.o
 
 $(OBJDIR)/ddf/%.o: ddf/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 
 # ---------- Deh_EDGE ---------------
@@ -234,7 +234,7 @@ DEHEDGE_OBJS= \
 	$(OBJDIR)/deh_edge/rscript.o
 
 $(OBJDIR)/deh_edge/%.o: deh_edge/%.cc
-	$(CXX) $(CFLAGS) -DDEH_EDGE_PLUGIN -o $@ -c $< 
+	$(CXX) $(CFLAGS) -DDEH_EDGE_PLUGIN -o $@ -c $<
 
 
 # ---------- EDGE ---------------
@@ -319,6 +319,11 @@ EDGE_OBJS= \
 	$(OBJDIR)/edge/r_doomtex.o      \
 	$(OBJDIR)/edge/r_texgl.o        \
 	$(OBJDIR)/edge/r_bumpmap.o      \
+	$(OBJDIR)/edge/r_renderbuffers.o    \
+	$(OBJDIR)/edge/r_postprocessstate.o \
+	$(OBJDIR)/edge/r_shaderprogram.o    \
+	$(OBJDIR)/edge/r_lensdistortion.o   \
+	$(OBJDIR)/edge/r_bloom.o        \
 	$(OBJDIR)/edge/s_blit.o         \
 	$(OBJDIR)/edge/s_cache.o        \
 	$(OBJDIR)/edge/s_sound.o        \
@@ -358,13 +363,13 @@ $(OBJDIR)/edge/w32_res.o: src/w32_res.rc
 	windres $^ -o $@
 
 $(OBJDIR)/edge/%.o: src/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 $(OBJDIR)/md5_conv/%.o: md5_conv/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 $(OBJDIR)/md5_conv/kmq2/%.o: md5_conv/kmq2/%.c
-	$(CC) $(CFLAGS) -o $@ -c $< 
+	$(CC) $(CFLAGS) -o $@ -c $<
 
 
 # ---------- EPI ---------------
@@ -405,7 +410,7 @@ EPI_OBJS= \
 	$(OBJDIR)/epi/filesystem_win32.o
 
 $(OBJDIR)/epi/%.o: epi/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
 
 # ---------- glBSP ---------------
@@ -423,7 +428,7 @@ GLBSP_OBJS= \
 	$(OBJDIR)/glbsp/wad.o
 
 $(OBJDIR)/glbsp/%.o: glbsp/src/%.cc
-	$(CXX) $(CFLAGS_GLBSP) -o $@ -c $< 
+	$(CXX) $(CFLAGS_GLBSP) -o $@ -c $<
 
 
 # ---------- Timidity ---------------
@@ -439,12 +444,12 @@ TIMIDITY_OBJS= \
 	$(OBJDIR)/timidity/timidity.o
 
 $(OBJDIR)/timidity/%.o: timidity/%.cc
-	$(CXX) $(CFLAGS) -o $@ -c $< 
+	$(CXX) $(CFLAGS) -o $@ -c $<
 
- 
+
 
 # ---------- FINAL LINK STEP -----------
-  
+
 $(PROGRAM) : $(COAL_OBJS) \
              $(DDF_OBJS)  \
 	     $(DEHEDGE_OBJS) \
