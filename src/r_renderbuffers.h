@@ -4,6 +4,7 @@
 #include "i_defs_gl.h"
 #include "r_lensdistortion.h"
 #include "r_bloom.h"
+#include "r_fxaa.h"
 
 #include <vector>
 #include <string>
@@ -92,6 +93,8 @@ public:
 	int GetSceneWidth() const { return mSceneWidth; }
 	int GetSceneHeight() const { return mSceneHeight; }
 
+	FFXAALumaShader FXAALumaShader;
+	FFXAAShader FXAAShader;
 	FLensShader Lens;
 	FBloomExtractShader BloomExtract;
 	FBloomCombineShader BloomCombine;
