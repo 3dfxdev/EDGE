@@ -369,6 +369,24 @@ static bool allowautorun = true;
 
 void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 {
+	bool bJoystickActive, bKeyboardActive, bMouseActive;
+	if (splitscreen_mode)
+		if (which_player == consoleplayer1)
+		{
+			bJoystickActive = false;
+			bMouseActive = bKeyboardActive = true;
+		}
+		else
+		{
+			bJoystickActive = true;
+			bMouseActive = bKeyboardActive = false;
+		}
+	else
+	{
+		bJoystickActive = true;
+		bMouseActive = bKeyboardActive = true;
+	}
+
 	UpdateForces();
 
 	Z_Clear(cmd, ticcmd_t, 1);
@@ -424,7 +442,7 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 
 	// MLook
 	{
-		if (!splitscreen_mode)
+		if (bMouseActive)
 		{
 			// -ACB- 1998/07/02 Use VertAngle for Look/up down.
 			float mlook = mlookturn[m_speed] * joy_forces[AXIS_MLOOK];
@@ -435,23 +453,13 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 
 			cmd->mlookturn = I_ROUND(mlook);
 		}
-		else if (which_player == consoleplayer2)
+		else
 		{
 			float mlook = 0;
 
 			mlook += mlookturn[m_speed] * ball_deltas[AXIS_MLOOK] / 64.0;
 
 			cmd->mlookturn = I_ROUND(mlook);	
-		}
-		else
-		{
-			float mlook = mlookturn[m_speed] * joy_forces[AXIS_MLOOK];
-
-			mlook *= speed_factors[var_mlookspeed];
-
-			mlook += mlookturn[m_speed] * ball_deltas[AXIS_MLOOK] / 64.0;
-
-			cmd->mlookturn = I_ROUND(mlook);
 		}
 	}
 
