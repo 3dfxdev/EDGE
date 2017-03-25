@@ -645,7 +645,7 @@ void P_ConsolePlayerBuilder(const player_t *pl, void *data, ticcmd_t *dest)
 {
 	dest->player_idx = pl->pnum;
 
-	E_BuildTiccmd(dest, 0);
+	E_BuildTiccmd(dest, pl->pnum);
 }
 
 static u16_t MakeConsistency(const player_t *pl)
