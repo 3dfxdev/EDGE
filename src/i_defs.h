@@ -24,11 +24,16 @@
 #include "con_var.h"
 #include "i_system.h"
 
+#define HAVE_PHYSFS 1
+
 /// `CA- 6.5.2016: quick hacks to change these in Visual Studio (less warnings). 
 #ifdef _MSC_VER
 #define strdup _strdup
 #define stricmp _stricmp
 #define strnicmp _strnicmp
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#define uint unsigned int
 #endif
 
 

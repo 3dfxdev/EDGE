@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Colour Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -67,7 +67,6 @@ static bool loaded_playpal = false;
 int var_gamma;
 
 static bool old_gamma = -1;
-
 
 // text translation tables
 const byte *font_whitener = NULL;
@@ -217,9 +216,9 @@ void V_InitColour(void)
 	InitTranslationTables();
 }
 
-// 
+//
 // Find the closest matching colour in the palette.
-// 
+//
 int V_FindColour(int r, int g, int b)
 {
 	int i;
@@ -249,10 +248,10 @@ int V_FindColour(int r, int g, int b)
 }
 
 
-// 
+//
 // Find the best match for the pure colour.  `which' is 0 for red, 1
 // for green and 2 for blue.
-// 
+//
 static int V_FindPureColour(int which)
 {
 	int i;
@@ -338,7 +337,7 @@ static void LoadColourmap(const colourmap_c * colm)
 	data = (const byte*)W_CacheLumpNum(lump);
 
 	if ((colm->start + colm->length) * 256 > size)
-		I_Error("Colourmap [%s] is too small ! (LENGTH too big)\n", 
+		I_Error("Colourmap [%s] is too small ! (LENGTH too big)\n",
 		colm->name.c_str());
 
 	data_in = data + (colm->start * 256);
@@ -615,7 +614,7 @@ rgbcol_t V_ParseFontColor(const char *name, bool strict)
 
 	if (rgb == RGB_NO_VALUE)
 		rgb ^= 0x000101;
-	
+
 	return rgb;
 }
 
@@ -663,7 +662,7 @@ static void SetupLightMap(lighting_model_e model)
 {
 	for (i=0; i < 256; i++)
 	{
-		// Approximation of standard Doom lighting: 
+		// Approximation of standard Doom lighting:
 		// (based on side-by-side comparison)
 		//    [0,72] --> [0,16]
 		//    [72,112] --> [16,56]
@@ -680,7 +679,6 @@ static void SetupLightMap(lighting_model_e model)
 	}
 }
 #endif
-
 
 // -AJA- 1999/07/03: Rewrote this routine, since the palette handling
 // has been moved to v_colour.c/h (and made more flexible).  Later on it
@@ -755,8 +753,13 @@ private:
 	const colourmap_c *colmap;
 
 	int light_lev;
+	int light_color;
+	float desat_lev;
 
 	GLuint fade_tex;
+	GLuint fade_que[16];
+	int fade_key[16];
+	int fade_cnt[16];
 
 	bool simple_cmap;
 	lighting_model_e lt_model;
@@ -765,9 +768,15 @@ private:
 
 public:
 	colormap_shader_c(const colourmap_c *CM) : colmap(CM),
-		light_lev(255), fade_tex(0),
+		light_lev(255), light_color(0), desat_lev(0.0f), fade_tex(0),
 		simple_cmap(true), lt_model(LMODEL_Doom)
-	{ }
+	{
+		for (int i=0; i<16; i++)
+		{
+			fade_cnt[i] = fade_que[i] = 0;
+			fade_key[i] = -1;
+		}
+	}
 
 	virtual ~colormap_shader_c()
 	{
@@ -789,7 +798,7 @@ private:
 		float dist = DistFromViewplane(lit_pos->x, lit_pos->y, lit_pos->z);
 
 		int L = light_lev / 4;  // need integer range 0-63
-		
+
 		v->texc[t].x = dist / 1600.0;
 		v->texc[t].y = (L + 0.5) / 64.0;
 	}
@@ -802,7 +811,7 @@ public:
 		float dist = DistFromViewplane(x, y, z);
 
 		int cmap_idx;
-		
+
 		if (lt_model >= LMODEL_Flat)
 			cmap_idx = CLAMP(0, 42-light_lev/6, 31);
 		else
@@ -841,7 +850,7 @@ public:
 	{
 		local_gl_vert_t * glvert = RGL_BeginUnit(shape, num_vert,
 				GL_MODULATE, tex,
-				(simple_cmap || r_dumbmulti.d) ? GL_MODULATE : GL_DECAL,
+				(desat_lev > 0.1f) ? GL_DECAL : (simple_cmap || r_dumbmulti.d) ? GL_MODULATE : GL_DECAL,
 				fade_tex, *pass_var, blending);
 
 		for (int v_idx=0; v_idx < num_vert; v_idx++)
@@ -870,7 +879,7 @@ private:
 
 		const byte *map = NULL;
 		int length = 32;
-		
+
  		if (colmap && colmap->length > 0)
 		{
 			map = V_GetTranslationTable(colmap);
@@ -879,7 +888,7 @@ private:
 			for (int ci = 0; ci < 32; ci++)
 			{
  				int cmap_idx = length * ci / 32;
-  
+
  				// +4 gets the white pixel -- FIXME: doom specific
  				const byte new_col = map[cmap_idx*256 + 4];
 
@@ -968,6 +977,18 @@ private:
 					dest[2] = dest[0];
 					dest[3] = 255;
 				}
+				// modulate with per sector light color
+				dest[0] = dest[0] * RGB_RED(light_color) / 255;
+				dest[1] = dest[1] * RGB_GRN(light_color) / 255;
+				dest[2] = dest[2] * RGB_BLU(light_color) / 255;
+				// simulate desaturation
+				if (desat_lev > 0.1f)
+				{
+					dest[0] = dest[0] / 4;
+					dest[1] = dest[1] / 4;
+					dest[2] = dest[2] / 4;
+					dest[3] = 255 * (desat_lev - 0.1f);
+				}
 			}
 		}
 
@@ -980,35 +1001,97 @@ public:
 		if (fade_tex == 0 ||
 		    lt_model != currmap->episode->lighting)
 		{
-			if (fade_tex != 0)
+			int i;
+			// look for cached colormap texture
+			for (i=0; i<16; i++)
+				if (fade_key[i] == light_color)
+				{
+					fade_tex = fade_que[i];
+					fade_cnt[i]++;
+					return;
+				}
+
+			// look for free cache entry
+			for (i=0; i<16; i++)
+				if (fade_key[i] == -1)
+					break;
+
+			// if no free entry, free the least used entry
+			if (i == 16)
 			{
-				glDeleteTextures(1, &fade_tex);
+				int mc = fade_cnt[0], mi = 0;
+				for (i=1; i<16; i++)
+				{
+					if (fade_cnt[i] < mc)
+					{
+						mc = fade_cnt[i];
+						mi = i;
+					}
+				}
+				i = mi;
+				glDeleteTextures(1, &fade_que[i]);
+				fade_que[i] = fade_cnt[i] = 0;
+				fade_key[i] = -1;
 			}
 
 			lt_model = currmap->episode->lighting;
 
 			MakeColormapTexture(0);
+
+			// save in queue
+			fade_que[i] = fade_tex;
+			fade_key[i] = light_color;
+			fade_cnt[i]++;
 		}
 	}
 
 	void DeleteTex()
 	{
-		if (fade_tex != 0)
-		{
-			glDeleteTextures(1, &fade_tex);
-			fade_tex = 0;
-		}
+		for (int i=0; i<16; i++)
+			if (fade_que[i])
+			{
+				glDeleteTextures(1, &fade_que[i]);
+				fade_que[i] = fade_cnt[i] = 0;
+				fade_key[i] = -1;
+			}
+		fade_tex = 0;
+	}
+
+	void ClearTex()
+	{
+		fade_tex = 0;
 	}
 
 	void SetLight(int _level)
 	{
 		light_lev = _level;
 	}
+
+	void SetLightColor(int _color)
+	{
+		light_color = _color;
+	}
+
+	void SetDesaturation(float _level)
+	{
+		desat_lev = _level;
+	}
 };
 
 
-static colormap_shader_c *std_cmap_shader;
+colormap_shader_c *std_cmap_shader;
 
+
+void R_ColorMapUpdate(int col, float desat)
+{
+	if(std_cmap_shader)
+	{
+		std_cmap_shader->SetLightColor(col | ((int)(desat * 127.0f) << 24));
+		std_cmap_shader->SetDesaturation(desat);
+		std_cmap_shader->ClearTex();
+		std_cmap_shader->Update();
+	}
+}
 
 abstract_shader_c *R_GetColormapShader(const struct region_properties_s *props,
 		int light_add)
@@ -1059,7 +1142,7 @@ void DeleteColourmapTextures(void)
 {
 	if (std_cmap_shader)
 		std_cmap_shader->DeleteTex();
-	
+
 	std_cmap_shader = NULL;
 
 	for (int i = 0; i < colourmaps.GetSize(); i++)

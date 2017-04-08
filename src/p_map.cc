@@ -46,6 +46,7 @@
 #include "m_bbox.h"
 #include "m_random.h"
 #include "p_local.h"
+#include "p_pobj.h"
 #include "s_sound.h"
 #include "z_zone.h"
 
@@ -88,6 +89,9 @@ typedef struct try_move_info_s
 try_move_info_t;
 
 static try_move_info_t tm_I;
+
+// set to stop weapon bobbing
+bool disable_bob = false;
 
 bool mobj_hit_sky;
 line_t *blockline;
@@ -139,6 +143,40 @@ static inline int PointOnLineSide(float x, float y, line_t *ld)
 	return P_PointOnDivlineSide(x, y, &div);
 }
 
+extern float Slope_GetHeight(slope_plane_t *slope, float x, float y);
+
+// Check for sector slope
+static void P_CheckSlope(void)
+{
+	sector_t *sec = tm_I.sub->sector;
+	extrafloor_t *botef = sec->bottom_ef;
+
+	while(botef)
+	{
+		if (tm_I.z <= botef->top_h)
+		{
+			// check for control sector f_slope
+			sector_t *csec = botef->ef_line->frontsector;
+			if (csec->f_slope)
+			{
+				tm_I.ceilnz = botef->higher ? botef->higher->top_h : sec->c_h;
+				float fz = botef->top_h + Slope_GetHeight(csec->f_slope, tm_I.x, tm_I.y);
+				if (fz < tm_I.ceilnz)
+					tm_I.floorz = fz;
+				return;
+			}
+
+			return;
+		}
+		botef = botef->higher;
+	}
+
+	// check for sector f_slope
+	if (sec->f_slope)
+		tm_I.floorz = sec->f_h + Slope_GetHeight(sec->f_slope, tm_I.x, tm_I.y);
+
+	return;
+}
 
 //
 // TELEPORT MOVE
@@ -403,7 +441,6 @@ bool P_CheckAbsPosition(mobj_t * thing, float x, float y, float z)
 	return true;
 }
 
-
 //
 // RELATIVE MOVEMENT CLIPPING
 //
@@ -416,6 +453,7 @@ static bool PIT_CheckRelLine(line_t * ld, void *data)
 		return true;
 
 	// A line has been hit
+	//I_Printf("Hit line: %d special %p\n", ld - lines, ld->special);
 
 	// The moving thing's destination position will cross the given line.
 	// If this should not be allowed, return false.
@@ -557,6 +595,9 @@ static bool PIT_CheckRelLine(line_t * ld, void *data)
 		tm_I.ceilnz = tm_I.floorz;
 	}
 
+	// check for slope
+	P_CheckSlope();
+
 	if (tm_I.ceilnz < tm_I.floorz + tm_I.mover->height)
 		blockline = ld;
 
@@ -568,6 +609,12 @@ static bool PIT_CheckRelLine(line_t * ld, void *data)
 		tm_I.line_count++;
 	}
 
+	// check for vertex height
+	int vi = ld->v1 - vertexes;
+	if (vi >= 0 && vi < numvertexes && zvertexes)
+		if (zvertexes[vi].x > -1000000.0f)
+			tm_I.floorz = zvertexes[vi].x;
+
 	return true;
 }
 
@@ -578,6 +625,20 @@ static bool PIT_CheckRelThing(mobj_t * thing, void *data)
 
 	if (thing == tm_I.mover)
 		return true;
+
+	if ((thing->typenum & ~3) == 9300)
+	{
+		if (thing->typenum == 9300)
+			return true;
+
+		polyobj_t *po = P_GetPolyobject(thing->po_ix);
+		if (po)
+			for (int i=0; i<po->count; i++)
+				if (!PIT_CheckRelLine(po->lines[i], data))
+					return false;
+
+		return true;
+	}
 
 	if (0 == (thing->flags & (MF_SOLID | MF_SPECIAL | MF_SHOOTABLE | MF_TOUCHY)))
 		return true;
@@ -747,6 +808,9 @@ static bool P_CheckRelPosition(mobj_t * thing, float x, float y)
 	// point.  Any contacted lines the step closer together will adjust them.
 	// -AJA- 1999/07/19: Extra floor support.
 	P_ComputeThingGap(thing, tm_I.sub->sector, tm_I.z, &tm_I.floorz, &tm_I.ceilnz);
+
+	// check for slope
+	P_CheckSlope();
 
 	tm_I.dropoff = tm_I.floorz;
 	tm_I.above = NULL;
@@ -1056,7 +1120,7 @@ static bool PTR_SlideTraverse(intercept_t * in, void *dataptr)
 //
 // -ACB- 1998/07/28 This is NO LONGER a kludgy mess; removed goto rubbish.
 //
-void P_SlideMove(mobj_t * mo, float x, float y)
+bool P_SlideMove(mobj_t * mo, float x, float y)
 {
 	slidemo = mo;
 
@@ -1138,7 +1202,7 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 			bestslidefrac = 1.0f;
 
 		if (bestslidefrac <= 0.0f)
-			return;
+			return false;
 
 		tmxmove = dx * bestslidefrac;
 		tmymove = dy * bestslidefrac;
@@ -1148,13 +1212,21 @@ void P_SlideMove(mobj_t * mo, float x, float y)
 		dx = tmxmove;
 		dy = tmymove;
 
+		if (bestslidefrac > 0.99f)
+			disable_bob = true;
+
 		if (P_TryMove(mo, mo->x + tmxmove, mo->y + tmymove))
-			return;
+			return true;
 	}
+
+	if (bestslidefrac > 0.99f)
+		disable_bob = true;
 
 	// stairstep: last ditch attempt
 	if (! P_TryMove(mo, mo->x, mo->y + dy))
-		P_TryMove(mo, mo->x + dx, mo->y);
+		return P_TryMove(mo, mo->x + dx, mo->y);
+
+	return true;
 }
 
 //
@@ -1407,6 +1479,103 @@ static bool PTR_ShootTraverse(intercept_t * in, void *dataptr)
 	// don't shoot self
 	if (mo == shoot_I.source)
 		return true;
+
+	if ((mo->typenum & ~3) == 9300)
+	{
+		if (mo->typenum == 9300)
+			return true;
+
+		// find Poly Object line hit (if any)
+		int i = 0, j = -1;
+		polyobj_t *po = P_GetPolyobject(mo->po_ix);
+		line_t *ld;
+		float minfrac = 1000000.0f;
+		float frac;
+
+		while (i < po->count)
+		{
+			int s1;
+			int s2;
+			divline_t div;
+
+			ld = po->lines[i];
+
+			div.x = ld->v1->x;
+			div.y = ld->v1->y;
+			div.dx = ld->dx;
+			div.dy = ld->dy;
+
+			// avoid precision problems with two routines
+			if (trace.dx > 16 || trace.dy > 16 || trace.dx < -16 || trace.dy < -16)
+			{
+				s1 = P_PointOnDivlineSide(ld->v1->x, ld->v1->y, &trace);
+				s2 = P_PointOnDivlineSide(ld->v2->x, ld->v2->y, &trace);
+			}
+			else
+			{
+				s1 = P_PointOnDivlineSide(trace.x, trace.y, &div);
+				s2 = P_PointOnDivlineSide(trace.x + trace.dx, trace.y + trace.dy, &div);
+			}
+
+			// line isn't crossed ?
+			if (s1 == s2)
+			{
+				i++;
+				continue;
+			}
+
+			// hit the line - check side
+			if (PointOnLineSide(trace.x, trace.y, ld))
+			{
+				// can't hit side 1
+				i++;
+				continue;
+			}
+
+			frac = P_InterceptVector(&trace, &div);
+			if (frac < minfrac)
+			{
+				j = i;
+				minfrac = frac;
+			}
+
+			//I_Printf("Hit PO line %d at %f\n", i, frac);
+			i++;
+		}
+		if (j == -1)
+		{
+			//I_Printf("Didn't hit a PO line\n");
+			return true; // didn't hit a line
+		}
+
+		ld = po->lines[j];
+		frac = minfrac;
+
+		// determine coordinates of intersect
+		float x = trace.x + trace.dx * frac;
+		float y = trace.y + trace.dy * frac;
+		float z = shoot_I.start_z + frac * shoot_I.slope * shoot_I.range;
+
+		// Line is a special, Cause action....
+		// -AJA- honour the NO_TRIGGER_LINES attack special too
+		if (ld->special &&
+			(! shoot_I.source || ! shoot_I.source->currentattack ||
+			! (shoot_I.source->currentattack->flags & AF_NoTriggerLines)))
+		{
+			P_ShootSpecialLine(ld, 0, shoot_I.source);
+		}
+
+		// position puff off the wall
+		x -= trace.dx * 6.0f / shoot_I.range;
+		y -= trace.dy * 6.0f / shoot_I.range;
+
+		// Spawn bullet puffs.
+		if (shoot_I.puff)
+			P_SpawnPuff(x, y, z, shoot_I.puff, shoot_I.angle + ANG180);
+
+		// don't go any farther
+		return false;
+	}
 
 	// got to able to shoot it
 	if (!(mo->flags & MF_SHOOTABLE) && !(mo->extendedflags & EF_BLOCKSHOTS))
@@ -1677,6 +1846,38 @@ static bool PTR_UseTraverse(intercept_t * in, void *dataptr)
 	if (in->thing)
 	{
 		mobj_t *mo = in->thing;
+
+		if ((mo->typenum & ~3) == 9300)
+		{
+			if (mo->typenum == 9300)
+				return true;
+
+			int i = 0;
+			polyobj_t *po = P_GetPolyobject(mo->po_ix);
+			line_t *ld;
+
+			while (i < po->count)
+			{
+				ld = po->lines[i];
+				if (PointOnLineSide(usething->x, usething->y, ld))
+				{
+					// can't use side 1
+					i++;
+					continue;
+				}
+				if (ld->special || ld->action)
+				{
+					P_UseSpecialLine(usething, ld, 0, use_lower, use_upper);
+					return false; // used
+				}
+				i++;
+			}
+
+            S_StartFX(usething->info->noway_sound, P_MobjGetSfxCategory(usething), usething);
+			return false;
+		}
+
+
 
 		// not a usable thing ?
 		if (!(mo->extendedflags & EF_USABLE) || ! mo->info->touch_state)

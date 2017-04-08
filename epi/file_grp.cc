@@ -37,6 +37,7 @@ namespace epi
 //------------------------------------------------------------------------
 
 #ifdef HAVE_PHYSFS
+#include <physfs.h>
 static PHYSFS_File *grp_R_fp;
 #else
 static FILE *grp_R_fp;

@@ -107,7 +107,7 @@
 #define CFGDEF_TELEPT_FLASH     (1)
 #define CFGDEF_WIPE_METHOD      (1)
 #define CFGDEF_PNG_SCRSHOTS     (1)
-#define CFGDEF_TELEPT_EFFECT    (0)
+#define CFGDEF_TELEPT_EFFECT    (2)
 #define CFGDEF_TELEPT_REVERSE   (0)
 #define CFGDEF_WIPE_REVERSE     (0)
 #define CFGDEF_USE_VSYNC        (0)

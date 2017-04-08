@@ -47,6 +47,8 @@
 #include "p_local.h"
 #include "p_bot.h"
 #include "p_setup.h"
+#include "p_mobj.h"
+#include "p_pobj.h"
 #include "am_map.h"
 #include "r_gldefs.h"
 #include "r_sky.h"
@@ -80,6 +82,7 @@ extern void TinyBSP(void); /// Add #IFDEF DREAMCAST TO REMOVE GLBSP LINKAGE
 //
 int numvertexes;
 vec2_t *vertexes;
+vec2_t *zvertexes;
 
 int num_gl_vertexes;
 vec2_t *gl_vertexes;
@@ -121,9 +124,23 @@ epi::crc32_c mapthing_CRC;
 
 int mapthing_NUM;
 
-static bool hexen_level;
-static bool wolf3d_level; //!!!
 static bool v5_nodes;
+
+static bool wolf3d_level; //!!!
+
+// UDMF v1.1 namespaces
+static bool doom_level;
+static bool heretic_level;
+static bool hexen_level;
+static bool strife_level;
+// other namespaces
+static bool zdoom_level;
+static bool zdoomxlt_level;
+static bool eternity_level;
+
+static bool udmf_level;
+static int udmf_lumpnum;
+static char *udmf_lump;
 
 // a place to store sidedef numbers of the loaded linedefs.
 // There is two values for every line: side0 and side1.
@@ -131,6 +148,180 @@ static int *temp_line_sides;
 
 cvar_c m_goobers;
 
+typedef struct {
+	uint8_t *buffer;
+	uint8_t line[512];
+	int length;
+	int next;
+	int prev;
+} parser_t;
+
+static parser_t udmf_psr;
+
+static bool GetNextLine(parser_t *psr)
+{
+	if (psr->next >= psr->length)
+		return false; // no more lines
+
+	int i;
+	// get next line
+	psr->prev = psr->next;
+	uint8_t *lp = &psr->buffer[psr->next];
+	for (i=0; i<(psr->length - psr->next); i++, lp++)
+		if (*lp == 0x0A || *lp == 0x0D)
+			break;
+	if (i == (psr->length - psr->next))
+		lp = &psr->buffer[psr->length - 1]; // last line
+	psr->next = (int)(lp - psr->buffer) + 1;
+	memcpy(psr->line, &psr->buffer[psr->prev], MIN(511, psr->next - psr->prev - 1));
+	psr->line[MIN(511, psr->next - psr->prev) - 1] = 0;
+	// skip any more CR/LF
+	while (psr->buffer[psr->next] == 0x0A || psr->buffer[psr->next] == 0x0D)
+		psr->next++;
+
+	// check for comments
+	lp = psr->line;
+	while (lp[0] != 0 && lp[0] != 0x2F && lp[1] != 0x2F)
+		lp++; // find full line comment start (if present)
+	if (lp[0] != 0)
+	{
+		*lp = 0; // terminate at full line comment start
+	}
+	else
+	{
+		lp = psr->line;
+		while (lp[0] != 0 && lp[0] != 0x2F && lp[1] != 0x2A)
+			lp++; // find multi-line comment start (if present)
+		if (lp[0] != 0)
+		{
+			*lp = 0; // terminate at multi-line comment start
+			uint8_t *ep = &lp[2];
+			while (ep[0] != 0 && ep[0] != 0x2A && ep[1] != 0x2F)
+				ep++; // find multi-line comment end (if present)
+			if (ep[0] == 0)
+			{
+				ep = &psr->buffer[psr->next];
+				for (i=0; i<(psr->length - psr->next); i++, ep++)
+					if (ep[0] == 0x2A && ep[1] == 0x2F)
+						break;
+				if (i == (psr->length - psr->next))
+					ep = &psr->buffer[psr->length - 2];
+			}
+			psr->next = (int)(ep - psr->buffer) + 2; // skip comment for next line
+		}
+	}
+
+	//I_Debugf(" parser next line: %s\n", (char *)psr->line);
+	return true;
+}
+
+static bool GetNextAssign(parser_t *psr, uint8_t *ident, uint8_t *val)
+{
+	if (!GetNextLine(psr))
+		return false; // no more lines
+
+	int len = 0;
+	while (psr->line[len] != 0 && psr->line[len] != 0x7D)
+		len++;
+	if (psr->line[len] == 0x7D)
+	{
+		//I_Debugf(" parser: block end\n");
+		return false;
+	}
+	else if (len < 4)
+		return false; //line too short for assignment
+
+	uint8_t *lp = psr->line;
+	while (*lp != 0x3D && *lp != 0)
+		lp++; // find '='
+	if (lp[0] != 0x3D)
+		return false; // not an assignment line
+
+	*lp++ = 0; // split at assignment operator
+	int i = 0;
+	while (psr->line[i] == 0x20 || psr->line[i] == 0x09)
+		i++; // skip whitespace before indentifier
+	memcpy(ident, &psr->line[i], lp - &psr->line[i] - 1);
+	i = lp - &psr->line[i] - 2;
+	while (ident[i] == 0x20 || ident[i] == 0x09)
+		i--; // skip whitespace after identifier
+	ident[i+1] = 0;
+
+	i = 0;
+	while (lp[i] == 0x20 || lp[i] == 0x09 || lp[i] == 0x22)
+		i++; // skip whitespace and quotes before value
+	memcpy(val, &lp[i], &psr->line[len] - &lp[i]);
+	i = (int)(&psr->line[len] - &lp[i]) - 2;
+	while (val[i] == 0x20 || val[i] == 0x09 || val[i] == 0x22  || val[i] == 0x3B)
+		i--; // skip whitespace, quote, and semi-colon after value
+	val[i+1] = 0;
+
+	//I_Debugf(" parser: ident = %s, val = %s\n", (char *)ident, (char *)val);
+	return true;
+}
+
+static bool GetNextBlock(parser_t *psr, uint8_t *ident)
+{
+	if (!GetNextLine(psr))
+		return false; // no more lines
+
+	int len, i = 0;
+	while (psr->line[i] == 0x20 || psr->line[i] == 0x09)
+		i++; // skip whitespace
+blk_loop:
+	len = 0;
+	while (psr->line[len] != 0)
+		len++;
+
+	memcpy(ident, &psr->line[i], len - i);
+	i = len - i - 1;
+	while (ident[i] == 0x20 || ident[i] == 0x09)
+		i--; // skip whitespace from end of line
+	ident[i+1] = 0;
+
+	if (!GetNextLine(psr))
+		return false; // no more lines
+
+	i = 0;
+	while (psr->line[i] == 0x20 || psr->line[i] == 0x09)
+		i++; // skip whitespace before indentifier or block start
+	if (psr->line[i] != 0x7B)
+		goto blk_loop; // not a block start
+
+	//I_Debugf(" parser: block start = %s\n", ident);
+	return true;
+}
+
+static bool str2bool(char *val)
+{
+	if (strcasecmp(val, "true") == 0)
+		return true;
+
+	// default is always false
+	return false;
+}
+
+static int str2int(char *val, int def)
+{
+	int ret;
+
+	if (sscanf(val, "%d", &ret) == 1)
+		return ret;
+
+	// error - return default
+	return def;
+}
+
+static float str2float(char *val, float def)
+{
+	float ret;
+
+	if (sscanf(val, "%f", &ret) == 1)
+		return ret;
+
+	// error - return default
+	return def;
+}
 
 static void CheckEvilutionBug(byte *data, int length)
 {
@@ -282,14 +473,15 @@ static void SegCommonStuff(seg_t *seg, int linedef  )
 {
 	seg->frontsector = seg->backsector = NULL;
 
-	if (linedef == 0xFFFF)
+	if (linedef == (udmf_level ? -1 : 0xFFFF))
 	{
 		seg->miniseg = true;
+		//I_Debugf("   miniseg\n");
 	}
 	else
 	{
 		if (linedef >= numlines)  // sanity check
-			I_Error("Bad GWA file: seg #%d has invalid linedef.\n", seg - segs);
+			I_Error("Bad GWA file: seg #%d has invalid linedef.\n", (int)(seg - segs));
 
 		seg->miniseg = false;
 		seg->linedef = &lines[linedef];
@@ -302,7 +494,7 @@ static void SegCommonStuff(seg_t *seg, int linedef  )
 		seg->sidedef = seg->linedef->side[seg->side];
 
 		if (! seg->sidedef)
-			I_Error("Bad GWA file: missing side for seg #%d\n", seg - segs);
+			I_Error("Bad GWA file: missing side for seg #%d\n", (int)(seg - segs));
 
 		seg->frontsector = seg->sidedef->sector;
 
@@ -313,6 +505,7 @@ static void SegCommonStuff(seg_t *seg, int linedef  )
 			if (other)
 				seg->backsector = other->sector;
 		}
+		//I_Debugf("   fsec = %p, bsec = %p\n", seg->frontsector, seg->backsector);
 	}
 }
 
@@ -755,6 +948,14 @@ static void LoadSectors(int lump)
 
 		ss->p = &ss->props;
 
+		ss->lightcolor = 0x00FFFFFF;
+		ss->desaturation = 0.0f;
+
+		ss->f_light = 0;
+		ss->c_light = 0;
+		ss->f_lit_abs = false;
+		ss->c_lit_abs = false;
+
 		ss->sound_player = -1;
 
 		// -AJA- 1999/07/29: Keep sectors with same tag in a list.
@@ -918,10 +1119,10 @@ static void UnknownThingWarning(int type, float x, float y)
 }
 
 
-extern void SpawnMapThing(const mobjtype_c *info,
+static void SpawnMapThingEx(const mobjtype_c *info,
 						  float x, float y, float z,
 						  sector_t *sec, angle_t angle,
-						  int options, int tag)
+						  int options, int tag, int typenum)
 {
 	spawnpoint_t point;
 
@@ -1014,8 +1215,32 @@ extern void SpawnMapThing(const mobjtype_c *info,
 	// Use MobjCreateObject -ACB- 1998/08/06
 	mobj_t * mo = P_MobjCreateObject(x, y, z, info);
 
+	mo->typenum = typenum; // set if extended level data, else 0
 	mo->angle = angle;
 	mo->spawnpoint = point;
+
+	if ((typenum & ~3) == 9300)
+	{
+		int ix = (int)(ANG_2_FLOAT(angle) + 0.5f);
+		polyobj_t *po = P_GetPolyobject(ix);
+		if (po)
+		{
+			if (typenum == 9300)
+			{
+				po->anchor = mo;
+				I_Printf("  PO anchor at (%f, %f)\n", mo->x, mo->y);
+			}
+			else
+			{
+				po->mobj = mo;
+				I_Printf("  PO mobj at (%f, %f)\n", mo->x, mo->y);
+			}
+		}
+
+		mo->radius = 20;
+		mo->angle = 0;
+		mo->po_ix = ix;
+	}
 
 	if (mo->state && mo->state->tics > 1)
 		mo->tics = 1 + (P_Random() % mo->state->tics);
@@ -1029,6 +1254,14 @@ extern void SpawnMapThing(const mobjtype_c *info,
 	// -AJA- 2000/09/22: MBF compatibility flag
 	if (options & MTF_FRIEND)
 		mo->side = ~0;
+}
+
+extern void SpawnMapThing(const mobjtype_c *info,
+						  float x, float y, float z,
+						  sector_t *sec, angle_t angle,
+						  int options, int tag)
+{
+	SpawnMapThingEx(info, x, y, z, sec, angle, options, tag, 0);
 }
 
 static void LoadThings(int lump)
@@ -1244,8 +1477,8 @@ static inline void ComputeLinedefData(line_t *ld, int side0, int side1)
 		ld->bbox[BOXTOP] = v1->y;
 	}
 
-	if (side0 == 0xFFFF) side0 = -1;
-	if (side1 == 0xFFFF) side1 = -1;
+	if (!udmf_level && side0 == 0xFFFF) side0 = -1;
+	if (!udmf_level && side1 == 0xFFFF) side1 = -1;
 
 	// handle missing RIGHT sidedef (idea taken from MBF)
 	if (side0 == -1)
@@ -1379,6 +1612,1424 @@ static void LoadHexenLineDefs(int lump)
 	W_DoneWithLump(data);
 }
 
+static void LoadZNodes(int lumpnum)
+{
+	int i, zlumpnum = 0, ztype = 0, zlen = 0;
+	byte *zdata;
+
+	I_Debugf("LoadZNodes:\n");
+
+	for (i=0; i<5; i++)
+		if (W_VerifyLumpName(lumpnum + i, "ZNODES"))
+		{
+			zlumpnum = lumpnum + i;
+			break;
+		}
+	if (i == 5)
+		I_Error("LoadZNodes: Couldn't find ZNODES lump\n");
+
+	zlen = W_LumpLength(zlumpnum);
+	zdata = (byte *)W_CacheLumpNum(zlumpnum);
+	if (!zdata)
+		I_Error("LoadZNodes: Couldn't load ZNODES lump\n");
+
+	if (zlen < 12)
+	{
+		W_DoneWithLump(zdata);
+		I_Error("LoadZNodes: ZNODES lump too short\n");
+	}
+
+	if(!memcmp(zdata, "XGLN", 4))
+	{
+		ztype = 1;
+		I_Debugf(" ZDoom uncompressed GL nodes v1\n");
+	}
+	else if(!memcmp(zdata, "XGL2", 4))
+	{
+		ztype = 2;
+		I_Debugf(" ZDoom uncompressed GL nodes v2\n");
+	}
+	else if(!memcmp(zdata, "XGL3", 4))
+	{
+		ztype = 3;
+		I_Debugf(" ZDoom uncompressed GL nodes v3\n");
+	}
+	else
+	{
+		static char ztemp[6];
+		Z_StrNCpy(ztemp, (char *)zdata, 4);
+		W_DoneWithLump(zdata);
+		I_Error("LoadZNodes: Unrecognized node type %s\n", ztemp);
+	}
+
+	byte *td = &zdata[4];
+
+	I_Debugf("LoadZNodes: Read number vertexes\n");
+	// after signature, 1st u32 is number of original vertexes - should be <= numvertexes
+	int oVerts = EPI_LE_U32(*(uint *)td);
+	td += 4;
+	if (oVerts > numvertexes)
+	{
+		W_DoneWithLump(zdata);
+		I_Error("LoadZNodes: TEXTMAP - ZNODES mismatch\n");
+	}
+
+	// 2nd u32 is the number of extra vertexes added by zdbsp
+	int nVerts = EPI_LE_U32(*(uint *)td);
+	td += 4;
+	I_Debugf("LoadZNodes: Orig Verts = %d, New Verts = %d, Map Verts = %d\n", oVerts, nVerts, numvertexes);
+
+	gl_vertexes = new vec2_t[nVerts];
+	num_gl_vertexes = nVerts;
+
+	I_Debugf("LoadZNodes: Fill in new vertexes\n");
+	// fill in new vertexes
+	vec2_t *vv = gl_vertexes;
+	for (i=0; i<nVerts; i++, vv++)
+	{
+		// convert signed 16.16 fixed point to float
+		vv->x = (float)EPI_LE_S32(*(int *)td) / 65536.0f;
+		td += 4;
+		vv->y = (float)EPI_LE_S32(*(int *)td) / 65536.0f;
+		td += 4;
+		I_Debugf("   new vert %d: %f/%f\n", i+oVerts, vv->x, vv->y);
+	}
+
+	I_Debugf("LoadZNodes: Read subsectors\n");
+	// new vertexes is followed by the subsectors
+	numsubsectors = EPI_LE_S32(*(int *)td);
+	td += 4;
+	if (numsubsectors <= 0)
+	{
+		W_DoneWithLump(zdata);
+		I_Error("LoadZNodes: No subsectors\n");
+	}
+	I_Debugf("LoadZNodes: Num SSECTORS = %d\n", numsubsectors);
+
+	subsectors = new subsector_t[numsubsectors];
+	Z_Clear(subsectors, subsector_t, numsubsectors);
+
+	int *ss_temp = new int[numsubsectors];
+	int zSegs = 0;
+	for (i=0; i<numsubsectors; i++)
+	{
+		int countsegs = EPI_LE_S32(*(int*)td);
+		td += 4;
+		ss_temp[i] = countsegs;
+		zSegs += countsegs;
+	}
+
+	I_Debugf("LoadZNodes: Read segs\n");
+	// subsectors are followed by the segs
+	numsegs = EPI_LE_S32(*(int *)td);
+	td += 4;
+	if (numsegs != zSegs)
+	{
+		W_DoneWithLump(zdata);
+		I_Error("LoadZNodes: Incorrect number of segs in nodes\n");
+	}
+	I_Debugf("LoadZNodes: Num SEGS = %d\n", numsegs);
+
+	segs = new seg_t[numsegs];
+	Z_Clear(segs, seg_t, numsegs);
+	seg_t *seg = segs;
+
+	for (i = 0; i < numsegs; i++, seg++)
+	{
+		unsigned int v1num;
+		int linedef, partner, side;
+
+		if (ztype == 1)
+		{
+			v1num = EPI_LE_U32(*(uint*)td);
+			td += 4;
+			partner = EPI_LE_S32(*(int*)td);
+			td += 4;
+			linedef = EPI_LE_S16(*(int16_t*)td);
+			td += 2;
+			side = (int)(*td);
+			td += 1;
+		}
+		else
+		{
+			v1num = EPI_LE_U32(*(uint*)td);
+			td += 4;
+			partner = EPI_LE_S32(*(int*)td);
+			td += 4;
+			linedef = EPI_LE_S32(*(int*)td);
+			td += 4;
+			side = (int)(*td);
+			td += 1;
+		}
+		I_Debugf("  seg %d: v1 = %d, part = %d, line = %d, side = %d\n", i, v1num, partner, linedef, side);
+
+		if (v1num < (uint)numvertexes)
+			seg->v1 = &vertexes[v1num];
+		else
+			seg->v1 = &gl_vertexes[v1num - numvertexes];
+
+		seg->side = side ? 1 : 0;
+
+		if (partner == -1)
+			seg->partner = NULL;
+		else
+		{
+			SYS_ASSERT(partner < numsegs);  // sanity check
+			seg->partner = &segs[partner];
+		}
+
+		SegCommonStuff(seg, linedef);
+
+		// The following fields are filled out elsewhere:
+		//     sub_next, front_sub, back_sub, frontsector, backsector.
+
+		seg->sub_next = SEG_INVALID;
+		seg->front_sub = seg->back_sub = SUB_INVALID;
+	}
+
+	I_Debugf("LoadZNodes: Post-process subsectors\n");
+	// go back and fill in subsectors
+	subsector_t *ss = subsectors;
+	zSegs = 0;
+	for (i=0; i<numsubsectors; i++, ss++)
+	{
+		int countsegs = ss_temp[i];
+		int firstseg  = zSegs;
+		zSegs += countsegs;
+
+		// go back and fill in v2 from v1 of next seg and do calcs that needed both
+		I_Debugf("   filling in v2 for segs %d to %d\n", firstseg, zSegs-1);
+		seg = &segs[firstseg];
+		for (int j = 0; j < countsegs; j++, seg++)
+		{
+			seg->v2 = j == (countsegs - 1) ? segs[firstseg].v1 : segs[firstseg + j + 1].v1;
+
+			seg->angle  = R_PointToAngle(seg->v1->x, seg->v1->y,
+				seg->v2->x, seg->v2->y);
+
+			seg->length = R_PointToDist(seg->v1->x, seg->v1->y,
+				seg->v2->x, seg->v2->y);
+		}
+
+		// -AJA- 1999/09/23: New linked list for the segs of a subsector
+		//       (part of true bsp rendering).
+		seg_t **prevptr = &ss->segs;
+
+		if (countsegs == 0)
+			I_Error("LoadZNodes: level %s has invalid SSECTORS.\n", currmap->lump.c_str());
+
+		ss->sector = NULL;
+		ss->thinglist = NULL;
+
+		// this is updated when the nodes are loaded
+		ss->bbox = dummy_bbox;
+
+		for (int j = 0; j < countsegs; j++)
+		{
+			seg_t *cur = &segs[firstseg + j];
+
+			*prevptr = cur;
+			prevptr = &cur->sub_next;
+
+			cur->front_sub = ss;
+			cur->back_sub = NULL;
+
+			if (!ss->sector && !cur->miniseg)
+				ss->sector = cur->sidedef->sector;
+
+			//I_Debugf("  ssec = %d, seg = %d\n", i, firstseg + j);
+		}
+		//I_Debugf("LoadZNodes: ssec = %d, fseg = %d, cseg = %d\n", i, firstseg, countsegs);
+
+		if (ss->sector == NULL)
+			I_Error("Bad WAD: level %s has crazy SSECTORS.\n",
+				currmap->lump.c_str());
+
+		*prevptr = NULL;
+
+		// link subsector into parent sector's list.
+		// order is not important, so add it to the head of the list.
+
+		ss->sec_next = ss->sector->subsectors;
+		ss->sector->subsectors = ss;
+	}
+	delete ss_temp;
+
+	if (M_CheckParm("-fixsegs"))
+	{
+		seg_t *seg = segs;
+
+		/* fix older ZDBSP problem where it assigned wrong side to the
+		 *  segs if both sides were the same sidedef
+		 */
+		I_Debugf("LoadZNodes: fixing seg sidedefs\n");
+		for (i = 0; i < numsegs; i++, seg++)
+		{
+			if (seg->backsector == seg->frontsector && seg->linedef)
+			{
+				float d1 = P_ApproxDistance(seg->v1->x - seg->linedef->v1->x, seg->v1->y - seg->linedef->v1->y);
+				float d2 = P_ApproxDistance(seg->v2->x - seg->linedef->v1->x, seg->v2->y - seg->linedef->v1->y);
+
+				if (d2<d1)	// backside
+					seg->sidedef = seg->linedef->side[1];
+				else	// front side
+					seg->sidedef = seg->linedef->side[0];
+			}
+		}
+	}
+
+	I_Debugf("LoadZNodes: Read GL nodes\n");
+	// finally, read the nodes
+	numnodes = EPI_LE_U32(*(uint*)td);
+	td += 4;
+	if (numnodes == 0)
+	{
+		W_DoneWithLump(zdata);
+		I_Error("LoadZNodes: No nodes\n");
+	}
+	I_Debugf("LoadZNodes: Num nodes = %d\n", numnodes);
+
+	nodes = new node_t[numnodes+1];
+	Z_Clear(nodes, node_t, numnodes);
+	node_t *nd = nodes;
+
+	for (i=0; i<numnodes; i++, nd++)
+	{
+		if (ztype == 3)
+		{
+			nd->div.x  = (float)EPI_LE_S32(*(int*)td) / 65536.0f;
+			td += 4;
+			nd->div.y  = (float)EPI_LE_S32(*(int*)td) / 65536.0f;
+			td += 4;
+			nd->div.dx = (float)EPI_LE_S32(*(int*)td) / 65536.0f;
+			td += 4;
+			nd->div.dy = (float)EPI_LE_S32(*(int*)td) / 65536.0f;
+			td += 4;
+		}
+		else
+		{
+			nd->div.x  = (float)EPI_LE_S16(*(int16_t*)td);
+			td += 2;
+			nd->div.y  = (float)EPI_LE_S16(*(int16_t*)td);
+			td += 2;
+			nd->div.dx = (float)EPI_LE_S16(*(int16_t*)td);
+			td += 2;
+			nd->div.dy = (float)EPI_LE_S16(*(int16_t*)td);
+			td += 2;
+		}
+
+		nd->div_len = R_PointToDist(0, 0, nd->div.dx, nd->div.dy);
+
+		for (int j=0; j<2; j++)
+			for (int k=0; k<4; k++)
+			{
+				nd->bbox[j][k] = (float)EPI_LE_S16(*(int16_t*)td);
+				td += 2;
+			}
+
+		for (int j=0; j<2; j++)
+		{
+			nd->children[j] = EPI_LE_U32(*(uint*)td);
+			td += 4;
+
+			// update bbox pointers in subsector
+			if (nd->children[j] & NF_V5_SUBSECTOR)
+			{
+				subsector_t *ss = subsectors + (nd->children[j] & ~NF_V5_SUBSECTOR);
+				ss->bbox = &nd->bbox[j][0];
+			}
+		}
+		//I_Debugf("   nd %d: c1=%x, c2=%x, dlen=%f\n", i, nd->children[0], nd->children[1], nd->div_len);
+	}
+
+	I_Debugf("LoadZNodes: Setup root node\n");
+	SetupRootNode();
+
+	I_Debugf("LoadZNodes: Finished\n");
+	W_DoneWithLump(zdata);
+}
+
+static void LoadUDMFVertexes(parser_t *psr)
+{
+	char ident[128];
+	char val[128];
+	int i = 0;
+
+	I_Debugf("LoadUDMFVertexes: parsing TEXTMAP\n");
+	numvertexes = 0;
+
+	psr->next = 0; // restart from start of lump
+	while (1)
+	{
+		if (!GetNextBlock(psr, (uint8_t*)ident))
+			break;
+
+		if (strcasecmp(ident, "vertex") == 0)
+		{
+			// count vertex blocks
+			while (1)
+			{
+				if (!GetNextAssign(psr, (uint8_t*)ident, (uint8_t*)val))
+				{
+					uint8_t *lp = psr->line;
+					while (*lp != 0 && *lp != 0x7D)
+						lp++; // find end of line or '}'
+					if (*lp == 0x7D)
+					{
+						numvertexes++;
+						break; // end of block
+					}
+					if (psr->next >= psr->length)
+					{
+						numvertexes++;
+						break; // end of lump
+					}
+
+					continue; // skip line
+				}
+			}
+		}
+	}
+
+	vertexes = new vec2_t[numvertexes];
+	zvertexes = new vec2_t[numvertexes];
+
+	psr->next = 0; // restart from start of lump
+	while (1)
+	{
+		if (!GetNextBlock(psr, (uint8_t*)ident))
+			break;
+
+		if (strcasecmp(ident, "vertex") == 0)
+		{
+			float x = 0.0f, y = 0.0f;
+			float zf = -2000000.0f, zc = -2000000.0f;
+
+			I_Debugf("    parsing vertex %d\n", i);
+			// process vertex block
+			while (1)
+			{
+				if (!GetNextAssign(psr, (uint8_t*)ident, (uint8_t*)val))
+				{
+					uint8_t *lp = psr->line;
+					while (*lp != 0 && *lp != 0x7D)
+						lp++; // find end of line or '}'
+					if (*lp == 0x7D)
+					{
+						break; // end of block
+					}
+					if (psr->next >= psr->length)
+					{
+						break; // end of lump
+					}
+
+					continue; // skip line
+				}
+				// process assignment
+				if (strcasecmp(ident, "x") == 0)
+				{
+					x = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "y") == 0)
+				{
+					y = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "zfloor") == 0)
+				{
+					zf = str2float(val, -2000000.0f);
+				}
+				else if (strcasecmp(ident, "zceiling") == 0)
+				{
+					zc = str2float(val, -2000000.0f);
+				}
+
+			}
+
+			vec2_t *vv = vertexes + i;
+			vv->x = x;
+			vv->y = y;
+			vv = zvertexes + i;
+			vv->x = zf;
+			vv->y = zc;
+			//I_Debugf("  vertex %d: %f, %f, %f, %f\n", i, x, y, zf, zc);
+
+			i++;
+		}
+	}
+
+	I_Debugf("LoadUDMFVertexes: finished parsing TEXTMAP\n");
+}
+
+static void LoadUDMFSectors(parser_t *psr)
+{
+	char ident[128];
+	char val[128];
+	int i = 0;
+
+	I_Debugf("LoadUDMFSectors: parsing TEXTMAP\n");
+	numsectors = 0;
+
+	psr->next = 0; // restart from start of lump
+	while (1)
+	{
+		if (!GetNextBlock(psr, (uint8_t*)ident))
+			break;
+
+		if (strcasecmp(ident, "sector") == 0)
+		{
+			// count sector blocks
+			while (1)
+			{
+				if (!GetNextAssign(psr, (uint8_t*)ident, (uint8_t*)val))
+				{
+					uint8_t *lp = psr->line;
+					while (*lp != 0 && *lp != 0x7D)
+						lp++; // find end of line or '}'
+					if (*lp == 0x7D)
+					{
+						numsectors++;
+						break; // end of block
+					}
+					if (psr->next >= psr->length)
+					{
+						numsectors++;
+						break; // end of lump
+					}
+
+					continue; // skip line
+				}
+			}
+		}
+	}
+
+	sectors = new sector_t[numsectors];
+	Z_Clear(sectors, sector_t, numsectors);
+
+	psr->next = 0; // restart from start of lump
+	while (1)
+	{
+		if (!GetNextBlock(psr, (uint8_t*)ident))
+			break;
+
+		if (strcasecmp(ident, "sector") == 0)
+		{
+			float cz = 0.0f, fz = 0.0f;
+			float rc = 0.0f, rf = 0.0f;
+			float xpf = 0.0f, ypf = 0.0f, xpc = 0.0f, ypc = 0.0f;
+			float xsf = 1.0f, ysf = 1.0f, xsc = 1.0f, ysc = 1.0f;
+			float desat = 0.0f, grav = 1.0f;
+			int light = 160, lc = 0x00FFFFFF, fc = 0, type = 0, tag = 0;
+			int f_lit = 0, c_lit = 0;
+			bool f_lit_abs = false, c_lit_abs = false;
+			char floor_tex[10];
+			char ceil_tex[10];
+			strcpy(floor_tex, "-");
+			strcpy(ceil_tex, "-");
+
+			I_Debugf("    parsing sector %d\n", i);
+			// process sector block
+			while (1)
+			{
+				if (!GetNextAssign(psr, (uint8_t*)ident, (uint8_t*)val))
+				{
+					uint8_t *lp = psr->line;
+					while (*lp != 0 && *lp != 0x7D)
+						lp++; // find end of line or '}'
+					if (*lp == 0x7D)
+					{
+						break; // end of block
+					}
+					if (psr->next >= psr->length)
+					{
+						break; // end of lump
+					}
+
+					continue; // skip line
+				}
+				// process assignment
+				if (strcasecmp(ident, "heightfloor") == 0)
+				{
+					fz = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "heightceiling") == 0)
+				{
+					cz = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "xpanningfloor") == 0)
+				{
+					xpf = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "ypanningfloor") == 0)
+				{
+					ypf = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "xpanningceiling") == 0)
+				{
+					xpc = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "ypanningceiling") == 0)
+				{
+					ypc = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "xscalefloor") == 0)
+				{
+					xsf = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "yscalefloor") == 0)
+				{
+					ysf = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "xscaleceiling") == 0)
+				{
+					xsc = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "yscaleceiling") == 0)
+				{
+					ysc = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "rotationfloor") == 0)
+				{
+					rf = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "rotationceiling") == 0)
+				{
+					rc = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "gravity") == 0)
+				{
+					grav = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "texturefloor") == 0)
+				{
+					Z_StrNCpy(floor_tex, val, 8);
+				}
+				else if (strcasecmp(ident, "textureceiling") == 0)
+				{
+					Z_StrNCpy(ceil_tex, val, 8);
+				}
+				else if (strcasecmp(ident, "lightlevel") == 0)
+				{
+					light = str2int(val, 160);
+				}
+				else if (strcasecmp(ident, "lightcolor") == 0)
+				{
+					lc = str2int(val, 0x00FFFFFF);
+				}
+				else if (strcasecmp(ident, "fadecolor") == 0)
+				{
+					fc = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "special") == 0)
+				{
+					type = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "id") == 0)
+				{
+					tag = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "desaturation") == 0)
+				{
+					desat = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "lightfloor") == 0)
+				{
+					f_lit = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "lightfloorabsolute") == 0)
+				{
+					f_lit_abs = str2bool(val);
+				}
+				else if (strcasecmp(ident, "lightceiling") == 0)
+				{
+					c_lit = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "lightceilingabsolute") == 0)
+				{
+					c_lit_abs = str2bool(val);
+				}
+
+			}
+			//I_Debugf("   sec %d: fz %f, cz %f, ft %s, ct %s, lt %d, typ %d, tag %d, dsat %f\n",
+			//	i, fz, cz, floor_tex, ceil_tex, light, type, tag, desat);
+
+			sector_t *ss = sectors + i;
+
+			ss->f_h = fz;
+			ss->c_h = cz;
+
+			// return to wolfenstein?
+			if (m_goobers.d)
+			{
+				ss->f_h = 0;
+				ss->c_h = (fz == cz) ? 0 : 128.0f;
+			}
+
+			ss->floor.translucency = VISIBLE;
+			ss->floor.x_mat.x = xsf * cosf(rf * 0.0174533f);  ss->floor.x_mat.y = -ysf * sinf(rf * 0.0174533f);
+			ss->floor.y_mat.x = xsf * sinf(rf * 0.0174533f);  ss->floor.y_mat.y = ysf * cosf(rf * 0.0174533f);
+			ss->floor.offset.x = xpf;
+			ss->floor.offset.y = ypf;
+
+			ss->ceil.translucency = VISIBLE;
+			ss->ceil.x_mat.x = xsc * cosf(rc * 0.0174533f);  ss->ceil.x_mat.y = -ysc * sinf(rc * 0.0174533f);
+			ss->ceil.y_mat.x = xsc * sinf(rc * 0.0174533f);  ss->ceil.y_mat.y = ysc * cosf(rc * 0.0174533f);
+			ss->ceil.offset.x = xpc;
+			ss->ceil.offset.y = ypc;
+
+			ss->floor.image = W_ImageLookup(floor_tex, INS_Flat);
+			ss->ceil.image = W_ImageLookup(ceil_tex, INS_Flat);
+
+			if (! ss->floor.image)
+			{
+				I_Warning("Bad Level: sector #%d has missing floor texture.\n", i);
+				ss->floor.image = W_ImageLookup("FLAT1", INS_Flat);
+			}
+			if (! ss->ceil.image)
+			{
+				I_Warning("Bad Level: sector #%d has missing ceiling texture.\n", i);
+				ss->ceil.image = ss->floor.image;
+			}
+
+			// convert negative tags to zero
+			ss->tag = MAX(0, tag);
+
+			ss->props.lightlevel = light;
+
+			// convert negative types to zero
+			ss->props.type = MAX(0, type);
+			ss->props.special = P_LookupSectorType(ss->props.type);
+
+			ss->exfloor_max = 0;
+
+			ss->props.colourmap = NULL;
+
+			ss->props.gravity   = grav * GRAVITY;
+			ss->props.friction  = FRICTION;
+			ss->props.viscosity = VISCOSITY;
+			ss->props.drag      = DRAG;
+
+			ss->p = &ss->props;
+
+			ss->lightcolor = lc;
+			ss->fadecolor = fc;
+			ss->desaturation = desat;
+
+			ss->f_light = f_lit;
+			ss->c_light = c_lit;
+			ss->f_lit_abs = f_lit_abs;
+			ss->c_lit_abs = c_lit_abs;
+
+			ss->sound_player = -1;
+
+			// -AJA- 1999/07/29: Keep sectors with same tag in a list.
+			GroupSectorTags(ss, sectors, i);
+
+			i++;
+		}
+	}
+
+	I_Debugf("LoadUDMFSectors: finished parsing TEXTMAP\n");
+}
+
+static void LoadUDMFSideDefs(parser_t *psr)
+{
+	char ident[128];
+	char val[128];
+
+	int nummapsides = 0;
+
+	sides = new side_t[numsides];
+	Z_Clear(sides, side_t, numsides);
+	//I_Debugf("LoadUDMFSideDefs: #sides = %d\n", numsides);
+
+	I_Debugf("LoadUDMFSideDefs: parsing TEXTMAP\n");
+	nummapsides = 0;
+
+	psr->next = 0; // restart from start of lump
+	while (1)
+	{
+		if (!GetNextBlock(psr, (uint8_t*)ident))
+			break;
+
+		if (strcasecmp(ident, "sidedef") == 0)
+		{
+			int x = 0, y = 0, sec_num = 0, lit = 0;
+			bool lit_abs = false;
+			float bx = 0.0f, by = 0.0f, mx = 0.0f, my = 0.0f, tx = 0.0f, ty = 0.0f;
+			float bxs = 1.0f, bys = 1.0f, mxs = 1.0f, mys = 1.0f, txs = 1.0f, tys = 1.0f;
+			char top_tex[10];
+			char bottom_tex[10];
+			char middle_tex[10];
+			strcpy(top_tex, "-");
+			strcpy(bottom_tex, "-");
+			strcpy(middle_tex, "-");
+
+			I_Debugf("    parsing sidedef %d\n", nummapsides);
+			// process sidedef block
+			while (1)
+			{
+				if (!GetNextAssign(psr, (uint8_t*)ident, (uint8_t*)val))
+				{
+					uint8_t *lp = psr->line;
+					while (*lp != 0 && *lp != 0x7D)
+						lp++; // find end of line or '}'
+					if (*lp == 0x7D)
+					{
+						nummapsides++;
+						break; // end of block
+					}
+					if (psr->next >= psr->length)
+					{
+						nummapsides++;
+						break; // end of lump
+					}
+
+					continue; // skip line
+				}
+				// process assignment
+				if (strcasecmp(ident, "offsetx") == 0)
+				{
+					x = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "offsety") == 0)
+				{
+					y = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "offsetx_bottom") == 0)
+				{
+					bx = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "offsety_bottom") == 0)
+				{
+					by = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "offsetx_mid") == 0)
+				{
+					mx = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "offsety_mid") == 0)
+				{
+					my = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "offsetx_top") == 0)
+				{
+					tx = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "offsety_top") == 0)
+				{
+					ty = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "scalex_bottom") == 0)
+				{
+					bxs = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "scaley_bottom") == 0)
+				{
+					bys = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "scalex_mid") == 0)
+				{
+					mxs = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "scaley_mid") == 0)
+				{
+					mys = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "scalex_top") == 0)
+				{
+					txs = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "scaley_top") == 0)
+				{
+					tys = str2float(val, 1.0f);
+				}
+				else if (strcasecmp(ident, "texturetop") == 0)
+				{
+					Z_StrNCpy(top_tex, val, 8);
+				}
+				else if (strcasecmp(ident, "texturebottom") == 0)
+				{
+					Z_StrNCpy(bottom_tex, val, 8);
+				}
+				else if (strcasecmp(ident, "texturemiddle") == 0)
+				{
+					Z_StrNCpy(middle_tex, val, 8);
+				}
+				else if (strcasecmp(ident, "sector") == 0)
+				{
+					sec_num = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "light") == 0)
+				{
+					lit = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "lightabsolute") == 0)
+				{
+					lit_abs = str2bool(val);
+				}
+
+			}
+
+			SYS_ASSERT(nummapsides <= numsides);  // sanity check
+
+			side_t *sd = sides + nummapsides - 1;
+
+			sd->top.translucency = VISIBLE;
+			sd->top.offset.x = x;
+			sd->top.offset.y = y;
+
+			sd->middle = sd->top;
+			sd->bottom = sd->top;
+
+			sd->top.offset.x += tx;
+			sd->top.offset.y += ty;
+			sd->middle.offset.x += mx;
+			sd->middle.offset.y += my;
+			sd->bottom.offset.x += bx;
+			sd->bottom.offset.y += by;
+
+			sd->top.x_mat.x = txs;  sd->top.x_mat.y = 0;
+			sd->top.y_mat.x = 0;  sd->top.y_mat.y = tys;
+			sd->middle.x_mat.x = mxs;  sd->middle.x_mat.y = 0;
+			sd->middle.y_mat.x = 0;  sd->middle.y_mat.y = mys;
+			sd->bottom.x_mat.x = bxs;  sd->bottom.x_mat.y = 0;
+			sd->bottom.y_mat.x = 0;  sd->bottom.y_mat.y = bys;
+
+			sd->sector = &sectors[sec_num];
+
+			sd->light = lit;
+			sd->lit_abs = lit_abs;
+
+			sd->top.image = W_ImageLookup(top_tex, INS_Texture, ILF_Null);
+
+			if (m_goobers.d && ! sd->top.image)
+			{
+				sd->top.image = W_ImageLookup(bottom_tex, INS_Texture);
+			}
+
+			// handle air colourmaps with BOOM's [242] linetype
+			if (! sd->top.image)
+			{
+				sd->top.image = W_ImageLookup(top_tex, INS_Texture);
+				colourmap_c *cmap = colourmaps.Lookup(top_tex);
+				if (cmap) sd->sector->props.colourmap = cmap;
+			}
+
+			sd->bottom.image = W_ImageLookup(bottom_tex, INS_Texture, ILF_Null);
+
+			// handle water colourmaps with BOOM's [242] linetype
+			if (! sd->bottom.image)
+			{
+				sd->bottom.image = W_ImageLookup(bottom_tex, INS_Texture);
+				colourmap_c *cmap = colourmaps.Lookup(bottom_tex);
+				if (cmap) sd->sector->props.colourmap = cmap;
+			}
+
+			sd->middle.image = W_ImageLookup(middle_tex, INS_Texture);
+		}
+	}
+
+	I_Debugf("LoadUDMFSideDefs: post-processing linedefs & sidedefs\n");
+
+	// post-process linedefs & sidedefs
+
+	SYS_ASSERT(temp_line_sides);
+
+	side_t *sd = sides;
+
+	for (int i=0; i<numlines; i++)
+	{
+		line_t *ld = lines + i;
+
+		int side0 = temp_line_sides[i*2 + 0];
+		int side1 = temp_line_sides[i*2 + 1];
+
+		SYS_ASSERT(side0 != -1);
+
+		if (side0 >= nummapsides)
+		{
+			I_Warning("Bad WAD: level %s linedef #%d has bad RIGHT side.\n",
+				currmap->lump.c_str(), i);
+			side0 = nummapsides-1;
+		}
+
+		if (side1 != -1 && side1 >= nummapsides)
+		{
+			I_Warning("Bad WAD: level %s linedef #%d has bad LEFT side.\n",
+				currmap->lump.c_str(), i);
+			side1 = nummapsides-1;
+		}
+
+		ld->side[0] = sd;
+		if (sd->middle.image && (side1 != -1))
+		{
+			sd->midmask_offset = sd->middle.offset.y;
+			sd->middle.offset.y = 0;
+		}
+		ld->frontsector = sd->sector;
+		sd++;
+
+		if (side1 != -1)
+		{
+			ld->side[1] = sd;
+			if (sd->middle.image)
+			{
+				sd->midmask_offset = sd->middle.offset.y;
+				sd->middle.offset.y = 0;
+			}
+			ld->backsector = sd->sector;
+			sd++;
+		}
+
+		SYS_ASSERT(sd <= sides + numsides);
+	}
+
+	SYS_ASSERT(sd == sides + numsides);
+
+	I_Debugf("LoadUDMFSideDefs: finished parsing TEXTMAP\n");
+}
+
+static void LoadUDMFLineDefs(parser_t *psr)
+{
+	char ident[128];
+	char val[128];
+	int i = 0;
+
+	I_Debugf("LoadUDMFLineDefs: parsing TEXTMAP\n");
+	numlines = 0;
+
+	psr->next = 0; // restart from start of lump
+	while (1)
+	{
+		if (!GetNextBlock(psr, (uint8_t*)ident))
+			break;
+
+		if (strcasecmp(ident, "linedef") == 0)
+		{
+			// count linedef blocks
+			while (1)
+			{
+				if (!GetNextAssign(psr, (uint8_t*)ident, (uint8_t*)val))
+				{
+					uint8_t *lp = psr->line;
+					while (*lp != 0 && *lp != 0x7D)
+						lp++; // find end of line or '}'
+					if (*lp == 0x7D)
+					{
+						numlines++;
+						break; // end of block
+					}
+					if (psr->next >= psr->length)
+					{
+						numlines++;
+						break; // end of lump
+					}
+
+					continue; // skip line
+				}
+			}
+		}
+	}
+
+	lines = new line_t[numlines];
+	Z_Clear(lines, line_t, numlines);
+	temp_line_sides = new int[numlines * 2];
+
+	psr->next = 0; // restart from start of lump
+	while (1)
+	{
+		if (!GetNextBlock(psr, (uint8_t*)ident))
+			break;
+
+		if (strcasecmp(ident, "linedef") == 0)
+		{
+			int flags = 0, v1 = 0, v2 = 0;
+			int side0 = -1, side1 = -1, tag = -1;
+			int special = 0;
+			int arg0 = 0, arg1 = 0, arg2 = 0, arg3 = 0, arg4 = 0;
+
+			I_Debugf("    parsing linedef %d\n", i);
+			// process lindef block
+			while (1)
+			{
+				if (!GetNextAssign(psr, (uint8_t*)ident, (uint8_t*)val))
+				{
+					uint8_t *lp = psr->line;
+					while (*lp != 0 && *lp != 0x7D)
+						lp++; // find end of line or '}'
+					if (*lp == 0x7D)
+					{
+						break; // end of block
+					}
+					if (psr->next >= psr->length)
+					{
+						break; // end of lump
+					}
+
+					continue; // skip line
+				}
+				// process assignment
+				if (strcasecmp(ident, "id") == 0)
+				{
+					tag = str2int(val, -1);
+				}
+				else if (strcasecmp(ident, "v1") == 0)
+				{
+					v1 = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "v2") == 0)
+				{
+					v2 = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "special") == 0)
+				{
+					special = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "arg0") == 0)
+				{
+					arg0 = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "arg1") == 0)
+				{
+					arg1 = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "arg2") == 0)
+				{
+					arg2 = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "arg3") == 0)
+				{
+					arg3 = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "arg4") == 0)
+				{
+					arg4 = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "sidefront") == 0)
+				{
+					side0 = str2int(val, -1);
+				}
+				else if (strcasecmp(ident, "sideback") == 0)
+				{
+					side1 = str2int(val, -1);
+				}
+				else if (strcasecmp(ident, "blocking") == 0)
+				{
+					if (str2bool(val))
+						flags |= 0x0001;
+				}
+				else if (strcasecmp(ident, "blockmonsters") == 0)
+				{
+					if (str2bool(val))
+						flags |= 0x0002;
+				}
+				else if (strcasecmp(ident, "twosided") == 0)
+				{
+					if (str2bool(val))
+						flags |= 0x0004;
+				}
+				else if (strcasecmp(ident, "dontpegtop") == 0)
+				{
+					if (str2bool(val))
+						flags |= 0x0008;
+				}
+				else if (strcasecmp(ident, "dontpegbottom") == 0)
+				{
+					if (str2bool(val))
+						flags |= 0x0010;
+				}
+				else if (strcasecmp(ident, "secret") == 0)
+				{
+					if (str2bool(val))
+						flags |= 0x0020;
+				}
+				else if (strcasecmp(ident, "blocksound") == 0)
+				{
+					if (str2bool(val))
+						flags |= 0x0040;
+				}
+				else if (strcasecmp(ident, "dontdraw") == 0)
+				{
+					if (str2bool(val))
+						flags |= 0x0080;
+				}
+				else if (strcasecmp(ident, "mapped") == 0)
+				{
+					if (str2bool(val))
+						flags |= 0x0100;
+				}
+				else if (strcasecmp(ident, "passuse") == 0)
+				{
+					if (str2bool(val))
+						flags |= 0x0200; // BOOM flag
+				}
+				// hexen flags
+				else if (strcasecmp(ident, "repeatspecial") == 0)
+				{
+					if (str2bool(val))
+						flags |= 0x0200;
+				}
+				else if (strcasecmp(ident, "playeruse") == 0)
+				{
+					if (str2bool(val))
+						flags |= 0x0400;
+				}
+				else if (strcasecmp(ident, "impact") == 0)
+				{
+					if (str2bool(val))
+						flags |= 0x0C00;
+				}
+
+			}
+
+			line_t *ld = lines + i;
+
+			ld->flags = flags;
+			ld->tag = MAX(0, tag);
+			ld->v1 = &vertexes[v1];
+			ld->v2 = &vertexes[v2];
+
+			// check if special is in DDF
+			if (!hexen_level && !zdoom_level)
+				ld->special = P_LookupLineType(MAX(0, special));
+			else
+				ld->special = (special == 0) ? NULL : linetypes.Lookup(1000 + special);
+
+			ld->action = special;
+			ld->args[0] = arg0;
+			ld->args[1] = arg1;
+			ld->args[2] = arg2;
+			ld->args[3] = arg3;
+			ld->args[4] = arg4;
+
+			ComputeLinedefData(ld, side0, side1);
+
+			i++;
+		}
+	}
+
+	I_Debugf("LoadUDMFLineDefs: finished parsing TEXTMAP\n");
+}
+
+static void LoadUDMFThings(parser_t *psr)
+{
+	char ident[128];
+	char val[128];
+
+	int numthings = 0;
+
+	I_Debugf("LoadUDMFThings: parsing TEXTMAP\n");
+
+	unknown_thing_map.clear();
+
+	psr->next = 0; // restart from start of lump
+	while (1)
+	{
+		if (!GetNextBlock(psr, (uint8_t*)ident))
+			break;
+
+		if (strcasecmp(ident, "thing") == 0)
+		{
+			I_Debugf("LoadUDMFThings: parsing thing\n");
+			float x = 0.0f, y = 0.0f, z = 0.0f;
+			angle_t angle = ANG0;
+			int options = 0;
+			int typenum = -1;
+			int tag = 0;
+			const mobjtype_c *objtype;
+
+			if (doom_level || zdoom_level || zdoomxlt_level)
+				options = MTF_NOT_SINGLE | MTF_NOT_DM | MTF_NOT_COOP;
+			else if (strife_level)
+				options = MTF_NOT_SINGLE;
+
+			// process thing block
+			while (1)
+			{
+				if (!GetNextAssign(psr, (uint8_t*)ident, (uint8_t*)val))
+				{
+					uint8_t *lp = psr->line;
+					while (*lp != 0 && *lp != 0x7D)
+						lp++; // find end of line or '}'
+					if (*lp == 0x7D)
+						break; // end of block
+					if (psr->next >= psr->length)
+						break; // end of lump
+
+					continue; // skip line
+				}
+				// process assignment
+				if (strcasecmp(ident, "id") == 0)
+				{
+					tag = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "x") == 0)
+				{
+					x = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "y") == 0)
+				{
+					y = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "height") == 0)
+				{
+					z = str2float(val, 0.0f);
+				}
+				else if (strcasecmp(ident, "angle") == 0)
+				{
+					int ta = str2int(val, 0);
+					angle = FLOAT_2_ANG((float)ta);
+				}
+				else if (strcasecmp(ident, "type") == 0)
+				{
+					typenum = str2int(val, 0);
+				}
+				else if (strcasecmp(ident, "skill1") == 0)
+				{
+					options |= MTF_EASY;
+				}
+				else if (strcasecmp(ident, "skill2") == 0)
+				{
+					if (str2bool(val))
+						options |= MTF_EASY;
+				}
+				else if (strcasecmp(ident, "skill3") == 0)
+				{
+					if (str2bool(val))
+						options |= MTF_NORMAL;
+				}
+				else if (strcasecmp(ident, "skill4") == 0)
+				{
+					if (str2bool(val))
+						options |= MTF_HARD;
+				}
+				else if (strcasecmp(ident, "skill5") == 0)
+				{
+					if (str2bool(val))
+						options |= MTF_HARD;
+				}
+				else if (strcasecmp(ident, "ambush") == 0)
+				{
+					if (str2bool(val))
+						options |= MTF_AMBUSH;
+				}
+				else if (strcasecmp(ident, "single") == 0)
+				{
+					if (str2bool(val))
+					{
+						if (hexen_level)
+							options |= 0x0100;
+						else
+							options &= ~MTF_NOT_SINGLE;
+					}
+				}
+				else if (strcasecmp(ident, "dm") == 0)
+				{
+					if (str2bool(val))
+					{
+						if (hexen_level)
+							options |= 0x0400;
+						else if (!strife_level)
+							options &= ~MTF_NOT_DM;
+					}
+				}
+				else if (strcasecmp(ident, "coop") == 0)
+				{
+					if (str2bool(val))
+					{
+						if (hexen_level)
+							options |= 0x0200;
+						else if (!strife_level)
+							options &= ~MTF_NOT_COOP;
+					}
+				}
+				// MBF flag
+				else if (strcasecmp(ident, "friend") == 0)
+				{
+					if (str2bool(val))
+						if (!hexen_level && !strife_level)
+							options |= MTF_FRIEND;
+				}
+				// strife flags
+				else if (strcasecmp(ident, "standing") == 0)
+				{
+					if (str2bool(val))
+						if (strife_level)
+							options |= 0x0008;
+				}
+				else if (strcasecmp(ident, "strifeally") == 0)
+				{
+					if (str2bool(val))
+						if (strife_level)
+							options |= 0x0080;
+				}
+				else if (strcasecmp(ident, "translucent") == 0)
+				{
+					if (str2bool(val))
+						if (strife_level)
+							options |= 0x0100;
+				}
+				else if (strcasecmp(ident, "invisible") == 0)
+				{
+					if (str2bool(val))
+						if (strife_level)
+							options |= 0x0200;
+				}
+				// hexen flags
+				else if (strcasecmp(ident, "dormant") == 0)
+				{
+					if (str2bool(val))
+						if (hexen_level)
+							options |= 0x0010;
+				}
+				else if (strcasecmp(ident, "class1") == 0)
+				{
+					if (str2bool(val))
+						if (hexen_level)
+							options |= 0x0020;
+				}
+				else if (strcasecmp(ident, "class2") == 0)
+				{
+					if (str2bool(val))
+						if (hexen_level)
+							options |= 0x0040;
+				}
+				else if (strcasecmp(ident, "class3") == 0)
+				{
+					if (str2bool(val))
+						if (hexen_level)
+							options |= 0x0080;
+				}
+
+			}
+
+			objtype = mobjtypes.Lookup(typenum);
+
+			// MOBJTYPE not found, don't crash out: JDS Compliance.
+			// -ACB- 1998/07/21
+			if (objtype == NULL)
+			{
+				UnknownThingWarning(typenum, x, y);
+				continue;
+			}
+
+			sector_t *sec = R_PointInSubsector(x, y)->sector;
+
+			if (objtype->flags & MF_SPAWNCEILING)
+				z += sec->c_h - objtype->height;
+			else
+				z += sec->f_h;
+
+			SpawnMapThingEx(objtype, x, y, z, sec, angle, options, tag, typenum);
+
+			numthings++;
+		}
+	}
+
+	mapthing_NUM = numthings;
+
+	I_Debugf("LoadUDMFThings: finished parsing TEXTMAP\n");
+}
 
 static void TransferMapSideDef(const raw_sidedef_t *msd, side_t *sd,
 							   bool two_sided)
@@ -1403,6 +3054,9 @@ static void TransferMapSideDef(const raw_sidedef_t *msd, side_t *sd,
 		sec_num = 0;
 	}
 	sd->sector = &sectors[sec_num];
+
+	sd->light = 0;
+	sd->lit_abs = false;
 
 	Z_StrNCpy(buffer, msd->upper_tex, 8);
 	sd->top.image = W_ImageLookup(buffer, INS_Texture, ILF_Null);
@@ -1823,7 +3477,7 @@ static void DetectDeepWaterTrick(void)
 }
 
 
-static void DoBlockMap(int lump)
+static void DoBlockMap(void)
 {
 	int min_x = (int)vertexes[0].x;
 	int min_y = (int)vertexes[0].y;
@@ -2074,6 +3728,227 @@ static void CreateVertexSeclists(void)
 	delete[] branches;
 }
 
+static void SetupUDMFSpecials(void)
+{
+	for (int i=0; i<numlines; i++)
+	{
+		line_t *ld = lines + i;
+
+		if (zdoom_level)
+		{
+			// process zdoom line actions
+			if (ld->action == 1)
+			{
+				P_AddPolyobject(ld->args[0], ld);
+				// set PO fields
+				polyobj_t *po = P_GetPolyobject(ld->args[0]);
+				if (po)
+				{
+					po->mirror = ld->args[1];
+					po->sound = ld->args[2];
+				}
+			}
+			if (ld->action == 12)
+			{
+				// Door_Raise
+				ld->special = P_LookupLineType(1); // standard Doom door
+				if (ld->args[0] == 0 && ld->args[1] == 16 && ld->args[2] == 150)
+				{
+					// standard Doom door
+					ld->tag = ld->args[3];
+					continue;
+				}
+				// duplicate and alter settings - TODO
+
+			}
+			if (ld->action == 70)
+			{
+				// Teleport
+				if (ld->flags & 0x0200)
+				{
+					// repeatable
+					ld->tag = ld->args[1];
+					ld->special = P_LookupLineType(97); // repeatable TELEPORT
+				}
+				else
+				{
+					// one-shot
+					ld->tag = ld->args[1];
+					ld->special = P_LookupLineType(39); // one-shot TELEPORT
+				}
+			}
+
+			if (ld->action == 71)
+			{
+				// Teleport_NoFog
+				linetype_c *ls = NULL;
+				if (ld->flags & 0x0200)
+					ls = P_LookupLineType(97); // repeatable TELEPORT
+				else
+					ls = P_LookupLineType(39); // one-shot TELEPORT
+				if (ls)
+				{
+					// duplicate special
+					linetype_c *lt = (linetype_c *)malloc(sizeof(linetype_c));
+					memcpy(lt, ls, sizeof(linetype_c));
+					// make changes
+					lt->number = -1; // custom copy - no lookup on load
+					lt->t.delay = 0;
+					lt->t.special = (teleportspecial_e)(TELSP_SameSpeed | TELSP_Silent);
+					if (ld->args[1] == 1)
+						lt->t.special = (teleportspecial_e)(lt->t.special | TELSP_SameAbsDir);
+					else if (ld->args[1] == 2)
+						lt->t.special = (teleportspecial_e)(lt->t.special | TELSP_Relative | TELSP_Flipped);
+					else if (ld->args[1] == 3)
+						lt->t.special = (teleportspecial_e)(lt->t.special | TELSP_Relative);
+					if (ld->args[3])
+						lt->t.special = (teleportspecial_e)(lt->t.special | TELSP_SameHeight);
+
+					ld->special = (const linetype_c *)lt;
+				}
+			}
+
+			// check for possible extrafloors, updating the exfloor_max count
+			// for the sectors in question.
+			if (ld->action == 160 && (ld->args[1] & 3) == 1)
+			{
+				ld->tag = ld->args[0];
+				ld->special = P_LookupLineType(400); // make an EDGE Thick Extrafloor special
+
+				for (int j=0; j < numsectors; j++)
+				{
+					if (sectors[j].tag != ld->args[0])
+						continue;
+
+					sectors[j].exfloor_max++;
+					numextrafloors++;
+				}
+			}
+
+			// check for plane_align
+			if (zdoom_level && ld->action == 181)
+			{
+				int v1i = ld->v1 - vertexes;
+				int v2i = ld->v2 - vertexes;
+
+				int j;
+				line_t *lt = lines;
+				for (j=0; j<numlines; j++, lt++)
+				{
+					if (lt->v1 == ld->v2)
+						break;
+				}
+				if (j == numlines)
+					lt = NULL;
+
+				if (ld->args[0] == 1)
+				{
+					if (lt)
+					{
+						slope_plane_t *result = new slope_plane_t;
+
+						result->x1  = lt->v1->x;
+						result->y1  = lt->v1->y;
+						result->dz1 = ld->backsector->f_h - ld->frontsector->f_h;
+
+						result->x2  = lt->v2->x;
+						result->y2  = lt->v2->y;
+						result->dz2 = 0;
+
+						ld->frontsector->f_slope = result;
+					}
+					else
+					{
+						zvertexes[v1i].x = ld->backsector->f_h;
+						zvertexes[v2i].x = ld->backsector->f_h;
+					}
+
+				}
+				else if (ld->args[0] == 2)
+				{
+					if (lt)
+					{
+						slope_plane_t *result = new slope_plane_t;
+
+						result->x1  = lt->v1->x;
+						result->y1  = lt->v1->y;
+						result->dz1 = 0;
+
+						result->x2  = lt->v2->x;
+						result->y2  = lt->v2->y;
+						result->dz2 = ld->frontsector->f_h - ld->backsector->f_h;
+
+						ld->backsector->f_slope = result;
+					}
+					else
+					{
+						zvertexes[v1i].x = ld->frontsector->f_h;
+						zvertexes[v2i].x = ld->frontsector->f_h;
+					}
+				}
+
+				if (ld->args[1] == 1)
+				{
+					if (lt)
+					{
+						slope_plane_t *result = new slope_plane_t;
+
+						result->x1  = lt->v1->x;
+						result->y1  = lt->v1->y;
+						result->dz1 = ld->backsector->c_h - ld->frontsector->c_h;
+
+						result->x2  = lt->v2->x;
+						result->y2  = lt->v2->y;
+						result->dz2 = 0;
+
+						ld->frontsector->c_slope = result;
+					}
+					else
+					{
+						zvertexes[v1i].y = ld->backsector->c_h;
+						zvertexes[v2i].y = ld->backsector->c_h;
+					}
+				}
+				else if (ld->args[1] == 2)
+				{
+					if (lt)
+					{
+						slope_plane_t *result = new slope_plane_t;
+
+						result->x1  = lt->v1->x;
+						result->y1  = lt->v1->y;
+						result->dz1 = 0;
+
+						result->x2  = lt->v2->x;
+						result->y2  = lt->v2->y;
+						result->dz2 = ld->frontsector->c_h - ld->backsector->c_h;
+
+						ld->backsector->c_slope = result;
+					}
+					else
+					{
+						zvertexes[v1i].y = ld->frontsector->c_h;
+						zvertexes[v2i].y = ld->frontsector->c_h;
+					}
+				}
+			}
+		}
+	}
+}
+
+static void CleanupUDMFSpecials(void)
+{
+	for (int i=0; i<numlines; i++)
+	{
+		line_t *ld = lines + i;
+
+		if (zdoom_level)
+		{
+			if (ld->action == 71 && ld->special)
+				free((void*)ld->special);
+		}
+	}
+}
 
 static void P_RemoveSectorStuff(void)
 {
@@ -2117,19 +3992,50 @@ void P_ShutdownLevel(void)
 
 	DDF_BoomClearGenTypes();
 
-	delete[] segs;         segs = NULL;
-	delete[] nodes;        nodes = NULL;
-	delete[] vertexes;     vertexes = NULL;
-	delete[] sides;        sides = NULL;
-	delete[] lines;        lines = NULL;
-	delete[] sectors;      sectors = NULL;
-	delete[] subsectors;   subsectors = NULL;
+	P_ClearPolyobjects();
 
-	delete[] gl_vertexes;  gl_vertexes = NULL;
-	delete[] extrafloors;  extrafloors = NULL;
-	delete[] vertgaps;     vertgaps = NULL;
-	delete[] linebuffer;   linebuffer = NULL;
-	delete[] v_seclists;   v_seclists = NULL;
+	if (udmf_level)
+		CleanupUDMFSpecials();
+
+	delete[] segs;
+	segs = NULL;
+
+	delete[] nodes;
+	nodes = NULL;
+
+	delete[] vertexes;
+	vertexes = NULL;
+
+	if (zvertexes)
+		delete[] zvertexes;
+	zvertexes = NULL;
+
+	delete[] sides;
+	sides = NULL;
+
+	delete[] lines;
+	lines = NULL;
+
+	delete[] sectors;
+	sectors = NULL;
+
+	delete[] subsectors;
+	subsectors = NULL;
+
+	delete[] gl_vertexes;
+	gl_vertexes = NULL;
+
+	delete[] extrafloors;
+	extrafloors = NULL;
+
+	delete[] vertgaps;
+	vertgaps = NULL;
+
+	delete[] linebuffer;
+	linebuffer = NULL;
+
+	delete[] v_seclists;
+	v_seclists = NULL;
 
 	P_DestroyBlockMap();
 }
@@ -2165,8 +4071,27 @@ void P_SetupLevel(void)
 	if (gl_lumpnum >= 0 && gl_lumpnum < lumpnum)
 		gl_lumpnum = -1;
 
-	if (gl_lumpnum < 0)  // shouldn't happen
-		I_Error("Internal error: missing GL-Nodes.\n");
+	// -CW- 2017/01/29: check for UDMF map lump
+	if (W_VerifyLumpName(lumpnum + 1, "TEXTMAP"))
+	{
+		udmf_level = true;
+		udmf_lumpnum = lumpnum + 1;
+		udmf_lump = (char *)W_CacheLumpNum(udmf_lumpnum);
+		if (!udmf_lump)
+			I_Error("Internal error: can't load UDMF lump.\n");
+		// initialize the parser
+		udmf_psr.buffer = (uint8_t *)udmf_lump;
+		udmf_psr.length = W_LumpLength(udmf_lumpnum);
+		udmf_psr.next = 0; // start at first line
+	}
+	else
+	{
+		udmf_level = false;
+		udmf_lumpnum = -1;
+
+		if (gl_lumpnum < 0)  // shouldn't happen
+			I_Error("Internal error: missing GL-Nodes.\n");
+	}
 
 	// clear CRC values
 	mapsector_CRC.Reset();
@@ -2178,44 +4103,97 @@ void P_SetupLevel(void)
 #define SHOWLUMPNAME(outstr, ln) \
 	L_WriteDebug(outstr, W_GetLumpName(ln));
 
-	SHOWLUMPNAME("MAP            : %s\n", lumpnum);
-	SHOWLUMPNAME("MAP VERTEXES   : %s\n", lumpnum + ML_VERTEXES);
-	SHOWLUMPNAME("MAP SECTORS    : %s\n", lumpnum + ML_SECTORS);
-	SHOWLUMPNAME("MAP SIDEDEFS   : %s\n", lumpnum + ML_SIDEDEFS);
-	SHOWLUMPNAME("MAP LINEDEFS   : %s\n", lumpnum + ML_LINEDEFS);
-	SHOWLUMPNAME("MAP BLOCKMAP   : %s\n", lumpnum + ML_BLOCKMAP);
-
-	if (gl_lumpnum >= 0)
+	if (!udmf_level)
 	{
-		SHOWLUMPNAME("MAP GL         : %s\n", gl_lumpnum);
-		SHOWLUMPNAME("MAP GL VERTEXES: %s\n", gl_lumpnum + ML_GL_VERT);
-		SHOWLUMPNAME("MAP GL SEGS    : %s\n", gl_lumpnum + ML_GL_SEGS);
-		SHOWLUMPNAME("MAP GL SSECTORS: %s\n", gl_lumpnum + ML_GL_SSECT);
-		SHOWLUMPNAME("MAP GL NODES   : %s\n", gl_lumpnum + ML_GL_NODES);
+		SHOWLUMPNAME("MAP            : %s\n", lumpnum);
+		SHOWLUMPNAME("MAP VERTEXES   : %s\n", lumpnum + ML_VERTEXES);
+		SHOWLUMPNAME("MAP SECTORS    : %s\n", lumpnum + ML_SECTORS);
+		SHOWLUMPNAME("MAP SIDEDEFS   : %s\n", lumpnum + ML_SIDEDEFS);
+		SHOWLUMPNAME("MAP LINEDEFS   : %s\n", lumpnum + ML_LINEDEFS);
+		SHOWLUMPNAME("MAP BLOCKMAP   : %s\n", lumpnum + ML_BLOCKMAP);
+
+		if (gl_lumpnum >= 0)
+		{
+			SHOWLUMPNAME("MAP GL         : %s\n", gl_lumpnum);
+			SHOWLUMPNAME("MAP GL VERTEXES: %s\n", gl_lumpnum + ML_GL_VERT);
+			SHOWLUMPNAME("MAP GL SEGS    : %s\n", gl_lumpnum + ML_GL_SEGS);
+			SHOWLUMPNAME("MAP GL SSECTORS: %s\n", gl_lumpnum + ML_GL_SSECT);
+			SHOWLUMPNAME("MAP GL NODES   : %s\n", gl_lumpnum + ML_GL_NODES);
+		}
+		else
+		{
+			SHOWLUMPNAME("MAP SEGS       : %s\n", lumpnum + ML_SEGS);
+			SHOWLUMPNAME("MAP SSECTORS   : %s\n", lumpnum + ML_SSECTORS);
+			SHOWLUMPNAME("MAP NODES      : %s\n", lumpnum + ML_NODES);
+		}
+
+		SHOWLUMPNAME("MAP REJECT     : %s\n", lumpnum + ML_REJECT);
 	}
 	else
 	{
-		SHOWLUMPNAME("MAP SEGS       : %s\n", lumpnum + ML_SEGS);
-		SHOWLUMPNAME("MAP SSECTORS   : %s\n", lumpnum + ML_SSECTORS);
-		SHOWLUMPNAME("MAP NODES      : %s\n", lumpnum + ML_NODES);
+		SHOWLUMPNAME("MAP             : %s\n", lumpnum);
+		SHOWLUMPNAME("MAP DESCRIPTION : %s\n", udmf_lumpnum);
+		// now show any optional lumps
+		int lmpnum = udmf_lumpnum + 1;
+		if (W_VerifyLumpName(lmpnum, "ZNODES"))
+			SHOWLUMPNAME("MAP NODES       : %s\n", lmpnum++);
+		if (W_VerifyLumpName(lmpnum, "REJECT"))
+			SHOWLUMPNAME("MAP REJECT      : %s\n", lmpnum++);
+		if (W_VerifyLumpName(lmpnum, "DIALOGUE"))
+			SHOWLUMPNAME("MAP DIALOGUE    : %s\n", lmpnum++);
+		if (W_VerifyLumpName(lmpnum, "BEHAVIOR"))
+			SHOWLUMPNAME("MAP BEHAVIOR    : %s\n", lmpnum++);
 	}
-
-	SHOWLUMPNAME("MAP REJECT     : %s\n", lumpnum + ML_REJECT);
 
 #undef SHOWLUMPNAME
 #endif
 
 	v5_nodes = false;
 
-	// check if the level is for Hexen
-	hexen_level = false;
-	// Check if the level is for Wolfenstein 3D
+	// set level namespace
 
-	if (lumpnum + ML_BEHAVIOR < numlumps &&
-		W_VerifyLumpName(lumpnum + ML_BEHAVIOR, "BEHAVIOR"))
+	doom_level = false;
+	heretic_level = false;
+	hexen_level = false;
+	strife_level = false;
+	eternity_level = false;
+	wolf3d_level = false;
+	zdoom_level = false;
+	zdoomxlt_level = false;
+
+	if (!udmf_level)
 	{
-		L_WriteDebug("Detected Hexen level.\n");
-		hexen_level = true;
+		if (lumpnum + ML_BEHAVIOR < numlumps &&
+			W_VerifyLumpName(lumpnum + ML_BEHAVIOR, "BEHAVIOR"))
+		{
+			L_WriteDebug("Detected Hexen level.\n");
+			hexen_level = true;
+		}
+	}
+	else
+	{
+		char ident[128];
+		char value[128];
+
+		if (!GetNextAssign(&udmf_psr, (uint8_t*)ident, (uint8_t*)value) || strcasecmp(ident, "namespace"))
+			I_Error("UDMF: TEXTMAP must start with namespace assignment.\n");
+
+		if (strcasecmp(value, "doom") == 0)
+			doom_level = true;
+		else if (strcasecmp(value, "eternity") == 0)
+			eternity_level = true;
+		else if (strcasecmp(value, "heretic") == 0)
+			heretic_level = true;
+		else if (strcasecmp(value, "hexen") == 0)
+			hexen_level = true;
+		else if (strcasecmp(value, "strife") == 0)
+			strife_level = true;
+		else if (strcasecmp(value, "zdoom") == 0)
+			zdoom_level = true;
+		else if (strncasecmp(value, "zdoomt", 6) == 0)
+			zdoomxlt_level = true;
+		else
+			doom_level = true;
 	}
 
 	// note: most of this ordering is important
@@ -2228,15 +4206,26 @@ void P_SetupLevel(void)
 	numextrafloors = 0;
 	numvertgaps = 0;
 
-	LoadVertexes(lumpnum + ML_VERTEXES);
-	LoadSectors(lumpnum + ML_SECTORS);
+	if (!udmf_level)
+	{
+		LoadVertexes(lumpnum + ML_VERTEXES);
+		LoadSectors(lumpnum + ML_SECTORS);
 
-	if (hexen_level)
-		LoadHexenLineDefs(lumpnum + ML_LINEDEFS);
+		if (hexen_level)
+			LoadHexenLineDefs(lumpnum + ML_LINEDEFS);
+		else
+			LoadLineDefs(lumpnum + ML_LINEDEFS);
+
+		LoadSideDefs(lumpnum + ML_SIDEDEFS);
+	}
 	else
-		LoadLineDefs(lumpnum + ML_LINEDEFS);
-
-	LoadSideDefs(lumpnum + ML_SIDEDEFS);
+	{
+		LoadUDMFVertexes(&udmf_psr);
+		LoadUDMFSectors(&udmf_psr);
+		LoadUDMFLineDefs(&udmf_psr);
+		LoadUDMFSideDefs(&udmf_psr);
+		SetupUDMFSpecials();
+	}
 
 	SetupExtrafloors();
 	SetupSlidingDoors();
@@ -2244,16 +4233,25 @@ void P_SetupLevel(void)
 
 	delete[] temp_line_sides;
 
-	SYS_ASSERT(gl_lumpnum >= 0);
+	if (!udmf_level)
+	{
+		I_Debugf("P_SetupLevel: Load GL info\n");
+		SYS_ASSERT(gl_lumpnum >= 0);
 
-	LoadGLVertexes(gl_lumpnum + ML_GL_VERT);
-	LoadGLSegs(gl_lumpnum + ML_GL_SEGS);
-	LoadSubsectors(gl_lumpnum + ML_GL_SSECT, "GL_SSECT");
-	LoadNodes(gl_lumpnum + ML_GL_NODES, "GL_NODES");
+		LoadGLVertexes(gl_lumpnum + ML_GL_VERT);
+		LoadGLSegs(gl_lumpnum + ML_GL_SEGS);
+		LoadSubsectors(gl_lumpnum + ML_GL_SSECT, "GL_SSECT");
+		LoadNodes(gl_lumpnum + ML_GL_NODES, "GL_NODES");
+	}
+	else
+	{
+		I_Debugf("P_SetupLevel: Load UDMF GL info\n");
+		LoadZNodes(udmf_lumpnum);
+	}
 
 	// REJECT is ignored
 
-	DoBlockMap(lumpnum + ML_BLOCKMAP);
+	DoBlockMap(); // BLOCKMAP lump ignored
 
 	GroupLines();
 
@@ -2274,10 +4272,22 @@ void P_SetupLevel(void)
 	// -AJA- 1999/10/21: Clear out player starts (ready to load).
 	G_ClearPlayerStarts();
 
-	if (hexen_level)
-		LoadHexenThings(lumpnum + ML_THINGS);
+	if (!udmf_level)
+	{
+		if (hexen_level)
+			LoadHexenThings(lumpnum + ML_THINGS);
+		else
+			LoadThings(lumpnum + ML_THINGS);
+	}
 	else
-		LoadThings(lumpnum + ML_THINGS);
+	{
+		LoadUDMFThings(&udmf_psr);
+
+		W_DoneWithLump(udmf_lump);
+	}
+
+	// adjust PO vertexes
+	P_PostProcessPolyObjs();
 
 	// OK, CRC values have now been computed
 #ifdef DEVELOPERS

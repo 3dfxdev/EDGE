@@ -1,9 +1,9 @@
 //------------------------------------------------------------------------
 //  PNG Image Handling
 //------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 2003-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -205,6 +205,10 @@ namespace epi
 				grAb->x = EPI_BE_S32(grAb->x);
 				grAb->y = EPI_BE_S32(grAb->y);
 				printf("Got grAb struct: %d/%d\n", grAb->x, grAb->y);
+				if (grAb->x)
+					grAb->x = width / 2 - grAb->x;
+				if (grAb->y)
+					grAb->y = height - grAb->y;
 				//                grAb->x += (160 - width / 2);
 				//                grAb->y += (200 - 32 - height);
 				img->grAb = grAb;

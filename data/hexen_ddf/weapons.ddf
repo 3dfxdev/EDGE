@@ -1,0 +1,27 @@
+// 
+//    EDGE WEAPONS.DDF -redefine or add new weapons.
+//    For documentation, see http://edge.sourceforge.net/
+//    DDF Version 4.6
+//
+
+<WEAPONS>
+
+#VERSION 1.29
+
+[STAFF]
+FREE=TRUE;
+AMMOTYPE=NOAMMO;
+AUTOMATIC=TRUE;
+BINDKEY=1;
+PRIORITY=0;
+ATTACK=STAFF;
+
+STATES(UP)=STFF:A:1:NORMAL:RAISE;
+STATES(DOWN)=STFF:A:1:NORMAL:LOWER;
+STATES(READY)=STFF:A:1:NORMAL:READY;
+
+STATES(ATTACK)=STFF:B:6:NORMAL:NOTHING,
+               STFF:C:6:NORMAL:SHOOT,
+               STFF:B:6:NORMAL:REFIRE;
+
+

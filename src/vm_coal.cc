@@ -345,7 +345,10 @@ void VM_LoadCoalFire(const char *filename)
 	epi::file_c *F = epi::FS_Open(filename, epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
 
 	if (! F)
-		I_Error("Could not open coal script: %s\n", filename);
+	{
+		I_Warning("Could not open coal script: %s\n", filename);
+		return;
+	}
 
 	I_Printf("Compiling COAL script: %s\n", filename);
 

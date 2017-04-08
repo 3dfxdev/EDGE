@@ -1,0 +1,194 @@
+// 
+//    EDGE SECTORS.DDF -redefine or add new sector types.
+//    For documentation, see http://edge.sourceforge.net/
+//    DDF Version 4.6
+//
+
+<SECTORS>
+
+#VERSION 1.29
+
+// ---- Damaging ----
+
+[4]  // Light Blink And Damage
+LIGHT_TYPE=STROBE;
+LIGHT_DARKTIME=15T;
+LIGHT_BRIGHTTIME=5T;
+DAMAGE.VAL=20;
+DAMAGE.DELAY=32T;
+
+[16]  // Damage Extreme
+DAMAGE.VAL=20;
+DAMAGE.DELAY=32T;
+
+[5]  // Damage Large
+DAMAGE.VAL=10;
+DAMAGE.DELAY=32T;
+
+[7]  // Damage Small
+DAMAGE.VAL=5;
+DAMAGE.DELAY=32T;
+
+// ---- Lighting ----
+
+[1]  // Light Random Off
+LIGHT_TYPE=FLASH;
+LIGHT_CHANCE=10%;
+LIGHT_DARKTIME=8T;
+LIGHT_BRIGHTTIME=8T;
+
+[2]  // Light Blink Half Second
+LIGHT_TYPE=STROBE;
+LIGHT_DARKTIME=15T;
+LIGHT_BRIGHTTIME=5T;
+
+[8]  // Light Glowing
+LIGHT_TYPE=GLOW;
+LIGHT_DARKTIME=1T;
+LIGHT_BRIGHTTIME=1T;
+
+[3]  // Light Blink 1 Second
+LIGHT_TYPE=STROBE;
+LIGHT_DARKTIME=35T;
+LIGHT_BRIGHTTIME=5T;
+
+[12]  // Light Sync Half Second
+LIGHT_TYPE=STROBE;
+LIGHT_DARKTIME=35T;
+LIGHT_BRIGHTTIME=5T;
+LIGHT_SYNC=40T;
+
+[13]  // Light Sync 1 Second
+LIGHT_TYPE=STROBE;
+LIGHT_DARKTIME=15T;
+LIGHT_BRIGHTTIME=5T;
+LIGHT_SYNC=20T;
+
+// ---- Miscellaneous ----
+
+[9]  // Secret
+SECRET=TRUE;
+
+[15]  // Friction
+FRICTION=0.80;
+
+[6]  // Crush and Raise
+CRUSH=TRUE;
+CEILING.TYPE=CONTINUOUS;
+CEILING.SPEED_UP=2;
+CEILING.SPEED_DOWN=2;
+CEILING.DEST_REF=FLOOR;
+CEILING.DEST_OFFSET=8;
+CEILING.SFX_UP=STNMOV;
+CEILING.SFX_DOWN=STNMOV;
+
+[10]  // Ceiling Close 30 Sec
+CEILING.TYPE=MOVE;
+CEILING.SPEED_DOWN=2;
+CEILING.WAIT_TIME=30;
+CEILING.DEST_REF=FLOOR;
+CEILING.SFX_DOWN=DORCLS;
+
+[14]  // Ceiling Open 5 Min
+CEILING.TYPE=MOVEWAITRETURN;
+CEILING.SPEED_UP=2;
+CEILING.SPEED_DOWN=2;
+CEILING.DEST_REF=LOSURROUNDINGCEILING;
+CEILING.DEST_OFFSET=-4;
+CEILING.PAUSE_TIME=150T;
+CEILING.WAIT_TIME=300;
+CEILING.SFX_UP=DOROPN;
+CEILING.SFX_DOWN=DORCLS;
+
+// ---- Scrolling ----
+
+[21] // Scroll East Weak
+FLOOR.SCROLL_ANGLE=0;
+FLOOR.SCROLL_SPEED=9;
+PUSH_ANGLE=0;
+PUSH_SPEED=4;
+
+[22] // Scroll East Medium
+FLOOR.SCROLL_ANGLE=0;
+FLOOR.SCROLL_SPEED=12;
+PUSH_ANGLE=0;
+PUSH_SPEED=6;
+
+[23] // Scroll East Strong
+FLOOR.SCROLL_ANGLE=0;
+FLOOR.SCROLL_SPEED=18;
+PUSH_ANGLE=0;
+PUSH_SPEED=9;
+
+[26] // Scroll North Weak
+FLOOR.SCROLL_ANGLE=90;
+FLOOR.SCROLL_SPEED=9;
+PUSH_ANGLE=90;
+PUSH_SPEED=4;
+
+[27] // Scroll North Medium
+FLOOR.SCROLL_ANGLE=90;
+FLOOR.SCROLL_SPEED=12;
+PUSH_ANGLE=90;
+PUSH_SPEED=6;
+
+[28] // Scroll North Strong
+FLOOR.SCROLL_ANGLE=90;
+FLOOR.SCROLL_SPEED=18;
+PUSH_ANGLE=90;
+PUSH_SPEED=9;
+
+[31] // Scroll South Weak
+FLOOR.SCROLL_ANGLE=270;
+FLOOR.SCROLL_SPEED=9;
+PUSH_ANGLE=270;
+PUSH_SPEED=4;
+
+[32] // Scroll South Medium
+FLOOR.SCROLL_ANGLE=270;
+FLOOR.SCROLL_SPEED=12;
+PUSH_ANGLE=270;
+PUSH_SPEED=6;
+
+[33] // Scroll South Strong
+FLOOR.SCROLL_ANGLE=270;
+FLOOR.SCROLL_SPEED=18;
+PUSH_ANGLE=270;
+PUSH_SPEED=9;
+
+[36] // Scroll West Weak
+FLOOR.SCROLL_ANGLE=180;
+FLOOR.SCROLL_SPEED=9;
+PUSH_ANGLE=180;
+PUSH_SPEED=4;
+
+[37] // Scroll West Medium
+FLOOR.SCROLL_ANGLE=180;
+FLOOR.SCROLL_SPEED=12;
+PUSH_ANGLE=180;
+PUSH_SPEED=6;
+
+[38] // Scroll West Strong
+FLOOR.SCROLL_ANGLE=180;
+FLOOR.SCROLL_SPEED=18;
+PUSH_ANGLE=180;
+PUSH_SPEED=9;
+
+// ---- Wind ----
+
+[40] // Wind East Weak    -- Unsupported
+[41] // Wind East Medium  -- Unsupported
+[42] // Wind East Strong  -- Unsupported
+
+[43] // Wind North Weak   -- Unsupported
+[44] // Wind North Medium -- Unsupported
+[45] // Wind North Strong -- Unsupported
+
+[46] // Wind South Weak   -- Unsupported
+[47] // Wind South Medium -- Unsupported
+[48] // Wind South Strong -- Unsupported
+
+[49] // Wind West Weak    -- Unsupported
+[50] // Wind West Medium  -- Unsupported
+[51] // Wind West Strong  -- Unsupported
+

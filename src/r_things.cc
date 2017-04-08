@@ -58,10 +58,14 @@
 
 #include "m_misc.h"  // !!!! model test
 
-
+#define SHADOW_PROTOTYPE 1
 #define DEBUG  0
 
+#define SCALE_FIX ((r_fixspritescale.d == 1) ? 1.1 : 1.0)
+
 cvar_c r_spriteflip;
+cvar_c r_shadows;
+cvar_c r_fixspritescale;
 
 cvar_c r_crosshair;    // shape
 cvar_c r_crosscolor;   // 0 .. 7
@@ -87,6 +91,8 @@ extern float view_expand_w;
 
 static const image_c *crosshair_image;
 static int crosshair_which;
+
+static const image_c *shadow_image = NULL;
 
 
 static float GetHoverDZ(mobj_t *mo)
@@ -659,13 +665,13 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 
 	int rot = 0;
 	// ~CA: 5.7.2016 - 3DGE feature to randomly decide to flip front-facing sprites in-game
-#if 0
+
 	if (r_spriteflip.d > 0)
 	{
-		srand(P_RandomTest(*flip));	// value below in brackets would technically be "A0"
+		srand(M_RandomTest(*flip));	// value below in brackets would technically be "A0"
 		(*flip) = frame->flip[0] += true;
 	}
-#endif // 0
+
 
 	if (frame->rots >= 8)
 	{
@@ -1002,8 +1008,7 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 
 		// calculate edges of the shape
 		//float sprite_width  = IM_WIDTH(image);
-		//float sprite_height = IM_HEIGHT(image);
-		float sprite_height = (image)->max_h * (image)->scale_y;
+		float sprite_height = IM_HEIGHT(image);
 		float side_offset   = IM_OFFSETX(image);
 		float top_offset    = IM_OFFSETY(image);
 
@@ -1018,14 +1023,14 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 		switch (mo->info->yalign)
 		{
 			case SPYA_TopDown:
-				gzt = mo->z + mo->height + top_offset * mo->info->scale;
-				gzb = gzt - sprite_height * mo->info->scale;
+				gzt = mo->z + mo->height + top_offset * mo->info->scale / SCALE_FIX;
+				gzb = gzt - sprite_height * mo->info->scale / SCALE_FIX;
 				break;
 
 			case SPYA_Middle:
 			{
-				float mz = mo->z + mo->height * 0.5 + top_offset * mo->info->scale;
-				float dz = sprite_height * 0.5 * mo->info->scale;
+				float mz = mo->z + mo->height * 0.5 + top_offset * mo->info->scale / SCALE_FIX;
+				float dz = sprite_height * 0.5 * mo->info->scale / SCALE_FIX;
 
 				gzt = mz + dz;
 				gzb = mz - dz;
@@ -1033,8 +1038,8 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 			}
 
 			case SPYA_BottomUp: default:
-				gzb = mo->z +  top_offset * mo->info->scale;
-				gzt = gzb + sprite_height * mo->info->scale;
+				gzb = mo->z +  top_offset * mo->info->scale / SCALE_FIX;
+				gzt = gzb + sprite_height * mo->info->scale / SCALE_FIX;
 				break;
 		}
 
@@ -1227,19 +1232,121 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	if (trans <= 0)
 		return;
 
-
 	const image_c *image = dthing->image;
 
-	GLuint tex_id = W_ImageCache(image, false,
-	                  ren_fx_colmap ? ren_fx_colmap : dthing->mo->info->palremap);
+	thing_coord_data_t data;
+	data.mo = mo;
 
-//	float w = IM_WIDTH(image);
+	float w = IM_WIDTH(image);
 	float h = IM_HEIGHT(image);
 	float right = IM_RIGHT(image);
 	float top   = IM_TOP(image);
 
 	float x1b, y1b, z1b, x1t, y1t, z1t;
 	float x2b, y2b, z2b, x2t, y2t, z2t;
+
+	GLuint tex_id;
+
+#ifdef SHADOW_PROTOTYPE
+	if (r_shadows.d == 1 && !shadow_image)
+	{
+		// get simple shadow image
+		shadow_image = W_ImageLookup("SHADOWST");
+		if (!shadow_image)
+		{
+			I_Printf("Couldn't find SHADOWST image\n");
+			r_shadows.d = 0;
+			goto skip_shadow;
+		}
+	}
+
+	if (r_shadows.d > 0)
+	{
+		float tex_x1, tex_x2, tex_y1, tex_y2;
+
+		if (dthing->mo->info->shadow_trans <= 0 || dthing->mo->floorz >= viewz)
+			goto skip_shadow;
+
+		if (r_shadows.d == 1)
+		{
+			tex_id = W_ImageCache(shadow_image); // simple shadows
+			tex_x1 = 0.001f;
+			tex_x2 = 0.999f;
+			tex_y1 = 0.001f;
+			tex_y2 = 0.999f;
+		}
+		else if (r_shadows.d == 2)
+		{
+			tex_id = W_ImageCache(image, false, (const colourmap_c *)-1); // sprite shadows
+
+			tex_x1 = 0.001f;
+			tex_x2 = right - 0.001f;
+			tex_y1 = dthing->bottom - dthing->orig_bottom;
+			tex_y2 = tex_y1 + (dthing->top - dthing->bottom);
+
+			float yscale = mo->info->scale * MIR_ZScale();
+
+			SYS_ASSERT(h > 0);
+			tex_y1 = top * tex_y1 / (h * yscale);
+			tex_y2 = top * tex_y2 / (h * yscale);
+
+			if (dthing->flip)
+			{
+				float temp = tex_x2;
+				tex_x1 = right - tex_x1;
+				tex_x2 = right - temp;
+			}
+		}
+		else
+			goto skip_shadow;
+
+		float offs = 0.1f;
+		float w1 = r_shadows.d == 1 ? w / 2.0f : w / 3.0f;
+		float h1 = r_shadows.d == 1 ? h / 2.0f : 0;
+		float h2 = r_shadows.d == 1 ? h / 2.0f : h;
+
+		data.vert[0].Set(dthing->mo->x + w1, dthing->mo->y - h1, dthing->mo->floorz + offs);
+		data.vert[1].Set(dthing->mo->x + w1, dthing->mo->y + h2, dthing->mo->floorz + offs);
+		data.vert[2].Set(dthing->mo->x - w1, dthing->mo->y + h2, dthing->mo->floorz + offs);
+		data.vert[3].Set(dthing->mo->x - w1, dthing->mo->y - h1, dthing->mo->floorz + offs);
+
+		data.texc[0].Set(tex_x1, tex_y1);
+		data.texc[1].Set(tex_x1, tex_y2);
+		data.texc[2].Set(tex_x2, tex_y2);
+		data.texc[3].Set(tex_x2, tex_y1);
+
+		data.normal.Set(0, 0, 1);
+
+		data.col[0].Clear();
+		data.col[1].Clear();
+		data.col[2].Clear();
+		data.col[3].Clear();
+
+		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
+			GL_MODULATE, tex_id, ENV_NONE, 0, 0, BL_Alpha);
+
+		for (int v_idx = 0; v_idx < 4; v_idx++)
+		{
+			local_gl_vert_t *dest = glvert + v_idx;
+
+			dest->pos = data.vert[v_idx];
+			dest->texc[0] = data.texc[v_idx];
+			dest->normal = data.normal;
+
+			dest->rgba[0] = 0;
+			dest->rgba[1] = 0;
+			dest->rgba[2] = 0;
+			dest->rgba[3] = dthing->mo->info->shadow_trans;
+		}
+
+		RGL_EndUnit(4);
+	}
+
+skip_shadow:
+#endif
+
+	tex_id = W_ImageCache(image, false,
+		ren_fx_colmap ? ren_fx_colmap : dthing->mo->info->palremap);
 
 	x1b = x1t = dthing->mx + dthing->left_dx;
 	y1b = y1t = dthing->my + dthing->left_dy;
@@ -1258,17 +1365,20 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		if (mo->radius >= 1.0f && h > mo->radius)
 			skew2 = mo->radius;
 
-		float dx = viewcos * sprite_skew * skew2;
-		float dy = viewsin * sprite_skew * skew2;
+		dx = viewcos * sprite_skew * skew2;
+		dy = viewsin * sprite_skew * skew2;
 
 		float top_q    = ((dthing->top - dthing->orig_bottom)  / h) - 0.5f;
 		float bottom_q = ((dthing->orig_top - dthing->bottom)  / h) - 0.5f;
 
-		x1t += top_q * dx; y1t += top_q * dy;
-		x2t += top_q * dx; y2t += top_q * dy;
+		dx *= (top_q - bottom_q);
+		dy *= (top_q - bottom_q);
 
-		x1b -= bottom_q * dx; y1b -= bottom_q * dy;
-		x2b -= bottom_q * dx; y2b -= bottom_q * dy;
+//		x1t += top_q * dx; y1t += top_q * dy;
+//		x2t += top_q * dx; y2t += top_q * dy;
+//
+//		x1b -= bottom_q * dx; y1b -= bottom_q * dy;
+//		x2b -= bottom_q * dx; y2b -= bottom_q * dy;
 	}
 
 	float tex_x1 = 0.001f;
@@ -1277,7 +1387,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	float tex_y1 = dthing->bottom - dthing->orig_bottom;
 	float tex_y2 = tex_y1 + (z1t - z1b);
 
-	float yscale = mo->info->scale * MIR_ZScale();
+	float yscale = mo->info->scale * MIR_ZScale() / SCALE_FIX;
 
 	SYS_ASSERT(h > 0);
 	tex_y1 = top * tex_y1 / (h * yscale);
@@ -1290,15 +1400,10 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		tex_x2 = right - temp;
 	}
 
-
-	thing_coord_data_t data;
-
-	data.mo = mo;
-
-	data.vert[0].Set(x1b+dx, y1b+dy, z1b);
+	data.vert[0].Set(x1b-dx, y1b-dy, z1b);
 	data.vert[1].Set(x1t+dx, y1t+dy, z1t);
 	data.vert[2].Set(x2t+dx, y2t+dy, z2t);
-	data.vert[3].Set(x2b+dx, y2b+dy, z2b);
+	data.vert[3].Set(x2b-dx, y2b-dy, z2b);
 
 	data.texc[0].Set(tex_x1, tex_y1);
 	data.texc[1].Set(tex_x1, tex_y2);
@@ -1307,12 +1412,10 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	data.normal.Set(-viewcos, -viewsin, 0);
 
-
 	data.col[0].Clear();
 	data.col[1].Clear();
 	data.col[2].Clear();
 	data.col[3].Clear();
-
 
 	int blending = BL_Masked;
 
@@ -1324,7 +1427,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	if (mo->hyperflags & HF_NOZBUFFER)
 		blending |= BL_NoZBuf;
-
 
 	float  fuzz_mul = 0;
 	vec2_t fuzz_add;
@@ -1367,7 +1469,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 					DLIT_Thing, &data);
 		}
 	}
-
 
 	/* draw the sprite */
 
@@ -1441,6 +1542,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 		RGL_EndUnit(4);
 	}
+
 }
 
 

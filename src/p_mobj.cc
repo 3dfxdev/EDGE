@@ -71,6 +71,7 @@
 #include "m_argv.h"
 #include "m_random.h"
 #include "p_local.h"
+#include "p_pobj.h"
 #include "r_image.h" //W_ImageGetName
 #include "r_misc.h"
 #include "r_shader.h"
@@ -199,17 +200,17 @@ static void BounceOffWall(mobj_t * mo, line_t * wall)
 		// random angle to bounce away.  And don't attenuate the speed (so
 		// we can get far enough away).
 
-		angle = P_Random() << (ANGLEBITS - 8);
+		//angle = P_Random() << (ANGLEBITS - 8);
+		mo->speed = 0; // -CW- Almost certainly stuck in wall. Kill motion.
 	}
 	else
 	{
 		angle += diff << 1;
 	}
 
-	// calculate new momentum
-
 	mo->speed *= mo->info->bounce_speed;
 
+	// calculate new momentum
 	mo->mom.x = M_Cos(angle) * mo->speed;
 	mo->mom.y = M_Sin(angle) * mo->speed;
 	mo->angle = angle;
@@ -1020,7 +1021,12 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 
 			if (mo->info->flags & MF_SLIDE)
 			{
-				P_SlideMove(mo, ptryx, ptryy);
+				if (! P_SlideMove(mo, ptryx, ptryy))
+				{
+					// -CW- 2017/01/12 Can't slide, clear momentum
+					xmove = ymove = 0;
+					mo->mom.x = mo->mom.y = 0;
+				}
 			}
 			else if (mo->extendedflags & EF_BOUNCE)
 			{
@@ -1234,6 +1240,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				{
 					if (!splash)
 					{
+						//I_Printf("z: %f, fz: %f, sz: %d\n", mo->z, mo->floorz, mo->subsector->sector->f_h);
 						mo->player->deltaviewheight = zmove / 8.0f;
 						S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
 						splash = true;
@@ -1241,7 +1248,6 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				}
 				else
 					splash = false;
-
 			}
 
 
@@ -1269,13 +1275,15 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 			if (mo->player && gravity > 0 && -zmove > ! OOF_SPEED && ! fly_or_swim)
 			{
 
-				if (image_array_contains(names, image))
+				if (image_array_contains(names, image) && (mo->z <= mo->subsector->sector->f_h))
 				{
 					//DEBUG:
 					//CON_Message("Detected FWATER FLAT!");
 					if (!splash)
 					{
+						//I_Printf("z: %f, fz: %f, sz: %f\n", mo->z, mo->floorz, mo->subsector->sector->f_h);
 						mo->player->deltaviewheight = zmove / 8.0f;
+						// [SP] This seems to crash, disabling for now.
 						S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo);
 						splash = true;
 						//CA: Need to set a cooldown, and not have zmove go so far downward over time (or at all!)
@@ -1464,6 +1472,13 @@ static void P_MobjThinker(mobj_t * mobj)
 
 	SYS_ASSERT_MSG(mobj->next != (mobj_t *)-1,
 		("P_MobjThinker INTERNAL ERROR: mobj has been Z_Freed"));
+
+	if ((mobj->typenum & ~3) == 9300)
+	{
+		//I_Printf("P_MobjThinker: handling PO %d\n", mobj->po_ix);
+		P_UpdatePolyObj(mobj);
+		return;
+	}
 
 	SYS_ASSERT(mobj->state);
 	SYS_ASSERT(mobj->refcount >= 0);

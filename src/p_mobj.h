@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Moving Object Header
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -105,7 +105,7 @@ struct touch_node_s;
 // things, but nothing can run into a missile).
 // Each block in the grid is 128*128 units, and knows about
 // every line_t that it contains a piece of, and every
-// interactable mobj_t that has its origin contained.  
+// interactable mobj_t that has its origin contained.
 //
 // A valid mobj_t is a mobj_t that has the proper subsector_t
 // filled in for its xy coordinates and is linked into the
@@ -175,7 +175,7 @@ struct last_tic_render_s : public position_c
 {
 	angle_t angle;      // orientation
 	angle_t vertangle;  // looking up or down
-	
+
 	int model_skin;
 	int model_last_frame;
 	short model_animfile;
@@ -243,6 +243,11 @@ struct mobj_s : public position_c
 	int model_skin;
 	int model_last_frame;
 	short model_last_animfile;
+
+	// type (for special types)
+	int typenum;
+	// index if polyobject
+	int po_ix;
 
 	// tag ID (for special operations)
 	int tag;
@@ -336,7 +341,7 @@ struct mobj_s : public position_c
 	short lerp_pos;
 
 	vec3_t lerp_from; /// previous position for interpolation
-	
+
 	last_tic_render_t lastticrender;
 
 	// touch list: sectors this thing is in or touches
@@ -354,7 +359,7 @@ struct mobj_s : public position_c
 
 	// One more: link in dynamic light blockmap
 	mobj_t *dlnext, *dlprev;
-	
+
 	// counters - these were known as special1/2/3 in Heretic and Hexen
    ///int counters[NUMMOBJCOUNTERS];
 
@@ -363,7 +368,7 @@ public:
 	{
 		return (state == NULL);
 	}
-	
+
 	void SetTracer(mobj_t *ref);
 	void SetSource(mobj_t *ref);
 	void SetTarget(mobj_t *ref);
@@ -371,7 +376,7 @@ public:
 	void SetAboveMo(mobj_t *ref);
 	void SetBelowMo(mobj_t *ref);
 	void SetRealSource(mobj_t *ref);
-	
+
 	void UpdateLastTicRender(void);
 	epi::vec3_c GetInterpolatedPosition(void);
 	float GetInterpolatedAngle(void);

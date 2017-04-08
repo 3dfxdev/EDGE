@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Game Handling Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -55,7 +55,7 @@
 // indices at all times.
 //
 player_t *players[MAXPLAYERS];
-	
+
 int numplayers;
 int numbots;
 
@@ -100,12 +100,12 @@ void G_ClearBodyQueue(void)
 
 void G_AddBodyToQueue(mobj_t *mo)
 {
-	// flush an old corpse if needed 
+	// flush an old corpse if needed
 	if (bodyqueue_size >= MAX_BODIES)
 	{
 		mobj_t *rotten = bodyqueue[bodyqueue_size % MAX_BODIES];
 		rotten->refcount--;
-		
+
 		P_RemoveMobj(rotten);
 	}
 
@@ -131,15 +131,15 @@ void G_PlayerFinishLevel(player_t *p, bool keep_cards)
 
 		p->cards = KF_NONE;
 
-		p->mo->flags &= ~MF_FUZZY;  // cancel invisibility 
+		p->mo->flags &= ~MF_FUZZY;  // cancel invisibility
 	}
 
-	p->extralight = 0;  // cancel gun flashes 
+	p->extralight = 0;  // cancel gun flashes
 
 	// cancel colourmap effects
 	p->effect_colourmap = NULL;
 
-	// no palette changes 
+	// no palette changes
 	p->damagecount = 0;
 	p->damage_pain = 0;
 	p->bonuscount  = 0;
@@ -149,7 +149,7 @@ void G_PlayerFinishLevel(player_t *p, bool keep_cards)
 //
 // player_s::Reborn
 //
-// Called after a player dies. 
+// Called after a player dies.
 // Almost everything is cleared and initialised.
 //
 void player_s::Reborn()
@@ -184,6 +184,7 @@ void player_s::Reborn()
 	bob = 0;
 	kick_offset = 0;
 	zoom_fov = 0;
+	telept_fov = 0;
 	bonuscount = 0;
 	damagecount = 0;
 	damage_pain = 0;
@@ -196,7 +197,7 @@ void player_s::Reborn()
 	effect_left = 0;
 
 	memset(psprites, 0, sizeof(psprites));
-	
+
 	jumpwait = 0;
 	idlewait = 0;
 	splashwait = 0;
@@ -249,7 +250,7 @@ static bool G_CheckSpot(player_t *player, const spawnpoint_t *point)
 
 	G_AddBodyToQueue(player->mo);
 
-	// spawn a teleport fog 
+	// spawn a teleport fog
 	// (temp fix for teleport effect)
 	x += 20 * M_Cos(point->angle);
 	y += 20 * M_Sin(point->angle);
@@ -275,7 +276,7 @@ void G_SetConsolePlayer(int pnum)
 	for (int i = 0; i < MAXPLAYERS; i++)
 		if (players[i])
 			players[i]->playerflags &= ~PFL_Console;
-	
+
 	players[pnum]->playerflags |= PFL_Console;
 
 	if (M_CheckParm("-testbot") > 0)
@@ -313,7 +314,7 @@ void G_SetDisplayPlayer(int pnum)
 	for (int i = 0; i < MAXPLAYERS; i++)
 		if (players[i])
 			players[i]->playerflags &= ~PFL_Display;
-	
+
 	players[pnum]->playerflags |= PFL_Display;
 }
 
@@ -354,7 +355,7 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point, bool is_hub)
 
 	L_WriteDebug("* P_SpawnPlayer %d @ %1.0f,%1.0f\n",
 			point->info->playernum, point->x, point->y);
-		
+
 	if (info->playernum <= 0)
 		info = mobjtypes.LookupPlayer(p->pnum + 1);
 
@@ -383,9 +384,10 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point, bool is_hub)
 	p->std_viewheight = mobj->height * PERCENT_2_FLOAT(info->viewheight);
 	p->viewheight = p->std_viewheight;
 	p->zoom_fov = 0;
+	p->telept_fov = 0;
 	p->jumpwait = 0;
 
-	// don't do anything immediately 
+	// don't do anything immediately
 	p->attackdown[0] = p->attackdown[1] = false;
 	p->usedown = false;
 	p->actiondown[0] = p->actiondown[1] = false;
@@ -419,7 +421,7 @@ static void P_SpawnVoodooDoll(player_t *p, const spawnpoint_t *point)
 
 	L_WriteDebug("* P_SpawnVoodooDoll %d @ %1.0f,%1.0f\n",
 			p->pnum+1, point->x, point->y);
-		
+
 	mobj_t *mobj = P_MobjCreateObject(point->x, point->y, point->z, info);
 
 	mobj->angle = point->angle;
@@ -435,7 +437,7 @@ static void P_SpawnVoodooDoll(player_t *p, const spawnpoint_t *point)
 }
 
 //
-// G_DeathMatchSpawnPlayer 
+// G_DeathMatchSpawnPlayer
 //
 // Spawns a player at one of the random deathmatch spots.
 // Called at level load and each death.
@@ -474,7 +476,7 @@ void G_DeathMatchSpawnPlayer(player_t *p)
 }
 
 //
-// G_CoopSpawnPlayer 
+// G_CoopSpawnPlayer
 //
 // Spawns a player at one of the single player spots.
 // Called at level load and each death.
@@ -734,7 +736,7 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 					return false;
 
 				break;
-				
+
 /* 			case COND_Action3:
 				if (!p)
 					return false;
@@ -846,17 +848,17 @@ void G_RemoveOldAvatars(void)
 
 // I_Debugf("Updating avatar reference: %p --> %p\n", mo->target, mo->target->player->mo);
 
-			mo->SetTarget(mo->target->player->mo);		
+			mo->SetTarget(mo->target->player->mo);
 		}
 
 		if (mo->source && (mo->source->hyperflags & HF_OLD_AVATAR))
 		{
-			mo->SetSource(mo->source->player->mo);		
+			mo->SetSource(mo->source->player->mo);
 		}
 
 		if (mo->supportobj && (mo->supportobj->hyperflags & HF_OLD_AVATAR))
 		{
-			mo->SetSupportObj(mo->supportobj->player->mo);		
+			mo->SetSupportObj(mo->supportobj->player->mo);
 		}
 
 		// the other three fields don't matter (tracer, above_mo, below_mo)

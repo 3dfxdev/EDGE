@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Specials Lines & Floor Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -40,6 +40,7 @@
 #include "m_argv.h"
 #include "m_random.h"
 #include "p_local.h"
+#include "p_pobj.h"
 #include "p_spec.h"
 #include "rad_trig.h"
 #include "s_sound.h"
@@ -410,7 +411,7 @@ static void AdjustLightParts(side_t *side, bool left,
 }
 
 
-static void P_EFTransferTrans(sector_t *ctrl, sector_t *sec, line_t *line, 
+static void P_EFTransferTrans(sector_t *ctrl, sector_t *sec, line_t *line,
 		const extrafloordef_c *ef, float trans)
 {
 	int i;
@@ -913,7 +914,7 @@ static void DetailSlope_Ceiling(line_t *ld)
 // was activated, ie shot/crossed/pushed.  `line' can be NULL for
 // non-line activations.
 //
-// -KM- 1998/09/01 Procedure Written.  
+// -KM- 1998/09/01 Procedure Written.
 //
 // -ACB- 1998/09/11 Return Success or Failure.
 //
@@ -938,16 +939,27 @@ static bool P_ActivateSpecialLine(line_t * line,
 
 	int i;
 
-#ifdef DEVELOPERS
 	if (!special)
 	{
 		if (line == NULL)
 			I_Error("P_ActivateSpecialLine: Special type is 0\n");
-		else
-			I_Error("P_ActivateSpecialLine: Line %d is not Special\n", 
+
+		if (line->action == 0)
+			I_Error("P_ActivateSpecialLine: Line %d is not Special\n",
 					(int)(line - lines));
+
+		// do line action (zdoom)
+		if (line->action == 2)
+		{
+			PO_RotateLeft(line->args[0], line->args[1], line->args[2]);
+			return true;
+		}
+
+
+
+
+		return false;
 	}
-#endif
 
 	if (!G_CheckWhenAppear(special->appear))
 	{
@@ -970,10 +982,10 @@ static bool P_ActivateSpecialLine(line_t * line,
 		return false;
 
 	// -AJA- 1999/12/07: Height checking.
-	if (line && thing && thing->player && 
+	if (line && thing && thing->player &&
         (special->special_flags & LINSP_MustReach) && !can_reach)
 	{
-        S_StartFX(thing->info->noway_sound, 
+        S_StartFX(thing->info->noway_sound,
                   P_MobjGetSfxCategory(thing), thing);
 
 		return false;
@@ -1091,7 +1103,10 @@ static bool P_ActivateSpecialLine(line_t * line,
 	// -ACB- 1998/09/13 Use teleport define..
 	if (special->t.teleport)
 	{
-		texSwitch = EV_Teleport(line, tag, thing, &special->t);
+		if (line->action == 71)
+			texSwitch = EV_Teleport(line, line->args[2], thing, &special->t);
+		else
+			texSwitch = EV_Teleport(line, tag, thing, &special->t);
 	}
 
 	if (special->e_exit == EXIT_Normal)
@@ -1133,7 +1148,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 		}
 		else
 		{
-			texSwitch = P_DoSectorsFromTag(tag, &special->f, 
+			texSwitch = P_DoSectorsFromTag(tag, &special->f,
 					line ? line->frontsector : NULL, DoPlane_wrapper);
 		}
 	}
@@ -1304,7 +1319,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 		}
         else if (thing)
         {
-            S_StartFX(special->activate_sfx, 
+            S_StartFX(special->activate_sfx,
                            P_MobjGetSfxCategory(thing), thing);
         }
 
@@ -1344,7 +1359,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 //
 bool P_CrossSpecialLine(line_t *ld, int side, mobj_t * thing)
 {
-	return P_ActivateSpecialLine(ld, ld->special, ld->tag, 
+	return P_ActivateSpecialLine(ld, ld->special, ld->tag,
 			side, thing, line_walkable, 1, 0);
 }
 
@@ -1353,7 +1368,7 @@ bool P_CrossSpecialLine(line_t *ld, int side, mobj_t * thing)
 //
 void P_ShootSpecialLine(line_t * ld, int side, mobj_t * thing)
 {
-	P_ActivateSpecialLine(ld, ld->special, ld->tag, 
+	P_ActivateSpecialLine(ld, ld->special, ld->tag,
 			side, thing, line_shootable, 1, 0);
 }
 
@@ -1386,7 +1401,7 @@ bool P_UseSpecialLine(mobj_t * thing, line_t * line, int side,
 //
 // -AJA- 1999/10/21: written.
 //
-void P_RemoteActivation(mobj_t * thing, int typenum, int tag, 
+void P_RemoteActivation(mobj_t * thing, int typenum, int tag,
 		int side, trigger_e method)
 {
 	const linetype_c *spec = P_LookupLineType(typenum);
@@ -1591,7 +1606,7 @@ void P_PlayerInSpecialSector(player_t * player, sector_t * sec)
 		}
 
 		player->air_in_lungs = player->mo->info->lung_capacity;
-	} 
+	}
 
 	// -AJA- 2008/01/20: water splash sounds for players
 	if (!was_swimming && player->swimming)

@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 OpenGL Rendering (Definitions)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -34,7 +34,7 @@
 #include <list>
 #include <vector>
 
-
+extern cvar_c r_anisotropy;
 extern cvar_c r_colorlighting;
 extern cvar_c r_colormaterial;
 
@@ -43,7 +43,7 @@ extern cvar_c r_dumbmulti;
 extern cvar_c r_dumbcombine;
 extern cvar_c r_dumbclamp;
 
-extern cvar_c r_gl2_path;
+extern cvar_c r_gl3_path;
 
 //
 //  RGL_MAIN
@@ -160,7 +160,7 @@ public:
 	float orig_top, orig_bottom;
 
 	// Rendering order
-	struct drawthing_s *rd_l, *rd_r, *rd_prev, *rd_next; 
+	struct drawthing_s *rd_l, *rd_r, *rd_prev, *rd_next;
 
 public:
 	void Clear()
@@ -195,7 +195,7 @@ public:
 
 	surface_t *floor, *ceil;
 
-	extrafloor_t *ef;
+	extrafloor_t *f_ef, *c_ef;
 
 	// properties used herein
 	region_properties_t *props;
@@ -210,7 +210,7 @@ public:
 		is_highest = is_lowest = false;
 		next_R = prev_R = NULL;
 		floor = ceil = NULL;
-		ef = NULL;
+		f_ef = c_ef = NULL;
 		props = NULL;
 		things = NULL;
 	}
@@ -293,6 +293,7 @@ public:
 
 extern int detail_level;
 extern int use_dlights;
+extern int simple_shadows;
 extern int sprite_kludge;
 
 const image_c * R2_GetThingSprite(mobj_t *mo, bool *flip);

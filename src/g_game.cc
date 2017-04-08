@@ -39,7 +39,7 @@
 #include "e_main.h"
 #include "f_finale.h"
 #include "g_game.h"
-#include "m_cheat.h"
+#include "m_cheatcodes.h"
 #include "m_menu.h"
 #include "m_random.h"
 #include "n_network.h"
@@ -352,12 +352,14 @@ bool G_Responder(event_t * ev)
 
 		if (paused)
 		{
+			I_Printf("PAUSED\n");
 			S_PauseMusic();
 			S_PauseSound();
 			I_GrabCursor(false);
 		}
 		else
 		{
+			I_Printf("RESUMED\n");
 			S_ResumeMusic();
 			S_ResumeSound();
 			I_GrabCursor(true);
@@ -665,7 +667,10 @@ static void G_DoCompleted(void)
 
 	BOT_EndLevel();
 
-	P_ShutdownLevel();
+	// -CW- Interferes with HUBs.
+	//P_ShutdownLevel();
+	S_StopLevelFX();
+	S_StopMusic();
 
 	automapactive = false;
 
@@ -1159,6 +1164,7 @@ static void InitNew(newgame_params_c& params)
 
 	if (paused)
 	{
+		I_Printf("RESUMED\n");
 		paused = false;
 		S_ResumeMusic(); // -ACB- 1999/10/07 New Music API
 		S_ResumeSound();
@@ -1220,7 +1226,11 @@ static void G_DoEndGame(void)
 	{
 		BOT_EndLevel();
 
-		P_ShutdownLevel();
+		// -CW- You would normally shut down the level here, which would stop
+		// SFX, but this causes problems with HUBs.
+		//P_ShutdownLevel();
+		S_StopLevelFX();
+		S_StopMusic();
 	}
 
 	gamestate = GS_NOTHING;
