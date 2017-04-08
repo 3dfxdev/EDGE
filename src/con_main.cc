@@ -36,6 +36,14 @@
 #include "version.h"
 #include "z_zone.h"
 
+// [SP] Headers for cheat codes (need access to player and mobjs)
+#include "p_local.h"
+#include "p_mobj.h"
+#include "p_bot.h"
+#include "dm_state.h"
+#include "p_cheats.h"
+// [SP] Externals
+extern cvar_c debug_fps, debug_pos;
 
 #define MAX_CON_ARGS  64
 
@@ -413,6 +421,130 @@ int CMD_Map(char **argv, int argc)
 }
 
 
+// [SP] --- BEGIN CHEAT CODES ---
+
+int CMD_CheatGod(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_ToggleGodMode();
+
+	return 0;
+}
+
+int CMD_CheatNoClip(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_NoClip();
+
+	return 0;
+}
+
+int CMD_CheatAmmoNoKey(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_IDFA();
+
+	return 0;
+}
+
+int CMD_CheatVeryHappyAmmo(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_IDKFA();
+
+	return 0;
+}
+
+int CMD_CheatChainSaw(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_Choppers();
+
+	return 0;
+}
+
+int CMD_CheatUnlockDoors(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_Unlock();
+
+	return 0;
+}
+
+int CMD_CheatShowHOM(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_HOM();
+
+	return 0;
+}
+
+int CMD_CheatShowPos(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_ShowPos();
+
+	return 0;
+}
+
+int CMD_CheatKillAll(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_KillAll();
+
+	return 0;
+}
+
+int CMD_CheatSuicide(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_Suicide();
+
+	return 0;
+}
+
+int CMD_CheatInfo(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_Info();
+
+	return 0;
+}
+
+int CMD_CheatLoaded(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_Loaded();
+
+	return 0;
+}
+
+
+
 //----------------------------------------------------------------------------
 
 // oh lordy....
@@ -503,6 +635,24 @@ const con_cmd_t builtin_commands[] =
 	{ "version",        CMD_Version },
 	{ "quit",           CMD_QuitEDGE },
 	{ "exit",           CMD_QuitEDGE },
+
+#ifndef NOCHEATS
+	// [SP] Cheats
+	{ "god",            CMD_CheatGod },
+	{ "noclip",         CMD_CheatNoClip },
+	{ "idfa",           CMD_CheatAmmoNoKey },
+	{ "idkfa",          CMD_CheatVeryHappyAmmo },
+	{ "idchoppers",     CMD_CheatChainSaw },
+	{ "idunlock",       CMD_CheatUnlockDoors },
+	{ "showhom",        CMD_CheatShowHOM },
+	{ "showpos",        CMD_CheatShowPos },
+	{ "killall",        CMD_CheatKillAll },
+	{ "massacre",       CMD_CheatKillAll },
+	{ "kill",           CMD_CheatSuicide },
+	{ "suicide",        CMD_CheatSuicide },
+	{ "info",           CMD_CheatInfo },
+	{ "loaded",         CMD_CheatLoaded },
+#endif
 
 	// end of list
 	{ NULL, NULL }

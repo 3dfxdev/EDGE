@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Local Header for play sim functions 
+//  EDGE2 Local Header for play sim functions
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -83,7 +83,7 @@
 void P_PlayerAttack(mobj_t * playerobj, const atkdef_c * attack);
 void P_SlammedIntoObject(mobj_t * object, mobj_t * objecthit);
 int P_MissileContact(mobj_t * object, mobj_t * objecthit);
-int P_BulletContact(mobj_t * object, mobj_t * objecthit, 
+int P_BulletContact(mobj_t * object, mobj_t * objecthit,
 					 float damage, const damage_c * damtype,
 					 float x, float y, float z);
 void P_TouchyContact(mobj_t * touchy, mobj_t * victim);
@@ -170,7 +170,7 @@ void P_ClearAllStaleRefs(void);
 // P_ENEMY
 //
 
-typedef struct 
+typedef struct
 {
 	int number;
 
@@ -202,6 +202,7 @@ float P_ApproxDistance(float dx, float dy);
 float P_ApproxDistance(float dx, float dy, float dz);
 float P_ApproxSlope(float dx, float dy, float dz);
 int P_PointOnDivlineSide(float x, float y, divline_t *div);
+inline int R_PointOnSide(float x, float y, divline_t *div);
 int P_PointOnDivlineThick(float x, float y, divline_t *div,
 						  float div_len, float thickness);
 void P_ComputeIntersection(divline_t *div,
@@ -261,9 +262,9 @@ private:
 	void CleanupObject(void *obj) { /* ... */ }
 
 public:
-	int GetSize() {	return array_entries; } 
+	int GetSize() {	return array_entries; }
 	int Insert(line_t *l) { return InsertObject((void*)&l); }
-	line_t* operator[](int idx) { return *(line_t**)FetchObject(idx); } 
+	line_t* operator[](int idx) { return *(line_t**)FetchObject(idx); }
 };
 
 // If "floatok" true, move would be OK at float_destz height.
@@ -274,6 +275,8 @@ extern bool mobj_hit_sky;
 extern line_t *blockline;
 
 extern linelist_c spechit;
+
+extern bool disable_bob;
 
 void P_MapInit(void);
 bool P_MapCheckBlockingLine(mobj_t * thing, mobj_t * spawnthing);
@@ -294,7 +297,7 @@ void P_RadiusAttack(mobj_t * spot, mobj_t * source, float radius, float damage, 
 
 bool P_TeleportMove(mobj_t * thing, float x, float y, float z);
 bool P_TryMove(mobj_t * thing, float x, float y);
-void P_SlideMove(mobj_t * mo, float x, float y);
+bool P_SlideMove(mobj_t * mo, float x, float y);
 void P_UseLines(player_t * player);
 void P_LineAttack(mobj_t * t1, angle_t angle, float distance, float slope, float damage, const damage_c * damtype, const mobjtype_c *puff);
 

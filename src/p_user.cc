@@ -39,6 +39,11 @@
 #include "s_sound.h"
 #include "z_zone.h"
 
+extern float fade_gdelta;
+extern float fade_gamma;
+extern int fade_starttic;
+extern bool fade_active;
+
 static void P_UpdatePowerups(player_t *player);
 
 #define MAXBOB  16.0f
@@ -114,8 +119,16 @@ static void CalcHeight(player_t * player)
 	// -AJA- Moved up here, to prevent weapon jumps when running down
 	// stairs.
 
-	player->bob = (player->mo->mom.x * player->mo->mom.x
-		+ player->mo->mom.y * player->mo->mom.y) / 8;
+	if (! disable_bob)
+	{
+		player->bob = (player->mo->mom.x * player->mo->mom.x
+			+ player->mo->mom.y * player->mo->mom.y) / 8;
+	}
+	else
+	{
+		player->bob = 0;
+		disable_bob = false;
+	}
 
 	//if (bob_z == 0)
 	//	{
@@ -632,7 +645,7 @@ void P_ConsolePlayerBuilder(const player_t *pl, void *data, ticcmd_t *dest)
 {
 	dest->player_idx = pl->pnum;
 
-	E_BuildTiccmd(dest, 0);
+	E_BuildTiccmd(dest, pl->pnum);
 }
 
 static u16_t MakeConsistency(const player_t *pl)
@@ -738,9 +751,32 @@ void P_PlayerThink(player_t * player)
 	// bit after a teleport.
 
 	if (player->mo->reactiontime)
+	{
 		player->mo->reactiontime--;
+		player->telept_fov = player->telept_fov >= 5 ? player->telept_fov - 5 : 0;
+	}
 	else
+	{
 		MovePlayer(player);
+	}
+
+	if (fade_active)
+	{
+		if (fade_starttic <= leveltime)
+		{
+			fade_gamma += fade_gdelta;
+			if (fade_gdelta < 0)
+			{
+				if (fade_gamma <= 0.0f)
+					fade_active = false;
+			}
+			else
+			{
+				if (fade_gamma >= 1.0f)
+					fade_active = false;
+			}
+		}
+	}
 
 	CalcHeight(player);
 

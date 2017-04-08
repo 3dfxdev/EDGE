@@ -21,17 +21,15 @@
 #include "i_defs_gl.h"
 
 #ifdef WIN32
-#include "GL/wglew.h"
+#include <GL/wglew.h>
 /// If you don't hardlink under Win32, replace with ---> ^___________________^
 #else
 #include <GL/glew.h>
 #endif
 
-#if defined(MACOSX) || defined(LINUX)
+
 #include <SDL2/SDL_opengl.h>
-#else
-#include <SDL_opengl.h>
-#endif
+
 
 
 #include <signal.h>
@@ -55,6 +53,16 @@ static int display_W, display_H;
 
 SDL_GLContext   glContext;
 
+// use OpenGL to brighten or dark the display instead of SDL
+#define GL_BRIGHTNESS
+
+#ifdef GL_BRIGHTNESS
+float gamma_settings = 0.0f;
+float fade_gamma;
+float fade_gdelta;
+extern int fade_starttic;
+extern bool fade_active;
+#endif
 
 // Possible Windowed Modes
 static struct { int w, h; } possible_modes[] =
@@ -310,6 +318,22 @@ void I_FinishFrame(void)
 {
 	extern cvar_c r_vsync;
 
+	#ifdef GL_BRIGHTNESS
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBegin(GL_QUADS);
+	glColor4f(fade_active ? 0.0f : 1.0f,
+			  fade_active ? 0.0f : 1.0f,
+			  fade_active ? 0.0f : 1.0f,
+			  fade_active ? 1.0f - fade_gamma : gamma_settings);
+	glVertex3i(0,0,0);
+	glVertex3i(display_W,0,0);
+	glVertex3i(display_W,display_H,0);
+	glVertex3i(0,display_H,0);
+	glEnd();
+	glColor4f(1, 1, 1, 1);
+	#endif
+
 	//FIXME: WIN32 relies on WGLEW, so when we go to GLAD, make sure to generate a WGL_GLAD header to compensate.
 	//       I wonder if SDL_GL_SwapWindow will work under Win32 without WGLEW extensions. hmmm.
 	#ifdef WIN32
@@ -326,6 +350,7 @@ void I_FinishFrame(void)
 			glFinish();
 	if (in_grab.CheckModified())
 		I_GrabCursor(grab_state);
+
 }
 
 
@@ -336,8 +361,12 @@ void I_PutTitle(const char *title)
 
 void I_SetGamma(float gamma)
 {
+	#ifdef GL_BRIGHTNESS
+	gamma_settings = (gamma - 1.0f) * 0.08f;
+	#else
 	if (SDL_SetWindowBrightness(my_vis, gamma) < 0)
 		I_Printf("Failed to change gamma.\n");
+	#endif
 }
 
 

@@ -66,6 +66,8 @@ public:
 	int volume_L;  // mixing volume
 	int volume_R;
 
+	int pitch;
+
 	bool loop;  // will loop *one* more time
 	bool boss;
 	int split; 

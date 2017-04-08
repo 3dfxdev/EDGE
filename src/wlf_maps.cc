@@ -26,21 +26,15 @@ static int map_count;
 
 static raw_maphead_t map_head;
 
-
-#if 0
 inline void FROM_LE_U16(u16_t& val)
 {
 	val = EPI_LE_U16(val);
 }
-#endif // 0
-#define EPI_LE_U16(val)  ((u16_t)(val))
-#define EPI_LE_U32(val)  ((u32_t)(val))
-#if 0
+
 inline void FROM_LE_U32(u32_t& val)
 {
 	val = EPI_LE_U32(val);
 }
-#endif // 0
 
 
 static void MapsReadHeaders()
@@ -68,7 +62,7 @@ static void MapsReadHeaders()
 		//This should be I_Printf, but we want to see if we can
 		//get far enough here to at least display the maphead
 		//offsets!!
-	//I_Printf("Header offset[%d] = %d\n", i, map_head.offsets[i]);
+	I_Printf("Header offset[%d] = %d\n", i, map_head.offsets[i]);
 		map_count++;
 	}
 
@@ -149,7 +143,7 @@ fprintf(stderr, "Reading %d bytes...\n", complen);
 
 	delete[] buf2;
 
-	// flip plane upsidedown
+	// flip plane upside down
 	for (int y=0; y < height/2; y++)
 	for (int x=0; x < width; x++)
 	{
@@ -226,7 +220,7 @@ void WF_InitMaps(void)
 {
 	MapsReadHeaders();
 
-	//WF_LoadMap(0);  // !!!! TEST
+	WF_LoadMap(0);  // !!!! TEST
 }
 
 void WF_Init(void)

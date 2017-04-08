@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 OpenGL Rendering (Unit batching)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -23,11 +23,9 @@
 #include "i_defs_gl.h"
 #include "i_sdlinc.h"
 
-#ifdef MACOSX
+
 #include <SDL2/SDL_opengl.h>
-#else
-#include "SDL_opengl.h"
-#endif
+
 
 #include <vector>
 #include <algorithm>
@@ -44,6 +42,15 @@
 #include "r_texgl.h"
 #include "r_shader.h"
 #include "r_bumpmap.h"
+#include "r_colormap.h"
+
+// define to enable light color and fog per sector code
+#define USE_FOG
+
+#ifdef USE_FOG
+extern int light_color;
+extern int fade_color;
+#endif
 
 cvar_c r_colorlighting;
 cvar_c r_colormaterial;
@@ -52,8 +59,9 @@ cvar_c r_dumbsky;
 cvar_c r_dumbmulti;
 cvar_c r_dumbcombine;
 cvar_c r_dumbclamp;
+cvar_c r_anisotropy;
 
-cvar_c r_gl2_path;
+cvar_c r_gl3_path;
 
 static bump_map_shader bmap_shader;
 
@@ -111,15 +119,15 @@ static int cur_unit;
 
 static bool batch_sort;
 
-bool RGL_GL2Enabled() {
-	return (r_gl2_path.d && bmap_shader.supported());
+bool RGL_GL3Enabled() {
+	return (r_gl3_path.d && bmap_shader.supported());
 }
 
 void RGL_SetAmbientLight(short r,short g,short b) {	//rgb 0-255
 	bmap_shader.lightParamAmbient((float)r/255.0f,(float)g/255.0f,(float)b/255.0f);
 }
 void RGL_ClearLights() {
-	if(!RGL_GL2Enabled()) {
+	if(!RGL_GL3Enabled()) {
 		return;
 	}
 	for(int i=0;i<bmap_light_count;i++) {
@@ -223,7 +231,7 @@ static inline void myMultiTexCoord2f(GLuint id, GLfloat s, GLfloat t)
 // contains "holes" (like sprites).  `blended' should be true if the
 // texture should be blended (like for translucent water or sprites).
 //
-local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert, 
+local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert,
 		                       GLuint env1, GLuint tex1,
 							   GLuint env2, GLuint tex2,
 							   int pass, int blending)
@@ -428,6 +436,23 @@ void calc_tan(local_gl_vert_t* v1,local_gl_vert_t* v2,local_gl_vert_t* v3) {
 	v1->tangent.z= r*( d_pos1.z * d_uv2.y - d_pos2.z * d_uv1.y );
 }
 
+// Only open/close a glBegin/glEnd if needed
+void RGL_BatchShape(GLuint shape)
+{
+	static GLuint current_shape = 0;
+
+	if (current_shape == shape)
+		return;
+
+	if (current_shape != 0)
+		glEnd();
+
+	current_shape = shape;
+
+	if (current_shape != 0)
+		glBegin(shape);
+}
+
 //
 // RGL_DrawUnits
 //
@@ -463,33 +488,25 @@ void RGL_DrawUnits(void)
 
 	glPolygonOffset(0, 0);
 
-#if 0
-	//glClearColor(0.0f,0.0f,0.01,0.0f);          // We'll Clear To The Color Of The Fog ( Modified )
-	//float fog_col[4] = { 0, 0, 0.1, 0};
-	
-   // glEnable(GL_FOG);                   // Enables GL_FOG
-	//glFogi(GL_FOG_MODE, GL_LINEAR);        // Fog Mode
-	//glFogf(GL_FOG_DENSITY, 0.001f);              // How Dense Will The Fog Be
-	//glHint(GL_FOG_HINT, GL_NICEST);	// Fog Hint Value
-	//glFogfv(GL_FOG_COLOR, fog_col);            // Set Fog Color
-	//glFogf(GL_FOG_START, 0.01f);             // Fog Start Depth
-	//glFogf(GL_FOG_END, 5.0f);               // Fog End Depth
-	float fog_col[4] = { 0, 139, 1, 0};
+#ifdef USE_FOG
+	if (fade_color)
+	{
 
-    glEnable(GL_FOG);                   // Enables GL_FOG
-	glFogi(GL_FOG_MODE, GL_EXP2);        // Fog Mode
-	glFogf(GL_FOG_DENSITY, 0.0005f);              // How Dense Will The Fog Be
-	glFogfv(GL_FOG_COLOR, fog_col);            // Set Fog Color
-	glHint(GL_FOG_HINT, GL_NICEST);          // Fog Hint Value
-	//glFogf(GL_FOG_START, 1.0f);             // Fog Start Depth
-	//glFogf(GL_FOG_END, 5.0f);               // Fog End Depth
-	
-	//float fog_col[4] = { 0, 0, 0.1, 0};
-	
-	//glEnable(GL_FOG);
-	//glFogi(GL_FOG_MODE, GL_EXP);
-	//glFogf(GL_FOG_DENSITY, 0.6f); //0.0001
-	//glFogfv(GL_FOG_COLOR, fog_col);
+		float fog_col[4];
+		fog_col[0] = (float)RGB_RED(fade_color) / 255.0f;
+		fog_col[1] = (float)RGB_GRN(fade_color) / 255.0f;
+		fog_col[2] = (float)RGB_BLU(fade_color) / 255.0f;
+		fog_col[3] = 1.0f;
+
+		glClearColor(0.5f,0.5f,0.5f,1.0f);   // We'll Clear To The Color Of The Fog ( Modified )
+		glFogi(GL_FOG_MODE, GL_EXP2);        // Fog Mode
+		glFogf(GL_FOG_DENSITY, 0.002f);      // How Dense Will The Fog Be
+		glFogfv(GL_FOG_COLOR, fog_col);      // Set Fog Color
+		glHint(GL_FOG_HINT, GL_NICEST);      // Fog Hint Value
+		glFogf(GL_FOG_START, 1.0f);          // Fog Start Depth
+		glFogf(GL_FOG_END, 5.0f);            // Fog End Depth
+		glEnable(GL_FOG);                    // Enables GL_FOG
+	}
 #endif
 
 	for (int j=0; j < cur_unit; j++)
@@ -503,12 +520,13 @@ void RGL_DrawUnits(void)
 		if (active_pass != unit->pass)
 		{
 			active_pass = unit->pass;
-
+			RGL_BatchShape(0);
 			glPolygonOffset(0, -active_pass);
 		}
 
 		if ((active_blending ^ unit->blending) & (BL_Masked | BL_Less))
 		{
+			RGL_BatchShape(0);
 			if (unit->blending & BL_Less)
 			{
 				// glAlphaFunc is updated below, because the alpha
@@ -527,6 +545,7 @@ void RGL_DrawUnits(void)
 
 		if ((active_blending ^ unit->blending) & (BL_Alpha | BL_Add))
 		{
+			RGL_BatchShape(0);
 			if (unit->blending & BL_Add)
 			{
 				glEnable(GL_BLEND);
@@ -543,6 +562,7 @@ void RGL_DrawUnits(void)
 
 		if ((active_blending ^ unit->blending) & BL_CULL_BOTH)
 		{
+			RGL_BatchShape(0);
 			if (unit->blending & BL_CULL_BOTH)
 			{
 				glEnable(GL_CULL_FACE);
@@ -554,6 +574,7 @@ void RGL_DrawUnits(void)
 
 		if ((active_blending ^ unit->blending) & BL_NoZBuf)
 		{
+			RGL_BatchShape(0);
 			glDepthMask((unit->blending & BL_NoZBuf) ? GL_FALSE : GL_TRUE);
 		}
 
@@ -563,13 +584,17 @@ void RGL_DrawUnits(void)
 		{
 			// NOTE: assumes alpha is constant over whole polygon
 			float a = local_verts[unit->first].rgba[3];
-
+			RGL_BatchShape(0);
 			glAlphaFunc(GL_GREATER, a * 0.66f);
 		}
 
 		for (int t=1; t >= 0; t--)
 		{
-			myActiveTexture(GL_TEXTURE0 + t);
+			if (active_tex[t] != unit->tex[t] || active_env[t] != unit->env[t])
+			{
+				RGL_BatchShape(0);
+				myActiveTexture(GL_TEXTURE0 + t);
+			}
 
 			if (active_tex[t] != unit->tex[t])
 			{
@@ -608,6 +633,7 @@ void RGL_DrawUnits(void)
 
 		if ((active_blending & BL_ClampY) && active_tex[0] != 0)
 		{
+			RGL_BatchShape(0);
 			glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &old_clamp);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
 				r_dumbclamp.d ? GL_CLAMP : GL_CLAMP_TO_EDGE);
@@ -615,7 +641,9 @@ void RGL_DrawUnits(void)
 
 
 		//disable if unit has multiple textures (level geometry lightmap for instance)
-		if(RGL_GL2Enabled() && unit->tex[1]==0) {
+		if(RGL_GL3Enabled() && unit->tex[1]==0) {
+			RGL_BatchShape(0);
+
 			//use normal and specular map
 			bmap_shader.bind();
 			bmap_shader.lightApply();
@@ -676,18 +704,54 @@ void RGL_DrawUnits(void)
 
 		}
 		else {
-			glBegin(unit->shape);
-			for (int v_idx=0; v_idx < unit->count; v_idx++)
+			// Simplify things into triangles as that allows us to keep a single glBegin open for longer
+			if (unit->shape == GL_POLYGON || unit->shape == GL_TRIANGLE_FAN)
 			{
-				RGL_SendRawVector(local_verts + unit->first + v_idx);
+				RGL_BatchShape(GL_TRIANGLES);
+				for (int v_idx = 2; v_idx < unit->count; v_idx++)
+				{
+					RGL_SendRawVector(local_verts + unit->first);
+					RGL_SendRawVector(local_verts + unit->first + v_idx - 1);
+					RGL_SendRawVector(local_verts + unit->first + v_idx);
+				}
 			}
-			glEnd();
+			else if (unit->shape == GL_QUADS)
+			{
+				RGL_BatchShape(GL_TRIANGLES);
+				for (int v_idx = 0; v_idx + 3 < unit->count; v_idx += 4)
+				{
+					RGL_SendRawVector(local_verts + unit->first + v_idx);
+					RGL_SendRawVector(local_verts + unit->first + v_idx + 1);
+					RGL_SendRawVector(local_verts + unit->first + v_idx + 2);
+
+					RGL_SendRawVector(local_verts + unit->first + v_idx);
+					RGL_SendRawVector(local_verts + unit->first + v_idx + 2);
+					RGL_SendRawVector(local_verts + unit->first + v_idx + 3);
+				}
+			}
+			else
+			{
+				RGL_BatchShape(unit->shape);
+				for (int v_idx = 0; v_idx < unit->count; v_idx++)
+				{
+					RGL_SendRawVector(local_verts + unit->first + v_idx);
+				}
+
+				// Force a glEnd if it is a type that can't be kept open.
+				if (unit->shape != GL_TRIANGLES && unit->shape != GL_LINES && unit->shape != GL_QUADS)
+					RGL_BatchShape(0);
+			}
 		}
 
 		// restore the clamping mode
 		if (old_clamp != DUMMY_CLAMP)
+		{
+			RGL_BatchShape(0);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, old_clamp);
+		}
 	}
+
+	RGL_BatchShape(0);
 
 	// all done
 	cur_vert = cur_unit = 0;
@@ -713,6 +777,9 @@ void RGL_DrawUnits(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glAlphaFunc(GL_GREATER, 0);
 
+#ifdef USE_FOG
+	glDisable(GL_FOG);
+#endif
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
 	glDisable(GL_CULL_FACE);

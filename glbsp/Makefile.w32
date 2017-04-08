@@ -61,8 +61,8 @@ LIB_OBJS=\
 	src/util.o     \
 	src/wad.o
 
-src/%.o: src/%.c
-	$(CC) $(LIB_FLAGS) -c $^ -o $@
+src/%.o: src/%.cc
+	$(CXX) $(LIB_FLAGS) -c $^ -o $@
 
 $(LIB_NAME): $(LIB_OBJS)
 	$(AR) $@ $(LIB_OBJS)
@@ -74,13 +74,13 @@ $(LIB_NAME): $(LIB_OBJS)
 CMD_FLAGS=$(BASE_FLAGS) -I$(ZLIB_DIR)
 CMD_LIBS=$(ZLIB_DIR)/libz.a -lm
 
-CMD_OBJS=cmdline/main.o cmdline/display.o  
+CMD_OBJS=cmdline/main.o cmdline/display.o
 
-cmdline/%.o: cmdline/%.c
-	$(CC) $(CMD_FLAGS) -c $^ -o $@
+cmdline/%.o: cmdline/%.cc
+	$(CXX) $(CMD_FLAGS) -c $^ -o $@
 
 $(CMD_NAME): $(LIB_NAME) $(CMD_OBJS)
-	$(CC) $(CMD_FLAGS) $(CMD_OBJS) -o $@ $(LIB_NAME) $(CMD_LIBS)
+	$(CXX) $(CMD_FLAGS) $(CMD_OBJS) -o $@ $(LIB_NAME) $(CMD_LIBS)
 
 
 # ----- DOCUMENTATION ---------------------------------------------

@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Movement, Collision & Blockmap utility functions
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -25,7 +25,7 @@
 //
 // DESCRIPTION:
 //   Movement/collision utility functions,
-//   as used by function in p_map.c. 
+//   as used by function in p_map.c.
 //   BLOCKMAP Iterator functions,
 //   and some PIT_* functions to use for iteration.
 //   Gap/extrafloor utility functions.
@@ -130,8 +130,16 @@ void P_ComputeIntersection(divline_t *div,
 //
 int P_PointOnDivlineSide(float x, float y, divline_t *div)
 {
-	return (div->dx * (y - div->y) - div->dy * (x - div->x)) >= 0; // FIXME: returns back / left if the point is *on* the line. We should find a way to use a tri-state instead of boolean logic. Besides, there's currently no way to *tell* the engine the state is undefined... maybe there is upstream logic for this?
+	return (div->dx * (y - div->y) - div->dy * (x - div->x)) >= 0; // FIXME: returns back / left if the point is *on* the line.
+	//We should find a way to use a tri-state instead of boolean logic. Besides, there's currently no way to *tell* the engine the state is undefined... maybe there is upstream logic for this?
 }
+
+// [SP] -- might we be able to license this code for later use? ---> __forceinline int32_t DMulScale32(int32_t a, int32_t b, int32_t c, int32_t d) { return (int32_t)(((int64_t)a*b + (int64_t)c*d) >> 32); } // used by R_PointOnSide.
+//inline int R_PointOnSide (float x, float y, divline_t *div)
+//{
+//	return DMulScale32 (y-div->y, div->dx, div->x-x, div->dy) > 0;
+//}
+
 
 //
 // P_PointOnDivlineThick
@@ -732,7 +740,7 @@ void P_AddExtraFloor(sector_t *sec, line_t *line)
 
 	//
 	// -- create new extrafloor --
-	// 
+	//
 
 	SYS_ASSERT(sec->exfloor_used <= sec->exfloor_max);
 

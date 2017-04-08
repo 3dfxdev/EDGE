@@ -27,6 +27,7 @@
 #include "r_draw.h"
 #include "r_modes.h"
 #include "r_image.h"
+#include "r_renderbuffers.h"
 
 #define DEBUG  0
 
@@ -41,6 +42,8 @@ cvar_c r_aspect;
 
 cvar_c r_nearclip;
 cvar_c r_farclip;
+
+cvar_c r_stretchworld;
 
 typedef enum
 {
@@ -143,9 +146,29 @@ void RGL_SetupMatrices3D(void)
 	glMatrixMode(GL_MODELVIEW);
 
 	glLoadIdentity();
-	glRotatef(270.0f - ANG_2_FLOAT(viewvertangle), 1.0f, 0.0f, 0.0f);
-	glRotatef(90.0f - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
-	glTranslatef(-viewx, -viewy, -viewz);
+
+	if (r_stretchworld.d == 1)
+	{
+		// We have to scale the pitch to account for the pixel stretching, because the playsim doesn't know about this and treats it as 1:1.
+		// This code taken from GZDoom.
+		double radPitch = ANG_2_FLOAT(viewvertangle) / 57.2958;
+		double angx = cos(radPitch);
+		double angy = sin(radPitch) * 1.2;
+		double alen = sqrt(angx*angx + angy*angy);
+		float vvang = (float)(asin(angy / alen)) * 57.2958;
+
+		//glScalef(1.0f, 1.0f, 1/1.2f);
+		glRotatef(270.0f - vvang, 1.0f, 0.0f, 0.0f);
+		glRotatef(90.0f - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
+		glScalef(1.0f, 1.0f, 1.2f);
+		glTranslatef(-viewx, -viewy, -viewz);
+	}
+	else
+	{
+		glRotatef(270.0f - ANG_2_FLOAT(viewvertangle), 1.0f, 0.0f, 0.0f);
+		glRotatef(90.0f - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
+		glTranslatef(-viewx, -viewy, -viewz);
+	}
 
 	RGL_CaptureCameraMatrix();
 
@@ -222,6 +245,13 @@ void RGL_CheckExtensions(void)
 	{ /* OK */ }
 	else
 		I_Error("OpenGL driver does not support Multitexturing.\n");
+
+	if (GLEW_VERSION_1_3 || GLEW_EXT_texture_filter_anisotropic)
+	{
+		I_Printf("OpenGL driver verified to support anisotropic filtering!\n");
+		r_anisotropy = 1;
+
+	}
 
 	if (GLEW_VERSION_1_3 ||
 		GLEW_ARB_texture_env_combine ||
@@ -379,6 +409,8 @@ void RGL_Init(void)
 	RGL_InitUnits();
 
 	RGL_SetupMatrices2D();
+
+	RGL_InitRenderBuffers();
 }
 
 

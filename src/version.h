@@ -16,11 +16,27 @@
 //
 //----------------------------------------------------------------------------
 
+#include "gitinfo.h"
+
 #define TITLE  "3DGE ENGINE"
+
+const char *GetGitDescription();
+const char *GetGitHash();
+const char *GetGitTime();
+const char *GetVersionString();
 
 #define EDGEVER     210
 #define EDGEVERHEX  0x210
-#define EDGEVERSTR  "2.1.0 - TEST 2"
+
+#ifdef GIT_DESCRIPTION
+#define EDGEVERSTR GIT_DESCRIPTION
+#else
+#define EDGEVERSTR "2.1.0 - TEST3"
+#endif
+
+#define EDGEBUILDSTR "(205af44)"
+
+#define VERSIONSTR "v1.2.0test3"
 
 // patch level (Savegames and Demos)
 #define EDGEPATCH  7

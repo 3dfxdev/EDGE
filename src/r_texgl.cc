@@ -113,6 +113,7 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 	bool clamp  = (flags & UPL_Clamp)  ? true : false;
 	bool nomip  = (flags & UPL_MipMap) ? false : true;
 	bool smooth = (flags & UPL_Smooth) ? true : false;
+	bool AA = (flags & UPL_AA) ? true : false;
 
   	int total_w = img->width;
 	int total_h = img->height;
@@ -155,6 +156,11 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 
 	// minification mode
 	int mip_level = CLAMP(0, var_mipmapping, 2);
+
+	// Anisotropy
+	if (r_anisotropy.d > 0)
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, id);
+
 
 	// special logic for mid-masked textures.  The UPL_Thresh flag
 	// guarantees that each texture level has simple alpha (0 or 255),

@@ -34,6 +34,8 @@
 #include "g_game.h"
 #include "m_bbox.h"
 #include "p_local.h"
+#include "p_mobj.h"
+#include "p_pobj.h"
 #include "r_defs.h"
 #include "r_misc.h"
 #include "r_modes.h"
@@ -50,6 +52,7 @@
 #include "n_network.h"  // N_NetUpdate
 #include "con_main.h"
 
+//#define ZDOOM_OCCLUSION // Use screen space clipping instead of angles for 1d occlusion buffer, as zdoom does
 
 #define DEBUG  0
 
@@ -59,6 +62,7 @@
 #define DOOM_YSLOPE       (0.525)
 #define DOOM_YSLOPE_FULL  (0.625)
 
+bool RGL_OcclusionTestLine(double x1, double y1, double x2, double y2, angle_t &sx1, angle_t &sx2);
 
 static inline float SecLerpedCeil(sector_t *sec)
 {
@@ -84,7 +88,7 @@ static inline float ExFloorLerpedTop(extrafloor_t *exf)
 
 
 cvar_c debug_hom;
-
+extern cvar_c r_stretchworld;
 
 side_t *sidedef;
 line_t *linedef;
@@ -99,6 +103,7 @@ int use_dlights = 0;
 
 int doom_fading = 1;
 
+int fade_color;
 
 float view_x_slope;
 float view_y_slope;
@@ -150,9 +155,6 @@ static bool solid_mode;
 
 static std::list<drawsub_c *> drawsubs;
 
-//#ifdef SHADOW_PROTOTYPE
-static const image_c *shadow_image = NULL;
-//#endif
 
 
 // ========= MIRROR STUFF ===========
@@ -955,6 +957,8 @@ static void DLIT_Wall(mobj_t *mo, void *dataptr)
 			return;
 	}
 
+	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
+
 	SYS_ASSERT(mo->dlight.shader);
 
 	int blending = (data->blending & ~BL_Alpha) | BL_Add;
@@ -967,6 +971,8 @@ static void DLIT_Wall(mobj_t *mo, void *dataptr)
 static void GLOWLIT_Wall(mobj_t *mo, void *dataptr)
 {
 	wall_coord_data_t *data = (wall_coord_data_t *)dataptr;
+
+	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
 
 	SYS_ASSERT(mo->dlight.shader);
 
@@ -996,6 +1002,8 @@ static void DLIT_Plane(mobj_t *mo, void *dataptr)
 
 	// NOTE: distance already checked in P_DynamicLightIterator
 
+	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
+
 	SYS_ASSERT(mo->dlight.shader);
 
 	int blending = (data->blending & ~BL_Alpha) | BL_Add;
@@ -1008,6 +1016,8 @@ static void DLIT_Plane(mobj_t *mo, void *dataptr)
 static void GLOWLIT_Plane(mobj_t *mo, void *dataptr)
 {
 	plane_coord_data_t *data = (plane_coord_data_t *)dataptr;
+
+	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
 
 	SYS_ASSERT(mo->dlight.shader);
 
@@ -1147,6 +1157,10 @@ static void DrawWallPart(drawfloor_t *dfloor,
 			lit_adjust += 16;
 	}
 
+	if (cur_seg->sidedef->lit_abs)
+		lit_adjust += cur_seg->sidedef->light - props->lightlevel;
+	else
+		lit_adjust += cur_seg->sidedef->light;
 
 
 	float total_w = IM_TOTAL_WIDTH(image);
@@ -1274,6 +1288,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	data.trans = trans;
 	data.mid_masked = mid_masked;
 
+	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
 
 	abstract_shader_c *cmap_shader = R_GetColormapShader(props, lit_adjust);
 
@@ -1514,26 +1529,39 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 	float secfh = SecLerpedFloor(sec);
 	float secch = SecLerpedCeil(sec);
 
-	float slope_fh = secfh;
-	if (sec->f_slope)
-		slope_fh += MIN(sec->f_slope->dz1, sec->f_slope->dz2);
-
-	float slope_ch = secch;
-	if (sec->c_slope)
-		slope_ch += MAX(sec->c_slope->dz1, sec->c_slope->dz2);
-
 	if (! other)
 	{
 		if (! sd->middle.image && ! debug_hom.d)
 			return;
 
+		if (sec->f_slope || sec->c_slope)
+		{
+			float lz1 = secch + (sec->c_slope ? Slope_GetHeight(sec->c_slope, seg->v1->x, seg->v1->y) : 0);
+			float rz1 = secch + (sec->c_slope ? Slope_GetHeight(sec->c_slope, seg->v2->x, seg->v2->y) : 0);
+
+			float lz2 = secfh + (sec->f_slope ? Slope_GetHeight(sec->f_slope, seg->v1->x, seg->v1->y) : 0);
+			float rz2 = secfh + (sec->f_slope ? Slope_GetHeight(sec->f_slope, seg->v2->x, seg->v2->y) : 0);
+
+			AddWallTile2(seg, dfloor,
+				&sd->middle, lz1, lz2, rz1, rz2,
+				(ld->flags & MLF_LowerUnpegged) ?
+				secfh + IM_HEIGHT_SAFE(sd->middle.image) : secch, 0);
+			return;
+		}
 		AddWallTile(seg, dfloor,
-			&sd->middle, slope_fh, slope_ch,
+			&sd->middle, secfh, secch,
 			(ld->flags & MLF_LowerUnpegged) ?
 			secfh + IM_HEIGHT_SAFE(sd->middle.image) : secch,
 			0, f_min, c_max);
 		return;
 	}
+
+	float slope_fh = secfh;
+	if (sec->f_slope)
+		slope_fh += MIN(sec->f_slope->dz1, sec->f_slope->dz2);
+	float slope_ch = secch;
+	if (sec->c_slope)
+		slope_ch += MAX(sec->c_slope->dz1, sec->c_slope->dz2);
 
 	float otherfh = SecLerpedFloor(other);
 	float otherch = SecLerpedCeil(other);
@@ -1632,9 +1660,7 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 
 		if (c2 > f2)
 		{
-			AddWallTile(seg, dfloor,
-						&sd->middle, f2, c2, tex_z, WTILF_MidMask,
-						f_min, c_max);
+			AddWallTile(seg, dfloor, &sd->middle, f2, c2, tex_z, WTILF_MidMask, f_min, c_max);
 		}
 	}
 
@@ -1699,8 +1725,19 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 			tex_z = (C->ef_line->flags & MLF_LowerUnpegged) ?
 				Cbottomh + IM_HEIGHT_SAFE(surf->image) : Ctoph;
 
-			AddWallTile(seg, dfloor, surf, Cbottomh, Ctoph,
-						tex_z, flags, f_min, c_max);
+			sector_t *csec = C->ef_line->frontsector;
+			if (csec->f_slope || csec->c_slope)
+			{
+				float lz1 = Ctoph + (csec->c_slope ? Slope_GetHeight(csec->c_slope, seg->v1->x, seg->v1->y) : 0);
+				float rz1 = Ctoph + (csec->c_slope ? Slope_GetHeight(csec->c_slope, seg->v2->x, seg->v2->y) : 0);
+
+				float lz2 = Cbottomh + (csec->f_slope ? Slope_GetHeight(csec->f_slope, seg->v1->x, seg->v1->y) : 0);
+				float rz2 = Cbottomh + (csec->f_slope ? Slope_GetHeight(csec->f_slope, seg->v2->x, seg->v2->y) : 0);
+
+				AddWallTile2(seg, dfloor, surf, lz1, lz2, rz1, rz2, tex_z, 0);
+			}
+			else
+				AddWallTile(seg, dfloor, surf, Cbottomh, Ctoph, tex_z, flags, Cbottomh, Ctoph);
 		}
 
 		floor_h = Ctoph;
@@ -1800,6 +1837,8 @@ static void DLIT_Flood(mobj_t *mo, void *dataptr)
 			data->vert[col*2 + 0].Set(x, y, z);
 			data->vert[col*2 + 1].Set(x, y, z + data->dh / data->piece_row);
 		}
+
+		R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
 
 		mo->dlight.shader->WorldMix(GL_QUAD_STRIP, data->v_count,
 				data->tex_id, 1.0, &data->pass, blending, false,
@@ -1903,8 +1942,23 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 	data.h1 = h1;
 	data.dh = dh;
 
+	int lit_adjust = 0;
+	if (face_dir > 0)
+	{
+		if (cur_sub->sector->f_lit_abs)
+			lit_adjust = cur_sub->sector->f_light - props->lightlevel;
+		else
+			lit_adjust = cur_sub->sector->f_light;
+	}
+	else
+	{
+		if (cur_sub->sector->c_lit_abs)
+			lit_adjust = cur_sub->sector->c_light - props->lightlevel;
+		else
+			lit_adjust = cur_sub->sector->c_light;
+	}
 
-	abstract_shader_c *cmap_shader = R_GetColormapShader(props);
+	abstract_shader_c *cmap_shader = R_GetColormapShader(props, lit_adjust);
 
 	data.v_count = (piece_col+1) * 2;
 
@@ -1925,6 +1979,8 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 		data.R = (64 + 190 * (row & 1)) / 255.0;
 		data.B = (64 + 90 * (row & 2))  / 255.0;
 #endif
+
+		R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
 
 		cmap_shader->WorldMix(GL_QUAD_STRIP, data.v_count,
 				data.tex_id, 1.0, &data.pass, BL_NONE, false,
@@ -1993,11 +2049,11 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 #endif
 
 	// handle TRANSLUCENT + THICK floors (a bit of a hack)
-	if (dfloor->ef && !dfloor->is_highest &&
-		(dfloor->ef->ef_info->type & EXFL_Thick) &&
-		(dfloor->ef->top->translucency < 0.99f))
+	if (dfloor->c_ef && !dfloor->is_highest &&
+		(dfloor->c_ef->ef_info->type & EXFL_Thick) &&
+		(dfloor->c_ef->top->translucency < 0.99f))
 	{
-		c_max = dfloor->ef->top_h;
+		c_max = dfloor->c_ef->top_h;
 	}
 
 
@@ -2088,15 +2144,25 @@ static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 //
 static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 {
-	// ignore segs sitting on current mirror
-	if (MIR_SegOnPortal(seg))
-		return;
-
 	float sx1 = seg->v1->x;
 	float sy1 = seg->v1->y;
 
 	float sx2 = seg->v2->x;
 	float sy2 = seg->v2->y;
+
+	// Reject lines not facing viewer
+	{
+		float pt1x = sx1 - viewx;
+		float pt1y = sy1 - viewy;
+		float pt2x = sx2 - viewx;
+		float pt2y = sy2 - viewy;
+		if (pt1y * (pt1x - pt2x) + pt1x * (pt2y - pt1y) >= 0)
+			return;
+	}
+
+	// ignore segs sitting on current mirror
+	if (MIR_SegOnPortal(seg))
+		return;
 
 	// when there are active mirror planes, segs not only need to
 	// be flipped across them but also clipped across them.
@@ -2144,6 +2210,13 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 		}
 	}
 
+#ifdef ZDOOM_OCCLUSION
+	angle_t angle_L, angle_R;
+	if (!RGL_OcclusionTestLine(sx1, sy1, sx2, sy2, angle_L, angle_R))
+		return;
+#else
+	// angle_L = R_PointToAngle(sx1, sy1);
+	//angle_t angle_R = R_PointToAngle(sx2, sy2);
 	angle_t angle_L = R_PointToAngle(viewx, viewy, sx1, sy1);
 	angle_t angle_R = R_PointToAngle(viewx, viewy, sx2, sy2);
 
@@ -2194,10 +2267,11 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 		return;
 	}
 #endif
+#endif
 
 	dsub->visible = true;
 
-	if (seg->miniseg || span == 0)
+	if (seg->miniseg || angle_L == angle_R)
 		return;
 
 	if (num_active_mirrors < MAX_MIRRORS)
@@ -2288,6 +2362,119 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 // clipping stuff in it.
 //
 
+#ifdef ZDOOM_OCCLUSION // ZDoom's clipsegs adjusted to use fake angles in range 0-180
+
+bool RGL_OcclusionTestLine(double x1, double y1, double x2, double y2, angle_t &sx2, angle_t &sx1)
+{
+	x1 -= viewx;
+	y1 -= viewy;
+	x2 -= viewx;
+	y2 -= viewy;
+
+	// Sitting on a line?
+	double EQUAL_EPSILON = (1 / 65536.);
+	if (y1 * (x1 - x2) + x1 * (y2 - y1) >= -EQUAL_EPSILON)
+		return true;
+
+	double rx1 = x1 * viewsin - y1 * viewcos;
+	double rx2 = x2 * viewsin - y2 * viewcos;
+	double ry1 = x1 * viewcos + y1 * viewsin;
+	double ry2 = x2 * viewcos + y2 * viewsin;
+
+	if (num_active_mirrors % 2 == 1)
+	{
+		double t = -rx1;
+		rx1 = -rx2;
+		rx2 = t;
+		std::swap(ry1, ry2);
+	}
+
+	if (rx1 >= -ry1)
+	{
+		if (rx1 > ry1) return false;	// left edge is off the right side
+		if (ry1 == 0) return false;
+		sx1 = (angle_t)std::round(ANG180 + rx1 * ANG90 / ry1);
+	}
+	else
+	{
+		if (rx2 < -ry2) return false;	// wall is off the left side
+		if (rx1 - rx2 - ry2 + ry1 == 0) return false;	// wall does not intersect view volume
+		sx1 = ANG90;
+	}
+
+	if (rx2 <= ry2)
+	{
+		if (rx2 < -ry2) return false;	// right edge is off the left side
+		if (ry2 == 0) return false;
+		sx2 = (angle_t)std::round(ANG180 + rx2 * ANG90 / ry2);
+	}
+	else
+	{
+		if (rx1 > ry1) return false;	// wall is off the right side
+		if (ry2 - ry1 - rx2 + rx1 == 0) return false;	// wall does not intersect view volume
+		sx2 = ANG270;
+	}
+
+	// Find the first clippost that touches the source post
+	//	(adjacent pixels are touching).
+	return !RGL_1DOcclusionTest(sx1, sx2);
+}
+
+bool RGL_CheckBBox(float *bspcoord)
+{
+	static const int checkcoord[12][4] =
+	{
+		{ 3,0,2,1 },
+		{ 3,0,2,0 },
+		{ 3,1,2,0 },
+		{ 0 },
+		{ 2,0,2,1 },
+		{ 0,0,0,0 },
+		{ 3,1,3,0 },
+		{ 0 },
+		{ 2,0,3,1 },
+		{ 2,1,3,1 },
+		{ 2,1,3,0 }
+	};
+
+	int 				boxx;
+	int 				boxy;
+	int 				boxpos;
+
+	double	 			x1, y1, x2, y2;
+	angle_t				sx1, sx2;
+
+	// Find the corners of the box
+	// that define the edges from current viewpoint.
+	if (viewx <= bspcoord[BOXLEFT])
+		boxx = 0;
+	else if (viewx < bspcoord[BOXRIGHT])
+		boxx = 1;
+	else
+		boxx = 2;
+
+	if (viewy >= bspcoord[BOXTOP])
+		boxy = 0;
+	else if (viewy > bspcoord[BOXBOTTOM])
+		boxy = 1;
+	else
+		boxy = 2;
+
+	boxpos = (boxy << 2) + boxx;
+	if (boxpos == 5)
+		return true;
+
+	x1 = bspcoord[checkcoord[boxpos][0]];
+	y1 = bspcoord[checkcoord[boxpos][1]];
+	x2 = bspcoord[checkcoord[boxpos][2]];
+	y2 = bspcoord[checkcoord[boxpos][3]];
+
+	// check clip list for an open space
+
+	return RGL_OcclusionTestLine(x1, y1, x2, y2, sx1, sx2);
+}
+
+#else
 bool RGL_CheckBBox(float *bspcoord)
 {
 	if (num_active_mirrors > 0)
@@ -2381,7 +2568,7 @@ bool RGL_CheckBBox(float *bspcoord)
 
 	return ! RGL_1DOcclusionTest(angle_R, angle_L);
 }
-
+#endif
 
 static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 						  surface_t *surf, int face_dir)
@@ -2430,8 +2617,9 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 		return;
 
 	// ignore non-facing planes
-	if ((viewz > h) != (face_dir > 0) && !slope)
-		return;
+// -CW- 2017/02/14: if left in, skips extrafloor floors
+//	if ((viewz > h) != (face_dir > 0) && !slope)
+//		return;
 
 	// ignore dud regions (floor >= ceiling)
 	if (dfloor->f_h > dfloor->c_h && !slope)
@@ -2481,12 +2669,39 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 			float x = seg->v1->x;
 			float y = seg->v1->y;
 			float z = h;
+			int vi = seg->v1 - vertexes;
 
 			// must do this before mirror adjustment
 			M_AddToBox(v_bbox, x, y);
 
+			if (face_dir > 0)
+			{
+				// floor - check vertex heights
+				if (vi >= 0 && vi < numvertexes && zvertexes)
+					if (zvertexes[vi].x > -1000000.0f)
+						z = zvertexes[vi].x;
+
+				// now check 3D slope
+				if (dfloor->f_ef)
+					slope = dfloor->f_ef->ef_line->frontsector->f_slope;
+			}
+
+			if (face_dir < 0)
+			{
+				// ceiling - check vertex heights
+				if (vi >= 0 && vi < numvertexes && zvertexes)
+					if (zvertexes[vi].y > -1000000.0f)
+						z = zvertexes[vi].y;
+
+				// now check 3D slope
+				if (dfloor->c_ef)
+					slope = dfloor->c_ef->ef_line->frontsector->c_slope;
+			}
+
+			// handle slope
 			if (slope)
 			{
+				// use orig_h to prevent vertex height from affecting slope above it
 				z = orig_h + Slope_GetHeight(slope, x, y);
 
 				MIR_Height(z);
@@ -2532,8 +2747,8 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	data.y_mat = surf->y_mat;
 
 	float mir_scale = MIR_XYScale();
-	data.x_mat.x /= mir_scale; data.x_mat.y /= mir_scale;
-	data.y_mat.x /= mir_scale; data.y_mat.y /= mir_scale;
+	data.x_mat.x /= mir_scale; data.x_mat.y /= mir_scale / 2.0f;
+	data.y_mat.x /= mir_scale * 2.0f; data.y_mat.y /= mir_scale;
 
 	data.normal.Set(0, 0, (viewz > h) ? +1 : -1);
 
@@ -2543,8 +2758,25 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	data.trans = trans;
 	data.slope = slope;
 
+	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
 
-	abstract_shader_c *cmap_shader = R_GetColormapShader(props);
+	int lit_adjust = 0;
+	if (face_dir > 0)
+	{
+		if (cur_sub->sector->f_lit_abs)
+			lit_adjust = cur_sub->sector->f_light - props->lightlevel;
+		else
+			lit_adjust = cur_sub->sector->f_light;
+	}
+	else
+	{
+		if (cur_sub->sector->c_lit_abs)
+			lit_adjust = cur_sub->sector->c_light - props->lightlevel;
+		else
+			lit_adjust = cur_sub->sector->c_light;
+	}
+
+	abstract_shader_c *cmap_shader = R_GetColormapShader(props, lit_adjust);
 
 	cmap_shader->WorldMix(GL_POLYGON, data.v_count, data.tex_id,
 			trans, &data.pass, data.blending, false /* masked */,
@@ -2562,53 +2794,11 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 							 GLOWLIT_Plane, &data);
 	}
 
-#if 0
-
-	if (level_flags.shadows && solid_mode && face_dir > 0)
-	{
-		I_Printf("Render: Simple Shadows Initilised!");
-		wall_coord_data_t dat2;
-		memcpy(&dat2, &data, sizeof(dat2));
-
-		//		light = NULL;
-		dat2.trans = 0.5;
-		//dat2.image = shadow_image;
-
-		GLuint tex_id = W_ImageCache(shadow_image);
-
-
-		for (drawthing_t *dthing = dfloor->things; dthing; dthing = dthing->next)
-		{
-			if (dthing->mo->info->shadow_trans <= 0 || dthing->mo->floorz >= viewz)
-				continue;
-
-			dat2.tx0 = -(dthing->mo->x - dthing->mo->radius);
-			dat2.ty0 = -(dthing->mo->y - dthing->mo->radius);
-
-			dat2.x_mat.x = 0.5f / dthing->mo->radius;
-			dat2.x_mat.y = 0;
-
-			dat2.y_mat.y = 0.5f / dthing->mo->radius;
-			dat2.y_mat.x = 0;
-
-			for (seg = cur_sub->segs, i = 0; seg && (i < MAX_PLVERT);
-				seg = seg->sub_next, i++)
-			{
-				glVertex3f(seg->v1->x, seg->v1->y, h);
-			}
-
-			local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, &dat2, ShadowCoordFunc, tex_id, 0,
-				/* pass */0, 2, BL_Alpha);
-
-		}
-	}
-#endif // 0
-
-
 
 }
 
-static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
+static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *f_ef,
+								   extrafloor_t *c_ef,
 								   float f_h, float c_h, float top_h,
 								   surface_t *floor, surface_t *ceil,
 								   region_properties_t *props)
@@ -2623,7 +2813,8 @@ static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
 	dfloor->top_h = top_h;
 	dfloor->floor = floor;
 	dfloor->ceil  = ceil;
-	dfloor->ef    = ef;
+	dfloor->f_ef  = f_ef;
+	dfloor->c_ef  = c_ef;
 	dfloor->props = props;
 
 	// link it in, height order
@@ -2658,6 +2849,28 @@ static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *ef,
 	}
 }
 
+//
+// RGL_WalkPolyobject
+//
+// Visit a PolyObject anchor, collecting where walls need to be drawn.
+//
+static void RGL_WalkPolyobject(drawsub_c *dsub, mobj_t *mo)
+{
+	polyobj_t *po = P_GetPolyobject(mo->po_ix);
+	if (!po)
+	{
+		I_Debugf("RGL_WalkPolyobject: No PO %d!\n", po->index);
+		return;
+	}
+
+	//I_Printf("RGL_WalkPolyobject: Adding render info for PO %d\n", po->index);
+	seg_t *seg = po->segs;
+	for (int i=0; i<po->count; i++, seg++)
+	{
+		//I_Printf("RGL_WalkPolyobject: Walking seg %p\n", po->segs[i]);
+		RGL_WalkSeg(dsub, seg);
+	}
+}
 
 //
 // RGL_WalkSubsector
@@ -2675,7 +2888,7 @@ static void RGL_WalkSubsector(int num)
 	surface_t *floor_s;
 	float floor_h;
 
-	extrafloor_t *S, *L, *C;
+	extrafloor_t *S, *L, *C, *F;
 
 #if (DEBUG >= 1)
 	L_WriteDebug( "\nVISITING SUBSEC %d (sector %d)\n\n", num, sub->sector - sectors);
@@ -2700,10 +2913,14 @@ static void RGL_WalkSubsector(int num)
 		RGL_DrawSkyPlane(cur_sub, cur_sub->sector->sky_h);
 	}
 
+	// set the fog color
+	fade_color = sector->fadecolor;
+
 	// add in each extrafloor, traversing strictly upwards
 	floor_s = &sector->floor;
 	//floor_h = sector->f_h;
 	floor_h = SecLerpedFloor(sector); //N_Interpolate(sector->lf_h, sector->f_h);
+	F = NULL;
 
 	S = sector->bottom_ef;
 	L = sector->bottom_liq;
@@ -2745,12 +2962,13 @@ static void RGL_WalkSubsector(int num)
 
 		bool de_f = (cur_sub->deep_ref && K->floors.size() == 0);
 
-		AddNewDrawFloor(K, C,
+		AddNewDrawFloor(K, F, C,
 			de_f ? cur_sub->deep_ref->f_h : floor_h,
 			cboth, ctoph,
 			de_f ? &cur_sub->deep_ref->floor : floor_s,
 			C->bottom, C->p);
 
+		F = C;
 		floor_s = C->top;
 		floor_h = ctoph;
 	}
@@ -2763,7 +2981,7 @@ static void RGL_WalkSubsector(int num)
 	//float ceilh = de_c ? cur_sub->deep_ref->c_h : sector->c_h;
 	//ceilh = N_Interpolate(de_c ? cur_sub->deep_ref->lc_h : sector->lc_h, ceilh);
 
-	AddNewDrawFloor(K, NULL,
+	AddNewDrawFloor(K, F, NULL,
 		de_f ? cur_sub->deep_ref->f_h : floor_h,
 		ceilh, ceilh,
 		de_f ? &cur_sub->deep_ref->floor : floor_s,
@@ -2772,15 +2990,23 @@ static void RGL_WalkSubsector(int num)
 	K->floors[0]->is_lowest = true;
 	K->floors[K->floors.size() - 1]->is_highest = true;
 
-	// handle each sprite in the subsector.  Must be done before walls,
+	// Handle each sprite in the subsector.  Must be done before walls,
 	// since the wall code will update the 1D occlusion buffer.
 
 	for (mo=cur_sub->thinglist; mo; mo=mo->snext)
 	{
-		RGL_WalkThing(K, mo);
+		if ((mo->typenum & ~3) != 9300)
+			RGL_WalkThing(K, mo);
 	}
 
-	// clip 1D occlusion buffer.
+	// Handle each polyobject in the subsector. Will update 1D occlusion buffer.
+	for (mo=cur_sub->thinglist; mo; mo=mo->snext)
+	{
+		if ((mo->typenum == 9301) || (mo->typenum == 9302) || (mo->typenum == 9303))
+			RGL_WalkPolyobject(K, mo);
+	}
+
+	// Handle each segment in the subsector. Will update 1D occlusion buffer.
 	for (seg=sub->segs; seg; seg=seg->sub_next)
 	{
 		RGL_WalkSeg(K, seg);
@@ -3096,9 +3322,7 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 //
 void RGL_LoadLights(void)
 {
-//#ifdef SHADOW_PROTOTYPE
-	shadow_image = W_ImageLookup("SHADOW_STD");
-//#endif
+
 }
 
 //
@@ -3164,21 +3388,23 @@ static void RGL_RenderTrueBSP(void)
 #endif
 }
 
+extern bool ff_shake[MAXPLAYERS];
+extern int ff_frequency[MAXPLAYERS];
+extern int ff_intensity[MAXPLAYERS];
+extern int ff_timeout[MAXPLAYERS];
 
 /// rendering view point based on the camera's location.
 static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 {
-	float fov = CLAMP(5, r_fov.f, 175);
+	int t_fov = mo->player ? mo->player->telept_fov : 0;
+	float fov = CLAMP(5, r_fov.f + t_fov, 175);
 
 	if (splitscreen_mode)
 		fov = fov / 1.5;
 
 	view_x_slope = tan(fov * M_PI / 360.0);
 
-	if (full_height)
-		view_y_slope = DOOM_YSLOPE_FULL;
-	else
-		view_y_slope = DOOM_YSLOPE;
+	view_y_slope = ((full_height) ? DOOM_YSLOPE_FULL : DOOM_YSLOPE) * ((r_stretchworld.d == 1) ? 1.2 : 1.0);
 
 	viewiszoomed = false;
 
@@ -3205,6 +3431,16 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 	//viewangle = mo->angle;
 	viewangle = mo->GetInterpolatedAngle();
 
+	// -CW- shake screen
+	if (mo->player && ff_shake[mo->player->pnum] && ff_timeout[mo->player->pnum])
+	{
+		if (I_GetMillies() < ff_timeout[mo->player->pnum])
+		{
+			viewz += (float)ff_intensity[mo->player->pnum] / 10.0f * sin((double)(I_GetMillies()/ ff_frequency[mo->player->pnum]));
+		}
+		else
+			ff_timeout[mo->player->pnum] = 0;
+	}
 
 	extern float N_GetInterpolater(void);
 	float lerpv = N_GetInterpolater();

@@ -63,7 +63,7 @@ extern cvar_c r_colormaterial, r_colorlighting;
 extern cvar_c r_dumbsky, r_dumbmulti, r_dumbcombine, r_dumbclamp;
 extern cvar_c r_nearclip, r_farclip, r_fadepower;
 extern cvar_c r_fov, r_zoomfov, r_aspect;
-extern cvar_c r_mipmapping, r_smoothing;
+extern cvar_c r_mipmapping, r_smoothing, r_anisotropy;
 extern cvar_c r_dithering, r_hq2x;
 extern cvar_c r_dynlight, r_invultex;
 extern cvar_c r_gamma, r_detaillevel;
@@ -72,7 +72,16 @@ extern cvar_c r_teleportflash;
 extern cvar_c r_crosshair, r_crosscolor;
 extern cvar_c r_crosssize, r_crossbright;
 extern cvar_c r_precache_tex, r_precache_sprite, r_precache_model;
-extern cvar_c r_gl2_path;
+extern cvar_c r_gl3_path;
+
+extern cvar_c r_bloom;
+extern cvar_c r_lens;
+extern cvar_c r_fxaa;
+
+extern cvar_c r_stretchworld;
+extern cvar_c r_fixspritescale;
+
+extern cvar_c r_gpuswitch;
 
 extern cvar_c s_volume, s_mixchan, s_quietfactor;
 extern cvar_c s_rate, s_bits, s_stereo;
@@ -84,6 +93,7 @@ extern cvar_c debug_mouse,      debug_joyaxis;
 extern cvar_c debug_fps,        debug_pos;
 
 extern cvar_c r_lerp, r_maxfps, r_vsync;
+extern cvar_c r_shadows;
 extern cvar_c r_md5scale;
 
 extern cvar_c debug_nomonsters, debug_subsector;
@@ -109,19 +119,21 @@ cvar_link_t  all_cvars[] =
 {
 	/* General Stuff */
 
-    { "language",       &m_language,     "c",   "ENGLISH" },
+	{ "language",       &m_language,     "c",   "ENGLISH" },
 
-    { "ddf_strict",     &ddf_strict,     "c",   "0"  },
-    { "ddf_lax",        &ddf_lax,        "c",   "0"  },
-    { "ddf_quiet",      &ddf_quiet,      "c",   "0"  },
+	{ "ddf_strict",     &ddf_strict,     "c",   "0"  },
+	{ "ddf_lax",        &ddf_lax,        "c",   "0"  },
+	{ "ddf_quiet",      &ddf_quiet,      "c",   "0"  },
 
-    { "aggression",     &g_aggression,   "c",   "0"  },
-	
+	{ "aggression",     &g_aggression,   "c",   "0"  },
+
 	{ "spriteflip",      &r_spriteflip,       "c",   "0"  },
+
+	{ "shadows",         &r_shadows,          "c",   "1" },
 
 	/* Input Stuff */
 
-    { "in_grab",        &in_grab,        "c",   "1"  },
+	{ "in_grab",        &in_grab,        "c",   "1"  },
 	{ "in_keypad",      &in_keypad,      "c",   "1"  },
 	{ "in_running",     &in_running,     "c",   "0"  },
 	{ "in_stageturn",   &in_stageturn,   "c",   "1"  },
@@ -131,7 +143,7 @@ cvar_link_t  all_cvars[] =
 	{ "joy_peak",       &joy_peak,       "c",   "0.95" },
 	{ "joy_tuning",     &joy_peak,       "c",   "1.0"  },
 
-  	{ "mouse_filter",   &mouse_filter,   "c",   "0"  },
+	{ "mouse_filter",   &mouse_filter,   "c",   "0"  },
 
 	{ "goobers",        &m_goobers,      "",    "0" },
 	{ "m_diskicon",     &m_diskicon,     "c",   "0"  },
@@ -162,7 +174,12 @@ cvar_link_t  all_cvars[] =
 	{ "r_dumbmulti",    &r_dumbmulti,     "",   "0"  },
 	{ "r_dumbcombine",  &r_dumbcombine,   "",   "0"  },
 	{ "r_dumbclamp",    &r_dumbclamp,     "",   "0"  },
-	{ "r_gl2_path",     &r_gl2_path,      "",   "0"  },
+	{ "r_gl3_path",     &r_gl3_path,      "",   "0"  },
+
+	{ "r_gpuswitch",    &r_gpuswitch,     "c",   "0"  }, // notebook optimus gpu selector
+
+	{ "r_stretchworld", &r_stretchworld, "c",   "1"  },
+	{ "r_fixspritescale", &r_fixspritescale, "c", "1" },
 
 	{ "am_smoothing",   &am_smoothing,   "c",   "1"  },
 	{ "am_gridsize",    &am_gridsize,    "c",   "128" },
@@ -177,11 +194,14 @@ cvar_link_t  all_cvars[] =
 	{ "debug_mouse",      &debug_mouse,      "",  "0" },
 	{ "debug_pos",        &debug_pos,        "h", "0" },
 	{ "debug_fps",        &debug_fps,        "c", "0" },
-	
+
 	{ "r_md5scale",        &r_md5scale,        "c", "0" },
 	{ "r_lerp",        &r_lerp,        "c", "1" },
 	{ "r_maxfps",        &r_maxfps,        "c", "0" },
 	{ "r_vsync",           &r_vsync,        "c", "0" },
+	{ "r_bloom",           &r_bloom,        "c", "1" },
+	{ "r_lens",		       &r_lens,			"c", "1" },
+	{ "r_fxaa",            &r_fxaa,         "c", "1" },
 
 #if 0 // FIXME
     { "edge_compat",    &edge_compat,    "",    "0"  },

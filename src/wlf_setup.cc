@@ -67,9 +67,12 @@
 #include "w_texture.h"
 #include "w_wad.h"
 #include "z_zone.h"
+#include "vm_coal.h"
 
 #define TILE_ELEVATOR     0x15
 #define TILE_SECRET_ELEV  0x6B
+
+
 
 extern void P_ShutdownLevel(void);
 extern void GroupLines(void);
@@ -631,7 +634,7 @@ static void MakeTwoSided(line_t *ld, side_t *sd, int f_sec, int b_sec,
 	ld->frontsector = ld->side[0]->sector;
 	ld->backsector  = ld->side[1]->sector;
 
-///---	P_ComputeGaps(ld);
+	P_ComputeGaps(ld);
 }
 
 static void AddLinedef(int *l_index, int *s_index,
@@ -1071,7 +1074,7 @@ static void AnalyseObjects(void)
 	int x, y; //Wolf3d Maps have no 'Z'!!, also using float here makes M_INDEX act up. . .
 
 	const raw_thing_t *mt;
-	const mobjtype_c *objtype;
+	//const mobjtype_c *info;
 
   for (y=0; y < WLFMAP_H; y++)
   for (x=0; x < WLFMAP_W; x++)
@@ -1106,8 +1109,8 @@ static void AnalyseObjects(void)
     if (tile == MAPTILE_AMBUSH)
       options |= MTF_AMBUSH;
 
-	/// See if tx, ty conversion a bove properly converts int -> float for spawnmapthing. . .
-    SpawnMapThing(objtype, x, y, 0, sec, angle, options, 0);
+	/// See if tx, ty conversion above properly converts int -> float for spawnmapthing. . .
+    SpawnMapThing(info, x, y, 0, sec, angle, options, 0);
   }
 }
 
@@ -1247,10 +1250,10 @@ void WF_SetupLevel(void)
 
 	leveltime = 0;
 
-	//numextrafloors = 0;
+	numextrafloors = 0;
 	//numwalltiles = 0;
-	//numvertgaps = 0;
-	//VM_BeginLevel();
+	numvertgaps = 0;
+	VM_BeginLevel();
 
 // <-----  COMMON TO P_SetupLevel
 
@@ -1264,7 +1267,7 @@ else mapnum = 0;
   cur_map_num = mapnum;
   WF_LoadMap(cur_map_num);
 
-  // initialise lists
+  // initialize lists
   numlines = 0;       lines = NULL;
   numsectors = 0;     sectors = NULL;
   numsides = 0;       sides = NULL;

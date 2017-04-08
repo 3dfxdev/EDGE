@@ -37,11 +37,9 @@
 #include "r_modes.h"
 #include "r_wipe.h"
 
-#ifdef MACOSX
+
 #include <SDL2/SDL_keyboard.h>
-#else
-#include <SDL_keyboard.h>
-#endif
+
 
 #define CON_WIPE_TICS  12
 
@@ -1023,7 +1021,7 @@ bool CON_Responder(event_t * ev)
 	}
 
 	if (con_visible == vs_notvisible)
-	{   paused = false;
+	{   
 		return false;
 	}
 	

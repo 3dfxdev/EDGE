@@ -48,6 +48,7 @@
 #include "../src/r_shader.h"
 #include "../src/r_units.h"
 
+#define SSE2 1
 
 
 #define MAX_ANIMATION_NAME_LENGTH 11

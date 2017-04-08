@@ -19,13 +19,8 @@
 #ifndef __SDL_SYSTEM_INTERNAL_H__
 #define __SDL_SYSTEM_INTERNAL_H__
 
-#if defined(MACOSX) || defined(LINUX) || defined(BSD)
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_keycode.h>
-#else
-#include <SDL.h>
-#include <SDL_keycode.h> /// Keys
-#endif
+#include <SDL2/SDL_keycode.h> /// Keys
 
 #include "i_local.h"  // FIXME: remove
 

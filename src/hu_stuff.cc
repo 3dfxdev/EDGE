@@ -124,7 +124,7 @@ void HU_Drawer(void)
 	if (message_on)
 	{
 		HUD_SetAlpha(1.0f);
-		HUD_SetScale(0.7f);	
+		HUD_SetScale(0.7f);	 //TODO: Should make this user-definable in the Options Menu.
 		HUD_SetAlignment(0, 0);
 		HUD_DrawText(160- 3 / 2, 3, w_message.c_str());
 		HUD_SetScale();

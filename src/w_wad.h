@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 WAD Support Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -40,11 +40,12 @@ typedef enum
 	FLKIND_HWad,      // deHacked wad
 	FLKIND_PAK,       // Quake PAK
 	FLKIND_PK3,       // PK3 zip file
+	FLKIND_PK7,       // PK7 7zip file
 
 	FLKIND_Lump,      // raw lump (no extension)
 
 	FLKIND_WL6,      // .wl6 Wolfenstein datas
-	
+
 
 	FLKIND_DDF,       // .ddf or .ldf file
 	FLKIND_Demo,      // .lmp demo file
@@ -107,7 +108,7 @@ epi::file_c *W_OpenLump(const char *name);
 
 const char *W_GetFileName(int lump);
 int W_GetPaletteForLump(int lump);
-int W_FindFlatSequence(const char *start, const char *end, 
+int W_FindFlatSequence(const char *start, const char *end,
     int *s_offset, int *e_offset);
 epi::u32array_c& W_GetListLumps(int file, lumplist_e which);
 void W_GetTextureLumps(int file, wadtex_resource_c *res);

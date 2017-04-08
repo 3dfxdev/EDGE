@@ -31,6 +31,8 @@
 
 #include <zlib.h>
 
+#include <physfs.h>
+
 #include "blockmap.h"
 #include "level.h"
 #include "node.h"
@@ -43,6 +45,8 @@
 static FILE *in_file = NULL;
 static FILE *out_file = NULL;
 
+static int packMounted = 0;
+static char *pFilename = NULL;
 
 #define DEBUG_DIR   0
 #define DEBUG_LUMP  0
@@ -52,6 +56,17 @@ static FILE *out_file = NULL;
 #define LEVNAME_BUNCH   20
 
 #define ALIGN_LEN(len)  ((((len) + 3) / 4) * 4)
+
+#ifdef _MSC_VER 
+//not #if defined(_WIN32) || defined(_WIN64) because we have strncasecmp in mingw
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#endif
+
+#ifndef stricmp
+#define stricmp strcasecmp
+#endif  
+
 
 
 // current wad info
@@ -261,6 +276,22 @@ static int ReadHeader(const char *filename)
 {
 	size_t len;
 	raw_wad_header_t header;
+
+	if (packMounted)
+	{
+		wad.kind = PWAD;
+		wad.num_entries = 0;
+		wad.dir_start = 0;
+
+		// initialise stuff
+		wad.dir_head = NULL;
+		wad.dir_tail = NULL;
+		wad.current_level = NULL;
+		wad.level_names = NULL;
+		wad.num_level_names = 0;
+
+		return TRUE;
+	}
 
 	len = fread(&header, sizeof(header), 1, in_file);
 
@@ -509,6 +540,127 @@ static void ProcessDirEntry(lump_t *lump)
 	wad.dir_tail = lump;
 }
 
+static void WadNamespace(void *userData, const char *origDir, const char *fname)
+{
+	lump_t *lump;
+	raw_wad_header_t header;
+	raw_wad_entry_t entry;
+	char tname[10];
+	char path[256];
+	strcpy(path,origDir);
+	strcat(path, "/");
+	strcat(path, fname);
+
+	PrintVerbose("  WadNamespace: processing %s\n", path);
+
+	if (PHYSFS_isDirectory(path))
+	{
+		// subdirectory... recurse
+		PHYSFS_enumerateFilesCallback(path, WadNamespace, userData);
+		return;
+	}
+
+	// open wad lump
+	PrintVerbose("    opening wad %s\n", fname);
+	PHYSFS_File *file = PHYSFS_openRead(path);
+	if (!file)
+		return; // couldn't open file - skip
+
+	PHYSFS_read(file, &header, sizeof(raw_wad_header_t), 1);
+
+	header.num_entries = PHYSFS_swapSLE32(header.num_entries);
+	header.dir_start = PHYSFS_swapSLE32(header.dir_start);
+	PHYSFS_seek(file, header.dir_start);
+
+	// loop over wad directory entries
+	for (int i=0; i<(int)header.num_entries; i++)
+	{
+		PHYSFS_read(file, &entry, sizeof(raw_wad_entry_t), 1);
+		strncpy(tname, entry.name, 8);
+		tname[8] = 0;
+		// check for ExMy/MAPxx - some map wads have bad map marker lump
+		if (strncmp(tname, "MAP", 3) == 0)
+		{
+			strncpy(tname, fname, 5);
+			tname[5] = 0;
+		}
+		else if ((tname[0] == 'E') && (tname[2] == 'M'))
+		{
+			strncpy(tname, fname, 4);
+			tname[4] = 0;
+		}
+		PrintVerbose("    adding wad lump %s\n", tname);
+
+		lump = NewLump(UtilStrNDup(entry.name, 8));
+		lump->start = PHYSFS_swapSLE32(entry.start);
+		lump->length = PHYSFS_swapSLE32(entry.length);
+		strncpy(lump->fname, path, 256);
+
+		// link it in
+		lump->next = NULL;
+		lump->prev = wad.dir_tail;
+		if (wad.dir_tail)
+			wad.dir_tail->next = lump;
+		else
+			wad.dir_head = lump;
+		wad.dir_tail = lump;
+		wad.num_entries++;
+	}
+
+	PHYSFS_close(file);
+}
+
+static void TopLevel(void *userData, const char *origDir, const char *fname)
+{
+	char check[16];
+	char path[256];
+	strcpy(path,origDir);
+	strcat(path, "/");
+	strcat(path, fname);
+
+	PrintVerbose("TopLevel:Processing %s\n", path);
+
+	if (PHYSFS_isDirectory(path))
+	{
+		PrintVerbose(" found subdirectory %s\n", fname);
+
+		// check for maps namespace directory
+		if (stricmp(fname, "maps") == 0)
+		{
+			// enumerate all entries in the maps directory
+			PHYSFS_enumerateFilesCallback(path, WadNamespace, userData);
+		}
+	}
+	// check for map wad lumps
+	strcpy(check, "E1M1.wad");
+	for (int i=1; i<5; i++)
+	{
+		check[1] = '0' + i;
+		for (int j=1; j<10; j++)
+		{
+			check[3] = '0' + j;
+			if (strncmp(fname, check, 8) == 0)
+			{
+				// process wad lump
+				WadNamespace(userData, origDir, fname);
+				return;
+			}
+		}
+	}
+	strcpy(check, "MAP01.wad");
+	for (int i=1; i<100; i++)
+	{
+		check[3] = '0' + i/10;
+		check[4] = '0' + i%10;
+		if (strncmp(fname, check, 9) == 0)
+		{
+			// process wad lump
+			WadNamespace(userData, origDir, fname);
+			return;
+		}
+	}
+}
+
 //
 // ReadDirectory
 //
@@ -518,11 +670,19 @@ static void ReadDirectory(void)
 	int total_entries = wad.num_entries;
 	lump_t *prev_list;
 
-	fseek(in_file, wad.dir_start, SEEK_SET);
-
-	for (i = 0; i < total_entries; i++)
+	if (packMounted)
 	{
-		ReadDirEntry();
+		PHYSFS_enumerateFilesCallback(pFilename, TopLevel, NULL);
+		total_entries = wad.num_entries;
+	}
+	else
+	{
+		fseek(in_file, wad.dir_start, SEEK_SET);
+
+		for (i = 0; i < total_entries; i++)
+		{
+			ReadDirEntry();
+		}
 	}
 
 	DetermineLevelNames();
@@ -562,9 +722,22 @@ static void ReadLumpData(lump_t *lump)
 
 	lump->data = UtilCalloc(lump->length);
 
-	fseek(in_file, lump->start, SEEK_SET);
-
-	len = fread(lump->data, lump->length, 1, in_file);
+	if (packMounted)
+	{
+		len = 0;
+		PHYSFS_File *file = PHYSFS_openRead(lump->fname);
+		if (file)
+		{
+			PHYSFS_seek(file, lump->start);
+			len = PHYSFS_read(file, lump->data, lump->length, 1);
+			PHYSFS_close(file);
+		}
+	}
+	else
+	{
+		fseek(in_file, lump->start, SEEK_SET);
+		len = fread(lump->data, lump->length, 1, in_file);
+	}
 
 	if (len != 1)
 	{
@@ -1264,6 +1437,65 @@ glbsp_ret_e ReadWadFile(const char *filename)
 	int check;
 	char *read_msg;
 
+	if ((stricmp(&filename[strlen(filename) - 4], ".pak") == 0) ||
+		(stricmp(&filename[strlen(filename) - 4], ".pk3") == 0) ||
+		(stricmp(&filename[strlen(filename) - 4], ".pk7") == 0) ||
+		(strncmp(filename, "/pack", 5) == 0))
+	{
+		if (strncmp(filename, "/pack", 5) == 0)
+		{
+			// passed already mounted pack by 3DGE
+			packMounted = -1;
+			pFilename = (char*)GlbspStrDup((const char*)filename);
+		}
+		else
+		{
+			// passed .pak/.pk3/.pk7 file by command line
+			PrintVerbose("Mounting %s\n", filename);
+			PHYSFS_init(NULL);
+			packMounted = PHYSFS_mount(filename, "/pack", 0);
+			if (!packMounted)
+			{
+				SetErrorMsg("Cannot mount pack file: %s", filename);
+				return GLBSP_E_ReadError;
+			}
+			pFilename = (char*)GlbspStrDup((const char*)"/pack");
+		}
+
+		ReadHeader(pFilename);
+
+		PrintVerbose("Reading entries to make directory\n");
+
+		// create directory (only levels)
+		ReadDirectory();
+
+		PrintVerbose("Done reading entries\n");
+
+		DisplayOpen(DIS_FILEPROGRESS);
+		DisplaySetTitle("glBSP Reading Wad");
+
+		read_msg = UtilFormat("Reading: %s", filename);
+
+		DisplaySetBarText(1, read_msg);
+		DisplaySetBarLimit(1, CountLumpTypes(LUMP_READ_ME, LUMP_READ_ME));
+		DisplaySetBar(1, 0);
+
+		UtilFree(read_msg);
+
+		cur_comms->file_pos = 0;
+
+		PrintVerbose("Reading lumps\n");
+
+		// now read lumps
+		check = ReadAllLumps();
+
+		wad.current_level = NULL;
+
+		DisplayClose();
+
+		return GLBSP_E_OK;
+	}
+
 	// open input wad file & read header
 	in_file = fopen(filename, "rb");
 
@@ -1399,7 +1631,18 @@ void CloseWads(void)
 {
 	int i;
 
-	if (in_file)
+	if (packMounted)
+	{
+		if (packMounted > 0)
+		{
+			PHYSFS_removeFromSearchPath(pFilename);
+			PHYSFS_deinit();
+		}
+
+		GlbspFree(pFilename);
+		packMounted = 0;
+	}
+	else if (in_file)
 	{
 		fclose(in_file);
 		in_file = NULL;

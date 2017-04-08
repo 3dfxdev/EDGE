@@ -47,24 +47,13 @@ void RGL_StartUnits(bool sort_em);
 void RGL_FinishUnits(void);
 void RGL_DrawUnits(void);
 
-//dynamic shading and bump mapping (GL2 path)
-bool RGL_GL2Enabled();
+//dynamic shading and bump mapping (GL3 path)
+bool RGL_GL3Enabled();
 void RGL_SetAmbientLight(short r,short g,short b);	//rgb 0-255
 void RGL_ClearLights();
 void RGL_AddLight(mobj_t *mo);
 void RGL_CaptureCameraMatrix();
 
-//GZDoom checks:
-enum SectorRenderFlags
-{
-	// This is used to avoid creating too many drawinfos
-	SSRF_RENDERFLOOR = 1,
-	SSRF_RENDERCEILING = 2,
-	SSRF_RENDER3DPLANES = 4,
-	SSRF_RENDERALL = 7,
-	SSRF_PROCESSED = 8,
-	SSRF_SEEN = 16,
-};
 
 //shadows
 typedef struct shadow_params_s
@@ -90,7 +79,7 @@ typedef struct
 } GLShadow;
 
 
-extern simple_shadow_params_t simple_shadows;
+
 extern int gl_shadows_maxdist;
 extern int gl_shadows_factor;
 

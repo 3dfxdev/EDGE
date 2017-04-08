@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Weapon (player sprites) Action Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -46,7 +46,7 @@ static sound_category_e WeapSfxCat(player_t *p)
     if (p == players[consoleplayer1])
 	//if (p->playerflags & PFL_Console)
 		return SNCAT_Weapon;
-        
+
 	return SNCAT_Opponent;
 }
 
@@ -90,7 +90,7 @@ static void P_SetPsprite(player_t * p, int position, int stnum, weapondef_c *inf
 
 	psp->state = st;
 	psp->tics  = st->tics;
-	psp->next_state = (st->nextstate == S_NULL) ? NULL : 
+	psp->next_state = (st->nextstate == S_NULL) ? NULL :
 		(states + st->nextstate);
 
 	// call action routine
@@ -139,7 +139,7 @@ bool P_CheckWeaponSprite(weapondef_c *info)
 		return false;
 
 	return W_CheckSpritesExist(info->state_grp);
-	
+
 	///Hypertension (and 3D projects need this fix):
 	/// return true;
 }
@@ -286,7 +286,7 @@ static void GotoReadyState(player_t *p)
 static void GotoEmptyState(player_t *p)
 {
 	weapondef_c *info = p->weapons[p->ready_wp].info;
-	
+
 	int newstate = info->empty_state;
 
 	P_SetPspriteDeferred(p, ps_weapon, newstate);
@@ -337,6 +337,7 @@ static void ReloadWeapon(player_t *p, int idx, int ATK)
 
 	SYS_ASSERT(qty > 0);
 
+	p->weapons[idx].reload_count[ATK] = qty;
 	p->weapons[idx].clip_size[ATK] += qty;
 	p->ammo[info->ammo[ATK]].num   -= qty;
 }
@@ -383,7 +384,7 @@ static void SwitchAway(player_t * p, int ATK, int reload)
 		P_SelectNewWeapon(p, -100, AM_DontCare);
 	else if (info->empty_state && ! WeaponCouldAutoFire(p, p->ready_wp, 0))
 		GotoEmptyState(p);
-	else 
+	else
 		GotoReadyState(p);
 }
 
@@ -704,7 +705,7 @@ void P_TrySwitchNewWeapon(player_t *p, int new_weap, ammotype_e new_ammo)
 	}
 
 	SYS_ASSERT(new_ammo >= 0);
-	
+
 	// We were down to zero ammo, so select a new weapon.
 	// Choose the next highest priority weapon than the current one.
 	// Don't override any weapon change already underway.
@@ -785,7 +786,7 @@ void P_FillWeapon(player_t *p, int slot)
 		p->weapons[slot].clip_size[ATK] = info->clip_size[ATK];
 	}
 }
-	
+
 
 void P_DropWeapon(player_t * p)
 {
@@ -892,9 +893,9 @@ static void BobWeapon(player_t *p, weapondef_c *info)
 
 	float new_sx = 0;
 	float new_sy = 0;
-	
+
 	// bob the weapon based on movement speed
-	if (! hasjetpack)
+	if (! hasjetpack && ! disable_bob)
 	{
 		angle_t angle = (128 * leveltime) << 19;
 		new_sx = p->bob * PERCENT_2_FLOAT(info->swaying) * M_Cos(angle);
@@ -1367,7 +1368,7 @@ void A_FriendJump(mobj_t * mo)
 static void DoGunFlash(mobj_t * mo, int ATK)
 {
 	player_t *p = mo->player;
-	
+
 	SYS_ASSERT(p->ready_wp >= 0);
 
 	weapondef_c *info = p->weapons[p->ready_wp].info;
@@ -1596,6 +1597,36 @@ void A_WeaponJump(mobj_t * mo)
 }
 
 
+void A_WeaponDJNE(mobj_t * mo)
+{
+	player_t *p = mo->player;
+	pspdef_t *psp = &p->psprites[p->action_psp];
+
+	weapondef_c *info = p->weapons[p->ready_wp].info;
+
+	act_jump_info_t *jump;
+
+	if (!psp->state || !psp->state->action_par)
+	{
+		M_WarnError("DJNE used in weapon [%s] without a label !\n",
+				info->name.c_str());
+		return;
+	}
+
+	jump = (act_jump_info_t *) psp->state->action_par;
+
+	SYS_ASSERT(jump->chance >= 0);
+	SYS_ASSERT(jump->chance <= 1);
+	int ATK = jump->chance > 0 ? 1 : 0;
+
+	if (--p->weapons[p->ready_wp].reload_count[ATK] > 0)
+	{
+		psp->next_state = (psp->state->jumpstate == S_NULL) ? NULL :
+			(states + psp->state->jumpstate);
+	}
+}
+
+
 void A_WeaponTransSet(mobj_t * mo)
 {
 	player_t *p = mo->player;
@@ -1636,7 +1667,7 @@ void A_WeaponDlightSet(mobj_t * mo)
 
 	SYS_ASSERT(p->ready_wp >= 0);
 	//weapondef_c *info = p->weapons[p->ready_wp].info;
-	
+
 	const state_t *st = mo->state;
 
 	if (st && st->action_par)
