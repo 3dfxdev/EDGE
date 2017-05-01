@@ -17,3 +17,7 @@ build
 releases
 backups
 src/gitinfo.h
+*.dll
+VSLibs
+ffmpeg
+upx

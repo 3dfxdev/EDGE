@@ -27,9 +27,9 @@ add_custom_target(revision_check ALL
 
 set( CPUID_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libcpuid/include" )
 set( CPUID_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libcpuid/lib/libcpuid.lib" )
-set( GLEW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-1.13.0/include" )
-set( GLEW_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-1.13.0/lib/Release/Win32/glew32s.lib" )
-set( GLEW_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-1.13.0/lib/Release/Win32/glew32s.lib" )
+set( GLEW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.0.0/include" )
+set( GLEW_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.0.0/lib/Release/Win32/glew32s.lib" )
+set( GLEW_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.0.0/lib/Release/Win32/glew32s.lib" )
 set( JPEG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libjpeg-turbo/include" )
 set( JPEG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libjpeg-turbo/lib/turbojpeg-static.lib" )
 set( OGG_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg-1.3.2/lib/libogg_static.lib" )
