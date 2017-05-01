@@ -455,6 +455,11 @@ static float CircularLerp(float start , float end, float value)
 	return retval;
 }
 
+float G_CircularLerp(float start, float end, float value)
+{
+	return CircularLerp(start, end, value);
+}
+
 float mobj_t::GetInterpolatedAngle(void)
 {
 	float interp = N_GetInterpolater();
