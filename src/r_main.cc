@@ -38,6 +38,10 @@ int glmax_clip_planes;
 int glmax_tex_size;
 int glmax_tex_units;
 
+extern cvar_c r_bloom;
+extern cvar_c r_lens;
+extern cvar_c r_fxaa;
+extern cvar_c r_gl3_path;
 cvar_c r_aspect;
 
 cvar_c r_nearclip;
@@ -220,11 +224,13 @@ void RGL_CheckExtensions(void)
 	std::string glstr_version (SafeStr(glGetString(GL_VERSION)));
 	std::string glstr_renderer(SafeStr(glGetString(GL_RENDERER)));
 	std::string glstr_vendor  (SafeStr(glGetString(GL_VENDOR)));
+	std::string glstr_glsl    (SafeStr(glGetString(GL_SHADING_LANGUAGE_VERSION)));
 
 	I_Printf("OpenGL: Version: %s\n", glstr_version.c_str());
 	I_Printf("OpenGL: Renderer: %s\n", glstr_renderer.c_str());
 	I_Printf("OpenGL: Vendor: %s\n", glstr_vendor.c_str());
 	I_Printf("OpenGL: GLEW version: %s\n", glewGetString(GLEW_VERSION));
+	I_Printf("OpenGL: GLSL version: %s\n", glstr_glsl.c_str());
 
 #if 0  // FIXME: this crashes (buffer overflow?)
 	I_Printf("OpenGL: EXTENSIONS: %s\n", glGetString(GL_EXTENSIONS));
@@ -248,9 +254,19 @@ void RGL_CheckExtensions(void)
 
 	if (GLEW_VERSION_1_3 || GLEW_EXT_texture_filter_anisotropic)
 	{
-		I_Printf("OpenGL driver verified to support anisotropic filtering!\n");
+		I_Printf("OpenGL: driver verified to support anisotropic filtering!\n");
 		r_anisotropy = 1;
 
+	}
+
+	if (GLEW_ARB_vertex_shader && GLEW_ARB_fragment_shader)
+		I_Printf("OpenGL: GLSL Initialised.\n");
+	else {
+		I_Warning("OpenGL: GLSL not supported on this GPU! :( \n");
+		r_bloom = 0;
+		r_fxaa = 0;
+		r_lens = 0;
+		r_gl3_path = 0;
 	}
 
 	if (GLEW_VERSION_1_3 ||
