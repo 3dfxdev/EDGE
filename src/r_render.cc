@@ -52,6 +52,8 @@
 #include "n_network.h"  // N_NetUpdate
 #include "con_main.h"
 
+#pragma optimize("", off)
+
 //#define ZDOOM_OCCLUSION // Use screen space clipping instead of angles for 1d occlusion buffer, as zdoom does
 
 #define DEBUG  0
@@ -61,6 +63,8 @@
 
 #define DOOM_YSLOPE       (0.525)
 #define DOOM_YSLOPE_FULL  (0.625)
+
+extern float G_CircularLerp(float start, float end, float value);
 
 bool RGL_OcclusionTestLine(double x1, double y1, double x2, double y2, angle_t &sx1, angle_t &sx2);
 
@@ -3393,11 +3397,378 @@ extern int ff_frequency[MAXPLAYERS];
 extern int ff_intensity[MAXPLAYERS];
 extern int ff_timeout[MAXPLAYERS];
 
+// Camera-man system implementation.
+namespace cameraman
+{
+	//TODO: Different types of interpolation...
+	//TODO: Debug view mode...
+	//TODO: Free camera mode...
+	//TODO: Disable HUD when camera-man is in use...
+	//TODO: Disable camera movement on player's input when camera-man is in use...
+
+#define MAX_COUNT 512
+
+	typedef struct
+	{
+		int valid;
+		angle_t viewangle, viewvertangle;
+		float x, y, z;
+		float fov;
+	} cameraman_t;
+
+	enum {
+		E_LERP,
+	};
+
+	static int g_active = 0;
+	static int g_count = 0;
+	static int g_startId = -1, g_endId = -1;
+	static int g_interpolationType = E_LERP;
+	static float g_interpolationValue = 0.0f;
+	static cameraman_t cameramen[MAX_COUNT];
+
+	static const cameraman_t *Get(int id)
+	{
+		if (id > -1 && id < MAX_COUNT)
+		{
+			const cameraman_t *cam = (const cameraman_t *)cameramen + id;
+			if (cam->valid > 0)
+			{
+				return cam;
+			}
+		}
+
+		return NULL;
+	}
+
+	static cameraman_t *Lerp(cameraman_t *interp, int id0, int id1, float t)
+	{
+		if (interp)
+		{
+			const cameraman_t *cam0 = Get(id0);
+			const cameraman_t *cam1 = Get(id1);
+
+			if (t <= 0.0f)
+			{
+				interp->x = cam0->x;
+				interp->y = cam0->y;
+				interp->z = cam0->z;
+				interp->fov = cam0->fov;
+				interp->viewangle = cam0->viewangle;
+				interp->viewvertangle = cam0->viewvertangle;
+				interp->valid = 1;
+				return interp;
+			}
+
+			if (t >= 1.0f)
+			{
+				interp->x = cam1->x;
+				interp->y = cam1->y;
+				interp->z = cam1->z;
+				interp->fov = cam1->fov;
+				interp->viewangle = cam1->viewangle;
+				interp->viewvertangle = cam1->viewvertangle;
+				interp->valid = 1;
+				return interp;
+			}
+
+			if (cam0 != NULL && cam1 != NULL)
+			{
+				interp->x = cam0->x + t * (cam1->x - cam0->x);
+				interp->y = cam0->y + t * (cam1->y - cam0->y);
+				interp->z = cam0->z + t * (cam1->z - cam0->z);
+				interp->fov = cam0->fov + t * (cam1->fov - cam0->fov);
+				interp->viewangle = G_CircularLerp(cam0->viewangle, cam1->viewangle, t);
+				interp->viewvertangle = G_CircularLerp(cam0->viewvertangle, cam1->viewvertangle, t);
+				interp->valid = 1;
+				return interp;
+			}
+		}
+		return NULL;
+	}
+
+	static cameraman_t *Update(cameraman_t *cam)
+	{
+		if (cam != NULL)
+		{
+			if (g_active > 0)
+			{
+				if (g_startId > -1 && g_endId > -1 && g_startId != g_endId)
+				{
+					switch (g_interpolationType)
+					{
+					case E_LERP:
+					default:
+						return Lerp(cam, g_startId, g_endId, g_interpolationValue);
+						break;
+					}
+				}
+				else
+				{
+					return (cameraman_t *)Get(g_startId);
+				}
+			}
+		}
+		return NULL;
+	}
+
+	void Reset()
+	{
+		for (int i = 0; i < MAX_COUNT; ++i)
+		{
+			cameraman_t *cam = cameramen + i;
+			cam->valid = 0;
+			cam->viewangle = 0;
+			cam->viewvertangle = 0;
+			cam->x = 0.0f;
+			cam->y = 0.0f;
+			cam->z = 0.0f;
+			cam->fov = 0.0f;
+		}
+
+		g_count = 0;
+		g_startId = -1;
+		g_endId = -1;
+		g_interpolationValue = 0.0f;
+	}
+
+	void Serialize(int reading)
+	{
+		SYS_ASSERT(currmap);
+
+		std::string fileName;
+		FILE *file = NULL;
+
+		//TODO: Move the camdata files to some sub-directory...
+		fileName = currmap->name.c_str();
+		fileName = fileName.append(".camdata");
+
+		CON_Printf("Serializing: %s\n", fileName.c_str());
+
+		char body[5] = { 0 };
+
+		if (reading > 0)
+		{
+			if (file = fopen(fileName.c_str(), "rb"))
+			{
+				fread((void *)&g_count, sizeof(int), 1, file);
+				fread((void *)body, sizeof(char), 5, file);
+				fread((void *)cameramen, sizeof(cameraman_t), (size_t)g_count, file);
+				fclose(file);
+			}
+		}
+		else // Only editing
+		{
+			if (file = fopen(fileName.c_str(), "wb"))
+			{
+				fwrite((void *)&g_count, sizeof(int), 1, file);
+				fwrite((void *)body, sizeof(char), 5, file);
+				fwrite((void *)cameramen, sizeof(cameraman_t), (size_t)g_count, file);
+				fclose(file);
+			}
+		}
+	}
+
+	void Activate(int activate)
+	{
+		Reset();
+		g_active = activate;
+	}
+
+	void Toggle()
+	{
+		if (g_active > 0)
+			Activate(0);
+		else
+			Activate(1);
+	}
+
+	int Add(float x, float y, float z, float ax, float ay, float fov)
+	{
+		if (g_active > 0)
+		{
+			if (g_count < MAX_COUNT)
+			{
+				cameraman_t *cam = cameramen + g_count;
+				cam->valid = 1;
+				cam->x = x;
+				cam->y = y;
+				cam->z = z;
+				cam->viewangle = G_CircularLerp(0, ay, 1.0f);
+				cam->viewvertangle = G_CircularLerp(0, ax, 1.0f);
+				cam->fov = fov;
+
+				++g_count;
+				return (g_count - 1);
+			}
+			else
+			{
+				for (int i = 0; i < g_count; ++i)
+				{
+					cameraman_t *cam = cameramen + i;
+					if (cam->valid != 1)
+					{
+						cam->valid = 1;
+						cam->x = x;
+						cam->y = y;
+						cam->z = z;
+						cam->viewangle = G_CircularLerp(0, ay, 1.0f);
+						cam->viewvertangle = G_CircularLerp(0, ax, 1.0f);
+						cam->fov = fov;
+						return i;
+					}
+				}
+			}
+		}
+		return -1;
+	}
+
+	int Remove(int id)
+	{
+		if (g_active > 0)
+		{
+			if (id > -1 && id < MAX_COUNT)
+			{
+				cameraman_t *cam = cameramen + id;
+				cam->valid = 0;
+				return id;
+			}
+		}
+		return -1;
+	}
+
+	int SetPosition(int id, float x, float y, float z)
+	{
+		if (g_active > 0)
+		{
+			if (id > -1 && id < MAX_COUNT)
+			{
+				cameraman_t *cam = cameramen + id;
+				if (cam->valid > 0)
+				{
+					cam->x = x;
+					cam->y = y;
+					cam->z = z;
+					return id;
+				}
+			}
+		}
+		return -1;
+	}
+
+	int SetAngles(int id, float ax, float ay)
+	{
+		if (g_active > 0)
+		{
+			if (id > -1 && id < MAX_COUNT)
+			{
+				cameraman_t *cam = cameramen + id;
+				if (cam->valid > 0)
+				{
+					cam->viewangle = G_CircularLerp(0, ay, 1.0f);
+					cam->viewvertangle = G_CircularLerp(0, ax, 1.0f);
+					return id;
+				}
+			}
+		}
+		return -1;
+	}
+
+	int SetFov(int id, float fov)
+	{
+		if (g_active > 0)
+		{
+			if (id > -1 && id < MAX_COUNT)
+			{
+				cameraman_t *cam = cameramen + id;
+				if (cam->valid > 0)
+				{
+					cam->fov = fov;
+					return id;
+				}
+			}
+		}
+		return -1;
+	}
+
+	int IsActive()
+	{
+		return g_active;
+	}
+	
+	int GetStartId()
+	{
+		return g_startId;
+	}
+
+	int GetEndId()
+	{
+		return g_endId;
+	}
+
+	void SetStartId(int id)
+	{
+		if (const cameraman_t *cam = Get(id))
+		{
+			g_startId = id;
+		}
+		else
+		{
+			g_startId = -1;
+		}
+	}
+
+	void SetEndId(int id)
+	{
+		if (const cameraman_t *cam = Get(id))
+		{
+			g_endId = id;
+		}
+		else
+		{
+			g_endId = -1;
+		}
+	}
+
+	void SetStep(float value)
+	{
+		g_interpolationValue = value;
+	}
+
+	void Print()
+	{
+		CON_Printf("Camera-man system info - Is active: %s\n", g_active ? "yes" : "no");
+		CON_Printf("--------------------------------------------\n");
+		
+		if (g_count > 0 && g_active > 0)
+		{
+			for (int i = 0; i < g_count; ++i)
+			{
+				const cameraman_t *cam = (const cameraman_t *)cameramen + i;
+
+				CON_Printf("[ID: %d] Valid: %s, Pos: (%g, %g, %g), Ang: (%i, %i), FOV: %g\n",
+					i, cam->valid > 0 ? "yes" : "no", cam->x, cam->y, cam->z, cam->viewangle, cam->viewvertangle, cam->fov);
+			}
+		}
+		else
+		{
+			CON_Printf("\t%s...\n", g_active > 0 ? "No resident camera-man found" : "System is not active" );
+		}
+
+		CON_Printf("--------------------------------------------\n");
+	}
+}
+
 /// rendering view point based on the camera's location.
 static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 {
+	cameraman::cameraman_t *pcman = NULL;
+	cameraman::cameraman_t cman = { 0 };
+
+	pcman = cameraman::Update(&cman);
+
 	int t_fov = mo->player ? mo->player->telept_fov : 0;
-	float fov = CLAMP(5, r_fov.f + t_fov, 175);
+	float fov = pcman == NULL ? CLAMP(5, r_fov.f + t_fov, 175) : pcman->fov;
 
 	if (splitscreen_mode)
 		fov = fov / 1.5;
@@ -3430,6 +3801,14 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 	viewz = vp.z;
 	//viewangle = mo->angle;
 	viewangle = mo->GetInterpolatedAngle();
+
+	// Only the view in that case...
+	if (pcman != NULL)
+	{
+		viewx = pcman->x;
+		viewy = pcman->y;
+		viewz = pcman->z;
+	}
 
 	// -CW- shake screen
 	if (mo->player && ff_shake[mo->player->pnum] && ff_timeout[mo->player->pnum])
@@ -3473,6 +3852,12 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 
 
 	// do some more stuff
+	if (pcman != NULL)
+	{
+		viewangle = G_CircularLerp(viewangle, pcman->viewangle, 1.0f);
+		viewvertangle = G_CircularLerp(viewvertangle, pcman->viewvertangle, 1.0f);
+	}
+
 	viewsin = M_Sin(viewangle);
 	viewcos = M_Cos(viewangle);
 
@@ -3550,19 +3935,3 @@ void R_Render(int x, int y, int w, int h, mobj_t *camera,
 
 	RGL_RenderTrueBSP();
 }
-
-
-//--- editor settings ---
-// vi:ts=4:sw=4:noexpandtab
-
-// Fixed camera (camera-man)
-// Add new fixed camera MOBJ with the fallowing call:
-// mobj_t *cameraman = P_MobjCreateObject(pos.x, pos.y, pos.z, mobjtypes.Lookup("CAMERAMAN"));
-//
-// When using multiple camera-man they have to be store in a collection in the order in which they are supposed to be interpolated between.
-// In 'InitCamera' view position and angles (direction) have to be setup according to the two closest camera-man, given by the interpolation time.
-// Trigger will have to setup camera with only one camera-man data.
-//
-// New camera-man should possible to be created via console command (saving current view location and angles) and script function.
-// The same thing goes with destroying camera-man.
-// Trigger should be set up in the very same manner.

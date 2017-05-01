@@ -64,7 +64,6 @@ extern void M_ChangeLevelCheat(const char *string);
 extern void I_ShowJoysticks(void);
 extern void M_QuitFinally(void);
 
-
 int CMD_Exec(char **argv, int argc)
 {
 	if (argc != 2)
@@ -420,6 +419,188 @@ int CMD_Map(char **argv, int argc)
 	return 0;
 }
 
+int CMD_ActivateCameraManSystem(char **argv, int argc)
+{
+	if (argc == 2)
+	{
+		int flag = atoi(argv[1]);
+		cameraman::Activate(flag > 0 ? 1 : 0);
+	}
+	else
+	{
+		I_Printf("Usage: %s 1|0\n\tActivates/deactivates the camera-man system. By default it is deactivated.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_ResetCameraManSystem(char **argv, int argc)
+{
+	cameraman::Reset();
+	I_Printf("Reset camera-man system to default values...\n");
+	return 0;
+}
+
+int CMD_AddCameraMan(char **argv, int argc)
+{
+	if (argc == 2)
+	{		
+		if (player_t *hero = players[0])
+		{
+			float x = hero->mo->x;
+			float y = hero->mo->y;
+			float z = hero->mo->z;
+			float ax = hero->mo->GetInterpolatedVertAngle();
+			float ay = hero->mo->GetInterpolatedAngle();
+			float fov = atof(argv[1]);
+
+			int id = cameraman::Add(x, y, z, ax, ay, fov);
+			if (id > -1)
+				I_Printf("Successfully added camera-man of ID: %d...\n", id);
+			return id;
+		}
+		else
+		{
+			I_Printf("NO PLAYER!\n");
+		}
+	}
+	else
+	{
+		I_Printf("Usage: %s FOV\n\tAdds a camera-man of the given FOV for the current player position and view angles.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_RemoveCameraMan(char **argv, int argc)
+{
+	if (argc == 2)
+	{
+		int id = atoi(argv[1]);
+		int state = cameraman::Remove(id);
+		if (state > -1)
+			CON_Printf("Successfully removed camera-man of ID: %d...\n", id);
+		return state;
+	}
+	else
+	{
+		I_Printf("Usage: %s ID\n\tRemoves camera-man of the given ID.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_SwitchToCameraMan(char **argv, int argc)
+{
+	if (argc == 2)
+	{
+		int id = atoi(argv[1]);
+		cameraman::SetStartId(id);
+		cameraman::SetEndId(id);
+	}
+	else
+	{
+		I_Printf("Usage: %s ID\n\tSwitches current view to the one given by the camera-man of ID. To switch back to normal view give -1 as ID.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_SetStartCameraMan(char **argv, int argc)
+{
+	if (argc == 2)
+	{
+		int id = atoi(argv[1]);
+		cameraman::SetStartId(id);
+	}
+	else
+	{
+		I_Printf("Usage: %s ID\n\tSets given camera-man ID as a ID of a camera-man start point for camera interpolation.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_SetEndCameraMan(char **argv, int argc)
+{
+	if (argc == 2)
+	{
+		int id = atoi(argv[1]);
+		cameraman::SetEndId(id);
+	}
+	else
+	{
+		I_Printf("Usage: %s ID\n\tSets given camera-man ID as an ID of a camera-man end point for camera interpolation.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_SetCameraManPosition(char **argv, int argc)
+{
+	if (argc == 2)
+	{
+		if (player_t *hero = players[0])
+		{
+			int id = atoi(argv[1]);
+			float x = hero->mo->x;
+			float y = hero->mo->y;
+			float z = hero->mo->z;
+			return cameraman::SetPosition(id, x, y, z);
+		}
+	}
+	else
+	{
+		I_Printf("Usage: %s ID\n\tMoves camera-man of the given ID to current player position.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_SetCameraManAngles(char **argv, int argc)
+{
+	if (argc == 2)
+	{
+		if (player_t *hero = players[0])
+		{
+			int id = atoi(argv[1]);
+			float ax = hero->mo->GetInterpolatedVertAngle();
+			float ay = hero->mo->GetInterpolatedAngle();
+			return cameraman::SetAngles(id, ax, ay);
+		}
+	}
+	else
+	{
+		I_Printf("Usage: %s ID\n\tChanges camera-man of the given ID view angles to the ones of the current player.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_SetCameraManFov(char **argv, int argc)
+{
+	if (argc == 3)
+	{
+		int id = atoi(argv[1]);
+		float fov = atof(argv[2]);
+		return cameraman::SetFov(id, fov);
+	}
+	else
+	{
+		I_Printf("Usage: %s ID\n\tChanges camera-man of the given ID view angles to the ones of the current player.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_SaveCameraManSystem(char **argv, int argc)
+{
+	cameraman::Serialize(0);
+	return 0;
+}
+
+int CMD_LoadCameraManSystem(char **argv, int argc)
+{
+	cameraman::Serialize(1);
+	return 0;
+}
+
+int CMD_PrintCameraManSystem(char **argv, int argc)
+{
+	cameraman::Print();
+	return 0;
+}
 
 // [SP] --- BEGIN CHEAT CODES ---
 
@@ -544,7 +725,6 @@ int CMD_CheatLoaded(char **argv, int argc)
 }
 
 
-
 //----------------------------------------------------------------------------
 
 // oh lordy....
@@ -635,6 +815,21 @@ const con_cmd_t builtin_commands[] =
 	{ "version",        CMD_Version },
 	{ "quit",           CMD_QuitEDGE },
 	{ "exit",           CMD_QuitEDGE },
+
+	// Camera-man system
+	{ "actcam",   CMD_ActivateCameraManSystem },
+	{ "rstcam",   CMD_ResetCameraManSystem },
+	{ "addcam",   CMD_AddCameraMan },
+	{ "remcam",   CMD_RemoveCameraMan },
+	{ "swtcam",   CMD_SwitchToCameraMan },
+	{ "strcam",   CMD_SetStartCameraMan },
+	{ "endcam",   CMD_SetEndCameraMan },
+	{ "poscam",   CMD_SetCameraManPosition },
+	{ "angcam",   CMD_SetCameraManAngles },
+	{ "fovcam",   CMD_SetCameraManFov },
+	{ "savcam",   CMD_SaveCameraManSystem },
+	{ "lddcam",	  CMD_LoadCameraManSystem },
+	{ "prtcam",	  CMD_PrintCameraManSystem },
 
 #ifndef NOCHEATS
 	// [SP] Cheats
