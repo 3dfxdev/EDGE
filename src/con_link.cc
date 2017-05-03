@@ -97,7 +97,7 @@ extern cvar_c r_shadows;
 extern cvar_c r_md5scale;
 
 extern cvar_c debug_nomonsters, debug_subsector;
-
+extern cvar_c camera_subdir;
 
 #ifndef LINUX
 #define S_MUSICDEV_CFG  "0"  // native
@@ -148,6 +148,7 @@ cvar_link_t  all_cvars[] =
 	{ "goobers",        &m_goobers,      "",    "0" },
 	{ "m_diskicon",     &m_diskicon,     "c",   "0"  },
 	{ "m_busywait",     &m_busywait,     "c",   "1"  },
+	{ "camera_subdir",  &camera_subdir,  "c",   "doom_ddf/cameras" },
 
 	/* Rendering Stuff */
 
