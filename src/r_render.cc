@@ -52,7 +52,7 @@
 #include "n_network.h"  // N_NetUpdate
 #include "con_main.h"
 
-#pragma optimize("", off)
+#include <io.h>
 
 //#define ZDOOM_OCCLUSION // Use screen space clipping instead of angles for 1d occlusion buffer, as zdoom does
 
@@ -3536,11 +3536,18 @@ namespace cameraman
 	{
 		SYS_ASSERT(currmap);
 
-		std::string fileName;
+		std::string fileName("./");
 		FILE *file = NULL;
 
-		//TODO: Move the camdata files to some sub-directory...
-		fileName = currmap->name.c_str();
+		_finddata_t data;
+		int ff = _findfirst("./*_ddf", &data);
+		if (ff != -1)
+		{
+			fileName = fileName.append(data.name);
+		}
+		
+		fileName = fileName.append("/cameras/");
+		fileName = fileName.append(currmap->name.c_str());
 		fileName = fileName.append(".camdata");
 
 		CON_Printf("Serializing: %s\n", fileName.c_str());
