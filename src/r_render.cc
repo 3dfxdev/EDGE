@@ -3539,12 +3539,16 @@ namespace cameraman
 		std::string fileName("./");
 		FILE *file = NULL;
 
+#ifdef WIN32
 		_finddata_t data;
 		int ff = _findfirst("./*_ddf", &data);
 		if (ff != -1)
 		{
 			fileName = fileName.append(data.name);
 		}
+#else
+		fileName = fileName.append("doom_ddf");
+#endif
 		
 		fileName = fileName.append("/cameras/");
 		fileName = fileName.append(currmap->name.c_str());
