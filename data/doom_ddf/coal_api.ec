@@ -300,3 +300,24 @@ module player
     function hurt_angle() : float = native
 }
 
+module cameraman
+{
+//	function reset()		= native
+	function load()			= native
+	function activate(flag)	= native
+	
+//	function add(x, y, z, ax, ay, fov)	: float	= native
+//	function remove(id)					: float	= native
+	function set_position(id, x, y, z)	: float	= native
+	function set_angles(id, ax, ay)		: float	= native
+	function set_fov(id, fov)			: float	= native
+	
+	function is_active()	: float		= native
+	function get_start_id()	: float		= native
+	function get_end_id()	: float		= native
+	
+	function set_start_id(id)	= native
+	function set_end_id(id)		= native
+	function set_step(step)		= native
+	function switch_to(id)		= native
+}
