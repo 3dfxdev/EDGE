@@ -22,6 +22,7 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 * Joseph "Chilly Willy" Fenton
 * Damir Srpcic
 * Rachael "Eruanna" Alexanderson
+* Maciej Kadlubowski
 * Brendan "Brendoe1" Doe
 * dpJudas
 * Alex "TapamN" Nesemann
@@ -45,7 +46,6 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 * Fraggle (Chocolate Doom SDL2 help)
 * Crispy Doom Guys (fabian, alexmax) for helping with lerp
 * Quasar (Eternity Engine, dynaBSP/midi_RPC stuff)
-* Maciej Kadlubowski (Splines library)
 * KnightMare (KMQuake 2 backends, Splines help)
 * Kaiser (Doom64-ex, KEX-lib support)
 * ctd1500
