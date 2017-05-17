@@ -592,9 +592,10 @@ static optmenuitem_t soundoptions[] =
 	{OPT_Switch,  "Mix Channels",    MixChans,  4, &var_mix_channels, M_ChangeMixChan, NULL},
 	{OPT_Switch,  "Quiet Factor",    QuietNess, 3, &var_quiet_factor, NULL, NULL},
 	{OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL},
-	{OPT_Switch,  "Music Device",    MusicDevs, 3, &var_music_dev, NULL, NULL},
+	{OPT_Switch,  "Music Device",    MusicDevs, 3, &var_music_dev, NULL, "Win32: SYSTEM will not work with Vista or higher!"},
 	{OPT_Switch,  "Timidity Factor", QuietNess, 3, &var_timid_factor, M_ChangeTimidQuiet, NULL},
-	{OPT_Boolean, "OPL3 Mode",       YesNo,     2, &var_opl_opl3mode, NULL, NULL},
+
+	{OPT_Boolean, "OPL Mode",       YesNo,     2, &var_opl_opl3mode, NULL, "OPL1 or OPL3 mode emulation"},
 };
 
 static menuinfo_t sound_optmenu =
