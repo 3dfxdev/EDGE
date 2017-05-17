@@ -3791,7 +3791,12 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 
 	viewiszoomed = false;
 
-	if (mo->player && mo->player->zoom_fov > 0)
+	if (player_t *hero = players[0])
+	{
+		hero->mo->visibility = (!pcman);
+	}
+
+	if (!pcman && mo->player && mo->player->zoom_fov > 0)
 	{
 		viewiszoomed = true;
 
@@ -3823,7 +3828,7 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 	}
 
 	// -CW- shake screen
-	if (mo->player && ff_shake[mo->player->pnum] && ff_timeout[mo->player->pnum])
+	if (!pcman && mo->player && ff_shake[mo->player->pnum] && ff_timeout[mo->player->pnum])
 	{
 		if (I_GetMillies() < ff_timeout[mo->player->pnum])
 		{
@@ -3835,18 +3840,21 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 
 	extern float N_GetInterpolater(void);
 	float lerpv = N_GetInterpolater();
-	if (mo->player)//t*b+(a-a*t)
-		//viewz += mo->player->lastviewz + (mo->player->viewz - mo->player->lastviewz) * N_GetInterpolater();
-		viewz += mo->player->viewz*lerpv+(mo->player->lastviewz - mo->player->lastviewz*lerpv);
-	else
-		viewz += mo->height * 9 / 10;
+	if (!pcman)
+	{
+		if (mo->player)//t*b+(a-a*t)
+	//viewz += mo->player->lastviewz + (mo->player->viewz - mo->player->lastviewz) * N_GetInterpolater();
+			viewz += mo->player->viewz*lerpv + (mo->player->lastviewz - mo->player->lastviewz*lerpv);
+		else
+			viewz += mo->height * 9 / 10;
+	}
 
 	viewsubsector = mo->subsector;
 	//viewvertangle = mo->vertangle;
 	viewvertangle = mo->GetInterpolatedVertAngle();
 	view_props = R_PointGetProps(viewsubsector, viewz);
 
-	if (mo->player)
+	if (!pcman && mo->player)
 	{
 		viewvertangle += M_ATan(mo->player->kick_offset);
 

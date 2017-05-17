@@ -448,7 +448,7 @@ int CMD_AddCameraMan(char **argv, int argc)
 		{
 			float x = hero->mo->x;
 			float y = hero->mo->y;
-			float z = hero->mo->z;
+			float z = hero->mo->z + hero->viewz;
 			float ax = hero->mo->GetInterpolatedVertAngle();
 			float ay = hero->mo->GetInterpolatedAngle();
 			float fov = atof(argv[1]);
