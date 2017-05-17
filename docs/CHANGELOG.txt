@@ -1,0 +1,740 @@
+* Welcome to EDGE!
+* http://edge2.sf.net
+* by and (C) Isotope Softworks and Contributors ("3DGE Team")
+* Licensed under GPLv2
+* See AUTHORS.MD for full list of authors
+*
+* Visit the 3DGE wiki for editing documentation:
+* http://3dfxdev.net/edgewiki
+*
+* Git builds now hosted at DRDTeam:
+* http://devbuilds.drdteam.org/3dge/
+
+* This list might not always be up to date, especially with Devbuilds,
+* to see always-up-to-date listings, go here: 
+* https://github.com/3dfxdev/hyper3DGE/commits/master 
+
+3DGE GITHUB CHANGELOG
+*****************************************************
+==================
+3DGE 2.1.0pre-242-gc9e8a01
+==================
+
+!! This release is a TEST, therefore, certain important features might not work - we make no gaurantees for this version!
+
++ NEW:     PAK/PK3/PK7 support
+           http://3dfxdev.net/edgewiki/index.php/Using_ZIPs_as_WAD_replacement
+		   
++ NEW:	   UDMF (TextMap) support.
+
++ NEW:     Camera-Man System for dynamic, scripted, and interpolated cameras.
+
++ NEW:     Sound Pitching (use s_pitch 0 to disable, or use Options->Sound)
+
++ NEW:     Added back shadow code (right now, uses simple shadows, then Normal, then Complex -- the latter is not complete yet).
+
++ NEW:     Weapons DDF now supports the DJNE weapon action for more robust weapon reloading
+	       (see http://3dfxdev.net/edgewiki/index.php/WEAPONS)
+
++ NEW:     Force Feedback for screen and controller (for these builds, use -ffshake at the command line)
+
++ NEW:     Teleportation effects are back - WARP IN is default, then there is Zoom In, or None.
+           Menu -> Options -> Screen Options
+		   
++ NEW:	   OpenGL shader post-processing effects (find these in Video Options). Bumped required GL version to 3.
+
++ NEW:     PolyObjects are now supported, but are WIP at the moment.
+
++ NEW:     Implemented Optimus GPU switching.
+
++ NEW:     OpenGL: Send data to OpenGL using GL_TRIANGLES and in larger glBegin batches for speed increases.
+           
++ Bug Fix: Fixed ghosting images when sizes were not exactly the same
+
++ Bug Fix: Action Buttons work and are toggable again
+
++ Bug Fix: Fixed 512x512 DOOM textures (tested with Zoon4.wad)
+
++ Bug Fix: Recruse root subdir to TopLevel with PK3/PK7
+           https://github.com/3dfxdev/hyper3DGE/commit/733f2d
+
++ Bug Fix: Fix rattling items stuck in wall (Doom Forever Redux, others)
+           https://github.com/3dfxdev/hyper3DGE/commit/d2a9130
+
++ Bug Fix: Make origin 0,0 of grAb struct match 3DGE's origin
+	   https://github.com/3dfxdev/hyper3DGE/commit/0e564ba
+
++ Bug Fix: Fixed brightness settings under Linux
+	   https://github.com/3dfxdev/hyper3DGE/issues/30
+
++ Bug Fix: Disabled MD5 verticle rotation (for now)
+	   https://github.com/3dfxdev/hyper3DGE/commit/76ce3b2
+
++ Bug Fix: Increased r_units vertex count limit and added an assertion for 3D models
+           https://github.com/3dfxdev/hyper3DGE/commit/46a80c4
+
++ Bug Fix: Clear momentum if can't slide along wall
+           https://github.com/3dfxdev/hyper3DGE/commit/18bb710
+
++ Bug Fix: Change wall bounce angle from random to perpendicular.
+	   https://github.com/3dfxdev/hyper3DGE/commit/090bc48
+
++ Filesystem/PAK:     Removed edge2.wad in favor of edge2.pak, which shows namespace support
+
+==================
+2.1.0 Test-2
+RELEASED 8.21.2016
+
+!! This release is a TEST, therefore, certain important features might not work - we make no gaurantees for this version!
+
++ Bug Fix: Fixed shifting animated sprites in THINGS.ddf (torches, barrells, etc)
+	   https://sourceforge.net/p/edge2/bugs/20/
+
++ Bug Fix: Inverted wall tiles in mirror were showing wrong previously, and item floating on player crouch
+	   https://sourceforge.net/p/edge2/bugs/19/
+
++ Bug Fix: Tile bug with certain wall textures, notable on 128x96 textures (patches and PNG/JPG/TGA)
+           https://sourceforge.net/p/edge2/bugs/21/
+
++ Bug Fix: Verticle Attack Range (chainsaw/punch, etc) now being checked and calculated using slope float.
+           https://sourceforge.net/p/edge2/bugs/16/
+
++ Bug Fix: grAb chunk for PNG sprites works properly now.
+           https://github.com/3dfxdev/hyper3DGE/commit/912a340c7051b6bc3ee7deffb10844a72c170442
+
++ Bug Fix: 3DGE now unloads level on level exit to stop SFX
+           https://github.com/3dfxdev/hyper3DGE/commit/58ecfd10136693f9f9665a38cc26b1e1fdf8d2df
+
++ Bug Fix: 3DGE now warns the user if an image in DDF is missing, rather than exiting.
+	   https://sourceforge.net/p/edge/bugs/135/
+
++ Bug Fix: fixed non-solid blend error/behavior for transparency.
+           https://github.com/3dfxdev/hyper3DGE/commit/7edea71e65a8d88de8ddcfd89e2f3d7fe412ddb5
+
++ Bug Fix: Fixed Z Momentum clearing to fix jumping behavior
+           https://github.com/3dfxdev/hyper3DGE/commit/61cc95457ca90c219489edd7e0c2fac84187e470
+
++ Bug Fix: Icon of Sin Finale in DOOM II working again
+
++ Bug Fix: finales are now skippable in DOOM 1 episodes without the "black screen of death"
+           https://github.com/3dfxdev/hyper3DGE/commit/586212ffca37513f4202bd2b48c61571d8511a4a
+
++ Bug Fix: Light-Amp Goggles/Nightvision graphics now show up properly in COAL_HUD.ec
+           http://www.tdgmods.net/smf/viewtopic.php?p=4357#p4357
+
++ Bug Fix: DOOM 1 episode end maps will skip intermission screen instead of displaying stats screen (Added STATS=NONE;)
+
++ Bug Fix: "Picked up a armor bonus" text changed to "Picked up an armour bonus" in DDFLANG (doom_ddf).
+
++ Bug Fix: SDL2 Resolution Handling/Window Management has been fixed
+           https://sourceforge.net/p/edge2/bugs/8/
+
++ Bug Fix: Brightness changes on dual-monitor setups no longer affect both screens
+           https://sourceforge.net/p/edge2/bugs/1/
+
++ Bug Fix: 'Use Key' moved to second control page (the previous way prevented reliable changes to major key assignments)
+           http://forum.zdoom.org/viewtopic.php?p=912205#p912205
+
++ Bug Fix: Behavior of volume control buttons in previous SDL1 builds is now fixed and works properly with SDL2
+           https://sourceforge.net/p/edge2/bugs/9/
+
++ Bug Fix: OPL3 mode fixes.
+           https://github.com/3dfxdev/hyper3DGE/pull/17
+
++ Bug Fix: Screen mode wipes correctly display in OPTIONS menu. 
+           https://sourceforge.net/p/edge2/bugs/7/
+
++ Bug Fix: Interpolation fixes, and VSYNC is restored in the OPTIONS menu.
+ 	 - If you use VSYNC, make sure its value is set to '2' or higher in the console, using the r_vsync CVAR.
+         - Failing to do so will result in a poor framerate and a host of other issues.
+
++ Bug Fix: Archivile's attack range was previously Unlimited - added ATTACKRANGE=1024; to mimick Vanilla behavior instead.
+           https://sourceforge.net/p/edge2/bugs/15/
+
++ Bug Fix: Mancubus was invulnerable to Chainsaw damage - changed ATTACKRANGE from 63.9 to 96 (same as punch/Vanilla)
+           https://sourceforge.net/p/edge2/bugs/2/
+
++ New Menu: Multiplayer, with the option to start a split-screen game and some basic configurations for the game.
+ - You must END GAME (leave game in OPTIONS menu) to reset the gamestate to one-player (for now...)
+
++ PAK support is mostly completed, and can be used for mods (must have .PAK extension, directory trees not yet supported)
+
++ NEW FEATURE: New -modpalette command, used to override PLAYPAL for modders who do not wish to use multiple palettes (the 'EDGE' system)
+
++ DDF: Added GLOOP_SOUND to Things.DDF (GLOOP_SOUND="DSGLOOP";) and in SOUNDS.DDF - it is played when the player steps on a liquid flat.
+
++ COMPATIBILITY: You must now specify #VERSION 210 to all DDF files in order to use them with 3DGE -- otherwise, you will be forced to run your
+                 mod with a new command-line switch -v135. If mods are made with EDGE 1.29 or lower, use the switch -v129.
+
++ Revised dynamic lighting, much more natural to their attached objects, and vastly reduced surface areas.
+
++ Heretic support has been vastly improved, but the full-screen overlay HUD still fails to take into account the different Heretic weapon offsets.
+  + Heretic menus have been fixed as well. Numerous other small fixes for compatibility. No longer need 'HERFIX.wad'.
+  + Two HUDS are now available - standard Heretic, and 3DGE's 'overlay'. Standard Heretic HUD still needs lifechain and lifegem fixes in coal_hud.ec
+
++ Heretic can now be started without using the batchfile. Heretic's DDF files are located in its own directory, called 'her_ddf'.
+
++ Staged Wolf3D and ROTT support with command-line args, and DARKWAR.WAD is recognized, but these are far from complete (don't try to load 'em!)
+
++ DDF's must now be appended with the following version directive: #VERSION 210, and if you load a mod that is designed for anything lower than   3DGE 1.36, a fatal crash will occur -- there is no reliable way to load very old mods (below EDGE 1.29), so they need to be manually patched!
+
+==================
+2.1.0 Test-1
+RELEASED 6.13.2016
+
+!! This release is a TEST, therefore, certain important features might not work - we make no gaurantees for this version!
+
+* SDL2 support (input, video, controllers, networking) - this is still being developed!
+
++ NEW FEATURE: OPL music synth. You can now remove the 8MBGMPAT folder and skip using Timidity altogether. 
+	* If OPL is not selected, just set it as the active music device and restart the map. Also can select OPL3 mode for stereo panning.
+
++ NEW FEATURE: grAb PNG chunk (from ZDoom) is implemented, removing the need to manually offset images in IMAGES.DDF if the end-user
+  so desires (only for PNG images).
+ 
++ NEW PACK-INS: Removing Timidity Patches paved the way for a new 'mods' folder, with some recent 3DGE mods being included, and others
+  are explicitly defined in a text file named 'Download_ME.txt'. Just copy the desired mod into root and drag n drop to give it a whirl!
+  Credits are all included.
+  
+* DDF math and engine funcs has been refactored and sped up.
+
+* Better glBSP handling/building (upgrade to Eureka's codebase, also converted to c++)
+
+* Better interpolation handling (no stuttering whatsoever!)
+
+* Much smaller EXE under VS, and the code has been heavily optimized and improved due to Visual Studio's awesome optimizations. Also, many
+  minor bugs were fixed.
+
+- Resolution list-building and in-game changing is completely broken. Either use your previous config or modify edge2.cfg to your desired
+  res. Can also use the command line. This was a result of our continued cleanup of the codebase for SDL2.
+
+- No SSE2 extensions or anything included, and x86. This is to ensure maximum compatibility.
+
+- Heretic support is pretty WIP at this point, as Plums and Cor are redesigning the menu layouts.
+
+- Multiplayer graphic is the menu now, but is not selectable yet. Next release will have split-screen and two-player controls.
+
+
+==================
+v2.0.4 ~Final~
+RELEASED 4/24/2016
+
++ Two builds included with the package:
+  + 3DGE.exe, for older processors that cannot take advantage of instruction sets. Uses older statically-linked libs and older GL headers. Safe for
+    older hardware, and integrated Intel/etc GPUs. 
+
+  + 3DGE-SSE2.exe, recommended for newer AMD or Intels. Renders models, OpenGL instructions, and processes images much quicker, using SIMD instructions for
+    stuff. Eventually, the SSE build will superscede the older NOSSE binary. For now, we are happy to provide our userbase with both flavors ;)
+
++ Interpolation is 99% complete, additionally extending to RTS sector functions as well. HUD is interpolated.
+  Weapons and all of DDF are interpolated. Step ups (even on slopes) are interpolated: nearly everything _but_ texture scrolling and a few very minor things.
+
++ r_vsync can now be "0", "1", or "2", depending on hardware configuration. Check this value in the console by typing in r_vsync before changing this. 
+
++ Additional Bugs Fixed with original maps, logic, etc. Minor but annoying things.
+
++ Updated Heretic support, adds menu graphics and improved other things. To make it run with the SSE2 build, edit HERETIC.bat and rename the executable.
+
++ Updated libs for Windows versions. NOSSE uses older libraries, while SSE replaces some entirely. Adopted libjpeg-turbo, and MD5 sse2 calculations,
+  and integrated NOASM into some stuff, while upgrading to the brand-new GLEW 2.0.0 (replaced the ancient 1.5). Still planning on abandoning GLEW entirely
+  with 2.1.0 and SDL2. 
+
+- We had a Multiplayer menu working along with split and LAN play, but decided to hold off integrating it until 2.1.0 as there are still quite a few small
+  issues with connecting to a HOST, as well as input problems with split-screen. Our SDL2 branch has eleviated all control problems, FYI :-)
+
+*****************************************************
+v2.0.3 CHANGELOG:
+RELEASED 4/2/2016
+*****************************************************
++ Bugs Fixed (too many to go over in this file)
+
++ Reworked menu:
+  + Split Video Options into two: Screen Options and Video Options.
+  + Added new, smaller menu font with much better colors.
+  + Re-Centered most text, including multiplayer stuff.
+  + Added more menu options from cvars as requested.
+  + Added translucent color alphas for menu background drawers for easier readability.
+
++ HUD text is now drawn to the center of the screen.
+
++ Win9X support is back, removed SSE2 compiler optimizations so engine can run on more builds
+
++ Interpolation is slightly improved from the last release, but still needs smooth stepping up.
+
++ Added OpenGL2 mode (though, sprites are not yet ran through this, so it is set to 1 for now)
+
+- Removed pause on screenwipe (didn't look pretty spawning on the floor, waiting for alternative)
+- Removed finale screen "bugfix" (got stuck forever on screens, now instead of black screen, it will just loop over again (this applies to DOOM 1 episodes)
+- Removed invulnerability option completely
+- 
+
+*****************************************************
+v2.0.2 CHANGELOG:
+RELEASED 8/31/2015
+*****************************************************
++ Finale screen bugfix: now, no more black screen when ending a DOOM 1 episode (currently non-skippable to match original game behavior)
+
++ DDF fixes: Chainsaw attack range was set incorrectly, now matches Punching logic; HOOF/METAL sfx audible again.
+
++ Further dehacked tweak to ignore duplicate entries in dehacked lump if it exists
+
++ Added Interpolation option under Video Options (default is ON).
+
++ Finally fixed the SSG appearing in DOOM 1 bug with IDFA/IDKFA cheat.
+
++ Toned down the red palette effect for pain to match Radiation Suit logic.
+
++ When the console is dropped down, the game now pauses.
+
++ When a screen wipe is called, the game will pause and start only after the screen is cleared.
+
+- Invulnerability method was removed from the Video Options menu. The major slowdown issue that was caused because of backface culling has
+  been eliminated when "COMPLEX" was selected. Because of the chance of someone messing with it, Invulnerability has been removed from the menu - 
+  it is *always* set to "Textured" now.
+
+- Small tweaks here and there, updated edge2.wad, removed unnecessary warning strings from console, etc etc.
+
+
+
+*****************************************************
+3DGE 2.0.1
+*****************************************************
+(June 2015)
+
+
++ MD2/MD3/MD5/MDL models now display with Masked Blending (all of the time),
+  so now both sides of a 3D model can be viewed without the backface being
+  culled (front-face culling for mirrors is still active). Expensive, 
+  but now two-sided models can be rendered. This will eventually become 
+  a flag in DDF (MaskBlend in SPECIAL) to allow per-model control rather 
+  than the entire model rendering system, in case there are special models
+  that don't require two-sided faces.
+
++ Bobbing is restored in the source code. No need to tinker with the 
+  BOBBING= setting, though restoring Bobbing introduces hindered interpolation
+  (if r_lerp set to "1"). 2.0.2 will have interpolated head bob. You can adjust
+  the bobbing COMMAND to make it less or more severe, depending on your taste.
+
++ COAL: Added multiple HUDS for DOOM - now you can choose between the classic HUD,
+  no HUD, or the 3DGE HUD (improved with on-screen ammo counts). Just toggle between
+  them with the +/- keys.
+
++ Fixed classic DOOM HUD causing weapon to be vertically "squished".
+
++ Support for FreeDoom Phase 1 and 2 IWADS (freedoom1.wad and freedoom2.wad) and the Chex IWAD. 
+
++ DDF: Vastly improved Styles.DDF Support (allows MENU/OPTIONS/etc. customizations): can customize
+  RTS_MENU now with an animation or graphic. Able to call Anims.DDF through COAL and RTS, 
+  Anims.DDF has been improved.
+
++ DDF: Smoother weapon state ticrates (0.0f), however this is untested.
+
++ BOOM: Working on more generalised linetype compatibility issues. For now I am adding the linetypes into LINES.DDF as I go.
+
++ Fixed a bug with the Quit screen rendering all black instead of transparent.
+
++ Fixed a bug with SpiderDemon and CyberDemon's Walk sounds (METAL/HOOF) not being audible.
+
++ Removed Dehacked version checking in DEH_edge - now, any kind of DEH should load.
+
++ Splashscreen can be enabled with a commandline option (-showsplash); disabled by default.
+
++ HERETIC: New heads-up display, working on writing the default HUD, but for now Heretic users
+ can use the streamlined HUD overlay. Integrated patch graphics for the main menu (temporary 
+ until menu_strings get implemented). The HUD is not in herddf, but in HERFIX.WAD.
+
+Prototypes added:
+
+* Custom SWIM states for monsters
+
+* Custom ON_CONDITION states for MOBJS (to control through RTS)
+
+* Stencil Buffer added to 3DGE (drawplane reflections for water/etc)
+
+* Bounding Box Upgrades (simple directional physics using lightweight library)
+
+* Caustics on walls
+
++ Beginning of Half-Life MDL format support (bones, skeletal)
+
++ Restored DrawLaser in r_Render.cc for eventual laser rendering
+
++ Fixed MD5 scale and rotation, working on skin_img support
+
++ Player 2 Input (rework)
+
++ Start of Decal code (using the Stencil Buffer). 
+
+REMOVED:
++ Action keys 3 + 4 (debugging)
+
+*****************************************************
+3DGE 2.0.0 (Alpha1)
+*****************************************************
+(March 2015)
+
++ Feature: Rendering Interpolation. You can control this with the following CVARS in the console:
+  r_lerp (disables/enables), r_maxfps, r_vsync (helps screen tearing)
+
++ Feature: MD5 model support (please see the 3DGE wiki for information on how to set this up)  
+  -this is still sort of incomplete, as there is no MD5 support for weapons (yet)
+  -the MD5 loader cannot process skin_img yet, but the engine will warn you about the skins
+  +MD2 and MD3 models are still supported as of this release!
+
++ Bugfixes: Hardcoded fog removed, vSYNC works, splashscreen restored
+
++ All changes/fixes from 2.0.1 incorporated
+
++ DDF: Added SECRET_SOUND entry for OUR_HERO in Things.DDF, and a lump in edge2.wad called DSSECRET.
+
+- The next version will include regulations that prevent older mods not designed for EDGE 1.35+
+  to fail, but with instructions on how to convert them to work with the 2.0 branch.
+
+*****************************************************
+3DGE 1.4A [Prototype Release]
+*****************************************************
+(September 2014)
+
+This release is a stopgap to show new features and is the last in the 1.x codebase:
+
+In the first step towards 3DGE 2.0, this release incorporates: 
++ rendering interpolation, though really unfinished (disable with r_lerp)
+ - Currently, doors/lifts/misc remain hard-capped at 35hz
+ -Interpolation throws as many frames up as possible, resulting in inconsistent framerate and no VSYNC
+- Hardcoded fog (cannot disable)
+- Splash screen is disabled
++ Almost all EDGE 1.32 code is removed
+- Headbob is disabled in this release
++ Incorporated Splines lib
++ MD5 backend code lib
++ Quaternion support in EPI: /epi (math_quaternions), used for interpolation, MD5, and Splines
+
+
+*****************************************************
+3DGE 1.36F
+*****************************************************
+(July 2014)
+
+As per suggestion, this version executable is just named "3DGE.exe". 
+
++ Feature: Two NEW Action Buttons (ACTION3 and ACTION4).
+
++ Bugfix: Dehacked Strings now never run out of lines
+
++ Cosmetic: Options Drawer cleaned up, removed splitscreen controls menu (for now)
+
++ Cosmetic: disk-loading icon is now disabled by default (re-enable with m_diskicon)
+
++ Cosmetic: Game now lets player know in console and HUD when a game has been saved.
+
++ Cosmetic: New Default HUD replaces the old BOOM-style one from DosDoom 0.653
+
++ Heretic: To Run Heretic, run HERETIC.BAT. This will append herfix.wad, HDF, and
+           the Heretic IWAD.
+
+*****************************************************
+3DGE 1.36E
+*****************************************************
+(October 2013)
+
+* Author note:
+  I apologize for releasing so many versions of 1.36,
+  the promised "huge" update for 1.37 is still in
+  development and my recent newborn baby has eaten a lot
+  of my time and I haven't been able to give 1.37 proper
+  attention. This is why I'm releasing this now, so at least
+  you all can get an idea on how 3DGE supports HERETIC.
+  
+  Special thanks to 3DGE contributor Chris "Ceejay" Mullen
+  for writing the majority of the DDF code.
+                                             -3DGE Team
+
+***
+Release Notes (PLEASE READ BEFORE RUNNING HERETIC):
+***
+
+++ Added HERETIC support, though it's still WIP. You can
+   finish the game from start to end, but the inventory
+   support is not implemented. To start:
+  
+  1) Unzip 1.36E into your Heretic directory. 
+  2) Create a shortcut to 1.36E.exe
+  3) add the following: -file herfix.wad*
+  
+  * The Herfix.wad contains important state fixing for
+    some of the weapons and creatures. These changes will
+    eventually be integrated into edge2.wad.
+	
+  *!* If you unzip 1.36E into the same folder as DOOM.wad,
+	  you *MUST* specify which IWAD you want to use first.
+	  Use the -iwad parameter. Otherwise, 3DGE will try and
+	  load ALL of the data from HERETIC and DOOM together,
+	  which would probably lead to many problems. If you unzip
+	  this into a clean directory with only Heretic.wad, you
+	  do not need to use the IWAD parameter as 3DGE will
+	  pick this up automatically. As per usual, you must have
+	  a valid HERETIC IWAD.
+	  
+	   ++ IMPORTANT: you must rename the "doom_ddf" folder to
+	                 her_ddf and specify this in the shortcut
+			when running HERETIC, ONLY IF YOU PLAN on
+			 keeping both DOOM.wad and HERETIC.wad in
+			the same directory. Use the -ddf switch
+			for this.
+  
+  + Two-player support also works here, though the
+    input handling has NOT changed, but will be redone
+	for 1.37.
+
+  - HERETIC-specific CHEATS have not been implemented, so
+    if you plan on using them, you must use the DOOM cheat
+	strings. This will eventually be fixed. For instance, you
+	cannot warp into a pig (chicken?) yet.
+	
+  - The HERETIC HUD is not implemented yet, so you will see
+    lots of garbage data. I will be releasing a patch to
+	Herfix.wad to address this in the following weeks.
+	
+  - The menus are garbled, so you must navigate carefully. Load
+    up normal 3DGE+Doom to memorize the menu layout.
+	
++ Took first steps in integrating the MAIN loop from the 
+  Dreamcast version, though you cannot run this version on
+  the SEGA Dreamcast yet (use Dream3DGE 1.29 for that).
+  
+
+*****************************************************
+3DGE 1.36D
+*****************************************************
+(February 2013)
+
+Author Note:
+   This version will be the second-to-last before 1.36
+   final comes (with all promised fixes). I would like
+   to kindly ask that all current users of EDGE 1.35
+   to please upgrade to 1.36D - all major problems
+   have been taken care of except for the experimental
+   stuff defined below. This is so I can focus on all
+   future releases of EDGE rather than having diverted
+   attention to other versions. Thank you for your
+   continued support. Shout out to Andrew Apted for
+   generously supporting the authors of 3DGE and the
+   entire EDGE community - show all of us that this 
+   port can still compete with the big boys and that 
+   our work isn't going unnoticed!        -3DGE TEAM
+
+****
+Release Notes:
+****
+
+++  MAINTANENCE RELEASE. There are important bugfixes that
+    have been addressed! Previous fixes have been
+    retained from 1.36C EXCEPT as defined below:
+
++  HUD Memory Corruption has been resolved, and now
+   text correctly writes to the screen again. This was an
+   issue with old post-processing code that I have since
+   removed. All HUD errors have been fixed, except a
+   notable bug in splitscreen with the FACE images -
+   a simple fix is to keep the default HUD in splitmode
+   rather than choosing to see the full DOOM-style HUD.
+
++  Customizable styles.ddf (namely, background.image) 
+   has been added back and fixed (console image now
+   sizes correctly). By default, the menu graphic
+   is "CONSOL_P", but you can change this to represent
+   a cyan image for full translucency or whatever
+   you desire, really. STYLES support is working again
+   and was actually restored from 1.36A instead of
+   the butchered copy in 1.36C.
+ 
++  Compatibility between mods made before and after
+   1.35 should work fine now. I have chosen not to
+   update the savegame patch level so everything
+   should work as it did previously. Savegames should
+   also continue to work from before.
+   
+*    DDF "FALLING_SFX" has been renamed to
+     "FALLING_SOUND" - this can be used in THINGS.DDF
+	 for the player - alternatively, it can also be
+	 used for monsters. This will occur if the actor
+	 is falling off of something (after -35 units).
+   
+-  ZOOM bug is back, splitscreen bugs still exist
+   for now, and to start Splitscreen you still need
+   to define the switch before you start the port.
+   These will be fixed with 1.36 final.
+
+*****************************************************
+3DGE 1.36C -TEST2-
+*****************************************************
+(November 2011)
+
+Release Notes:
+
++ Bugfixes/Improvements for the following:
+    
+  * 3DGE has limited STYLES support now - the only
+     user-configurable DDF is the CONSOLE background
+	 image, which is default to the 3DGE logo. This
+	 image resides in EDGE2.WAD. The menu graphic
+	 is no longer supported.
+	
+  * Statically-linked EXE no longer needs output
+     MinGW DLLS, period. You still need SDL.DLL in
+	 the base directory.
+  
+  * EXE filesize has been greatly reduced.
+  
+  * NEW FEATURE - SPLITSCREEN MULTIPLAYER -
+    * Now, you can begin splitscreen mode simply by
+      clicking on the additional BATCH file called
+	  "splitscreen". It will ask if you want to play
+	  COOP or DM, and what level/difficulty you would
+	  like to start on. This is being integrated into
+	  the menu and will be available with the final
+	  release. You can still create a shortcut by
+	  using the -splitscreen parameter and select
+	  episode and difficulty. Cheats are disabled by
+	  default.
+	  
+	* Player 2's keys are forced to a joystick for
+	  now. The standard config is explained in the
+	  additional file, "joy_split.txt". The keys are
+	  still not bindable, which will be fixed in the
+	  next release. [this feature will actually
+	  be available in 1.36D]
+	  
+	* Second splitscreen now correctly shows palette
+	  flashes when picking up items and getting hurt
+	  by other enemies. [this feature will actually
+	  be available in 1.36D]
+	  
+	- The HUD is still a WIP and might not give correct
+	  counts or update fast enough. HUD message still
+	  do not appear in multiplayer (working on a fix).
+	  
+	- An oversight in RTS scripting gives a BENEFIT
+	  to both players instead of the one receiving, this
+	  is a known issue and will be corrected in the
+	  next release.
+	  
+  * DDF "SCREAM_SOUND" has been renamed to
+     "FALLING_SFX" - this can be used in THINGS.DDF
+	 for the player - alternatively, it can also be
+	 used for monsters. Added a switch so the sound
+	 doesn't automatically repeat after the first
+	 falling sound plays in SOUNDS.DDF.
+	
+  * Bugfix for the Weapon Selection if the player
+     had both modeled weapons and sprite weapons in
+	 a certain amount. Before, the weapons simply 
+	 wouldn't show up when selected.  (thanks AndrewJ)
+	
+  * Bugfix with ZOOM feature, has been restored to
+     an earlier version (now, no more using a weird
+	 number).
+	 
+  * Cleaned-up the source code. Added FBO and PBO for 
+    testing the inevitable post processing. Released source.
+	
+  * Updated and re-worked documentation - split up
+    the README into several smaller pieces.
+	
+  * Bumped edge2.wad version number to 7 due to the
+    inclusion of the new console graphic. Updated DDF
+	files to version 1.36. 
+	
+  - There is no more cross compatibility between 3DGE
+	and EDGE if mods were created -AFTER- EDGE 1.35. 
+	Likewise, mods created for 3DGE 1.36b and lower
+	might not function in 3DGE 1.36C.
+
+******************************************************
+hyper3DGE 1.36.3b  -NONPRACTICAL TEST ONLY-
+******************************************************
+(July 2011)
+
+Release Notes:
+
++  NEW FEATURE "SPLITSCREEN", for testing ONLY. See below.
+
++  Bugfixes and optimizations
+
+-  HUD may occasionally glitch, working on new things
+   in source.
+   
+-  New Paramter -splitscreen is heavily buggy, no
+   input support for player 2 (only the mouse), makes
+   playing impractical. Mostly to test the mode on
+   numerous systems with weak configurations, especially
+   the GPU side. This is not a viable means of multiplay!
+
+
+******************************************************
+hyper3DGE 1.36.3a  -TEST-
+******************************************************
+(June 2011)
+
+Release Notes:
+
++  DDF Additions: Added SCREAM_SOUND for the player
+   when they fall long distances, ala Hexen.
+
++  Customizable styles.ddf (namely, background.image) 
+   has been added back and fixed (console image now
+   sizes correctly).
+   
+   - Minor bug with STYLES.DDF - if the background
+     image or console images aren't defined first,
+	 there will be a translucent console screen and/or
+	 a black menu screen, etc. This was an oversight.
+
++  Bumped edge2.wad version number
+
++  Released Source.
+
++  Minor cleanups
+
+
+***********************************************
+Version 1.36.2 - TEST - 
+***********************************************
+(April 2011)
+
+Release Notes:
+
+-  FULL compatibility with EDGE mods now. 
+
+-  This version is a "clean" copy from the official
+   final 1.35 release. As such, some of the minor
+   additions from 0.35d are not working.
+
+-  Networking stuff has been added in for debugging. 
+   *All viable netcode has been disabled for this test!
+
+-  MD3 Support! Syntax is the same as MD2, with the
+   exception - lump/file name should be xMD3 instead
+   of xMD2 (where 'x' is the name).
+   Limitations: single-mesh support only, working on
+   full support.
+
+***********************************************
+hyper3DGE 1.35D
+***********************************************
+(February 2011)
+
+Release Notes:
+
++ restored EDGE splashscreen in main code from 1.32
+
++ restored customizable console graphics in styles.ddf
+
++ restored customizable menu graphics in styles.ddf
+
++ renamed a few menu options
+
++ updated many of the project libraries to new versions
+
++ changed EDGE icon to hypertension icon
+
