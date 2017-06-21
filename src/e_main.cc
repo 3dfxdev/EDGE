@@ -116,6 +116,8 @@ bool heretic_mode = false; //hack!
 
 bool show_splash = true;
 
+bool no_render_buffers = false;
+
 // -ES- 2000/02/13 Takes screenshot every screenshot_rate tics.
 // Must be used in conjunction with singletics.
 static int screenshot_rate;
@@ -356,6 +358,8 @@ static void SetGlobalVars(void)
 	M_CheckBooleanParm("crouching", &global_flags.crouch, false);
 	M_CheckBooleanParm("weaponswitch", &global_flags.weapon_switch, false);
 	M_CheckBooleanParm("autoload", &autoquickload, false);
+
+	M_CheckBooleanParm("norenderbuffers", &no_render_buffers, false);
 
 	if (M_CheckParm("-wolf3d_mode"))
 		wolf3d_mode = true;
