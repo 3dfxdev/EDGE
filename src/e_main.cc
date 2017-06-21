@@ -1769,13 +1769,11 @@ static void E_Startup(void)
 
 	DoSystemStartup();
 
+	bool nosplash = false;
+
 	//Splash Screen Check
-	ps = M_GetParm("-nosplash");
-	if (ps)
-	{
-		//E_SplashScreen();
-	}
-	else
+	M_CheckBooleanParm("nosplash", &nosplash, false);
+	if (!nosplash)
 	{
 		E_SplashScreen();
 	}
