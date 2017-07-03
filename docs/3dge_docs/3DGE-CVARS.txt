@@ -18,6 +18,9 @@ Command line options:
   -version             Show version of EDGE and exit.
   
   -splitscreen         Starts the engine/mod with splitscreen support.
+
+  -norenderbuffers     Starts EDGE without post-processing buffers. 
+                       (Use this if you experience speed drops on older PCs!)
   
   -nosplash            Eschew the pretty 3DGE logo splashscreen.
 
