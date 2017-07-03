@@ -12,9 +12,10 @@ Known Issues:
   - OpenGL 3 mode does not pass sprites through the renderer yet.
 
   - Shader support is still a work in progress. If you hardware does not
-    support it, or you are running Linux + ATI, please make sure your config file
-    has those CVARs set to '0' before running 3DGE, otherwise you might not
-    be able to see anything but 0,0,0,0. 
+    support it, or you notice slugglishness, restart 3DGE with the command-
+    line switch, "-norenderbuffers". This will disable the post-processing
+    available in OpenGL2 and up (it will work even if you are set to 'OpenGL1
+    mode' - most hardware supports it by default).
 
   - HERETIC support is heavily in WIP:
 	- Cheats do not work
@@ -61,7 +62,12 @@ ERRORS, AND HOW TO SOLVE THEM:
 =============================
 
     Q: 3DGE doesn't start! It's crap!!
-    A) Make sure the IWAD you want to load is in the same folder as the executable, or your DOOMWADDIR and DOOMWADPATH        are defined.
 
-    Q:  The procedure entry point ucrtbase.terminate could not be located in the dynamic liabrary api-ms-win-crt-              runtime-l1-1-0.dll. What do I do?
-    A) You need to (re)install the Visual C++ Redistributable for Visual Studio 2015, either via Windows Update or        download and directly install the Visual C++ Redistributable. See https://sourceforge.net/p/edge2/bugs/28/.
+    >A) Make sure the IWAD you want to load is in the same folder as the executable, or your DOOMWADDIR and DOOMWADPATH
+        are defined. Just follow the same way its done with normal DOOM and you will be fine. We are working on an
+        automatic IWAD selector, but in the meantime -- keep it oldschool. ;-)
+      
+
+    Q:  The procedure entry point ucrtbase.terminate could not be located in the dynamic liabrary api-ms-win-crt-              runtime-l1-1-0.dll. What do I do??
+
+    >A) You need to (re)install the Visual C++ Redistributable for Visual Studio 2015, either via Windows Update or        download and directly install the Visual C++ Redistributable. See https://sourceforge.net/p/edge2/bugs/28/.
