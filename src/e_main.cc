@@ -985,7 +985,7 @@ void InitDirectories(void)
 // Adding HERETIC.WAD to string 2.24.2013
 // Kept freedoom.wad for backward compatibility
 // 2016/02/07: Added Darkwar.wad for ROTT
-const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "hacx", "heretic", "freedoom", "freedm", "chex", "freedoom1", "freedoom2", "darkwar", NULL };
+const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "hacx", "heretic", "freedoom", "freedm", "chex", "freedoom1", "freedoom2", "darkwar", "hyper", "slave", NULL };
 
 static void IdentifyVersion(void)
 {
@@ -1398,7 +1398,7 @@ static void ShowDateAndVersion(void)
 	I_Printf("3DGE v" EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
 	I_Printf("hyper3DGE homepage is at http://edge2.sourceforge.net/\n");
 	I_Printf("hyper3DGE wiki is at http://3dfxdev.net/edgewiki/\n");
-	I_Printf("hyper3DGE is based on DOOM by id Software http://www.idsoftware.com/\n");
+	I_Printf("hyper3DGE is based on id Tech by id Software http://www.idsoftware.com/\n");
 	I_Printf("hyper3DGE problems should be reported at http://tdgmods.net/smf\n");
 
 #ifdef WIN32
