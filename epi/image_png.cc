@@ -2,7 +2,7 @@
 //  PNG Image Handling
 //------------------------------------------------------------------------
 //
-//  Copyright (c) 2003-2008  The EDGE Team.
+//  Copyright (c) 2003-2017  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -23,6 +23,11 @@
 
 #undef _SETJMP_H  // workaround for some weirdness in pngconf.h
 
+// Needed for libpng17 support!
+#define PNG_READ_IMAGE_SUPPORTED
+#define PNG_SEQUENTIAL_READ_SUPPORTED
+#define PNG_WRITE_PNG_SUPPORTED
+
 #include <png.h>
 #include <zlib.h>
 
@@ -30,6 +35,7 @@
 #if __cplusplus < 201103L && (!defined(_MSC_VER) || _MSC_VER < 1900)
 #define nullptr NULL
 #endif
+
 
 namespace epi
 {
@@ -204,11 +210,13 @@ namespace epi
 				memcpy(grAb, unknowns[i].data, sizeof(png_grAb_t));
 				grAb->x = EPI_BE_S32(grAb->x);
 				grAb->y = EPI_BE_S32(grAb->y);
-				printf("Got grAb struct: %d/%d\n", grAb->x, grAb->y);
+				I_Printf("Got grAb struct: %d/%d\n", grAb->x, grAb->y);
 				if (grAb->x)
-					grAb->x = width / 2 - grAb->x;
+					grAb->x += (160 - width / 2);
+					//grAb->x = width / 2 - grAb->x;
 				if (grAb->y)
-					grAb->y = height - grAb->y;
+					grAb->y += (200 - 32 - height);
+					///grAb->y = height - grAb->y;
 				//                grAb->x += (160 - width / 2);
 				//                grAb->y += (200 - 32 - height);
 				img->grAb = grAb;
