@@ -43,6 +43,8 @@
 
 #define INTOLERANT_MATH 1  // -AJA- FIXME: temp fix to get to compile
 
+#include <InitGuid.h>
+
 extern FILE* debugfile;
 extern FILE* logfile;
 

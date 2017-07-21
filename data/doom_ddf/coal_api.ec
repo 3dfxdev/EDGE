@@ -1,6 +1,6 @@
 //------------------------------------------
-//  BASIC COAL DEFINITIONS for EDGE
-//  Copyright (c) 2009-2010 The Edge Team
+//  BASIC COAL DEFINITIONS for 3DGE
+//  Copyright (c) 2009-2017 Isotope SoftWorks
 //  Under the GNU General Public License
 //------------------------------------------
 
