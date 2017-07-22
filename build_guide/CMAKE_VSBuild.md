@@ -1,5 +1,5 @@
 # 3DGE - CMake/Visual Studio Building Instructions
-# (C) 2011-2016 Isotope SoftWorks & Contributors
+# (C) 2011-2017 Isotope SoftWorks & Contributors
 ##### id Tech/id Tech 2/ id Tech 3/ id Tech 4 (C) id Software, LLC
 #### All id techs (and 3DGE itself) Licensed under the GPLv2
 http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
@@ -23,7 +23,7 @@ This build uses CMakeLists.txt, CMake-GUI, and Visual Studio to compile for Win3
 ### Configuring 3DGE (CMakeLists.txt)
 1) Open CMake-GUI
 2) Set the source code directory to your 3DGE source folder and the build directory to a subdirectory called build (or however you choose to do this)
-3) When asked for a Generator, *choose 'Visual Studio 14 2015'*
+3) When asked for a Generator, *choose 'Visual Studio 14 2015'*. Use the paremeter v140_xp if you want to compile with WinXP support.
 4) You'll likely get some errors, that's because it can't find the libraries on its own without extra information; for now just go through all the red entries and point them to the appropriate .lib files and include folders.
 5) Once Configure completes successfully, click Generate and then you'll get a file called 3DGE.sln in the build folder, which you can use to compile 3DGE with Visual Studio Community 2015 (other VS versions are unttested).
 
@@ -35,6 +35,6 @@ This build uses CMakeLists.txt, CMake-GUI, and Visual Studio to compile for Win3
 #### NOTE: You might run into compile issues with VS if you have MinGW installed on your system (usually c:\MinGW). If that happens, as a quick fix, rename your MinGW directory (e.g. c:\MinGW_) and build again.
 
 ---
-(C) Isotope SoftWorks, 2016
+(C) Isotope SoftWorks, 2017
 
 
