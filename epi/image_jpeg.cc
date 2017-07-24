@@ -20,7 +20,8 @@
 
 #include "image_jpeg.h"
 
-#if defined WIN32 && !defined SSE2
+// CA 7.24.17: Changed this so we always build SSE2 version under Windows 
+#if defined WIN32 && !defined _MSC_VER
 extern "C"
 {
 // horrible workaround for INT32 typedef incompatibility between
@@ -28,7 +29,7 @@ extern "C"
 #define INT32  INT32_jpeg
 } //libjpeg-turbo seems to be allergic to C style linking.
 #endif
-#if defined SSE2
+#if defined _MSC_VER
 #include <turbojpeg.h>
 #include <jpeglib.h> //NOTE: this implementation will call the first version listed in the makefile regardless of whether jpeg-turbo is supported.
 #include <jerror.h>
