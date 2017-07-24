@@ -44,7 +44,6 @@
 #include "../epi/file.h"
 #include "../epi/file_sub.h"
 #include "../epi/filesystem.h"
-#include "../epi/rawdef_zip.h"
 #include "../epi/math_md5.h"
 #include "../epi/path.h"
 #include "../epi/str_format.h"
@@ -74,7 +73,6 @@
 #include "wlf_local.h"
 #include "wlf_rawdef.h"
 #include "w_wad.h"
-#include "w_pak.h"
 #include "z_zone.h"
 
 #ifdef HAVE_PHYSFS
@@ -157,6 +155,9 @@ public:
 	int coal_huds;
 	int coal_api;
 
+	// GLSL Shaders
+	int shader_files;
+
 	// BOOM stuff
 	int animated, switches;
 
@@ -176,7 +177,7 @@ public:
 		colmap_lumps(), tx_lumps(), hires_lumps(),
 		level_markers(), skin_markers(),
 		wadtex(), deh_lump(-1), coal_huds(-1),
-		coal_api(-1), animated(-1), switches(-1),
+		coal_api(-1), shader_files(-1), animated(-1), switches(-1),
 		companion_gwa(-1), dir_hash()
 	{
 		file_name = strdup(_fname);
@@ -225,7 +226,8 @@ typedef enum
 	LMKIND_Flat = 16,
 	LMKIND_Sprite = 17,
 	LMKIND_Patch = 18,
-	LMKIND_HiRes = 19
+	LMKIND_HiRes = 19,
+	LMKIND_Shaders = 20
 }
 lump_kind_e;
 
@@ -1496,6 +1498,11 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
 		}
 		else if (stricmp(fname, "scripts") == 0)
+		{
+			// enumerate scripts subdirectory
+			PHYSFS_enumerateFilesCallback(path, ScriptNamespace, userData);
+		}
+		else if (stricmp(fname, "shaders") == 0)
 		{
 			// enumerate scripts subdirectory
 			PHYSFS_enumerateFilesCallback(path, ScriptNamespace, userData);
