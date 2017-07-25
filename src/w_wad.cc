@@ -733,18 +733,19 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		df->deh_lump = lump;
 		return;
 	}
-	else if (strncmp(lump_p->name, "COALHUDS", 8) == 0)
-	{
-		lump_p->kind = LMKIND_DDFRTS;
-		df->coal_huds = lump;
-		return;
-	}
 	else if (strncmp(lump_p->name, "COALAPI", 8) == 0)
 	{
 		lump_p->kind = LMKIND_DDFRTS;
 		df->coal_api = lump;
 		return;
 	}
+	else if (strncmp(lump_p->name, "COALHUDS", 8) == 0)
+	{
+		lump_p->kind = LMKIND_DDFRTS;
+		df->coal_huds = lump;
+		return;
+	}
+
 	else if (strncmp(lump_p->name, "ANIMATED", 8) == 0)
 	{
 		lump_p->kind = LMKIND_DDFRTS;
@@ -2173,11 +2174,12 @@ void W_ReadCoalLumps(void)
 		if (df->kind > FLKIND_Lump)
 			continue;
 
+		if (df->coal_api >= 0)
+			VM_LoadLumpOfCoal(df->coal_api);
+
 		if (df->coal_huds >= 0)
 			VM_LoadLumpOfCoal(df->coal_huds);
 
-		if (df->coal_api >= 0)
-			VM_LoadLumpOfCoal(df->coal_api);
 	}
 }
 
