@@ -2,7 +2,7 @@
 //  EDGE2 Quake II FileSystem
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2015 Isotope SoftWorks and Contributors.
+//  Copyright (c) 2015-2017 Isotope SoftWorks and Contributors.
 //  Based on the Quake 2 GPL Source, (C) id Software.
 //
 //  Uses code from KMQuake II, (C) Mark "KnightMare" Shan.
@@ -98,6 +98,7 @@ char *COM_Parse (char **data_p)
 	len = 0;
 	com_token[0] = 0;
 	
+
 	if (!data)
 	{
 		*data_p = NULL;
@@ -124,14 +125,45 @@ skipwhite:
 		goto skipwhite;
 	}
 
-// handle quoted strings specially
+
+// Coraline 7.27.17:
+	// Rewrote this code for handling quoted strings, as it would trigger an Access Violation in VS otherwise. 
+	if ( c == '\"' ) 
+	{
+		data++;
+		while ( 1 ) 
+		{
+			c = *data++;
+			if ( ( c == '\\' ) && ( *data == '\"' ) ) 
+			{
+				// allow quoted strings to safely use \" to indicate the " character
+				data++;
+			} else if ( c == '\"' || !c ) 
+			{
+				com_token[len] = 0;
+				*data_p = ( char * ) data;
+				return com_token;
+
+			} 
+			else if ( *data == '\n' ) 
+			{
+				// Nothing yet!
+			}
+			if ( len < MAX_TOKEN_CHARS - 1 ) 
+			{
+				com_token[len] = c;
+				len++;
+			}
+		}
+	}
+#if 0
 	if (c == '\"')
 	{
 		data++;
 		while (1)
 		{
 			c = *data++;
-			if (c=='\"' || !c)
+			if (c == '\"' || !c)
 			{
 				com_token[len] = 0;
 				*data_p = data;
@@ -144,6 +176,8 @@ skipwhite:
 			}
 		}
 	}
+#endif // 0
+
 
 // parse a regular word
 	do
