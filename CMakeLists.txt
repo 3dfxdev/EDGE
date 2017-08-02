@@ -25,12 +25,6 @@ add_custom_target(revision_check ALL
    DEPENDS updaterevision 
 )
 
-# eecrashreport
-add_custom_target(revision_check ALL
-   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-   DEPENDS eecrashreport
-)
-
 # See /VSLibs/lib_versions.txt
 
 set( CPUID_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libcpuid/include" )
@@ -149,11 +143,12 @@ set(3DGE_SOURCES
 	deh_edge/patch.cc
 	deh_edge/rscript.cc
 
-	src/i_main.cc
-	src/i_ctrl.cc
-	src/i_video.cc
-	src/i_sound.cc
-	src/i_net.cc
+	src/system/i_main.cc
+	src/system/i_ctrl.cc
+	src/system/i_video.cc
+	src/system/i_sound.cc
+	src/system/i_net.cc
+
 	src/am_map.cc
 	src/con_con.cc
 	src/con_main.cc
@@ -264,10 +259,11 @@ set(3DGE_SOURCES
 	src/vm_coal.cc
 	src/vm_hud.cc
 	src/vm_player.cc
-	src/wlf_util.cc
-	src/wlf_vswap.cc
-	src/wlf_maps.cc
-	src/wlf_setup.cc
+
+	src/games/wolf3d/wlf_util.cc
+	src/games/wolf3d/wlf_vswap.cc
+	src/games/wolf3d/wlf_maps.cc
+	src/games/wolf3d/wlf_setup.cc
 	
 	src/md5_conv/md5_load.cc
 	src/md5_conv/md5_parse.cc
@@ -328,25 +324,25 @@ set(3DGE_SOURCES
 	timidity/tables.cc
 	timidity/timidity.cc
 
-	opllib/opl3.cc
-	opllib/oplapi.cc
+	src/opllib/opl3.cc
+	src/opllib/oplapi.cc
 	
 )
 
 set(3DGE_WIN32_SOURCES
-	src/i_exception.cc
-	src/w32_music.cc
-	src/w32_mus.cc
-	src/w32_net.cc
-	src/w32_system.cc
-	src/w32_res.rc
+	src/system/win32/i_exception.cc
+	src/system/win32/w32_music.cc
+	src/system/win32/w32_mus.cc
+	src/system/win32/w32_net.cc
+	src/system/win32/w32_system.cc
+	src/system/win32/w32_res.rc
 )
 
 set(3DGE_UNIX_SOURCES
-	src/unx_main.cc
-	src/unx_music.cc
-	src/unx_net.cc
-	src/unx_system.cc
+	src/system/unx/unx_main.cc
+	src/system/unx/unx_music.cc
+	src/system/unx/unx_net.cc
+	src/system/unx/unx_system.cc
 )
 
 set(3DGE_DREAMCAST_SOURCES
