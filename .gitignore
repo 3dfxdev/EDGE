@@ -13,11 +13,14 @@ edge.exe
 lib_linux
 obj_linux
 obj_bsd
+obj_build
 build
+build2
 releases
 backups
 src/gitinfo.h
 *.dll
 VSLibs
 ffmpeg
-upx
+md5_conv
+splines
