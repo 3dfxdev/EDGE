@@ -16,17 +16,17 @@
 //
 //----------------------------------------------------------------------------
 
-#include "system/i_defs.h"
-#include "system/i_sdlinc.h"
+#include "i_defs.h"
+#include "i_sdlinc.h"
 
-#include "dm_defs.h"
-#include "dm_state.h"
-#include "e_event.h"
-#include "e_input.h"
-#include "e_main.h"
-#include "e_player.h"
-#include "m_argv.h"
-#include "r_modes.h"
+#include "../dm_defs.h"
+#include "../dm_state.h"
+#include "../e_event.h"
+#include "../e_input.h"
+#include "../e_main.h"
+#include "../e_player.h"
+#include "../m_argv.h"
+#include "../r_modes.h"
 
 #ifdef WIN32
 // put win32 specific ff stuff here
