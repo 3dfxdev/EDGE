@@ -99,8 +99,8 @@ fflush(stdout);
 #else
 
 	// this is to help debug MD5 models!
-	const char *a[] = { "-file","edgemd5.pk3" };
-	E_Main(2, a);
+	//const char *a[] = { "-file","edgemd5.pk3" };
+	//E_Main(2, a);
 
 
 
@@ -127,7 +127,7 @@ fflush(stdout);
 	// Run EDGE2. it never returns
 	_try
 	{
-		I_TweakConsole();
+		//I_TweakConsole();
 		E_Main(argc, (const char **) argv);
 		//common_main(argc, argv);
 	}

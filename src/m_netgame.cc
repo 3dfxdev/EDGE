@@ -1147,7 +1147,7 @@ void M_SplitGameDrawer(void)
 		case 2: M_DrawPlayerList(); return;
 	}
 
-	I_Error("INTERNAL ERROR: splitgame_menuon=%d\n", netgame_menuon);
+	I_Error("INTERNAL ERROR: splitgame_menuon=%d\n", splitgame_menuon);
 }
 
 bool M_NetGameResponder(event_t * ev, int ch)
