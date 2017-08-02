@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "system/i_defs.h"
-#include "system/i_sdlinc.h"
+#include "i_defs.h"
+#include "i_sdlinc.h"
 
 #include <fcntl.h>
 #include <signal.h>
@@ -29,13 +29,13 @@
 #include <sys/time.h>
 #endif
 
-#include "m_argv.h"
-#include "m_misc.h"
-#include "m_random.h"
-#include "s_sound.h"
-#include "s_cache.h"
-#include "s_blit.h"
-#include "w_wad.h"
+#include "../m_argv.h"
+#include "../m_misc.h"
+#include "../m_random.h"
+#include "../s_sound.h"
+#include "../s_cache.h"
+#include "../s_blit.h"
+#include "../w_wad.h"
 
 
 // If true, sound system is off/not working. Changed to false if sound init ok.
