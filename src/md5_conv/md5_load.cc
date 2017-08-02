@@ -88,7 +88,7 @@ static void md5_load_joints(MD5model *m)
 	TODO move this to somewhere that makes more sense
 	SOLUTION: Move this "remove_tail" into q2stuff.c (need to rename epi_quake2.cc!)
 */
-extern "C" int Q_strcasecmp (const char *s1, const char *s2);
+extern int Q_strcasecmp (const char *s1, const char *s2);
 
 static void remove_tail(char * src, const char * tail) 
 {

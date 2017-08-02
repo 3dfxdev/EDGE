@@ -33,11 +33,9 @@ static char md5_error_msg[MAX_MD5_ERROR_MSG];
 static struct { char *data, *curtoken; int parsing; } md5_parse;
 
 void I_Error(const char *error,...);
-extern "C" 
-{
-	int Q_strcasecmp (const char *s1, const char *s2);
-	char *COM_Parse (char **data_p);
-}
+
+int Q_strcasecmp (const char *s1, const char *s2);
+char *COM_Parse (char **data_p);
 
 #define dbo(a, ...) do { printf(a, __VA_ARGS__); fflush(stdout); } while(0)
 #define dbl() do { dbo("[%s %i]\n",__FILE__, __LINE__); } while(0)
