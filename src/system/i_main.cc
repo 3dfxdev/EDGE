@@ -16,19 +16,19 @@
 //
 //----------------------------------------------------------------------------
 
-#include "system/i_defs.h"
-#include "system/i_sdlinc.h"  // needed for proper SDL main linkage
+#include "i_defs.h"
+#include "i_sdlinc.h"  // needed for proper SDL main linkage
 
-#include "../epi/exe_path.h"
+#include "../../epi/exe_path.h"
 
-#include "dm_defs.h"
-#include "m_argv.h"
-#include "e_main.h"
-#include "version.h"
+#include "../dm_defs.h"
+#include "../m_argv.h"
+#include "../e_main.h"
+#include "../version.h"
 
 #ifdef _MSC_VER
 #include <windows.h>
-#include "system/win32/w32_sysinc.h"
+#include "win32/w32_sysinc.h"
 extern int __cdecl I_W32ExceptionHandler(PEXCEPTION_POINTERS ep);
 #endif
 
