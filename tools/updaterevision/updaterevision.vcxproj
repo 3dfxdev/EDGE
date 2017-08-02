@@ -1,0 +1,375 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|Win32">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|Win32">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGUID>{954C58C7-E02B-3AD8-8243-389154F38D74}</ProjectGUID>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>updaterevision</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140_xp</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+    <PropertyGroup>
+      <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+      <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\hyper3DGE\tools\updaterevision\Debug\</OutDir>
+      <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">updaterevision.dir\Debug\</IntDir>
+      <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">updaterevision</TargetName>
+      <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.exe</TargetExt>
+      <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+      <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
+      <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\hyper3DGE\tools\updaterevision\Release\</OutDir>
+      <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">updaterevision.dir\Release\</IntDir>
+      <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">updaterevision</TargetName>
+      <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.exe</TargetExt>
+      <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+      <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
+      <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\hyper3DGE\tools\updaterevision\MinSizeRel\</OutDir>
+      <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">updaterevision.dir\MinSizeRel\</IntDir>
+      <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">updaterevision</TargetName>
+      <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.exe</TargetExt>
+      <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkIncremental>
+      <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">true</GenerateManifest>
+      <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\hyper3DGE\tools\updaterevision\RelWithDebInfo\</OutDir>
+      <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">updaterevision.dir\RelWithDebInfo\</IntDir>
+      <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">updaterevision</TargetName>
+      <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.exe</TargetExt>
+      <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</LinkIncremental>
+      <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</GenerateManifest>
+    </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\hyper3DGE\VSLibs\physfs\include;C:\hyper3DGE\VSLibs\SDL2-2.0.3\include;C:\hyper3DGE\VSLibs\SDL2_net-2.0.1\include;C:\hyper3DGE\VSLibs\glew-2.0.0\include;C:\hyper3DGE\VSLibs\libogg-1.3.2\include;C:\hyper3DGE\VSLibs\libvorbis-1.3.5\include;C:\hyper3DGE\VSLibs\zlib-1.2.8\include;C:\hyper3DGE\VSLibs\libcpuid\include;C:\hyper3DGE\VSLibs\lpng1620\include;C:\hyper3DGE\VSLibs\libjpeg-turbo\include;C:\hyper3DGE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAs>CompileAsC</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_CRT_SECURE_NO_WARNINGS=1;DEH_EDGE_PLUGIN;HAVE_PHYSFS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_CRT_SECURE_NO_WARNINGS=1;DEH_EDGE_PLUGIN;HAVE_PHYSFS;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\hyper3DGE\VSLibs\physfs\include;C:\hyper3DGE\VSLibs\SDL2-2.0.3\include;C:\hyper3DGE\VSLibs\SDL2_net-2.0.1\include;C:\hyper3DGE\VSLibs\glew-2.0.0\include;C:\hyper3DGE\VSLibs\libogg-1.3.2\include;C:\hyper3DGE\VSLibs\libvorbis-1.3.5\include;C:\hyper3DGE\VSLibs\zlib-1.2.8\include;C:\hyper3DGE\VSLibs\libcpuid\include;C:\hyper3DGE\VSLibs\lpng1620\include;C:\hyper3DGE\VSLibs\libjpeg-turbo\include;C:\hyper3DGE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\hyper3DGE\VSLibs\physfs\include;C:\hyper3DGE\VSLibs\SDL2-2.0.3\include;C:\hyper3DGE\VSLibs\SDL2_net-2.0.1\include;C:\hyper3DGE\VSLibs\glew-2.0.0\include;C:\hyper3DGE\VSLibs\libogg-1.3.2\include;C:\hyper3DGE\VSLibs\libvorbis-1.3.5\include;C:\hyper3DGE\VSLibs\zlib-1.2.8\include;C:\hyper3DGE\VSLibs\libcpuid\include;C:\hyper3DGE\VSLibs\lpng1620\include;C:\hyper3DGE\VSLibs\libjpeg-turbo\include;C:\hyper3DGE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message>Embedding trustinfo into updaterevision</Message>
+      <Command>setlocal
+mt -inputresource:C:/hyper3DGE/tools/updaterevision/Debug/updaterevision.exe -manifest C:/hyper3DGE/tools/updaterevision/trustinfo.txt -outputresource:C:/hyper3DGE/tools/updaterevision/Debug/updaterevision.exe -nologo
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>Debug</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/hyper3DGE/tools/updaterevision/Debug/updaterevision.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/hyper3DGE/tools/updaterevision/Debug/updaterevision.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version></Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\hyper3DGE\VSLibs\physfs\include;C:\hyper3DGE\VSLibs\SDL2-2.0.3\include;C:\hyper3DGE\VSLibs\SDL2_net-2.0.1\include;C:\hyper3DGE\VSLibs\glew-2.0.0\include;C:\hyper3DGE\VSLibs\libogg-1.3.2\include;C:\hyper3DGE\VSLibs\libvorbis-1.3.5\include;C:\hyper3DGE\VSLibs\zlib-1.2.8\include;C:\hyper3DGE\VSLibs\libcpuid\include;C:\hyper3DGE\VSLibs\lpng1620\include;C:\hyper3DGE\VSLibs\libjpeg-turbo\include;C:\hyper3DGE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS=1;DEH_EDGE_PLUGIN;HAVE_PHYSFS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat></DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS=1;DEH_EDGE_PLUGIN;HAVE_PHYSFS;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\hyper3DGE\VSLibs\physfs\include;C:\hyper3DGE\VSLibs\SDL2-2.0.3\include;C:\hyper3DGE\VSLibs\SDL2_net-2.0.1\include;C:\hyper3DGE\VSLibs\glew-2.0.0\include;C:\hyper3DGE\VSLibs\libogg-1.3.2\include;C:\hyper3DGE\VSLibs\libvorbis-1.3.5\include;C:\hyper3DGE\VSLibs\zlib-1.2.8\include;C:\hyper3DGE\VSLibs\libcpuid\include;C:\hyper3DGE\VSLibs\lpng1620\include;C:\hyper3DGE\VSLibs\libjpeg-turbo\include;C:\hyper3DGE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\hyper3DGE\VSLibs\physfs\include;C:\hyper3DGE\VSLibs\SDL2-2.0.3\include;C:\hyper3DGE\VSLibs\SDL2_net-2.0.1\include;C:\hyper3DGE\VSLibs\glew-2.0.0\include;C:\hyper3DGE\VSLibs\libogg-1.3.2\include;C:\hyper3DGE\VSLibs\libvorbis-1.3.5\include;C:\hyper3DGE\VSLibs\zlib-1.2.8\include;C:\hyper3DGE\VSLibs\libcpuid\include;C:\hyper3DGE\VSLibs\lpng1620\include;C:\hyper3DGE\VSLibs\libjpeg-turbo\include;C:\hyper3DGE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message>Embedding trustinfo into updaterevision</Message>
+      <Command>setlocal
+mt -inputresource:C:/hyper3DGE/tools/updaterevision/Release/updaterevision.exe -manifest C:/hyper3DGE/tools/updaterevision/trustinfo.txt -outputresource:C:/hyper3DGE/tools/updaterevision/Release/updaterevision.exe -nologo
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>No</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/hyper3DGE/tools/updaterevision/Release/updaterevision.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/hyper3DGE/tools/updaterevision/Release/updaterevision.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version></Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\hyper3DGE\VSLibs\physfs\include;C:\hyper3DGE\VSLibs\SDL2-2.0.3\include;C:\hyper3DGE\VSLibs\SDL2_net-2.0.1\include;C:\hyper3DGE\VSLibs\glew-2.0.0\include;C:\hyper3DGE\VSLibs\libogg-1.3.2\include;C:\hyper3DGE\VSLibs\libvorbis-1.3.5\include;C:\hyper3DGE\VSLibs\zlib-1.2.8\include;C:\hyper3DGE\VSLibs\libcpuid\include;C:\hyper3DGE\VSLibs\lpng1620\include;C:\hyper3DGE\VSLibs\libjpeg-turbo\include;C:\hyper3DGE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>MinSizeRel/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS=1;DEH_EDGE_PLUGIN;HAVE_PHYSFS;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat></DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS=1;DEH_EDGE_PLUGIN;HAVE_PHYSFS;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\hyper3DGE\VSLibs\physfs\include;C:\hyper3DGE\VSLibs\SDL2-2.0.3\include;C:\hyper3DGE\VSLibs\SDL2_net-2.0.1\include;C:\hyper3DGE\VSLibs\glew-2.0.0\include;C:\hyper3DGE\VSLibs\libogg-1.3.2\include;C:\hyper3DGE\VSLibs\libvorbis-1.3.5\include;C:\hyper3DGE\VSLibs\zlib-1.2.8\include;C:\hyper3DGE\VSLibs\libcpuid\include;C:\hyper3DGE\VSLibs\lpng1620\include;C:\hyper3DGE\VSLibs\libjpeg-turbo\include;C:\hyper3DGE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\hyper3DGE\VSLibs\physfs\include;C:\hyper3DGE\VSLibs\SDL2-2.0.3\include;C:\hyper3DGE\VSLibs\SDL2_net-2.0.1\include;C:\hyper3DGE\VSLibs\glew-2.0.0\include;C:\hyper3DGE\VSLibs\libogg-1.3.2\include;C:\hyper3DGE\VSLibs\libvorbis-1.3.5\include;C:\hyper3DGE\VSLibs\zlib-1.2.8\include;C:\hyper3DGE\VSLibs\libcpuid\include;C:\hyper3DGE\VSLibs\lpng1620\include;C:\hyper3DGE\VSLibs\libjpeg-turbo\include;C:\hyper3DGE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message>Embedding trustinfo into updaterevision</Message>
+      <Command>setlocal
+mt -inputresource:C:/hyper3DGE/tools/updaterevision/MinSizeRel/updaterevision.exe -manifest C:/hyper3DGE/tools/updaterevision/trustinfo.txt -outputresource:C:/hyper3DGE/tools/updaterevision/MinSizeRel/updaterevision.exe -nologo
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>No</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/hyper3DGE/tools/updaterevision/MinSizeRel/updaterevision.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/hyper3DGE/tools/updaterevision/MinSizeRel/updaterevision.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version></Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\hyper3DGE\VSLibs\physfs\include;C:\hyper3DGE\VSLibs\SDL2-2.0.3\include;C:\hyper3DGE\VSLibs\SDL2_net-2.0.1\include;C:\hyper3DGE\VSLibs\glew-2.0.0\include;C:\hyper3DGE\VSLibs\libogg-1.3.2\include;C:\hyper3DGE\VSLibs\libvorbis-1.3.5\include;C:\hyper3DGE\VSLibs\zlib-1.2.8\include;C:\hyper3DGE\VSLibs\libcpuid\include;C:\hyper3DGE\VSLibs\lpng1620\include;C:\hyper3DGE\VSLibs\libjpeg-turbo\include;C:\hyper3DGE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>RelWithDebInfo/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS=1;DEH_EDGE_PLUGIN;HAVE_PHYSFS;CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS=1;DEH_EDGE_PLUGIN;HAVE_PHYSFS;CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\hyper3DGE\VSLibs\physfs\include;C:\hyper3DGE\VSLibs\SDL2-2.0.3\include;C:\hyper3DGE\VSLibs\SDL2_net-2.0.1\include;C:\hyper3DGE\VSLibs\glew-2.0.0\include;C:\hyper3DGE\VSLibs\libogg-1.3.2\include;C:\hyper3DGE\VSLibs\libvorbis-1.3.5\include;C:\hyper3DGE\VSLibs\zlib-1.2.8\include;C:\hyper3DGE\VSLibs\libcpuid\include;C:\hyper3DGE\VSLibs\lpng1620\include;C:\hyper3DGE\VSLibs\libjpeg-turbo\include;C:\hyper3DGE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\hyper3DGE\VSLibs\physfs\include;C:\hyper3DGE\VSLibs\SDL2-2.0.3\include;C:\hyper3DGE\VSLibs\SDL2_net-2.0.1\include;C:\hyper3DGE\VSLibs\glew-2.0.0\include;C:\hyper3DGE\VSLibs\libogg-1.3.2\include;C:\hyper3DGE\VSLibs\libvorbis-1.3.5\include;C:\hyper3DGE\VSLibs\zlib-1.2.8\include;C:\hyper3DGE\VSLibs\libcpuid\include;C:\hyper3DGE\VSLibs\lpng1620\include;C:\hyper3DGE\VSLibs\libjpeg-turbo\include;C:\hyper3DGE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message>Embedding trustinfo into updaterevision</Message>
+      <Command>setlocal
+mt -inputresource:C:/hyper3DGE/tools/updaterevision/RelWithDebInfo/updaterevision.exe -manifest C:/hyper3DGE/tools/updaterevision/trustinfo.txt -outputresource:C:/hyper3DGE/tools/updaterevision/RelWithDebInfo/updaterevision.exe -nologo
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>Debug</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/hyper3DGE/tools/updaterevision/RelWithDebInfo/updaterevision.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/hyper3DGE/tools/updaterevision/RelWithDebInfo/updaterevision.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version></Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\hyper3DGE\tools\updaterevision\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule C:/hyper3DGE/tools/updaterevision/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+"C:\Program Files (x86)\CMake\bin\cmake.exe" -HC:/hyper3DGE -BC:/hyper3DGE --check-stamp-file C:\hyper3DGE\tools\updaterevision\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/hyper3DGE/tools/updaterevision/CMakeLists.txt;C:\hyper3DGE\tools\updaterevision\CMakeLists.txt;C:\hyper3DGE\tools\updaterevision\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\hyper3DGE\tools\updaterevision\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule C:/hyper3DGE/tools/updaterevision/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+"C:\Program Files (x86)\CMake\bin\cmake.exe" -HC:/hyper3DGE -BC:/hyper3DGE --check-stamp-file C:\hyper3DGE\tools\updaterevision\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/hyper3DGE/tools/updaterevision/CMakeLists.txt;C:\hyper3DGE\tools\updaterevision\CMakeLists.txt;C:\hyper3DGE\tools\updaterevision\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\hyper3DGE\tools\updaterevision\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule C:/hyper3DGE/tools/updaterevision/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+"C:\Program Files (x86)\CMake\bin\cmake.exe" -HC:/hyper3DGE -BC:/hyper3DGE --check-stamp-file C:\hyper3DGE\tools\updaterevision\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:/hyper3DGE/tools/updaterevision/CMakeLists.txt;C:\hyper3DGE\tools\updaterevision\CMakeLists.txt;C:\hyper3DGE\tools\updaterevision\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\hyper3DGE\tools\updaterevision\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule C:/hyper3DGE/tools/updaterevision/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+"C:\Program Files (x86)\CMake\bin\cmake.exe" -HC:/hyper3DGE -BC:/hyper3DGE --check-stamp-file C:\hyper3DGE\tools\updaterevision\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:/hyper3DGE/tools/updaterevision/CMakeLists.txt;C:\hyper3DGE\tools\updaterevision\CMakeLists.txt;C:\hyper3DGE\tools\updaterevision\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\hyper3DGE\tools\updaterevision\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C:\hyper3DGE\tools\updaterevision\updaterevision.c"  />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:/hyper3DGE/ZERO_CHECK.vcxproj">
+      <Project>BC1E57AC-6807-368E-BD6E-D215AE538136</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
