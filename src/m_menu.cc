@@ -97,6 +97,7 @@ static int MenuTime;
 
 static std::string input_string;		
 
+bool singleplayer;
 bool menuactive;
 
 #define MENUSTRINGSIZE      32
@@ -1469,19 +1470,28 @@ void M_DrawFileGFX(void)
 
 void M_NewGame(int choice)
 {
+
+	if (splitscreen_mode)
+	{
+		M_StartMessage(language["NewSplitGame"], NULL, false);
+		return;
+	}
+
+#if 0
 	if (netgame)
 	{
 		M_StartMessage(language["NewNetGame"], NULL, false);
 		return;
 	}
+#endif // 0
 
+	netgame = false; //temp hack
+	splitscreen_mode = false; //temp hack
 	M_SetupNextMenu(&EpiDef);
 }
 
 void M_Multiplayer(int choice)
 {
-	
-	///bool netgame = true;
 	if (netgame)
 	{
 		M_StartMessage(language["NewNetGame"], NULL, true);
@@ -1538,6 +1548,14 @@ void M_JoinNetGame(int choice)
 
 void M_SplitScreenGame(int choice)
 {
+
+	if (gamestate != GS_TITLESCREEN)
+	{
+		M_StartMessage(language["NewSplitGame"], NULL, false);
+		return;
+	}
+
+	//bool netgame = true;
 	option_menuon = 0;
 	netgame_menuon = 0;
 	splitgame_menuon = 1;
