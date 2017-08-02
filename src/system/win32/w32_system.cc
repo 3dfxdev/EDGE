@@ -16,9 +16,9 @@
 //
 //----------------------------------------------------------------------------
 
-#include "system/i_defs.h"
-#include "system/i_sdlinc.h"
-#include "system/i_net.h"
+#include "../system/i_defs.h"
+#include "../system/i_sdlinc.h"
+#include "../system/i_net.h"
 
 #include <fcntl.h>
 #include <sys/types.h>

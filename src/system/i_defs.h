@@ -19,10 +19,10 @@
 #ifndef __SYSTEM_SPECIFIC_DEFS__
 #define __SYSTEM_SPECIFIC_DEFS__
 
-#include "../epi/epi.h"
+#include "../../epi/epi.h"
 
-#include "con_var.h"
-#include "system/i_system.h"
+#include "../con_var.h"
+#include "i_system.h"
 
 #define HAVE_PHYSFS 1
 

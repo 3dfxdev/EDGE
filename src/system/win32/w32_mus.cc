@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "system/i_defs.h"
-#include "system/i_sdlinc.h"
+#include "../system/i_defs.h"
+#include "../system/i_sdlinc.h"
 
 #include "system/win32/w32_sysinc.h"
 #include "e_main.h"

@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "system/i_defs.h"
-#include "system/win32/w32_sysinc.h"
+#include "../system/i_defs.h"
+#include "../system/win32/w32_sysinc.h"
 
 
 //--- editor settings ---

@@ -19,7 +19,7 @@
 #ifndef __W_MODEL_H__
 #define __W_MODEL_H__
 
-#include "../md5_conv/md5.h"
+#include "md5_conv/md5.h"
 #include "r_defs.h"
 
 class md2_model_c;

@@ -19,7 +19,7 @@
 
 #include "system/i_defs.h"
 #include "system/i_defs_gl.h"
-#include "/md5_conv/md5_draw.h"
+#include "md5_conv/md5_draw.h"
 
 #include "dm_data.h"
 #include "dm_defs.h"
@@ -32,8 +32,8 @@
 #include "r_md5.h"
 #include "w_wad.h"
 
-#include "../src/i_defs.h"
-#include "../src/i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include "../epi/types.h"
 #include "../epi/endianess.h"
