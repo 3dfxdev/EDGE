@@ -1,4 +1,4 @@
-//Microsoft Developer Studio generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -27,18 +25,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE 
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE 
 BEGIN
     "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
     "#define _AFX_NO_OLE_RESOURCES\r\n"
@@ -66,47 +64,41 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON    DISCARDABLE     "res\\eecrashreport.ico"
+IDR_MAINFRAME           ICON                    "res\\eecrashreport.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 235, 89
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_ABOUTBOX DIALOGEX 0, 0, 235, 89
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About Eternity Crash Reporter"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,21,20
-    LTEXT           "Eternity Crash Reporter v1.0",IDC_STATIC,40,10,119,8,
-                    SS_NOPREFIX
-    LTEXT           "Copyright © 2009 James Haley\nEmail: haleyjd@hotmail.com",
-                    IDC_STATIC,40,23,119,23
+    ICON            IDR_MAINFRAME,IDC_STATIC,7,16,21,20
+    LTEXT           "EDGE Crash Reporter v1.0",IDC_STATIC,40,10,119,8,SS_NOPREFIX
+    LTEXT           "Copyright © 2009 James Haley\nEmail: haleyjd@hotmail.com",IDC_STATIC,40,23,119,23
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
-    LTEXT           "This program is Free Software available under the terms of the GNU General Public License. See the COPYING file for more information. This program is covered by no warranties.",
-                    IDC_STATIC,40,44,180,35
+    LTEXT           "This program is Free Software available under the terms of the GNU General Public License. See the COPYING file for more information. This program is covered by no warranties.",IDC_STATIC,40,44,180,35
 END
 
 IDD_EECRASHREPORT_DIALOG DIALOGEX 0, 0, 292, 220
-STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
-CAPTION "Eternity Engine Fatal Error"
-FONT 8, "MS Sans Serif"
+CAPTION "EDGE2 Fatal Error"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "Report",IDOK,91,199,50,14
     PUSHBUTTON      "Close",IDCANCEL,150,199,50,14
-    EDITTEXT        IDC_EDIT1,7,54,278,137,ES_MULTILINE | ES_AUTOHSCROLL | 
-                    ES_READONLY | WS_VSCROLL
-    LTEXT           "You can help us solve this problem by submitting the information below to the Doomworld Forums. Click ""Report"" to launch your default web browser, and then press Control+V to paste this information into a new message.",
-                    IDC_STATIC,36,20,249,26
+    EDITTEXT        IDC_EDIT1,7,54,278,137,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL
+    LTEXT           "You can help us solve this problem by submitting the information below to the Isotope SoftWorks Forums. Click ""Report"" to launch your default web browser, and then press Control+V to paste this information into a new message.",IDC_STATIC,36,20,249,26
     ICON            "",IDC_STATIC_ICON,7,15,20,20
-    LTEXT           "Eternity has experienced a problem and needs to shut down.",
-                    IDC_STATIC,36,7,191,8
+    LTEXT           "EDGE2 has experienced a problem and needs to shut down.",IDC_STATIC,36,7,191,8
 END
 
 
-#ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
@@ -129,18 +121,14 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "Comments", "\0"
-            VALUE "CompanyName", "Team Eternity\0"
-            VALUE "FileDescription", "Eternity Crash Reporter\0"
-            VALUE "FileVersion", "1, 0, 0, 1\0"
-            VALUE "InternalName", "eecrashreport\0"
-            VALUE "LegalCopyright", "Copyright (C) 2009 James Haley\0"
-            VALUE "LegalTrademarks", "\0"
-            VALUE "OriginalFilename", "eecrashreport.EXE\0"
-            VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "Eternity Crash Reporter Application\0"
-            VALUE "ProductVersion", "1, 0, 0, 1\0"
-            VALUE "SpecialBuild", "\0"
+            VALUE "CompanyName", "Team Eternity"
+            VALUE "FileDescription", "EDGE Crash Reporter"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "eecrashreport"
+            VALUE "LegalCopyright", "Copyright (C) 2009 James Haley"
+            VALUE "OriginalFilename", "edgeecrashreport.EXE"
+            VALUE "ProductName", "EDGE Crash Reporter Application"
+            VALUE "ProductVersion", "1, 0, 0, 1"
         END
     END
     BLOCK "VarFileInfo"
@@ -149,8 +137,6 @@ BEGIN
     END
 END
 
-#endif    // !_MAC
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -158,7 +144,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
@@ -181,15 +167,26 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_ABOUTBOX AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
-    IDS_ABOUTBOX            "&About eecrashreport..."
+    IDS_ABOUTBOX            "&About edgeecrashreport..."
 END
 
-#endif    // English (U.S.) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
