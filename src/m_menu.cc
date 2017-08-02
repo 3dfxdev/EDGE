@@ -28,7 +28,7 @@
 // -KM- 1998/07/21 Add support for message input.
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../epi/str_format.h"
 

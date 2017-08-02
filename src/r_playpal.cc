@@ -23,11 +23,11 @@ Since this generates a PLAYPAL lump, this will need to be called
 very early on in e_main when Wolf3D datas are detected, so 3DGE
 knows how to load the PLAYPAL in. */
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 #include "r_texgl.h"
 
-#include "wlf_local.h"
+#include "games/wolf3d/wlf_local.h"
 
 static GLuint wlf_pal;
 

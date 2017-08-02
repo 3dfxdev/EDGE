@@ -20,11 +20,13 @@
 //--------------------------------------------------------------------------
 //
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
-#include "i_sdlinc.h"
+#include "../epi/str_format.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
+#include "system/i_sdlinc.h"
 #include <SDL2/SDL_opengl.h>
 #include "r_shaderprogram.h"
+#include "w_wad.h"
 
 namespace
 {
@@ -84,15 +86,23 @@ void FShaderProgram::CreateShader(ShaderType type)
 //
 //==========================================================================
 
-/*
+
+#if 0
 void FShaderProgram::Compile(ShaderType type, const char *lumpName, const char *defines, int maxGlslVersion)
 {
-	int lump = Wads.CheckNumForFullName(lumpName, 0);
+	int lump = W_CheckNumForName(lumpName, 0);
+	const char *lumpName = W_GetLumpName(lump);
+
 	if (lump == -1) I_FatalError("Unable to load '%s'", lumpName);
-	std::string code = Wads.ReadLump(lump).GetString().GetChars();
+
+	std::string code = W_LoadLumpName(lumpName, defines, maxGlslVersion);
+
 	Compile(type, lumpName, code, defines, maxGlslVersion);
 }
-*/
+#endif // 0
+
+
+
 
 void FShaderProgram::Compile(ShaderType type, const char *name, const std::string &code, const char *defines, int maxGlslVersion)
 {
@@ -122,6 +132,7 @@ void FShaderProgram::Compile(ShaderType type, const char *name, const std::strin
 		glAttachShader(mProgram, handle);
 	}
 }
+
 
 //==========================================================================
 //

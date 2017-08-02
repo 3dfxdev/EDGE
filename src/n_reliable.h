@@ -19,7 +19,7 @@
 #ifndef __N_RELIABLE_H__
 #define __N_RELIABLE_H__
 
-#include "i_net.h"
+#include "system/i_net.h"
 
 class net_node_c
 {

@@ -24,8 +24,8 @@
 
 //#if 0  // DISABLED
 
-#include "i_defs.h"
-#include "i_net.h"
+#include "system/i_defs.h"
+#include "system/i_net.h"
 
 #ifdef LINUX
 #include <linux/if.h>

@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include "g_game.h"
 #include "r_misc.h"
@@ -31,17 +31,22 @@
 
 #define DEBUG  0
 
+#define GL_EXT_texture_filter_anisotropic_Init() \
+	has_GL_EXT_texture_filter_anisotropic = RGL_CheckExtensions("GL_EXT_texture_filter_anisotropic");
+
 // implementation limits
 
 int glmax_lights;
 int glmax_clip_planes;
 int glmax_tex_size;
 int glmax_tex_units;
+extern float max_anisotropic = 0;
 
 extern cvar_c r_bloom;
 extern cvar_c r_lens;
 extern cvar_c r_fxaa;
 extern cvar_c r_gl3_path;
+extern cvar_c r_anisotropy;
 cvar_c r_aspect;
 
 cvar_c r_nearclip;
@@ -255,9 +260,10 @@ void RGL_CheckExtensions(void)
 	if (GLEW_VERSION_1_3 || GLEW_EXT_texture_filter_anisotropic)
 	{
 		I_Printf("OpenGL: driver verified to support anisotropic filtering!\n");
-		r_anisotropy = 1;
-
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_anisotropic);
 	}
+	else
+		I_Printf("OpenGL: Does not support anisotropy!\n");
 
 	if (GLEW_ARB_vertex_shader && GLEW_ARB_fragment_shader)
 		I_Printf("OpenGL: GLSL Initialised.\n");
@@ -285,7 +291,7 @@ void RGL_CheckExtensions(void)
 	{ /* OK */ }
 	else
 	{
-		I_Warning("OpenGL driver does not support EDGE2-Clamp.\n");
+		I_Warning("OpenGL driver does not support EDGE-Clamp.\n");
 		r_dumbclamp = 1;
 	}
 
@@ -416,6 +422,12 @@ void RGL_Init(void)
 	I_Printf("OpenGL: Lights: %d  Clips: %d  Tex: %d  Units: %d\n",
 			 glmax_lights, glmax_clip_planes, glmax_tex_size, glmax_tex_units);
 	I_Printf("==============================================================================\n");
+
+	GLfloat max_anisotropic;
+
+	// initialise Anisotropic Filter
+	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_anisotropic);
+
 
 	RGL_SoftInit();
 

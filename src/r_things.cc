@@ -24,8 +24,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include <math.h>
 
@@ -566,7 +566,8 @@ void RGL_DrawWeaponModel(player_t * p)
 
 	if (! md->skins[p->weapons[p->ready_wp].model_skin].img)  // FIXME: use a dummy image
 	{
-		I_Debugf("Render model: no skin %d\n", skin_num);
+		md->skins[p->weapons[p->ready_wp].model_skin].img = W_ImageForDummySkin(); //CA - Fixed! 
+		//I_Debugf("Render model: no skin %d\n", skin_num);
 	}
 
 
@@ -602,7 +603,8 @@ void RGL_DrawWeaponModel(player_t * p)
 		lerp = CLAMP(0, lerp, 1);
 	}
 
-	switch(md->modeltype) {
+	switch(md->modeltype) 
+	{
 	case MODEL_MD2:
 		MD2_RenderModel(md->model, &md->skins[skin_num], true,
 						last_frame, psp->state->frame, lerp,
@@ -664,7 +666,7 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 	}
 
 	int rot = 0;
-	// ~CA: 5.7.2016 - 3DGE feature to randomly decide to flip front-facing sprites in-game
+	// ~CA: 5.7.2016 - 3DGE feature to randomly decide to flip front-facing sprites in-game002
 
 	if (r_spriteflip.d > 0)
 	{

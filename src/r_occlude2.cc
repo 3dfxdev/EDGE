@@ -16,7 +16,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../ddf/types.h"
 
@@ -142,8 +142,8 @@
 
 #include <SDL2/SDL_opengl.h>
 #include <math.h>
-#include "i_video.h"
-#include "i_defs_gl.h"
+#include "system/i_video.h"
+#include "system/i_defs_gl.h"
 #include "r_defs.h"
 #include "z_zone.h"
 

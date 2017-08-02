@@ -31,6 +31,8 @@
 #include "../epi/file.h"
 #include "../epi/utility.h"
 
+#define Debug_Printf I_Debugf
+
 typedef enum
 {
 	FLKIND_IWad = 0,  // iwad file
@@ -133,6 +135,7 @@ static int W_GetNumForName3(const char *x, const char *file, int line)
 	return W_GetNumForName2(x);
 }
 
+#if 0
 static void *W_CacheLumpNum3(int lump, const char *file, int line)
 {
 	Debug_Printf("Cache '%d' @ %s:%d\n", lump, file, line);
@@ -144,6 +147,8 @@ static void *W_CacheLumpName3(const char *name, const char *file, int line)
 	Debug_Printf("Cache '%s' @ %s:%d\n", name, file, line);
 	return W_CacheLumpName2(name, tag);
 }
+#endif // 0
+
 
 #define W_CheckNumForName(x) W_CheckNumForName3(x, __FILE__, __LINE__)
 #define W_GetNumForName(x) W_GetNumForName3(x, __FILE__, __LINE__)

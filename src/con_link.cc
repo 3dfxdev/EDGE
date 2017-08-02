@@ -16,7 +16,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "con_var.h"
 
@@ -75,6 +75,7 @@ extern cvar_c r_precache_tex, r_precache_sprite, r_precache_model;
 extern cvar_c r_gl3_path;
 
 extern cvar_c r_bloom;
+extern cvar_c r_bloom_amount;
 extern cvar_c r_lens;
 extern cvar_c r_fxaa;
 
@@ -201,6 +202,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_maxfps",        &r_maxfps,        "c", "0" },
 	{ "r_vsync",           &r_vsync,        "c", "0" },
 	{ "r_bloom",           &r_bloom,        "c", "1" },
+	{ "r_bloom_amount",    &r_bloom_amount, "c", "1.24" },
 	{ "r_lens",		       &r_lens,			"c", "1" },
 	{ "r_fxaa",            &r_fxaa,         "c", "1" },
 

@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include <limits.h>
 
@@ -36,6 +36,8 @@
 
 #include "w_texture.h"
 #include "w_wad.h"
+
+extern float max_anisotropic;
 
 
 int W_MakeValidSize(int value)
@@ -158,9 +160,18 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 	int mip_level = CLAMP(0, var_mipmapping, 2);
 
 	// Anisotropy
-	if (r_anisotropy.d > 0)
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, id);
 
+	if (GL_EXT_texture_filter_anisotropic)
+	{
+		if (r_anisotropy.d)
+		{
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropic);
+		}
+		else
+		{
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 0);
+		}
+	}
 
 	// special logic for mid-masked textures.  The UPL_Thresh flag
 	// guarantees that each texture level has simple alpha (0 or 255),

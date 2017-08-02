@@ -20,9 +20,9 @@
 //--------------------------------------------------------------------------
 //
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
-#include "i_sdlinc.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
+#include "system/i_sdlinc.h"
 #include <SDL2/SDL_opengl.h>
 #include "r_bloom.h"
 #include "r_renderbuffers.h"
@@ -34,10 +34,13 @@
 cvar_c r_bloom;
 #define gl_bloom (bool)(r_bloom.d != 0)
 
+cvar_c r_bloom_amount;
+#define gl_bloom_amount (float)(r_bloom_amount.d) //defaults to 1.4f
+
 namespace
 {
 	//bool gl_bloom = true; // CVAR(Bool, gl_bloom, false, CVAR_ARCHIVE);
-	float gl_bloom_amount = 1.4f; // CUSTOM_CVAR(Float, gl_bloom_amount, 1.4f, CVAR_ARCHIVE)
+	//float gl_bloom_amount = 1.4f; // CUSTOM_CVAR(Float, gl_bloom_amount, 1.4f, CVAR_ARCHIVE)
 	float gl_exposure_scale = 2.0f; // CVAR(Float, gl_exposure_scale, 1.3f, CVAR_ARCHIVE)
 	float gl_exposure_min = 0.1f; // CVAR(Float, gl_exposure_min, 0.35f, CVAR_ARCHIVE)
 	float gl_exposure_base = 0.1f; // CVAR(Float, gl_exposure_base, 0.35f, CVAR_ARCHIVE)

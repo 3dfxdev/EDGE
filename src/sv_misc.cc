@@ -33,7 +33,7 @@
 //   -  Button off_sound field.
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../epi/str_format.h"
 

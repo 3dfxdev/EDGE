@@ -31,8 +31,8 @@
 //   -  do some optimisation
 //
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include <limits.h>
 #include <list>
@@ -647,6 +647,21 @@ const image_c *W_ImageCreateSprite(const char *name, int lump, bool is_weapon)
 		return NULL;
 
 	// adjust sprite offsets so that (0,0) is normal
+	
+	//need to check grAb much earlier for is_weapon. . .
+	//epi::image_data_c *grAb = ReadAsEpiBlock(rim);
+
+
+#if 0
+	if (is_weapon && grAb->grAb != nullptr)
+	{
+		I_Printf("Checking if (is_weapon && tmp_img->grAb != nullptr)");
+		rim->offset_x += (320 / 2 - grAb->x / 2);
+		rim->offset_y += (200 - 32 - grAb->y);
+	}
+	else
+#endif // 0
+		//TODO: THIS NEEDS TO HONOR THE grAb struct, _nothing more_, and EXCLUDE 3D MODELS!
 	if (is_weapon)
 	{
 		rim->offset_x += (320 / 2 - rim->actual_w / 2);  // loss of accuracy

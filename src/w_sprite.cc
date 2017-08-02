@@ -28,7 +28,7 @@
 // -AJA- 1999/07/12: Now uses colmap.ddf.
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "e_main.h"
 #include "e_search.h"

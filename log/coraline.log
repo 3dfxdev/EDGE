@@ -8,6 +8,77 @@ TODO  // notes to self
 ~~~~  // TODO seperator & ees
 ##############################
 
+----------------
+8.1.2017
+----------------
+So, in my attempt to unify everyone under CMAKELISTS instead of having to
+maintain /Makefiles, I have re-arranged 3DGE's source code to make it easier
+to find system-specific code files. I don't always remember to carry my changes
+through to /Makefiles from CMAKELISTS, so this way everyone can use CMAKELISTS,
+and if they can't, fix them up at least and submit to the repo so we can all be
+unified under one system. I eventually want to retire the /Makefiles system.
+
+So, let's start with the changes:
+
+------ //
+---
+SYSTEM SUBFOLDER:
+---
+Added new /system/ subfolder in /src, that will hold all of the i_* files,
+and subfolders for each system. Win32 resides there now, so that way if we
+ever add Win64 support, we can add a subfolder in /system for that.
+
+Since MacOSX, Linux, and openBSD share common code and includes, I have moved
+all of this code into one folder, /src/system/unx. The extra mac stuff has its
+own sub-folder there, /src/system/unx/mac. That way, people can add system-
+specific headers and other code there if they so choose. But the majority of
+the Linux-based code uses the unx folder, so it made sense to just move them
+there.
+
+This way we can better manage system defines by isolating them into their own
+folders, not mucking up the /src directory.
+
+---
+GAMES SUBFOLDER:
+---
+Added /games folder, which where the Wolf3D/etc code will reside. Doom's base code
+remains in /src, since EDGE does mean "Enhanced DOOM gaming engine". ;-)
+
+---
+MD5_CONV SUBFOLDER:
+---
+Moved the MD5 rendering code there, cleaned it up, and all of the kmq2 code has been
+moved into epi/kmq2.
+
+---
+OPLLIB SUBFOLDER:
+---
+Moved the OplLib folder into /src to clean up root EDGE directory.
+
+---
+FMV SUBFOLDER:
+---
+Moved /FMV out of root and into /src/fmv. Eventually the FMV code should be absorbed int
+/src directly since its all tied to the engine, no reason to have it in its own sub-folder,
+we will reserve that for ffmpeg if we end up using that later.
+
+---
+ZDBSP FOLDER:
+---
+Added ZDBSP alongside glBSP, whether we use this folder or keep it contained in p_setup.cc, it
+will be there to reference. If we don't use this library later and keep it internalized, we can
+remove it. But if we do, it'll already be available to replace glBSP entirely.
+
+------ //
+
+See? Nice and tidy now. Eventually we can continue this system and have everything organized, but for
+now this system isn't so convoluted that it will disrupt normal EDGE developers who use different
+systems to build to/from.
+
+I added 'eecrashreport' program from Eternity Engine, which will come in handy producing a more robust
+crash handler. This resides in /tools/eecrashreport. Affected files in system/win32, but this has not
+been tested properly yet. Special thanks to James Haley for this, by the way.
+
 -----------------
 7.12.2016
 -----------------

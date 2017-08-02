@@ -2,7 +2,7 @@
 //  EDGE2 Strings
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2017  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -28,16 +28,17 @@
 
 // Misc. other strings.
 #define REQUIREDWAD    "edge2"
-#define REQUIREDPAK    "edge2"
+#define REQUIREDPAK    "edge2" // this will become edge2.epk
 #define EDGECONFIGFILE "EDGE2.cfg"
 #define EDGELOGFILE    "EDGE2.log"
-#define REQHERETICPWAD "herfix"
+#define REQHERETICPWAD "herfix" //Not needed anymore..?
 
 #define EDGEGWAEXT     "gwa"
 #define EDGEHWAEXT     "hwa"
 #define EDGEWADEXT     "wad"
 #define EDGEPAKEXT     "pak"
-#define WOLFDATEXT     "maphead." ///Wolfenstein shit
+#define EDGEEPKEXT     "epk" // New extension for "Edge PaK"
+#define WOLFDATEXT     "maphead." ///Wolfenstein shit, TODO, figure out data extensions
 
 #define SAVEGAMEBASE   "save"
 #define SAVEGAMEEXT    "esg"
@@ -50,7 +51,7 @@
 #define HUBDIR         "hubs"
 #define HUBBASE        "hub"
 
-#ifdef WIN32
+#ifdef WIN32 //TODO: Application Data (WinXP?), do we need this explicit?
 #define EDGEHOMESUBDIR  "Application Data\\EDGE2"
 #elif MACOSX
 #define EDGEHOMESUBDIR  "Library/Application Support/EDGE2"

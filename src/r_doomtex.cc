@@ -31,8 +31,8 @@
 //   -  do some optimisation
 //
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include <limits.h>
 
@@ -290,7 +290,7 @@ static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
 			int offset = EPI_LE_S32(realpatch->columnofs[x - x1]);
 
 			if (offset < 0 || offset >= realsize)
-				I_Error("Bad image offset 0x%08x in image [%s]\n", offset, rim->name);
+				I_Warning("Bad image offset 0x%08x in image [%s]\n", offset, rim->name);
 
 			const column_t *patchcol = (const column_t *)
 				((const byte *) realpatch + offset);

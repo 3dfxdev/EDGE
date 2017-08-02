@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include "e_main.h"
 #include "r_image.h"
@@ -112,6 +112,8 @@ modeldef_c *LoadModelFromLump(int model_num)
 		I_Debugf("Loading MD3 model from lump : %s\n", lumpname);
 
 		f = W_OpenLump(lumpname);
+		if (! f)
+				I_Error("Missing model lump?: %s\n", lumpname);
 		SYS_ASSERT(f);
 
 		def->model = MD3_LoadModel(f);
@@ -143,7 +145,8 @@ modeldef_c *LoadModelFromLump(int model_num)
 			
 			delete f;
 			
-			for (int i=0; i < def->md5u->model.meshcnt; i++) {
+			for (int i=0; i < def->md5u->model.meshcnt; i++) 
+			{
 				char* file_normal=new char[strlen(def->md5u->model.meshes[i].shader)+strlen("_l")+1];
 				char* file_specular=new char[strlen(def->md5u->model.meshes[i].shader)+strlen("_s")+1];
 

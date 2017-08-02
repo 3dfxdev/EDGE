@@ -1,7 +1,7 @@
 #ifndef __S_OPL_H__
 #define __S_OPL_H__
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 bool S_StartupOPL(void);
 void S_ShutdownOPL(void);

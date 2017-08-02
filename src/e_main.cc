@@ -31,7 +31,7 @@
 // -MH- 1998/08/19 added up/down movement variables
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 #include "e_main.h"
 
 #include <sys/stat.h>
@@ -58,7 +58,7 @@
 #include "con_var.h"
 #include "dm_defs.h"
 #include "dm_state.h"
-#include "wlf_local.h"
+#include "games/wolf3d/wlf_local.h"
 #include "dstrings.h"
 #include "e_input.h"
 #include "f_finale.h"
@@ -79,7 +79,6 @@
 #include "rad_trig.h"
 #include "r_gldefs.h"
 #include "r_wipe.h"
-//#include "roq_enc.h"
 #include "s_sound.h"
 #include "s_music.h"
 #include "sv_chunk.h"
@@ -91,7 +90,7 @@
 #include "w_model.h"
 #include "w_sprite.h"
 #include "w_texture.h"
-#include "wlf_rawdef.h"
+#include "games/wolf3d/wlf_rawdef.h"
 #include "w_wad.h"
 #include "version.h"
 #include "vm_coal.h"
@@ -985,7 +984,7 @@ void InitDirectories(void)
 // Adding HERETIC.WAD to string 2.24.2013
 // Kept freedoom.wad for backward compatibility
 // 2016/02/07: Added Darkwar.wad for ROTT
-const char *wadname[] = { "doom2", "doom", "plutonia", "tnt", "hacx", "heretic", "freedoom", "freedm", "chex", "freedoom1", "freedoom2", "darkwar", "hyper", "slave", NULL };
+const char *wadname[] = { "doom2", "doom","hyper", "plutonia", "tnt", "hacx", "heretic", "freedoom", "freedm", "chex", "freedoom1", "freedoom2", "darkwar", "slave", NULL };
 
 static void IdentifyVersion(void)
 {
@@ -1977,7 +1976,7 @@ void E_Main(int argc, const char **argv)
 	}
 	catch (...)
 	{
-		I_Error("Unexpected internal failure occurred!\n");
+		I_Error("EDGE caught: Unexpected internal failure occurred!\n");
 	}
 
 	E_Shutdown();    // Shutdown whatever at this point

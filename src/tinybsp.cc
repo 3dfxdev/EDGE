@@ -27,15 +27,15 @@ e_main detects a Wolfenstein game, it *should* disable glBSP for nodebuilding, a
 use TinyBSP, which was tailored ;) I knew we would find a use for this wonderful file,
 Andrew! =) */
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "r_defs.h"
 #include "r_state.h"
 #include "m_bbox.h"
 #include "p_local.h"
 #include "dm_structs.h"
-#include "wlf_local.h"
-#include "wlf_rawdef.h"
+#include "games/wolf3d/wlf_local.h"
+#include "games/wolf3d/wlf_rawdef.h"
 
 #include <algorithm>
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "q_shared.hpp"
-#include "math_vector.h"
+#include "system/i_defs.h"
+#include "m_math.h"
 
 struct idTriggerDef;
 

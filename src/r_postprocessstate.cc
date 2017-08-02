@@ -20,9 +20,9 @@
 //--------------------------------------------------------------------------
 //
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
-#include "i_sdlinc.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
+#include "system/i_sdlinc.h"
 #include <SDL2/SDL_opengl.h>
 #include "r_postprocessstate.h"
 

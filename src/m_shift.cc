@@ -1,6 +1,6 @@
 //m_shift.c
 //shift transformation tables
-#include "i_defs.h"
+#include "system/i_defs.h"
 //TODO: there's probably a more layout-independant way to do this with SDL2.
 const char* shiftxform;
 

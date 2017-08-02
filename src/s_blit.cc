@@ -23,8 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_sdlinc.h"
+#include "system/i_defs.h"
+#include "system/i_sdlinc.h"
 
 #include <list>
 

@@ -39,7 +39,7 @@
 // -AJA- 1999/08/08: Replaced some P_Random()-P_Random() stuff.
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 #include "p_action.h"
 
 #include "con_main.h"

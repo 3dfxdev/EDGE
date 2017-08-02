@@ -22,7 +22,7 @@
 // http://www.devmaster.net/articles/openal-tutorials/lesson8.php
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../epi/endianess.h"
 #include "../epi/file.h"

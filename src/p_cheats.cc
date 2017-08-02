@@ -33,7 +33,7 @@
 //
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 #include "m_cheatcodes.h"
 
 #include "con_main.h"

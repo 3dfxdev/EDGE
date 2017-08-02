@@ -22,7 +22,7 @@
 // -AJA- 2000/07/13: Wrote this file.
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include <zlib.h>
 
