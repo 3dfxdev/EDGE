@@ -25,6 +25,12 @@ add_custom_target(revision_check ALL
    DEPENDS updaterevision 
 )
 
+# eecrashreport
+add_custom_target(revision_check ALL
+   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+   DEPENDS eecrashreport
+)
+
 # See /VSLibs/lib_versions.txt
 
 set( CPUID_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libcpuid/include" )
@@ -39,9 +45,9 @@ set( OGG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg-1.3.2/include" )
 set( OGG_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg-1.3.2/lib/libogg_static.lib" )
 set( PHYSFS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/physfs/include" )
 set( PHYSFS_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/physfs/lib/physfs.lib" )
-set( PNG_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng17/lib/libpng17_staticd.lib" )
-set( PNG_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng17/lib/libpng17_static.lib" )
-set( PNG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng17/include" )
+set( PNG_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng16/lib/libpng16_staticd.lib" )
+set( PNG_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng16/lib/libpng16_static.lib" )
+set( PNG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng16/include" )
 set( SDL2MAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2main.lib" )
 set( SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/include" )
 set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2.lib" )
@@ -263,11 +269,11 @@ set(3DGE_SOURCES
 	src/wlf_maps.cc
 	src/wlf_setup.cc
 	
-	md5_conv/md5_load.cc
-	md5_conv/md5_parse.cc
-	md5_conv/md5_anim.cc
-	md5_conv/md5_draw.cc
-	md5_conv/kmq2/q2stuff.c
+	src/md5_conv/md5_load.cc
+	src/md5_conv/md5_parse.cc
+	src/md5_conv/md5_anim.cc
+	src/md5_conv/md5_draw.cc
+	epi/kmq2/epi_quake2stuff.cc
 	
 	epi/arrays.cc
 	epi/bytearray.cc
@@ -275,9 +281,7 @@ set(3DGE_SOURCES
 	epi/file.cc
 	epi/filesystem.cc
 	epi/file_memory.cc
-	epi/file_pak.cc
 	epi/file_sub.cc
-	epi/file_zip.cc
 	epi/image_data.cc
 	epi/image_hq2x.cc
 	epi/image_jpeg.cc
@@ -330,6 +334,7 @@ set(3DGE_SOURCES
 )
 
 set(3DGE_WIN32_SOURCES
+	src/i_exception.cc
 	src/w32_music.cc
 	src/w32_mus.cc
 	src/w32_net.cc
