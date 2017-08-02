@@ -21,7 +21,7 @@
 #ifndef __OGGPLAYER_H__
 #define __OGGPLAYER_H__
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include <vorbis/vorbisfile.h>
 

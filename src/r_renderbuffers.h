@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "i_defs_gl.h"
+#include "system/i_defs_gl.h"
 #include "r_lensdistortion.h"
 #include "r_bloom.h"
 #include "r_fxaa.h"

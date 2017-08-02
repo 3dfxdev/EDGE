@@ -19,9 +19,9 @@
 // -AJA- 2000/10/09: Began work on this new unit system.
 //
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
-#include "i_sdlinc.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
+#include "system/i_sdlinc.h"
 
 
 #include <SDL2/SDL_opengl.h>
@@ -74,8 +74,10 @@ static bool tmp_init=false;
 static int bmap_light_count=0;
 
 
-//#define MAX_L_VERT  4096  //old vert limit, was not enough for particular md5 models
-#define MAX_L_VERT 16384
+#define MAX_L_VERT  16384  //old vert limit, was not enough for particular md5 models
+///#define MAX_L_VERT 4096 //(might have to change this so it does not affect MD2/MD3 loading? )
+
+
 #define MAX_L_UNIT  (MAX_L_VERT / 4)
 
 #define DUMMY_CLAMP  789
@@ -119,23 +121,33 @@ static int cur_unit;
 
 static bool batch_sort;
 
-bool RGL_GL3Enabled() {
+bool RGL_GL3Enabled() 
+{
 	return (r_gl3_path.d && bmap_shader.supported());
 }
 
-void RGL_SetAmbientLight(short r,short g,short b) {	//rgb 0-255
+void RGL_SetAmbientLight(short r,short g,short b) 
+{	//rgb 0-255
 	bmap_shader.lightParamAmbient((float)r/255.0f,(float)g/255.0f,(float)b/255.0f);
 }
-void RGL_ClearLights() {
-	if(!RGL_GL3Enabled()) {
+void RGL_ClearLights() 
+{
+	if(!RGL_GL3Enabled()) 
+
+	{
 		return;
 	}
-	for(int i=0;i<bmap_light_count;i++) {
+
+	for(int i=0;i<bmap_light_count;i++)
+
+	{
 		bmap_shader.lightDisable(i);
 	}
+
 	bmap_light_count=0;
 }
-void RGL_AddLight(mobj_t* mo) {
+void RGL_AddLight(mobj_t* mo) 
+{
 	bmap_shader.lightParam(bmap_light_count,
 			mo->x,mo->y,mo->z,
 			(float)RGB_RED(mo->dlight.color)/256.0f,
@@ -145,7 +157,8 @@ void RGL_AddLight(mobj_t* mo) {
 
 	bmap_light_count++;
 }
-void RGL_CaptureCameraMatrix() {
+void RGL_CaptureCameraMatrix() 
+{
 	float cam_matrix[16];
 	glGetFloatv(GL_MODELVIEW_MATRIX, cam_matrix);
 	bmap_shader.setCamMatrix(cam_matrix);
@@ -268,7 +281,8 @@ local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert,
 
 	return local_verts + cur_vert;
 }
-void RGL_SetUnitMaps(GLuint tex_normal,GLuint tex_specular) {
+void RGL_SetUnitMaps(GLuint tex_normal,GLuint tex_specular) 
+{
 	local_gl_unit_t *unit=local_units + cur_unit;
 	unit->tex_normal=tex_normal;
 	unit->tex_specular=tex_specular;
@@ -301,7 +315,8 @@ void RGL_EndUnit(int actual_vert)
 	cur_vert += actual_vert;
 	cur_unit++;
 
-	// These two below cause errors with MD5 models...or something?
+	// Assertion Error was fixed by upping the max verticies for MD5
+	// Additional: Check to see if upping this causes problems for MD3
 	SYS_ASSERT(cur_vert <= MAX_L_VERT);
 	SYS_ASSERT(cur_unit <= MAX_L_UNIT);
 }

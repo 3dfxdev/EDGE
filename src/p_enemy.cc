@@ -29,7 +29,7 @@
 //       and removed some X_Random()-X_Random() things.
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "dm_data.h"
 #include "dm_state.h"

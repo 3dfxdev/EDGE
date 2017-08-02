@@ -23,7 +23,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../deh_edge/dh_plugin.h"
 

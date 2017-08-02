@@ -23,8 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include <math.h>
 
@@ -3258,6 +3258,13 @@ static void DoWeaponModel(void)
 	// by the world geometry.  NOTE: a tad expensive, but I don't
 	// know how any better way to prevent clipping -- the model
 	// needs the depth buffer for overlapping parts of itself.
+
+	// Actually, come to think of it, using this depth buffer might
+	// give us some interesting things, for instance, in a game
+	// like Hypertension, we can use this piece of code to detect if
+	// a weapon will hit level geometry, and lower it, putting up like
+	// some sort of "hands against the wall" effect, or even like a lower/
+	// raise weapon _away_ from wall. Just an idea.
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 

@@ -28,7 +28,7 @@
 //----------------------------------------------------------------------------
 
 #include "z_zone.h"
-#include "i_defs.h"
+#include "system/i_defs.h"
 #include "dm_state.h"
 
 #include "r_defs.h"

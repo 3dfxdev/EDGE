@@ -35,7 +35,7 @@
 // -ACB- 1999/09/19 CD Audio cheats removed.
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 #include "m_cheatcodes.h"
 
 #include "con_main.h"

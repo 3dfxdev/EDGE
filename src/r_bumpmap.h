@@ -20,7 +20,7 @@
 #ifndef __R_BUMPMAP_H__
 #define __R_BUMPMAP_H__
 
-#include "i_defs_gl.h"
+#include "system/i_defs_gl.h"
 
 class bump_map_shader {
 public:

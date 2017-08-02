@@ -35,7 +35,7 @@
 //   + make gap routines I_Error if overflow limit.
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include <float.h>
 

@@ -23,7 +23,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "am_map.h"
 #include "con_main.h"

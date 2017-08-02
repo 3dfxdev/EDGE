@@ -17,9 +17,9 @@
 //  TODO: 
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
-#include "../md5_conv/md5_draw.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
+#include "/md5_conv/md5_draw.h"
 
 #include "dm_data.h"
 #include "dm_defs.h"
@@ -118,83 +118,90 @@ static void LoadMD5Animation(MD5model *model, short animfile, int frame, MD5join
 	if (anim != NULL && 0 <= frame && frame < anim->framecnt )
 	{
 		md5_pose_load(anim, frame, dst);
-		I_Debugf("Render model: loading md5anim\n");
+		//I_Debugf("Render model: loading md5anim\n");
 	}
 	else
 	{
 		md5_pose_load_identity(model->joints, model->jointcnt, dst);
-		I_Debugf("Render model: loading md5joints\n");
+		//I_Debugf("Render model: loading md5joints\n");
 	}
 }
 
-void md5_draw_unified_gl(MD5umodel *umd5, epi::mat4_c *jointmats,const epi::mat4_c& model_mat) {
+
+void md5_draw_unified_gl(MD5umodel *umd5, epi::mat4_c *jointmats,const epi::mat4_c& model_mat) 
+{
 	int i;
 	MD5model *md5 = &umd5->model;
 	
-	for(i = 0; i < md5->meshcnt; i++) {
+	for(i = 0; i < md5->meshcnt; i++) 
+	{
+
 		MD5mesh *msh = md5->meshes + i;
 		const image_c *skin_img = msh->tex;
-		if (! skin_img)
-		{
-			I_Debugf("Render model: no skin \"%s\"\n", msh->shader);
+		/*Debug missing model group skins by uncommenting the next two Debugf lines!!!*/
+
+		if (!skin_img)
+		{   
+
+			//I_Debugf("R_unifiedMD5: no skin(s) defined in MD5 model: \"%s\"\n", msh->shader);
+			//I_Debugf("md5draw: No skin(s) found, subbing for DummySkin!\n");
 			skin_img = W_ImageForDummySkin();
 		}
-//		glBindTexture(GL_TEXTURE_2D, W_ImageCache(skin_img));
-		// Added SSE2 flag again!
-#ifndef SSE2
+		//BUG: md5_transform_Verticies_sse() is not functional and will crash 3DGE.
+#ifndef SSE2  // Visual Studio Version: #ifdef __SSE2__
 		md5_transform_vertices(msh, jointmats, vbuff); /// DOES NOT USE SSE
 #else
-		md5_transform_vertices_sse(msh, jointmats, vbuff); /// uses _SSE for quicker transforms
+		//md5_transform_vertices_sse(msh, jointmats, vbuff); /// uses _SSE for quicker transforms
+		md5_transform_vertices(msh, jointmats, vbuff); /// DOES NOT USE SSE
+		
 #endif
+		//Lighting render stage. This would be what we would change to render softer lighting on triangles!
 		render_md5_direct_triangle_lighting(msh, vbuff,model_mat);
 		
 	}
 }
 
-static void DLIT_CollectLights(mobj_t *mo, void *dataptr) {
+static void DLIT_CollectLights(mobj_t *mo, void *dataptr) 
+{
 	mobj_t* data= (mobj_t*)dataptr;
+
 	// dynamic lights do not light themselves up!
 	if (mo == data)
 		return;
 	RGL_AddLight(mo);
 }
 
+
 void MD5_RenderModel(modeldef_c *md, int last_anim, int last_frame,
 	int current_anim, int current_frame, float lerp,epi::vec3_c pos,
 	epi::vec3_c scale,epi::vec3_c bias,mobj_t *mo)
 {
-
-	//when rendering a uninterpolated model, pass -1 for last_anim and pass 1.0f for lerp
+	//When rendering an uninterpolated model, pass -1 for last_anim and pass 1.0f for lerp
 	
 	SYS_ASSERT(md->modeltype == MODEL_MD5_UNIFIED);
 	
 	static epi::mat4_c posemats[MD5_MAX_JOINTS+1];
+
 	static MD5jointposebuff jpcur, jplast;
 	
 	//TODO get previous animfile and make sure previous frame was same model, in case model changes
 	//TODO check model and animation have same number of joints
-	if (mo->state->framerange == 0) {
+	if (mo->state->framerange == 0) 
+	{
 		if (last_anim >= 0)
-			LoadMD5Animation(&md->md5u->model, last_anim, last_frame, jplast);
+		LoadMD5Animation(&md->md5u->model, last_anim, last_frame, jplast);
+
 		LoadMD5Animation(&md->md5u->model, current_anim, current_frame, jpcur);
-	} else {
+	} 
+	else 
+	{	//No frames and/or STATIC!
 		SYS_ASSERT(0);
 	}
 	
 	if (lerp < 1.0)
-		md5_pose_lerp(jplast,jpcur,md->md5u->model.jointcnt,lerp,jpcur);
+	md5_pose_lerp(jplast,jpcur,md->md5u->model.jointcnt,lerp,jpcur);
+
 	md5_pose_to_matrix(jpcur, md->md5u->model.jointcnt, posemats);
-	/*
-	glEnable(GL_TEXTURE_2D);
-	glDisable(GL_BLEND);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	*/
-	/*
-	glPushMatrix();
-	glTranslatef(x, y, z);
-	glRotatef(90.0f - ANG_2_FLOAT(mo->GetInterpolatedAngle()), 0.0f, 0.0f, 1.0f);
-	glScalef(r_md5scale.d,r_md5scale.d,r_md5scale.d);
-	*/
 
 	epi::mat4_c model_mat;
 
@@ -206,8 +213,9 @@ void MD5_RenderModel(modeldef_c *md, int last_anim, int last_frame,
 	float cos_a=cos(ang);
 	float sin_a=sin(ang);
 
+	//TODO: vert angle disabled for now!
 	//float vertang=ANG_2_FLOAT(mo->GetInterpolatedVertAngle())*M_PI/180.0f;
-	float vertang=0.0f; //vert angle disabled
+	float vertang=0.0f; 
 	float cos_va=cos(vertang);
 	float sin_va=sin(vertang);
 
@@ -240,19 +248,23 @@ void MD5_RenderModel(modeldef_c *md, int last_anim, int last_frame,
 	tmp_mat.SetOrigin(bias);
 	model_mat*=tmp_mat;
 
-	short l=CLAMP(0,mo->props->lightlevel+mo->state->bright,255);
+	// TODO: Maybe make this a CVAR instead. . . .
+	short l=CLAMP(0,mo->props->lightlevel+mo->state->bright,255); //
 	float r = mo->radius;
 
 	RGL_ClearLights();
+
+	// This clamps to sector lighting.
 	RGL_SetAmbientLight(l,l,l);
+
 	P_DynamicLightIterator(mo->x - r, mo->y - r, mo->z,
 						   mo->x + r, mo->y + r, mo->z + mo->height,
 						   DLIT_CollectLights, mo);
 
 
 	md5_draw_unified_gl(md->md5u, posemats,model_mat);
-	
-//	I_Printf("md5 pos %f %f %f\n",x,y,z);
+
+	//I_Printf("MD5_Render: %f %f %f\n",mo->x,mo->y,mo->z);
 
 	//glPopMatrix();
 }

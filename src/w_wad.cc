@@ -34,7 +34,7 @@
 // -MH- 1998/03/04
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include <limits.h>
 
@@ -70,8 +70,8 @@
 #include "r_image.h"
 #include "rad_trig.h"
 #include "vm_coal.h"
-#include "wlf_local.h"
-#include "wlf_rawdef.h"
+#include "games/wolf3d/wlf_local.h"
+#include "games/wolf3d/wlf_rawdef.h"
 #include "w_wad.h"
 #include "z_zone.h"
 

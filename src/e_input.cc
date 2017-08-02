@@ -27,8 +27,8 @@
 // -MH- 1998/08/18 Flyup and flydown logic
 //
 
-#include "i_defs.h"
-#include "i_defs_gl.h" 
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h" 
 
 #include "dm_defs.h"
 #include "dm_state.h"

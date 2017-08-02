@@ -76,6 +76,7 @@ public:
 	short offset_x;
 	short offset_y;
 
+
     // scale values, where 1.0f is normal.  Higher values stretch the
     // image (on the wall/floor), lower values shrink it.
 	float scale_x;

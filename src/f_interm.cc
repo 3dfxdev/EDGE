@@ -29,7 +29,7 @@
 //    + have proper styles (for text font and sounds).
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"

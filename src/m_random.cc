@@ -23,7 +23,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 #include "m_random.h"
 
 unsigned char rndtable[256] =

@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include "g_game.h"
 #include "r_misc.h"

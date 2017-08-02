@@ -16,7 +16,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 #include "r_defs.h"
 #include "r_misc.h"
 #include "m_bbox.h"

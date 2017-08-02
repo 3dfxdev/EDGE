@@ -1,7 +1,7 @@
 
 /* WOLF GRAPHICS */
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include <vector>
 
@@ -9,7 +9,7 @@
 #include "../epi/image_data.h"
 
 #include "dm_structs.h"
-#include "wlf_local.h"
+#include "games/wolf3d/wlf_local.h"
 
 #include "r_image.h"
 

@@ -30,8 +30,8 @@
 //  Maybe add DMD from Doomsday (for LOD?)
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include "../epi/types.h"
 #include "../epi/endianess.h"
@@ -748,19 +748,6 @@ short MD2_FindFrame(md2_model_c *md, const char *name)
 }
 
 
-/*============== MD3 LOADING CODE ====================*/
-//static const char *CopyFrameName(raw_md3_frame_t *frm)
-//{
-//	char *str = new char[20];
-//
-//	memcpy(str, frm->name, 16);
-//
-	// ensure it is NUL terminated
-//	str[16] = 0;
-//
-//	return str;
-//}
-
 
 static byte MD2_FindNormal(float x, float y, float z)
 {
@@ -1251,12 +1238,12 @@ void MD2_RenderModel(md2_model_c *md, const skindef_c *skin,bool is_weapon,
 	// check if frames are valid
 	if (frame1 < 0 || frame1 >= md->num_frames)
 	{
-I_Debugf("Render model: bad frame %d\n", frame1);
+		I_Debugf("Render model: bad frame %d\n", frame1);
 		return;
 	}
 	if (frame2 < 0 || frame2 >= md->num_frames)
 	{
-I_Debugf("Render model: bad frame %d\n", frame1);
+		I_Debugf("Render model: bad frame %d\n", frame1);
 		return;
 	}
 

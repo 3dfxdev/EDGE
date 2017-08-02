@@ -16,7 +16,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 #include "r_camera.h"
 
 #include "dm_defs.h"

@@ -28,7 +28,7 @@
 // -ACB- 2000/06/02 Removed Control Defaults
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../epi/utility.h"
 #include "../epi/endianess.h"

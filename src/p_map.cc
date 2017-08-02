@@ -36,7 +36,7 @@
 //       PIT_Check* routines similiarly.
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include <float.h>
 

@@ -22,8 +22,8 @@
 
 // FIXME: EWOULDBLOCK may/may not be synonymous with EAGAIN
 
-#include "i_defs.h"
-#include "i_net.h"
+#include "system/i_defs.h"
+#include "system/i_net.h"
 
 #include <vector>
 

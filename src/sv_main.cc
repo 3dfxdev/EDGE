@@ -20,7 +20,7 @@
 // new savegame system.
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../epi/path.h"
 #include "../epi/str_format.h"

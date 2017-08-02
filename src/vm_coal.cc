@@ -16,7 +16,7 @@
 //
 //------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../coal/coal.h"
 
@@ -522,7 +522,7 @@ void VM_LoadCoalFire(const char *filename)
 
 	if (! F)
 	{
-		I_Warning("Could not open coal script: %s\n", filename);
+		//I_Warning("Could not open coal script: %s\n", filename);
 		return;
 	}
 

@@ -29,7 +29,7 @@
 #ifndef __VIDEORES_H__
 #define __VIDEORES_H__
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../epi/arrays.h"
 

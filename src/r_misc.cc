@@ -26,8 +26,8 @@
 // -KM- 1998/09/27 Dynamic Colourmaps
 //
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include <math.h>
 
