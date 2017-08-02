@@ -19,17 +19,17 @@
 // -ACB- 1999/11/13 Written
 //
 
-#include "../system/i_defs.h"
-#include "../system/win32/w32_sysinc.h"
+#include "../i_defs.h"
+#include "../win32/w32_sysinc.h"
 
-#include "system/i_sdlinc.h"
+#include "../i_sdlinc.h"
 
-#include "../ddf/main.h"
-#include "../ddf/playlist.h"
+#include "../../../ddf/main.h"
+#include "../../../ddf/playlist.h"
 
-#include "s_sound.h"
-#include "s_opl.h"
-#include "s_timid.h"
+#include "../../s_sound.h"
+#include "../../s_opl.h"
+#include "../../s_timid.h"
 
 bool musicpaused;
 

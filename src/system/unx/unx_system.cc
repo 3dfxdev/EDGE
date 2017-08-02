@@ -16,9 +16,9 @@
 //
 //----------------------------------------------------------------------------
 
-#include "system/i_defs.h"
-#include "system/i_sdlinc.h"
-#include "system/i_net.h"
+#include "../i_defs.h"
+#include "../i_sdlinc.h"
+#include "../i_net.h"
 
 #include <unistd.h>
 #include <signal.h>
@@ -33,21 +33,21 @@
 #include <linux/input.h>
 #endif
 
-#include "../epi/timestamp.h"
+#include "../../../epi/timestamp.h"
 
-#include "version.h"
-#include "con_main.h"
-#include "dm_state.h"
-#include "e_main.h"
-#include "g_game.h"
-#include "m_argv.h"
-#include "m_misc.h"
-#include "m_random.h"
-#include "r_modes.h"
-#include "w_wad.h"
-#include "z_zone.h"
+#include "../../version.h"
+#include "../../con_main.h"
+#include "../../dm_defs.h"
+#include "../../e_main.h"
+#include "../../g_game.h"
+#include "../../m_argv.h"
+#include "../../m_menu.h"
+#include "../../m_misc.h"
+#include "../../s_sound.h"
+#include "../../w_wad.h"
+#include "../../z_zone.h"
 
-#include "system/unx/unx_sysinc.h"
+#include "unx_sysinc.h"
 
 #define BITS_PER_LONG (sizeof(long) * 8)
 #define OFF(x)  ((x)%BITS_PER_LONG)

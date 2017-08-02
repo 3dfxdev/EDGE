@@ -16,12 +16,12 @@
 //
 //----------------------------------------------------------------------------
 
-#include "../system/i_defs.h"
-#include "../system/i_sdlinc.h"
+#include "../i_defs.h"
+#include "../i_sdlinc.h"
 
-#include "system/win32/w32_sysinc.h"
-#include "e_main.h"
-#include "s_music.h"
+#include "w32_sysinc.h"
+#include "../../e_main.h"
+#include "../../s_music.h"
 
 // TODO: endianness handling (not a huge issue since the Win32
 //       platform is predominantly for x86 architecture).

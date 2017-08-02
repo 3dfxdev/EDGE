@@ -25,8 +25,8 @@
 #include <stdarg.h>
 #include <setjmp.h>
 
-#include "../epi/epi.h"
-#include "../epi/math_quaternion.h"
+#include "../../epi/epi.h"
+#include "../../epi/math_quaternion.h"
 
 #include "md5.h"
 #include "md5_anim.h"

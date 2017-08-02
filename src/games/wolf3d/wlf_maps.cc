@@ -1,17 +1,17 @@
 
 /* WOLF MAPS */
 
-#include "system/i_defs.h"
+#include "../../system/i_defs.h"
 
 #include "wlf_local.h"
 
 #include <vector>
 #include <map>
 
-#include "../epi/endianess.h"
-#include "../epi/math_crc.h"
+#include "../../../epi/endianess.h"
+#include "../../../epi/math_crc.h"
 
-#include "dm_structs.h"
+#include "../../dm_structs.h"
 
 
 //!!!!  const char *wlf_extension = "wl6";

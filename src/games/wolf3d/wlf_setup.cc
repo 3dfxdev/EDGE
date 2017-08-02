@@ -29,45 +29,45 @@
 //
 // Now this file uses TinyBSP rather than the old version of WLF_BSP.
 
-#include "system/i_defs.h"
+#include "../../system/i_defs.h"
 
 #include <vector>
 #include <map>
 
-#include "../epi/endianess.h"
-#include "../epi/math_crc.h"
+#include "../../../epi/endianess.h"
+#include "../../../epi/math_crc.h"
 
-#include "../ddf/main.h"
-#include "../ddf/colormap.h"
+#include "../../../ddf/main.h"
+#include "../../../ddf/colormap.h"
 
 #include "wlf_local.h"
 #include "wlf_rawdef.h"
 
-#include "dm_defs.h"
-#include "dm_data.h"
-#include "dm_state.h"
-#include "dm_structs.h"
-#include "e_main.h"
-#include "g_game.h"
-#include "l_glbsp.h"
-#include "e_player.h"
-#include "m_argv.h"
-#include "m_bbox.h"
-#include "m_misc.h"
-#include "m_random.h"
-#include "p_local.h"
-#include "p_setup.h" //<--- Anything defined here already should be modified here, and commented out in this file!
-#include "r_defs.h"
-#include "r_gldefs.h"
-#include "r_sky.h"
-#include "s_sound.h"
-#include "s_music.h"
-#include "sv_main.h"
-#include "r_image.h"
-#include "w_texture.h"
-#include "w_wad.h"
-#include "z_zone.h"
-#include "vm_coal.h"
+#include "../../dm_defs.h"
+#include "../../dm_data.h"
+#include "../../dm_state.h"
+#include "../../dm_structs.h"
+#include "../../e_main.h"
+#include "../../g_game.h"
+#include "../../l_glbsp.h"
+#include "../../e_player.h"
+#include "../../m_argv.h"
+#include "../../m_bbox.h"
+#include "../../m_misc.h"
+#include "../../m_random.h"
+#include "../../p_local.h"
+#include "../../p_setup.h" //<--- Anything defined here already should be modified here, and commented out in this file!
+#include "../../r_defs.h"
+#include "../../r_gldefs.h"
+#include "../../r_sky.h"
+#include "../../s_sound.h"
+#include "../../s_music.h"
+#include "../../sv_main.h"
+#include "../../r_image.h"
+#include "../../w_texture.h"
+#include "../../w_wad.h"
+#include "../../z_zone.h"
+#include "../../vm_coal.h"
 
 #define TILE_ELEVATOR     0x15
 #define TILE_SECRET_ELEV  0x6B
