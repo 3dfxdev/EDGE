@@ -24,8 +24,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "system/i_defs.h"
-#include "system/i_net.h"
+#include "i_defs.h"
+#include "i_net.h"
 
 bool nonet = false;
 
@@ -38,9 +38,9 @@ bool nonet = false;
 #include <net/if.h>
 #endif
 
-#include "../epi/endianess.h"
+#include "../../epi/endianess.h"
 
-#include "m_argv.h"
+#include "../m_argv.h"
 
 
 net_address_c n_local_addr;

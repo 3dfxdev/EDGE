@@ -19,7 +19,7 @@
 #ifndef __R_MD5ANIM_H__
 #define __R_MD5ANIM_H__
 
-#include "../md5_conv/md5_anim.h"
+#include "md5_conv/md5_anim.h"
 #include "../epi/file.h"
 #include "../epi/types.h"
 

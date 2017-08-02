@@ -31,7 +31,7 @@
 
 #include "../epi/image_data.h"
 #include "../epi/image_jpeg.h"
-#include "../md5_conv/md5_draw.h"
+#include "md5_conv/md5_draw.h"
 
 #include "con_main.h"
 #include "dm_data.h"
