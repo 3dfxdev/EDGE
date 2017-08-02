@@ -24,8 +24,8 @@
 #include <stdarg.h>
 #include <setjmp.h>
 
-#include "../epi/epi.h"
-#include "../epi/math_vector.h"
+#include "../../epi/epi.h"
+#include "../../epi/math_vector.h"
 
 #define MAX_MD5_ERROR_MSG	200
 static jmp_buf md5_error_jmp;

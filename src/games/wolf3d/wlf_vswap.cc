@@ -1,16 +1,16 @@
 
 /* VSWAP */
 
-#include "system/i_defs.h"
+#include "../../system/i_defs.h"
 
 #include <vector>
 
-#include "../epi/endianess.h"
-#include "../epi/image_data.h"
+#include "../../../epi/endianess.h"
+#include "../../../epi/image_data.h"
 
 #include "wlf_local.h"
 
-#include "r_image.h"
+#include "../../r_image.h"
 
 
 class vswap_info_c

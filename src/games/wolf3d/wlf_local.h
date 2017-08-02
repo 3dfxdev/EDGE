@@ -4,7 +4,7 @@
 #ifndef __WOLF_LOCAL_H__
 #define __WOLF_LOCAL_H__
 
-#include "../epi/image_data.h"
+#include "../../../epi/image_data.h"
 #include "wlf_rawdef.h"
 
 

@@ -1,9 +1,9 @@
 
 /* WOLF UTIL */
 
-#include "system/i_defs.h"
+#include "../../system/i_defs.h"
 
-#include "../epi/endianess.h"
+#include "../../../epi/endianess.h"
 
 #include "wlf_local.h"
 

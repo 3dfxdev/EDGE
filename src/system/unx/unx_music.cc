@@ -20,16 +20,16 @@
 // -ACB- 2001/01/14 Replaced I_WriteDebug() with I_PostMusicError()
 //
 
-#include "system/i_defs.h"
+#include "../i_defs.h"
 
-#include "../ddf/main.h"
-#include "../ddf/playlist.h"
+#include "../../../ddf/main.h"
+#include "../../../ddf/playlist.h"
 
-#include "s_sound.h"
-#include "s_music.h"
-#include "s_opl.h"
-#include "s_timid.h"
-#include "system/unx/unx_sysinc.h"
+#include "../../s_sound.h"
+#include "../../s_music.h"
+#include "../../s_opl.h"
+#include "../../s_timid.h"
+#include "unx_sysinc.h"
 
 
 #define MUSICERRLEN 256

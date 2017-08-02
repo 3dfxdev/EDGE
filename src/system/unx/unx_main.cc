@@ -20,7 +20,7 @@
 //      Main program, simply calls E_Main high level loop.
 //
 
-#include "system/i_defs.h"
+#include "../i_defs.h"
 
 #include <unistd.h>
 
@@ -28,9 +28,9 @@
 #include <SDL2/SDL.h>  // needed for proper SDL main linkage
 #endif
 
-#include "dm_defs.h"
-#include "m_argv.h"
-#include "e_main.h"
+#include "../../dm_defs.h"
+#include "../../m_argv.h"
+#include "../../e_main.h"
 
 // cleanup handling -- killough:
 

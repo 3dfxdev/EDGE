@@ -21,10 +21,10 @@
 #ifndef _MD5_H_
 #define _MD5_H_
 
-#include "../epi/epi.h"
-#include "../epi/math_vector.h"
-#include "../epi/math_matrix.h"
-#include "../epi/math_quaternion.h"
+#include "../../epi/epi.h"
+#include "../../epi/math_vector.h"
+#include "../../epi/math_matrix.h"
+#include "../../epi/math_quaternion.h"
 
 typedef float fvec2_t[2];
 typedef float fvec3_t[3];

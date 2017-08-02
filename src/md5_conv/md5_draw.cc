@@ -26,7 +26,7 @@
 
 #ifdef WIN32
 #include <windows.h>
-#include "../src/i_defs_gl.h"
+#include "../system/i_defs_gl.h"
 #endif
 
 #ifdef _MSC_VER
@@ -42,21 +42,21 @@
 #include "md5_draw.h"
 #include "md5_anim.h"
 
-#include "../src/i_defs.h"
-#include "../src/i_defs_gl.h"
+#include "../system/i_defs.h"
+#include "../system/i_defs_gl.h"
 
-#include "../epi/types.h"
-#include "../epi/endianess.h"
+#include "../../epi/types.h"
+#include "../../epi/endianess.h"
 
-#include "../src/r_gldefs.h"
-#include "../src/r_colormap.h"
-#include "../src/r_effects.h"
-#include "../src/r_image.h"
-#include "../src/r_misc.h"
-#include "../src/r_modes.h"
-#include "../src/r_state.h"
-#include "../src/r_shader.h"
-#include "../src/r_units.h"
+#include "../r_gldefs.h"
+#include "../r_colormap.h"
+#include "../r_effects.h"
+#include "../r_image.h"
+#include "../r_misc.h"
+#include "../r_modes.h"
+#include "../r_state.h"
+#include "../r_shader.h"
+#include "../r_units.h"
 
 
 #define PREMULTIPLY 1

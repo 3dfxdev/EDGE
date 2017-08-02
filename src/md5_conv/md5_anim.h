@@ -23,10 +23,10 @@
 
 #include "md5.h"
 
-#include "../epi/epi.h"
-#include "../epi/math_vector.h"
-#include "../epi/math_matrix.h"
-#include "../epi/math_quaternion.h"
+#include "../../epi/epi.h"
+#include "../../epi/math_vector.h"
+#include "../../epi/math_matrix.h"
+#include "../../epi/math_quaternion.h"
 
 //md5anim format
 #define MD5_POSE_X_POS 1
