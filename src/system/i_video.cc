@@ -16,9 +16,9 @@
 //
 //----------------------------------------------------------------------------
 
-#include "system/i_defs.h"
-#include "system/i_sdlinc.h"
-#include "system/i_defs_gl.h"
+#include "i_defs.h"
+#include "i_sdlinc.h"
+#include "i_defs_gl.h"
 
 #ifdef WIN32
 #include <GL/wglew.h>
@@ -34,9 +34,9 @@
 
 #include <signal.h>
 
-#include "m_argv.h"
-#include "m_misc.h"
-#include "r_modes.h"
+#include "../m_argv.h"
+#include "../m_misc.h"
+#include "../r_modes.h"
 
 extern cvar_c r_width, r_height, r_depth, r_fullscreen, r_vsync;
 
