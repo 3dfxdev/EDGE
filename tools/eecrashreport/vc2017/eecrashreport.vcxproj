@@ -265,9 +265,9 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\eecrashreport.cpp" />
-    <ClCompile Include="..\eecrashreportDlg.cpp" />
-    <ClCompile Include="..\StdAfx.cpp">
+    <ClCompile Include="..\eecrashreport.cc" />
+    <ClCompile Include="..\eecrashreportDlg.cc" />
+    <ClCompile Include="..\StdAfx.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -291,6 +291,14 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\build\3DGE.vcxproj">
+      <Project>{9c9ee8c2-9563-3583-bd49-47ce2a434254}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\build\ZERO_CHECK.vcxproj">
+      <Project>{6fa2dc7e-1e73-3caa-a1c0-7abe79246eb5}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

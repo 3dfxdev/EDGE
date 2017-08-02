@@ -25,7 +25,7 @@ ENDIF (COMMAND cmake_policy)
 ################################################################################
 ######################### Set Project Source  ##################################
 ADD_DEFINITIONS(-D_AFXDLL)
-FILE (GLOB EECRASHREPORT_SOURCES *.cpp)
+FILE (GLOB EECRASHREPORT_SOURCES *.cc)
 INCLUDE_DIRECTORIES (.)
 
 ################################################################################

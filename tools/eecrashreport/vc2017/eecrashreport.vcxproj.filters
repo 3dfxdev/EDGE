@@ -15,13 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\eecrashreport.cpp">
+    <ClCompile Include="..\StdAfx.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\eecrashreportDlg.cpp">
+    <ClCompile Include="..\eecrashreport.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\StdAfx.cpp">
+    <ClCompile Include="..\eecrashreportDlg.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

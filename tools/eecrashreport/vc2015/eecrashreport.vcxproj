@@ -265,9 +265,9 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\eecrashreport.cpp" />
-    <ClCompile Include="..\eecrashreportDlg.cpp" />
-    <ClCompile Include="..\StdAfx.cpp">
+    <ClCompile Include="..\eecrashreport.ccc" />
+    <ClCompile Include="..\eecrashreportDlg.ccc" />
+    <ClCompile Include="..\StdAfx.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
