@@ -26,7 +26,7 @@
 #ifndef __I_SYSTEM_H__
 #define __I_SYSTEM_H__
 
-#include "../epi/timestamp.h"
+#include "../../epi/timestamp.h"
 
 //--------------------------------------------------------
 //  SYSTEM functions.
