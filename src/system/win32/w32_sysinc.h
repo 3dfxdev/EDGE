@@ -21,7 +21,7 @@
 
 #define DUMMYUNIONNAMEN(n)
 
-#include "system/i_defs.h"
+#include "../i_defs.h"
 
 #include <windows.h>  // -AJA- added
 
