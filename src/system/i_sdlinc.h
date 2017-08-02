@@ -22,7 +22,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_keycode.h> /// Keys
 
-#include "system/i_local.h"  // FIXME: remove
+#include "i_local.h"  // FIXME: remove
 
 #endif /* __SDL_SYSTEM_INTERNAL_H__ */
 
