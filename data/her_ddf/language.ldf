@@ -25,6 +25,11 @@ QuickLoad="do you want to quickload the game named\n\n'%s'?\n\npress y or n.";
 
 NewNetGame="you can't start a new game\n"
            "while in a network game.\n\npress a key.";
+		   
+NewSplitGame="you can't start a splitscreen game\n"
+           "while in a normal game! End the game\n"
+		   "first.\n\npress a key.";
+		   
 EpisodeNonExist="You don't have this episode!\n\npress a key.";
 NightmareCheck="Are you sure ? this skill level\n"
                "isn't even remotely fair.\n\npress y or n.";
