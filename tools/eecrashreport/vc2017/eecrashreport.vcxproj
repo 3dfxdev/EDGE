@@ -293,9 +293,6 @@
     <Text Include="..\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\build\3DGE.vcxproj">
-      <Project>{9c9ee8c2-9563-3583-bd49-47ce2a434254}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\build\ZERO_CHECK.vcxproj">
       <Project>{6fa2dc7e-1e73-3caa-a1c0-7abe79246eb5}</Project>
     </ProjectReference>

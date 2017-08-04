@@ -83,6 +83,7 @@ BEGIN_MESSAGE_MAP(CEECrashReportDlg, CDialog)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	//}}AFX_MSG_MAP
+	//ON_STN_CLICKED(IDC_STATIC_ICON, &CEECrashReportDlg::OnStnClickedStaticIcon)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -261,6 +262,6 @@ void CEECrashReportDlg::LoadErrorFile()
 void CEECrashReportDlg::LaunchBrowser()
 {
    ShellExecute(NULL, "open", 
-                "https://www.doomworld.com/forum/25-eternity/?do=add", 
+                "http://www.tdgmods.net/smf/posting.php?mode=post&f=51", 
                 NULL, NULL, SW_SHOWNORMAL);
 }

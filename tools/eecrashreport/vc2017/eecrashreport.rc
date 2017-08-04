@@ -74,7 +74,7 @@ IDR_MAINFRAME           ICON                    "res\\eecrashreport.ico"
 
 IDD_ABOUTBOX DIALOGEX 0, 0, 235, 89
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "About Eternity Crash Reporter"
+CAPTION "About EDGE Crash Reporter"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,7,16,21,20
@@ -92,10 +92,13 @@ FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "Report",IDOK,91,199,50,14
     PUSHBUTTON      "Close",IDCANCEL,150,199,50,14
-    EDITTEXT        IDC_EDIT1,7,54,278,137,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL
-    LTEXT           "You can help us solve this problem by submitting the information below to the Isotope SoftWorks Forums. Click ""Report"" to launch your default web browser, and then press Control+V to paste this information into a new message.",IDC_STATIC,36,20,249,26
-    ICON            "",IDC_STATIC_ICON,7,15,20,20
-    LTEXT           "EDGE2 has experienced a problem and needs to shut down.",IDC_STATIC,36,7,191,8
+    EDITTEXT        IDC_EDIT1,7,83,278,99,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL
+    LTEXT           "You can help us solve this problem by submitting the information below to the 3DGE Forums. Click ""Report"" to launch your default web browser, and then press Control+V to paste this information into a new message.",IDC_STATIC,36,20,249,26
+    ICON            "",IDC_STATIC_ICON,7,22,21,20
+    CONTROL         "EDGE has experienced a fatal error and needs to shut down. =/",IDC_STATIC,
+                    "Static",SS_SIMPLE | WS_GROUP,21,7,210,11,WS_EX_CLIENTEDGE
+    CTEXT           "You can submit this later by viewing CRASHLOG.txt in your EDGE directory.",IDC_STATIC,16,184,249,13,SS_CENTERIMAGE | SS_SUNKEN
+    LTEXT           "Make sure to submit the last 3 lines of DEBUG.TXT along with the version number you are using! Please also describe what led to the crash in the first place. Thank You for helping us make EDGE better. <3",IDC_STATIC,29,49,249,28,0,WS_EX_CLIENTEDGE
 END
 
 
@@ -171,6 +174,11 @@ END
 //
 
 IDD_ABOUTBOX AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_EECRASHREPORT_DIALOG AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
