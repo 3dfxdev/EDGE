@@ -32,7 +32,7 @@ INCLUDE_DIRECTORIES (.)
 ######################### Set Build Targets   ##################################
 ADD_EXECUTABLE (eecrashreport WIN32 ${EECRASHREPORT_SOURCES})
 TARGET_LINK_LIBRARIES (eecrashreport)
-INSTALL (TARGETS eecrashreport
-        RUNTIME DESTINATION ${BIN_DIR}
-        LIBRARY DESTINATION ${LIB_DIR}
-        ARCHIVE DESTINATION ${LIB_DIR})
+#INSTALL (TARGETS eecrashreport
+#        RUNTIME DESTINATION ${BIN_DIR}
+#        LIBRARY DESTINATION ${LIB_DIR}
+#        ARCHIVE DESTINATION ${LIB_DIR})
