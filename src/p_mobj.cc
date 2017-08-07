@@ -991,7 +991,14 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 				{
 					P_ShootSpecialLine(blockline,
 						PointOnLineSide(mo->x, mo->y, blockline), mo->source);
+
+					// CA 8.7.17: 
+					//reflect momentum away from wall (try to fix sticky walls physics?)
+					// Seems to work in making things less "sticky".
+					mo->mom.x = mo->x * 2 - mo->mom.x;
+					mo->mom.y = mo->y * 2 - mo->mom.y;
 				}
+
 			}
 
 			// -AJA- 2008/01/20: Jumping out of Water
@@ -1119,6 +1126,16 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 			mo->mom.x = mo->mom.y = 0;
 		}
 	}
+
+#if 0
+	if (r_motionblur && mo->player /*== &players[displayplayer]*/)
+	{
+		float dx = (float)(oldx - mo->mom.x) / 65536.0f;
+		float dy = (float)(oldy - mo->mom.y) / 65536.0f;
+		motion_blur.curr_speed_pow2 = dx * dx + dy * dy;
+	}
+#endif // 0
+
 }
 
 /// ~CA 5.13.2016
