@@ -219,8 +219,9 @@ static char SoundBits[]   = "8 bit/16 bit";
 static char StereoNess[]  = "Off/On/Swapped";
 static char MixChans[]    = "8/16/32/64/96";
 static char QuietNess[]   = "Loud (distorted)/Normal/Soft/Very Soft";
-static char MusicDevs[]   = "System/Timidity/OPL";
+static char MusicDevs[]   = "System (see message)/Timidity/OPL";
 static char SoundPitching[] = "Off/On";
+static char OPL[] = "OPL 1/OPL 3";
 
 // Screen resolution changes
 static scrmode_c new_scrmode;
@@ -435,14 +436,17 @@ static optmenuitem_t vidoptions[] =
 static optmenuitem_t advancedoptions[] =
 {
 	{OPT_Switch, "OpenGL 3x",     YesNo, 2, &r_gl3_path, NULL, "OpenGL 3.x mode. Disable for OpenGL 1.1 renderer!"}, /// Change from GL1 to GL3
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Switch,   "Bloom Processing",  YesNo,  2,  &r_bloom, NULL, "Toggle Bloom Shader On or Off"},
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Switch,   "Lens Distortion",  YesNo,  2,  &r_lens, NULL, "Toggle Lens Distortion Effect"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Boolean, "Video Sync",   Lerp,   3, &r_vsync, NULL, "Check value in console with 'r_vsync'"},
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Switch,  "Interpolation",    YesNo,   2, &r_lerp, NULL, "Frame Prediction"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
-
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Switch,  "Shadows", Shadows, 4,  &r_shadows, NULL, "Simple, Sprite, Complex"},
 
 	{OPT_Plain,   "<---Debugging--->",  NULL, 0, NULL, NULL, NULL},
@@ -591,13 +595,13 @@ static optmenuitem_t soundoptions[] =
 	{ OPT_Switch,  "Music Device",    MusicDevs, 3, &var_music_dev, NULL, "Win32: SYSTEM will not work with Vista or higher!" },
 
 	{ OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL },
-	{OPT_Boolean,   "Sound Pitching",  SoundPitching, 2,  &sound_pitch, NULL, "Emulate Doom 1.2 Random SFX Pitching"},
+	{OPT_Boolean, "Sound Pitching",  SoundPitching, 2,  &sound_pitch, NULL, "Emulate Doom 1.2 Random SFX Pitching"},
 	{OPT_Switch,  "Mix Channels",    MixChans,  4, &var_mix_channels, M_ChangeMixChan, NULL},
-	{OPT_Switch,  "Quiet Factor",    QuietNess, 3, &var_quiet_factor, NULL, NULL},
+	{OPT_Switch,  "SFX: Quiet Factor",    QuietNess, 3, &var_quiet_factor, NULL, "How normalized do you want the sound?"},
 
 	{OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL},
 
-	{OPT_Boolean, "OPL Mode",       YesNo,     2, &var_opl_opl3mode, NULL, "OPL1 or OPL3 mode emulation"},
+	{OPT_Boolean, "OPL Emulation Mode",       OPL,     2, &var_opl_opl3mode, NULL, "OPL1 or OPL3 mode emulation"},
 	{ OPT_Switch, "Timidity Factor", QuietNess, 3, &var_timid_factor, M_ChangeTimidQuiet, NULL },
 };
 
@@ -1066,7 +1070,7 @@ void M_OptDrawer()
 		// -ACB- 1998/07/15 Menu Cursor is colour indexed.
 		if (is_selected)
 		{
-			HL_WriteText(style,2, (curr_menu->menu_center + 4), curry, "*");
+			HL_WriteText(style,2, (curr_menu->menu_center + 4), curry, ">");
 
 			if (curr_menu->items[i].help)
 			{
