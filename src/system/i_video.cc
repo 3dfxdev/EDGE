@@ -22,15 +22,13 @@
 
 #ifdef WIN32
 #include <GL/wglew.h>
-/// If you don't hardlink under Win32, replace with ---> ^___________________^
+
 #else
 #include <GL/glew.h>
 #endif
 
 
 #include <SDL2/SDL_opengl.h>
-
-
 
 #include <signal.h>
 

@@ -127,7 +127,7 @@ extern cvar_c m_busywait;
 extern cvar_c r_shadows;
 extern cvar_c r_bloom;
 extern cvar_c r_lens;
-//extern cvar_c mouse_accel;
+extern cvar_c sound_pitch;
 
 static int menu_crosshair;  // temp hack
 static int menu_crosshair2;  /// love haxxx
@@ -220,6 +220,7 @@ static char StereoNess[]  = "Off/On/Swapped";
 static char MixChans[]    = "8/16/32/64/96";
 static char QuietNess[]   = "Loud (distorted)/Normal/Soft/Very Soft";
 static char MusicDevs[]   = "System/Timidity/OPL";
+static char SoundPitching[] = "Off/On";
 
 // Screen resolution changes
 static scrmode_c new_scrmode;
@@ -587,15 +588,17 @@ static optmenuitem_t soundoptions[] =
 	{OPT_Switch,  "Sample Rate",  SampleRates, 5, &var_sample_rate,  NULL, "NeedRestart"},
 	{OPT_Switch,  "Sample Size",  SoundBits, 2,   &var_sound_bits,   NULL, "NeedRestart"},
 	{OPT_Switch,  "Stereo",       StereoNess, 3,  &var_sound_stereo, NULL, "NeedRestart"},
+	{ OPT_Switch,  "Music Device",    MusicDevs, 3, &var_music_dev, NULL, "Win32: SYSTEM will not work with Vista or higher!" },
 
-	{OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL},
+	{ OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL },
+	{OPT_Boolean,   "Sound Pitching",  SoundPitching, 2,  &sound_pitch, NULL, "Emulate Doom 1.2 Random SFX Pitching"},
 	{OPT_Switch,  "Mix Channels",    MixChans,  4, &var_mix_channels, M_ChangeMixChan, NULL},
 	{OPT_Switch,  "Quiet Factor",    QuietNess, 3, &var_quiet_factor, NULL, NULL},
+
 	{OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL},
-	{OPT_Switch,  "Music Device",    MusicDevs, 3, &var_music_dev, NULL, "Win32: SYSTEM will not work with Vista or higher!"},
-	{OPT_Switch,  "Timidity Factor", QuietNess, 3, &var_timid_factor, M_ChangeTimidQuiet, NULL},
 
 	{OPT_Boolean, "OPL Mode",       YesNo,     2, &var_opl_opl3mode, NULL, "OPL1 or OPL3 mode emulation"},
+	{ OPT_Switch, "Timidity Factor", QuietNess, 3, &var_timid_factor, M_ChangeTimidQuiet, NULL },
 };
 
 static menuinfo_t sound_optmenu =
