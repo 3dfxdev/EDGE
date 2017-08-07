@@ -66,6 +66,7 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+extern void R_StartFading(int start, int range); //For Menu Fading
 
 extern bool heretic_mode; //that's why this never worked right. . .
 //
@@ -73,6 +74,9 @@ extern bool heretic_mode; //that's why this never worked right. . .
 //
 
 static bool need_wipe = false;
+
+static bool alphaprevmenu = false;
+static int  menualphacolor = 0xff; // 255!
 
 //
 // E_Display
@@ -112,6 +116,7 @@ bool menuactive;
 #define HSKULLYOFF   -1
 #define HLINEHEIGHT   20  //equiv to ITEM_HEIGHT in Heretic's source
 #define HASCII_CURSOR '[' //not sure what this is for...from Heretic.
+
 
 
 //
@@ -531,17 +536,16 @@ static menu_t HereticMainDef =
 
 static menuitem_t MultiMenu[] = ///Dupe Doom Legacy's Multiplayer menu. . .
 {
-	//{ 1, "M_SETUPA", NULL, NULL, 'a' }, //Setup Player One (controls and stuff, only shows in multiplayer menu)
-	//{ 1, "M_SETUPB", NULL, NULL, 'b' }, //Setup Player Two (controls and stuff, only shows in multiplayer menu)
 	{ 1, "M_STSERV", NULL, M_HostNetGame, 'o' }, // Pulls up the Advanced Start Menu (Host)
 	{ 1, "M_CONNEC",  NULL, M_JoinNetGame, 'h' }, //Pulls up the Join Game Menu (client)
 	{ 1, "M_2PLAYR",  NULL, M_SplitScreenGame, 'z' }, //Goes to splitscreen game (II)
-	{ 1, "M_OPTION", NULL, M_Options, 'o' } // Goes to Options...
+	{ 1, "M_OPTION", NULL, M_Options, 'o' }, // Goes to Options...
+	{ 1, "M_QUITG",   NULL, M_EndGame, 'e'}
 };
-	
+
 static menu_t MultiDef =
 {
-	4,	//multi_numtypes, // # of menu items...try main_end
+	5,	//multi_numtypes, // # of menu items...try main_end
 	&MainDef, // previous menu
 	MultiMenu,  // ::from::SkillMenu ->> menuitem_t ->
 	&multi_menu_style, /// Same style, I guess?
@@ -1744,6 +1748,7 @@ static void EndGameResponse(int ch)
 
 	G_DeferredEndGame();
 
+	R_StartFading(255, 0);
 	currentMenu->lastOn = itemOn;
 	M_ClearMenus();
 }
@@ -2734,6 +2739,59 @@ void M_SetupNextMenu(menu_t * menudef)
 	currentMenu = menudef;
 	itemOn = currentMenu->lastOn;
 }
+
+//
+// M_MenuFadeIn / M_MenuFadeOut
+//
+
+#if 0
+void M_MenuFadeIn(void)
+{
+	int fadetime = (int)(m_menufadetime.value + 20);
+
+	if ((menualphacolor + fadetime) < 0xff) //0xff = 25
+	{
+		menualphacolor += fadetime;
+	}
+	else
+	{
+		menualphacolor = 0xff;
+		alphaprevmenu = false;
+		menufadefunc = NULL;
+		nextmenu = NULL;
+	}
+}
+
+
+//
+// M_MenuFadeOut
+//
+
+void M_MenuFadeOut(void)
+{
+	int fadetime = (int)(m_menufadetime.value + 20);
+
+	if (menualphacolor > fadetime) {
+		menualphacolor -= fadetime;
+	}
+	else {
+		menualphacolor = 0;
+
+		if (alphaprevmenu == false) {
+			currentMenu = nextmenu;
+			itemOn = currentMenu->lastOn;
+		}
+		else {
+			currentMenu = currentMenu->prevMenu;
+			itemOn = currentMenu->lastOn;
+		}
+
+		menufadefunc = M_MenuFadeIn;
+	}
+}
+#endif // 0
+
+
 
 void M_Ticker(void)
 {

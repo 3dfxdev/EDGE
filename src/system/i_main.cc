@@ -127,7 +127,7 @@ fflush(stdout);
 	// Run EDGE2. it never returns
 	_try
 	{
-		//I_TweakConsole();
+		I_TweakConsole();
 		E_Main(argc, (const char **) argv);
 		//common_main(argc, argv);
 	}

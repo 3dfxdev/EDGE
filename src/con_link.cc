@@ -100,6 +100,8 @@ extern cvar_c r_md5scale;
 extern cvar_c debug_nomonsters, debug_subsector;
 extern cvar_c camera_subdir;
 
+extern cvar_c sound_pitch;
+
 #ifndef LINUX
 #define S_MUSICDEV_CFG  "0"  // native
 #else
@@ -131,6 +133,8 @@ cvar_link_t  all_cvars[] =
 	{ "spriteflip",      &r_spriteflip,       "c",   "0"  },
 
 	{ "shadows",         &r_shadows,          "c",   "1" },
+
+	{ "soundpitch",      &sound_pitch,         "c",    "1" },
 
 	/* Input Stuff */
 

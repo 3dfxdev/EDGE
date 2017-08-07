@@ -240,7 +240,7 @@ static void DrawKeyword(int index, style_c *style, int y,
 	bool is_selected =
 	    (netgame_menuon == 1 && index == host_pos) ||
 	    (netgame_menuon == 2 && index == join_pos) ||
-		(splitgame_menuon == 1 && index == split_pos);
+		(splitgame_menuon == 3 && index == split_pos);
 
 	HL_WriteText(style,(index<0)?3:is_selected?2:0, x - 10 - style->fonts[0]->StringWidth(keyword), y, keyword);
 	HL_WriteText(style,1, x + 10, y, value);

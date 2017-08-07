@@ -1,8 +1,9 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
-// EDGE Engine Exception Handler
+// EDGE Engine Win32 Exception Handler
 //
 // Copyright (C) 2013 James Haley et al. Originally written for Eternity Engine.
+// Adapted to EDGE (C) EDGE2 Team
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -32,6 +33,9 @@
 
 #ifdef _MSC_VER
 
+#include "../i_defs.h"
+#include "../../version.h"
+
 #include <windows.h>
 #include <tchar.h>
 
@@ -46,6 +50,7 @@
 #define RoundMem(amt) (((amt) + MEGABYTE - 1) / MEGABYTE)
 #define CODETOPRINT 16
 #define STACKTOPRINT 3072
+#define EDGE  "EDGE2 v" EDGEVERSTR
 
 //=============================================================================
 //
@@ -361,6 +366,7 @@ static void PrintUserInfo(void)
       lstrcpy(userName, _T("Unknown"));
 
    LogPrintf(_T("%s, run by %s.\r\n"), moduleName, userName);
+   LogPrintf(("3DGE v" EDGEVERSTR "\n"));
 }
 
 //

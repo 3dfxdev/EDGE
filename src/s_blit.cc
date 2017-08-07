@@ -39,6 +39,7 @@
 #include "s_music.h"
 
 
+
 // Sound must be clipped to prevent distortion (clipping is
 // a kind of distortion of course, but it's much better than
 // the "white noise" you get when values overflow).
@@ -782,6 +783,8 @@ void S_QueueInit(void)
 
 		queue_chan->state = CHAN_Empty;
 		queue_chan->data  = NULL;
+
+
 		queue_chan->pitch = 128;
 
 		queue_chan->ComputeMusicVolume();
