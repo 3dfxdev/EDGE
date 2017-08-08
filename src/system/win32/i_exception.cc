@@ -366,7 +366,7 @@ static void PrintUserInfo(void)
       lstrcpy(userName, _T("Unknown"));
 
    LogPrintf(_T("%s, run by %s.\r\n"), moduleName, userName);
-   LogPrintf(("3DGE v" EDGEVERSTR "\n"));
+   LogPrintf(("3DGE v" EDGEVERSTR".\n\n"));
 }
 
 //

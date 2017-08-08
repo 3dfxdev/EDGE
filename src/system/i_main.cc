@@ -123,7 +123,7 @@ fflush(stdout);
 
 
 
-
+#ifdef WIN32
 	// Run EDGE2. it never returns
 	_try
 	{
@@ -135,8 +135,12 @@ fflush(stdout);
 	{
 		I_Error(0, "Exception caught in main: see CRASHLOG.TXT for info\n");
 	}
-	//E_Main(argc, (const char **) argv);
 #endif
+	E_Main(argc, (const char **)argv);
+#endif
+
+	//E_Main(argc, (const char **) argv);
+
 	return 0;
 }
 
