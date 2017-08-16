@@ -18,7 +18,7 @@
 
 #include "gitinfo.h"
 
-#define TITLE  "3DGE ENGINE"
+#define TITLE  "EDGE ENGINE"
 
 const char *GetGitDescription();
 const char *GetGitHash();

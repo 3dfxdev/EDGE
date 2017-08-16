@@ -326,7 +326,6 @@ set(3DGE_SOURCES
 
 	src/opllib/opl3.cc
 	src/opllib/oplapi.cc
-	
 )
 
 set(3DGE_WIN32_SOURCES
@@ -353,6 +352,7 @@ set(3DGE_DREAMCAST_SOURCES
 )
 
 add_subdirectory( tools )
+add_subdirectory ( zdbsp )
 
 if(WIN32)
 	set(3DGE_SOURCES ${3DGE_SOURCES}

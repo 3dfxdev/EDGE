@@ -58,6 +58,8 @@ extern cvar_c joy_dead, joy_peak, joy_tuning;
 
 extern cvar_c r_spriteflip;
 
+extern cvar_c r_textscale, r_text_x, r_text_y, r_text_alpha;
+
 extern cvar_c r_width, r_height, r_depth, r_fullscreen;
 extern cvar_c r_colormaterial, r_colorlighting;
 extern cvar_c r_dumbsky, r_dumbmulti, r_dumbcombine, r_dumbclamp;
@@ -101,6 +103,8 @@ extern cvar_c debug_nomonsters, debug_subsector;
 extern cvar_c camera_subdir;
 
 extern cvar_c sound_pitch;
+
+
 
 #ifndef LINUX
 #define S_MUSICDEV_CFG  "0"  // native
@@ -154,6 +158,11 @@ cvar_link_t  all_cvars[] =
 	{ "m_diskicon",     &m_diskicon,     "c",   "0"  },
 	{ "m_busywait",     &m_busywait,     "c",   "1"  },
 	{ "camera_subdir",  &camera_subdir,  "c",   "doom_ddf/cameras" },
+
+	/* Experimental Text Scaling Stuff*/
+	{ "r_textscale",    &r_textscale,   "c",   "0.7" }, //0.7f is the default for HUD_SetScale(). Sets HUD Text Scale.
+	{ "r_text_xpos",    &r_text_x,      "c",   "160" }, // THESE TWO VALUES, XPOS AND YPOS, ACTUALLY CENTER THE TEXT BY DEFAULT.
+	{ "r_text_ypos",    &r_text_y,      "c",   "3" }, // THESE TWO VALUES, XPOS AND YPOS, ACTUALLY CENTER THE TEXT BY DEFAULT.
 
 	/* Rendering Stuff */
 

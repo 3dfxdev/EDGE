@@ -129,6 +129,8 @@ extern cvar_c r_bloom;
 extern cvar_c r_lens;
 extern cvar_c sound_pitch;
 
+//extern cvar_c r_textscale; //temp hack for HUD text scaling size
+
 static int menu_crosshair;  // temp hack
 static int menu_crosshair2;  /// love haxxx
 extern int monitor_size;
@@ -158,6 +160,7 @@ static void M_ChangeRespawn(int keypressed);
 static void M_ChangePassMissile(int keypressed);
 static void M_ChangeCrossHair(int keypressed);
 static void M_ChangeCrossHairSize(int keypressed);
+static void M_ChangeHUDTextScale(int keypressed); // HUD_SetScale() User-Definable scaling stuff.
 
 static void M_ChangeBlood(int keypressed);
 static void M_ChangeMLook(int keypressed);
@@ -194,6 +197,7 @@ static void M_ChangeLanguage(int keypressed);
 static char YesNo[]     = "Off/On";  // basic on/off
 static char Lerp[]		= "None/1(worst)/2(better)/3(best)";
 static char CrossH[]    = "None/Dot/Angle/Plus/Spiked/Thin/Cross/Carat/Circle/Double";
+static char HudT[]      =  "Values range from 0.1f - 2.0f";
 static char Respw[]     = "Teleport/Resurrect";  // monster respawning
 static char Axis[]      = "Off/+Turn/-Turn/+MLook/-MLook/+Forward/-Forward/+Strafe/-Strafe/+Fly/-Fly";
 static char JoyDevs[]   = "None/1/2/3/4/5/6";
@@ -421,9 +425,10 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch,  "Texture Filtering",     MipMaps,  3, &var_mipmapping, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Texture Anisotropy",  Anisotropy,  2,  &r_anisotropy, NULL, "Experimental"},
 	{OPT_Boolean, "Show Disk Icon",  YesNo, 1, &m_diskicon, NULL, NULL},
-	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
+	//{OPT_Slider,  "HUD Text Scale",  HudT,  20,  &r_textscale, NULL, "Experimental"},
 	{OPT_Switch,  "Crosshair",       CrossH, 10, &menu_crosshair, M_ChangeCrossHair, NULL},
-	{OPT_Slider,  "Crosshair Scale",  NULL, 15, &menu_crosshair2, M_ChangeCrossHairSize, NULL}, /// -- New Crosshair Size Slider (like Global MD5 Scale), define this in LDF!
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	//{OPT_Slider,  "Crosshair Scale",  NULL, 15, &menu_crosshair2, M_ChangeHUDTextScale, NULL}, /// -- New Crosshair Size Slider (like Global MD5 Scale), define this in LDF!
 	{OPT_Boolean, "Map Rotation",    YesNo,   2, &rotatemap, NULL, NULL},
 	{OPT_Switch,  "Teleport Flash",  YesNo,   2, &telept_flash, NULL, NULL},
 	{OPT_Switch,  "Teleport Effect",  TeleEff,   3, &telept_effect, NULL, NULL},
@@ -984,6 +989,7 @@ void M_OptTicker(void)
 //
 // Text menu drawer
 //
+
 void M_OptDrawer()
 {
 	char tempstring[80];
@@ -1860,6 +1866,23 @@ static void M_ChangeCrossHairSize(int keypressed)
 	r_crosssize = menu_crosshair2;
 }
 
+#if 0
+// Trying new user-defined scaling code for Heads-Up Display Text.
+extern void HUD_SetScale(float scale);
+static void M_ChangeHUDTextScale(int keypressed)
+{
+	float scale;
+
+	{
+		scale = CLAMP(0, r_textscale.f, 2); //from 0.1f -> 2.0f
+		HUD_SetScale(scale);
+	}
+
+	HUD_SetScale();
+}
+#endif // 0
+
+
 
 
 
@@ -1994,6 +2017,7 @@ static void M_OptionSetResolution(int keypressed)
 extern void M_NetHostBegun(void);
 extern void M_NetJoinBegun(void);
 
+
 void M_HostNetGame(int keypressed)
 {
 	option_menuon  = 0;
@@ -2020,6 +2044,7 @@ void M_Options(int choice)
 	menu_crosshair = CLAMP(0, r_crosshair.d, 9);
 
 	menu_crosshair2 = CLAMP(0, r_crosssize.f, 15);
+
 	// continued
 }
 

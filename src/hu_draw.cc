@@ -659,6 +659,8 @@ void HUD_DrawText(float x, float y, const char *str)
 extern bool no_render_buffers;
 bool RGL_GL3Enabled();
 
+#pragma optimize("", off) //FIXME: Hack to fix stuff, just trying this out!
+
 void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera)
 {
 	HUD_PushScissor(x1, y1, x2, y2, ! splitscreen_mode);
@@ -676,6 +678,7 @@ void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera)
 	int sceneHeight = xy[3] - xy[1];
 
 	auto renderbuffers = FGLRenderBuffers::Instance();
+
 	if (!no_render_buffers /*&& RGL_GL3Enabled()*/ && !splitscreen_mode && renderbuffers->Setup(SCREENWIDTH, SCREENHEIGHT, sceneWidth, sceneHeight))
 	{
 		GLint oldViewport[4];
