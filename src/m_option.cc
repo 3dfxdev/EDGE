@@ -382,7 +382,7 @@ static optmenuitem_t mainoptions[] =
 	{OPT_Function, "Language",          NULL,  0, NULL, M_ChangeLanguage, NULL},
 	{OPT_Switch,   "Messages",          YesNo, 2, &showMessages, NULL, "Messages"},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
-	{OPT_Function, "Start Multiplayer Game",    NULL,  0, NULL, M_HostNetGame, NULL},
+	{OPT_Function, "Advanced Start",    NULL,  0, NULL, M_HostNetGame, NULL},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
 
 	
