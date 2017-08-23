@@ -98,7 +98,6 @@ static void GetPackets(bool do_delay)
 		// -AJA- This can make everything a bit "jerky" :-(
 		if (do_delay && ! m_busywait.d)
 			I_Sleep(10 /* millis */);
-
 		return;
 	}
 
@@ -288,6 +287,7 @@ int N_NetUpdate(bool do_delay)
 //			L_WriteDebug("N_NetUpdate: lost tics: %d\n", newtics - t);
 	}
 
+	// If no true Network Mode, why do we still need to GetPackets?
 	GetPackets(do_delay);
 
 	return nowtime;

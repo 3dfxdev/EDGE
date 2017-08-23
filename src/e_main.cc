@@ -189,6 +189,7 @@ std::string shot_dir;
 extern cvar_c m_language;
 extern cvar_c g_aggression;
 
+cvar_c debug_testlerp;
 cvar_c ddf_strict;
 cvar_c ddf_lax;
 cvar_c ddf_quiet;
@@ -620,13 +621,14 @@ void E_Display(void)
 	if (nodrawers)
 		return;  // for comparative timing / profiling
 
-#if 0
-				 //tapamn check fps
-	static int last = 0;
-	int now = I_GetMillies();
-	I_Printf("T: %f\n", 1.0f / ((now - last) / 1000.0f));
-	last = now;
-#endif
+	if (debug_testlerp.d == 1)
+	{
+		//tapamn check fps
+		static int last = 0;
+		int now = I_GetMillies();
+		CON_Printf("T: %f\n", 1.0f / ((now - last) / 1000.0f));
+		last = now;
+	}
 
 
 	N_SetInterpolater();

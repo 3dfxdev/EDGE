@@ -46,6 +46,7 @@
 
 cvar_c debug_fps;
 cvar_c debug_pos;
+cvar_c debug_ticrate;
 
 static visible_t con_visible;
 
