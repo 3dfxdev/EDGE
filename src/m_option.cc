@@ -114,8 +114,9 @@ extern cvar_c r_crosssize;
 extern cvar_c r_lerp;
 extern cvar_c r_gl3_path;
 extern cvar_c r_md5scale;
-extern cvar_c debug_fps;
 extern cvar_c debug_pos;
+extern cvar_c debug_fps;
+extern cvar_c debug_testlerp;
 extern cvar_c r_vsync;
 extern cvar_c m_goobers;
 extern cvar_c mouse_filter;
@@ -128,6 +129,8 @@ extern cvar_c r_shadows;
 extern cvar_c r_bloom;
 extern cvar_c r_lens;
 extern cvar_c sound_pitch;
+extern cvar_c r_stretchworld;
+extern cvar_c r_fixspritescale;
 
 //extern cvar_c r_textscale; //temp hack for HUD text scaling size
 
@@ -146,7 +149,7 @@ static void M_AdvancedOptions(int keypressed);
 static void M_GameplayOptions(int keypressed); /// Make Gameplay Options page-flip for MORE options...apparently...
 static void M_AnalogueOptions(int keypressed);
 static void M_SoundOptions(int keypressed);
-/* static void M_DebuggingOptions(int keypressed); /// New Debugging Sub-menu */
+static void M_DebugMenu(int keypressed); /// New Debugging Sub-menu 
 
 static void M_Key2String(int key, char *deststring);
 
@@ -212,8 +215,9 @@ static char Invuls[]    = "Simple/Complex/Textured";
 static char MonitSiz[]  = "4:3/16:9/16:10/3:2/24:10";
 static char GLMode[]    = "1/2";
 static char VsyncValue[] = "1/2/3";
-static char Shadows[]   = "None/Simple/Sprite/Complex";
+static char Shadows[]   = "None/Simple/Sprite"; //TODO: Add in "Complex" Shadows for 3D Models and Dynamic Light Projection!
 static char TeleEff[]   = "None/Fade In/Warp In";
+static char StretchWorld[] = "Off/On";
 
 // for CVar enums
 const char WIPE_EnumStr[] = "none/melt/crossfade/pixelfade/top/bottom/left/right/spooky/doors";
@@ -300,6 +304,7 @@ static style_c *gameplay_style;
 static style_c *video_style;
 static style_c *setres_style;
 static style_c *advanced_style;
+static style_c *debugmenu_style; //debugging menu "style"
 
 
 
@@ -368,6 +373,8 @@ static optmenuitem_t mainoptions[] =
 	{OPT_Function, "Sound Options",     NULL,  0, NULL, M_SoundOptions, "SoundOptions"},
 	{OPT_Function, "Screen Options",    NULL,  0, NULL, M_VideoOptions, "VideoOptions"},
 	{OPT_Function, "Video Options",     NULL,  0, NULL, M_AdvancedOptions, "AdvancedOptions"}, //call to LDF
+	{ OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL },
+	{ OPT_Function,"Debug Menu Options",		    NULL,  0, NULL, M_DebugMenu, "Debug Menu (Advanced)" },
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
 	{OPT_Function, "Set Resolution",    NULL,  0, NULL, M_ResolutionOptions, "ChangeRes"},
 
@@ -378,6 +385,8 @@ static optmenuitem_t mainoptions[] =
 	{OPT_Function, "Start Multiplayer Game",    NULL,  0, NULL, M_HostNetGame, NULL},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
 
+	
+	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
 	{OPT_Function, "Reset to Defaults", NULL,  0, NULL, M_ResetDefaults, NULL}
 };
 
@@ -419,16 +428,17 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 
 	{OPT_Switch,  "Monitor Size",  MonitSiz,  5, &monitor_size, M_ChangeMonitorSize, NULL},
-	{OPT_Switch,  "Smoothing",         YesNo, 2, &var_smoothing, M_ChangeMipMap, NULL},
+	{OPT_Switch,  "Smoothing",     YesNo, 2, &var_smoothing, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "H.Q.2x Scaling", Hq2xMode, 4, &hq2x_scaling, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Detail Level",   Details,  3, &detail_level, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Texture Filtering",     MipMaps,  3, &var_mipmapping, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Texture Anisotropy",  Anisotropy,  2,  &r_anisotropy, NULL, "Experimental"},
 	{OPT_Boolean, "Show Disk Icon",  YesNo, 1, &m_diskicon, NULL, NULL},
 	//{OPT_Slider,  "HUD Text Scale",  HudT,  20,  &r_textscale, NULL, "Experimental"},
-	{OPT_Switch,  "Crosshair",       CrossH, 10, &menu_crosshair, M_ChangeCrossHair, NULL},
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	//{OPT_Slider,  "Crosshair Scale",  NULL, 15, &menu_crosshair2, M_ChangeHUDTextScale, NULL}, /// -- New Crosshair Size Slider (like Global MD5 Scale), define this in LDF!
+	{OPT_Switch,  "Crosshair",       CrossH, 10, &menu_crosshair, M_ChangeCrossHair, NULL},
+	{OPT_Slider, "Crosshair Scale",  NULL, 15, &menu_crosshair2, M_ChangeCrossHairSize, NULL }, /// -- New Crosshair Size Slider (like Global MD5 Scale), define this in LDF!
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Boolean, "Map Rotation",    YesNo,   2, &rotatemap, NULL, NULL},
 	{OPT_Switch,  "Teleport Flash",  YesNo,   2, &telept_flash, NULL, NULL},
 	{OPT_Switch,  "Teleport Effect",  TeleEff,   3, &telept_effect, NULL, NULL},
@@ -452,33 +462,41 @@ static optmenuitem_t advancedoptions[] =
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{OPT_Switch,  "Shadows", Shadows, 4,  &r_shadows, NULL, "Simple, Sprite, Complex"},
-
-	{OPT_Plain,   "<---Debugging--->",  NULL, 0, NULL, NULL, NULL},
+	{OPT_Switch,  "Shadows", Shadows, 3,  &r_shadows, NULL, "Simple, Sprite"},
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Switch,  "Stretch World", YesNo, 2,  &r_stretchworld, NULL, "StretchWorld" }, //LDF Lookup
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Switch,  "Fix Sprite Scale", YesNo, 2,  &r_fixspritescale, NULL, "SpriteScale" }, //LDF Lookup
+	
+	
 
 /* 	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL}, */
 	/* {OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  &var_invul_fx, NULL, NULL}, */
-	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
+	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL}
 
-	{OPT_Switch,  "Framerate Counter",    YesNo,  2,  &debug_fps, NULL, NULL},
-	{OPT_Switch,  "Show HOM Errors",    YesNo,  2,  &debug_hom, NULL, "showhom"},
-	{OPT_Switch,  "Show Position Coords",    YesNo,  2,  &debug_pos, NULL, NULL},
-	{OPT_Switch,  "CPU Busy/Wait", 		YesNo,  2,  &m_busywait, NULL, "busywait"}, //TODO:
-	{OPT_Switch,  "Get Psyched!",   YesNo, 2,  &m_goobers, NULL, "Requires map restart!"}
-	//{OPT_Slider,  "Global MD5 Scale",    NULL,  4,  &r_md5scale, NULL, "(debugging)"}
+
 
 };
 
-/* static optmenuitem_t debuggingoptions[] =
+static optmenuitem_t debuggingoptions[] =
 {
-	{OPT_Switch,  "Framerate Counter",    YesNo,  2,  &debug_fps, NULL, NULL},
-	{OPT_Switch,  "Show HOM Errors",    YesNo,  2,  &debug_hom, NULL, "showhom"},
+	{ OPT_Plain,   "<---Debugging--->",  NULL, 0, NULL, NULL, NULL },
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Switch,  "Framerate Counter",    YesNo,  2,  &debug_fps, NULL, NULL },
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Switch,  "Realtime Framerate Counter",    YesNo,  2,  &debug_testlerp, NULL, "Check Console, or logfiles"},
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Switch,  "Show HOM Errors",    YesNo,  2,  &debug_hom, NULL, "showhom" },
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Switch,  "Show Position Information",    YesNo,  2,  &debug_pos, NULL, NULL },
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Switch,  "Network Packets: Busy/Wait?", YesNo,  2,  &m_busywait, NULL, "BusyWait" }, //Call to LDF.
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Switch,  "Get Psyched!",   YesNo, 2,  &m_goobers, NULL, "Wolf3D Mode: Requires map restart!" },
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Slider,   "Global MD5 Scale",    NULL,  4,  &r_md5scale, NULL, "(debugging)"}
 
-	{OPT_Switch,  "Show Position Coords",    YesNo,  2,  &debug_pos, NULL, NULL},
-	{OPT_Switch,  "Dithering (PowerVR)",    YesNo,  2,  &var_dithering, NULL, "powervr"}
-
-
-} */
+};
 
 
 ///Screen Options, custom graphic by Julian
@@ -500,10 +518,18 @@ static menuinfo_t advanced_optmenu =
 	advancedoptions, sizeof(advancedoptions) / sizeof(optmenuitem_t),
 	&advanced_style, 150, 77, "M_VIDEO", NULL, 0, "" //maybe I can replace the stupid hard coded graphic. . .
 };
+
 static menuinfo_t hereticadvanced_optmenu =
 {
 	advancedoptions, sizeof(advancedoptions) / sizeof(optmenuitem_t),
 	&advanced_style, 150, 77, "H_VIDEO", NULL, 0, "" //maybe I can replace the stupid hard coded graphic. . .
+};
+
+// Debug Menu
+static menuinfo_t debug_optmenu =
+{
+	debuggingoptions, sizeof(debuggingoptions) / sizeof(optmenuitem_t),
+	&advanced_style, 150, 77, "M_DEBUG", NULL, 0, "" //TODO: supposed to be &debugmenu_style
 };
 
 
@@ -659,10 +685,11 @@ static optmenuitem_t playoptions[] =
 	{OPT_Boolean, "True 3D Gameplay",   YesNo, 2,
      &global_flags.true3dgameplay, M_ChangeTrue3d, "True3d"},
 
-	{OPT_Boolean, "Shoot-thru Scenery",   YesNo, 2,
+	{OPT_Boolean, "Shoot-Through Scenery",   YesNo, 2,
      &global_flags.pass_missile, M_ChangePassMissile, NULL},
 
-	{OPT_Plain,   "", NULL, 0, NULL, NULL, NULL},
+	{OPT_Plain,   "Monster Aggression", YesNo, 2, 
+	&g_aggression, NULL, "Aggressive Monsters (EDGE feature)!"},
 
 	{OPT_Slider,  "Gravity",            NULL, 20,
      &global_flags.menu_grav, NULL, "Gravity"},
@@ -768,7 +795,7 @@ static menuinfo_t hereticattack_optmenu =
 //
 static optmenuitem_t other_keyconfig[] =
 {
-	{ OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL },
+	{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL },
 	{OPT_KeyConfig, "Strafe",           NULL, 0, &key_strafe, NULL, NULL},
 	{OPT_KeyConfig, "Run",              NULL, 0, &key_speed, NULL, NULL},
 	{OPT_KeyConfig, "Toggle Autorun",   NULL, 0, &key_autorun, NULL, NULL},
@@ -1548,6 +1575,20 @@ static void M_AdvancedOptions(int keypressed)
 	{
 		curr_menu = &advanced_optmenu;
 	}
+	curr_item = curr_menu->items + curr_menu->pos;
+}
+
+static void M_DebugMenu(int keypressed)
+{
+	if (heretic_mode)
+	{
+		curr_menu = &debug_optmenu;
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = &debug_optmenu;
+	}
+
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
