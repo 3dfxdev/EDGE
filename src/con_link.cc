@@ -35,6 +35,8 @@ extern cvar_c g_moreblood, g_noextra;
 extern cvar_c g_fastmon, g_passmissile;
 extern cvar_c g_weaponkick, g_weaponswitch;
 
+extern cvar_c debug_testlerp; //for testing ticrate lerp code.
+
 extern cvar_c am_rotate, am_smoothing;
 extern cvar_c am_gridsize;
 
@@ -209,6 +211,7 @@ cvar_link_t  all_cvars[] =
 	{ "debug_mouse",      &debug_mouse,      "",  "0" },
 	{ "debug_pos",        &debug_pos,        "h", "0" },
 	{ "debug_fps",        &debug_fps,        "c", "0" },
+	{ "debug_lerp",       &debug_testlerp,   "c", "1"},
 
 	{ "r_md5scale",        &r_md5scale,        "c", "0" },
 	{ "r_lerp",        &r_lerp,        "c", "1" },
