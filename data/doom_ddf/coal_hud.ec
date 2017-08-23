@@ -7,7 +7,13 @@
 
 var face_time  : float
 var face_image : string
+var w_message : string
+var text_float : float
 
+function message_ticker() =
+{
+	hud.text_scale(text_float)
+}
 
 function doom_weapon_icon(slot, x, y, off_pic : string, on_pic : string) =
 {
@@ -784,11 +790,13 @@ function draw_all() =
     hud.coord_sys(320, 200)
     hud.grab_times()
 
+
     if (hud.check_automap())
     {
         doom_automap()
         return
     }
+	
 
     // there are three standard HUDs
     var which = hud.which_hud() % 3
@@ -804,4 +812,5 @@ function draw_all() =
         doom_overlay_status()
 
     edge_air_bar()
+	// message_ticker()
 }

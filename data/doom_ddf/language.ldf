@@ -15,6 +15,8 @@ DevelopmentMode="Development Mode is enabled.\n";
 PressKey="Press A Key";
 PressYorN="Press Y or N";
 
+
+
 QuickSaveOver="quicksave over your game named\n\n'%s'?\n\npress y or n.";
 NoQuickSaveSlot="you haven't picked a quicksave slot yet!\n\npress a key.";
 SaveWhenNotPlaying="you can't save if you aren't playing!\n\npress a key.";
@@ -26,8 +28,8 @@ QuickLoad="do you want to quickload the game named\n\n'%s'?\n\npress y or n.";
 NewNetGame="you can't start a new game\n"
            "while in a network game.\n\npress a key.";
 		   
-NewSplitGame="you can't start a splitscreen game\n"
-           "while in a normal game! End the game\n"
+NewSplitGame="please quit to the title screen before\n"
+           "starting splitscreen! Options -> End Game\n"
 		   "first.\n\npress a key.";
 		   
 EpisodeNonExist="You don't have this episode!\n\npress a key.";
@@ -623,7 +625,7 @@ QuitSnd1="pldeth";
 QuitSnd2="dmpain";
 QuitSnd3="popain";
 QuitSnd4="slop";
-QuitSnd5="telept";
+QuitSnd5="telept?";
 QuitSnd6="posit1";
 QuitSnd7="posit3";
 QuitSnd8="sgtatk";
@@ -681,13 +683,16 @@ idtst="idtst";
 BotSpawn="Death Bot Spawn Detected...";
 idhom="idhom";
 
+// ---- DEBUGGING MENU STRINGS -----
+StretchWorld="Scales screen pitch to account for pixel stretching.";
+SpriteScale="Tries to more faithfully match sprites to original Doom aspect ratio.";
+BusyWait="Network: This can make everything a bit "jerky" (Default ON)";
 Lerping="Unlocks framerate beyond 35FPS...";
-VideoSync="Sets VSYNC ON/OFF";
-OpenGL="OpenGL mode (OFF = OpenGL 1.1, ON = OpenGL 2)";
+VideoSync="Use 'r_vsync' in console to finely control (0-3)";
+OpenGL="OpenGL mode (OFF = OpenGL 1.X, ON = OpenGL 3)";
 DynaLight="Enables Dynamic Lights";
 MD5Scale="Sets global MD5 model scale, default is 5";
 showhom="Useful feature to debug HOMS on-the-fly";
-powervr="Dithering for NEC PowerVR (Dreamcast)";
 
 // ---- French Language Definition File ----------
 

@@ -1,6 +1,6 @@
 //------------------------------------------
-//  BASIC COAL DEFINITIONS for 3DGE
-//  Copyright (c) 2009-2017 Isotope SoftWorks
+//  BASIC COAL DEFINITIONS for EDGE
+//  Copyright (c) 2009-2010 The Edge Team
 //  Under the GNU General Public License
 //------------------------------------------
 
@@ -147,6 +147,7 @@ module hud
     function game_name() : string = native
     function map_name()  : string = native
     function map_title() : string = native
+	function message_ticker() : string = native
 
     function which_hud() : float = native
     function check_automap() : float = native
@@ -156,6 +157,7 @@ module hud
 
     function text_font(font : string) = native
     function text_color(color : vector) = native
+	function text_scale(scale : float) = native
     function set_scale(scale : float) = native
     function set_alpha(alpha : float) = native
 
@@ -300,24 +302,3 @@ module player
     function hurt_angle() : float = native
 }
 
-module cameraman
-{
-//	function reset()		= native
-	function load()			= native
-	function activate(flag)	= native
-	
-//	function add(x, y, z, ax, ay, fov)	: float	= native
-//	function remove(id)					: float	= native
-	function set_position(id, x, y, z)	: float	= native
-	function set_angles(id, ax, ay)		: float	= native
-	function set_fov(id, fov)			: float	= native
-	
-	function is_active()	: float		= native
-	function get_start_id()	: float		= native
-	function get_end_id()	: float		= native
-	
-	function set_start_id(id)	= native
-	function set_end_id(id)		= native
-	function set_step(step)		= native
-	function switch_to(id)		= native
-}
