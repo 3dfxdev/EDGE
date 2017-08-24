@@ -4,7 +4,7 @@ project(3DGE)
 # MSVC
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
-	set( CMAKE_CXX_FLAGS "/MP ${CMAKE_CXX_FLAGS}" )
+	set( CMAKE_CXX_FLAGS "/MP ${CMAKE_CXX_FLAGS} /GF /arch:SSE2" )
 endif()
 
 add_definitions(
