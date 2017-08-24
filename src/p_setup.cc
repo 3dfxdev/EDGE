@@ -70,6 +70,7 @@
 #define SEG_INVALID  ((seg_t *) -3)
 #define SUB_INVALID  ((subsector_t *) -3)
 
+int	zdbsp_main(const char *mapname, bool gl, int AA, bool noprune, char *inFname, char *outFname);
 
 static bool level_active = false;
 
@@ -1884,6 +1885,10 @@ static void LoadZNodes(int lumpnum)
 	td += 4;
 	if (numnodes == 0)
 	{
+		//TODO: Set EDGE to build nodes via zdbsp if they are not found.
+		// The reason is that we are getting ready to move from glbsp to zdbsp internally,
+		// however we will keep glbsp for special cases (like map fixes) -- IWADS should
+		// always have their nodes built with glBSP though, simply because it's "safer" IMO.
 		W_DoneWithLump(zdata);
 		I_Error("LoadZNodes: No nodes\n");
 	}
