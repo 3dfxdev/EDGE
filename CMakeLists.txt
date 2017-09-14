@@ -68,8 +68,8 @@ if(MSVC)
 	set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.11/lib/zlibstatic.lib" )
 else(MSVC)
 	find_package(PhysFS REQUIRED)
-	find_package(SDL REQUIRED)
-	find_package(SDL_net REQUIRED)
+	find_package(SDL2 REQUIRED)
+	find_package(SDL2_net REQUIRED)
 	find_package(GLEW REQUIRED)
 	find_package(OGG REQUIRED)
 	find_package(Vorbis REQUIRED)
@@ -85,11 +85,11 @@ include_directories(${PHYSFS_INCLUDE_DIR})
 
 # SDL
 #find_package(SDL2 REQUIRED)
-include_directories(${SDL_INCLUDE_DIR})
+include_directories(${SDL2_INCLUDE_DIR})
 
 # SDL_net
 #find_package(SDL2_net REQUIRED)
-include_directories(${SDL_NET_INCLUDE_DIR})
+include_directories(${SDL_INCLUDE_DIR})
 
 # GLEW
 #find_package(GLEW REQUIRED)
@@ -400,9 +400,9 @@ add_executable(3DGE
 )
 
 target_link_libraries(3DGE
-	${SDL_LIBRARY}
-	${SDLMAIN_LIBRARY}
-	${SDL_NET_LIBRARY}
+	${SDL2_LIBRARY}
+	#${SDLMAIN_LIBRARY}
+	${SDL2_NET_LIBRARY}
 	${OGG_RELEASE_LIBRARY}
 	${VORBIS_RELEASE_LIBRARY}
 	${VORBISFILE_RELEASE_LIBRARY}
