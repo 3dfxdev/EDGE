@@ -32,6 +32,8 @@
 #include "m_argv.h"
 #include "e_main.h"
 
+#include <signal.h>
+
 // cleanup handling -- killough:
 
 static void I_SignalHandler(int s)

@@ -1,42 +1,33 @@
 
-# This module defines
-# CPUID_LIBRARY, the name of the library to link against
-# CPUID_FOUND, if false, do not try to link to libcpuid
-# CPUID_INCLUDE_DIR, where to find libcpuid.h
+# Find libcpuid
 #
+# Find the libcpuid includes and library
+#
+# if you nee to add a custom library search path, do it via via CMAKE_PREFIX_PATH
+#
+# This module defines
+#  CPUID_INCLUDE_DIRS, where to find header, etc.
+#  CPUID_LIBRARIES, the libraries needed to use cpuid.
+#  CPUID_FOUND, If false, do not try to use cpuid.
 
-message("<FindCpuid.cmake>")
+# only look in default directories
+find_path(
+	CPUID_INCLUDE_DIR
+	NAMES libcpuid/libcpuid.h
+	DOC "libcpuid include dir"
+	)
 
-SET(CPUID_SEARCH_PATHS
-	~/Library/Frameworks
-	/Library/Frameworks
-	/usr/local
-	/usr
-	/sw # Fink
-	/opt/local # DarwinPorts
-	/opt/csw # Blastwave
-	/opt
-	${CPUID_PATH}
-)
+find_library(
+	CPUID_LIBRARY
+	NAMES cpuid
+	DOC "libcpuid library"
+	)
 
-FIND_PATH(CPUID_INCLUDE_DIR libcpuid.h
-	HINTS
-	$ENV{CPUIDDIR}
-	PATH_SUFFIXES libcpuid
-	PATHS ${CPUID_SEARCH_PATHS}
-)
+set(CPUID_INCLUDE_DIRS ${CPUID_INCLUDE_DIR})
+set(CPUID_LIBRARIES ${CPUID_LIBRARY})
 
-FIND_LIBRARY(CPUID_LIBRARY
-	NAMES libcpuid
-	HINTS
-	$ENV{CPUIDDIR}
-	PATH_SUFFIXES lib
-	PATHS ${CPUID_SEARCH_PATHS}
-)
-
-message("</FindCpuid.cmake>")
-
-INCLUDE(FindPackageHandleStandardArgs)
-
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(CPUID REQUIRED_VARS CPUID_LIBRARY CPUID_INCLUDE_DIR)
-
+# handle the QUIETLY and REQUIRED arguments and set CPUID_FOUND to TRUE
+# if all listed variables are TRUE, hide their existence from configuration view
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(cpuid DEFAULT_MSG CPUID_INCLUDE_DIR CPUID_LIBRARY)
+mark_as_advanced (CPUID_INCLUDE_DIR CPUID_LIBRARY)
