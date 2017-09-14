@@ -21,3 +21,4 @@ src/gitinfo.h
 VSLibs
 ffmpeg
 upx
+.vscode
