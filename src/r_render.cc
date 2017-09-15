@@ -52,7 +52,7 @@
 #include "n_network.h"  // N_NetUpdate
 #include "con_main.h"
 
-#include <io.h>
+#include <stdio.h>
 
 //#define ZDOOM_OCCLUSION // Use screen space clipping instead of angles for 1d occlusion buffer, as zdoom does
 

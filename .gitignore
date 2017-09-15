@@ -24,3 +24,6 @@ VSLibs
 ffmpeg
 md5_conv
 splines
+upx
+.vscode
+src/gitinfo.h
