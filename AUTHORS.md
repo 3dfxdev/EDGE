@@ -26,7 +26,7 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 * Brendan "Brendoe1" Doe
 * dpJudas
 * Alex "TapamN" Nesemann
-* UsernameAK
+* Anton "UsernameAK" Korzhuk
 * Josh "Ph3nom" Pearson (KallistiGL code)
 * Gameblabla (Linux support)
 * Ryan "ryan-sg" Freeman (OpenBSD support)
