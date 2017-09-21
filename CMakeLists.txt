@@ -412,7 +412,6 @@ target_link_libraries(3DGE
 	${PNG_LIBRARY_RELEASE}
 	${JPEG_LIBRARY}
 	${PHYSFS_LIBRARY}
-	zdbsp
 )
 
 if (WIN32)
