@@ -49,6 +49,7 @@
 
 cvar_c r_fov;
 cvar_c r_zoomfov;
+cvar_c r_renderprecise;
 
 int viewwindow_x;
 int viewwindow_y;
@@ -114,17 +115,18 @@ int var_invul_fx;
 // FIXME - use of this function should be disabled on architectures with
 // poor floating point support! Imagine how slow this would be on ARM, say.
 
-#if 0
+
 angle_t R_PointToAngleEx(float x, float y)
 {
 	static uint64_t old_y_viewy;
 	static uint64_t old_x_viewx;
 	static int old_result;
+	cvar_c render_precise;
 
 	uint64_t y_viewy = (uint64_t)y - viewy;
 	uint64_t x_viewx = (uint64_t)x - viewx;
 
-	if (!render_precise)
+	if (!render_precise.d)
 	{
 		// e6y: here is where "slime trails" can SOMETIMES occur
 
@@ -144,7 +146,7 @@ angle_t R_PointToAngleEx(float x, float y)
 	return old_result;
 }
 
-#endif // 0
+
 
 //
 // To get a global angle from cartesian coordinates,
