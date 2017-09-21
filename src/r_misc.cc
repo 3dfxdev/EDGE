@@ -133,7 +133,7 @@ angle_t R_PointToAngleEx(float x, float y)
 		if (y_viewy < INT_MAX / 4 && x_viewx < INT_MAX / 4
 			&& y_viewy > -INT_MAX / 4 && x_viewx > -INT_MAX / 4)
 
-			return R_PointToAngle(x, y);
+			return R_PointToAngle(viewx, viewy, x, y);
 	}
 
 	if (old_y_viewy != y_viewy || old_x_viewx != x_viewx)
