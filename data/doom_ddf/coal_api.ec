@@ -147,7 +147,6 @@ module hud
     function game_name() : string = native
     function map_name()  : string = native
     function map_title() : string = native
-	function message_ticker() : string = native
 
     function which_hud() : float = native
     function check_automap() : float = native
@@ -157,7 +156,6 @@ module hud
 
     function text_font(font : string) = native
     function text_color(color : vector) = native
-	function text_scale(scale : float) = native
     function set_scale(scale : float) = native
     function set_alpha(alpha : float) = native
 
