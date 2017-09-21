@@ -350,7 +350,7 @@ void M_SplitScreenBegun(void)
 	if (!ng_params->map)
 		ng_params->map = mapdefs[0];
 
-	host_want_bots = 1; //CA: 7.1.2016
+	host_want_bots = 0; //CA: 7.1.2016
 						// Gross hack to enable splitscreen, so for now we removed the Bots option from the SplitScreen menu drawer.
 						// The good news? This fucking works now. We can now start Splitscreen from the fucking game itself ;)
 	ng_params->Splitscreen();
