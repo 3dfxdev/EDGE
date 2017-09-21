@@ -98,9 +98,14 @@ fflush(stdout);
 	E_Main(12,a);
 #else
 
-	// this is to help debug MD5 models!
-	//const char *a[] = { "-file","edgemd5.pk3" };
-	//E_Main(2, a);
+#if 0
+#ifdef HYPERTENSION
+// this is to help debug MD5 models!
+//const char *a[] = { "-file","edgemd5.pk3" };
+	const char *a[] = { "-file","hod.pk3" };
+	E_Main(2, a);
+#endif  
+#endif // 0
 
 
 
