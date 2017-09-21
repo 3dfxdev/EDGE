@@ -997,6 +997,13 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 					// Seems to work in making things less "sticky".
 					mo->mom.x = mo->x * 2 - mo->mom.x;
 					mo->mom.y = mo->y * 2 - mo->mom.y;
+
+					if (!P_TryMove(mo, ptryx, ptryy))
+					{
+						// // CA 9.21.17:  Can't move, clear momentum
+						xmove = ymove = 0;
+						mo->mom.x = mo->mom.y = 0;
+					}
 				}
 
 			}
