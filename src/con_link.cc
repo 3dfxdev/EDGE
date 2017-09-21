@@ -77,6 +77,7 @@ extern cvar_c r_crosshair, r_crosscolor;
 extern cvar_c r_crosssize, r_crossbright;
 extern cvar_c r_precache_tex, r_precache_sprite, r_precache_model;
 extern cvar_c r_gl3_path;
+extern cvar_c r_renderprecise;
 
 extern cvar_c r_bloom;
 extern cvar_c r_bloom_amount;
@@ -197,6 +198,7 @@ cvar_link_t  all_cvars[] =
 
 	{ "r_stretchworld", &r_stretchworld, "c",   "1"  },
 	{ "r_fixspritescale", &r_fixspritescale, "c", "1" },
+	{ "r_renderprecise", &r_renderprecise, "c", "0" },
 
 	{ "am_smoothing",   &am_smoothing,   "c",   "1"  },
 	{ "am_gridsize",    &am_gridsize,    "c",   "128" },
