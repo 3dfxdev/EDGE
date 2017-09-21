@@ -10,10 +10,6 @@ var face_image : string
 var w_message : string
 var text_float : float
 
-function message_ticker() =
-{
-	hud.text_scale(text_float)
-}
 
 function doom_weapon_icon(slot, x, y, off_pic : string, on_pic : string) =
 {
@@ -802,7 +798,8 @@ function draw_all() =
     var which = hud.which_hud() % 3
 
     if (which == 0)
-        hud.render_world(0, 0, 320, 200 - 16)
+        //hud.render_world(0, 0, 320, 200 - 32)
+		hud.render_world(0, 0, 320, 200)
     else
         hud.render_world(0, 0, 320, 200)
 

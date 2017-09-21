@@ -618,7 +618,7 @@ void VM_RegisterHUD()
     ui_vm->AddNativeFunction("hud.game_name",       HD_game_name);
     ui_vm->AddNativeFunction("hud.map_name",  	    HD_map_name);
     ui_vm->AddNativeFunction("hud.map_title",  	    HD_map_title);
-	ui_vm->AddNativeFunction("hud.message_ticker",  HD_message_ticker); //CORBIN NEW!
+	//ui_vm->AddNativeFunction("hud.message_ticker",  HD_message_ticker); //CORBIN NEW!
 
     ui_vm->AddNativeFunction("hud.which_hud",  	    HD_which_hud);
     ui_vm->AddNativeFunction("hud.check_automap",  	HD_check_automap);
@@ -629,7 +629,7 @@ void VM_RegisterHUD()
 
     ui_vm->AddNativeFunction("hud.text_font",       HD_text_font);
     ui_vm->AddNativeFunction("hud.text_color",      HD_text_color);
-	ui_vm->AddNativeFunction("hud.text_scale",		HD_text_scale); // CORBIN NEW!
+	//ui_vm->AddNativeFunction("hud.text_scale",		HD_text_scale); // CORBIN NEW!
     ui_vm->AddNativeFunction("hud.set_scale",       HD_set_scale);
     ui_vm->AddNativeFunction("hud.set_alpha",       HD_set_alpha);
 
