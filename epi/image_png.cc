@@ -21,15 +21,28 @@
 
 #include "image_png.h"
 
-#undef _SETJMP_H  // workaround for some weirdness in pngconf.h
+#define LIBPNG17 0
 
-// Needed for libpng17 support!
-#define PNG_READ_IMAGE_SUPPORTED
-#define PNG_SEQUENTIAL_READ_SUPPORTED
-#define PNG_WRITE_PNG_SUPPORTED
+#undef _SETJMP_H  // workaround for some weirdness in pngconf.h
 
 #include <png.h>
 #include <zlib.h>
+#ifdef LIBPNG17
+				// Needed for libpng17 support!
+#define PNG_COMPRESSION_HIGH_SPEED
+#define PNG_READ_IMAGE_SUPPORTED
+#define PNG_SEQUENTIAL_READ_SUPPORTED
+#define PNG_WRITE_PNG_SUPPORTED
+#define PNG_TEXT_SUPPORTED
+#define PNG_OLD_COMPRESSION_CODES_SUPPORTED
+#define PNG_STORE_UNKNOWN_CHUNKS_SUPPORTED
+#define PNG_USER_CHUNKS_SUPPORTED
+#define PNG_PROGRESSIVE_READ_SUPPORTED
+#define PNG_HANDLE_CHUNK_IF_SAFE  
+#endif // 0
+
+
+
 
 // if we can't use C++11 or aren't using VS2015, resort to gross hacks
 #if __cplusplus < 201103L && (!defined(_MSC_VER) || _MSC_VER < 1900)
@@ -115,7 +128,7 @@ namespace epi
 		if (setjmp(png_jmpbuf(png_ptr)))
 #endif
 		{
-			fprintf(stderr, "PNG_Load - Error loading PNG image !\n");
+			fprintf(stderr, "PNG_Load - Possible Error loading PNG image !\n");
 			goto failed;
 		}
 

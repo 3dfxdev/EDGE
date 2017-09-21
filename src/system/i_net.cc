@@ -149,12 +149,12 @@ void net_address_c::GuessBroadcast(void)
 
 //----------------------------------------------------------------------------
 
-//#if 1
+
 
 //void I_StartupNetwork(void) { }
 //void I_ShutdownNetwork(void) { }
 
-//#else  // DISABLED FOR NOW
+
 
 static bool GetLocalAddress(void)
 {

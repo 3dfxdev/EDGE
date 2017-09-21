@@ -9,9 +9,26 @@
  *
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
+
+#include "../../epi/epi.h"
+#include "../../epi/endianess.h"
+#include "../../epi/file.h"
+#include "../../epi/file_sub.h"
+
+#include "../system/i_system.h"
+
+#include "../system/i_defs.h"
+#include "../system/i_defs_gl.h"
+
+#include "../g_game.h"
+#include "../r_misc.h"
+#include "../r_gldefs.h"
+ // #include "hu_draw.h"
+#include "../r_modes.h"
+#include "../r_texgl.h"
 
 #include "avi.h"
 #include "fmv.h"
@@ -90,12 +107,14 @@ static int hex_dump_chunk(FILE *in, int chunk_len)
 //
 // Find index for frame, return offset in 'movi' chunk
 //
-int parse_idx1(FILE *in, int frame)
+int parse_idx1(epi::file_c *in, int frame)
 {
 	struct index_entry_t index_entry;
 	int t, chunk_len = idx1_size;
 
-	in->Seek(idx1_pos, SEEKPOINT_START);
+
+	//in->Seek(idx1_pos, SEEKPOINT_START);
+	in->Seek(idx1_pos, epi::file_c::SEEKPOINT_START);
 
 #ifdef FMV_DEBUG
 	I_Printf("   IDX1\n");

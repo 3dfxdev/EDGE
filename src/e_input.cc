@@ -63,6 +63,8 @@ static event_t events[MAXEVENTS];
 static int eventhead;
 static int eventtail;
 
+bool bJoystickActive, bKeyboardActive, bMouseActive;
+
 //
 // controls (have defaults) 
 // 
@@ -321,37 +323,39 @@ void E_BuildTiccmd_Other(ticcmd_t * cmd)
 	/// -AJA- very hacky stuff here to test out split-screen mode
 	///
 
+	UpdateForces();
+
 	Z_Clear(cmd, ticcmd_t, 1);
 
 	//-- Turning --
 	{
-		float turn = angleturn[0] * ball_deltas[AXIS_TURN] / 64.0;
+		float turn = angleturn[0] * joy_forces[AXIS_TURN] / 64.0;
 
 		cmd->angleturn = I_ROUND(turn);
 	}
 
 	//-- Mlook --
 	{
-		float mlook = mlookturn[0] * ball_deltas[AXIS_MLOOK] / 64.0;
+		float mlook = mlookturn[0] * joy_forces[AXIS_MLOOK] / 64.0;
 
 		cmd->mlookturn = I_ROUND(mlook);
 	}
 
 	//-- Forward --
 	{
-		if (mouse_ss_hack & 0x6)
+		if (bJoystickActive & 0x6)
 			cmd->forwardmove = forwardmove[1];
 	}
 
 	//-- Buttons --
-	if (mouse_ss_hack & 1)
+	if (bJoystickActive & 1)
 		cmd->buttons |= BT_ATTACK;
 
-	if (mouse_ss_hack & 0x6)
+	if (bJoystickActive & 0x6)
 		cmd->buttons |= BT_USE;
 
 	for (int k = 0; k < 6; k++)
-		ball_deltas[k] = 0;
+		joy_forces[k] = 0;
 }
 
 //
@@ -370,6 +374,7 @@ static bool allowautorun = true;
 void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 {
 	bool bJoystickActive, bKeyboardActive, bMouseActive;
+
 	if (splitscreen_mode)
 		if (which_player == consoleplayer1)
 		{
@@ -386,6 +391,17 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 		bJoystickActive = true;
 		bMouseActive = bKeyboardActive = true;
 	}
+
+	if (splitscreen_mode && cmd->player_idx == consoleplayer1)
+	{
+		bJoystickActive = true;;
+		//bJoystickActive = true;
+		E_BuildTiccmd_Other(cmd);
+		
+		return;
+	}
+
+
 
 	UpdateForces();
 

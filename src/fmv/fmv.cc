@@ -13,7 +13,7 @@
 #include "fmv.h"
 #include "avi.h"
 
-#include "../src/i_system.h"
+#include "../system/i_system.h"
 
 extern avi_header_t avi_header;
 extern stream_header_t stream_header;
