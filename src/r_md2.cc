@@ -557,7 +557,7 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 	int version = EPI_LE_S32(header.version);
 
-	I_Debugf("MODEL IDENT: [%c%c%c%c] VERSION: %d",
+	I_Debugf("MODEL IDENT: [%c%c%c%c] VERSION: %d\n",
 			 header.ident[0], header.ident[1],
 			 header.ident[2], header.ident[3], version);
 

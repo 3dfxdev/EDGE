@@ -34,6 +34,7 @@
 #define strncasecmp _strnicmp
 #define strcasecmp _stricmp
 #define uint unsigned int
+#pragma warning( disable : 4099)
 #endif
 
 

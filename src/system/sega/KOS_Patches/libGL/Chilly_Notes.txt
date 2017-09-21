@@ -1,0 +1,36 @@
+I think I got it! I replace the sq_cpy() in gl-texture.c in KosGL with
+memcpy4() and it's worked three times in a row!
+
+Stick the attached libGL.a in the kos-ports GL library folder and
+remake the executable. Then try it! :D
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Installation (gl-pvr.h)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+When I talked to Phenom about the memory usage for kgl, he recommended
+decreasing the number of vertexes in the buffer. He said that 64K was
+total overkill, so I bumped it down to 16K, 1/4 the amount of space.
+That freed up about 1.5 MB. I was able to play through 4 levels of
+Doom just fine.
+
+To do that (after you've got the toolchain done and kos-ports
+compiled), CD to the libgl directory and do
+
+make fetch unpack
+
+Then alter gl_pvr.h - find this line
+
+#define GL_KOS_MAX_VERTS       1024*64    /* SH4 Vertex Count */
+
+and change it to
+
+#define GL_KOS_MAX_VERTS       1024*16    /* SH4 Vertex Count */
+
+Coralines Note:
+
+You might need to do a 'make uninstall clean' first, then 'make fetch unpack',
+go into /libGL/build/libGL-2.0.0, edit gl_pvr.h to the specifications outlined
+above, _THEN_ go into libGL root, then 'make install clean' -- it should compile
+after that with the new libGL.a, which then can be linked against SLaVE with the
+vertex count lowered.

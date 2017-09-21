@@ -9,12 +9,12 @@
 #ifndef FMV_H
 #define FMV_H
 
-#include "../src/i_defs.h"
-#include "../src/i_defs_gl.h"
+#include "../system/i_defs.h"
+#include "../system/i_defs_gl.h"
 
-#include "../epi/file.h"
-#include "../epi/filesystem.h"
-#include "../epi/file_memory.h"
+#include "../../epi/file.h"
+#include "../../epi/filesystem.h"
+#include "../../epi/file_memory.h"
 
 
 static unsigned short _fmv_word;

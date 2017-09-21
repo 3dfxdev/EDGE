@@ -23,7 +23,8 @@
 
 #include "md5.h"
 
-typedef struct {
+typedef struct
+{
 	epi::vec3_c pos;
 	float padding0;
 	epi::vec3_c norm;

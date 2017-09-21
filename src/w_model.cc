@@ -22,6 +22,7 @@
 #include "e_main.h"
 #include "r_image.h"
 #include "r_md2.h"
+//#include "r_md3.h"
 #include "md5_conv/md5.h"
 #include "r_things.h"
 #include "w_model.h"
@@ -107,7 +108,8 @@ modeldef_c *LoadModelFromLump(int model_num)
 	// try MD3 first, then MD2, then MD5
 	sprintf(lumpname, "%sMD3", basename);
 
-	if (W_CheckNumForName(lumpname) >= 0) {
+	if (W_CheckNumForName(lumpname) >= 0) 
+	{
 		I_Debugf("Loading MD3 model from lump : %s\n", lumpname);
 
 		f = W_OpenLump(lumpname);
@@ -116,20 +118,30 @@ modeldef_c *LoadModelFromLump(int model_num)
 		SYS_ASSERT(f);
 
 		def->model = MD3_LoadModel(f);
+		//def->modeltype = MODEL_MD3_UNIFIED;
 		def->modeltype = MODEL_MD2;
-	} else {
+	} 
+	else 
+	{
 		sprintf(lumpname, "%sMD2", basename);
-		if (W_CheckNumForName(lumpname) >= 0) {
+
+		if (W_CheckNumForName(lumpname) >= 0) 
+		{
 			I_Debugf("Loading MD2 model from lump : %s\n", lumpname);
+
 			f = W_OpenLump(lumpname);
 			if (! f)
 				I_Error("Missing model lump: %s\n", lumpname);
 
 			def->model = MD2_LoadModel(f);
 			def->modeltype = MODEL_MD2;
-		} else {
+		} 
+		else 
+		{
 			sprintf(lumpname, "%sMD5", basename);
+
 			I_Debugf("Loading MD5 model from lump : %s\n", lumpname);
+
 			f = W_OpenLump(lumpname);
 			SYS_ASSERT(f);
 			byte *modeltext = f->LoadIntoMemory();

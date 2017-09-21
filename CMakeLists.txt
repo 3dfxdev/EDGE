@@ -10,7 +10,6 @@ endif()
 add_definitions(
 	-DDEH_EDGE_PLUGIN
 	-DHAVE_PHYSFS
-	-DHAVE_STDINT_H
 )
 
 if(UNIX)
@@ -351,14 +350,15 @@ set(3DGE_SOURCES
 )
 
 set(3DGE_WIN32_SOURCES
-	src/w32_music.cc
-	src/w32_mus.cc
-	src/w32_net.cc
-	src/w32_system.cc
-	src/w32_res.rc
+	src/system/win32/w32_music.cc
+	src/system/win32/w32_mus.cc
+	src/system/win32/w32_net.cc
+	src/system/win32/w32_system.cc
+	src/system/win32/w32_res.rc
+	src/system/win32/i_exception.cc
 	epi/epi_win32.cc
 	epi/filesystem_win32.cc
-	src/i_main.cc
+	src/system/i_main.cc
 )
 
 set(3DGE_UNIX_SOURCES
