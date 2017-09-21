@@ -28,7 +28,7 @@ class md2_model_c;
 #define MAX_MODEL_SKINS  10
 
 #define MODEL_MD2 0
-//#define MODEL_MD5 1
+#define MODEL_MD3_UNIFIED 1
 #define MODEL_MD5_UNIFIED 2
 //#define MODEL_DM5 2
 
@@ -56,6 +56,7 @@ public:
 	
 	union {
 		md2_model_c *model;
+		//md3_model_c *md3;
 		MD5model *md5;
 		MD5umodel *md5u;
 	};
