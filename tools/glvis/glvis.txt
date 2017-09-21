@@ -1,0 +1,126 @@
+                            *********************
+                              glVIS version 1.6
+                            *********************
+
+============================================================================
+    Introduction
+============================================================================
+
+  glVIS is a PVS (Potentially Visible Set) builder specially designed to be
+used with OpenGL ports of the DOOM game engine. It extends the "GL-Friendly
+Nodes" with a new lump named "GL_PVS". Basicly it's a subsector accept table
+designed for rendering engine to skip the subsectors that can't be visible
+from viewer's subsector. PVS is added to both versions of "GL Nodes".
+  If "GL Nodes" are in wad file, glVIS will also perform building of REJECT
+lump. You can disable this with -noreject option.
+  Currently only Vavoom uses PVS. Other source ports will ignore it.
+
+============================================================================
+    Using glVIS
+============================================================================
+
+  To create PVS for a wad file (e.g. FOO.WAD) first you must create
+"GL-Friendly Nodes" with glBSP (see link below). Then simply type:
+
+    glvis foo.wad
+
+  glVIS first searches for a GWA file. If it finds it, it will work with it.
+Otherwise it assumes that wad file contains "GL Nodes" and will work with
+wad file. glVIS will save old file with extension .~gw for .gwa file or .~wa
+for a .wad file.
+
+============================================================================
+    Option Descriptions
+============================================================================
+
+The following options are recognised:
+
+    -s            silent mode, doesn't print any messages
+
+    -f            fast mode, only some simple tests are performed
+
+    -v            verbose mode
+
+    -t#           specify test level 0-2
+
+    -m<LEVELNAME> specifies a level to process, can be used multiple times.
+                  This option can be used to specify non-standard map names.
+
+    -noreject     don't build reject
+
+============================================================================
+    Status
+============================================================================
+
+  The current version of glVIS is 1.6. It has been tested and known to work
+on numerous large wads, including Ultimate DOOM, DOOM II, Heretic, Hexen,
+Strife, Batman Doom, Hacx.
+  NOTE: glVIS is very expensive, complete vis data for a large wad can take
+several hours.
+
+============================================================================
+    Compiling glVIS
+============================================================================
+
+  glVIS has been written with portability in mind. It is purely ANSI C++.
+  glVIS has been known to compile and work on the following platforms:
+
+    * Windows 98 with DJGPP 2.03.
+
+    * Windows 98 with Borland C++ 5.5
+
+    * GNU/Linux
+
+  The "Makefile" makefile is for DOS, Linux and other UN*X type OSes. Simply
+typing `make' should create the `glvis' executable. Currently there is no
+automatic installation, just copy the glvis executable to where you want it.
+
+============================================================================
+    Copyright
+============================================================================
+
+  glVIS is Copyright (C) 2000-2006 Janis Legzdinsh. glVIS is now based on
+Quake's vis utility.
+  All trademarks are the propriety of their owners.
+
+============================================================================
+    Licence
+============================================================================
+
+  glVIS is under the GNU General Public Licence (GPL). See the file `gnu.txt'
+for the full text.
+
+============================================================================
+    Contact
+============================================================================
+
+  Questions, bug reports, suggestsions, etc... about glVIS should be sent to:
+    vavoom@vavoom-engine.com
+
+============================================================================
+    Links
+============================================================================
+
+  The homepage for glVIS can be found here:
+    http://www.vavoom-engine.com/glvis.php
+
+  The homepage for glBSP can be found here:
+    http://glbsp.sourceforge.net/
+
+  The "GL Friendly Nodes" specifications can be found here:
+    http://glbsp.sourceforge.net/glnodes.html
+
+  The Vavoom homepage can be found here:
+    http://www.vavoom-engine.com/
+
+============================================================================
+    Acknowledgements
+============================================================================
+
+  Andrew Apted for glBSP.
+
+  id Software for Doom, Quake and releasing the source code.
+
+  Raven Software for Heretic and Hexen and releasing the source code.
+
+  ... and everyone else who deserves it !
