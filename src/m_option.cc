@@ -374,18 +374,16 @@ static optmenuitem_t mainoptions[] =
 	{OPT_Function, "Screen Options",    NULL,  0, NULL, M_VideoOptions, "VideoOptions"},
 	{OPT_Function, "Video Options",     NULL,  0, NULL, M_AdvancedOptions, "AdvancedOptions"}, //call to LDF
 	{ OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL },
-	{ OPT_Function,"Debug Menu Options",		    NULL,  0, NULL, M_DebugMenu, "Debug Menu (Advanced)" },
-	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
+	
 	{OPT_Function, "Set Resolution",    NULL,  0, NULL, M_ResolutionOptions, "ChangeRes"},
 
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
 	{OPT_Function, "Language",          NULL,  0, NULL, M_ChangeLanguage, NULL},
 	{OPT_Switch,   "Messages",          YesNo, 2, &showMessages, NULL, "Messages"},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
-	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL },
+	{OPT_Function, "Debug Menu",	    NULL,  0, NULL, M_DebugMenu, "Debugging Options" },
 	{OPT_Function, "Advanced Start",    NULL,  0, NULL, M_HostNetGame, NULL },
 
-	
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
 	{OPT_Function, "Reset to Defaults", NULL,  0, NULL, M_ResetDefaults, NULL}
 };
@@ -451,27 +449,24 @@ static optmenuitem_t vidoptions[] =
 static optmenuitem_t advancedoptions[] =
 {
 	//{OPT_Switch, "OpenGL 3x",     YesNo, 2, &r_gl3_path, NULL, "OpenGL 3.x mode. Disable for OpenGL 1.1 renderer!"}, /// Change from GL1 to GL3
-	{ OPT_Plain,   "OpenGL Path",  NULL,  0,  NULL, NULL, "Currently OpenGL3 mode is broken!"},
+	{OPT_Plain,   "OpenGL Path (fixed-path)",  NULL,  0,  NULL, NULL, "Currently OpenGL3 mode is broken!"},
 	{OPT_Switch,   "Bloom Processing",  YesNo,  2,  &r_bloom, NULL, "Toggle Bloom Shader On or Off"},
-	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Switch,   "Lens Distortion",  YesNo,  2,  &r_lens, NULL, "Toggle Lens Distortion Effect"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Boolean, "Video Sync",   Lerp,   3, &r_vsync, NULL, "Check value in console with 'r_vsync'"},
-	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Switch,  "Interpolation",    YesNo,   2, &r_lerp, NULL, "Frame Prediction"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
-	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Switch,  "Shadows", Shadows, 3,  &r_shadows, NULL, "Simple, Sprite"},
-	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{ OPT_Switch,  "Stretch World", YesNo, 2,  &r_stretchworld, NULL, "StretchWorld" }, //LDF Lookup
-	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{ OPT_Switch,  "Fix Sprite Scale", YesNo, 2,  &r_fixspritescale, NULL, "SpriteScale" }, //LDF Lookup
-	
-	
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Switch,  "Stretch World", YesNo, 2,  &r_stretchworld, NULL, "StretchWorld" }, //LDF Lookup
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Switch,  "Fix Sprite Scale", YesNo, 2,  &r_fixspritescale, NULL, "SpriteScale" }, //LDF Lookup
 
-/* 	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL}, */
-	/* {OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  &var_invul_fx, NULL, NULL}, */
+	{OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  &var_invul_fx, NULL, "Set GodMode Rendering"},
 	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL}
 
 
@@ -529,7 +524,7 @@ static menuinfo_t hereticadvanced_optmenu =
 static menuinfo_t debug_optmenu =
 {
 	debuggingoptions, sizeof(debuggingoptions) / sizeof(optmenuitem_t),
-	&advanced_style, 150, 77, "M_DEBUG", NULL, 0, "" //TODO: supposed to be &debugmenu_style
+	&advanced_style, 150, 77, "M_SETUPM", NULL, 0, "" //TODO: supposed to be &debugmenu_style and M_DEBUG
 };
 
 
