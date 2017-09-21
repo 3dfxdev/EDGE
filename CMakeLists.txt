@@ -11,10 +11,11 @@ add_definitions(
 	-DDEH_EDGE_PLUGIN
 	-DHAVE_PHYSFS
 )
-
+# Removed HAVE_STDINT_H on Visual Studio/Win32 machines (Caused problems, so I Shoved it into UNIX define)
 if(UNIX)
 	add_definitions(
 		-DLINUX
+		-DHAVE_STDINT_H
 	)
 endif(UNIX)
 
