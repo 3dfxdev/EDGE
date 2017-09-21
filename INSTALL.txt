@@ -4,6 +4,9 @@ EDGE COMPILATION NOTES
 
 See the /build_guide for instructions on building 3DGE with different platforms.
 
+For non-Win32 Libraries, see docs/libraries.txt for information on the versions needed. For
+Visual Studio libraries, see VSLibs.7z, or alternatively, libs_ver.txt.
+
 (C) Isotope Softworks, 2016.
 
 
