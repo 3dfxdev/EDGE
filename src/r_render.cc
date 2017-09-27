@@ -160,7 +160,6 @@ static bool solid_mode;
 static std::list<drawsub_c *> drawsubs;
 
 
-
 // ========= MIRROR STUFF ===========
 
 #define MAX_MIRRORS  3
@@ -874,73 +873,6 @@ static void PlaneCoordFunc(void *d, int v_idx,
 	*lit_pos = *pos;
 }
 
-
-void ShadowCoordFunc(vec3_t *src, local_gl_vert_t *vert, void *d)
-{
-	wall_plane_data_t *data = (wall_plane_data_t *)d;
-
-
-	vec3_t pos;
-	int v_idx;
-	vec2_t *texc;
-
-
-	float *rgb;
-
-	float x = src->x;
-	float y = src->y;
-	float z = src->z;
-
-	float rx = (x + data->tx);
-	float ry = (y + data->ty);
-
-	float tx = rx * data->x_mat.x + ry * data->x_mat.y;
-	float ty = rx * data->y_mat.x + ry * data->y_mat.y;
-
-	///SET_COLOR
-	rgb[0] = data->R;
-	rgb[1] = data->G;
-	rgb[2] = data->B;
-
-	//SET TEXCOORD
-	texc->x = rx * data->x_mat.x + ry * data->x_mat.y;
-	texc->y = rx * data->y_mat.x + ry * data->y_mat.y;
-
-	//SET NORMAL
-
-	//SET_EDGE_FLAG(GL_TRUE);
-
-	//data->vert.Set(x, y, z);
-}
-
-
-
-
-void ShadowCoordFuncNew(void *d, int v_idx,
-		vec3_t *pos, float *rgb, vec2_t *texc,
-		vec3_t *normal, vec3_t *lit_pos)
-
-{
-	const plane_coord_data_t *data = (plane_coord_data_t *)d;
-
-	*pos    = data->vert[v_idx];
-	*normal = data->normal;
-
-    float rx = (data->tx0 + pos->x);
-	float ry = (data->ty0 + pos->y);
-
-//	SET_TEXCOORD(tx, ty);
-	texc->x = rx * data->x_mat.x + ry * data->x_mat.y;
-	texc->y = rx * data->y_mat.x + ry * data->y_mat.y;
-
-	rgb[0] = data->R;
-	rgb[1] = data->G;
-	rgb[2] = data->B;
-
-//	SET_NORMAL(data->normal.x, data->normal.y, data->normal.z);
-
-//	SET_VERTEX(x, y, z);
-}
 
 static void DLIT_Wall(mobj_t *mo, void *dataptr)
 {
@@ -3285,7 +3217,6 @@ static void DoWeaponModel(void)
 static void RGL_WalkBSPNode(unsigned int bspnum)
 {
 	node_t *node;
-	int side;
 
 	// Found a subsector?
 	if (bspnum & NF_V5_SUBSECTOR)
@@ -3317,15 +3248,82 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 	nd_div.dx -= nd_div.x;
 	nd_div.dy -= nd_div.y;
 
-	side = P_PointOnDivlineSide(viewx, viewy, &nd_div);
+	int side = P_PointOnDivlineSide(viewx, viewy, &nd_div);
+	//side = R_PointOnSide(viewx, viewy, &nd_div);
 
 	// Recursively divide front space.
 	if (RGL_CheckBBox(node->bbox[side]))
 		RGL_WalkBSPNode(node->children[side]);
 
+
+
 	// Recursively divide back space.
 	if (RGL_CheckBBox(node->bbox[side ^ 1]))
 		RGL_WalkBSPNode(node->children[side ^ 1]);
+}
+
+void RenderPolyBSPNode(unsigned int bspnum)
+{
+	while (!((size_t)bspnum & 1))  // Keep going until found a subsector
+	{
+		node_t *node;
+#if 0
+
+		// Found a subsector?
+		if (bspnum & NF_V5_SUBSECTOR)
+		{
+			RGL_WalkSubsector(bspnum & (~NF_V5_SUBSECTOR));
+			return;
+		}
+#endif // 0
+
+		node = &nodes[bspnum];
+
+		// Decide which side the view point is on.
+
+
+		// Decide which side the view point is on.
+
+		divline_t nd_div;
+
+		nd_div.x = node->div.x;
+		nd_div.y = node->div.y;
+		nd_div.dx = node->div.x + node->div.dx;
+		nd_div.dy = node->div.y + node->div.dy;
+
+		MIR_Coordinate(nd_div.x, nd_div.y);
+		MIR_Coordinate(nd_div.dx, nd_div.dy);
+
+		if (MIR_Reflective())
+		{
+			float tx = nd_div.x; nd_div.x = nd_div.dx; nd_div.dx = tx;
+			float ty = nd_div.y; nd_div.y = nd_div.dy; nd_div.dy = ty;
+		}
+
+		nd_div.dx -= nd_div.x;
+		nd_div.dy -= nd_div.y;
+
+		// Decide which side the view point is on.
+		int side = P_PointOnDivlineSide(viewx, viewy, &nd_div);
+
+		// Recursively divide front space (toward the viewer).
+		//RenderPolyBSPNode(bsp->children[side]);
+		RenderPolyBSPNode(node->children[side]);
+
+		// Possibly divide back space (away from the viewer).
+		side ^= 1;
+
+		// It is not necessary to use the slower precise version here
+		if (!RGL_CheckBBox(node->bbox[side]))
+		{
+			return;
+		}
+
+		bspnum = node->children[side];
+	}
+
+	RGL_WalkSubsector((bspnum - 1) & (~NF_V5_SUBSECTOR));
+	//RGL_WalkSubsector((subsector_t *)(bspnum - 1));
 }
 
 //
@@ -3371,7 +3369,9 @@ static void RGL_RenderTrueBSP(void)
 	RGL_BeginSky();
 
 	// walk the bsp tree
+	//
 	RGL_WalkBSPNode(root_node);
+	//RenderPolyBSPNode(root_node);
 
 	RGL_FinishSky();
 
