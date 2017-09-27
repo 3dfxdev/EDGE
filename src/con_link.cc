@@ -213,7 +213,7 @@ cvar_link_t  all_cvars[] =
 	{ "debug_mouse",      &debug_mouse,      "",  "0" },
 	{ "debug_pos",        &debug_pos,        "h", "0" },
 	{ "debug_fps",        &debug_fps,        "c", "0" },
-	{ "debug_lerp",       &debug_testlerp,   "c", "1"},
+	{ "debug_lerp",       &debug_testlerp,   "c", "0"},
 
 	{ "r_md5scale",        &r_md5scale,        "c", "0" },
 	{ "r_lerp",        &r_lerp,        "c", "1" },
