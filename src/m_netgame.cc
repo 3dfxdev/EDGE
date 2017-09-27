@@ -65,6 +65,7 @@ extern gameflags_t default_gameflags;
 int netgame_menuon;
 int splitgame_menuon; /// Splitscreen Multiplayer
 bool netgame_we_are_host;
+bool splitscreen_ready;
 
 static style_c *ng_host_style;
 static style_c *ng_join_style;
@@ -333,7 +334,7 @@ void M_NetHostBegun(void)
 
 void M_SplitScreenBegun(void)
 {
-	netgame_we_are_host = true;
+	splitscreen_ready = true;
 	splitscreen_mode = true;
 
 	split_pos = 0;
@@ -622,7 +623,7 @@ static void SplitAccept(void)
 	// create local two-player game
 	ng_params->Splitscreen();
 
-	netgame_menuon = 3; //We use this here to display Player lists in-game.
+	splitgame_menuon = 2; //We use this here to display Player lists in-game.
 }
 
 void M_DrawHostMenu(void)
@@ -1055,6 +1056,49 @@ void M_DrawPlayerList(void)
 	}
 }
 
+void M_DrawPlayerListSS(void)
+{
+	HUD_SetAlpha(0.64f);
+	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	HUD_SetAlpha();
+
+	HL_WriteText(ng_list_style, 2, 80, 10, "PLAYER LIST");
+
+	char buffer[200];
+
+	int y = 30;
+	int i;
+
+	int humans = 0;
+
+	for (i = 0; i < ng_params->total_players; i++)
+		if (!(ng_params->players[i] & PFL_Bot))
+			humans++;
+
+	for (i = 0; i < ng_params->total_players; i++)
+	{
+		int flags = ng_params->players[i];
+
+		//if (flags & PFL_Bot)
+		//	continue;
+
+		humans++;
+
+		HL_WriteText(ng_list_style, (flags & PFL_Console) ? 0 : 3, 20, y,
+			LocalPrintf(buffer, sizeof(buffer), "PLAYER_%d", humans));
+
+		HL_WriteText(ng_list_style, 1, 100, y,
+			ng_params->nodes[i] ? ng_params->nodes[i]->remote.TempString(false) : "Local");
+
+		y += 10;
+	}
+
+	if (splitscreen_ready)
+	{
+		HL_WriteText(ng_list_style, 2, 40, 140, "Press <ENTER> to Start Game");
+	}
+}
+
 bool M_NetListResponder(event_t * ev, int ch)
 {
     if (ch == KEYD_ENTER && netgame_we_are_host)
@@ -1066,6 +1110,20 @@ bool M_NetListResponder(event_t * ev, int ch)
 	NetGameStartLevel();
 
     return false;
+}
+
+
+bool M_SplitListResponder(event_t * ev, int ch)
+{
+	if (ch == KEYD_ENTER && splitscreen_ready)
+		S_StartFX(sfx_swtchn);
+
+	splitgame_menuon = 0;
+	M_ClearMenus();
+
+	NetGameStartLevel();
+
+	return false;
 }
 
 //bool M_NetListResponder(event_t * ev, int ch)
@@ -1090,6 +1148,7 @@ void M_NetListTicker(void)
 void M_NetGameInit(void)
 {
 	netgame_menuon = 0;
+	splitgame_menuon = 0;
 
 	host_pos = 0;
 	join_pos = 0;
@@ -1144,7 +1203,7 @@ void M_SplitGameDrawer(void)
 	switch (splitgame_menuon)
 	{
 		case 1: M_DrawSplitMenu(); return;
-		case 2: M_DrawPlayerList(); return;
+		case 2: M_DrawPlayerListSS(); return;
 	}
 
 	I_Error("INTERNAL ERROR: splitgame_menuon=%d\n", splitgame_menuon);
@@ -1188,9 +1247,10 @@ bool M_SplitGameResponder(event_t * ev, int ch)
 		}
 	}
 
-	if (splitgame_menuon)
+	switch (splitgame_menuon)
 	{
-	return M_SplitHostResponder(ev, ch);
+		case 1: return M_SplitHostResponder(ev, ch);
+		case 2: return M_SplitListResponder(ev, ch);
 	}
 
 	return false;

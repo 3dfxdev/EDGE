@@ -477,15 +477,14 @@ static optmenuitem_t debuggingoptions[] =
 {
 	{ OPT_Plain,   "<---Debugging--->",  NULL, 0, NULL, NULL, NULL },
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{ OPT_Switch,  "Framerate Counter",    YesNo,  2,  &debug_fps, NULL, NULL },
+	{ OPT_Switch,  "Framerate Info",    YesNo,  2,  &debug_fps, NULL, NULL },
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{ OPT_Switch,  "Realtime Framerate Counter",    YesNo,  2,  &debug_testlerp, NULL, "Check Console, or logfiles"},
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{ OPT_Switch,  "Show HOM Errors",    YesNo,  2,  &debug_hom, NULL, "showhom" },
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{ OPT_Switch,  "Show Position Information",    YesNo,  2,  &debug_pos, NULL, NULL },
+	{ OPT_Switch,  "Show Position Coords",    YesNo,  2,  &debug_pos, NULL, NULL },
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{ OPT_Switch,  "Network Packets: Busy/Wait?", YesNo,  2,  &m_busywait, NULL, "BusyWait" }, //Call to LDF.
+	{ OPT_Switch,  "Busy/Wait?", YesNo,  2,  &m_busywait, NULL, "BusyWait" }, //Call to LDF.
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{ OPT_Switch,  "Get Psyched!",   YesNo, 2,  &m_goobers, NULL, "Wolf3D Mode: Requires map restart!" },
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
