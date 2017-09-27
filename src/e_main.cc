@@ -621,7 +621,8 @@ void E_Display(void)
 	if (nodrawers)
 		return;  // for comparative timing / profiling
 
-	if (debug_testlerp.d == 1)
+#if 0
+	if (debug_testlerp.d > 0)
 	{
 		//tapamn check fps
 		static int last = 0;
@@ -629,9 +630,11 @@ void E_Display(void)
 		CON_Printf("T: %f\n", 1.0f / ((now - last) / 1000.0f));
 		last = now;
 	}
+#endif // 0
 
-
-	N_SetInterpolater();
+	//CA 9.27.17:
+	//Interpolator is now set in P_Tick (which should improve rendering hitches)
+	//N_SetInterpolater();
 #if 0
 	//tapamn check interpolater value
 	I_Printf("I: %f\n", N_GetInterpolater());
@@ -2032,8 +2035,11 @@ void E_Tick(void)
 		interpstart += interpdiff;
 
 		extern cvar_c r_maxfps;
-		if (r_maxfps.d > 0) {
-			while (I_GetMillies() < nextframe) {
+
+		if (r_maxfps.d > 0) 
+		{
+			while (I_GetMillies() < nextframe) 
+			{
 				//just in case someone plays for over 24 days and nextframe/getmillies overflow
 				if ((nextframe - I_GetMillies()) > 1000)
 					break;

@@ -51,6 +51,8 @@ void P_Ticker(void)
 	if (paused)
 		return;
 
+	N_SetInterpolater();
+
 	// pause if in menu and at least one tic has been run
 	if (!netgame && (menuactive || rts_menuactive) &&
 		players[consoleplayer1]->viewz != FLO_UNUSED)
