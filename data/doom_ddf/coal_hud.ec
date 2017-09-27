@@ -5,8 +5,9 @@
 //  Under the GNU General Public License
 //------------------------------------------
 
-var face_time  : float
+var face_priority : float
 var face_image : string
+var face_time : float
 var w_message : string
 var text_float : float
 
@@ -70,7 +71,6 @@ function turn_digit() : string =
     return "2"
 }
 
-
 function select_new_face() =
 {
     // This routine handles the face states and their timing.
@@ -78,81 +78,80 @@ function select_new_face() =
     //
     //    dead > evil grin > turned head > straight ahead
     //
-
-    // dead ?
-    if (player.health() <= 0)
+    if (face_priority < 10 && player.health() <= 0)
     {
+        // dead
+        face_priority = 9
         face_image = "STFDEAD0"
-        face_time  = 10
-        return
+        face_time = 1
     }
 
-    // evil grin when player just picked up a weapon
-    if (player.is_grinning())
+    if (face_priority < 9 && player.is_grinning())
     {
+        // evil grin if just picked up weapon
+        face_priority = 8
         face_image = "STFEVL" + pain_digit()
-        face_time  = 7
-        return
+        face_time = 70
     }
 
-    // being attacked ?
-    if (player.hurt_by())
+    if (face_priority < 8 &&
+        (player.hurt_by() == "enemy" || player.hurt_by() == "friend"))
     {
-        if (player.hurt_pain() > 50)
-        {
-            face_image = "STFOUCH" + pain_digit()
-            face_time = 26
-            return
-        }
-
-        var dir = 0
-
-        if (player.hurt_by() == "enemy" ||
-            player.hurt_by() == "friend")
-        {
-            dir = player.hurt_dir()
-        }
-
+        // being attacked
+        var dir = player.hurt_dir()
+        face_priority = 7
         if (dir < 0)
             face_image = "STFTL" + pain_digit() + "0"
         else if (dir > 0)
             face_image = "STFTR" + pain_digit() + "0"
         else
             face_image = "STFKILL" + pain_digit()
-
+        if (player.hurt_pain() > 20)
+            face_image = "STFOUCH" + pain_digit()
         face_time = 35
-        return
     }
 
-    // rampaging?
-    if (player.is_rampaging())
+    if (face_priority < 7 && player.hurt_pain())
     {
+        // getting hurt because of your own damn stupidity
+        face_priority = 6
+        if (player.hurt_pain() > 20)
+            face_image = "STFOUCH" + pain_digit()
+        else
+            face_image = "STFKILL" + pain_digit()
+        face_time = 35
+    }
+
+    if (face_priority < 6 && player.is_rampaging())
+    {
+        // rapid firing
+        face_priority = 5
         face_image = "STFKILL" + pain_digit()
-        face_time  = 7
-        return
+        face_time = 1
     }
 
-    // god mode?
-    if (player.has_power(player.INVULN))
+    if (face_priority < 5 && player.has_power(player.INVULN))
     {
+        // invulnerability
+        face_priority = 4
         face_image = "STFGOD0"
-        face_time  = 7
-        return
+        face_time = 1
     }
 
-    // default: look about the place...
-    face_image = "STFST" + pain_digit() + turn_digit()
-    face_time  = 17
+    if (!face_time)
+    {
+        // look left or right
+        face_priority = 0
+        face_image = "STFST" + pain_digit() + turn_digit()
+        face_time = 17
+    }
+    face_time = face_time - hud.passed_time
 }
 
 function doomguy_face (x, y) =
 {
     //---| doomguy_face |---
-
-    face_time = face_time - hud.passed_time
-
-    if (face_time <= 0)
-        select_new_face()
+    select_new_face()
 
     // FIXME faceback
 
