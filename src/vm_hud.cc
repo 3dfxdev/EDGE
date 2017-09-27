@@ -674,7 +674,11 @@ void VM_RunHud(int split)
 	ui_hud_automap_flags[1] = 0;
 	ui_hud_automap_zoom = -1;
 
-	VM_CallFunction(ui_vm, "draw_all");
+	//VM_CallFunction(ui_vm, "draw_all");
+	if (split > 0)
+		VM_CallFunction(ui_vm, "draw_split");
+	else
+		VM_CallFunction(ui_vm, "draw_all");
 
 	if (split > 0)
 		HUD_FrameSetup(0);
