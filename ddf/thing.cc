@@ -1310,6 +1310,7 @@ static specflags_t extended_specials[] =
 static specflags_t hyper_specials[] =
 {
 	{"FORCE_PICKUP", HF_FORCEPICKUP, 0},
+	{"SILENT_PICKUP", HF_SILENTPICKUP, 0},
 	{"SIDE_IMMUNE", HF_SIDEIMMUNE, 0},
 	{"SIDE_GHOST", HF_SIDEGHOST, 0},
 	{"ULTRA_LOYAL", HF_ULTRALOYAL, 0},

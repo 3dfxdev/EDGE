@@ -713,6 +713,11 @@ void R_PaletteStuff(void)
 		palette = PALETTE_BONUS;
 		amount = (p->bonuscount + 7) / 32.0f;
 	}
+	else if (p->silentbonuscount)
+	{
+		palette = PALETTE_NORMAL;
+		amount = 0;
+	}
 	else if (p->powers[PW_AcidSuit] > 4 * 32 ||
 		fmod(p->powers[PW_AcidSuit], 16) >= 8)
 	{

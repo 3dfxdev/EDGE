@@ -251,6 +251,9 @@ typedef struct player_s
 	int damagecount;
 	int bonuscount;
 
+	// For no screen flashing or sounds (silent pickup for scripts/mods)
+	int silentbonuscount;
+
 	// Who did damage (NULL for floors/ceilings).
 	mobj_t *attacker;
 
