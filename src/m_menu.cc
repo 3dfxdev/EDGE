@@ -534,10 +534,11 @@ static menu_t HereticMainDef =
 	0
 };
 
+//Removed Multiplayer Host/Join NetGame for now. Left 2 Player option open!
 static menuitem_t MultiMenu[] = ///Dupe Doom Legacy's Multiplayer menu. . .
 {
-	{ 1, "M_STSERV", NULL, M_HostNetGame, 'o' }, // Pulls up the Advanced Start Menu (Host)
-	{ 1, "M_CONNEC",  NULL, M_JoinNetGame, 'h' }, //Pulls up the Join Game Menu (client)
+	//{ 1, "M_STSERV", NULL, M_HostNetGame, 'o' }, // Pulls up the Advanced Start Menu (Host)
+	//{ 1, "M_CONNEC",  NULL, M_JoinNetGame, 'h' }, //Pulls up the Join Game Menu (client)
 	{ 1, "M_2PLAYR",  NULL, M_SplitScreenGame, 'z' }, //Goes to splitscreen game (II)
 	{ 1, "M_OPTION", NULL, M_Options, 'o' }, // Goes to Options...
 	{ 1, "M_QUITG",   NULL, M_EndGame, 'e'}
@@ -545,7 +546,7 @@ static menuitem_t MultiMenu[] = ///Dupe Doom Legacy's Multiplayer menu. . .
 
 static menu_t MultiDef =
 {
-	5,	//multi_numtypes, // # of menu items...try main_end
+	3,	//multi_numtypes, // # of menu items...try main_end
 	&MainDef, // previous menu
 	MultiMenu,  // ::from::SkillMenu ->> menuitem_t ->
 	&multi_menu_style, /// Same style, I guess?
@@ -2432,7 +2433,8 @@ void M_StartControlPanel(void)
 	
 	itemOn = currentMenu->lastOn;  // JDC
 
-	M_OptCheckNetgame();
+	//Disable this for now.
+	//M_OptCheckNetgame();
 }
 
 
