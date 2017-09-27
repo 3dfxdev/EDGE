@@ -78,6 +78,7 @@ extern cvar_c r_crosssize, r_crossbright;
 extern cvar_c r_precache_tex, r_precache_sprite, r_precache_model;
 extern cvar_c r_gl3_path;
 extern cvar_c r_renderprecise;
+extern cvar_c r_oldblend;
 
 extern cvar_c r_bloom;
 extern cvar_c r_bloom_amount;
@@ -142,6 +143,8 @@ cvar_link_t  all_cvars[] =
 	{ "shadows",         &r_shadows,          "c",   "1" },
 
 	{ "soundpitch",      &sound_pitch,         "c",    "1" },
+
+	{ "r_oldblend",      &r_oldblend,           "c",    "0"},
 
 	/* Input Stuff */
 

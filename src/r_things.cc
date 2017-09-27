@@ -72,6 +72,7 @@ cvar_c r_crosscolor;   // 0 .. 7
 cvar_c r_crosssize;    // pixels on a 320x200 screen
 cvar_c r_crossbright;  // 1.0 is normal
 
+cvar_c r_oldblend;
 
 float sprite_skew;
 
@@ -258,8 +259,13 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	if (trans >= 0.11f && image->opacity != OPAC_Complex)
 		blending = BL_Less;
 
-	if (trans < 0.99 || image->opacity != OPAC_Solid)
-		blending |= BL_Alpha;
+	if (r_oldblend.d > 0)
+	{
+		if (trans < 0.99 || image->opacity == OPAC_Complex)
+			blending |= BL_Alpha;
+		else if (trans < 0.99 || image->opacity != OPAC_Solid)
+				blending |= BL_Alpha;
+	}
 
 
 	if (is_fuzzy)
@@ -1424,7 +1430,8 @@ skip_shadow:
 	if (trans >= 0.11f && image->opacity != OPAC_Complex)
 		blending = BL_Less;
 
-	if (trans < 0.99 || image->opacity != OPAC_Solid)
+	
+	if (trans < 0.99 || image->opacity == OPAC_Complex)
 		blending |= BL_Alpha;
 
 	if (mo->hyperflags & HF_NOZBUFFER)
