@@ -31,6 +31,7 @@
 
 void E_ClearInput(void);
 void E_BuildTiccmd(ticcmd_t * cmd, int which_player); //after (), add , int which_player
+void E_BuildTiccmd_Other(ticcmd_t * cmd);
 void E_ReleaseAllKeys(void);
 void E_SetTurboScale(int scale);
 void E_UpdateKeyState(void);

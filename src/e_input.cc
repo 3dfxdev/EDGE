@@ -291,13 +291,30 @@ static void UpdateForces(void)
 
 	// ---Keyboard---
 
-	AddKeyForce(AXIS_TURN,    key_right,  key_left);
-	AddKeyForce(AXIS_MLOOK,   key_lookup, key_lookdown);
-	AddKeyForce(AXIS_FORWARD, key_up,     key_down);
+	AddKeyForce(AXIS_TURN, key_right, key_left);
+	AddKeyForce(AXIS_MLOOK, key_lookup, key_lookdown);
+	AddKeyForce(AXIS_FORWARD, key_up, key_down);
 	// -MH- 1998/08/18 Fly down
-	AddKeyForce(AXIS_FLY,     key_flyup,  key_flydown);
-	AddKeyForce(AXIS_STRAFE,  key_straferight, key_strafeleft);
+	AddKeyForce(AXIS_FLY, key_flyup, key_flydown);
+	AddKeyForce(AXIS_STRAFE, key_straferight, key_strafeleft);
 
+	// ---Joystick---
+
+	//for (int j = 0; j < 6; j++)
+	//	UpdateJoyAxis(j);
+}
+
+static void UpdateJoyForces(void)
+{
+	for (int k = 0; k < 6; k++)
+		joy_forces[k] = 0;
+
+	//AddKeyForce(AXIS_TURN, key_right, key_left);
+	//AddKeyForce(AXIS_MLOOK, key_lookup, key_lookdown);
+	//AddKeyForce(AXIS_FORWARD, key_up, key_down);
+	// -MH- 1998/08/18 Fly down
+	//AddKeyForce(AXIS_FLY, key_flyup, key_flydown);
+	//AddKeyForce(AXIS_STRAFE, key_straferight, key_strafeleft);
 	// ---Joystick---
 
 	for (int j = 0; j < 6; j++)
@@ -317,47 +334,6 @@ static int CmdChecksum(ticcmd_t * cmd)
 }
 #endif
 
-void E_BuildTiccmd_Other(ticcmd_t * cmd)
-{
-	///
-	/// -AJA- very hacky stuff here to test out split-screen mode
-	///
-
-	UpdateForces();
-
-	Z_Clear(cmd, ticcmd_t, 1);
-
-	//-- Turning --
-	{
-		float turn = angleturn[0] * joy_forces[AXIS_TURN] / 64.0;
-
-		cmd->angleturn = I_ROUND(turn);
-	}
-
-	//-- Mlook --
-	{
-		float mlook = mlookturn[0] * joy_forces[AXIS_MLOOK] / 64.0;
-
-		cmd->mlookturn = I_ROUND(mlook);
-	}
-
-	//-- Forward --
-	{
-		if (bJoystickActive & 0x6)
-			cmd->forwardmove = forwardmove[1];
-	}
-
-	//-- Buttons --
-	if (bJoystickActive & 1)
-		cmd->buttons |= BT_ATTACK;
-
-	if (bJoystickActive & 0x6)
-		cmd->buttons |= BT_USE;
-
-	for (int k = 0; k < 6; k++)
-		joy_forces[k] = 0;
-}
-
 //
 // E_BuildTiccmd
 //
@@ -373,6 +349,7 @@ static bool allowautorun = true;
 
 void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 {
+
 	bool bJoystickActive, bKeyboardActive, bMouseActive;
 
 	if (splitscreen_mode)
@@ -394,14 +371,10 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 
 	if (splitscreen_mode && cmd->player_idx == consoleplayer1)
 	{
-		bJoystickActive = true;;
-		//bJoystickActive = true;
+
 		E_BuildTiccmd_Other(cmd);
-		
 		return;
 	}
-
-
 
 	UpdateForces();
 
@@ -433,7 +406,7 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 
 	int m_speed = speed;
 
-	if (fabs(joy_forces[AXIS_MLOOK]) > 0.2f)
+	if (fabs(ball_deltas[AXIS_MLOOK]) > 0.2f)
 		mlookheld++;
 	else
 		mlookheld = 0;
@@ -458,26 +431,17 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 
 	// MLook
 	{
-		if (bMouseActive)
-		{
-			// -ACB- 1998/07/02 Use VertAngle for Look/up down.
-			float mlook = mlookturn[m_speed] * joy_forces[AXIS_MLOOK];
+		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
+		float mlook = mlookturn[m_speed] * joy_forces[AXIS_MLOOK];
 
-			mlook *= speed_factors[var_mlookspeed];
+		mlook *= speed_factors[var_mlookspeed];
 
-			mlook += mlookturn[m_speed] * ball_deltas[AXIS_MLOOK] / 64.0;
+		mlook += mlookturn[m_speed] * ball_deltas[AXIS_MLOOK] / 64.0;
 
-			cmd->mlookturn = I_ROUND(mlook);
-		}
-		else
-		{
-			float mlook = 0;
-
-			mlook += mlookturn[m_speed] * ball_deltas[AXIS_MLOOK] / 64.0;
-
-			cmd->mlookturn = I_ROUND(mlook);	
-		}
+		cmd->mlookturn = I_ROUND(mlook);
 	}
+
+
 
 	// Forward
 	{
@@ -621,6 +585,160 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 		ball_deltas[k] = 0;
 }
 
+void E_BuildTiccmd_Other(ticcmd_t * cmd)
+{
+	///
+	/// -AJA- very hacky stuff here to test out split-screen mode
+	///
+	//bJoystickActive = 1;
+
+
+	UpdateJoyForces();
+
+	Z_Clear(cmd, ticcmd_t, 1);
+
+	bool strafe = E_IsKeyPressed(key_strafe);
+	int  speed = E_IsKeyPressed(key_speed) ? 1 : 0;
+
+
+	if (in_running.d)
+		speed = !speed;
+
+	//
+	// -KM- 1998/09/01 use two stage accelerative turning on all devices
+	//
+	// -ACB- 1998/09/06 Allow stage turning to be switched off for
+	//                  analogue devices...
+	//
+	int t_speed = speed;
+
+	if (fabs(joy_forces[AXIS_TURN]) > 0.2f)
+		turnheld++;
+	else
+		turnheld = 0;
+
+	// slow turn ?
+	if (turnheld < SLOWTURNTICS && in_stageturn.d)
+		t_speed = 2;
+
+	int m_speed = speed;
+
+	if (fabs(joy_forces[AXIS_MLOOK]) > 0.2f)
+		mlookheld++;
+	else
+		mlookheld = 0;
+
+	// slow mlook ?
+	if (mlookheld < SLOWTURNTICS && in_stageturn.d)
+		m_speed = 2;
+
+	// Turning
+	if (!strafe)
+	{
+		float turn = angleturn[t_speed] * joy_forces[AXIS_TURN];
+
+		turn *= speed_factors[var_turnspeed];
+
+		// -ACB- 1998/09/06 Angle Turn Speed Control
+		turn += angleturn[t_speed] * joy_forces[AXIS_TURN] / 64.0;
+
+		cmd->angleturn = I_ROUND(turn);
+	}
+
+
+	// Mouselook
+	{
+
+		// -ACB- 1998/07/02 Use VertAngle for Look/up down.
+		float mlook = mlookturn[m_speed] * joy_forces[AXIS_MLOOK];
+
+		mlook *= speed_factors[var_mlookspeed];
+
+		mlook += mlookturn[m_speed] * joy_forces[AXIS_MLOOK] / 64.0;
+
+		cmd->mlookturn = I_ROUND(mlook);
+
+	}
+
+
+	// Forward
+	{
+		float forward = forwardmove[speed] * joy_forces[AXIS_FORWARD];
+
+		forward *= speed_factors[var_forwardspeed];
+
+		// -ACB- 1998/09/06 Forward Move Speed Control
+		forward += forwardmove[speed] * joy_forces[AXIS_FORWARD] / 64.0;
+
+		forward = CLAMP(-MAXPLMOVE, forward, MAXPLMOVE);
+
+		cmd->forwardmove = I_ROUND(forward);
+	}
+
+	// Sideways
+	{
+		float side = sidemove[speed] * joy_forces[AXIS_STRAFE];
+
+		if (strafe)
+			side += sidemove[speed] * joy_forces[AXIS_TURN];
+
+		side *= speed_factors[var_sidespeed];
+
+		// -ACB- 1998/09/06 Side Move Speed Control
+		//side += sidemove[speed] * ball_deltas[AXIS_STRAFE] / 64.0;
+
+		//if (strafe)
+		//	side += sidemove[speed] * ball_deltas[AXIS_TURN] / 64.0;
+
+		//side = CLAMP(-MAXPLMOVE, side, MAXPLMOVE);
+
+		cmd->sidemove = I_ROUND(side);
+	}
+
+	// Upwards  -MH- 1998/08/18 Fly Up/Down movement
+	{
+		float upward = upwardmove[speed] * joy_forces[AXIS_FLY];
+
+		upward *= speed_factors[var_flyspeed];
+
+		upward += upwardmove[speed] * joy_forces[AXIS_FLY] / 64.0;
+
+		upward = CLAMP(-MAXPLMOVE, upward, MAXPLMOVE);
+
+		cmd->upwardmove = I_ROUND(upward);
+	}
+
+	//-- Forward --
+	//{
+	//	if (mouse_ss_hack & 0x6)
+	//		cmd->forwardmove = forwardmove[1];
+	//}
+
+	//-- Buttons --
+	if (mouse_ss_hack & 1)
+		cmd->buttons |= BT_ATTACK;
+
+	if (mouse_ss_hack & 0x6)
+		cmd->buttons |= BT_USE;
+
+	// -AJA- 2000/04/14: Autorun toggle
+	if (E_IsKeyPressed(key_autorun))
+	{
+		if (allowautorun)
+		{
+			in_running = in_running.d ? 0 : 1;
+			allowautorun = false;
+		}
+	}
+	else
+		allowautorun = true;
+
+	//for (int k = 0; k < 6; k++)
+	//ball_deltas[k] = 0;
+	//for (int k = 0; k < 6; k++)
+		//ball_deltas[k] = 0;
+}
+
 //
 // Get info needed to make ticcmd_ts for the players.
 // 
@@ -631,6 +749,11 @@ bool INP_Responder(event_t * ev)
 	switch (ev->type)
 	{
 		case ev_keydown:
+			if (splitscreen_mode && sym >= KEYD_JOY1 && sym <= KEYD_JOY6)
+			{
+				mouse_ss_hack |= (1 << (sym - KEYD_JOY1));
+				return true;
+			}
 		case ev_mousedown:
 			if (ev->data1 < NUMKEYS)
 			{
@@ -641,7 +764,15 @@ bool INP_Responder(event_t * ev)
 			// eat key down events 
 			return true;
 
+		//case ev_gamepad:
+
+
 		case ev_keyup:
+			 if (splitscreen_mode && sym >= KEYD_JOY1 && sym <= KEYD_JOY6)
+			 {
+				mouse_ss_hack &= ~(1 << (sym - KEYD_JOY1));
+				return false;
+			 }
 		case ev_mouseup:
 			if (ev->data1 < NUMKEYS)
 			{
