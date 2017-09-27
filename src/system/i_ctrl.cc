@@ -75,7 +75,7 @@ static int joy_num_hats;
 static int joy_num_balls;
 
 //
-// Translates a key from SDL -> EDGE2
+// Translates a key from SDL -> EDGE
 // Returns -1 if no suitable translation exists.
 //
 // For SDL2, SDKL_KPx has become SDLK_KP_x
