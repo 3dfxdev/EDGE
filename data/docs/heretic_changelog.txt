@@ -1,0 +1,148 @@
+=============================
+HERETIC DDF support changelog
+=============================
+Previous contributions were 
+provided by CeeJay.
+
+----------------
+4.26.2016
+----------------
+Small tweaks in the EXE.
+
+----------------
+June 1, 2015
+----------------
+Reworked HUD, Added missing sounds, Added missing menu graphics
+
+-----------------
+February 19, 2013
+-----------------
+
+Made fixes to a linetype so it behaves closer to its Heretic counterpart and in the hopes of making E4M1 possible to exit. But there seems to be something really wrong and I doubt it's with the linetype itself.
+
+-----------------
+February 19, 2013
+-----------------
+
+Heretic scroll sectors (sectors that pushes the player along) added to SECTORS.DDF. I'm not sure of the accuracy and the actual floor itself doesn't scroll.
+
+All enemies should, hopefully, drop their respective items accordingly when killed.
+
+Ammo items, as dropped by enemies, have been implemented and they are dropped randomly by monsters like in Heretic.
+
+-----------------
+February 18, 2013
+-----------------
+
+Weapon items were given the same treatment as the ammo items
+
+Ammo items are now handled diffrently, partially through the use of RTS scripts. This gives improved control on how much ammo you recieve.
+
+Made some slight adjustments to the wind and waterfall ambience
+
+The small volcanos are added in, they work but are a bit glitchy. Again, a LOWGRAVITY tag or a way of controlling how much gravity a projectile has would be useful, almost required for true Heretic/Hexen support I would say.
+
+-----------------
+February 17, 2013
+-----------------
+
+NO_STRETCH_SKY and NORMAL_SKY special added to all levels, but it doesn't seem to do anything
+*These are deprecated commands - will be fixed shortly.
+
+Correct sky texture for each episode
+
+Gave the three bonus levels their unofficial names
+
+Gargoyles are now spawned on the ceiling. Though in Heretic, they appear to be spawned at a random height.
+
+Speed of line trigger 7, build stairs, increased to match the one(s) from HERETIC
+
+More line triggers were given a stop sound.
+
+The gargoyles death is now more accurate, it's without gravity for the first few frames and THEN falls down.
+
+The gargoyle radius has been corrected, it was too large causing groups of gargoyles to get stuck to eachother.
+
+Got the small HERETIC fonts partially working in-game thanks to FONTS.DDF and STYLES.DDF
+
+NOFRICTION tag removed from enemies, it was causing some perculiar behaviour
+
+Another wind sector: Strong wind north
+
+Speed of the waterfall and lava texture animations increased.
+
+Intensity of dynamic lightning for the blue and red glitter reduced. It was causing noticable lag when there was a lot of it in one spot.
+
+Thing 56 (green wooden torch) replaced with blank object, see E3M8. I believe it is meant to be a teleport marker for D'Sparil.
+
+Correct endscreen added for the conclusion of episode 2, though this image is supposed to use its own unique palette lump (E2PAL)
+
+Line triggers and RTS scripts cleaned and sorted.
+
+Linetrigger 107 replaced with new one, build stairs. Used in E3M8.
+
+D'Sparil triggers correct linetype(s) upon death, making it possible to finish the level
+
+D'Sparil, both forms, added with no attack yet. It is a little glitchy though, but, works.
+
+No intermission/stats screen for boss levels (E1M8, E2M8, etc.)
+
+Medium wind push speed increased and the weak wind inherits the medium winds previous speed. Seems more accurate.
+
+Added NOGRAVITY tag for scenery decorations so they, like items, won't be affected by wind
+
+Another wind sector added: Weak wind east
+
+Endtexts along with background tile added for all five episodes, though the font used is still the one from DOOM
+
+Added a stop sound (FLOOR.SFX_STOP) to a couple of linetriggers.
+
+Episode bosses (Iron Lich in E1M8 and Maulotaur in E2M8) now trigger their respective linetypes when killed so the levels can be played through.
+
+Maulotuar added but, like the Iron Lich, he does not attack yet.
+
+Reduced the ammount of friction for ice sectors, not as crazy anymore
+
+Further improvements made to the Pod generator, most notably PRESTEP_SPAWN replaced with ANGLED_SPAWN for the spawner attack.
+
+"E#M#" added to the beginning of level names in LANGUAGE.DDF, so you can tell which map you're currently playing in the automap.
+
+Moving speed of line trigger 106, build stairs, increased to better match the original. Most notably used in E1M1.
+
+-----------------
+February 16, 2013
+-----------------
+
+REFIRE_CHECK pointer replaced with FACETARGET for the Ophidians attack.
+
+Disciples/Wizards now actually do flicker in and out of ghost mode while attacking instead of just simply fading in and out of transparency.
+
+Some minor changes made to the Phoneix projectile, it wasn't working properly when dealing with ghost enemies.
+
+NOFRICTION codepointer added for enemies. Friction (ice sectors) appears to only affect players in Heretic
+
+Sectors with friction (ice) added to SECTORS.DDF, but there's too much friction and I can't seem to get it right
+
+Added a credits tag at the beginning of most the DDF files
+
+Some of the ammo items were missing their animation, fixed
+
+Made some adjustements to the Firemace projectiles, still doesn't bounce but the pattern is more accurate
+
+Added the Iron Lich but he doesn't attack yet, functions as a sort of placeholder for the time being
+
+Made improvements to the Pod generator, probably not very accurate but it seems to work alright
+
+-----------------
+February 15, 2013
+-----------------
+
+The exploding pod was added, doesn't respawn yet though
+
+The Hellstaff, Phoenix Road and Firemace are in! However, charged-up versions of the weapons are yet to be done
+and I was not able to make the Firemace projectile(s) behave as they do in Heretic, they don't bounce (we need a LOWGRAVITY tag?)
+but speed and damage should be accurate
+
+Reduced the chance for the Undead Warrior to throw his red axe, it was happening too often
+
+Pod generator added. It does not work very well though.
