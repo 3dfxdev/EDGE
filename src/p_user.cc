@@ -560,6 +560,9 @@ static void DeathThink(player_t * player)
 	if (player->bonuscount)
 		player->bonuscount--;
 
+	if (player->silentbonuscount)
+		player->silentbonuscount--;
+
 	P_UpdatePowerups(player);
 
 	// lose the zoom when dead
@@ -645,7 +648,7 @@ void P_ConsolePlayerBuilder(const player_t *pl, void *data, ticcmd_t *dest)
 {
 	dest->player_idx = pl->pnum;
 
-	E_BuildTiccmd(dest, pl->pnum);
+	E_BuildTiccmd(dest, pl->pnum);//E_BuildTiccmd(dest, pl->pnum);
 }
 
 static u16_t MakeConsistency(const player_t *pl)
@@ -847,6 +850,9 @@ void P_PlayerThink(player_t * player)
 
 	if (player->bonuscount > 0)
 		player->bonuscount--;
+
+	if (player->silentbonuscount > 0)
+		player->silentbonuscount--;
 
 	if (player->grin_count > 0)
 		player->grin_count--;

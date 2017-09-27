@@ -143,6 +143,7 @@ void G_PlayerFinishLevel(player_t *p, bool keep_cards)
 	p->damagecount = 0;
 	p->damage_pain = 0;
 	p->bonuscount  = 0;
+	p->silentbonuscount = 0;
 	p->grin_count  = 0;
 }
 
@@ -186,6 +187,7 @@ void player_s::Reborn()
 	zoom_fov = 0;
 	telept_fov = 0;
 	bonuscount = 0;
+	silentbonuscount = 0;
 	damagecount = 0;
 	damage_pain = 0;
 	extralight = 0;
@@ -379,6 +381,7 @@ static void P_SpawnPlayer(player_t *p, const spawnpoint_t *point, bool is_hub)
 	p->damagecount = 0;
 	p->damage_pain = 0;
 	p->bonuscount = 0;
+	p->silentbonuscount = 0;
 	p->extralight = 0;
 	p->effect_colourmap = NULL;
 	p->std_viewheight = mobj->height * PERCENT_2_FLOAT(info->viewheight);

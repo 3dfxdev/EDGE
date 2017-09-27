@@ -614,7 +614,14 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 	info.lose_em = false;
 	DoGiveBenefitList(&info);
 
-	if (special->flags & MF_COUNTITEM)
+	if ((special->flags & MF_COUNTITEM) && (special->hyperflags & HF_SILENTPICKUP))
+	{
+		info.silent = true;
+		info.player->itemcount++;
+		info.got_it = true;
+	}
+
+	else if (special->flags & MF_COUNTITEM)
 	{
 		info.player->itemcount++;
 		info.got_it = true;
@@ -622,6 +629,13 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 	else if (special->hyperflags & HF_FORCEPICKUP)
 	{
 		info.got_it  = true;
+		info.keep_it = false;
+	}
+	else if (special->hyperflags & HF_SILENTPICKUP)
+	{
+		info.silent = true;
+		info.player->itemcount++;
+		info.got_it = true;
 		info.keep_it = false;
 	}
 
@@ -635,7 +649,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 	}
 
 	// do all the special effects, lights & sound etc...
-	if (! info.silent)
+	if (!info.silent)
 	{
 		info.player->bonuscount += BONUS_ADD;
 		if (info.player->bonuscount > BONUS_LIMIT)
@@ -649,19 +663,28 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 		}
 
 		if (sound)
-        {
-            int sfx_cat;
+		{
+			int sfx_cat;
 
-            if (info.player->playerflags & PFL_Console)
-                sfx_cat = SNCAT_Player;
-            else
-                sfx_cat = SNCAT_Opponent;
+			if (info.player->playerflags & PFL_Console)
+				sfx_cat = SNCAT_Player;
+			else
+				sfx_cat = SNCAT_Opponent;
 
 			S_StartFX(sound, sfx_cat, info.player->mo);
-        }
+		}
 
 		if (info.new_weap >= 0 || info.new_ammo >= 0)
 			P_TrySwitchNewWeapon(info.player, info.new_weap, (ammotype_e)info.new_ammo);
+	}
+
+	else if (info.silent)
+	{
+		info.player->silentbonuscount += BONUS_ADD;
+		if (info.player->silentbonuscount > BONUS_LIMIT)
+			info.player->silentbonuscount = BONUS_LIMIT;
+		//No Sound here
+		//No weapon switching, either!
 	}
 
 	RunPickupEffects(info.player, special, special->info->pickup_effects);

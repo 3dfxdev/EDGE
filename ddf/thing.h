@@ -295,6 +295,9 @@ typedef enum
 	HF_TILT = (1 << 15),
 	
 	HF_MIRRORED = (1 << 16),
+
+	// -CA- 2017/09/27: force items to be picked up silently
+	HF_SILENTPICKUP = (1 << 17),
 }
 mobjhyperflag_t;
 
