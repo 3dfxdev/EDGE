@@ -29,6 +29,17 @@
 #define ANGLE_180 ANG180
 #define ANGLE_270 ANG270
 
+angle_t R_PointToPseudoAngle(double x, double y);
+
+// Used to speed up angle calculations during clipping
+#if 0
+inline angle_t vertex_t::GetClipAngle()
+{
+	return  R_PointToPseudoAngle(x, y);
+}
+#endif // 0
+
+
 //clipper
 bool gld_clipper_SafeCheckRange(angle_t startAngle, angle_t endAngle);
 void gld_clipper_SafeAddClipRange(angle_t startangle, angle_t endangle);
@@ -38,7 +49,7 @@ angle_t gld_FrustumAngle(void);
 void gld_FrustrumSetup(void);
 bool gld_SphereInFrustum(float x, float y, float z, float radius);
 
-#if 0
+
 class ClipNode
 {
 	friend class Clipper;
@@ -172,22 +183,22 @@ extern Clipper clipper;
 angle_t R_PointToPseudoAngle(float x, float y);
 void R_SetView();
 
+
+
 // Used to speed up angle calculations during clipping
-inline angle_t vec2_s::GetClipAngle()
-{
-	return angletime == Clipper::anglecache ? viewangle : (angletime = Clipper::anglecache, viewangle = R_PointToPseudoAngle(x, y));
-}
-#endif // 0
+//inline angle_t vec2_s::GetClipAngle()
+//{
+//	return angletime == Clipper::anglecache ? viewangle : (angletime = Clipper::anglecache, viewangle = R_PointToPseudoAngle(x, y));
+//}
 
 
-#endif
 
-#if 0
+
 void RGL_1DOcclusionClear(void);
 void RGL_1DOcclusionSet(angle_t low, angle_t high);
 bool RGL_1DOcclusionTest(angle_t low, angle_t high);
-#endif
-#endif /* __RGL_OCCLUDE_H__ */
 
+
+#endif
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
