@@ -38,7 +38,7 @@
 #include "r_wipe.h"
 
 
-#include <SDL2/SDL_keyboard.h>
+#include "system/i_sdlinc.h"
 
 
 #define CON_WIPE_TICS  12

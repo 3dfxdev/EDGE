@@ -24,7 +24,6 @@
 #include "system/i_defs.h"
 #include "system/i_defs_gl.h"
 #include "system/i_sdlinc.h"
-#include <SDL2/SDL_opengl.h>
 #include "r_shaderprogram.h"
 #include "w_wad.h"
 

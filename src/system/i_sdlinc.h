@@ -19,8 +19,9 @@
 #ifndef __SDL_SYSTEM_INTERNAL_H__
 #define __SDL_SYSTEM_INTERNAL_H__
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_keycode.h> /// Keys
+#include <SDL.h>
+#include <SDL_keycode.h> /// Keys
+#include <SDL_opengl.h> // opengl
 
 #include "i_local.h"  // FIXME: remove
 

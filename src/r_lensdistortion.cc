@@ -23,7 +23,6 @@
 #include "system/i_defs.h"
 #include "system/i_defs_gl.h"
 #include "system/i_sdlinc.h"
-#include <SDL2/SDL_opengl.h>
 #include "r_lensdistortion.h"
 #include "r_renderbuffers.h"
 #include "r_postprocessstate.h"
