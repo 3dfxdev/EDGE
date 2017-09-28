@@ -4,7 +4,7 @@ project(3DGE)
 # MSVC
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
-	set( CMAKE_CXX_FLAGS "/MP ${CMAKE_CXX_FLAGS} /GF /arch:SSE2" )
+	set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT ${CMAKE_CXX_FLAGS} /arch:SSE2" )
 endif()
 
 add_definitions(
@@ -36,13 +36,14 @@ add_custom_target(revision_check ALL
 )
 
 # See /VSLibs/lib_versions.txt
+# Download VSLibs for MSVC - http://tdgmods.net/VSLibs.7z (up to date as of listing below)
 
 if(MSVC)
 	set( CPUID_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libcpuid/include" )
 	set( CPUID_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libcpuid/lib/libcpuid.lib" )
-	set( GLEW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.0.0/include" )
-	set( GLEW_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.0.0/lib/Release/Win32/glew32s.lib" )
-	set( GLEW_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.0.0/lib/Release/Win32/glew32s.lib" )
+	set( GLEW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.1.0/include" )
+	set( GLEW_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.1.0/lib/Release/Win32/glew32s.lib" )
+	set( GLEW_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.1.0/lib/Release/Win32/glew32s.lib" )
 	set( JPEG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libjpeg-turbo/include" )
 	set( JPEG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libjpeg-turbo/lib/turbojpeg-static.lib" )
 	set( OGG_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg-1.3.2/lib/libogg_static.lib" )
@@ -53,9 +54,9 @@ if(MSVC)
 	set( PNG_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng16/lib/libpng16_staticd.lib" )
 	set( PNG_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng16/lib/libpng16_static.lib" )
 	set( PNG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng16/include" )
-	set( SDLMAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2main.lib" )
-	set( SDL_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/include" )
-	set( SDL_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2.lib" )
+	set( SDLMAIN2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2main.lib" )
+	set( SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/include" )
+	set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2.lib" )
 	set( SDL_NET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2_net-2.0.1/include" )
 	set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2_net-2.0.1/lib/x86/SDL2_net.lib" )
 	set( VORBISFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis-1.3.5/lib/libvorbisfile_static.lib" )
@@ -166,11 +167,12 @@ set(3DGE_SOURCES
 	deh_edge/patch.cc
 	deh_edge/rscript.cc
 
-	#src/system/i_main.cc
+	src/system/i_main.cc
 	src/system/i_ctrl.cc
 	src/system/i_video.cc
 	src/system/i_sound.cc
 	src/system/i_net.cc
+	src/system/i_moviedc.cc
 
 	src/am_map.cc
 	src/con_con.cc
@@ -234,6 +236,7 @@ set(3DGE_SOURCES
 	src/r_effects.cc
 	src/r_main.cc
 	src/r_occlude.cc
+	src/r_occlude2.cc
 	src/m_logo.cc
 	src/r_things.cc
 	src/r_units.cc
@@ -348,6 +351,11 @@ set(3DGE_SOURCES
 
 	src/opllib/opl3.cc
 	src/opllib/oplapi.cc
+
+	src/fmv/avi.cc
+	src/fmv/fmv.cc
+	src/fmv/pcm/pcm.cc
+	src/fmv/roq/roq.cc
 )
 
 set(3DGE_WIN32_SOURCES
@@ -359,7 +367,6 @@ set(3DGE_WIN32_SOURCES
 	src/system/win32/i_exception.cc
 	epi/epi_win32.cc
 	epi/filesystem_win32.cc
-	src/system/i_main.cc
 )
 
 set(3DGE_UNIX_SOURCES
