@@ -172,7 +172,6 @@ set(3DGE_SOURCES
 	src/system/i_video.cc
 	src/system/i_sound.cc
 	src/system/i_net.cc
-	src/system/i_moviedc.cc
 
 	src/am_map.cc
 	src/con_con.cc
