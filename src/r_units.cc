@@ -24,9 +24,6 @@
 #include "system/i_sdlinc.h"
 
 
-#include <SDL2/SDL_opengl.h>
-
-
 #include <vector>
 #include <algorithm>
 
