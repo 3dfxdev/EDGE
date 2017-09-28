@@ -54,7 +54,7 @@ if(MSVC)
 	set( PNG_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng16/lib/libpng16_staticd.lib" )
 	set( PNG_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng16/lib/libpng16_static.lib" )
 	set( PNG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng16/include" )
-	set( SDLMAIN2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2main.lib" )
+	set( SDL2MAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2main.lib" )
 	set( SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/include" )
 	set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2.lib" )
 	set( SDL_NET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2_net-2.0.1/include" )
@@ -351,11 +351,6 @@ set(3DGE_SOURCES
 
 	src/opllib/opl3.cc
 	src/opllib/oplapi.cc
-
-	src/fmv/avi.cc
-	src/fmv/fmv.cc
-	src/fmv/pcm/pcm.cc
-	src/fmv/roq/roq.cc
 )
 
 set(3DGE_WIN32_SOURCES
