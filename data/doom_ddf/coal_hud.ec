@@ -736,6 +736,497 @@ hud.draw_num2(78, 179, 3, player.health()) // 100
 
 }
 
+function doom_splitscreen_status() = 
+    {
+	if (player.has_power(player.GOGGLES))
+        hud.draw_image(247, 0, "STTPOWR6")
+    if (player.has_power(player.NIGHT_VIS))
+        hud.draw_image(247, 0, "STTPOWR1")
+    if (player.has_power(player.ACID_SUIT))
+        hud.draw_image(247, 25, "STTPOWR2")
+    if (player.has_power(player.INVIS))
+        hud.draw_image(247, 50, "STTPOWR3")
+    if (player.has_power(player.BERSERK))
+        hud.draw_image(247, 75, "STTPOWR4")
+    if (player.has_power(player.INVULN))
+        hud.draw_image(247, 100, "STTPOWR5")
+
+    if (player.power_left(player.NIGHT_VIS) > 114)
+        hud.draw_image(247, 0, "POWBAR01")
+else
+    if (player.power_left(player.NIGHT_VIS) > 108)
+        hud.draw_image(247, 0, "POWBAR02")
+else
+    if (player.power_left(player.NIGHT_VIS) > 102)
+        hud.draw_image(247, 0, "POWBAR03")
+else
+    if (player.power_left(player.NIGHT_VIS) > 96)
+        hud.draw_image(247, 0, "POWBAR04")
+else
+    if (player.power_left(player.NIGHT_VIS) > 90)
+        hud.draw_image(247, 0, "POWBAR05")
+else
+    if (player.power_left(player.NIGHT_VIS) > 84)
+        hud.draw_image(247, 0, "POWBAR06")
+else
+    if (player.power_left(player.NIGHT_VIS) > 78)
+        hud.draw_image(247, 0, "POWBAR07")
+else
+    if (player.power_left(player.NIGHT_VIS) > 72)
+        hud.draw_image(247, 0, "POWBAR08")
+else
+    if (player.power_left(player.NIGHT_VIS) > 66)
+        hud.draw_image(247, 0, "POWBAR09")
+else
+    if (player.power_left(player.NIGHT_VIS) > 60)
+        hud.draw_image(247, 0, "POWBAR10")
+else
+    if (player.power_left(player.NIGHT_VIS) > 54)
+        hud.draw_image(247, 0, "POWBAR11")
+else
+    if (player.power_left(player.NIGHT_VIS) > 48)
+        hud.draw_image(247, 0, "POWBAR12")
+else
+    if (player.power_left(player.NIGHT_VIS) > 42)
+        hud.draw_image(247, 0, "POWBAR13")
+else
+    if (player.power_left(player.NIGHT_VIS) > 36)
+        hud.draw_image(247, 0, "POWBAR14")
+else
+    if (player.power_left(player.NIGHT_VIS) > 30)
+        hud.draw_image(247, 0, "POWBAR15")
+else
+    if (player.power_left(player.NIGHT_VIS) > 24)
+        hud.draw_image(247, 0, "POWBAR16")
+else
+    if (player.power_left(player.NIGHT_VIS) > 18)
+        hud.draw_image(247, 0, "POWBAR17")
+else
+    if (player.power_left(player.NIGHT_VIS) > 12)
+        hud.draw_image(247, 0, "POWBAR18")
+else
+    if (player.power_left(player.NIGHT_VIS) > 6)
+        hud.draw_image(247, 0, "POWBAR19")
+else
+    if (player.power_left(player.NIGHT_VIS) > 1)
+        hud.draw_image(247, 0, "POWBAR20")
+
+    if (player.power_left(player.ACID_SUIT) > 57)
+        hud.draw_image(247, 25, "POWBAR01")
+else
+    if (player.power_left(player.ACID_SUIT) > 54)
+        hud.draw_image(247, 25, "POWBAR02")
+else
+    if (player.power_left(player.ACID_SUIT) > 51)
+        hud.draw_image(247, 25, "POWBAR03")
+else
+    if (player.power_left(player.ACID_SUIT) > 48)
+        hud.draw_image(247, 25, "POWBAR04")
+else
+    if (player.power_left(player.ACID_SUIT) > 45)
+        hud.draw_image(247, 25, "POWBAR05")
+else
+    if (player.power_left(player.ACID_SUIT) > 42)
+        hud.draw_image(247, 25, "POWBAR06")
+else
+    if (player.power_left(player.ACID_SUIT) > 39)
+        hud.draw_image(247, 25, "POWBAR07")
+else
+    if (player.power_left(player.ACID_SUIT) > 36)
+        hud.draw_image(247, 25, "POWBAR08")
+else
+    if (player.power_left(player.ACID_SUIT) > 33)
+        hud.draw_image(247, 25, "POWBAR09")
+else
+    if (player.power_left(player.ACID_SUIT) > 30)
+        hud.draw_image(247, 25, "POWBAR10")
+else
+    if (player.power_left(player.ACID_SUIT) > 27)
+        hud.draw_image(247, 25, "POWBAR11")
+else
+    if (player.power_left(player.ACID_SUIT) > 24)
+        hud.draw_image(247, 25, "POWBAR12")
+else
+    if (player.power_left(player.ACID_SUIT) > 21)
+        hud.draw_image(247, 25, "POWBAR13")
+else
+    if (player.power_left(player.ACID_SUIT) > 18)
+        hud.draw_image(247, 25, "POWBAR14")
+else
+    if (player.power_left(player.ACID_SUIT) > 15)
+        hud.draw_image(247, 25, "POWBAR15")
+else
+    if (player.power_left(player.ACID_SUIT) > 12)
+        hud.draw_image(247, 25, "POWBAR16")
+else
+    if (player.power_left(player.ACID_SUIT) > 9)
+        hud.draw_image(247, 25, "POWBAR17")
+else
+    if (player.power_left(player.ACID_SUIT) > 6)
+        hud.draw_image(247, 25, "POWBAR18")
+else
+    if (player.power_left(player.ACID_SUIT) > 3)
+        hud.draw_image(247, 25, "POWBAR19")
+else
+    if (player.power_left(player.ACID_SUIT) > 1)
+        hud.draw_image(247, 25, "POWBAR20")
+
+    if (player.power_left(player.INVIS) > 95)
+        hud.draw_image(247, 50, "POWBAR01")
+else
+    if (player.power_left(player.INVIS) > 90)
+        hud.draw_image(247, 50, "POWBAR02")
+else
+    if (player.power_left(player.INVIS) > 85)
+        hud.draw_image(247, 50, "POWBAR03")
+else
+    if (player.power_left(player.INVIS) > 80)
+        hud.draw_image(247, 50, "POWBAR04")
+else
+    if (player.power_left(player.INVIS) > 75)
+        hud.draw_image(247, 50, "POWBAR05")
+else
+    if (player.power_left(player.INVIS) > 70)
+        hud.draw_image(247, 50, "POWBAR06")
+else
+    if (player.power_left(player.INVIS) > 65)
+        hud.draw_image(247, 50, "POWBAR07")
+else
+    if (player.power_left(player.INVIS) > 60)
+        hud.draw_image(247, 50, "POWBAR08")
+else
+    if (player.power_left(player.INVIS) > 55)
+        hud.draw_image(247, 50, "POWBAR09")
+else
+    if (player.power_left(player.INVIS) > 50)
+        hud.draw_image(247, 50, "POWBAR10")
+else
+    if (player.power_left(player.INVIS) > 45)
+        hud.draw_image(247, 50, "POWBAR11")
+else
+    if (player.power_left(player.INVIS) > 40)
+        hud.draw_image(247, 50, "POWBAR12")
+else
+    if (player.power_left(player.INVIS) > 35)
+        hud.draw_image(247, 50, "POWBAR13")
+else
+    if (player.power_left(player.INVIS) > 30)
+        hud.draw_image(247, 50, "POWBAR14")
+else
+    if (player.power_left(player.INVIS) > 25)
+        hud.draw_image(247, 50, "POWBAR15")
+else
+    if (player.power_left(player.INVIS) > 20)
+        hud.draw_image(247, 50, "POWBAR16")
+else
+    if (player.power_left(player.INVIS) > 15)
+        hud.draw_image(247, 50, "POWBAR17")
+else
+    if (player.power_left(player.INVIS) > 10)
+        hud.draw_image(247, 50, "POWBAR18")
+else
+    if (player.power_left(player.INVIS) > 5)
+        hud.draw_image(247, 50, "POWBAR19")
+else
+    if (player.power_left(player.INVIS) > 1)
+        hud.draw_image(247, 50, "POWBAR20")
+
+    if (player.power_left(player.BERSERK) > 57)
+        hud.draw_image(247, 75, "POWBAR01")
+else
+    if (player.power_left(player.BERSERK) > 54)
+        hud.draw_image(247, 75, "POWBAR02")
+else
+    if (player.power_left(player.BERSERK) > 51)
+        hud.draw_image(247, 75, "POWBAR03")
+else
+    if (player.power_left(player.BERSERK) > 48)
+        hud.draw_image(247, 75, "POWBAR04")
+else
+    if (player.power_left(player.BERSERK) > 45)
+        hud.draw_image(247, 75, "POWBAR05")
+else
+    if (player.power_left(player.BERSERK) > 42)
+        hud.draw_image(247, 75, "POWBAR06")
+else
+    if (player.power_left(player.BERSERK) > 39)
+        hud.draw_image(247, 75, "POWBAR07")
+else
+    if (player.power_left(player.BERSERK) > 36)
+        hud.draw_image(247, 75, "POWBAR08")
+else
+    if (player.power_left(player.BERSERK) > 33)
+        hud.draw_image(247, 75, "POWBAR09")
+else
+    if (player.power_left(player.BERSERK) > 30)
+        hud.draw_image(247, 75, "POWBAR10")
+else
+    if (player.power_left(player.BERSERK) > 27)
+        hud.draw_image(247, 75, "POWBAR11")
+else
+    if (player.power_left(player.BERSERK) > 24)
+        hud.draw_image(247, 75, "POWBAR12")
+else
+    if (player.power_left(player.BERSERK) > 21)
+        hud.draw_image(247, 75, "POWBAR13")
+else
+    if (player.power_left(player.BERSERK) > 18)
+        hud.draw_image(247, 75, "POWBAR14")
+else
+    if (player.power_left(player.BERSERK) > 15)
+        hud.draw_image(247, 75, "POWBAR15")
+else
+    if (player.power_left(player.BERSERK) > 12)
+        hud.draw_image(247, 75, "POWBAR16")
+else
+    if (player.power_left(player.BERSERK) > 9)
+        hud.draw_image(247, 75, "POWBAR17")
+else
+    if (player.power_left(player.BERSERK) > 6)
+        hud.draw_image(247, 75, "POWBAR18")
+else
+    if (player.power_left(player.BERSERK) > 3)
+        hud.draw_image(247, 75, "POWBAR19")
+else
+    if (player.power_left(player.BERSERK) > 1)
+        hud.draw_image(247, 75, "POWBAR20")
+
+    if (player.power_left(player.INVULN) > 42)
+        hud.draw_image(247, 100, "POWBAR01")
+else
+    if (player.power_left(player.INVULN) > 40)
+        hud.draw_image(247, 100, "POWBAR02")
+else
+    if (player.power_left(player.INVULN) > 38)
+        hud.draw_image(247, 100, "POWBAR03")
+else
+    if (player.power_left(player.INVULN) > 36)
+        hud.draw_image(247, 100, "POWBAR04")
+else
+    if (player.power_left(player.INVULN) > 34)
+        hud.draw_image(247, 100, "POWBAR05")
+else
+    if (player.power_left(player.INVULN) > 32)
+        hud.draw_image(247, 100, "POWBAR06")
+else
+    if (player.power_left(player.INVULN) > 30)
+        hud.draw_image(247, 100, "POWBAR07")
+else
+    if (player.power_left(player.INVULN) > 28)
+        hud.draw_image(247, 100, "POWBAR08")
+else
+    if (player.power_left(player.INVULN) > 26)
+        hud.draw_image(247, 100, "POWBAR09")
+else
+    if (player.power_left(player.INVULN) > 24)
+        hud.draw_image(247, 100, "POWBAR10")
+else
+    if (player.power_left(player.INVULN) > 22)
+        hud.draw_image(247, 100, "POWBAR11")
+else
+    if (player.power_left(player.INVULN) > 20)
+        hud.draw_image(247, 100, "POWBAR12")
+else
+    if (player.power_left(player.INVULN) > 18)
+        hud.draw_image(247, 100, "POWBAR13")
+else
+    if (player.power_left(player.INVULN) > 16)
+        hud.draw_image(247, 100, "POWBAR14")
+else
+    if (player.power_left(player.INVULN) > 14)
+        hud.draw_image(247, 100, "POWBAR15")
+else
+    if (player.power_left(player.INVULN) > 12)
+        hud.draw_image(247, 100, "POWBAR16")
+else
+    if (player.power_left(player.INVULN) > 10)
+        hud.draw_image(247, 100, "POWBAR17")
+else
+    if (player.power_left(player.INVULN) > 8)
+        hud.draw_image(247, 100, "POWBAR18")
+else
+    if (player.power_left(player.INVULN) > 6)
+        hud.draw_image(247, 100, "POWBAR19")
+else
+    if (player.power_left(player.INVULN) > 4)
+        hud.draw_image(247, 100, "POWBAR19")
+else
+    if (player.power_left(player.INVULN) > 2)
+        hud.draw_image(247, 100, "POWBAR20")
+else
+    if (player.power_left(player.INVULN) > 1)
+        hud.draw_image(247, 100, "POWBAR20")
+// DOOM NV Goggles time bars
+
+    if (player.power_left(player.GOGGLES) > 114)
+        hud.draw_image(247, 0, "POWBAR01")
+else
+    if (player.power_left(player.GOGGLES) > 108)
+        hud.draw_image(247, 0, "POWBAR02")
+else
+    if (player.power_left(player.GOGGLES) > 102)
+        hud.draw_image(247, 0, "POWBAR03")
+else
+    if (player.power_left(player.GOGGLES) > 96)
+        hud.draw_image(247, 0, "POWBAR04")
+else
+    if (player.power_left(player.GOGGLES) > 90)
+        hud.draw_image(247, 0, "POWBAR05")
+else
+    if (player.power_left(player.GOGGLES) > 84)
+        hud.draw_image(247, 0, "POWBAR06")
+else
+    if (player.power_left(player.GOGGLES) > 78)
+        hud.draw_image(247, 0, "POWBAR07")
+else
+    if (player.power_left(player.GOGGLES) > 72)
+        hud.draw_image(247, 0, "POWBAR08")
+else
+    if (player.power_left(player.GOGGLES) > 66)
+        hud.draw_image(247, 0, "POWBAR09")
+else
+    if (player.power_left(player.GOGGLES) > 60)
+        hud.draw_image(247, 0, "POWBAR10")
+else
+    if (player.power_left(player.GOGGLES) > 54)
+        hud.draw_image(247, 0, "POWBAR11")
+else
+    if (player.power_left(player.GOGGLES) > 48)
+        hud.draw_image(247, 0, "POWBAR12")
+else
+    if (player.power_left(player.GOGGLES) > 42)
+        hud.draw_image(247, 0, "POWBAR13")
+else
+    if (player.power_left(player.GOGGLES) > 36)
+        hud.draw_image(247, 0, "POWBAR14")
+else
+    if (player.power_left(player.GOGGLES) > 30)
+        hud.draw_image(247, 0, "POWBAR15")
+else
+    if (player.power_left(player.GOGGLES) > 24)
+        hud.draw_image(247, 0, "POWBAR16")
+else
+    if (player.power_left(player.GOGGLES) > 18)
+        hud.draw_image(247, 0, "POWBAR17")
+else
+    if (player.power_left(player.GOGGLES) > 12)
+        hud.draw_image(247, 0, "POWBAR18")
+else
+    if (player.power_left(player.GOGGLES) > 6)
+        hud.draw_image(247, 0, "POWBAR19")
+else
+    if (player.power_left(player.GOGGLES) > 1)
+        hud.draw_image(247, 0, "POWBAR20")
+
+    // doomguy_face(0, 166)
+	hud.draw_image(0, 166, "MEDIA0")
+
+if (player.has_key(1))
+    hud.draw_image(  86, 170, "STKEYS0")
+
+if (player.has_key(2))
+    hud.draw_image(  86, 180, "STKEYS1")
+
+if (player.has_key(3))
+    hud.draw_image(  86, 190, "STKEYS2")
+
+if (player.has_key(5))
+    hud.draw_image(  96, 170, "STKEYS3")
+
+if (player.has_key(6))
+    hud.draw_image(  96, 180, "STKEYS4")
+
+if (player.has_key(7))
+    hud.draw_image(  96, 190, "STKEYS5")
+
+    doom_little_ammo2()
+
+    hud.set_alpha(0.1)
+    if (player.has_power(player.ACID_SUIT))
+        hud.draw_image(0, 0, "STSUIT")
+
+    hud.set_alpha(0.7)
+    hud.text_font("BIG_DIGIT")
+
+    if (player.cur_weapon() == "PISTOL")
+    hud.draw_num2( 266, 179, 3, player.ammo(1))
+
+    if (player.cur_weapon() == "SHOTGUN")
+    hud.draw_num2( 266, 179, 3, player.main_ammo(1))
+
+    if (player.cur_weapon() == "SUPERSHOTGUN")
+    hud.draw_num2( 266, 179, 3, player.ammo(2))
+
+    if (player.cur_weapon() == "CHAINGUN")
+    hud.draw_num2( 266, 179, 3, player.main_ammo(1))
+
+    if (player.cur_weapon() == "ROCKET_LAUNCHER")
+    hud.draw_num2( 266, 179, 3, player.main_ammo(1))
+
+    if (player.cur_weapon() == "PLASMA_RIFLE")
+    hud.draw_num2( 266, 179, 3, player.main_ammo(1))
+
+    if (player.cur_weapon() == "BFG9000")
+    hud.draw_num2( 266, 179, 3, player.main_ammo(1))
+
+   if (player.health() < 35)
+        hud.text_color(hud.RED)
+    else
+    if (player.health() < 65)
+        hud.text_color(hud.YELLOW)
+    else
+    if (player.health() < 200)
+        hud.text_color(hud.GREEN)
+    else
+        hud.text_color(hud.BLUE)
+
+hud.draw_num2(78, 179, 3, player.health()) // 100
+
+    hud.text_color(hud.NO_COLOR)
+
+    if (player.total_armor() > 100)
+        hud.text_color(hud.BLUE)
+    else
+    if (player.total_armor() > 200)
+        hud.text_color(hud.YELLOW)
+    else
+    if (player.total_armor() > 300)
+        hud.text_color(hud.RED)
+    else
+        hud.text_color(hud.GREEN)
+
+    hud.draw_num2(316, 179, 3, player.total_armor())
+
+    hud.text_color(hud.NO_COLOR)
+
+    hud.text_font("DOOM")
+    hud.text_color(hud.WHITE)
+    hud.draw_text(34, 170, "HEALTH")
+    hud.draw_text(274, 170, "ARMOR")
+
+    if (player.cur_weapon() == "PISTOL")
+    hud.draw_text(227, 170, "AMMO")
+
+    if (player.cur_weapon() == "SHOTGUN")
+    hud.draw_text(227, 170, "AMMO")
+
+    if (player.cur_weapon() == "SUPERSHOTGUN")
+    hud.draw_text(227, 170, "AMMO")
+
+    if (player.cur_weapon() == "CHAINGUN")
+    hud.draw_text(227, 170, "AMMO")
+
+    if (player.cur_weapon() == "ROCKET_LAUNCHER")
+    hud.draw_text(227, 170, "AMMO")
+
+    if (player.cur_weapon() == "PLASMA_RIFLE")
+    hud.draw_text(227, 170, "AMMO")
+
+    if (player.cur_weapon() == "BFG9000")
+    hud.draw_text(227, 170, "AMMO")
+
+}
+
 function doom_automap() =
 {
     // Background is already black, only need to use 'solid_box'
@@ -806,6 +1297,26 @@ function draw_all() =
         doom_status_bar()
     else if (which == 2)
         doom_overlay_status()
+
+    edge_air_bar()
+	// message_ticker()
+}
+
+function draw_split() =
+{
+    hud.coord_sys(320, 200)
+    hud.grab_times()
+
+
+    if (hud.check_automap())
+    {
+        doom_automap()
+        return
+    }
+	
+        hud.render_world(0, 0, 320, 200)
+
+        doom_splitscreen_status()
 
     edge_air_bar()
 	// message_ticker()
