@@ -348,3 +348,23 @@ function draw_all() =
 
     edge_air_bar()
 }
+
+function draw_split() =
+{
+    hud.coord_sys(320, 200)
+    hud.grab_times()
+
+
+    if (hud.check_automap())
+    {
+        doom_automap()
+        return
+    }
+	
+        hud.render_world(0, 0, 320, 200)
+
+        heretic_overlay_status()
+
+    edge_air_bar()
+	// message_ticker()
+}

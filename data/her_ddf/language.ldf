@@ -1,7 +1,7 @@
 //
 //    EDGE LANGUAGE.LDF -redefine or add new messages.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 6.1
+//    DDF Version 7
 //
 
 <LANGUAGES>
@@ -668,11 +668,11 @@ SpiderMastermindName="THE SPIDER MASTERMIND";
 ZombiemanName=       "ZOMBIEMAN";
 
 Notice=
- "==============================================================================\n"
- " This is EDGE: a project that is based upon the Doom Source Code released by  \n"
- " John Carmack of Id Software in December 1997. The work on this project is    \n"
- " designed, and implemented by the EDGE Team (http://edge.sourceforge.net/).    \n"
- "==============================================================================\n";
+  "_________________________________\n"
+ "		3DGE Engine	           \n"
+ "   (C) Isotope SoftWorks		   \n"
+ "	http://3dfxdev.net/edgewiki	   \n"
+ "____Licensed under the GPLv2____ \n";
 
 JoystickCentre= "CENTRE the joystick\n\npress a key.";
 JoystickTL=     "Push the joystick to the UPPER LEFT corner\n\npress a key.";
@@ -781,7 +781,8 @@ OptMultiplayTalk="Multiplay Talk";
 
 Controls="Setup Standard Doom Controls";
 Controls2="Setup Extended EDGE Controls";
-VideoOptions="Setup Translucency, Resolutions, etc...";
+VideoOptions="Setup detail level, smoothing, etc...";
+AdvancedOptions="Set OpenGL, lights, render effects...";
 SoundOptions="Setup Volume, Frequency, Stereo, etc...";
 GameplayOptions="Setup Respawn, Gravity, 3D Options etc...";
 AnalogueOptions="Setup mouse and joystick options";
@@ -796,7 +797,7 @@ Gravity="Changes the global gravity setting";
 Blood="Enables extra gore mode...";
 True3d="Enables jumping over things, flight etc...";
 
-ChangeRes="Sets Screen resolution, hicolour mode";
+ChangeRes="Sets Screen resolution and color depth";
 
 QuitMsg1="please don't leave, there's more\ndemons to toast!";
 QuitMsg2="let's beat it -- this is turning\ninto a bloodbath!";
@@ -821,7 +822,7 @@ QuitSnd1="pldeth";
 QuitSnd2="dmpain";
 QuitSnd3="popain";
 QuitSnd4="slop";
-QuitSnd5="telept";
+QuitSnd5="dssecret";
 QuitSnd6="posit1";
 QuitSnd7="posit3";
 QuitSnd8="sgtatk";
@@ -878,3 +879,13 @@ idbot="idbot";
 idtst="idtst";
 BotSpawn="Death Bot Spawn Detected...";
 idhom="idhom";
+// ---- DEBUGGING MENU STRINGS -----
+StretchWorld="Scales screen pitch for pixel stretching.";
+SpriteScale="Closer match sprites to Doom aspect ratio.";
+BusyWait="Network:(Default ON)";
+Lerping="Unlocks framerate beyond 35FPS...";
+VideoSync="Use 'r_vsync' in console to finely control (0-3)";
+OpenGL="OpenGL mode (OFF = OpenGL 1.X, ON = OpenGL 3)";
+DynaLight="Enables Dynamic Lights";
+MD5Scale="Sets global MD5 model scale, default is 5";
+showhom="Useful feature to debug HOMS on-the-fly";
