@@ -28,8 +28,8 @@ QuickLoad="do you want to quickload the game named\n\n'%s'?\n\npress y or n.";
 NewNetGame="you can't start a new game\n"
            "while in a network game.\n\npress a key.";
 		   
-NewSplitGame="please quit to the title screen before\n"
-           "starting splitscreen! Options -> End Game\n"
+NewSplitGame="you can't start a splitscreen game\n"
+           "while in a normal game! End the game\n"
 		   "first.\n\npress a key.";
 		   
 EpisodeNonExist="You don't have this episode!\n\npress a key.";
@@ -625,7 +625,7 @@ QuitSnd1="pldeth";
 QuitSnd2="dmpain";
 QuitSnd3="popain";
 QuitSnd4="slop";
-QuitSnd5="telept?";
+QuitSnd5="dssecret";
 QuitSnd6="posit1";
 QuitSnd7="posit3";
 QuitSnd8="sgtatk";
@@ -684,9 +684,9 @@ BotSpawn="Death Bot Spawn Detected...";
 idhom="idhom";
 
 // ---- DEBUGGING MENU STRINGS -----
-StretchWorld="Scales screen pitch to account for pixel stretching.";
-SpriteScale="Tries to more faithfully match sprites to original Doom aspect ratio.";
-BusyWait="Network: This can make everything a bit "jerky" (Default ON)";
+StretchWorld="Scales screen pitch for pixel stretching.";
+SpriteScale="Closer match sprites to Doom aspect ratio.";
+BusyWait="Network:(Default ON)";
 Lerping="Unlocks framerate beyond 35FPS...";
 VideoSync="Use 'r_vsync' in console to finely control (0-3)";
 OpenGL="OpenGL mode (OFF = OpenGL 1.X, ON = OpenGL 3)";

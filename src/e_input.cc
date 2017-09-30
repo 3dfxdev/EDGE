@@ -284,6 +284,26 @@ static inline void AddKeyForce(int axis, int upkeys, int downkeys, float qty = 1
 	}
 }
 
+static void UpdateForces1(void)
+{
+	for (int k = 0; k < 6; k++)
+		joy_forces[k] = 0;
+
+	// ---Keyboard---
+
+	AddKeyForce(AXIS_TURN, key_right, key_left);
+	AddKeyForce(AXIS_MLOOK, key_lookup, key_lookdown);
+	AddKeyForce(AXIS_FORWARD, key_up, key_down);
+	// -MH- 1998/08/18 Fly down
+	AddKeyForce(AXIS_FLY, key_flyup, key_flydown);
+	AddKeyForce(AXIS_STRAFE, key_straferight, key_strafeleft);
+
+	// ---Joystick---
+
+	for (int j = 0; j < 6; j++)
+		UpdateJoyAxis(j);
+}
+
 static void UpdateForces(void)
 {
 	for (int k = 0; k < 6; k++)
@@ -369,14 +389,17 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 		bMouseActive = bKeyboardActive = true;
 	}
 
-	if (splitscreen_mode && cmd->player_idx == consoleplayer1)
+	if (splitscreen_mode)
 	{
 
 		E_BuildTiccmd_Other(cmd);
 		return;
 	}
 
-	UpdateForces();
+	if (splitscreen_mode)
+		UpdateForces();
+	else
+		UpdateForces1();
 
 	Z_Clear(cmd, ticcmd_t, 1);
 
@@ -395,6 +418,7 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 	//
 	int t_speed = speed;
 
+
 	if (fabs(joy_forces[AXIS_TURN]) > 0.2f)
 		turnheld++;
 	else
@@ -406,10 +430,20 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 
 	int m_speed = speed;
 
-	if (fabs(ball_deltas[AXIS_MLOOK]) > 0.2f)
-		mlookheld++;
+	if (splitscreen_mode)
+	{
+		if (fabs(ball_deltas[AXIS_MLOOK]) > 0.2f)
+			mlookheld++;
+		else
+			mlookheld = 0;
+	}
 	else
-		mlookheld = 0;
+	{
+		if (fabs(joy_forces[AXIS_MLOOK]) > 0.2f)
+			mlookheld++;
+		else
+			mlookheld = 0;
+	}
 
 	// slow mlook ?
 	if (mlookheld < SLOWTURNTICS && in_stageturn.d)
@@ -440,8 +474,6 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 
 		cmd->mlookturn = I_ROUND(mlook);
 	}
-
-
 
 	// Forward
 	{
