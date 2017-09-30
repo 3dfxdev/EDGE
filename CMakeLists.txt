@@ -364,7 +364,7 @@ set(3DGE_WIN32_SOURCES
 )
 
 set(3DGE_UNIX_SOURCES
-	src/system/unx/unx_main.cc
+    #	src/system/unx/unx_main.cc
 	src/system/unx/unx_music.cc
 	src/system/unx/unx_net.cc
 	src/system/unx/unx_system.cc
