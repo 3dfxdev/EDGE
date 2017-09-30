@@ -389,15 +389,18 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 		bMouseActive = bKeyboardActive = true;
 	}
 
-	if (splitscreen_mode)
+	if (splitscreen_mode && cmd->player_idx == consoleplayer1)
 	{
 
 		E_BuildTiccmd_Other(cmd);
 		return;
 	}
 
-	if (splitscreen_mode)
+	if (splitscreen_mode && cmd->player_idx == consoleplayer1)
+	{
 		UpdateForces();
+		return;
+	}
 	else
 		UpdateForces1();
 
@@ -430,7 +433,7 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 
 	int m_speed = speed;
 
-	if (splitscreen_mode)
+	if (splitscreen_mode && cmd->player_idx == consoleplayer1)
 	{
 		if (fabs(ball_deltas[AXIS_MLOOK]) > 0.2f)
 			mlookheld++;
