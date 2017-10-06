@@ -209,7 +209,7 @@ void MD5_RenderModel(modeldef_c *md, int last_anim, int last_frame,
 	model_mat.SetOrigin(pos);
 
 	//TODO: is there any existing epi::mat4_c rotation/scale code?
-	float ang=-ANG_2_FLOAT(mo->GetInterpolatedAngle())*M_PI/180.0f;
+	float ang=-ANG_2_FLOAT(mo->angle)*M_PI/180.0f;
 	float cos_a=cos(ang);
 	float sin_a=sin(ang);
 

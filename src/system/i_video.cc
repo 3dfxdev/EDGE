@@ -36,7 +36,9 @@
 #include "../m_misc.h"
 #include "../r_modes.h"
 
-extern cvar_c r_width, r_height, r_depth, r_fullscreen, r_vsync;
+extern cvar_c r_width, r_height, r_depth, r_fullscreen;// , r_vsync;
+
+cvar_c r_vsync;
 
 //The window we'll be rendering to
 SDL_Window *my_vis;

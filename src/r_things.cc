@@ -605,7 +605,8 @@ void RGL_DrawWeaponModel(player_t * p)
 
 		last_frame = p->weapon_last_frame;
 
-		lerp = (psp->state->tics - psp->tics + /* 1 + */ N_GetInterpolater()) / (float)(psp->state->tics);
+		//lerp = (psp->state->tics - psp->tics + /* 1 + */ N_GetInterpolater()) / (float)(psp->state->tics);
+		lerp = (psp->state->tics - psp->tics + 1) / (float)(psp->state->tics);
 		lerp = CLAMP(0, lerp, 1);
 	}
 
@@ -972,9 +973,9 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	bool is_model = (mo->state->flags & SFF_Model) ? true:false;
 
 	// transform the origin point
-	//float mx = mo->x, my = mo->y, mz = mo->z;
-	epi::vec3_c mp = mo->GetInterpolatedPosition();
-	float mx = mp.x, my = mp.y, mz = mp.z;
+	float mx = mo->x, my = mo->y, mz = mo->z;
+	//epi::vec3_c mp = mo->GetInterpolatedPosition();
+	//float mx = mp.x, my = mp.y, mz = mp.z;
 
 	MIR_Coordinate(mx, my);
 
@@ -1165,8 +1166,8 @@ static void RGL_DrawModel(drawthing_t *dthing)
 
 		SYS_ASSERT(mo->state->tics > 1);
 
-
-		lerp = (mo->state->tics - mo->tics + /* 1 + */ N_GetInterpolater()) / (float)(mo->state->tics);
+		lerp = (mo->state->tics - mo->tics + 1) / (float)(mo->state->tics);
+		//lerp = (mo->state->tics - mo->tics + /* 1 + */ N_GetInterpolater()) / (float)(mo->state->tics);
 		lerp = CLAMP(0, lerp, 1);
 	}
 

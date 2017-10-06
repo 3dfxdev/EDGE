@@ -320,58 +320,6 @@ int DetermineLowTic(void)
 	return lowtic;
 }
 
-cvar_c r_lerp;
-cvar_c r_maxfps;
-cvar_c r_vsync;
-static bool forwardinterpolate = false;
-static float interpolate_point = 1;
-
-/*
-	=0.0 last frame
-	=0.5 halfway between last and current frame
-	=1.0 current frame
-	>1.0 forward predict
-*/
-float N_CalculateCurrentSubTickPosition(void)
-{
-	//I wonder if there could be issues here if the game has been running for a long time?
-	return ((float)I_GetMillies() / (1000.0f/35.0f)) - (float)last_update_tic;
-}
-
-float N_Interpolate(float previous, float next)
-{
-	return	next*interpolate_point + (previous - previous*interpolate_point);
-}
-
-float N_GetInterpolater(void)
-{
-	return interpolate_point;
-}
-
-void N_ResetInterpolater(void)
-{
-	interpolate_point = 1;
-}
-
-void N_SetInterpolater(void)
-{
-	if (paused || menuactive)
-		return;
-	
-	if (r_lerp.d)
-	{
-		interpolate_point = N_CalculateCurrentSubTickPosition();
-		if (!forwardinterpolate && interpolate_point > 1)
-			interpolate_point = 1;
-		if (interpolate_point < 0)
-			interpolate_point = 0;
-	}
-	else
-	{
-		N_ResetInterpolater();
-	}
-}
-
 int N_TryRunTics(bool *is_fresh)
 {
 	*is_fresh = true;

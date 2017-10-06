@@ -51,7 +51,6 @@ void P_Ticker(void)
 	if (paused)
 		return;
 
-	N_SetInterpolater();
 
 	// pause if in menu and at least one tic has been run
 	if (!netgame && (menuactive || rts_menuactive) &&
@@ -62,7 +61,6 @@ void P_Ticker(void)
 
 	// interpolation: save current sector heights
     ///P_SaveSectorPositions();
-	P_UpdateInterpolationHistory();
 	
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 		if (players[pnum])

@@ -99,7 +99,7 @@ extern cvar_c debug_fullbright, debug_hom;
 extern cvar_c debug_mouse,      debug_joyaxis;
 extern cvar_c debug_fps,        debug_pos;
 
-extern cvar_c r_lerp, r_maxfps, r_vsync;
+extern cvar_c r_vsync;
 extern cvar_c r_shadows;
 extern cvar_c r_md5scale;
 
@@ -219,8 +219,8 @@ cvar_link_t  all_cvars[] =
 	{ "debug_lerp",       &debug_testlerp,   "c", "0"},
 
 	{ "r_md5scale",        &r_md5scale,        "c", "0" },
-	{ "r_lerp",        &r_lerp,        "c", "1" },
-	{ "r_maxfps",        &r_maxfps,        "c", "0" },
+	//{ "r_lerp",        &r_lerp,        "c", "1" },
+	//{ "r_maxfps",        &r_maxfps,        "c", "0" },
 	{ "r_vsync",           &r_vsync,        "c", "0" },
 	{ "r_bloom",           &r_bloom,        "c", "1" },
 	{ "r_bloom_amount",    &r_bloom_amount, "c", "1.24" },

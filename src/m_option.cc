@@ -111,7 +111,7 @@ int option_menuon = 0;
 extern cvar_c m_language;
 extern cvar_c r_crosshair;
 extern cvar_c r_crosssize;
-extern cvar_c r_lerp;
+//extern cvar_c r_lerp;
 extern cvar_c r_gl3_path;
 extern cvar_c r_md5scale;
 extern cvar_c debug_pos;
@@ -456,7 +456,7 @@ static optmenuitem_t advancedoptions[] =
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Boolean, "Video Sync",   Lerp,   3, &r_vsync, NULL, "Check value in console with 'r_vsync'"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{OPT_Switch,  "Interpolation",    YesNo,   2, &r_lerp, NULL, "Frame Prediction"},
+	//{OPT_Switch,  "Interpolation",    YesNo,   2, &r_lerp, NULL, "Frame Prediction"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },

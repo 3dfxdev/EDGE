@@ -621,25 +621,6 @@ void E_Display(void)
 	if (nodrawers)
 		return;  // for comparative timing / profiling
 
-#if 0
-	if (debug_testlerp.d > 0)
-	{
-		//tapamn check fps
-		static int last = 0;
-		int now = I_GetMillies();
-		CON_Printf("T: %f\n", 1.0f / ((now - last) / 1000.0f));
-		last = now;
-	}
-#endif // 0
-
-	//CA 9.27.17:
-	//Interpolator is now set in P_Tick (which should improve rendering hitches)
-	//N_SetInterpolater();
-#if 0
-	//tapamn check interpolater value
-	I_Printf("I: %f\n", N_GetInterpolater());
-#endif
-
 	// Start the frame - should we need to.
 	I_StartFrame();
 
@@ -1962,6 +1943,13 @@ void E_Main(int argc, const char **argv)
 	{
 		E_Startup();
 
+#if 0
+#if 1
+		I_PlayMovie("video.ogv");
+#endif  
+#endif // 0
+
+
 		E_InitialState();
 
 		CON_MessageColor(RGB_MAKE(255, 255, 0));
@@ -2015,50 +2003,7 @@ void E_Tick(void)
 
 	G_BigStuff();
 
-#if 0
-	static int ticker = 70;
-	ticker--;
-	if (ticker == 0) {
-		extern cvar_c r_lerp;
-
-		ticker = 70;
-		r_lerp.d = !r_lerp.d;
-		CON_Message("Interp: %i\n", r_lerp.d);
-	}
-#endif
-	// Update display, next frame, with current state.
-	// Render frames until it's time to run a gametic
-	// Measure frame length in order to avoid
-	float interpstart = 0, interpdiff = 0;
-	static int nextframe = 0;
-	do {
-		interpstart += interpdiff;
-
-		extern cvar_c r_maxfps;
-
-		if (r_maxfps.d > 0) 
-		{
-			while (I_GetMillies() < nextframe) 
-			{
-				//just in case someone plays for over 24 days and nextframe/getmillies overflow
-				if ((nextframe - I_GetMillies()) > 1000)
-					break;
-			}
-			nextframe = I_GetMillies() + 1000.0f / r_maxfps.f;
-		}
-
-		N_SetInterpolater();
-		E_Display();
-
-		extern float N_CalculateCurrentSubTickPosition(void);
-
-		interpdiff = N_CalculateCurrentSubTickPosition() - interpstart;
-		//interpdiff = N_GetInterpolater() - interpstart;
-
-		//if (start of frame time + time to render frame + predicted next frame render time) > 1 whole gametic, stop rendering
-		//predicted next frame render time is the render time of the previous frame
-		//TODO maybe predicted time should be event processing time?
-	} while ((interpstart + 2 * interpdiff) <  0.98);
+	E_Display();
 
 	bool fresh_game_tic;
 

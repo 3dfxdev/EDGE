@@ -168,7 +168,8 @@ public:
 	float x, y, z;
 };
 
-
+#if 0
+// Kept this at an IFDEF so you remember that model_skin, model_last_frame, and model_animfile also need tic handling =)
 typedef struct last_tic_render_s last_tic_render_t;
 
 struct last_tic_render_s : public position_c
@@ -180,6 +181,8 @@ struct last_tic_render_s : public position_c
 	int model_last_frame;
 	short model_animfile;
 };
+
+#endif // 0
 
 typedef struct dlight_state_s
 {
@@ -342,8 +345,6 @@ struct mobj_s : public position_c
 
 	vec3_t lerp_from; /// previous position for interpolation
 
-	last_tic_render_t lastticrender;
-
 	// touch list: sectors this thing is in or touches
 	struct touch_node_s *touch_sectors;
 
@@ -376,11 +377,6 @@ public:
 	void SetAboveMo(mobj_t *ref);
 	void SetBelowMo(mobj_t *ref);
 	void SetRealSource(mobj_t *ref);
-
-	void UpdateLastTicRender(void);
-	epi::vec3_c GetInterpolatedPosition(void);
-	float GetInterpolatedAngle(void);
-	float GetInterpolatedVertAngle(void);
 
 	void ClearStaleRefs();
 };

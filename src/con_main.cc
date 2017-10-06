@@ -449,8 +449,8 @@ int CMD_AddCameraMan(char **argv, int argc)
 			float x = hero->mo->x;
 			float y = hero->mo->y;
 			float z = hero->mo->z + hero->viewz;
-			float ax = hero->mo->GetInterpolatedVertAngle();
-			float ay = hero->mo->GetInterpolatedAngle();
+			float ax = hero->mo->vertangle;
+			float ay = hero->mo->angle;
 			float fov = atof(argv[1]);
 
 			int id = cameraman::Add(x, y, z, ax, ay, fov);
@@ -557,8 +557,8 @@ int CMD_SetCameraManAngles(char **argv, int argc)
 		if (player_t *hero = players[0])
 		{
 			int id = atoi(argv[1]);
-			float ax = hero->mo->GetInterpolatedVertAngle();
-			float ay = hero->mo->GetInterpolatedAngle();
+			float ax = hero->mo->vertangle;
+			float ay = hero->mo->angle;
 			return cameraman::SetAngles(id, ax, ay);
 		}
 	}

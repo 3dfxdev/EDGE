@@ -1299,12 +1299,12 @@ void MD2_RenderModel(md2_model_c *md, const skindef_c *skin,bool is_weapon,
 
 	bool tilt = is_weapon || (mo->flags & MF_MISSILE) || (mo->hyperflags & HF_TILT);
 
-	//M_Angle2Matrix(tilt ? ~mo->vertangle : 0, &data.kx_mat, &data.kz_mat);
-	M_Angle2Matrix(tilt ? ~(angle_t)mo->GetInterpolatedVertAngle() : 0, &data.kx_mat, &data.kz_mat);
+	M_Angle2Matrix(tilt ? ~mo->vertangle : 0, &data.kx_mat, &data.kz_mat);
+	//M_Angle2Matrix(tilt ? ~(angle_t)mo->GetInterpolatedVertAngle() : 0, &data.kx_mat, &data.kz_mat);
 
 
-	//angle_t ang = mo->angle;
-	angle_t ang = mo->GetInterpolatedAngle();
+	angle_t ang = mo->angle;
+	//angle_t ang = mo->GetInterpolatedAngle();
 
 	MIR_Angle(ang);
 

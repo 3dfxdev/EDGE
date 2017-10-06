@@ -233,8 +233,6 @@ typedef struct sector_s
 {
 	// floor and ceiling heights
 	float f_h, c_h;
-	// last gametic floor and ceiling heights, for interpolation
-	float lf_h, lc_h;
 
 	surface_t floor, ceil;
 

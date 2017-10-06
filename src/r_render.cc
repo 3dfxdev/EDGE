@@ -64,29 +64,9 @@
 #define DOOM_YSLOPE       (0.525)
 #define DOOM_YSLOPE_FULL  (0.625)
 
-extern float G_CircularLerp(float start, float end, float value);
+//extern float G_CircularLerp(float start, float end, float value);
 
 bool RGL_OcclusionTestLine(double x1, double y1, double x2, double y2, angle_t &sx1, angle_t &sx2);
-
-static inline float SecLerpedCeil(sector_t *sec)
-{
-	return N_Interpolate(sec->lc_h, sec->c_h);
-}
-
-static inline float SecLerpedFloor(sector_t *sec)
-{
-	return N_Interpolate(sec->lf_h, sec->f_h);
-}
-
-static inline float ExFloorLerpedBottom(extrafloor_t *exf)
-{
-	return N_Interpolate(exf->last_bottom_h, exf->bottom_h);
-}
-
-static inline float ExFloorLerpedTop(extrafloor_t *exf)
-{
-	return N_Interpolate(exf->last_top_h, exf->top_h);
-}
 
 // #define DEBUG_GREET_NEIGHBOUR
 
@@ -980,8 +960,8 @@ static inline void GreetNeighbourSector(float *hts, int& num,
 		//TODO LERP ME
 		sector_t *sec = sectors + seclist->sec[k/2];
 
-		//float h = (k & 1) ? sec->c_h : sec->f_h;
-		float h = (k & 1) ? SecLerpedCeil(sec) : SecLerpedFloor(sec);
+		float h = (k & 1) ? sec->c_h : sec->f_h;
+		//float h = (k & 1) ? SecLerpedCeil(sec) : SecLerpedFloor(sec);
 
 		// does not intersect current height range?
 		if (h <= hts[0]+0.1 || h >= hts[num-1]-0.1)
@@ -1462,8 +1442,16 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 	sec = sd->sector;
 	other = sidenum ? ld->frontsector : ld->backsector;
 
-	float secfh = SecLerpedFloor(sec);
-	float secch = SecLerpedCeil(sec);
+	//float secfh = SecLerpedFloor(sec);
+	//float secch = SecLerpedCeil(sec);
+
+	float secfh = sec->f_h;
+	if (sec->f_slope)
+		secfh += MIN(sec->f_slope->dz1, sec->f_slope->dz2);
+
+	float secch = sec->c_h;
+	if (sec->c_slope)
+		secch += MAX(sec->c_slope->dz1, sec->c_slope->dz2);
 
 	if (! other)
 	{
@@ -1495,12 +1483,15 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 	float slope_fh = secfh;
 	if (sec->f_slope)
 		slope_fh += MIN(sec->f_slope->dz1, sec->f_slope->dz2);
+
 	float slope_ch = secch;
 	if (sec->c_slope)
 		slope_ch += MAX(sec->c_slope->dz1, sec->c_slope->dz2);
 
-	float otherfh = SecLerpedFloor(other);
-	float otherch = SecLerpedCeil(other);
+	//FIXME: Not even sure if this is correct, they used to return SecLerpedFloor(other) and SecLerpedCeil(other)
+	//return N_Interpolate(sec->lc_h, sec->c_h); and return N_Interpolate(sec->lf_h, sec->f_h);
+	float otherfh = sec->f_h;
+	float otherch = sec->c_h;
 
 	// handle lower, upper and mid-masker
 
@@ -1616,7 +1607,8 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 
 	while (S || L)
 	{
-		if (!L || (S && ExFloorLerpedBottom(S) < ExFloorLerpedBottom(L)))
+		//if (!L || (S && ExFloorLerpedBottom(S) < ExFloorLerpedBottom(L)))
+		if (!L || (S && S->bottom_h < L->bottom_h))
 		{
 			C = S;  S = S->higher;
 		}
@@ -1630,10 +1622,10 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 		// ignore liquids in the middle of THICK solids, or below real
 		// floor or above real ceiling
 		//
-		float Cbottomh = ExFloorLerpedBottom(C);
-		float Ctoph = ExFloorLerpedTop(C);
+		//float Cbottomh = ExFloorLerpedBottom(C);
+		//float Ctoph = ExFloorLerpedTop(C);
 
-		if (Cbottomh < floor_h || Cbottomh > otherch)
+		if (C->bottom_h < floor_h || C->bottom_h > other->c_h)
 			continue;
 
 		if (C->ef_info->type & EXFL_Thick)
@@ -1659,24 +1651,24 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 				continue;
 
 			tex_z = (C->ef_line->flags & MLF_LowerUnpegged) ?
-				Cbottomh + IM_HEIGHT_SAFE(surf->image) : Ctoph;
+				C->bottom_h + IM_HEIGHT_SAFE(surf->image) : C->top_h;
 
 			sector_t *csec = C->ef_line->frontsector;
 			if (csec->f_slope || csec->c_slope)
 			{
-				float lz1 = Ctoph + (csec->c_slope ? Slope_GetHeight(csec->c_slope, seg->v1->x, seg->v1->y) : 0);
-				float rz1 = Ctoph + (csec->c_slope ? Slope_GetHeight(csec->c_slope, seg->v2->x, seg->v2->y) : 0);
+				float lz1 = /*Ctoph + */(csec->c_slope ? Slope_GetHeight(csec->c_slope, seg->v1->x, seg->v1->y) : 0);
+				float rz1 = /*Ctoph + */(csec->c_slope ? Slope_GetHeight(csec->c_slope, seg->v2->x, seg->v2->y) : 0);
 
-				float lz2 = Cbottomh + (csec->f_slope ? Slope_GetHeight(csec->f_slope, seg->v1->x, seg->v1->y) : 0);
-				float rz2 = Cbottomh + (csec->f_slope ? Slope_GetHeight(csec->f_slope, seg->v2->x, seg->v2->y) : 0);
+				float lz2 =/*Cbottomh + */(csec->f_slope ? Slope_GetHeight(csec->f_slope, seg->v1->x, seg->v1->y) : 0);
+				float rz2 = /*Cbottomh + */(csec->f_slope ? Slope_GetHeight(csec->f_slope, seg->v2->x, seg->v2->y) : 0);
 
 				AddWallTile2(seg, dfloor, surf, lz1, lz2, rz1, rz2, tex_z, 0);
 			}
 			else
-				AddWallTile(seg, dfloor, surf, Cbottomh, Ctoph, tex_z, flags, Cbottomh, Ctoph);
+				AddWallTile(seg, dfloor, surf, C->bottom_h, C->top_h, tex_z, flags, f_min, c_max);
 		}
 
-		floor_h = Ctoph;
+		floor_h = C->top_h;
 	}
 }
 
@@ -1997,35 +1989,26 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 
 
 	// -AJA- 2004/04/21: Emulate Flat-Flooding TRICK
-	if (! debug_hom.d && solid_mode && dfloor->is_lowest &&
-		sd->bottom.image == NULL && cur_seg->back_sub)
+	if (!debug_hom.d && solid_mode && dfloor->is_lowest &&
+		sd->bottom.image == NULL && cur_seg->back_sub &&
+		cur_seg->back_sub->sector->f_h > cur_seg->front_sub->sector->f_h &&
+		cur_seg->back_sub->sector->f_h < viewz)
 	{
-		float frontf = SecLerpedFloor(cur_seg->front_sub->sector);
-		float backf = SecLerpedFloor(cur_seg->back_sub->sector);
-		//frontf = N_Interpolate(cur_seg->front_sub->sector->lf_h, frontf);
-		//backf = N_Interpolate(cur_seg->back_sub->sector->lf_h, backf);
-
-
-		if (backf > frontf && backf < viewz)
-		{
-			EmulateFloodPlane(dfloor, cur_seg->back_sub->sector, +1,
-				frontf,	backf);
-		}
+		EmulateFloodPlane(dfloor, cur_seg->back_sub->sector, +1,
+			cur_seg->front_sub->sector->f_h,
+			cur_seg->back_sub->sector->f_h);
 	}
 
-	if (! debug_hom.d && solid_mode && dfloor->is_highest &&
-		sd->top.image == NULL && cur_seg->back_sub)
+	if (!debug_hom.d && solid_mode && dfloor->is_highest &&
+		sd->top.image == NULL && cur_seg->back_sub &&
+		cur_seg->back_sub->sector->c_h < cur_seg->front_sub->sector->c_h &&
+		cur_seg->back_sub->sector->c_h > viewz)
 	{
-		float frontc = SecLerpedCeil(cur_seg->front_sub->sector);
-		float backc = SecLerpedCeil(cur_seg->back_sub->sector);
-		//frontc = N_Interpolate(cur_seg->front_sub->sector->lc_h, frontc);
-		//backc = N_Interpolate(cur_seg->back_sub->sector->lc_h, backc);
-		if (backc < frontc && backc > viewz)
-		{
-			EmulateFloodPlane(dfloor, cur_seg->back_sub->sector, -1,
-				backc, frontc);
-		}
+		EmulateFloodPlane(dfloor, cur_seg->back_sub->sector, -1,
+			cur_seg->back_sub->sector->c_h,
+			cur_seg->front_sub->sector->c_h);
 	}
+	
 }
 
 
@@ -2734,10 +2717,10 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 }
 
 static inline void AddNewDrawFloor(drawsub_c *dsub, extrafloor_t *f_ef,
-								   extrafloor_t *c_ef,
-								   float f_h, float c_h, float top_h,
-								   surface_t *floor, surface_t *ceil,
-								   region_properties_t *props)
+	extrafloor_t *c_ef,
+	float f_h, float c_h, float top_h,
+	surface_t *floor, surface_t *ceil,
+	region_properties_t *props)
 {
 	drawfloor_t *dfloor;
 
@@ -2854,8 +2837,8 @@ static void RGL_WalkSubsector(int num)
 
 	// add in each extrafloor, traversing strictly upwards
 	floor_s = &sector->floor;
-	//floor_h = sector->f_h;
-	floor_h = SecLerpedFloor(sector); //N_Interpolate(sector->lf_h, sector->f_h);
+	floor_h = sector->f_h;
+	//floor_h = SecLerpedFloor(sector); //N_Interpolate(sector->lf_h, sector->f_h);
 	F = NULL;
 
 	S = sector->bottom_ef;
@@ -2868,7 +2851,7 @@ static void RGL_WalkSubsector(int num)
 		floor_s = &boom_ef->ef_line->frontsector->floor;
 
 
-	float secceil = SecLerpedCeil(sector);
+	float secceil = sector->c_h;
 
 	while (S || L)
 	{
@@ -2885,13 +2868,9 @@ static void RGL_WalkSubsector(int num)
 
 		// ignore liquids in the middle of THICK solids, or below real
 		// floor or above real ceiling
-		//
-		//if (N_Interpolate(C->last_bottom_h, C->bottom_h) < floor_h || C->bottom_h > sector->c_h)
-		float cboth = ExFloorLerpedBottom(C), ctoph = ExFloorLerpedTop(C);
-		//float cboth = C->bottom_h;
-		//float ctoph = C->top_h;
-		//cboth = N_Interpolate(C->last_bottom_h, cboth);
-		//ctoph = N_Interpolate(C->last_top_h, ctoph);
+
+		float cboth = C->bottom_h;
+		float ctoph = C->top_h;
 
 		if (cboth < floor_h || cboth > secceil)
 			continue;
@@ -2906,15 +2885,15 @@ static void RGL_WalkSubsector(int num)
 
 		F = C;
 		floor_s = C->top;
-		floor_h = ctoph;
+		floor_h = C->top_h;
 	}
 
 	// -AJA- 2004/04/22: emulate the Deep-Water TRICK (above too)
 	bool de_f = (cur_sub->deep_ref && K->floors.size() == 0);
 	bool de_c = (cur_sub->deep_ref != NULL);
 
-	float ceilh = de_c ? SecLerpedCeil(cur_sub->deep_ref) : SecLerpedCeil(sector);
-	//float ceilh = de_c ? cur_sub->deep_ref->c_h : sector->c_h;
+	//float ceilh = de_c ? SecLerpedCeil(cur_sub->deep_ref) : SecLerpedCeil(sector);
+	float ceilh = de_c ? cur_sub->deep_ref->c_h : sector->c_h;
 	//ceilh = N_Interpolate(de_c ? cur_sub->deep_ref->lc_h : sector->lc_h, ceilh);
 
 	AddNewDrawFloor(K, F, NULL,
@@ -3016,11 +2995,11 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 
 	float x1 = mir->seg->v1->x;
 	float y1 = mir->seg->v1->y;
-	float z1 = SecLerpedFloor(ld->frontsector);
+	float z1 = ld->frontsector->f_h;
 
 	float x2 = mir->seg->v2->x;
 	float y2 = mir->seg->v2->y;
-	float z2 = SecLerpedCeil(ld->frontsector);
+	float z2 = ld->frontsector->c_h;
 
 	MIR_Coordinate(x1, y1);
 	MIR_Coordinate(x2, y2);
@@ -3073,11 +3052,11 @@ static void DrawPortalPolygon(drawmirror_c *mir)
 	// get polygon coordinates
 	float x1 = mir->seg->v1->x;
 	float y1 = mir->seg->v1->y;
-	float z1 = SecLerpedFloor(ld->frontsector);
+	float z1 = ld->frontsector->f_h;
 
 	float x2 = mir->seg->v2->x;
 	float y2 = mir->seg->v2->y;
-	float z2 = SecLerpedCeil(ld->frontsector);
+	float z2 = ld->frontsector->c_h;
 
 
 	MIR_Coordinate(x1, y1);
@@ -3216,6 +3195,7 @@ static void DoWeaponModel(void)
 //
 static void RGL_WalkBSPNode(unsigned int bspnum)
 {
+
 	node_t *node;
 
 	// Found a subsector?
@@ -3255,11 +3235,10 @@ static void RGL_WalkBSPNode(unsigned int bspnum)
 	if (RGL_CheckBBox(node->bbox[side]))
 		RGL_WalkBSPNode(node->children[side]);
 
-
-
 	// Recursively divide back space.
 	if (RGL_CheckBBox(node->bbox[side ^ 1]))
 		RGL_WalkBSPNode(node->children[side ^ 1]);
+
 }
 
 void RenderPolyBSPNode(unsigned int bspnum)
@@ -3488,8 +3467,8 @@ namespace cameraman
 				interp->y = cam0->y + t * (cam1->y - cam0->y);
 				interp->z = cam0->z + t * (cam1->z - cam0->z);
 				interp->fov = cam0->fov + t * (cam1->fov - cam0->fov);
-				interp->viewangle = G_CircularLerp(cam0->viewangle, cam1->viewangle, t);
-				interp->viewvertangle = G_CircularLerp(cam0->viewvertangle, cam1->viewvertangle, t);
+				interp->viewangle = cam0->viewangle;
+				interp->viewvertangle = cam0->viewvertangle;
 				interp->valid = 1;
 				return interp;
 			}
@@ -3613,8 +3592,8 @@ namespace cameraman
 				cam->x = x;
 				cam->y = y;
 				cam->z = z;
-				cam->viewangle = G_CircularLerp(0, ay, 1.0f);
-				cam->viewvertangle = G_CircularLerp(0, ax, 1.0f);
+				cam->viewangle = 0, ay, 1.0f;
+				cam->viewvertangle = 0, ax, 1.0f;
 				cam->fov = fov;
 
 				++g_count;
@@ -3631,8 +3610,8 @@ namespace cameraman
 						cam->x = x;
 						cam->y = y;
 						cam->z = z;
-						cam->viewangle = G_CircularLerp(0, ay, 1.0f);
-						cam->viewvertangle = G_CircularLerp(0, ax, 1.0f);
+						cam->viewangle = 0, ay, 1.0f;
+						cam->viewvertangle = 0, ax, 1.0f;
 						cam->fov = fov;
 						return i;
 					}
@@ -3684,8 +3663,8 @@ namespace cameraman
 				cameraman_t *cam = cameramen + id;
 				if (cam->valid > 0)
 				{
-					cam->viewangle = G_CircularLerp(0, ay, 1.0f);
-					cam->viewvertangle = G_CircularLerp(0, ax, 1.0f);
+					cam->viewangle = 0, ay, 1.0f;
+					cam->viewvertangle = 0, ax, 1.0f;
 					return id;
 				}
 			}
@@ -3818,13 +3797,13 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 
 	view_x_slope *= view_expand_w;
 
-	epi::vec3_c vp = mo->GetInterpolatedPosition();
+	//epi::vec3_c vp = mo->GetInterpolatedPosition();
 
-	viewx = vp.x;
-	viewy = vp.y;
-	viewz = vp.z;
-	//viewangle = mo->angle;
-	viewangle = mo->GetInterpolatedAngle();
+	viewx = mo->x;
+	viewy = mo->y;
+	viewz = mo->z;
+	viewangle = mo->angle;
+	//viewangle = mo->GetInterpolatedAngle();
 
 	// Only the view in that case...
 	if (pcman != NULL)
@@ -3845,20 +3824,18 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 			ff_timeout[mo->player->pnum] = 0;
 	}
 
-	extern float N_GetInterpolater(void);
-	float lerpv = N_GetInterpolater();
+	//extern float N_GetInterpolater(void);
+	//float lerpv = N_GetInterpolater();
 	if (!pcman)
 	{
-		if (mo->player)//t*b+(a-a*t)
-	//viewz += mo->player->lastviewz + (mo->player->viewz - mo->player->lastviewz) * N_GetInterpolater();
-			viewz += mo->player->viewz*lerpv + (mo->player->lastviewz - mo->player->lastviewz*lerpv);
+		if (mo->player)
+			viewz += mo->player->viewz;
 		else
 			viewz += mo->height * 9 / 10;
 	}
 
 	viewsubsector = mo->subsector;
-	//viewvertangle = mo->vertangle;
-	viewvertangle = mo->GetInterpolatedVertAngle();
+	viewvertangle = mo->vertangle;
 	view_props = R_PointGetProps(viewsubsector, viewz);
 
 	if (!pcman && mo->player)
@@ -3881,8 +3858,8 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 	// do some more stuff
 	if (pcman != NULL)
 	{
-		viewangle = G_CircularLerp(viewangle, pcman->viewangle, 1.0f);
-		viewvertangle = G_CircularLerp(viewvertangle, pcman->viewvertangle, 1.0f);
+		viewangle = viewangle, pcman->viewangle, 1.0f;
+		viewvertangle = viewvertangle, pcman->viewvertangle, 1.0f;
 	}
 
 	viewsin = M_Sin(viewangle);
