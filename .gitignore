@@ -18,7 +18,7 @@ build
 build2
 releases
 backups
-src/gitinfo.h
+/src/gitinfo.h
 *.dll
 VSLibs
 ffmpeg
