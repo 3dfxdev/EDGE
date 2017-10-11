@@ -17,7 +17,6 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "i_sdlinc.h"
 #include "i_defs_gl.h"
 
 #ifdef WIN32
@@ -27,8 +26,10 @@
 #include <GL/glew.h>
 #endif
 
+#include "i_sdlinc.h"
 
-#include <SDL2/SDL_opengl.h>
+
+#include "system/i_sdlinc.h"
 
 #include <signal.h>
 

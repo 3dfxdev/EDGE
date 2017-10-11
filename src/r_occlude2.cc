@@ -29,7 +29,7 @@
 #include "r_occlude2.h"
 #include "m_bbox.h"
 
-#include <SDL2/SDL_opengl.h>
+#include "system/i_sdlinc.h"
 #include <math.h>
 #include "system/i_video.h"
 #include "r_misc.h"
