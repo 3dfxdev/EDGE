@@ -5,10 +5,8 @@
 #define __WF_RAWDEF_H__
 
 //!!!!!! FIXME:
-#if 0
-#define GAT_PACK  __attribute__ ((packed))
 
-#endif // 0
+
 //
 // structure of the VSWAP file.
 //
@@ -35,7 +33,7 @@ typedef struct raw_shape_s
 raw_shape_t;
 
 //
-// structure of the MAPHEAD file.
+// structure of the MAPHEAD file. Converted this to also include Rise of the Triad.
 //
 typedef struct raw_maphead_s
 {
@@ -45,9 +43,14 @@ typedef struct raw_maphead_s
 
   // offset into GAMEMAPS file where each map header is found.  The
   // list of maps ends when <= 0 is encountered.
-  u32_t offsets[100];// GAT_PACK;
+#pragma pack(push, 1)
+  u32_t offsets[100];
+#pragma pack(pop)
+
+
+  //byte tileinfo[1];
 }
-raw_maphead_t;
+raw_maphead_t; //mapfiletype in ROTT
 
 //
 // structure of the GAMEMAPS file.
@@ -66,7 +69,7 @@ typedef struct raw_gamemap_s
   // name of map
   char name[16];
 }
-raw_gamemap_t;
+raw_gamemap_t; //maptype in ROTT
 
 //
 // structure of the VGAGRAPH file.
