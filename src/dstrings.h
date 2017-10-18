@@ -38,7 +38,18 @@
 #define EDGEWADEXT     "wad"
 #define EDGEPAKEXT     "pak"
 #define EDGEEPKEXT     "epk" // New extension for "Edge PaK"
-#define WOLFDATEXT     "maphead." ///Wolfenstein shit, TODO, figure out data extensions
+
+// Wolfenstein 3D
+#define WOLFDATEXT     "wl6" ///regular Wolfenstein3D extension (in WL6 format!)
+#define WOLFAUDIOHED "audiohed"
+#define WOLFAUDIOT   "audiot"
+#define WOLFGAMEMAPS "gamemaps"
+#define WOLFMAPHEAD  "maphead"
+#define WOLFVGADICT  "vgadict"
+#define WOLFVGAGRAPH "vragraph"
+#define WOLFVGAHEAD  "vgahead"
+#define WOLFVSWAP    "vswap"
+
 
 #define SAVEGAMEBASE   "save"
 #define SAVEGAMEEXT    "esg"
