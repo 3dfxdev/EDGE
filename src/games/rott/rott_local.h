@@ -19,7 +19,9 @@
 #ifndef __ROTT_LOCAL_H__
 #define __ROTT_LOCAL_H__
 
-#include "rott_rawdef.h"
+//#include "rott_data.h"
+#include "rott_defs.h"
+
 #include "../src/r_defs.h"
 
 #include "../epi/image_data.h"

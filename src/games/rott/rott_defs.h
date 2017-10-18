@@ -38,4 +38,57 @@ typedef struct {
 } mapfileinfo_t;
 
 
+/*---------------------------------------------------------------------
+   Map constants
+---------------------------------------------------------------------*/
+
+#define MAXLEVELNAMELENGTH           23
+#define ALLOCATEDLEVELNAMELENGTH     24
+#define NUMPLANES                    3
+#define NUMHEADEROFFSETS             100
+#define MAPWIDTH                     128
+#define MAPHEIGHT                    128
+#define MAP_SPECIAL_TOGGLE_PUSHWALLS 0x0001
+
+#define WALL_PLANE    0
+#define SPRITE_PLANE  1
+#define INFO_PLANE    2
+
+/*---------------------------------------------------------------------
+   Type definitions
+---------------------------------------------------------------------*/
+
+typedef struct
+{
+   unsigned long used;
+   unsigned long CRC;
+   unsigned long RLEWtag;
+   unsigned long MapSpecials;
+   unsigned long planestart[ NUMPLANES ];
+   unsigned long planelength[ NUMPLANES ];
+   char          Name[ ALLOCATEDLEVELNAMELENGTH ];
+} RTLMAP;
+
+
+/*---------------------------------------------------------------------
+   Global variables
+---------------------------------------------------------------------*/
+
+unsigned short *mapplanes[ NUMPLANES ];
+
+
+/*---------------------------------------------------------------------
+   Macros
+---------------------------------------------------------------------*/
+
+#define MAPSPOT( x, y, plane ) \
+   ( mapplanes[ plane ][ MAPWIDTH * ( y ) + ( x ) ] )
+
+#define WALL_AT( x, y )   ( MAPSPOT( ( x ), ( y ), WALL_PLANE ) )
+#define SPRITE_AT( x, y ) ( MAPSPOT( ( x ), ( y ), SPRITE_PLANE ) )
+#define INFO_AT( x, y )   ( MAPSPOT( ( x ), ( y ), INFO_PLANE ) )
+
+int GetWallIndex (int texture);
+
+
 #endif // __ROTT_RAWDEF_H__
