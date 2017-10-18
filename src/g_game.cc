@@ -61,6 +61,10 @@
 #include "vm_coal.h"
 #include "z_zone.h"
 
+#include "games/wolf3d/wlf_local.h"
+#include "games/wolf3d/wlf_rawdef.h"
+
+extern void WF_SetupLevel();
 
 gamestate_e gamestate = GS_NOTHING;
 
@@ -245,7 +249,10 @@ void LoadLevel_Bits(void)
 		players[consoleplayer2]->viewz = FLO_UNUSED;
 
 	leveltime = 0;
-
+	
+	if (wolf3d_mode)
+		WF_SetupLevel();
+	else
 	P_SetupLevel();
 
 	RAD_SpawnTriggers(currmap->name.c_str());
