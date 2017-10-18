@@ -79,6 +79,10 @@
 #include <physfs.h>
 #endif
 
+vswap_info_c vswap;
+
+extern void CreatePlaypal(); //Wolfenstein 3D / Rise of the Triad
+
 // -KM- 1999/01/31 Order is important, Languages are loaded before sfx, etc...
 typedef struct ddf_reader_s
 {
@@ -148,6 +152,9 @@ public:
 	// texture information
 	wadtex_resource_c wadtex;
 
+	// Wolfenstein texture information (basic)
+	raw_vswap_t vv;
+
 	// DeHackEd support
 	int deh_lump;
 
@@ -176,7 +183,7 @@ public:
 		sprite_lumps(), flat_lumps(), patch_lumps(),
 		colmap_lumps(), tx_lumps(), hires_lumps(),
 		level_markers(), skin_markers(),
-		wadtex(), deh_lump(-1), coal_huds(-1),
+		wadtex(), vv(), deh_lump(-1), coal_huds(-1),
 		coal_api(-1), shader_files(-1), animated(-1), switches(-1),
 		companion_gwa(-1), dir_hash()
 	{
@@ -298,6 +305,7 @@ static int cache_size = 0;
 static int palette_datafile = -1;
 // the last datafile which contains a PLAYPAL lump
 static int palette_lastfile = -1;
+
 bool modpalette = false;
 
 // Sprites & Flats
@@ -353,6 +361,7 @@ static bool IsS_END(char *name)
 //
 static bool IsF_START(char *name)
 {
+	//Check DARKWAR first
 	if (strncmp(name, "UPDNSTRT", 8) == 0)
 	{
 		// fix up flag to standard syntax
@@ -499,6 +508,17 @@ static bool IsSkin(const char *name)
 	return (strncmp(name, "S_SKIN", 6) == 0);
 }
 
+// RISE OF THE TRIAD SPECIAL MARKERS
+
+//
+// Is the name a WALLSTRT specifier ?
+//
+static bool IsWALLSTRT(const char *name)
+{
+	return (strncmp(name, "WALLSTRT", 8) == 0);
+	return (strncmp(name, "ANIMSTRT", 8) == 0);
+}
+
 static inline bool IsGL_Prefix(const char *name)
 {
 	return name[0] == 'G' && name[1] == 'L' && name[2] == '_';
@@ -532,6 +552,22 @@ void W_GetTextureLumps(int file, wadtex_resource_c *res)
 		for (cur = file; res->palette == -1 && cur > 0; cur--)
 			res->palette = data_files[cur]->wadtex.palette;
 	}
+}
+
+
+//
+// W_GetWolfTextureLumps
+//
+void W_GetWolfTextureLumps(int file, raw_vswap_t *res)
+{
+	I_Printf("WOLF: Getting Wolf Texture Lumps...\n");
+	WF_VSwapOpen();
+
+	SYS_ASSERT(0 <= file && file < (int)data_files.size());
+	SYS_ASSERT(res);
+
+	data_file_c *df = data_files[file];
+
 }
 
 //
@@ -666,6 +702,7 @@ static void MarkAsCached(lumpheader_t *item)
 	cache_size += W_LumpLength(item->lumpindex);
 }
 
+
 //
 // AddLump/AddLumpEx
 //
@@ -700,6 +737,7 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 
 	// -- handle special names --
 
+
 	if (strncmp(lump_p->name, "PLAYPAL", 8) == 0)
 	{
 		lump_p->kind = LMKIND_WadTex;
@@ -709,6 +747,7 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		palette_lastfile = file;
 		return;
 	}
+
 	else if (strncmp(lump_p->name, "PNAMES", 8) == 0)
 	{
 		lump_p->kind = LMKIND_WadTex;
@@ -914,6 +953,8 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 	}
 }
 
+
+
 static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 	int sort_index, const char *name, bool allow_ddf)
 {
@@ -1043,6 +1084,7 @@ static bool FindCacheFilename(std::string& out_name,
 
 	// Get the directory which the wad is currently stored
 	wad_dir = epi::PATH_GetDir(filename);
+	wolf_dir = epi::PATH_GetDir(filename);
 
 	// Hash string used for files in the cache directory
 	hash_string = epi::STR_Format("-%02X%02X%02X-%02X%02X%02X",
@@ -1130,6 +1172,27 @@ static void LumpNamespace(void *userData, const char *origDir, const char *fname
 		PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
 		return;
 	}
+
+	if (wolf3d_mode)
+	{
+		if (stricmp(fname, "wolf3d") == 0)
+		{
+			// recurse wolf3d subdirectory to TopLevel
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			return;
+		}
+	}
+
+	else if (rott_mode)
+	{
+		if (stricmp(fname, "rott") == 0)
+		{
+			// recurse rott subdirectory to TopLevel
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			return;
+		}
+	}
+	else
 
 	// add lump
 	I_Debugf("    opening lump %s\n", fname);
@@ -1468,6 +1531,24 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "VX_END", 0);
 		}
+		else if (wolf3d_mode)
+		{	// Checks for Global Wolfenstein3D palette (PLAYPAL) instead of palette-byte translation (from SLADE.pk3)
+			if (stricmp(fname, "wolf3d") == 0)
+			{
+				// enumerate all entries in placebo Wolf3d Directory (inside edge2.pak)
+				PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			}
+
+		}
+		else if (rott_mode)
+		{	// Checks for Global Wolfenstein3D palette (PLAYPAL) instead of palette-byte translation (from SLADE.pk3)
+			if (stricmp(fname, "rott") == 0)
+			{
+				// enumerate all entries in placebo Wolf3d Directory (inside edge2.pak)
+				PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			}
+
+		}
 		else if (stricmp(fname, "graphics") == 0)
 		{
 			// enumerate all entries in the graphics directory
@@ -1701,6 +1782,12 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		else
 			I_Printf("No levels in this pack\n");
 
+		if (wolf3d_mode)
+		{
+			I_Printf("WOLF: Read levels from MAPHEAD\n");
+
+			I_Printf("WOLF: Not implemented!\n");
+		}
 		// handle DeHackEd patch files
 		if (df->deh_lump >= 0)
 		{
@@ -1756,12 +1843,74 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		return;
 
 	//First things first: Here, we will call all of the existing functions to open neccesarry Wolf files.
+	// Start FLKIND_ enumeration, eventually starting with MAPHEAD/GAMEMAPS -> VGADICT/VGAGRAPH, VSWAP, 
+
 #if 0
-	if (kind == FLKIND_WL6)
+	if ((kind == FLKIND_VGADICT) && (kind == FLKIND_VGAGRAPH))
 	{
-		return;
+		WF_GraphicsOpen();
+		// First opens Dictionary, Header, and Sizes. Enumerate into image_c *rim class.
+		// compute MD5 hash over wad directory
+		//df->dir_hash.Compute((const byte *)fileinfo, length);
+
+		// Fill in lumpinfo
+		numlumps += header.num_entries;
+		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+
+
+	}
+
+	if (kind == FLKIND_VSWAP)
+	{
+		//I_Printf("WOLF: DETECTED FILEKIND 'WL6'\n!");
+
+		I_Printf("Opening VSWAP...\n");
+
+		vswap.fp = fopen("VSWAP.WL6", "rb");
+		raw_vswap_t vv;
+
+		vswap.first_wall = 0;  // implied
+		vswap.first_sprite = EPI_LE_U16(vv.first_sprite);
+		vswap.first_sound = EPI_LE_U16(vv.first_sound);
+
+		int total_chunks = EPI_LE_U16(vv.total_chunks);
+
+		vswap.num_walls = vswap.first_sprite;
+		vswap.num_sprites = vswap.first_sound - vswap.first_sprite;
+		vswap.num_sounds = total_chunks - vswap.first_sound;
+
+		file->Read(&total_chunks, sizeof(raw_vswap_t));
+		//Now, return the list of stuff here, or we just read in from VSwapOpen() directly.
+
+		vswap.chunks.reserve(total_chunks);
+
+		for (int i = 0; i < total_chunks; i++)
+		{
+			raw_chunk_t CK;
+
+			if (fread(&CK.offset, 4, 1, vswap.fp) != 1)
+				throw "FUCK3";
+
+			CK.offset = EPI_LE_U32(CK.offset);
+
+			vswap.chunks.push_back(CK);
+		}
+
+		for (int i = 0; i < total_chunks; i++)
+		{
+			raw_chunk_t& CK = vswap.chunks[i];
+
+			if (fread(&CK.length, 2, 1, vswap.fp) != 1)
+				throw "FUCK4";
+
+			CK.length = EPI_LE_U16(CK.length);
+
+			L_WriteDebug("[%d] : offset %d, length %d\n", i, CK.offset, CK.length);
+		}
 	}
 #endif // 0
+
+
 
 	if (kind <= FLKIND_HWad)
 	{
@@ -1997,6 +2146,12 @@ void W_InitMultipleFiles(void)
 		raw_filename_c *rf = *it;
 		AddFile(rf->filename.c_str(), rf->kind, -1);
 	}
+
+	for (it = raw_wl6.begin(); it != raw_wl6.end(); it++)
+		{
+			raw_filename_c *rf = *it;
+			AddFile(rf->filename.c_str(), rf->kind, -1);
+		}
 
 	if (numlumps == 0)
 		I_Error("W_InitMultipleFiles: no files found!\n");
