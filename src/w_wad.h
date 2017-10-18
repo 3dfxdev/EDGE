@@ -30,6 +30,8 @@
 
 #include "../epi/file.h"
 #include "../epi/utility.h"
+#include "games/wolf3d/wlf_local.h"
+#include "games/wolf3d/wlf_rawdef.h"
 
 #define Debug_Printf I_Debugf
 
@@ -39,6 +41,17 @@ typedef enum
 	FLKIND_PWad,      // normal .wad file
 	FLKIND_EWad,      // EDGE2.wad
 	FLKIND_GWad,      // glbsp node wad
+
+	FLKIND_WL6,      // .wl6 Wolfenstein datas (needed for mods maybe)
+	FLKIND_VGADICT,   // Wolfenstein VGA Dictionary
+	FLKIND_VSWAP,     // Wolfenstein VSWAP
+	FLKIND_VGAGRAPH,  // Wolfenstein VGRAPH
+	FLKIND_AUDIOHED,  // Wolfenstein AUDIOHED
+	FKLIND_AUDIOT,    // Wolfenstein AudioT
+	FLKIND_GAMEMAPS,  // Wolfenstein GAMEMAPS 
+	FLKIND_MAPHEAD,   // Wolfenstein MAPHEAD
+	FLKIND_RTLMAPS,   // Rise of the Triad DARKWAR.rtl, similar to maphead
+
 	FLKIND_HWad,      // deHacked wad
 	FLKIND_PAK,       // Quake PAK
 	FLKIND_PK3,       // PK3 zip file
@@ -46,15 +59,32 @@ typedef enum
 
 	FLKIND_Lump,      // raw lump (no extension)
 
-	FLKIND_WL6,      // .wl6 Wolfenstein datas
-
-
 	FLKIND_DDF,       // .ddf or .ldf file
 	FLKIND_Demo,      // .lmp demo file
 	FLKIND_RTS,       // .rts script
 	FLKIND_Deh        // .deh or .bex file
 }
 filekind_e;
+
+// Moved Wolfenstein VSWAP class to global wad header, made no sense to keep it confined to wlf_vswap.
+#if 0
+class vswap_info_c
+{
+public:
+	epi::file_c *fp;
+
+	int first_wall, num_walls;
+	int first_sprite, num_sprites;
+	int first_sound, num_sounds;
+
+	std::vector<raw_chunk_t> chunks;
+
+public:
+	vswap_info_c() : fp(NULL) { }
+	~vswap_info_c() { }
+};
+#endif // 0
+
 
 class wadtex_resource_c
 {
@@ -114,6 +144,7 @@ int W_FindFlatSequence(const char *start, const char *end,
     int *s_offset, int *e_offset);
 epi::u32array_c& W_GetListLumps(int file, lumplist_e which);
 void W_GetTextureLumps(int file, wadtex_resource_c *res);
+void W_GetWolfTextureLumps(int file, raw_vswap_t *res);
 void W_ProcessTX_HI(void);
 int W_GetNumFiles(void);
 int W_GetFileForLump(int lump);
