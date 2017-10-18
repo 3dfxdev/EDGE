@@ -219,8 +219,8 @@ void Load_VgaSizes()
 
 	byte *data = GraphReadChunk(0 /* !!! SPECIAL */ , &length);
 
-// fprintf(stderr, "Load_VgaSizes: length %d (num %d) -- chunk num %d\n",
-// length, length / 4, vga_info.num_chunks);
+	I_Printf("Load_VgaSizes: length %d (num %d) -- chunk num %d\n",
+			length, length / 4, vga_info.num_chunks);
 
 //FIXME: handle length/num_chunks mismatch
 
@@ -231,7 +231,7 @@ void Load_VgaSizes()
 	{
 		vga_info.PicSize(i, sz_p);
 
-fprintf(stderr, "PIC[%d] size %dx%d\n", i+MAGIC, vga_info.pics[i].width, vga_info.pics[i].height);
+		I_Printf("PIC[%d] size %dx%d\n", i+MAGIC, vga_info.pics[i].width, vga_info.pics[i].height);
 	}
 
 	delete[] data;
