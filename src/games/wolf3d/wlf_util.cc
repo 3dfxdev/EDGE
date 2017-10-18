@@ -44,7 +44,8 @@ void WF_Carmack_Expand(const byte *source, byte *dest, int length)
 
 			length -= (int)count;
 			if (length < 0)
-				I_Error("CARMACK_EXPAND: OVERFLOW\n");
+				I_Printf("WOLF: CARMACK_EXPAND: OVERFLOW, breaking instead. . .\n");
+				break;//I_Error("CARMACK_EXPAND: OVERFLOW\n");
 
 			for (; count > 0; count--)
 			{
@@ -70,7 +71,7 @@ void WF_Carmack_Expand(const byte *source, byte *dest, int length)
 
 			length -= (int)count;
 			if (length < 0)
-				I_Error("CARMACK_EXPAND: OVERFLOW\n");
+				break;//I_Error("CARMACK_EXPAND: OVERFLOW\n");
 
 			for (; count > 0; count--)
 			{
@@ -95,14 +96,14 @@ void WF_RLEW_Expand(const u16_t *source, u16_t *dest, int length, u16_t rlew_tag
 
 	u16_t *end = dest + (length/2);
 
-for (int k = 0; k < 128; k++)
-{
-L_WriteDebug("%04x%c", source[k], (k%8 == 7) ? '\n' : ' ');
-}
+	//for (int k = 0; k < 128; k++)
+	//	{
+	//		L_WriteDebug("%04x%c", source[k], (k%8 == 7) ? '\n' : ' ');
+	//	}
 
 	while (dest < end)
 	{
-		//!!!! if (source >= src_end) I_Error("RLEW_EXPAND: OUT OF DATA\n");
+		//if (source >= src_end) I_Error("RLEW_EXPAND: OUT OF DATA\n");
 
 		u16_t value = EPI_LE_U16(*source); source++;
 
@@ -123,6 +124,7 @@ L_WriteDebug("%04x%c", source[k], (k%8 == 7) ? '\n' : ' ');
 		}
 	}
 }
+
 
 void WF_Huff_Expand(const byte *source, int src_len, byte *dest, int dest_len,
 				 const huffnode_t *table)
