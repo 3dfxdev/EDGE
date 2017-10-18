@@ -9,6 +9,8 @@
 #include "../epi/image_data.h"
 
 #include "dm_structs.h"
+#include "w_wad.h"
+#include "z_zone.h"
 #include "games/wolf3d/wlf_local.h"
 
 #include "r_image.h"
@@ -125,6 +127,7 @@ void Load_VgaDict()
 		if (node->bit0 > 512 || node->bit1 > 512)
 			throw "BAD VGADICT!";
 	}
+
 }
 
 // FIXME: hack job, use proper EPI function
@@ -194,8 +197,8 @@ byte *GraphReadChunk(int index, int *expanded)
 
 	*expanded = (int)ut_fread_u32(vga_info.fp);
 	
-fprintf(stderr, "GraphReadChunk[%d] : offset 0x%x complen %d expanded %d\n",
-index, vga_info.pics[index].offset, comp_len, *expanded);
+	fprintf(stderr, "GraphReadChunk[%d] : offset 0x%x complen %d expanded %d\n",
+	index, vga_info.pics[index].offset, comp_len, *expanded);
 
 	if (*expanded <= 0) throw "GraphReadChunk fucked";
 
@@ -222,7 +225,7 @@ void Load_VgaSizes()
 	I_Printf("Load_VgaSizes: length %d (num %d) -- chunk num %d\n",
 			length, length / 4, vga_info.num_chunks);
 
-//FIXME: handle length/num_chunks mismatch
+	//FIXME: handle length/num_chunks mismatch
 
 	const raw_picsize_t *sz_p = (raw_picsize_t *) data;
 	length /= sizeof(raw_picsize_t);
@@ -245,7 +248,8 @@ void WF_GraphicsOpen(void)
 }
 
 
-epi::image_data_c *WF_GraphLoadPic(int chunk)
+// Convert to epi -> image_c *rim for handling like DOOM texture data
+epi::image_data_c *WF_GraphLoadPic(int chunk, image_c *rim)
 {
 	int length;
 
