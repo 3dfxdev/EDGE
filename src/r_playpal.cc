@@ -29,7 +29,7 @@ knows how to load the PLAYPAL in. */
 
 #include "games/wolf3d/wlf_local.h"
 
-static GLuint wlf_pal;
+GLuint wlf_pal;
 
 
 const byte wolf_palette[256*3] =
@@ -206,8 +206,10 @@ const byte blake_palette[256*3] =
 //TODO: This routine only creates a PLAYPAL for Wolfenstein 3D,
 //      so it will need to be modified to generate a PLAYPAL
 //		for the other games listed above (including ROTT).
-static void CreatePlaypal(void)
+void CreatePlaypal(void)
 {
+	I_Printf("WOLF: Creating PLAYPAL lump...\n");
+
 	epi::image_data_c *img = new epi::image_data_c(256, 32);
 
 	const byte *src = wolf_palette;
