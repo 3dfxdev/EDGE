@@ -247,6 +247,9 @@ void R_AddGraphicAnim(animdef_c *anim)
 // 
 void W_InitFlats(void)
 {
+	if (wolf3d_mode)
+		return;
+
 	int max_file = W_GetNumFiles();
 	int j, file;
 

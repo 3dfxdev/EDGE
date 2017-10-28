@@ -79,8 +79,6 @@
 #include <physfs.h>
 #endif
 
-vswap_info_c vswap;
-
 extern void CreatePlaypal(); //Wolfenstein 3D / Rise of the Triad
 
 // -KM- 1999/01/31 Order is important, Languages are loaded before sfx, etc...
@@ -145,6 +143,7 @@ public:
 	// level markers and skin markers
 	epi::u32array_c level_markers;
 	epi::u32array_c skin_markers;
+	epi::u32array_c rottraw_markers;
 
 	// ddf lump list
 	int ddf_lumps[NUM_DDF_READERS];
@@ -328,6 +327,24 @@ byte *W_ReadLumpAlloc(int lump, int *length);
 //
 static bool IsS_START(char *name)
 {
+	if (strncmp(name, "GUNSTART", 8) == 0)
+	{
+			// fix up flag to standard syntax
+			// Note: strncpy will pad will nulls
+		I_Printf("ROTT: GUNSTART -> Sprites...\n");
+			strncpy(name, "S_START", 8);
+			return 1;
+	}
+
+	if (strncmp(name, "SHAPSTRT", 8) == 0)
+	{
+		// fix up flag to standard syntax
+		// Note: strncpy will pad will nulls
+		I_Printf("ROTT: SHAPSTRT -> Sprites...\n");
+		strncpy(name, "S_START", 8);
+		return 1;
+	}
+
 	if (strncmp(name, "SS_START", 8) == 0)
 	{
 		// fix up flag to standard syntax
@@ -345,6 +362,24 @@ static bool IsS_START(char *name)
 //
 static bool IsS_END(char *name)
 {
+	if (strncmp(name, "GUNSTART", 8) == 0)
+	{
+		// fix up flag to standard syntax
+		// Note: strncpy will pad will nulls
+		I_Printf("ROTT: GUNSTART -> Sprites...\n");
+		strncpy(name, "S_START", 8);
+		return 1;
+	}
+
+	if (strncmp(name, "SHAPSTOP", 8) == 0)
+	{
+		// fix up flag to standard syntax
+		// Note: strncpy will pad will nulls
+		I_Printf("ROTT: SHAPSTOP -> Sprites list end...\n");
+		strncpy(name, "S_START", 8);
+		return 1;
+	}
+
 	if (strncmp(name, "SS_END", 8) == 0)
 	{
 		// fix up flag to standard syntax
@@ -361,13 +396,75 @@ static bool IsS_END(char *name)
 //
 static bool IsF_START(char *name)
 {
+	if (strncmp(name, "WALLSTRT", 8) == 0)
+	{
+		// fix up flag to standard syntax
+		I_Printf("ROTT: WALLSTRT -> flats\n");
+		strncpy(name, "PP_START", 8);
+		return 1;
+	}
+
+	if (strncmp(name, "ANIMSTRT", 8) == 0)
+	{
+		// fix up flag to standard syntax
+		I_Printf("ROTT: WALLSTRT -> flats\n");
+		strncpy(name, "PP_START", 8);
+		return 1;
+	}
+
+	//Even though it says patches, it is technically a flat
+	if (strncmp(name, "DOORSTRT", 8) == 0)
+	{
+		I_Printf("ROTT: DOORSTRT -> flats\n");
+		// fix up flag to standard syntax
+		strncpy(name, "PP_START", 8);
+		return 1;
+	}
+
+	//Even though it says patches, it is technically a flat
+	if (strncmp(name, "EXITSTRT", 8) == 0)
+	{
+		I_Printf("ROTT: EXITSTRT -> flats\n");
+		// fix up flag to standard syntax
+		strncpy(name, "PP_START", 8);
+		return 1;
+	}
+
+
+	//Even though it says patches, it is technically a flat
+	if (strncmp(name, "ELEVSTRT", 8) == 0)
+	{
+		I_Printf("ROTT: ELEVSTRT -> flats\n");
+		// fix up flag to standard syntax
+		strncpy(name, "PP_START", 8);
+		return 1;
+	}
+
+	//Even though it says patches, it is technically a flat
+	if (strncmp(name, "SIDESTRT", 8) == 0)
+	{
+		I_Printf("ROTT: SIDESTRT -> flats\n");
+		// fix up flag to standard syntax
+		strncpy(name, "PP_START", 8);
+		return 1;
+	}
+
 	//Check DARKWAR first
 	if (strncmp(name, "UPDNSTRT", 8) == 0)
 	{
+		I_Printf("ROTT: UPDNSTRT -> Flats...\n");
 		// fix up flag to standard syntax
 		strncpy(name, "F_START", 8);
 		return 1;
 	}
+
+	//if (strncmp(name, "ORNGMAP", 8) == 0)
+	//{
+	//	I_Printf("ROTT: ORNGMAP -> RAW FLATS\n");
+		// fix up flag to standard syntax
+	//	strncpy(name, "F_START", 8);
+	//	return 1;
+	//}
 
 	else if (strncmp(name, "FF_START", 8) == 0)
 	{
@@ -385,12 +482,76 @@ static bool IsF_START(char *name)
 //
 static bool IsF_END(char *name)
 {
-	if (strncmp(name, "UPDNSTOP", 8) == 0)
+	if (strncmp(name, "WALLSTOP", 8) == 0)
 	{
 		// fix up flag to standard syntax
-		strncpy(name, "F_END", 8);
+		I_Printf("ROTT: WALLSTOP -> flats\n");
+		strncpy(name, "FF_END", 8);
 		return 1;
 	}
+
+	if (strncmp(name, "ANIMSTOP", 8) == 0)
+	{
+		// fix up flag to standard syntax
+		I_Printf("ROTT: ANIMSTOP -> flats\n");
+		strncpy(name, "FF_END", 8);
+		return 1;
+	}
+
+	//Even though it says patches, it is technically a flat
+	if (strncmp(name, "DOORSTOP", 8) == 0)
+	{
+		I_Printf("ROTT: DOORSTOP -> flats\n");
+		// fix up flag to standard syntax
+		strncpy(name, "FF_END", 8);
+		return 1;
+	}
+
+	//Even though it says patches, it is technically a flat
+	if (strncmp(name, "EXITSTOP", 8) == 0)
+	{
+		I_Printf("ROTT: EXITSTOP -> flats\n");
+		// fix up flag to standard syntax
+		strncpy(name, "FF_END", 8);
+		return 1;
+	}
+
+
+	//Even though it says patches, it is technically a flat
+	if (strncmp(name, "ELEVSTOP", 8) == 0)
+	{
+		I_Printf("ROTT: ELEVSTOP -> flats\n");
+		// fix up flag to standard syntax
+		strncpy(name, "FF_END", 8);
+		return 1;
+	}
+
+	//Even though it says patches, it is technically a flat
+	if (strncmp(name, "SIDESTOP", 8) == 0)
+	{
+		I_Printf("ROTT: SIDESTOP -> flats\n");
+		// fix up flag to standard syntax
+		strncpy(name, "FF_END", 8);
+		return 1;
+	}
+
+	//Check DARKWAR first
+	if (strncmp(name, "UPDNSTOP", 8) == 0)
+	{
+		I_Printf("ROTT: UPDNSTOP -> Flats...\n");
+		// fix up flag to standard syntax
+		strncpy(name, "FF_END", 8);
+		return 1;
+	}
+
+	//if (strncmp(name, "FINDRPAL", 8) == 0)
+	//{
+		// fix up flag to standard syntax
+	//	I_Printf("ROTT: FINDRPAL -> flats\n");
+	//	strncpy(name, "F_END", 8);
+	//	return 1;
+	//}
+
 	else if (strncmp(name, "FF_END", 8) == 0)
 	{
 		// fix up flag to standard syntax
@@ -407,6 +568,29 @@ static bool IsF_END(char *name)
 //
 static bool IsP_START(char *name)
 {
+
+
+	if (strncmp(name, "MASKSTRT", 8) == 0)
+	{
+		I_Printf("ROTT: MASKSTRT -> Patches\n");
+		// fix up flag to standard syntax
+		strncpy(name, "PP_START", 8);
+		return 1;
+	}
+
+	if (strncmp(name, "SKYSTOP", 8) == 0)
+	{
+		// fix up flag to standard syntax
+		I_Printf("ROTT: SKYSTOP -> Patches\n");
+		strncpy(name, "PP_START", 8);
+		return 1;
+	}
+#if 0
+
+
+
+#endif // 0
+
 	if (strncmp(name, "PP_START", 8) == 0)
 	{
 		// fix up flag to standard syntax
@@ -423,6 +607,26 @@ static bool IsP_START(char *name)
 //
 static bool IsP_END(char *name)
 {
+	
+	if (strncmp(name, "MASKSTOP", 8) == 0)
+	{
+		I_Printf("ROTT: MASKSTOP -> PP_END\n");
+		// fix up flag to standard syntax
+		strncpy(name, "P_END", 8);
+		return 1;
+	}
+
+	if (strncmp(name, "SMALLFON", 8) == 0)
+	{
+		// fix up flag to standard syntax
+		I_Printf("ROTT: SMALLFON -> Patches\n");
+		strncpy(name, "P_END", 8);
+		return 1;
+	}
+
+	
+
+
 	if (strncmp(name, "PP_END", 8) == 0)
 	{
 		// fix up flag to standard syntax
@@ -438,11 +642,30 @@ static bool IsP_END(char *name)
 //
 static bool IsC_START(char *name)
 {
+#if 0
+	if (strncmp(name, "COLORMAP", 8) == 0)
+	{
+		I_Printf("ROTT: COLORMAP -> C_START\n");
+		// fix up flag to standard syntax
+		strncpy(name, "C_START", 8);
+		return 1;
+	}
+#endif // 0
+
 	return (strncmp(name, "C_START", 8) == 0);
 }
 
 static bool IsC_END(char *name)
 {
+#if 0
+	if (strncmp(name, "ORNGMAP", 8) == 0)
+	{
+		I_Printf("ROTT: ORNGMAP -> C_END\n");
+		// fix up flag to standard syntax
+		strncpy(name, "C_END", 8);
+		return 1;
+	}
+#endif
 	return (strncmp(name, "C_END", 8) == 0);
 }
 
@@ -451,23 +674,13 @@ static bool IsC_END(char *name)
 //
 static bool IsTX_START(char *name)
 {
-	if (strncmp(name, "WALLSTRT", 8) == 0)
-	{
-		// fix up flag to standard syntax
-		strncpy(name, "TX_START", 8);
-		return 1;
-	}
+
 	return (strncmp(name, "TX_START", 8) == 0);
 }
 
 static bool IsTX_END(char *name)
 {
-	if (strncmp(name, "WALLSTOP", 8) == 0)
-	{
-		// fix up flag to standard syntax
-		strncpy(name, "TX_END", 8);
-		return 1;
-	}
+
 	return (strncmp(name, "TX_END", 8) == 0);
 }
 
@@ -492,12 +705,14 @@ static bool IsDummySF(const char *name)
 	return (strncmp(name, "S1_START", 8) == 0 ||
 		strncmp(name, "S2_START", 8) == 0 ||
 		strncmp(name, "S3_START", 8) == 0 ||
+		strncmp(name, "S3_START", 8) == 0 ||
 		strncmp(name, "F1_START", 8) == 0 ||
 		strncmp(name, "F2_START", 8) == 0 ||
 		strncmp(name, "F3_START", 8) == 0 ||
 		strncmp(name, "P1_START", 8) == 0 ||
 		strncmp(name, "P2_START", 8) == 0 ||
-		strncmp(name, "P3_START", 8) == 0);
+		strncmp(name, "P3_START", 8) == 0 ||
+		strncmp(name, "DIGISTRT", 8) == 0);
 }
 
 //
@@ -506,6 +721,13 @@ static bool IsDummySF(const char *name)
 static bool IsSkin(const char *name)
 {
 	return (strncmp(name, "S_SKIN", 6) == 0);
+}
+
+static bool IsROTTRaw(const char *name)
+{
+	return (strncmp(name, "TRILOGO", 7) == 0);
+	return (strncmp(name, "PLANE", 7) == 0);
+
 }
 
 // RISE OF THE TRIAD SPECIAL MARKERS
@@ -628,13 +850,13 @@ static void SortSpriteLumps(data_file_c *df)
 	QSORT(int, df->sprite_lumps, df->sprite_lumps.GetSize(), CUTOFF);
 #undef CMP
 
-#if 0  // DEBUGGING
+#if 0 // DEBUGGING
 	{
 		int i, lump;
 
 		for (i = 0; i < f->sprite_num; i++)
 		{
-			lump = f->sprite_lumps[i];
+			lump = df->sprite_lumps[i];
 
 			I_Debugf("Sorted sprite %d = lump %d [%s]\n", i, lump,
 				lumpinfo[lump].name);
@@ -812,6 +1034,8 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		}
 	}
 
+
+
 	if (IsSkin(lump_p->name))
 	{
 		lump_p->kind = LMKIND_Marker;
@@ -842,6 +1066,12 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		within_flat_list = true;
 		return;
 	}
+	//else if (IsROTTRaw(lump_p->name))
+	//{
+		//lump_p->kind = LMKIND_Flat;
+	//	within_flat_list = true;
+	//	return;
+	//}
 	else if (IsF_END(lump_p->name))
 	{
 		if (!within_flat_list)
@@ -1334,6 +1564,7 @@ static void ScriptNamespace(void *userData, const char *origDir, const char *fna
 		{
 			if (stricmp(fname, "rott") == 0)
 			{
+				I_Printf("Rise of the Triad: enumerate PAKdir...\n");
 				// recurse rott subdirectory to TopLevel
 				PHYSFS_enumerateFilesCallback(path, TopLevel, userData);
 			}
@@ -1541,14 +1772,23 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 
 		}
 		else if (rott_mode)
-		{	// Checks for Global Wolfenstein3D palette (PLAYPAL) instead of palette-byte translation (from SLADE.pk3)
+		{	// Checks for Global ROTT palette (PLAYPAL) instead of palette-byte translation (from SLADE.pk3)
 			if (stricmp(fname, "rott") == 0)
 			{
-				// enumerate all entries in placebo Wolf3d Directory (inside edge2.pak)
+				// enumerate all entries in placebo ROTT Directory (inside edge2.pak)
 				PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
 			}
 
 		}
+		//Startup IWAD?
+#if 0
+		else if (stricmp(fname, "startup") == 0)
+		{
+			// enumerate all entries in the graphics directory
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+		}
+#endif // 0
+
 		else if (stricmp(fname, "graphics") == 0)
 		{
 			// enumerate all entries in the graphics directory
@@ -1619,6 +1859,19 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 	{
 		check[3] = '0' + i/10;
 		check[4] = '0' + i%10;
+		if (strncmp(fname, check, 9) == 0)
+		{
+			// process wad lump
+			WadNamespace(userData, origDir, fname);
+			return;
+		}
+	}
+	// checking for startup.wad!
+	strcpy(check, "startup.wad");
+	for (int i = 1; i<8; i++)
+	{
+		check[3] = '0' + i / 10;
+		check[4] = '0' + i % 10;
 		if (strncmp(fname, check, 9) == 0)
 		{
 			// process wad lump
@@ -2970,7 +3223,7 @@ static const char *FileKind_Strings[] =
 {
 	"iwad", "pwad", "EDGE2", "gwa", "hwa",
 	"lump", "ddf",  "demo", "rts", "deh",
-	"pak",  "wl6",  "???",  "???"
+	"pak",  "wl6",  "rtl",  "???"
 };
 
 static const char *LumpKind_Strings[] =

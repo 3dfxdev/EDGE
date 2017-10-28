@@ -164,6 +164,30 @@ typedef struct patch_s
 }
 patch_t;
 
+typedef struct 
+{
+	short origsize;		// the orig size of "grabbed" gfx
+
+	short width;		// bounding box size
+	short height;
+
+	short leftoffset;		// pixels to the left of origin
+
+	short topoffset;		// pixels above the origin
+
+	unsigned short columnofs[320];	// only [width] used, the [0] is &collumnofs[width]. CA - Renamed from collumnofs to columnofs!
+}
+rottpatch_t;
+
+// ROTT RAW PICS (only used a few times in the WAD)
+typedef struct 
+{
+	short width, height;
+	short orgx, orgy;
+	byte data;
+}
+lpic_t;
+
 
 #endif // __DOOMDATA__
 

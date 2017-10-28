@@ -98,6 +98,15 @@ static bool Load_WAV(epi::sound_data_c *buf, const byte *lump, int length)
 	return epi::WAV_Load(buf, &F);
 }
 
+static bool Load_VOC(epi::sound_data_c *buf, const byte *lump, int length)
+{
+	epi::mem_file_c F(lump, length, false);
+	I_Printf("ROTT: Detected a Creative Voice File, write da code!\n");
+	//return epi::VOC_Load(buf, &F);
+	return epi::WAV_Load(buf, &F);
+	//return 1;
+}
+
 static bool Load_OGG(epi::sound_data_c *buf, const byte *lump, int length)
 {
 	return S_LoadOGGSound(buf, lump, length);
@@ -180,6 +189,8 @@ static bool DoCacheLoad(sfxdef_c *def, epi::sound_data_c *buf)
 		OK = Load_WAV(buf, data, length);
 	else if (memcmp(data, "Ogg", 3) == 0)
 		OK = Load_OGG(buf, data, length);
+	else if (memcmp(data, "Creative Voice File", 19) == 0)
+		OK = Load_VOC(buf, data, length);
 	else
 		OK = Load_DOOM(buf, data, length);
 

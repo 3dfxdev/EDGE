@@ -41,6 +41,7 @@ typedef enum
 	FLKIND_PWad,      // normal .wad file
 	FLKIND_EWad,      // EDGE2.wad
 	FLKIND_GWad,      // glbsp node wad
+	FLKIND_SWad,      // startup.wad (from Eternity)
 
 	FLKIND_WL6,      // .wl6 Wolfenstein datas (needed for mods maybe)
 	FLKIND_VGADICT,   // Wolfenstein VGA Dictionary

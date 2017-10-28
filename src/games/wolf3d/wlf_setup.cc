@@ -83,7 +83,7 @@ extern void P_ComputeLinedefData(line_t *ld, int side0, int side1);
 extern void SetupExtrafloors(void);
 extern void SetupWallTiles(void);
 extern void SetupVertGaps(void);
-extern void SetupRootNode(void);
+//extern void SetupRootNode(void);
 
 extern void TinyBSP(void);
 
@@ -959,7 +959,7 @@ static void AnalyseMap(void)
 
 	TinyBSP(); ///build BSP -- will this ignore glBSP?
 
-///---	SetupRootNode();
+	//SetupRootNode();
 
 	// free stuff
 	if (analysis_points)
@@ -1288,7 +1288,7 @@ else mapnum = 0;
 //!!!!
 DumpMap(0);
 DumpMap(1);
-// I_Error("DONE");
+ I_Printf("WOLF: DumpMap 0-1 DONE..\n");
 
   AnalyseMap();
 
@@ -1339,7 +1339,6 @@ DumpMap(1);
 
 	// -AJA- 1999/10/21: Clear out player starts (ready to load).
 	G_ClearPlayerStarts();
-
 
 // ---!!--- difference from P_SetupLevel
      AnalyseObjects();

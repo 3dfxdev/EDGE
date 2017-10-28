@@ -59,6 +59,7 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "games/wolf3d/wlf_local.h"
+//#include "games/rott/rott_local.h"
 #include "dstrings.h"
 #include "e_input.h"
 #include "f_finale.h"
@@ -920,7 +921,11 @@ void InitDirectories(void)
 	{
 		ddf_dir = epi::PATH_Join(game_dir.c_str(), "her_ddf");
 	}
-	else if (!heretic_mode)
+	else if (rott_mode)
+	{
+		ddf_dir = epi::PATH_Join(game_dir.c_str(), "rott_ddf");
+	}
+	else
 	{
 		ddf_dir = epi::PATH_Join(game_dir.c_str(), "doom_ddf");
 	}
@@ -1002,6 +1007,11 @@ static void IdentifyVersion(void)
 		//IdentifyWolfenstein();
 		I_Printf("Detected Wolfenstein mode, breaking into IdentifyWolfenstein()! \n");
 		return;
+	}
+
+	if (rott_mode)
+	{
+		I_Printf("Rise of the Triad: Darkwar detected\n");
 	}
 
 
@@ -1119,6 +1129,15 @@ static void IdentifyVersion(void)
 				heretic_mode = true;
 				printf("Heretic mode TRUE\n");
 			}
+			else if (fn.size() >= 11 && fn.compare(fn.size() - 11, 11, "darkwar.wad") == 0)
+			{
+				I_Printf("DDF: Rise of the Triad: DARKWAR\n");
+				ddf_dir = epi::PATH_Join(game_dir.c_str(), "rott_ddf");
+				DDF_SetWhere(ddf_dir);
+				rott_mode = true;
+				printf("ROTT mode TRUE\n");
+			}
+
 		}
 	}
 	else
@@ -1166,6 +1185,13 @@ static void IdentifyVersion(void)
 						ddf_dir = epi::PATH_Join(game_dir.c_str(), "her_ddf");
 						DDF_SetWhere(ddf_dir);
 						heretic_mode = true;
+					}
+					else if (stricmp(wadname[w_idx], "darkwar") == 0)
+					{
+						I_Printf("GAME: Rise of the Triad: DARKWAR\n");
+						ddf_dir = epi::PATH_Join(game_dir.c_str(), "rott_ddf");
+						DDF_SetWhere(ddf_dir);
+						rott_mode = true;
 					}
 					iwad_file = fn;
 					done = true;
@@ -1245,6 +1271,7 @@ static void IdentifyWolfenstein(void)
 		//testing just opening MAPHEAD for now. Apparently, Wolf3D ignores
 		//extensions (stripping them) and using what would be the wlf_extensions
 		// Is it missing the extension?
+
 		std::string ext = epi::PATH_GetExtension(wolf_par.c_str());
 		if (ext.empty())
 		{
@@ -1303,10 +1330,10 @@ static void IdentifyWolfenstein(void)
 
 				if (epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
 				{
-					if (stricmp(wlf_extension[w_idx], "maphead") == 0)
+					if (stricmp(wlf_extension[w_idx], "MAPHEAD") == 0)
 					{
 						wolf3d_mode = true;
-						I_Printf("DDF: Loading Wolfenstein DDF\n");
+						I_Printf("DDF: Loading Wolfenstein, joining path\n");
 						ddf_dir = epi::PATH_Join(game_dir.c_str(), "wolf_ddf");
 						DDF_SetWhere(ddf_dir);
 					}
@@ -1322,29 +1349,66 @@ static void IdentifyWolfenstein(void)
 
 	//Brute this out -- make sure the fucking thing is even trying to be opened..
 	if (wolf_file.empty())
-		I_Printf("EPI could not open the fucker -- brute force it below!\n");
+		I_Printf("Wolfenstein -- brute force all WL6 files!\n");
 
-	I_Printf("DDF: Loading Wolfenstein DDF\n");
+	if (wolf3d_mode)
+	I_Printf("BruteForce_DDF: Loading Wolfenstein DDF\n");
 	ddf_dir = epi::PATH_Join(game_dir.c_str(), "wolf_ddf");
 	DDF_SetWhere(ddf_dir);
 
 
+	I_Printf("Wolfenstein: Joining Wolf3D Data!!!\n");
+	I_Debugf("Added filename: %s\n", WOLFMAPHEAD "." WOLFDATEXT);
+	epi::PATH_Join(game_dir.c_str(), WOLFMAPHEAD "." WOLFDATEXT);
+
+
+	I_Debugf("Added filename: %s\n", WOLFGAMEMAPS "." WOLFDATEXT);
+	epi::PATH_Join(game_dir.c_str(), WOLFGAMEMAPS "." WOLFDATEXT);
+
+
+	I_Debugf("Added filename: %s\n", WOLFVGAHEAD "." WOLFDATEXT);
+	epi::PATH_Join(game_dir.c_str(), WOLFVGAHEAD "." WOLFDATEXT);
+
+	I_Debugf("Added filename: %s\n", WOLFVGADICT "." WOLFDATEXT);
+	epi::PATH_Join(game_dir.c_str(), WOLFVGADICT "." WOLFDATEXT);
+
+	I_Debugf("Added filename: %s\n", WOLFVGAGRAPH "." WOLFDATEXT);
+	epi::PATH_Join(game_dir.c_str(), WOLFVGAGRAPH "." WOLFDATEXT);
+
+	I_Debugf("Added filename: %s\n", WOLFVSWAP "." WOLFDATEXT);
+	epi::PATH_Join(game_dir.c_str(), WOLFVSWAP "." WOLFDATEXT);
+
+	I_Debugf("Added filename: %s\n", WOLFAUDIOHED "." WOLFDATEXT);
+	epi::PATH_Join(game_dir.c_str(), WOLFAUDIOHED "." WOLFDATEXT);
+
+	I_Debugf("Added filename: %s\n", WOLFAUDIOT "." WOLFDATEXT);
+	epi::PATH_Join(game_dir.c_str(), WOLFAUDIOT "." WOLFDATEXT);
+
+	CreatePlaypal();
+
+	wolf_base = epi::PATH_GetBasename(wolf_file.c_str());
+
+	//I_Debugf("WOLF BASE = [%s]\n", wolf_base.c_str());
+
+	//W_AddRawFilename(wolf_file.c_str(), FLKIND_WL6); //<--- This needs defining! Done.c
+
 	// Just AddRawFilename. Strip the god damn extension (instead of FLKIND_WL6, use FLKIND_Lump. Ooops.... First the file, then the filetype for loading via w_wad (AddFile()).
-	I_Printf("Breaking into WF_InitMaps to find MAPHEAD info!\n");
-	WF_InitMaps(); //In Wlf_Maps.cc, this thing directly calls MapsReadHeaders(), which will open the file and read its rlew_tag, etc.
-
-
-	W_AddRawFilename(wolf_file.c_str(), FLKIND_Lump); //<--- This needs defining! Done.c
+	//I_Printf("WF_InitMaps: Breaking into WF_InitMaps to find MAPHEAD info!\n");
+	//WF_InitMaps(); //In Wlf_Maps.cc, this thing directly calls MapsReadHeaders(), which will open the file and read its rlew_tag, etc.
 
 	//Finally sets the wolf_base (maphead_base)
-	wolf_base = epi::PATH_GetBasename(wolf_file.c_str()); //<---
+	//wolf_base = epi::PATH_GetBasename(wolf_file.c_str()); //<---
 
-	I_Debugf("WOLF BASE = [%s]\n", wolf_file.c_str()); //Eventually we should collect all of these. . .
+	//I_Debugf("WOLF BASE = [%s]\n", wolf_file.c_str()); //Eventually we should collect all of these. . .
 
 														   // Emulate this behaviour?
 
 	//All this function below does is add EDGE2.WAD to whatever the fuck we are adding as well.
-	std::string reqwad(epi::PATH_Join(wolf_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT));
+
+	std::string reqwad(epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT));
+
+	///this one will join pak files with IWAD.
+	///std::string reqpak(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT));
 
 	if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
 	{
@@ -1352,12 +1416,15 @@ static void IdentifyWolfenstein(void)
 
 		if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
 		{
-			I_Error("IdentifyWolfenstein: Could not find required Wolf3D data: %s.%s!\n",
+			I_Error("IdentifyVersion: Could not find required %s.%s!\n",
 				REQUIREDWAD, EDGEPAKEXT);
 		}
 	}
 
-	W_AddRawFilename(reqwad.c_str(), FLKIND_EWad);
+	//W_AddRawFilename()
+
+	W_AddRawFilename(reqwad.c_str(), FLKIND_PAK);
+
 	I_Printf("Wolfenstein Data is loaded and joined with 3DGE -- let's keep going!\n");
 
 	// After this, should we skip all the bullshit and load the stuff directly?

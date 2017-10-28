@@ -20,6 +20,7 @@ extern u16_t *wlf_obj_tiles;
 // ---- wf_colors ----
 
 extern const byte wolf_palette[256*3];
+void CreatePlaypal(void);
 
 
 // ---- wf_util ----
@@ -30,15 +31,16 @@ void WF_Huff_Expand(const byte *source, int src_len, byte *dest, int dest_len, c
 
 
 // ---- wf_maps ----
-
+void TinyBSP(void);
 void WF_InitMaps(void);
 
 void WF_LoadMap(int map_num);
 void WF_FreeMap(void);
 
+void WF_SetupLevel(void);
 
 // ---- wf_vswap ----
-
+//class graph_info_c vga_info;
 void WF_VSwapOpen(void);
 
 epi::image_data_c *WF_VSwapLoadWall(int index);

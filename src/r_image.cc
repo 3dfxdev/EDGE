@@ -65,6 +65,7 @@
 #include "w_texture.h"
 #include "w_wad.h"
 #include "z_zone.h"
+#include "games/wolf3d/wlf_rawdef.h"
 
 
 // hack?
@@ -76,6 +77,7 @@
 // #define MAKE_TEXTURES_WHITE  1
 
 extern epi::image_data_c *ReadAsEpiBlock(image_c *rim);
+
 
 extern epi::file_c *OpenUserFileOrLump(imagedef_c *def);
 
@@ -333,6 +335,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	// determine info, and whether it is PNG or DOOM_PATCH
 	int width=0, height=0;
 	int offset_x=0, offset_y=0;
+	int origsize; //ROTT
 
 	bool is_png = false;
 	bool solid  = false;
@@ -350,6 +353,48 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 		// close it
 		delete f;
 	}
+	else if (rott_mode)
+	{
+		rottpatch_t *pat = (rottpatch_t *)buffer;
+
+		origsize = EPI_LE_S16(pat->origsize);
+		width = EPI_LE_S16(pat->width);
+		height = EPI_LE_S16(pat->height);
+		offset_x = EPI_LE_S16(pat->leftoffset);
+		offset_y = EPI_LE_S16(pat->topoffset);
+
+#if 1
+		L_WriteDebug("ROTT GETINFO [%s] : size %dx%d\n", W_GetLumpName(lump), pat->origsize, pat->width, pat->height);
+#endif
+
+		delete f;
+
+		if (width <= 0 || width > 2048 ||
+			height <= 0 || height > 512 ||
+			ABS(offset_x) > 2048 || ABS(offset_y) > 1024)
+		{
+			// check for Heretic/Hexen/ROTT images, which are raw 320x200
+			//if (lump_len == pat->origsize, pat->width, pat->height, type == IMSRC_Raw320x200)
+			if (lump_len == 320 * 200 && type == IMSRC_Flat)
+			{
+				I_Printf("ROTT Graphic '%s' seems to be a flat, 320x200 it..\n", name);
+				image_c *rim = NewImage(320, 200, OPAC_Solid);
+				strcpy(rim->name, name);
+
+				rim->source_type = IMSRC_Raw320x200;
+				rim->source.flat.lump = lump;
+				rim->source_palette = W_GetPaletteForLump(lump);
+				return rim;
+			}
+
+			if (lump_len == 64 * 64 || lump_len == 64 * 65 || lump_len == 64 * 128)
+				I_Warning("Graphic '%s' seems to be a flat.\n", name);
+			else
+				I_Warning("ROTT: Graphic '%s' does not seem to be a graphic.\n", name);
+
+			return NULL;
+		}
+	}
 	else  // DOOM PATCH format
 	{
 		patch_t *pat = (patch_t *) buffer;
@@ -361,15 +406,17 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 
 		delete f;
 
+
 		// do some basic checks
 		// !!! FIXME: identify lump types in wad code.
 		if (width  <= 0 || width > 2048 ||
 		    height <= 0 || height > 512 ||
 			ABS(offset_x) > 2048 || ABS(offset_y) > 1024)
 		{
-			// check for Heretic/Hexen images, which are raw 320x200
+			// check for Heretic/Hexen/ROTT images, which are raw 320x200
 			if (lump_len == 320*200 && type == IMSRC_Graphic)
 			{
+				I_Printf("Graphic '%s' seems to be a flat, 320x200 it..\n", name);
 				image_c *rim = NewImage(320, 200, OPAC_Solid);
 				strcpy(rim->name, name);
 
@@ -387,6 +434,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 			return NULL;
 		}
 	}
+	
 
 	// create new image
 	image_c *rim = NewImage(width, height, solid ? OPAC_Solid : OPAC_Unknown);
@@ -395,6 +443,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	rim->offset_y = offset_y;
 
 	strcpy(rim->name, name);
+	I_Printf("IMAGE: Creating new image [%s].\n", rim->name, name);
 
 	rim->source_type = type;
 	rim->source.graphic.lump = lump;
