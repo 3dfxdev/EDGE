@@ -78,6 +78,7 @@ static inline bool read_uint8(file_c *f, u8_t *val)
 #define ID_RIFF  0x46464952U  /* "RIFF", in ascii. */
 #define ID_WAVE  0x45564157U  /* "WAVE", in ascii. */
 #define ID_FACT  0x74636166U  /* "fact", in ascii. */
+#define ID_VOC	 0x4372656174697665U	  /* "VOC", in ascii. */
 
 
 /*********************************************************
@@ -619,6 +620,12 @@ bool WAV_Load(sound_data_c *buf, file_c *f)
 	if (! read_le_u32(f, &header_id) || header_id != ID_WAVE)
 	{
 		I_Warning("WAV Loader: Not a RIFF/WAVE file.\n");
+		return false;
+	}
+
+	if (!read_le_u32(f, &header_id) || header_id != ID_VOC)
+	{
+		I_Warning("WAV Loader: Not a VOC file.\n");
 		return false;
 	}
 

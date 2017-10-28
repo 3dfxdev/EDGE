@@ -33,6 +33,7 @@
 
 #include "r_defs.h"
 #include "r_state.h"
+#include "games/wolf3d/wlf_rawdef.h"
 
 // Texture cache reference structure, returned by the texture cache system.
 // The actual structure is private.
@@ -55,6 +56,7 @@ int W_TextureNumForName(const char *name);
 int W_CheckTextureNumForName(const char *name);
 
 void W_InitTextures(void);
+void W_InitWolfensteinTextures(void);
 int W_FindTextureSequence(const char *start, const char *end,
     int *s_offset, int *e_offset);
 const char *W_TextureNameInSet(int set, int offset);

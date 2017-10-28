@@ -246,6 +246,9 @@ typedef enum
 	// INTERNAL ONLY: Source was a raw block of 320x200 bytes (Heretic/Hexen)
 	IMSRC_Raw320x200,
 
+	// INTERNAL ONLY: Source was a raw block of 64x64 bytes (Wolfenstein3D)
+	IMSRC_WolfRaw64x64,
+
 	// Source was a sprite name
 	IMSRC_Sprite,
 

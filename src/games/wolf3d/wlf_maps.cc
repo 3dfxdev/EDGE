@@ -3,20 +3,51 @@
 
 #include "../../system/i_defs.h"
 
-#include "wlf_local.h"
-
 #include <vector>
 #include <map>
 
+#include "../../../epi/epi.h"
+#include "../../../epi/file.h"
+#include "../../../epi/filesystem.h"
 #include "../../../epi/endianess.h"
 #include "../../../epi/math_crc.h"
 
+#include "../../../ddf/main.h"
+#include "../../../ddf/colormap.h"
+
+#include "wlf_local.h"
+#include "wlf_rawdef.h"
+
+#include "../../dm_defs.h"
+#include "../../dm_data.h"
+#include "../../dm_state.h"
 #include "../../dm_structs.h"
+#include "../../e_main.h"
+#include "../../g_game.h"
+#include "../../l_glbsp.h"
+#include "../../e_player.h"
+#include "../../m_argv.h"
+#include "../../m_bbox.h"
+#include "../../m_misc.h"
+#include "../../m_random.h"
+#include "../../p_local.h"
+#include "../../p_setup.h" //<--- Anything defined here already should be modified here, and commented out in this file!
+#include "../../r_defs.h"
+#include "../../r_gldefs.h"
+#include "../../r_sky.h"
+#include "../../s_sound.h"
+#include "../../s_music.h"
+#include "../../sv_main.h"
+#include "../../r_image.h"
+#include "../../w_texture.h"
+#include "../../w_wad.h"
+#include "../../z_zone.h"
+#include "../../vm_coal.h"
 
 
-//!!!!  const char *wlf_extension = "wl6";
+const char *wlf_extension = "maphead.wl6";
+const char *wlf_maptemp = "maptemp.wl6";
 
-//MAPHEAD is the main lump that we want to search for here...
 
 u16_t *wlf_map_tiles;
 u16_t *wlf_obj_tiles;
@@ -26,12 +57,13 @@ static int map_count;
 
 static raw_maphead_t map_head;
 
-inline void FROM_LE_U16(u16_t& val)
+
+static inline void FROM_LE_U16(u16_t& val)
 {
 	val = EPI_LE_U16(val);
 }
 
-inline void FROM_LE_U32(u32_t& val)
+static inline void FROM_LE_U32(u32_t& val)
 {
 	val = EPI_LE_U32(val);
 }
@@ -43,38 +75,33 @@ static void MapsReadHeaders()
 	if (!fp)
 		I_Error("Missing MAPHEAD.WL6 file!\n");
 
+	//unsigned int map_count = (raw_gamemap_t->plane_length() - 2) / 4;
 	map_count = 0;
 
 	memset(&map_head, 0, sizeof(map_head));
 
 	if (fread(&map_head, 1, sizeof(map_head), fp) < 6)
-		I_Error("MapsReadHeaders: fucked");
+		throw "MapsReadHeaders: fucked";
 
 	map_head.rlew_tag = EPI_LE_U16(map_head.rlew_tag);
 
-	for (int i=0; i < 100; i++)
+	for (int i = 0; i < 100; i++)
 	{
 		if (map_head.offsets[i] == 0)
 			break;
 
-		EPI_LE_U32(map_head.offsets[i]);
+		FROM_LE_U32(map_head.offsets[i]);
 
-		//This should be I_Printf, but we want to see if we can
-		//get far enough here to at least display the maphead
-		//offsets!!
-	I_Printf("Header offset[%d] = %d\n", i, map_head.offsets[i]);
+		I_Printf("Header offset[%d] = %d\n", i, map_head.offsets[i]);
 		map_count++;
 	}
-
 
 	fclose(fp);
 
 	if (map_count == 0)
-		I_Printf("MapsReadHeaders: no maps!");
-	
-I_Printf("Num MAPS : %d\n", map_count);
+		I_Error("MapsReadHeaders: no maps!");
 
-I_Printf("WLF_MAPS: Init OK!");
+	I_Printf("Num MAPS : %d\n", map_count);
 }
 
 
@@ -82,29 +109,30 @@ I_Printf("WLF_MAPS: Init OK!");
 
 static void LoadMapInfo(FILE *fp, int offset, raw_gamemap_t *gmp)
 {
-fprintf(stderr, "LoadMapInfo: offset = %d\n", offset);
+	I_Printf("LoadMapInfo: offset = %d\n", offset);
+
 	// move to correct position in file
 	fseek(fp, offset, SEEK_SET);
 
-fprintf(stderr, "Reading %d bytes...\n", sizeof(raw_gamemap_t));
+	I_Printf("Reading %d bytes...\n", sizeof(raw_gamemap_t));
 	// FIXME: check error
 	fread(gmp, sizeof(raw_gamemap_t), 1, fp);
 
-	EPI_LE_U32(gmp->plane_offset[0]);
-	EPI_LE_U32(gmp->plane_offset[1]);
-	EPI_LE_U32(gmp->plane_offset[2]);
+	FROM_LE_U32(gmp->plane_offset[0]);
+	FROM_LE_U32(gmp->plane_offset[1]);
+	FROM_LE_U32(gmp->plane_offset[2]);
 
-	EPI_LE_U16(gmp->plane_length[0]);
-	EPI_LE_U16(gmp->plane_length[1]);
-	EPI_LE_U16(gmp->plane_length[2]);
+	FROM_LE_U16(gmp->plane_length[0]);
+	FROM_LE_U16(gmp->plane_length[1]);
+	FROM_LE_U16(gmp->plane_length[2]);
 
-	EPI_LE_U16(gmp->width);
-	EPI_LE_U16(gmp->height);
+	FROM_LE_U16(gmp->width);
+	FROM_LE_U16(gmp->height);
 
-fprintf(stderr, "Planes: %d, %d, %d\n",
-gmp->plane_offset[0], gmp->plane_offset[1], gmp->plane_offset[2]);
-fprintf(stderr, "Lengths: %d, %d, %d\n",
-gmp->plane_length[0], gmp->plane_length[1], gmp->plane_length[2]);
+	I_Printf("Planes: %d, %d, %d\n",
+		gmp->plane_offset[0], gmp->plane_offset[1], gmp->plane_offset[2]);
+	I_Printf("Lengths: %d, %d, %d\n",
+		gmp->plane_length[0], gmp->plane_length[1], gmp->plane_length[2]);
 
 	// ensure string is terminated
 	gmp->name[16] = 0;
@@ -115,43 +143,45 @@ static u16_t *LoadMapPlane(FILE *fp, int offset, int complen, int width, int hei
 	int expected = width * height * 2;
 
 	// seek to correct position in file
-fprintf(stderr, "Seeking to %d\n", offset);
+	I_Printf("Seeking to %d\n", offset);
 	fseek(fp, offset, SEEK_SET);
 
 	byte *buf1 = new byte[complen];
 
-fprintf(stderr, "Reading %d bytes...\n", complen);
+	I_Printf("Reading %d bytes...\n", complen);
 	// !!!! FIXME check error/underrun
 	fread(buf1, complen, 1, fp);
 
-	int size2 = buf1[0] | ((int) buf1[1] << 8);
-// CHECK STUFF !!!
-	
+	int size2 = buf1[0] | ((int)buf1[1] << 8);
+	// CHECK STUFF !!!
+
 	byte *buf2 = new byte[size2];
 
-	WF_Carmack_Expand(buf1+2, buf2, size2);
+	WF_Carmack_Expand(buf1 + 2, buf2, size2);
 
 	delete[] buf1;
 
-	int size_r = buf2[0] | ((int) buf2[1] << 8);
+	int size_r = buf2[0] | ((int)buf2[1] << 8);
 
 	SYS_ASSERT(size_r == expected);
 
 	u16_t *result = new u16_t[expected / 2];
 
+	//mapplanes[plane] = Z_Malloc(expected, &mapplanes[plane]);
+
 	WF_RLEW_Expand((u16_t *)(buf2 + 2), result, expected, map_head.rlew_tag);
 
 	delete[] buf2;
 
-	// flip plane upside down
-	for (int y=0; y < height/2; y++)
-	for (int x=0; x < width; x++)
-	{
-		u16_t tmp = result[y * width + x];
+	// flip plane upsidedown
+	for (int y = 0; y < height / 2; y++)
+		for (int x = 0; x < width; x++)
+		{
+			u16_t tmp = result[y * width + x];
 
-		result[y * width + x] = result[(height-1-y) * width + x];
-		result[(height-1-y) * width + x] = tmp;
-	}
+			result[y * width + x] = result[(height - 1 - y) * width + x];
+			result[(height - 1 - y) * width + x] = tmp;
+		}
 
 	return result;
 }
@@ -166,13 +196,13 @@ void WF_LoadMap(int map_num)
 	// Read gamefile
 	FILE *fp = fopen("GAMEMAPS.WL6", "rb");
 
-	if (! fp)
+	if (!fp)
 	{
 		// try alternate name: MAPTEMP
 		fp = fopen("MAPTEMP.WL6", "rb");
 	}
 
-	if (! fp)
+	if (!fp)
 		I_Error("WLF_LoadMap: missing GAMEMAPS file !");
 
 	// load in info
@@ -182,25 +212,25 @@ void WF_LoadMap(int map_num)
 
 	// load in plane #0 (MAP)
 	wlf_map_tiles = LoadMapPlane(fp, gmp.plane_offset[0],
-			gmp.plane_length[0], gmp.width, gmp.height);
+		gmp.plane_length[0], gmp.width, gmp.height);
 
 	// load in plane #1 (OBJECTS)
 	wlf_obj_tiles = LoadMapPlane(fp, gmp.plane_offset[1],
-			gmp.plane_length[1], gmp.width, gmp.height);
+		gmp.plane_length[1], gmp.width, gmp.height);
 
 	L_WriteDebug("------>\n");
 
-	for (int y=63; y >= 0; y--)
+	for (int y = 63; y >= 0; y--)
 	{
-		for (int x=0; x < 64; x++)
+		for (int x = 0; x < 64; x++)
 		{
-			short M = wlf_map_tiles[y*64+x];
-			short J = wlf_obj_tiles[y*64+x];
+			short M = wlf_map_tiles[y * 64 + x];
+			short J = wlf_obj_tiles[y * 64 + x];
 
 			if (J != 0)
-				L_WriteDebug("%c", 97+(J%26));
+				L_WriteDebug("%c", 97 + (J % 26));
 			else if (M < 64)
-				L_WriteDebug("%c", 65+(M%26));
+				L_WriteDebug("%c", 65 + (M % 26));
 			else
 				L_WriteDebug(" ");
 		}
@@ -209,6 +239,7 @@ void WF_LoadMap(int map_num)
 	}
 
 	L_WriteDebug("<------\n");
+
 }
 
 void WF_FreeMap(void)
@@ -219,12 +250,9 @@ void WF_FreeMap(void)
 void WF_InitMaps(void)
 {
 	MapsReadHeaders();
+	I_Printf("WOLF: MapsReadHeaders successful!\n");
 
 	WF_LoadMap(0);  // !!!! TEST
-}
-
-void WF_Init(void)
-{
-	WF_LoadMap(1); // !!!! TEST
+	//TinyBSP();
 }
 

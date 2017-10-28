@@ -3619,6 +3619,24 @@ static inline void AddSectorToVertices(int *branches, line_t *ld, sector_t *sec)
 	}
 }
 
+// Wolfenstein
+static void FindSubsecExtents(void)
+{
+	for (int i = 0; i < numsubsectors; i++)
+	{
+		subsector_t *sub = &subsectors[i];
+
+		M_ClearBox(sub->bbox);
+
+		for (seg_t *seg = sub->segs; seg; seg = seg->sub_next)
+		{
+			M_AddToBox(sub->bbox, seg->v1->x, seg->v1->y);
+			M_AddToBox(sub->bbox, seg->v2->x, seg->v2->y);
+		}
+	}
+}
+
+
 
 static void CreateVertexSeclists(void)
 {
@@ -4048,6 +4066,7 @@ void P_ShutdownLevel(void)
 
 void P_SetupLevel(void)
 {
+
 	// Sets up the current level using the skill passed and the
 	// information in currmap.
 	//
@@ -4252,6 +4271,11 @@ void P_SetupLevel(void)
 	{
 		I_Debugf("P_SetupLevel: Load UDMF GL info\n");
 		LoadZNodes(udmf_lumpnum);
+	}
+
+	if (wolf3d_mode)
+	{
+		TinyBSP();
 	}
 
 	// REJECT is ignored

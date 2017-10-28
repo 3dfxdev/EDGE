@@ -2,6 +2,7 @@
 /* VSWAP */
 
 #include "../../system/i_defs.h"
+#include "../../system/i_defs_gl.h"
 
 #include <vector>
 
@@ -11,7 +12,10 @@
 #include "wlf_local.h"
 
 #include "../../r_image.h"
+#include "../../r_texgl.h"
 
+extern epi::image_data_c *WF_VSwapLoadWall(int index);
+extern epi::image_data_c *WF_VSwapLoadSprite(int index);
 
 class vswap_info_c
 {
@@ -56,8 +60,11 @@ void WF_VSwapOpen(void)
 	vswap.num_sounds  = total_chunks - vswap.first_sound;
 
 	I_Printf("TOTAL CHUNKS: %d\n", total_chunks);
+
 	I_Printf("WALLS: +%d *%d\n", vswap.first_wall, vswap.num_walls);
+
 	I_Printf("SPRITES: +%d *%d\n", vswap.first_sprite, vswap.num_sprites);
+
 	I_Printf("SOUNDS: +%d *%d\n", vswap.first_sound, vswap.num_sounds);
 
 	vswap.chunks.reserve(total_chunks);
@@ -85,6 +92,7 @@ void WF_VSwapOpen(void)
 
 		L_WriteDebug("[%d] : offset %d, length %d\n", i, CK.offset, CK.length);
 	}
+
 }
 
 void WF_VSwapClose(void)
@@ -114,6 +122,7 @@ byte *VSwapReadChunk(int index, int *length)
 	return data;
 }
 
+//We can use this like *ReadAsEpiBlock is done. Essentially, we need to create a new image data class.
 epi::image_data_c *WF_VSwapLoadWall(int index)
 {
 	int length;
@@ -123,10 +132,14 @@ epi::image_data_c *WF_VSwapLoadWall(int index)
 
 	epi::image_data_c *img = new epi::image_data_c(64, 64, 3); //!!!! PAL
 
+	byte *dest = img->pixels;
+
+	// read in pixels
 	for (int y = 0; y < 64; y++)
 	for (int x = 0; x < 64; x++)
 	{
 		byte src = data[x*64 + 63-y];  // column-major order
+
 		byte *pix = img->PixelAt(x, y);
 
 		pix[0] = wolf_palette[src*3+0];
@@ -170,15 +183,15 @@ L_WriteDebug("LEFT %d RIGHT %d\n", left, right);
  
 // Very weird code by Mr. Bruce Lewis (btw creator of DoomGL) need to be rewritten!
  
-  for (int x = 0; x < w; x++)
-	{
-		int offset = EPI_LE_U16(shape->offsets[x]);
+	 for (int x = 0; x < w; x++)
+		{
+			int offset = EPI_LE_U16(shape->offsets[x]);
 
-		SYS_ASSERT((4+w*2) <= offset && offset < length);
+			SYS_ASSERT((4+w*2) <= offset && offset < length);
 
-		const byte *post = (const byte*)(data + offset);
+			const byte *post = (const byte*)(data + offset);
 
-L_WriteDebug("Column[%d]:", left+x);
+			L_WriteDebug("Column[%d]:", left+x);
 
 		for (; *post; post += 6)
 		{
@@ -217,6 +230,7 @@ L_WriteDebug("\n");
 	return img;
 }
 
+
 #if 0
 void DrawTest()
 {
@@ -224,7 +238,7 @@ void DrawTest()
 
 	if (tex_id == 0)
 	{
-		epi::image_data_c *wall = VSwapLoadSprite(10); /// Wall(296);
+		epi::image_data_c *wall = WF_VSwapLoadWall(10); /// Wall(296);
 		SYS_ASSERT(wall);
 
 		glGenTextures(1, &tex_id);
@@ -234,7 +248,7 @@ void DrawTest()
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex_id);
-	glColor3f(1,1,1);
+	glColor3f(1, 1, 1);
 	glEnable(GL_BLEND);
 
 	glBegin(GL_QUADS);
@@ -247,5 +261,7 @@ void DrawTest()
 	glDisable(GL_BLEND);
 	glEnd();
 }
-#endif
+#endif // 0
+
+
 

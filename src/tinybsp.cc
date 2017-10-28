@@ -732,7 +732,7 @@ static bool ChoosePartition(subsector_t *sub, divline_t *div)
 	if (total <= 3)
 		return false;
 	
-	bool single_tile = CoversOneTile(seg_list);
+	//bool single_tile = CoversOneTile(seg_list);
 
 	// try a pure binary split
 	if (sub->seg_count >= MIN_BINARY_SEG)
