@@ -315,6 +315,14 @@ void V_SetPalette(int type, float amount)
 	cur_palette = palette;
 }
 
+// Used for Rise of the Triad stuff. 
+void VL_NormalizePalette(byte * palette)
+{
+	int i;
+
+	for (i = 0; i < 768; i++)
+		*(palette + i) = (*(palette + i)) >> 2;
+}
 
 //
 // Computes the right "colourmap" (more precisely, coltable) to put into
