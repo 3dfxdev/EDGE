@@ -2358,7 +2358,7 @@ void HandleLumpShapeBMP(long filepos,long filesize,char*dirpath,char *tmpbuf1,in
 	byte *mem;
     char tmp[256];
     char tmp2[256*2];
-	patch_t *p;
+	rottpatch_t *p;
 	transpatch_t *pt;
 	BYTE  *RottSpriteMemptr;
 	BYTE  *RottPCXptr;
@@ -2378,21 +2378,24 @@ void HandleLumpShapeBMP(long filepos,long filesize,char*dirpath,char *tmpbuf1,in
     if (filesize <= 10) 
 		return 0; // Too short for a patch
 */
-	p = (patch_t*)RottSpriteMemptr;
-    cofs=IntelShort(p->collumnofs[0]);
-    width=IntelShort(p->width);
+	p = (rottpatch_t*)RottSpriteMemptr;
+    cofs= EPI_LE_U16(p->columnofs[0]);
+    width= EPI_LE_U16(p->width);
 
 
 //if (strstr(tmpbuf1,"BULLETHO")!=0)
 //width=width;
 
 
-	//if (p->collumnofs [0]>p->collumnofs [1]){
-    if (cofs == (10 + width * 2)) {
-		p = (patch_t*)RottSpriteMemptr;
+	//if (p->columnofs [0]>p->columnofs [1]){
+    if (cofs == (10 + width * 2)) 
+	{
+		p = (rottpatch_t*)RottSpriteMemptr;
 		lstrcpy (Type,"S");
 		ConvertRottSpriteIntoPCX (RottSpriteMemptr, RottPCXptr);
-	}else{
+	}
+	else
+	{
 		pt = (transpatch_t*)RottSpriteMemptr;
 		lstrcpy (Type,"M");
 		ConvertMaskedRottSpriteIntoPCX (RottSpriteMemptr, RottPCXptr);
@@ -2427,7 +2430,7 @@ void HandleLumpShapeBMP(long filepos,long filesize,char*dirpath,char *tmpbuf1,in
 		if((outstream = fopen(lumpfilename, "w+b" )) == NULL )
 		{
 			AddTxtToListbox ("Opening of ROTT LMP file failed!");
-			return FALSE;
+			return;// FALSE;
 		}		 
 
 		fclose(outstream);
