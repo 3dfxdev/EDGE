@@ -250,6 +250,7 @@ set(3DGE_SOURCES
 	src/r_image.cc
 	src/r_doomtex.cc
 	src/r_texgl.cc
+	src/r_rottgfx.cc
 	src/r_bumpmap.cc
 	src/r_playpal.cc
 	src/r_renderbuffers.cc
@@ -280,6 +281,7 @@ set(3DGE_SOURCES
 	src/w_sprite.cc
 	src/w_texture.cc
 	src/w_wad.cc
+	src/w_rottwad.cc
 	src/z_zone.cc
 	src/vm_coal.cc
 	src/vm_hud.cc
