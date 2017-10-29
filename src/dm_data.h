@@ -164,7 +164,7 @@ typedef struct patch_s
 }
 patch_t;
 
-typedef struct 
+typedef struct rottpatch_s
 {
 	short origsize;		// the orig size of "grabbed" gfx
 
@@ -180,13 +180,44 @@ typedef struct
 rottpatch_t;
 
 // ROTT RAW PICS (only used a few times in the WAD)
-typedef struct 
+typedef struct lpic_s
 {
 	short width, height;
 	short orgx, orgy;
 	byte data;
 }
 lpic_t;
+
+// ROTT LBM PICTURE FORMAT
+typedef struct lbm_s
+{
+	short width;
+	short height;
+	byte palette[768];
+	byte data;
+} 
+lbm_t;
+
+// ROTT Translucent Patch format
+typedef struct transpatch_t
+{
+	short origsize;		// the orig size of "grabbed" gfx
+	short width;		// bounding box size
+	short height;
+	short leftoffset;		// pixels to the left of origin
+	short topoffset;		// pixels above the origin
+	short translevel;
+	short columnofs[320];	// only [width] used, the [0] is &collumnofs[width]
+}
+transpatch_t;
+
+// ROTT Picture Format
+typedef struct pic_s
+{
+	byte width, height;
+	byte data;
+} 
+pic_t;
 
 
 #endif // __DOOMDATA__
