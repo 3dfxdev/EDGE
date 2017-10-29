@@ -46,6 +46,7 @@
 #include "../epi/image_jpeg.h"
 #include "../epi/image_tga.h"
 
+#include "con_var.h"
 #include "dm_state.h"
 #include "e_search.h"
 #include "e_main.h"
@@ -62,6 +63,7 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+cvar_c r_transfix;
 
 // posts are runs of non masked source pixels
 typedef struct
@@ -159,9 +161,18 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 		for (; count > 0; count--, src++, top++)
 		{
 			if (*src == TRANS_PIXEL)
-				dest[(h1-1-top) * w2] = TRANS_REPLACE;
+			{
+				I_Debugf("DoomTex: Remapping trans_pixel 247 -> pal_black\n");
+				dest[(h1 - 1 - top) * w2] = TRANS_REPLACE;
+			}
 			else
 				dest[(h1-1-top) * w2] = *src;
+
+			if (r_transfix.d > 0)
+			{   
+				I_Printf("DoomTex: No transparent pixel remapping mode ENABLED\n");
+				dest[(h1 - 1 - top) * w2] = *src;
+			}
 		}
 
 		patchcol = (const column_t *) ((const byte *) patchcol +
