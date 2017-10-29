@@ -211,8 +211,8 @@ void GetConvWidthHeight (u8_t  *RottSpriteMemptr, int *w, int *h)
 		I_Error("ROTT: conversion width greater than 320x256!\n");
 		return;
 
-    cofs=IntelShort(ppat->columnofs[0]);
-    width=IntelShort(ppat->width);
+    cofs= EPI_LE_U16(ppat->columnofs[0]);
+    width= EPI_LE_U16(ppat->width);
 
     if (cofs != (12 + width * 2)) 
 	{
@@ -241,8 +241,9 @@ void GetConv(u8_t  *RottSpriteMemptr, u8_t  *RottPCXptr)
     //if (len <= 12) 
 	//	return 0; // Too short for a transpatch
 
-    cofs=IntelShort(ppat->columnofs[0]);
-    width=IntelShort(ppat->width);
+	//CA: Let's try renaming this IntelShort to EPI_LE_U16 instead.
+    cofs= EPI_LE_U16(ppat->columnofs[0]);
+    width= EPI_LE_U16(ppat->width);
 
     if (cofs != (12 + width * 2)) {
 		ConvertRottSpriteIntoPCX (RottSpriteMemptr, RottPCXptr);
