@@ -90,6 +90,8 @@ extern cvar_c r_fixspritescale;
 
 extern cvar_c r_gpuswitch;
 
+extern cvar_c r_transfix;
+
 extern cvar_c s_volume, s_mixchan, s_quietfactor;
 extern cvar_c s_rate, s_bits, s_stereo;
 extern cvar_c s_musicvol, s_musicdevice;
@@ -145,6 +147,9 @@ cvar_link_t  all_cvars[] =
 	{ "soundpitch",      &sound_pitch,         "c",    "1" },
 
 	{ "r_oldblend",      &r_oldblend,           "c",    "0"},
+
+	// If palette incorrectly remaps palette, this can be set.
+	{ "r_transfix",      &r_transfix,           "c",    "0" },
 
 	/* Input Stuff */
 
