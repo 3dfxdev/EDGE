@@ -302,7 +302,7 @@ void ShrinkMemPictureExt( int orgw, int orgh, int neww, int newy, u8_t* src, u8_
 	int cnt;
 	float Yratio,Xratio,old,oldY,Ycnt;
 
-	s = ( u8_t * )( src);
+	s = ( u8_t*)( src);
 
     Xratio = orgw * 10/ neww;
 	Xratio = (Xratio/10);
@@ -317,13 +317,12 @@ void ShrinkMemPictureExt( int orgw, int orgh, int neww, int newy, u8_t* src, u8_
 
 	*(target) = *(s) ;
 
-	// delte redunted pixels
+	// redundant pixels
 	for (y=0;y<orgh;y++)
 	{
-		//EDGE: Error here (// EDGE: Figure out how to read IntelShort (if it's endianess conversion, look in epi/endianess.h)
 		//EDGE: u8_t cannot be assigned to an entity of type int
-		tmp = ( u8_t * )s;
-		tmp2 = ( u8_t * )target;
+		tmp = reinterpret_cast<u8_t>(s);
+		tmp2 = reinterpret_cast<u8_t*>(target);
 
 		for (x=0;x<neww;x++)
 		{
@@ -350,7 +349,7 @@ void ShrinkMemPictureExt( int orgw, int orgh, int neww, int newy, u8_t* src, u8_
 			oldY -= 1;
 		}
 		//EDGE: a value of type "int" cannot be assigned to an entity of type "u8_t*"
-		s = tmp + orgw;
+		s = reinterpret_cast<u8_t*>(tmp) + orgw;
 
 		target = tmp2 + neww;
 
