@@ -348,7 +348,7 @@ void ShrinkMemPictureExt( int orgw, int orgh, int neww, int newy, u8_t* src, u8_
 			y++;
 			oldY -= 1;
 		}
-
+		//EDGE: a value of type "int" cannot be assigned to an entity of type "u8_t*"
 		s = tmp + orgw;
 
 		target = tmp2 + neww;
@@ -573,9 +573,9 @@ int ConvertPCXIntoRottTransSprite (u8_t  *RottSpriteMemptr, u8_t*srcdata, int lu
 		return 0;
 
 	//patchmem = RottSpriteMemptr;
-	//EDGE: VisualStudio error: rottpatch_t cannot be assigned to transpatch_t (??)
-	p = (rottpatch_t*)patchmem;
-	org = (rottpatch_t*)RottSpriteMemptr;
+	//EDGE: ERRORS:
+	p = (rottpatch_t*)patchmem; //rottpatch_t *" cannot be assigned to an entity of type "transpatch_t *"
+	org = (rottpatch_t*)RottSpriteMemptr; //rottpatch_t *" cannot be assigned to an entity of type "transpatch_t *"
 	ptr = tempbuffer;
 
 	p->origsize = origsize;
@@ -674,7 +674,7 @@ void RotatePicture ( u8_t *src, int iWidth,int  iHeight)
 	int w,h;
 	
 	tmpsrc = src;
-	mem = GlobalAlloc(GMEM_FIXED|GMEM_ZEROINIT,(iWidth*iHeight)+4000);
+	mem = GlobalAlloc(GMEM_FIXED|GMEM_ZEROINIT,(iWidth*iHeight)+4000); //"HGLOBAL" cannot be assigned to an entity of type "u8_t *"
 	m = mem;
 	for (w=0;w<iWidth;w++)
 	{
@@ -752,7 +752,7 @@ int ConvertPCXIntoRott_pic_t(u8_t *RottSpriteMemptr, u8_t*srcdata, int lump, int
 	int widthalign,c,h1,h2,wx1=w,hx1=h;
 	unsigned char *tgt,*src,*mem;
 	pic_t *Win1;	byte test[1000];
-	mem = GlobalAlloc(GMEM_FIXED|GMEM_ZEROINIT,(w*h)+4000);
+	mem = GlobalAlloc(GMEM_FIXED|GMEM_ZEROINIT,(w*h)+4000); //a value of type "HGLOBAL" cannot be assigned to an entity of type "unsigned char *"
 
 	memset(mem,45,4000);
 
