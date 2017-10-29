@@ -1,0 +1,38 @@
+===================
+WadTools.c -> w_rottwad.cc
+GFX_Utilities.c -> r_rottgfx.cc
+===================
+
+===================
+GlobalFree -> Z_Free
+(as per z_zone.h)
+===================
+
+===================
+collumnofs -> columnofs
+(as per dm_data.h)
+===================
+
+===================
+patch_t -> rottpatch_t
+(as per dm_data.h)
+===================
+
+===================
+BYTE -> u8_t
+WORD -> u16_t
+BOOL -> int
+unsigned int -> u32_t
+(as per epi/types.h):
+
+typedef signed char  s8_t;
+typedef signed short s16_t;
+typedef signed int   s32_t;
+ 
+typedef unsigned char  u8_t;
+typedef unsigned short u16_t;
+typedef unsigned int   u32_t;
+//typedef unsigned int   u64_t;
+
+typedef u8_t byte;
+===================
