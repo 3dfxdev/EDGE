@@ -59,6 +59,7 @@ extern byte playpal_data[14][256][3];
 
 int V_FindColour(int r, int g, int b);
 void V_SetPalette(int type, float amount);
+void VL_NormalizePalette(byte * palette);
 void V_ColourNewFrame(void);
 void R_PaletteStuff(void);
 void R_ColorMapUpdate(int col, float desat);
