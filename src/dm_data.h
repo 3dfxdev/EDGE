@@ -199,7 +199,7 @@ typedef struct lbm_s
 lbm_t;
 
 // ROTT Translucent Patch format
-typedef struct transpatch_t
+typedef struct transpatch_s
 {
 	short origsize;		// the orig size of "grabbed" gfx
 	short width;		// bounding box size
