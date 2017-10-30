@@ -298,7 +298,7 @@ void ShrinkMemPictureExt( int orgw, int orgh, int neww, int newy, u8_t* src, u8_
 { 
 	//shrink mem picure and plce it in tmpPICbuf 
    	u8_t *tmp2,*s;
-	int x,y,tmp;
+	u8_t x,y,tmp;
 	int cnt;
 	float Yratio,Xratio,old,oldY,Ycnt;
 
@@ -520,14 +520,10 @@ int ConvertPCXIntoRottSprite (u8_t  *RottSpriteMemptr, u8_t*srcdata, int lump, i
 }
 
 
-
-
-  
-
 int ConvertPCXIntoRottTransSprite (u8_t  *RottSpriteMemptr, u8_t*srcdata, int lump, int lumplength, int origsize,int h, int w,int leftoffset,int topoffset,int translevel)
 {
-   transpatch_t *p,*org; 
-   int newspritelen;
+    transpatch_t *p,*org; 
+    int newspritelen;
 	int widthalign,c;
 	int h1;
     u8_t *tempbuffer,*ptr,*patchmem,*ptm,*old, *oldptr;
