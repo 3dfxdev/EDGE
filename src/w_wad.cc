@@ -79,7 +79,7 @@
 #include <physfs.h>
 #endif
 
-vswap_info_c vswap;
+//vswap_info_c vswap;
 
 extern void CreatePlaypal(); //Wolfenstein 3D / Rise of the Triad
 
