@@ -200,7 +200,6 @@ public:
 
 static std::vector<data_file_c *> data_files;
 
-
 // Raw filenames
 class raw_filename_c
 {
@@ -275,7 +274,6 @@ int numlumps;
 
 #define LUMP_MAP_CMP(a) (strncmp(lumpinfo[lumpmap[a]].name, buf, 8))
 
-
 typedef struct lumpheader_s
 {
 #ifdef DEVELOPERS
@@ -327,20 +325,10 @@ byte *W_ReadLumpAlloc(int lump, int *length);
 //
 static bool IsS_START(char *name)
 {
-	if (strncmp(name, "GUNSTART", 8) == 0)
-	{
-			// fix up flag to standard syntax
-			// Note: strncpy will pad will nulls
-		I_Printf("ROTT: GUNSTART -> Sprites...\n");
-			strncpy(name, "S_START", 8);
-			return 1;
-	}
-
-	if (strncmp(name, "SHAPSTRT", 8) == 0)
+	if ((strncmp(name, "GUNSTART", 8) == 0) && (strncmp(name, "SHAPSTART", 8) == 0))
 	{
 		// fix up flag to standard syntax
 		// Note: strncpy will pad will nulls
-		I_Printf("ROTT: SHAPSTRT -> Sprites...\n");
 		strncpy(name, "S_START", 8);
 		return 1;
 	}
@@ -362,23 +350,23 @@ static bool IsS_START(char *name)
 //
 static bool IsS_END(char *name)
 {
-	if (strncmp(name, "GUNSTART", 8) == 0)
+	if ((strncmp(name, "GUNSTOP", 8) == 0) && (strncmp(name, "SHAPSTOP", 8) == 0))
 	{
-		// fix up flag to standard syntax
+		 //fix up flag to standard syntax
 		// Note: strncpy will pad will nulls
-		I_Printf("ROTT: GUNSTART -> Sprites...\n");
-		strncpy(name, "S_START", 8);
+		I_Printf("ROTT: SPRITES END PROCESSING...\n");
+		strncpy(name, "S_END", 8);
 		return 1;
 	}
 
-	if (strncmp(name, "SHAPSTOP", 8) == 0)
-	{
+	//if (strncmp(name, "SHAPSTOP", 8) == 0)
+	//{
 		// fix up flag to standard syntax
 		// Note: strncpy will pad will nulls
-		I_Printf("ROTT: SHAPSTOP -> Sprites list end...\n");
-		strncpy(name, "S_START", 8);
-		return 1;
-	}
+	//	I_Printf("ROTT: SHAPSTOP -> Sprites list end...\n");
+	//	strncpy(name, "S_START", 8);
+	//	return 1;
+	//}
 
 	if (strncmp(name, "SS_END", 8) == 0)
 	{
@@ -396,6 +384,7 @@ static bool IsS_END(char *name)
 //
 static bool IsF_START(char *name)
 {
+#if 0
 	if (strncmp(name, "WALLSTRT", 8) == 0)
 	{
 		// fix up flag to standard syntax
@@ -430,7 +419,6 @@ static bool IsF_START(char *name)
 		return 1;
 	}
 
-
 	//Even though it says patches, it is technically a flat
 	if (strncmp(name, "ELEVSTRT", 8) == 0)
 	{
@@ -457,6 +445,8 @@ static bool IsF_START(char *name)
 		strncpy(name, "F_START", 8);
 		return 1;
 	}
+#endif // 0
+
 
 	//if (strncmp(name, "ORNGMAP", 8) == 0)
 	//{
@@ -466,7 +456,7 @@ static bool IsF_START(char *name)
 	//	return 1;
 	//}
 
-	else if (strncmp(name, "FF_START", 8) == 0)
+	if (strncmp(name, "FF_START", 8) == 0)
 	{
 		// fix up flag to standard syntax
 		strncpy(name, "F_START", 8);
@@ -482,6 +472,7 @@ static bool IsF_START(char *name)
 //
 static bool IsF_END(char *name)
 {
+#if 0
 	if (strncmp(name, "WALLSTOP", 8) == 0)
 	{
 		// fix up flag to standard syntax
@@ -516,7 +507,6 @@ static bool IsF_END(char *name)
 		return 1;
 	}
 
-
 	//Even though it says patches, it is technically a flat
 	if (strncmp(name, "ELEVSTOP", 8) == 0)
 	{
@@ -543,6 +533,8 @@ static bool IsF_END(char *name)
 		strncpy(name, "FF_END", 8);
 		return 1;
 	}
+#endif // 0
+
 
 	//if (strncmp(name, "FINDRPAL", 8) == 0)
 	//{
@@ -552,7 +544,7 @@ static bool IsF_END(char *name)
 	//	return 1;
 	//}
 
-	else if (strncmp(name, "FF_END", 8) == 0)
+	if (strncmp(name, "FF_END", 8) == 0)
 	{
 		// fix up flag to standard syntax
 		strncpy(name, "F_END", 8);
@@ -568,8 +560,7 @@ static bool IsF_END(char *name)
 //
 static bool IsP_START(char *name)
 {
-
-
+#if 0
 	if (strncmp(name, "MASKSTRT", 8) == 0)
 	{
 		I_Printf("ROTT: MASKSTRT -> Patches\n");
@@ -585,11 +576,8 @@ static bool IsP_START(char *name)
 		strncpy(name, "PP_START", 8);
 		return 1;
 	}
-#if 0
-
-
-
 #endif // 0
+
 
 	if (strncmp(name, "PP_START", 8) == 0)
 	{
@@ -607,25 +595,21 @@ static bool IsP_START(char *name)
 //
 static bool IsP_END(char *name)
 {
-	
-	if (strncmp(name, "MASKSTOP", 8) == 0)
-	{
-		I_Printf("ROTT: MASKSTOP -> PP_END\n");
+	//if (strncmp(name, "MASKSTOP", 8) == 0)
+	//{
+	//	I_Printf("ROTT: MASKSTOP -> PP_END\n");
 		// fix up flag to standard syntax
-		strncpy(name, "P_END", 8);
-		return 1;
-	}
+	//	strncpy(name, "P_END", 8);
+	//	return 1;
+	//}
 
-	if (strncmp(name, "SMALLFON", 8) == 0)
-	{
+	//if (strncmp(name, "SMALLFON", 8) == 0)
+	//{
 		// fix up flag to standard syntax
-		I_Printf("ROTT: SMALLFON -> Patches\n");
-		strncpy(name, "P_END", 8);
-		return 1;
-	}
-
-	
-
+	//	I_Printf("ROTT: SMALLFON -> Patches\n");
+	//	strncpy(name, "P_END", 8);
+	//	return 1;
+	//}
 
 	if (strncmp(name, "PP_END", 8) == 0)
 	{
@@ -674,13 +658,11 @@ static bool IsC_END(char *name)
 //
 static bool IsTX_START(char *name)
 {
-
 	return (strncmp(name, "TX_START", 8) == 0);
 }
 
 static bool IsTX_END(char *name)
 {
-
 	return (strncmp(name, "TX_END", 8) == 0);
 }
 
@@ -715,6 +697,57 @@ static bool IsDummySF(const char *name)
 		strncmp(name, "DIGISTRT", 8) == 0);
 }
 
+
+
+// RISE OF THE TRIAD SPECIAL MARKERS
+
+// Make sure to set all ROTT flats (anything 64x64) into the FLATS namespace
+static bool IsROTTFlat_Start(const char *name)
+{
+	return (strncmp(name, "WALLSTRT", 8) == 0 ||
+		strncmp(name, "ANIMSTRT", 8) == 0 ||
+		strncmp(name, "DOORSTRT", 8) == 0 ||
+		strncmp(name, "EXITSTRT", 8) == 0 ||
+		strncmp(name, "ABVWSTRT", 8) == 0 ||
+		strncmp(name, "ELEVSTRT", 8) == 0 ||
+		strncmp(name, "SIDESTRT", 8) == 0 ||
+		strncmp(name, "UPDNSTRT", 8) == 0);
+}
+
+static bool IsROTTFlat_End(const char *name)
+{
+	return (strncmp(name, "WALLSTOP", 8) == 0 ||
+		strncmp(name, "ANIMSTOP", 8) == 0 ||
+		strncmp(name, "DOORSTOP", 8) == 0 ||
+		strncmp(name, "EXITSTOP", 8) == 0 ||
+		strncmp(name, "ELEVSTOP", 8) == 0 ||
+		strncmp(name, "SIDESTOP", 8) == 0 ||
+		strncmp(name, "UPDNSTOP", 8) == 0);
+}
+
+
+
+static bool IsROTTMask_Start(const char *name)
+{
+	return (strncmp(name, "MASKSTRT", 8) == 0 ||
+		strncmp(name, "HMSKSTRT", 8) == 0 ||
+		strncmp(name, "ABVMSTRT", 8) == 0);
+}
+
+
+static bool IsROTTMask_End(const char *name)
+{
+	return (strncmp(name, "MASKEND", 8) == 0 ||
+		strncmp(name, "HMSKSTRT", 8) == 0 || //Switches
+		strncmp(name, "GUNSTART", 8) == 0);
+}
+
+static bool IsROTTRaw(const char *name)
+{
+	return (strncmp(name, "TRILOGO", 7) == 0);
+	return (strncmp(name, "PLANE", 7) == 0);
+}
+
 //
 // Is the name a skin specifier ?
 //
@@ -723,23 +756,6 @@ static bool IsSkin(const char *name)
 	return (strncmp(name, "S_SKIN", 6) == 0);
 }
 
-static bool IsROTTRaw(const char *name)
-{
-	return (strncmp(name, "TRILOGO", 7) == 0);
-	return (strncmp(name, "PLANE", 7) == 0);
-
-}
-
-// RISE OF THE TRIAD SPECIAL MARKERS
-
-//
-// Is the name a WALLSTRT specifier ?
-//
-static bool IsWALLSTRT(const char *name)
-{
-	return (strncmp(name, "WALLSTRT", 8) == 0);
-	return (strncmp(name, "ANIMSTRT", 8) == 0);
-}
 
 static inline bool IsGL_Prefix(const char *name)
 {
@@ -776,7 +792,6 @@ void W_GetTextureLumps(int file, wadtex_resource_c *res)
 	}
 }
 
-
 //
 // W_GetWolfTextureLumps
 //
@@ -789,7 +804,6 @@ void W_GetWolfTextureLumps(int file, raw_vswap_t *res)
 	SYS_ASSERT(res);
 
 	data_file_c *df = data_files[file];
-
 }
 
 //
@@ -865,7 +879,6 @@ static void SortSpriteLumps(data_file_c *df)
 #endif
 }
 
-
 //
 // LUMP BASED ROUTINES.
 //
@@ -924,7 +937,6 @@ static void MarkAsCached(lumpheader_t *item)
 	cache_size += W_LumpLength(item->lumpindex);
 }
 
-
 //
 // AddLump/AddLumpEx
 //
@@ -943,7 +955,7 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 	Z_StrNCpy(lump_p->name, name, 8);
 	strupr(lump_p->name);
 	// strip any extension
-	for (j=7; j>=0; j--)
+	for (j = 7; j >= 0; j--)
 		if (lump_p->name[j] == '.')
 		{
 			lump_p->name[j] = 0;
@@ -952,13 +964,12 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 
 	Z_StrNCpy(lump_p->path, path, 255);
 
-#if 1
+#if 0
 	I_Debugf("AddLumpEx: %p, %d, %d, %d, %d, %d, %s, %d, %s\n",
 		df, lump, pos, size, file, sort_index, lump_p->name, allow_ddf, lump_p->path);
 #endif
 
 	// -- handle special names --
-
 
 	if (strncmp(lump_p->name, "PLAYPAL", 8) == 0)
 	{
@@ -1034,8 +1045,6 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		}
 	}
 
-
-
 	if (IsSkin(lump_p->name))
 	{
 		lump_p->kind = LMKIND_Marker;
@@ -1066,6 +1075,13 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		within_flat_list = true;
 		return;
 	}
+	else if (IsROTTFlat_Start(lump_p->name))
+	{
+		I_Printf("Parsing ROTT Flat Lumps by array\n");
+		lump_p->kind = LMKIND_Marker;
+		within_flat_list = true;
+		return;
+	}
 	//else if (IsROTTRaw(lump_p->name))
 	//{
 		//lump_p->kind = LMKIND_Flat;
@@ -1077,6 +1093,12 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		if (!within_flat_list)
 			I_Warning("Unexpected F_END marker in wad.\n");
 
+		lump_p->kind = LMKIND_Marker;
+		within_flat_list = false;
+		return;
+	}
+	else if (IsROTTFlat_End(lump_p->name))
+	{
 		lump_p->kind = LMKIND_Marker;
 		within_flat_list = false;
 		return;
@@ -1182,8 +1204,6 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		}
 	}
 }
-
-
 
 static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 	int sort_index, const char *name, bool allow_ddf)
@@ -1358,7 +1378,6 @@ static bool FindCacheFilename(std::string& out_name,
 	I_Debugf("FindCacheFilename: has_local=%s  has_cache=%s\n",
 		has_local ? "YES" : "NO", has_cache ? "YES" : "NO");
 
-
 	if (has_local)
 	{
 		out_name = local_name;
@@ -1390,7 +1409,7 @@ static void LumpNamespace(void *userData, const char *origDir, const char *fname
 #ifdef HAVE_PHYSFS
 	file_info_t *user_data = (file_info_t *)userData;
 	char path[256];
-	strcpy(path,origDir);
+	strcpy(path, origDir);
 	strcat(path, "/");
 	strcat(path, fname);
 
@@ -1424,8 +1443,8 @@ static void LumpNamespace(void *userData, const char *origDir, const char *fname
 	}
 	else
 
-	// add lump
-	I_Debugf("    opening lump %s\n", fname);
+		// add lump
+		I_Debugf("    opening lump %s\n", fname);
 	PHYSFS_File *file = PHYSFS_openRead(path);
 	if (!file)
 		return; // couldn't open file - skip
@@ -1448,7 +1467,7 @@ static void WadNamespace(void *userData, const char *origDir, const char *fname)
 	raw_wad_entry_t entry;
 	char tname[10];
 	char path[256];
-	strcpy(path,origDir);
+	strcpy(path, origDir);
 	strcat(path, "/");
 	strcat(path, fname);
 
@@ -1483,7 +1502,7 @@ static void WadNamespace(void *userData, const char *origDir, const char *fname)
 	PHYSFS_seek(file, header.dir_start);
 
 	// loop over wad directory entries
-	for (int i=0; i<(int)header.num_entries; i++)
+	for (int i = 0; i < (int)header.num_entries; i++)
 	{
 		PHYSFS_read(file, &entry, sizeof(raw_wad_entry_t), 1);
 		int pos = EPI_LE_S32(entry.pos);
@@ -1541,7 +1560,7 @@ static void ScriptNamespace(void *userData, const char *origDir, const char *fna
 	file_info_t *user_data = (file_info_t *)userData;
 	char check[16];
 	char path[256];
-	strcpy(path,origDir);
+	strcpy(path, origDir);
 	strcat(path, "/");
 	strcat(path, fname);
 
@@ -1615,7 +1634,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 	file_info_t *user_data = (file_info_t *)userData;
 	char check[16];
 	char path[256];
-	strcpy(path,origDir);
+	strcpy(path, origDir);
 	strcat(path, "/");
 	strcat(path, fname);
 
@@ -1769,7 +1788,6 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 				// enumerate all entries in placebo Wolf3d Directory (inside edge2.pak)
 				PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
 			}
-
 		}
 		else if (rott_mode)
 		{	// Checks for Global ROTT palette (PLAYPAL) instead of palette-byte translation (from SLADE.pk3)
@@ -1778,7 +1796,6 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 				// enumerate all entries in placebo ROTT Directory (inside edge2.pak)
 				PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
 			}
-
 		}
 		//Startup IWAD?
 #if 0
@@ -1840,10 +1857,10 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 
 	// check for special lumps, like map wad lumps
 	strcpy(check, "E1M1.wad");
-	for (int i=1; i<5; i++)
+	for (int i = 1; i < 5; i++)
 	{
 		check[1] = '0' + i;
-		for (int j=1; j<10; j++)
+		for (int j = 1; j < 10; j++)
 		{
 			check[3] = '0' + j;
 			if (strncmp(fname, check, 8) == 0)
@@ -1855,10 +1872,10 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 		}
 	}
 	strcpy(check, "MAP01.wad");
-	for (int i=1; i<100; i++)
+	for (int i = 1; i < 100; i++)
 	{
-		check[3] = '0' + i/10;
-		check[4] = '0' + i%10;
+		check[3] = '0' + i / 10;
+		check[4] = '0' + i % 10;
 		if (strncmp(fname, check, 9) == 0)
 		{
 			// process wad lump
@@ -1868,7 +1885,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 	}
 	// checking for startup.wad!
 	strcpy(check, "startup.wad");
-	for (int i = 1; i<8; i++)
+	for (int i = 1; i < 8; i++)
 	{
 		check[3] = '0' + i / 10;
 		check[4] = '0' + i % 10;
@@ -1922,7 +1939,6 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	raw_wad_entry_t *curinfo;
 
 	/* Wolfenstein 3D headers/entries/etc*/ //TODO
-
 
 	// reset the sprite/flat/patch list stuff
 	within_sprite_list = within_flat_list = false;
@@ -2096,7 +2112,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		return;
 
 	//First things first: Here, we will call all of the existing functions to open neccesarry Wolf files.
-	// Start FLKIND_ enumeration, eventually starting with MAPHEAD/GAMEMAPS -> VGADICT/VGAGRAPH, VSWAP, 
+	// Start FLKIND_ enumeration, eventually starting with MAPHEAD/GAMEMAPS -> VGADICT/VGAGRAPH, VSWAP,
 
 #if 0
 	if ((kind == FLKIND_VGADICT) && (kind == FLKIND_VGAGRAPH))
@@ -2109,8 +2125,6 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		// Fill in lumpinfo
 		numlumps += header.num_entries;
 		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
-
-
 	}
 
 	if (kind == FLKIND_VSWAP)
@@ -2163,8 +2177,6 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	}
 #endif // 0
 
-
-
 	if (kind <= FLKIND_HWad)
 	{
 		// WAD file
@@ -2178,7 +2190,6 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 			{
 				I_Error("Wad file %s doesn't have IWAD or PWAD id\n", filename);
 			}
-
 		}
 
 		header.num_entries = EPI_LE_S32(header.num_entries);
@@ -2365,11 +2376,9 @@ void W_AddRawFilename(const char *file, int kind)
 {
 	I_Debugf("Added filename: %s\n", file);
 
-
 	wadfiles.push_back(new raw_filename_c(file, kind));
 	r_pak_fp.push_back(new raw_filename_c(file, kind));
 	raw_wl6.push_back(new raw_filename_c(file, kind));
-
 }
 
 //
@@ -2401,10 +2410,10 @@ void W_InitMultipleFiles(void)
 	}
 
 	for (it = raw_wl6.begin(); it != raw_wl6.end(); it++)
-		{
-			raw_filename_c *rf = *it;
-			AddFile(rf->filename.c_str(), rf->kind, -1);
-		}
+	{
+		raw_filename_c *rf = *it;
+		AddFile(rf->filename.c_str(), rf->kind, -1);
+	}
 
 	if (numlumps == 0)
 		I_Error("W_InitMultipleFiles: no files found!\n");
@@ -2455,7 +2464,6 @@ static void LoadTntPlutStrings(void)
 
 	if (DDF_CompareName(iwad_base.c_str(), "PLUTONIA") == 0)
 		TryLoadExtraLanguage("PLUTLANG");
-
 }
 
 static void LoadTntPlutGame(void)
@@ -2465,9 +2473,7 @@ static void LoadTntPlutGame(void)
 
 	if (DDF_CompareName(iwad_base.c_str(), "PLUTONIA") == 0)
 		TryLoadExtraGame("PLUTGAME");
-
 }
-
 
 void W_ReadDDF(void)
 {
@@ -2587,7 +2593,6 @@ void W_ReadCoalLumps(void)
 
 		if (df->coal_huds >= 0)
 			VM_LoadLumpOfCoal(df->coal_huds);
-
 	}
 }
 
@@ -2686,7 +2691,6 @@ int W_GetPaletteForLump(int lump)
 	return -1;
 }
 
-
 static inline int QuickFindLumpMap(char *buf)
 {
 	int i;
@@ -2707,7 +2711,6 @@ static inline int QuickFindLumpMap(char *buf)
 
 	return i;
 }
-
 
 //
 // W_CheckNumForName
@@ -2739,7 +2742,6 @@ int W_CheckNumForName2(const char *name)
 
 	return lumpmap[i];
 }
-
 
 int W_CheckNumForName_GFX(const char *name)
 {
@@ -2906,7 +2908,6 @@ int W_FindFlatSequence(const char *start, const char *end,
 	return -1;
 }
 
-
 //
 // Returns NULL for an empty list.
 //
@@ -2929,12 +2930,10 @@ epi::u32array_c& W_GetListLumps(int file, lumplist_e which)
 	return df->sprite_lumps; /* NOT REACHED */
 }
 
-
 int W_GetNumFiles(void)
 {
 	return (int)data_files.size();
 }
-
 
 int W_GetFileForLump(int lump)
 {
@@ -2942,7 +2941,6 @@ int W_GetFileForLump(int lump)
 
 	return lumpinfo[lump].file;
 }
-
 
 //
 // Loads the lump into the given buffer,
@@ -3218,7 +3216,6 @@ void W_ProcessTX_HI(void)
 	}
 }
 
-
 static const char *FileKind_Strings[] =
 {
 	"iwad", "pwad", "EDGE2", "gwa", "hwa",
@@ -3236,7 +3233,6 @@ static const char *LumpKind_Strings[] =
 	"tx", "colmap", "flat", "sprite", "patch",
 	"???", "???", "???", "???"
 };
-
 
 void W_ShowLumps(int for_file, const char *match)
 {
