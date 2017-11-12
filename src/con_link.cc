@@ -108,6 +108,8 @@ extern cvar_c camera_subdir;
 
 extern cvar_c sound_pitch;
 
+extern cvar_c i_skipsplash;
+
 
 
 #ifndef LINUX
@@ -226,6 +228,8 @@ cvar_link_t  all_cvars[] =
 	{ "r_bloom_amount",    &r_bloom_amount, "c", "1.24" },
 	{ "r_lens",		       &r_lens,			"c", "1" },
 	{ "r_fxaa",            &r_fxaa,         "c", "1" },
+
+	{ "i_skipsplash",	&i_skipsplash,	"c", "0" },
 
 #if 0 // FIXME
     { "edge_compat",    &edge_compat,    "",    "0"  },
