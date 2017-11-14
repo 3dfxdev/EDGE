@@ -44,6 +44,7 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 * Andrew Apted (additional programming, bug fixes)
 * Graf Zahl (for his ongoing wisdom, contributions, and guidance)
 * Marisa Heit (most amazing woman in the community, TBH ;)
+* Blzut3 (ECWolf, Wolf3D/ROTT technical support)
 * Fraggle (Chocolate Doom SDL2 help)
 * Crispy Doom Guys (fabian, alexmax) for helping with lerp
 * Quasar (Eternity Engine, dynaBSP/midi_RPC stuff)
