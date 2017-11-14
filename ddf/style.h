@@ -92,6 +92,27 @@ public:
 
 };
 
+class menustyle_c
+{
+public:
+	menustyle_c();
+	menustyle_c(const menustyle_c& rhs);
+	~menustyle_c();
+
+	void Default();
+	menustyle_c& operator= (const menustyle_c& rhs);
+
+	epi::strent_c name;
+
+	rgbcol_t colour;
+	percent_t translucency;
+
+	epi::strent_c image_name;
+
+	float scale;
+	float aspect;
+};
+
 typedef enum
 {
 	SYLSP_Tiled = 0x0001,  // bg image should tile (otherwise covers whole area)
@@ -128,6 +149,8 @@ public:
 	textstyle_c text[NUM_TXST];
 
 	soundstyle_c sounds;
+
+	menustyle_c menuimage;
 
 	style_special_e special;
 

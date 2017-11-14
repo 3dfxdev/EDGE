@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition File Code (Linedefs)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2011  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -43,11 +43,11 @@
 // Scrolling
 typedef enum
 {
-	dir_none  = 0,
-	dir_vert  = 1,
-	dir_up    = 2,
+	dir_none = 0,
+	dir_vert = 1,
+	dir_up = 2,
 	dir_horiz = 4,
-	dir_left  = 8
+	dir_left = 8
 }
 scrolldirs_e;
 
@@ -72,7 +72,6 @@ static void DDF_LineGetPortalEffect(const char *info, void *storage);
 static void DDF_LineGetSlopeType(const char *info, void *storage);
 
 static void DDF_LineMakeCrush(const char *info);
-
 
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  dummy_floor
@@ -131,7 +130,6 @@ const commandlist_t slider_commands[] =
 	DDF_CMD_END
 };
 
-
 static linetype_c *dynamic_line;
 
 // these bits logically belong with buffer_line:
@@ -184,35 +182,34 @@ static const commandlist_t linedef_commands[] =
 	DF("SCROLL_YSPEED", s_yspeed, DDF_MainGetFloat),
 	DF("SCROLL_PARTS", scroll_parts, DDF_LineGetScrollPart),
 	DF("USE_COLOURMAP", use_colourmap, DDF_MainGetColourmap),
-//	DF("USE_FOG", use_fog, DDF_SectorGetFog),
-	DF("GRAVITY", gravity, DDF_MainGetFloat),
-	DF("FRICTION", friction, DDF_MainGetFloat),
-	DF("VISCOSITY", viscosity, DDF_MainGetFloat),
-	DF("DRAG", drag, DDF_MainGetFloat),
-	DF("AMBIENT_SOUND", ambient_sfx, DDF_MainLookupSound),
-	DF("ACTIVATE_SOUND", activate_sfx, DDF_MainLookupSound),
-	DF("MUSIC", music, DDF_MainGetNumeric),
-	DF("AUTO", autoline, DDF_MainGetBoolean),
-	DF("SINGLESIDED", singlesided, DDF_MainGetBoolean),
-	DF("EXTRAFLOOR_TYPE", ef.type, DDF_LineGetExtraFloor),
-	DF("EXTRAFLOOR_CONTROL", ef.control, DDF_LineGetEFControl),
-	DF("TRANSLUCENCY", translucency, DDF_MainGetPercent),
-	DF("WHEN_APPEAR", appear, DDF_MainGetWhenAppear),
-	DF("SPECIAL", special_flags, DDF_LineGetSpecialFlags),
-	DF("RADIUS_TRIGGER", trigger_effect, DDF_LineGetRadTrig),
-	DF("LINE_EFFECT", line_effect, DDF_LineGetLineEffect),
-	DF("LINE_PARTS",  line_parts,  DDF_LineGetScrollPart),
-	DF("SECTOR_EFFECT", sector_effect, DDF_LineGetSectorEffect),
-	DF("PORTAL_TYPE",   portal_effect, DDF_LineGetPortalEffect),
-	DF("SLOPE_TYPE", slope_type, DDF_LineGetSlopeType),
-	DF("COLOUR", fx_color, DDF_MainGetRGB),
+	//	DF("USE_FOG", use_fog, DDF_SectorGetFog),
+		DF("GRAVITY", gravity, DDF_MainGetFloat),
+		DF("FRICTION", friction, DDF_MainGetFloat),
+		DF("VISCOSITY", viscosity, DDF_MainGetFloat),
+		DF("DRAG", drag, DDF_MainGetFloat),
+		DF("AMBIENT_SOUND", ambient_sfx, DDF_MainLookupSound),
+		DF("ACTIVATE_SOUND", activate_sfx, DDF_MainLookupSound),
+		DF("MUSIC", music, DDF_MainGetNumeric),
+		DF("AUTO", autoline, DDF_MainGetBoolean),
+		DF("SINGLESIDED", singlesided, DDF_MainGetBoolean),
+		DF("EXTRAFLOOR_TYPE", ef.type, DDF_LineGetExtraFloor),
+		DF("EXTRAFLOOR_CONTROL", ef.control, DDF_LineGetEFControl),
+		DF("TRANSLUCENCY", translucency, DDF_MainGetPercent),
+		DF("WHEN_APPEAR", appear, DDF_MainGetWhenAppear),
+		DF("SPECIAL", special_flags, DDF_LineGetSpecialFlags),
+		DF("RADIUS_TRIGGER", trigger_effect, DDF_LineGetRadTrig),
+		DF("LINE_EFFECT", line_effect, DDF_LineGetLineEffect),
+		DF("LINE_PARTS",  line_parts,  DDF_LineGetScrollPart),
+		DF("SECTOR_EFFECT", sector_effect, DDF_LineGetSectorEffect),
+		DF("PORTAL_TYPE",   portal_effect, DDF_LineGetPortalEffect),
+		DF("SLOPE_TYPE", slope_type, DDF_LineGetSlopeType),
+		DF("COLOUR", fx_color, DDF_MainGetRGB),
 
-	// -AJA- backwards compatibility cruft...
-	DF("EXTRAFLOOR_TRANSLUCENCY", translucency, DDF_MainGetPercent),
+		// -AJA- backwards compatibility cruft...
+		DF("EXTRAFLOOR_TRANSLUCENCY", translucency, DDF_MainGetPercent),
 
-	DDF_CMD_END
+		DDF_CMD_END
 };
-
 
 typedef struct
 {
@@ -230,7 +227,6 @@ static scroll_kludge_t s_scroll[] =
 	{ "RIGHT", dir_horiz },
 	{ NULL,    dir_none  }
 };
-
 
 static struct  // FIXME: APPLIES TO NEXT 3 TABLES !
 {
@@ -263,8 +259,8 @@ s_keys[] =
 
 	// backwards compatibility
 	{ "REQUIRES_ALL", KF_STRICTLY_ALL |
-	                  KF_BlueCard | KF_YellowCard | KF_RedCard |
-	                  KF_BlueSkull | KF_YellowSkull | KF_RedSkull }
+					  KF_BlueCard | KF_YellowCard | KF_RedCard |
+					  KF_BlueSkull | KF_YellowSkull | KF_RedSkull }
 }
 ,
 
@@ -299,14 +295,14 @@ static void LinedefStartEntry(const char *name, bool extend)
 	if (number == 0)
 		DDF_Error("Bad linetype number in lines.ddf: %s\n", name);
 
-	scrolling_dir   = dir_none;
+	scrolling_dir = dir_none;
 	scrolling_speed = 1.0f;
 
 	dynamic_line = linetypes.Lookup(number);
 
 	if (extend)
 	{
-		if (! dynamic_line)
+		if (!dynamic_line)
 			DDF_Error("Unknown linetype to extend: %s\n", name);
 		return;
 	}
@@ -325,7 +321,6 @@ static void LinedefStartEntry(const char *name, bool extend)
 	linetypes.Insert(dynamic_line);
 }
 
-
 static void LinedefDoTemplate(const char *contents)
 {
 	int number = MAX(0, atoi(contents));
@@ -340,11 +335,10 @@ static void LinedefDoTemplate(const char *contents)
 	dynamic_line->CopyDetail(*other);
 }
 
-
 static void LinedefParseField(const char *field, const char *contents,
-							  int index, bool is_last)
+	int index, bool is_last)
 {
-#if (DEBUG_DDF)  
+#if (DEBUG_DDF)
 	I_Debugf("LINEDEF_PARSE: %s = %s;\n", field, contents);
 #endif
 
@@ -380,7 +374,6 @@ static void LinedefParseField(const char *field, const char *contents,
 
 	DDF_WarnError("Unknown lines.ddf command: %s\n", field);
 }
-
 
 static void LinedefFinishEntry(void)
 {
@@ -421,7 +414,7 @@ static void LinedefFinishEntry(void)
 			dynamic_line->ef.type = (extrafloor_type_e)(dynamic_line->ef.type & ~EXFL_Flooder);
 		}
 
-		if (! (dynamic_line->ef.type & EXFL_Present))
+		if (!(dynamic_line->ef.type & EXFL_Present))
 		{
 			DDF_WarnError("Extrafloor type missing THIN, THICK or LIQUID.\n");
 			dynamic_line->ef.type = EXFL_None;
@@ -444,7 +437,6 @@ static void LinedefFinishEntry(void)
 
 	// TODO: check more stuff...
 }
-
 
 static void LinedefClearAll(void)
 {
@@ -477,10 +469,10 @@ bool DDF_ReadLines(void *data, int size)
 		lines.lumpname = NULL;
 	}
 
-	lines.start_entry  = LinedefStartEntry;
-	lines.parse_field  = LinedefParseField;
+	lines.start_entry = LinedefStartEntry;
+	lines.parse_field = LinedefParseField;
 	lines.finish_entry = LinedefFinishEntry;
-	lines.clear_all    = LinedefClearAll;
+	lines.clear_all = LinedefClearAll;
 
 	return DDF_MainReadFile(&lines);
 }
@@ -491,7 +483,7 @@ bool DDF_ReadLines(void *data, int size)
 void DDF_LinedefInit(void)
 {
 	linetypes.Reset();
-	
+
 	default_linetype = new linetype_c();
 	default_linetype->number = 0;
 }
@@ -503,8 +495,8 @@ void DDF_LinedefCleanUp(void)
 {
 	epi::array_iterator_c it;
 	linetype_c *l;
-	
-	for (it=linetypes.GetBaseIterator(); it.IsValid(); it++)
+
+	for (it = linetypes.GetBaseIterator(); it.IsValid(); it++)
 	{
 		l = ITERATOR_TO_TYPE(it, linetype_c*);
 
@@ -672,20 +664,20 @@ void DDF_LineGetExtraFloor(const char *info, void *storage)
 	int flag_value;
 
 	switch (DDF_MainCheckSpecialFlag(info, extrafloor_types,
-		                             &flag_value, true, false))
+		&flag_value, true, false))
 	{
-		case CHKF_Positive:
-			*var = (extrafloor_type_e)(*var | flag_value);
-			break;
+	case CHKF_Positive:
+		*var = (extrafloor_type_e)(*var | flag_value);
+		break;
 
-		case CHKF_Negative:
-			*var = (extrafloor_type_e)(*var & ~flag_value);
-			break;
+	case CHKF_Negative:
+		*var = (extrafloor_type_e)(*var & ~flag_value);
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("Unknown Extrafloor Type: %s\n", info);
-			break;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("Unknown Extrafloor Type: %s\n", info);
+		break;
 	}
 }
 
@@ -706,17 +698,17 @@ void DDF_LineGetEFControl(const char *info, void *storage)
 	int flag_value;
 
 	switch (DDF_MainCheckSpecialFlag(info, ef_control_types, &flag_value,
-	                                 false, false))
+		false, false))
 	{
-		case CHKF_Positive:
-		case CHKF_Negative:
-			*var = (extrafloor_control_e) flag_value;
-			break;
+	case CHKF_Positive:
+	case CHKF_Negative:
+		*var = (extrafloor_control_e)flag_value;
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("Unknown CONTROL_EXTRAFLOOR tag: %s", info);
-			break;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("Unknown CONTROL_EXTRAFLOOR tag: %s", info);
+		break;
 	}
 }
 
@@ -761,20 +753,20 @@ void DDF_LineGetTeleportSpecial(const char *info, void *storage)
 	int flag_value;
 
 	switch (DDF_MainCheckSpecialFlag(info, teleport_specials,
-									 &flag_value, true, false))
+		&flag_value, true, false))
 	{
-		case CHKF_Positive:
-			*var = (teleportspecial_e)(*var | flag_value);
-			break;
+	case CHKF_Positive:
+		*var = (teleportspecial_e)(*var | flag_value);
+		break;
 
-		case CHKF_Negative:
-			*var = (teleportspecial_e)(*var & ~flag_value);
-			break;
+	case CHKF_Negative:
+		*var = (teleportspecial_e)(*var & ~flag_value);
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("DDF_LineGetTeleportSpecial: Unknown Special: %s\n", info);
-			break;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("DDF_LineGetTeleportSpecial: Unknown Special: %s\n", info);
+		break;
 	}
 }
 
@@ -814,18 +806,18 @@ void DDF_LineGetScrollPart(const char *info, void *storage)
 	switch (DDF_MainCheckSpecialFlag(info, scrollpart_specials,
 		&flag_value, true, false))
 	{
-		case CHKF_Positive:
-			(*dest) = (scroll_part_e)((*dest) | flag_value);
-			break;
+	case CHKF_Positive:
+		(*dest) = (scroll_part_e)((*dest) | flag_value);
+		break;
 
-		case CHKF_Negative:
-			(*dest) = (scroll_part_e)((*dest) & ~flag_value);
-			break;
+	case CHKF_Negative:
+		(*dest) = (scroll_part_e)((*dest) & ~flag_value);
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("DDF_LineGetScrollPart: Unknown Part: %s", info);
-			break;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("DDF_LineGetScrollPart: Unknown Part: %s", info);
+		break;
 	}
 }
 
@@ -851,7 +843,7 @@ void DDF_LineGetSpecialFlags(const char *info, void *storage)
 	int flag_value;
 
 	switch (DDF_MainCheckSpecialFlag(info, line_specials, &flag_value,
-									 true, false))
+		true, false))
 	{
 	case CHKF_Positive:
 		*var = (line_special_e)(*var | flag_value);
@@ -907,7 +899,7 @@ static const specflags_t slidingdoor_names[] =
 static void DDF_LineGetSlideType(const char *info, void *storage)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info,
-		slidingdoor_names, (int *) storage, false, false))
+		slidingdoor_names, (int *)storage, false, false))
 	{
 		DDF_WarnError("DDF_LineGetSlideType: Unknown slider: %s\n", info);
 	}
@@ -945,20 +937,20 @@ static void DDF_LineGetLineEffect(const char *info, void *storage)
 	}
 
 	switch (DDF_MainCheckSpecialFlag(info, line_effect_names,
-	                                 &flag_value, true, false))
+		&flag_value, true, false))
 	{
-		case CHKF_Positive:
-			*var = (line_effect_type_e)(*var | flag_value);
-			break;
+	case CHKF_Positive:
+		*var = (line_effect_type_e)(*var | flag_value);
+		break;
 
-		case CHKF_Negative:
-			*var = (line_effect_type_e)(*var & ~flag_value);
-			break;
+	case CHKF_Negative:
+		*var = (line_effect_type_e)(*var & ~flag_value);
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("Unknown line effect type: %s", info);
-			break;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("Unknown line effect type: %s", info);
+		break;
 	}
 }
 
@@ -1000,20 +992,20 @@ static void DDF_LineGetSectorEffect(const char *info, void *storage)
 	}
 
 	switch (DDF_MainCheckSpecialFlag(info, sector_effect_names, &flag_value,
-	                                 true, false))
+		true, false))
 	{
-		case CHKF_Positive:
-			*var = (sector_effect_type_e)(*var | flag_value);
-			break;
+	case CHKF_Positive:
+		*var = (sector_effect_type_e)(*var | flag_value);
+		break;
 
-		case CHKF_Negative:
-			*var = (sector_effect_type_e)(*var & ~flag_value);
-			break;
+	case CHKF_Negative:
+		*var = (sector_effect_type_e)(*var & ~flag_value);
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("Unknown sector effect type: %s", info);
-			break;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("Unknown sector effect type: %s", info);
+		break;
 	}
 }
 
@@ -1042,20 +1034,20 @@ static void DDF_LineGetPortalEffect(const char *info, void *storage)
 	}
 
 	switch (DDF_MainCheckSpecialFlag(info, portal_effect_names, &flag_value,
-	                                 true, false))
+		true, false))
 	{
-		case CHKF_Positive:
-			*var = (portal_effect_type_e)(*var | flag_value);
-			break;
+	case CHKF_Positive:
+		*var = (portal_effect_type_e)(*var | flag_value);
+		break;
 
-		case CHKF_Negative:
-			*var = (portal_effect_type_e)(*var & ~flag_value);
-			break;
+	case CHKF_Negative:
+		*var = (portal_effect_type_e)(*var & ~flag_value);
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("Unknown portal type: %s", info);
-			break;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("Unknown portal type: %s", info);
+		break;
 	}
 }
 
@@ -1080,20 +1072,20 @@ static void DDF_LineGetSlopeType(const char *info, void *storage)
 	}
 
 	switch (DDF_MainCheckSpecialFlag(info, slope_type_names, &flag_value,
-	                                 true, false))
+		true, false))
 	{
-		case CHKF_Positive:
-			*var = (slope_type_e)(*var | flag_value);
-			break;
+	case CHKF_Positive:
+		*var = (slope_type_e)(*var | flag_value);
+		break;
 
-		case CHKF_Negative:
-			*var = (slope_type_e)(*var & ~flag_value);
-			break;
+	case CHKF_Negative:
+		*var = (slope_type_e)(*var & ~flag_value);
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("Unknown slope type: %s", info);
-			break;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("Unknown slope type: %s", info);
+		break;
 	}
 }
 
@@ -1103,9 +1095,7 @@ static void DDF_LineMakeCrush(const char *info)
 	dynamic_line->c.crush_damage = 10;
 }
 
-
 //----------------------------------------------------------------------------
-
 
 // --> Donut definition class
 
@@ -1140,9 +1130,9 @@ void donutdef_c::Copy(donutdef_c &src)
 
 	// FIXME! Strip out the d_ since we're not trying to
 	// to differentiate them now?
-	d_sfxin = src.d_sfxin; 
+	d_sfxin = src.d_sfxin;
 	d_sfxinstop = src.d_sfxinstop;
-	d_sfxout = src.d_sfxout; 
+	d_sfxout = src.d_sfxout;
 	d_sfxoutstop = src.d_sfxoutstop;
 }
 
@@ -1154,7 +1144,7 @@ void donutdef_c::Default()
 	dodonut = false;
 	d_sfxin = NULL;
 	d_sfxinstop = NULL;
-	d_sfxout = NULL; 
+	d_sfxout = NULL;
 	d_sfxoutstop = NULL;
 }
 
@@ -1163,12 +1153,11 @@ void donutdef_c::Default()
 //
 donutdef_c& donutdef_c::operator=(donutdef_c &rhs)
 {
-	if(&rhs != this)
+	if (&rhs != this)
 		Copy(rhs);
 
 	return *this;
 }
-
 
 // --> Extrafloor definition class
 
@@ -1217,12 +1206,11 @@ void extrafloordef_c::Default()
 //
 extrafloordef_c& extrafloordef_c::operator=(extrafloordef_c &rhs)
 {
-	if(&rhs != this)
+	if (&rhs != this)
 		Copy(rhs);
 
 	return *this;
 }
-
 
 // --> Ladder definition class
 
@@ -1269,7 +1257,7 @@ void ladderdef_c::Default()
 //
 ladderdef_c& ladderdef_c::operator=(ladderdef_c &rhs)
 {
-	if(&rhs != this)
+	if (&rhs != this)
 		Copy(rhs);
 
 	return *this;
@@ -1332,7 +1320,7 @@ void lightdef_c::Default()
 //
 lightdef_c& lightdef_c::operator=(lightdef_c &rhs)
 {
-	if(&rhs != this)
+	if (&rhs != this)
 		Copy(rhs);
 
 	return *this;
@@ -1378,7 +1366,7 @@ void movplanedef_c::Copy(movplanedef_c &src)
 	crush_damage = src.crush_damage;
 	tex = src.tex;
 	wait = src.wait;
-    prewait = src.prewait;
+	prewait = src.prewait;
 	sfxstart = src.sfxstart;
 	sfxup = src.sfxup;
 	sfxdown = src.sfxdown;
@@ -1402,70 +1390,70 @@ void movplanedef_c::Default(movplanedef_c::default_e def)
 
 	switch (def)
 	{
-		case DEFAULT_CeilingLine:
-		case DEFAULT_FloorLine:
-		{
-			speed_up = -1;
-			speed_down = -1;
-			break;
-		}
-		
-		case DEFAULT_DonutFloor:
-		{
-			speed_up = FLOORSPEED/2;
-			speed_down = FLOORSPEED/2;
-			break;
-		}
-		
-		default:
-		{
-			speed_up = 0;
-			speed_down = 0;
-			break;
-		}
+	case DEFAULT_CeilingLine:
+	case DEFAULT_FloorLine:
+	{
+		speed_up = -1;
+		speed_down = -1;
+		break;
 	}
-	
+
+	case DEFAULT_DonutFloor:
+	{
+		speed_up = FLOORSPEED / 2;
+		speed_down = FLOORSPEED / 2;
+		break;
+	}
+
+	default:
+	{
+		speed_up = 0;
+		speed_down = 0;
+		break;
+	}
+	}
+
 	destref = REF_Absolute;
 
 	// FIXME!!! Why are we using INT_MAX with a fp number?
 	dest = (def != DEFAULT_DonutFloor) ? 0.0f : (float)INT_MAX;
-	
+
 	switch (def)
 	{
-		case DEFAULT_CeilingLine:
-		{
-			otherref = (heightref_e)(REF_Current|REF_CEILING);
-			break;
-		}
-		
-		case DEFAULT_FloorLine:
-		{
-			otherref = (heightref_e)(REF_Surrounding|REF_HIGHEST|REF_INCLUDE);
-			break;
-		}
-		
-		default:
-		{
-			otherref = REF_Absolute;
-			break;
-		}
+	case DEFAULT_CeilingLine:
+	{
+		otherref = (heightref_e)(REF_Current | REF_CEILING);
+		break;
 	}
-	
+
+	case DEFAULT_FloorLine:
+	{
+		otherref = (heightref_e)(REF_Surrounding | REF_HIGHEST | REF_INCLUDE);
+		break;
+	}
+
+	default:
+	{
+		otherref = REF_Absolute;
+		break;
+	}
+	}
+
 	// FIXME!!! Why are we using INT_MAX with a fp number?
 	other = (def != DEFAULT_DonutFloor) ? 0.0f : (float)INT_MAX;
 
 	crush_damage = 0;
 
 	tex.clear();
-	
+
 	wait = 0;
 	prewait = 0;
-	
+
 	sfxstart = NULL;
 	sfxup = NULL;
 	sfxdown = NULL;
 	sfxstop = NULL;
-	
+
 	scroll_angle = 0;
 	scroll_speed = 0.0f;
 
@@ -1477,7 +1465,7 @@ void movplanedef_c::Default(movplanedef_c::default_e def)
 //
 movplanedef_c& movplanedef_c::operator=(movplanedef_c &rhs)
 {
-	if(&rhs != this)
+	if (&rhs != this)
 		Copy(rhs);
 
 	return *this;
@@ -1518,7 +1506,7 @@ void sliding_door_c::Copy(sliding_door_c &src)
 	see_through = src.see_through;
 	distance = src.distance;
 	sfx_start = src.sfx_start;
-	sfx_open = src.sfx_open;	
+	sfx_open = src.sfx_open;
 	sfx_close = src.sfx_close;
 	sfx_stop = src.sfx_stop;
 }
@@ -1528,12 +1516,12 @@ void sliding_door_c::Copy(sliding_door_c &src)
 //
 void sliding_door_c::Default()
 {
-	type = SLIDE_None;   
-	speed =4.0f;          
-	wait = 150;          
-	see_through = false;        
-	distance = PERCENT_MAKE(90); 
-	sfx_start =	sfx_None;
+	type = SLIDE_None;
+	speed = 4.0f;
+	wait = 150;
+	see_through = false;
+	distance = PERCENT_MAKE(90);
+	sfx_start = sfx_None;
 	sfx_open = sfx_None;
 	sfx_close = sfx_None;
 	sfx_stop = sfx_None;
@@ -1544,7 +1532,7 @@ void sliding_door_c::Default()
 //
 sliding_door_c& sliding_door_c::operator=(sliding_door_c &rhs)
 {
-	if(&rhs != this)
+	if (&rhs != this)
 		Copy(rhs);
 
 	return *this;
@@ -1580,11 +1568,11 @@ teleportdef_c::~teleportdef_c()
 void teleportdef_c::Copy(teleportdef_c &src)
 {
 	teleport = src.teleport;
-	
-	inspawnobj = src.inspawnobj;	
+
+	inspawnobj = src.inspawnobj;
 	inspawnobj_ref = src.inspawnobj_ref;
-	
-	outspawnobj = src.outspawnobj;	
+
+	outspawnobj = src.outspawnobj;
 	outspawnobj_ref = src.outspawnobj_ref;
 
 	special = src.special;
@@ -1597,12 +1585,12 @@ void teleportdef_c::Copy(teleportdef_c &src)
 void teleportdef_c::Default()
 {
 	teleport = false;
-	
-	inspawnobj = NULL;	
+
+	inspawnobj = NULL;
 	inspawnobj_ref.clear();
-	
-	outspawnobj = NULL;      	
-	outspawnobj_ref.clear(); 
+
+	outspawnobj = NULL;
+	outspawnobj_ref.clear();
 
 	delay = 0;
 	special = TELSP_None;
@@ -1613,7 +1601,7 @@ void teleportdef_c::Default()
 //
 teleportdef_c& teleportdef_c::operator=(teleportdef_c &rhs)
 {
-	if(&rhs != this)
+	if (&rhs != this)
 		Copy(rhs);
 
 	return *this;
@@ -1635,7 +1623,6 @@ linetype_c::linetype_c() : number(0)
 linetype_c::~linetype_c()
 {
 }
-	
 
 void linetype_c::CopyDetail(linetype_c &src)
 {
@@ -1663,7 +1650,7 @@ void linetype_c::CopyDetail(linetype_c &src)
 	failed_sfx = src.failed_sfx;
 
 	use_colourmap = src.use_colourmap;
-//	use_fog = src.use_fog; //duplicate in source
+	//	use_fog = src.use_fog; //duplicate in source
 	gravity = src.gravity;
 	friction = src.friction;
 	viscosity = src.viscosity;
@@ -1687,7 +1674,6 @@ void linetype_c::CopyDetail(linetype_c &src)
 	fx_color = src.fx_color;
 }
 
-
 void linetype_c::Default(void)
 {
 	newtrignum = 0;
@@ -1696,28 +1682,28 @@ void linetype_c::Default(void)
 	keys = KF_NONE;
 	count = -1;
 
-	f.Default(movplanedef_c::DEFAULT_FloorLine);		
-	c.Default(movplanedef_c::DEFAULT_CeilingLine);		
+	f.Default(movplanedef_c::DEFAULT_FloorLine);
+	c.Default(movplanedef_c::DEFAULT_CeilingLine);
 
 	d.Default();		// Donut
 	s.Default();		// Sliding Door
-	
+
 	t.Default();		// Teleport
 	l.Default();		// Light definition
-	
+
 	ladder.Default();	// Ladder
-	
+
 	e_exit = EXIT_None;
 	hub_exit = 0;
 	s_xspeed = 0.0f;
 	s_yspeed = 0.0f;
 	scroll_parts = SCPT_None;
-	
+
 	failedmessage.clear();
 	failed_sfx = NULL;
 
 	use_colourmap = NULL;
-//	use_fog = RGB_MAKE(0,0,0);
+	//	use_fog = RGB_MAKE(0,0,0);
 	gravity = FLO_UNUSED;
 	friction = FLO_UNUSED;
 	viscosity = FLO_UNUSED;
@@ -1729,9 +1715,9 @@ void linetype_c::Default(void)
 	singlesided = false;
 
 	ef.Default();
-	
+
 	translucency = PERCENT_MAKE(100);
-	appear = DEFAULT_APPEAR;    
+	appear = DEFAULT_APPEAR;
 	special_flags = LINSP_None;
 	trigger_effect = 0;
 	line_effect = LINEFX_NONE;
@@ -1739,16 +1725,15 @@ void linetype_c::Default(void)
 	sector_effect = SECTFX_None;
 	portal_effect = PORTFX_None;
 	slope_type = SLP_NONE;
-	fx_color = RGB_MAKE(0,0,0);
+	fx_color = RGB_MAKE(0, 0, 0);
 }
-
 
 // --> Line definition type container class
 
 //
 // linetype_container_c Constructor
 //
-linetype_container_c::linetype_container_c() : 
+linetype_container_c::linetype_container_c() :
 	epi::array_c(sizeof(linetype_c*))
 {
 	Reset();
