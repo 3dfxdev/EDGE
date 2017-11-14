@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //  Sound Data
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
@@ -23,51 +23,50 @@
 
 namespace epi
 {
+	sound_data_c::sound_data_c() :
+		length(0), freq(0), mode(0),
+		data_L(NULL), data_R(NULL),
+		priv_data(NULL), ref_count(0)
+	{ }
 
-sound_data_c::sound_data_c() :
-	length(0), freq(0), mode(0),
-	data_L(NULL), data_R(NULL),
-	priv_data(NULL), ref_count(0)
-{ }
-
-sound_data_c::~sound_data_c()
-{
-	Free();
-}
-
-void sound_data_c::Free()
-{
-	length = 0;
-
-	if (data_R && data_R != data_L)
-		delete[] data_R;
-
-	if (data_L)
-		delete[] data_L;
-
-	data_L = NULL;
-	data_R = NULL;
-}
-
-void sound_data_c::Allocate(int samples, int buf_mode)
-{
-	// early out when requirements are already met
-	if (data_L && length >= samples && mode == buf_mode)
-	{
-		length = samples;  // FIXME: perhaps keep allocated count
-		return;
-	}
-
-	if (data_L || data_R)
+	sound_data_c::~sound_data_c()
 	{
 		Free();
 	}
 
-	length = samples;
-	mode   = buf_mode;
-
-	switch (buf_mode)
+	void sound_data_c::Free()
 	{
+		length = 0;
+
+		if (data_R && data_R != data_L)
+			delete[] data_R;
+
+		if (data_L)
+			delete[] data_L;
+
+		data_L = NULL;
+		data_R = NULL;
+	}
+
+	void sound_data_c::Allocate(int samples, int buf_mode)
+	{
+		// early out when requirements are already met
+		if (data_L && length >= samples && mode == buf_mode)
+		{
+			length = samples;  // FIXME: perhaps keep allocated count
+			return;
+		}
+
+		if (data_L || data_R)
+		{
+			Free();
+		}
+
+		length = samples;
+		mode = buf_mode;
+
+		switch (buf_mode)
+		{
 		case SBUF_Mono:
 			data_L = new s16_t[samples];
 			data_R = data_L;
@@ -84,9 +83,8 @@ void sound_data_c::Allocate(int samples, int buf_mode)
 			break;
 
 		default: break;
+		}
 	}
-}
-
 }  // namespace epi
 
 //--- editor settings ---
