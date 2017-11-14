@@ -1,4 +1,3 @@
-
 /* WOLF MAPS */
 
 #include "../../system/i_defs.h"
@@ -44,19 +43,15 @@
 #include "../../z_zone.h"
 #include "../../vm_coal.h"
 
-
 const char *wlf_extension = "maphead.wl6";
 const char *wlf_maptemp = "maptemp.wl6";
-
 
 u16_t *wlf_map_tiles;
 u16_t *wlf_obj_tiles;
 
-
 static int map_count;
 
 static raw_maphead_t map_head;
-
 
 static inline void FROM_LE_U16(u16_t& val)
 {
@@ -67,7 +62,6 @@ static inline void FROM_LE_U32(u32_t& val)
 {
 	val = EPI_LE_U32(val);
 }
-
 
 static void MapsReadHeaders()
 {
@@ -103,7 +97,6 @@ static void MapsReadHeaders()
 
 	I_Printf("Num MAPS : %d\n", map_count);
 }
-
 
 //------------------------------------------------------------------------
 
@@ -186,7 +179,6 @@ static u16_t *LoadMapPlane(FILE *fp, int offset, int complen, int width, int hei
 	return result;
 }
 
-
 void WF_LoadMap(int map_num)
 {
 	SYS_ASSERT(map_num >= 0);
@@ -239,7 +231,6 @@ void WF_LoadMap(int map_num)
 	}
 
 	L_WriteDebug("<------\n");
-
 }
 
 void WF_FreeMap(void)
@@ -255,4 +246,3 @@ void WF_InitMaps(void)
 	WF_LoadMap(0);  // !!!! TEST
 	//TinyBSP();
 }
-

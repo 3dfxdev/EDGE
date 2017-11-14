@@ -27,8 +27,6 @@
 #include "rott_resource.h"
 // <----- END WINROTT specific
 
-#include "../src/r_defs.h"
-
 #include "../epi/image_data.h"
 
 #include "../src/w_wad.h" ///WAD handling.
@@ -55,6 +53,11 @@ void ConvertPicToPPic(int width, int height, u8_t *source, u8_t *target);
 int GetRightShiftCount(DWORD dwVal);
 int GetLeftShiftCount(DWORD dwVal);
 void ShrinkMemPictureExt(int orgw, int orgh, int neww, int newy, u8_t* src, u8_t * target);
+
+// - R_DOOMTEX.CC --
+
+epi::image_data_c *ROTT_LoadWall(int index);
+epi::image_data_c *ROTT_LoadSprite(int index);
 
 
 #endif // __ROTT_LOCAL_H__

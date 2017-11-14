@@ -174,3 +174,4 @@ int GetWallIndex (int texture)
 	}
 } */
 
+

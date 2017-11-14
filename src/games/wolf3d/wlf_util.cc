@@ -1,4 +1,3 @@
-
 /* WOLF UTIL */
 
 #include "../../system/i_defs.h"
@@ -24,12 +23,12 @@ void WF_Carmack_Expand(const byte *source, byte *dest, int length)
 	{
 		// !!!! if (inptr > src_end) I_Error("CARMACK_EXPAND: OUT OF DATA\n");
 
-		byte count  = *inptr++;
+		byte count = *inptr++;
 		byte c_high = *inptr++;
 
 		if (c_high == NEARTAG)
 		{
-			if (! count)
+			if (!count)
 			{
 				*outptr++ = *inptr++;
 				*outptr++ = NEARTAG;
@@ -45,7 +44,7 @@ void WF_Carmack_Expand(const byte *source, byte *dest, int length)
 			length -= (int)count;
 			if (length < 0)
 				I_Printf("WOLF: CARMACK_EXPAND: OVERFLOW, breaking instead. . .\n");
-				break;//I_Error("CARMACK_EXPAND: OVERFLOW\n");
+			break;//I_Error("CARMACK_EXPAND: OVERFLOW\n");
 
 			for (; count > 0; count--)
 			{
@@ -94,7 +93,7 @@ void WF_RLEW_Expand(const u16_t *source, u16_t *dest, int length, u16_t rlew_tag
 {
 	L_WriteDebug("RLEW_EXPAND: length %d\n", length);
 
-	u16_t *end = dest + (length/2);
+	u16_t *end = dest + (length / 2);
 
 	//for (int k = 0; k < 128; k++)
 	//	{
@@ -114,7 +113,7 @@ void WF_RLEW_Expand(const u16_t *source, u16_t *dest, int length, u16_t rlew_tag
 		else // compressed string
 		{
 			u16_t count = EPI_LE_U16(*source); source++;
-			u16_t val2  = EPI_LE_U16(*source); source++;
+			u16_t val2 = EPI_LE_U16(*source); source++;
 
 			if (dest + count > end)
 				I_Error("RLEW_EXPAND: OVERFLOW\n");
@@ -125,9 +124,8 @@ void WF_RLEW_Expand(const u16_t *source, u16_t *dest, int length, u16_t rlew_tag
 	}
 }
 
-
 void WF_Huff_Expand(const byte *source, int src_len, byte *dest, int dest_len,
-				 const huffnode_t *table)
+	const huffnode_t *table)
 {
 	SYS_ASSERT(dest_len > 0);
 
@@ -139,7 +137,7 @@ void WF_Huff_Expand(const byte *source, int src_len, byte *dest, int dest_len,
 	int node = head_node;
 
 	byte datum = *source++;
-	byte mask  = 1;
+	byte mask = 1;
 
 	for (;;)
 	{
@@ -165,10 +163,9 @@ void WF_Huff_Expand(const byte *source, int src_len, byte *dest, int dest_len,
 				I_Error("Huff_expand: OUT!\n"); // throw "Huff_expand: OUT OF DATA!";
 
 			datum = *source++;
-			mask  = 1;
+			mask = 1;
 		}
 		else
 			mask <<= 1;
 	}
 }
-
