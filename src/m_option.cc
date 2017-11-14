@@ -149,7 +149,7 @@ static void M_AdvancedOptions(int keypressed);
 static void M_GameplayOptions(int keypressed); /// Make Gameplay Options page-flip for MORE options...apparently...
 static void M_AnalogueOptions(int keypressed);
 static void M_SoundOptions(int keypressed);
-static void M_DebugMenu(int keypressed); /// New Debugging Sub-menu 
+static void M_DebugMenu(int keypressed); /// New Debugging Sub-menu
 
 static void M_Key2String(int key, char *deststring);
 
@@ -197,37 +197,37 @@ static void M_JoinNetGame(int keypressed);
 static void M_LanguageDrawer(int x, int y, int deltay);
 static void M_ChangeLanguage(int keypressed);
 
-static char YesNo[]     = "Off/On";  // basic on/off
-static char Lerp[]		= "None/1(worst)/2(better)/3(best)";
-static char CrossH[]    = "None/Dot/Angle/Plus/Spiked/Thin/Cross/Carat/Circle/Double";
-static char HudT[]      =  "Values range from 0.1f - 2.0f";
-static char Respw[]     = "Teleport/Resurrect";  // monster respawning
-static char Axis[]      = "Off/+Turn/-Turn/+MLook/-MLook/+Forward/-Forward/+Strafe/-Strafe/+Fly/-Fly";
-static char JoyDevs[]   = "None/1/2/3/4/5/6";
-static char DLMode[]    = "Off/On";
-static char JpgPng[]    = "JPEG/PNG";  // basic on/off
-static char AAim[]      = "Off/On/Mlook";
-static char MipMaps[]   = "None/Bilinear/Trilinear"; ///CA - Renamed for better understanding of what they are changing
+static char YesNo[] = "Off/On";  // basic on/off
+static char Lerp[] = "None/1(worst)/2(better)/3(best)";
+static char CrossH[] = "None/Dot/Angle/Plus/Spiked/Thin/Cross/Carat/Circle/Double";
+static char HudT[] = "Values range from 0.1f - 2.0f";
+static char Respw[] = "Teleport/Resurrect";  // monster respawning
+static char Axis[] = "Off/+Turn/-Turn/+MLook/-MLook/+Forward/-Forward/+Strafe/-Strafe/+Fly/-Fly";
+static char JoyDevs[] = "None/1/2/3/4/5/6";
+static char DLMode[] = "Off/On";
+static char JpgPng[] = "JPEG/PNG";  // basic on/off
+static char AAim[] = "Off/On/Mlook";
+static char MipMaps[] = "None/Bilinear/Trilinear"; ///CA - Renamed for better understanding of what they are changing
 static char Anisotropy[] = "Off/On";
-static char Details[]   = "Low/Medium/High";
-static char Hq2xMode[]  = "Off/UI Only/UI & Sprites/All";
-static char Invuls[]    = "Simple/Complex/Textured";
-static char MonitSiz[]  = "4:3/16:9/16:10/3:2/24:10";
-static char GLMode[]    = "1/2";
+static char Details[] = "Low/Medium/High";
+static char Hq2xMode[] = "Off/UI Only/UI & Sprites/All";
+static char Invuls[] = "Simple/Complex/Textured";
+static char MonitSiz[] = "4:3/16:9/16:10/3:2/24:10";
+static char GLMode[] = "1/2";
 static char VsyncValue[] = "1/2/3";
-static char Shadows[]   = "None/Simple/Sprite"; //TODO: Add in "Complex" Shadows for 3D Models and Dynamic Light Projection!
-static char TeleEff[]   = "None/Fade In/Warp In";
+static char Shadows[] = "None/Simple/Sprite"; //TODO: Add in "Complex" Shadows for 3D Models and Dynamic Light Projection!
+static char TeleEff[] = "None/Fade In/Warp In";
 static char StretchWorld[] = "Off/On";
 
 // for CVar enums
 const char WIPE_EnumStr[] = "none/melt/crossfade/pixelfade/top/bottom/left/right/spooky/doors";
 
 static char SampleRates[] = "11025 Hz/16000 Hz/22050 Hz/32000 Hz/44100 Hz";
-static char SoundBits[]   = "8 bit/16 bit";
-static char StereoNess[]  = "Off/On/Swapped";
-static char MixChans[]    = "8/16/32/64/96";
-static char QuietNess[]   = "Loud (distorted)/Normal/Soft/Very Soft";
-static char MusicDevs[]   = "System (see message)/Timidity/OPL";
+static char SoundBits[] = "8 bit/16 bit";
+static char StereoNess[] = "Off/On/Swapped";
+static char MixChans[] = "8/16/32/64/96";
+static char QuietNess[] = "Loud (distorted)/Normal/Soft/Very Soft";
+static char MusicDevs[] = "System (see message)/Timidity/OPL";
 static char SoundPitching[] = "Off/On";
 static char OPL[] = "OPL 1/OPL 3";
 
@@ -240,12 +240,12 @@ static scrmode_c new_scrmode;
 
 typedef enum
 {
-	OPT_Plain     = 0,  // 0 means plain text,
-	OPT_Switch    = 1,  // 1 is change a switch,
-	OPT_Function  = 2,  // 2 is call a function,
-	OPT_Slider    = 3,  // 3 is a slider,
+	OPT_Plain = 0,  // 0 means plain text,
+	OPT_Switch = 1,  // 1 is change a switch,
+	OPT_Function = 2,  // 2 is call a function,
+	OPT_Slider = 3,  // 3 is a slider,
 	OPT_KeyConfig = 4,  // 4 is a key config,
-	OPT_Boolean   = 5,  // 5 is change a boolean switch
+	OPT_Boolean = 5,  // 5 is change a boolean switch
 	OPT_NumTypes
 }
 opt_type_e;
@@ -260,12 +260,11 @@ typedef struct optmenuitem_s
 	int numtypes;
 	void *switchvar;
 
-	void (*routine)(int keypressed);
+	void(*routine)(int keypressed);
 
 	const char *help;
 }
 optmenuitem_t;
-
 
 typedef struct menuinfo_s
 {
@@ -306,8 +305,6 @@ static style_c *setres_style;
 static style_c *advanced_style;
 static style_c *debugmenu_style; //debugging menu "style"
 
-
-
 static void M_ChangeMusVol(int keypressed)
 {
 	S_ChangeMusicVolume();
@@ -328,30 +325,29 @@ static void M_ChangeTimidQuiet(int keypressed)
 	S_ChangeTimidQuiet();
 }
 
-
 static int M_GetCurrentSwitchValue(optmenuitem_t *item)
 {
 	int retval = 0;
 
-	switch(item->type)
+	switch (item->type)
 	{
-		case OPT_Boolean:
-		{
-			retval = *(bool*)item->switchvar ? 1 : 0;
-			break;
-		}
+	case OPT_Boolean:
+	{
+		retval = *(bool*)item->switchvar ? 1 : 0;
+		break;
+	}
 
-		case OPT_Switch:
-		{
-			retval = *(int*)(item->switchvar);
-			break;
-		}
+	case OPT_Switch:
+	{
+		retval = *(int*)(item->switchvar);
+		break;
+	}
 
-		default:
-		{
-			I_Error("M_GetCurrentSwitchValue: Menu item type is not a switch!\n");
-			break;
-		}
+	default:
+	{
+		I_Error("M_GetCurrentSwitchValue: Menu item type is not a switch!\n");
+		break;
+	}
 	}
 
 	return retval;
@@ -374,7 +370,7 @@ static optmenuitem_t mainoptions[] =
 	{OPT_Function, "Screen Options",    NULL,  0, NULL, M_VideoOptions, "VideoOptions"},
 	{OPT_Function, "Video Options",     NULL,  0, NULL, M_AdvancedOptions, "AdvancedOptions"}, //call to LDF
 	{ OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL },
-	
+
 	{OPT_Function, "Set Resolution",    NULL,  0, NULL, M_ResolutionOptions, "ChangeRes"},
 
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
@@ -442,9 +438,7 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch,  "Teleport Effect",  TeleEff,   3, &telept_effect, NULL, NULL},
 	{OPT_Switch,  "Wipe method",     WIPE_EnumStr, WIPE_NUMWIPES, &wipe_method, NULL, NULL},
 	{OPT_Boolean, "Screenshot Format", JpgPng, 2, &png_scrshots, NULL, NULL}
-
 };
-
 
 static optmenuitem_t advancedoptions[] =
 {
@@ -468,9 +462,6 @@ static optmenuitem_t advancedoptions[] =
 
 	{OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  &var_invul_fx, NULL, "Set GodMode Rendering"},
 	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL}
-
-
-
 };
 
 static optmenuitem_t debuggingoptions[] =
@@ -489,9 +480,7 @@ static optmenuitem_t debuggingoptions[] =
 	{ OPT_Switch,  "Get Psyched!",   YesNo, 2,  &m_goobers, NULL, "Wolf3D Mode: Requires map restart!" },
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Slider,   "Global MD5 Scale",    NULL,  4,  &r_md5scale, NULL, "(debugging)"}
-
 };
-
 
 ///Screen Options, custom graphic by Julian
 static menuinfo_t video_optmenu =
@@ -526,7 +515,6 @@ static menuinfo_t debug_optmenu =
 	&advanced_style, 150, 77, "M_SETUPM", NULL, 0, "" //TODO: supposed to be &debugmenu_style and M_DEBUG
 };
 
-
 //
 //  SET RESOLUTION MENU
 //
@@ -540,10 +528,10 @@ static optmenuitem_t resoptions[] =
 	{OPT_Function, "New Mode",  NULL, 0, NULL, M_ChangeResFull, NULL},
 	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
 	{OPT_Function, "Set Resolution", NULL, 0, NULL, M_OptionSetResolution, NULL},
-/*	{OPT_Function, "Test Resolution", NULL, 0, NULL, M_OptionTestResolution, NULL}, */
-	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
-	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
-	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL}
+	/*	{OPT_Function, "Test Resolution", NULL, 0, NULL, M_OptionTestResolution, NULL}, */
+		{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
+		{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
+		{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL}
 };
 
 //Custom GFX by Julian
@@ -571,26 +559,25 @@ static optmenuitem_t analogueoptions[] =
 	{OPT_Switch,   "Mouse Y Axis",       Axis, 11, &mouse_yaxis, NULL, NULL},
 	{OPT_Slider,   "X Sensitivity",      NULL, 16, &mouse_xsens, NULL, NULL},
 	{OPT_Slider,   "Y Sensitivity",      NULL, 16, &mouse_ysens, NULL, NULL},
-//	{OPT_Slider,   "Mouse Acceleration", NULL, 20,  &mouse_accel, NULL, NULL},
-	{OPT_Boolean,  "Mouse Filtering",    YesNo, 0,  &mouse_filter, NULL, NULL},
-	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
-	{OPT_Switch,   "Joystick Device", JoyDevs, 7,  &joystick_device, NULL, NULL},
-	{OPT_Switch,   "First Axis",         Axis, 11, &joy_axis[0], NULL, NULL},
-	{OPT_Switch,   "Second Axis",        Axis, 11, &joy_axis[1], NULL, NULL},
-	{OPT_Switch,   "Third Axis",         Axis, 11, &joy_axis[2], NULL, NULL},
-	{OPT_Switch,   "Fourth Axis",        Axis, 11, &joy_axis[3], NULL, NULL},
-	{OPT_Switch,   "Fifth Axis",         Axis, 11, &joy_axis[4], NULL, NULL},
-	{OPT_Switch,   "Sixth Axis",         Axis, 11, &joy_axis[5], NULL, NULL},
+	//	{OPT_Slider,   "Mouse Acceleration", NULL, 20,  &mouse_accel, NULL, NULL},
+		{OPT_Boolean,  "Mouse Filtering",    YesNo, 0,  &mouse_filter, NULL, NULL},
+		{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
+		{OPT_Switch,   "Joystick Device", JoyDevs, 7,  &joystick_device, NULL, NULL},
+		{OPT_Switch,   "First Axis",         Axis, 11, &joy_axis[0], NULL, NULL},
+		{OPT_Switch,   "Second Axis",        Axis, 11, &joy_axis[1], NULL, NULL},
+		{OPT_Switch,   "Third Axis",         Axis, 11, &joy_axis[2], NULL, NULL},
+		{OPT_Switch,   "Fourth Axis",        Axis, 11, &joy_axis[3], NULL, NULL},
+		{OPT_Switch,   "Fifth Axis",         Axis, 11, &joy_axis[4], NULL, NULL},
+		{OPT_Switch,   "Sixth Axis",         Axis, 11, &joy_axis[5], NULL, NULL},
 
-	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
-	{OPT_Slider,   "Turning Speed",      NULL, 12, &var_turnspeed,    NULL, NULL},
-	{OPT_Slider,   "MLook Speed",        NULL, 12, &var_mlookspeed,   NULL, NULL},
-	{OPT_Slider,   "Forward Move Speed", NULL, 8,  &var_forwardspeed, NULL, NULL},
-	{OPT_Slider,   "Side Move Speed",    NULL, 8,  &var_sidespeed,    NULL, NULL},
-	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
-	{OPT_Boolean,  "Debug Joystick Axis",    YesNo, 0,  &debug_joyaxis, NULL, NULL},
-	{OPT_Boolean,  "Debug Mouse ",    YesNo, 0,  &debug_mouse, NULL, NULL}
-
+		{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
+		{OPT_Slider,   "Turning Speed",      NULL, 12, &var_turnspeed,    NULL, NULL},
+		{OPT_Slider,   "MLook Speed",        NULL, 12, &var_mlookspeed,   NULL, NULL},
+		{OPT_Slider,   "Forward Move Speed", NULL, 8,  &var_forwardspeed, NULL, NULL},
+		{OPT_Slider,   "Side Move Speed",    NULL, 8,  &var_sidespeed,    NULL, NULL},
+		{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
+		{OPT_Boolean,  "Debug Joystick Axis",    YesNo, 0,  &debug_joyaxis, NULL, NULL},
+		{OPT_Boolean,  "Debug Mouse ",    YesNo, 0,  &debug_mouse, NULL, NULL}
 };
 
 static menuinfo_t analogue_optmenu =
@@ -650,57 +637,57 @@ static menuinfo_t hereticsound_optmenu =
 static optmenuitem_t playoptions[] =
 {
 	{OPT_Boolean, "Mouse Look",         YesNo, 2,
-     &global_flags.mlook, M_ChangeMLook, NULL},
+	 &global_flags.mlook, M_ChangeMLook, NULL},
 
 	{OPT_Switch,  "AutoAiming",         AAim, 3,
-     &global_flags.autoaim, M_ChangeAutoAim, NULL},
+	 &global_flags.autoaim, M_ChangeAutoAim, NULL},
 
 	{OPT_Boolean, "Jumping",            YesNo, 2,
-     &global_flags.jump, M_ChangeJumping, NULL},
+	 &global_flags.jump, M_ChangeJumping, NULL},
 
 	{OPT_Boolean, "Crouching",          YesNo, 2,
-     &global_flags.crouch, M_ChangeCrouching, NULL},
+	 &global_flags.crouch, M_ChangeCrouching, NULL},
 
 	{OPT_Boolean, "Weapon Kick",        YesNo, 2,
-     &global_flags.kicking, M_ChangeKicking, NULL},
+	 &global_flags.kicking, M_ChangeKicking, NULL},
 
 	{OPT_Boolean, "Weapon Auto-Switch", YesNo, 2,
-     &global_flags.weapon_switch, M_ChangeWeaponSwitch, NULL},
+	 &global_flags.weapon_switch, M_ChangeWeaponSwitch, NULL},
 
 	{OPT_Boolean, "Obituary Messages",  YesNo, 2,
-     &var_obituaries, NULL, NULL},
+	 &var_obituaries, NULL, NULL},
 
 	{OPT_Boolean, "More Blood",         YesNo, 2,
-     &global_flags.more_blood, M_ChangeBlood, "Blood"},
+	 &global_flags.more_blood, M_ChangeBlood, "Blood"},
 
 	{OPT_Boolean, "Extras",             YesNo, 2,
-     &global_flags.have_extra, M_ChangeExtra, NULL},
+	 &global_flags.have_extra, M_ChangeExtra, NULL},
 
 	{OPT_Boolean, "True 3D Gameplay",   YesNo, 2,
-     &global_flags.true3dgameplay, M_ChangeTrue3d, "True3d"},
+	 &global_flags.true3dgameplay, M_ChangeTrue3d, "True3d"},
 
 	{OPT_Boolean, "Shoot-Through Scenery",   YesNo, 2,
-     &global_flags.pass_missile, M_ChangePassMissile, NULL},
+	 &global_flags.pass_missile, M_ChangePassMissile, NULL},
 
-	{OPT_Plain,   "Monster Aggression", YesNo, 2, 
+	{OPT_Plain,   "Monster Aggression", YesNo, 2,
 	&g_aggression, NULL, "Aggressive Monsters (EDGE feature)!"},
 
 	{OPT_Slider,  "Gravity",            NULL, 20,
-     &global_flags.menu_grav, NULL, "Gravity"},
+	 &global_flags.menu_grav, NULL, "Gravity"},
 
 	{OPT_Plain,   "", NULL, 0, NULL, NULL, NULL},
 
 	{OPT_Boolean, "Enemy Respawn Mode", Respw, 2,
-     &global_flags.res_respawn, M_ChangeMonsterRespawn, NULL},
+	 &global_flags.res_respawn, M_ChangeMonsterRespawn, NULL},
 
 	{OPT_Boolean, "Item Respawn",       YesNo, 2,
-     &global_flags.itemrespawn, M_ChangeItemRespawn, NULL},
+	 &global_flags.itemrespawn, M_ChangeItemRespawn, NULL},
 
-    {OPT_Boolean, "Fast Monsters",      YesNo, 2,
-     &global_flags.fastparm, M_ChangeFastparm, NULL},
+	{OPT_Boolean, "Fast Monsters",      YesNo, 2,
+	 &global_flags.fastparm, M_ChangeFastparm, NULL},
 
-    {OPT_Boolean, "Respawn",            YesNo, 2,
-     &global_flags.respawn, M_ChangeRespawn, NULL}
+	{OPT_Boolean, "Respawn",            YesNo, 2,
+	 &global_flags.respawn, M_ChangeRespawn, NULL}
 };
 
 static menuinfo_t gameplay_optmenu =
@@ -801,7 +788,7 @@ static optmenuitem_t other_keyconfig[] =
 	{OPT_KeyConfig, "Action 1",         NULL, 0, &key_action1, NULL, NULL},
 	{OPT_KeyConfig, "Action 2",         NULL, 0, &key_action2, NULL, NULL},
 
-///	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
+	///	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
 };
 
 static menuinfo_t otherkey_optmenu =
@@ -914,26 +901,25 @@ void M_OptCheckNetgame(void)
 {
 	if (gamestate >= GS_LEVEL)
 	{
-		strcpy(mainoptions[HOSTNET_POS+0].name, "Leave Game");
-		mainoptions[HOSTNET_POS+0].routine = &M_EndGame;
-		mainoptions[HOSTNET_POS+0].help = NULL;
+		strcpy(mainoptions[HOSTNET_POS + 0].name, "Leave Game");
+		mainoptions[HOSTNET_POS + 0].routine = &M_EndGame;
+		mainoptions[HOSTNET_POS + 0].help = NULL;
 
-
-//		strcpy(mainoptions[HOSTNET_POS+1].name, "");
-//		mainoptions[HOSTNET_POS+1].type = OPT_Plain;
-//		mainoptions[HOSTNET_POS+1].routine = NULL;
-//		mainoptions[HOSTNET_POS+1].help = NULL;
+		//		strcpy(mainoptions[HOSTNET_POS+1].name, "");
+		//		mainoptions[HOSTNET_POS+1].type = OPT_Plain;
+		//		mainoptions[HOSTNET_POS+1].routine = NULL;
+		//		mainoptions[HOSTNET_POS+1].help = NULL;
 	}
 	else
 	{
-		strcpy(mainoptions[HOSTNET_POS+0].name, "Host Net Game");
-		mainoptions[HOSTNET_POS+0].routine = &M_HostNetGame;
-		mainoptions[HOSTNET_POS+0].help = NULL;
+		strcpy(mainoptions[HOSTNET_POS + 0].name, "Host Net Game");
+		mainoptions[HOSTNET_POS + 0].routine = &M_HostNetGame;
+		mainoptions[HOSTNET_POS + 0].help = NULL;
 
-		strcpy(mainoptions[HOSTNET_POS+1].name, "Join Net Game");
-		mainoptions[HOSTNET_POS+1].type = OPT_Function;
-		mainoptions[HOSTNET_POS+1].routine = &M_JoinNetGame;
-		mainoptions[HOSTNET_POS+1].help = NULL;
+		strcpy(mainoptions[HOSTNET_POS + 1].name, "Join Net Game");
+		mainoptions[HOSTNET_POS + 1].type = OPT_Function;
+		mainoptions[HOSTNET_POS + 1].routine = &M_JoinNetGame;
+		mainoptions[HOSTNET_POS + 1].help = NULL;
 	}
 }
 
@@ -953,7 +939,6 @@ void M_OptMenuInit()
 		curr_menu = &main_optmenu;
 	}
 
-
 	curr_item = curr_menu->items + curr_menu->pos;
 	curr_key_menu = 0;
 	keyscan = 0;
@@ -962,7 +947,7 @@ void M_OptMenuInit()
 	styledef_c *def;
 
 	def = styledefs.Lookup("OPTIONS");
-/* 	if (! def) def = default_style; */
+	/* 	if (! def) def = default_style; */
 	opt_def_style = hu_styles.Lookup(def);
 
 	def = styledefs.Lookup("KEYBOARD CONTROLS");
@@ -994,15 +979,15 @@ void M_OptMenuInit()
 //
 void M_OptTicker(void)
 {
-///--  	if (testticker > 0)
-///--  	{
-///--  		testticker--;
-///--  	}
-///--  	else if (!testticker)
-///--  	{
-///--  		testticker--;
-///--  		M_RestoreResSettings(-1);
-///--  	}
+	///--  	if (testticker > 0)
+	///--  	{
+	///--  		testticker--;
+	///--  	}
+	///--  	else if (!testticker)
+	///--  	{
+	///--  		testticker--;
+	///--  		M_RestoreResSettings(-1);
+	///--  	}
 }
 
 //
@@ -1025,7 +1010,7 @@ void M_OptDrawer()
 	style_c *style = curr_menu->style_var[0];
 	SYS_ASSERT(style);
 
-	if (! style->fonts[0])
+	if (!style->fonts[0])
 		return;
 
 	int font_h = style->fonts[0]->NominalHeight();
@@ -1036,16 +1021,14 @@ void M_OptDrawer()
 	if (curr_menu->key_page[0])
 		menutop = 9 * font_h / 2;
 
+	const image_c *image;
 
-		const image_c *image;
+	if (!curr_menu->title_image)
+		curr_menu->title_image = W_ImageLookup(curr_menu->title_name);
 
-		if (! curr_menu->title_image)
-			curr_menu->title_image = W_ImageLookup(curr_menu->title_name);
+	image = curr_menu->title_image;
 
-		image = curr_menu->title_image;
-
-		HUD_DrawImage(curr_menu->title_x, menutop, image);
-
+	HUD_DrawImage(curr_menu->title_x, menutop, image);
 
 	//now, draw all the menuitems
 	deltay = 1 + font_h;
@@ -1055,27 +1038,27 @@ void M_OptDrawer()
 	if (curr_menu->key_page[0])
 	{
 		if (curr_key_menu > 0)
-			HL_WriteText(style,2, 60, 200-deltay*4, "< PREV");
+			HL_WriteText(style, 2, 60, 200 - deltay * 4, "< PREV");
 
-		if (curr_key_menu < NUM_KEY_MENUS-1)
-			HL_WriteText(style,2, 260 - style->fonts[2]->StringWidth("NEXT >"), 200-deltay*4,
-							  "NEXT >");
+		if (curr_key_menu < NUM_KEY_MENUS - 1)
+			HL_WriteText(style, 2, 260 - style->fonts[2]->StringWidth("NEXT >"), 200 - deltay * 4,
+				"NEXT >");
 
-		HL_WriteText(style,3, 160 - style->fonts[2]->StringWidth(curr_menu->key_page)/2,
-					 curry, curr_menu->key_page);
-		curry += font_h*2;
+		HL_WriteText(style, 3, 160 - style->fonts[2]->StringWidth(curr_menu->key_page) / 2,
+			curry, curr_menu->key_page);
+		curry += font_h * 2;
 
 		if (keyscan)
-			HL_WriteText(style,3, 160 - (style->fonts[3]->StringWidth(keystring2) / 2),
-							  200-deltay*2, keystring2);
+			HL_WriteText(style, 3, 160 - (style->fonts[3]->StringWidth(keystring2) / 2),
+				200 - deltay * 2, keystring2);
 		else
-			HL_WriteText(style,3, 160 - (style->fonts[3]->StringWidth(keystring1) / 2),
-							  200-deltay*2, keystring1);
+			HL_WriteText(style, 3, 160 - (style->fonts[3]->StringWidth(keystring1) / 2),
+				200 - deltay * 2, keystring1);
 	}
 	else if (curr_menu == &res_optmenu)
 	{
 		M_ResOptDrawer(style, curry, curry + (deltay * (res_optmenu.item_num - 2)),
-					   deltay, curr_menu->menu_center);
+			deltay, curr_menu->menu_center);
 	}
 	else if (curr_menu == &main_optmenu)
 	{
@@ -1091,76 +1074,76 @@ void M_OptDrawer()
 		bool is_selected = (i == curr_menu->pos);
 
 		HL_WriteText(style, is_selected ? 2 : 0,
-		             (curr_menu->menu_center) - style->fonts[0]->StringWidth(curr_menu->items[i].name),
-					 curry, curr_menu->items[i].name);
+			(curr_menu->menu_center) - style->fonts[0]->StringWidth(curr_menu->items[i].name),
+			curry, curr_menu->items[i].name);
 
 		// -ACB- 1998/07/15 Menu Cursor is colour indexed.
 		if (is_selected)
 		{
-			HL_WriteText(style,2, (curr_menu->menu_center + 4), curry, ">");
+			HL_WriteText(style, 2, (curr_menu->menu_center + 4), curry, ">");
 
 			if (curr_menu->items[i].help)
 			{
 				const char *help = language[curr_menu->items[i].help];
 
-				HL_WriteText(style,3, 160 - (style->fonts[3]->StringWidth(help) / 2), 200 - deltay*2,
-								  help);
+				HL_WriteText(style, 3, 160 - (style->fonts[3]->StringWidth(help) / 2), 200 - deltay * 2,
+					help);
 			}
 		}
 
 		switch (curr_menu->items[i].type)
 		{
-			case OPT_Boolean:
-			case OPT_Switch:
+		case OPT_Boolean:
+		case OPT_Switch:
+		{
+			k = 0;
+			for (j = 0; j < M_GetCurrentSwitchValue(&curr_menu->items[i]); j++)
 			{
-				k = 0;
-				for (j = 0; j < M_GetCurrentSwitchValue(&curr_menu->items[i]); j++)
-				{
-					while ((curr_menu->items[i].typenames[k] != '/') && (k < strlen(curr_menu->items[i].typenames)))
-						k++;
+				while ((curr_menu->items[i].typenames[k] != '/') && (k < strlen(curr_menu->items[i].typenames)))
+					k++;
 
+				k++;
+			}
+
+			if (k < strlen(curr_menu->items[i].typenames))
+			{
+				j = 0;
+				while ((curr_menu->items[i].typenames[k] != '/') && (k < strlen(curr_menu->items[i].typenames)))
+				{
+					tempstring[j] = curr_menu->items[i].typenames[k];
+					j++;
 					k++;
 				}
-
-				if (k < strlen(curr_menu->items[i].typenames))
-				{
-					j = 0;
-					while ((curr_menu->items[i].typenames[k] != '/') && (k < strlen(curr_menu->items[i].typenames)))
-					{
-						tempstring[j] = curr_menu->items[i].typenames[k];
-						j++;
-						k++;
-					}
-					tempstring[j] = 0;
-				}
-				else
-				{
-					sprintf(tempstring, "Invalid");
-				}
-
-				HL_WriteText(style,1, (curr_menu->menu_center) + 15, curry, tempstring);
-				break;
+				tempstring[j] = 0;
 			}
-
-			case OPT_Slider:
+			else
 			{
-				M_DrawThermo(curr_menu->menu_center + 15, curry,
-							 curr_menu->items[i].numtypes,
-							  *(int*)(curr_menu->items[i].switchvar), 2);
-
-				break;
+				sprintf(tempstring, "Invalid");
 			}
 
-			case OPT_KeyConfig:
-			{
-				k = *(int*)(curr_menu->items[i].switchvar);
-				M_Key2String(k, tempstring);
-				HL_WriteText(style,1, (curr_menu->menu_center + 15), curry, tempstring);
-				break;
-			}
+			HL_WriteText(style, 1, (curr_menu->menu_center) + 15, curry, tempstring);
+			break;
+		}
 
-			default:
-				break;
+		case OPT_Slider:
+		{
+			M_DrawThermo(curr_menu->menu_center + 15, curry,
+				curr_menu->items[i].numtypes,
+				*(int*)(curr_menu->items[i].switchvar), 2);
+
+			break;
+		}
+
+		case OPT_KeyConfig:
+		{
+			k = *(int*)(curr_menu->items[i].switchvar);
+			M_Key2String(k, tempstring);
+			HL_WriteText(style, 1, (curr_menu->menu_center + 15), curry, tempstring);
+			break;
+		}
+
+		default:
+			break;
 		}
 		curry += deltay;
 	}
@@ -1184,33 +1167,33 @@ static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int ce
 	y += dy;
 
 	// Draw resolution selection option
-	y += (dy*2);
+	y += (dy * 2);
 	sprintf(tempstring, "%dx%d", new_scrmode.width, new_scrmode.height);
-	HL_WriteText(style,1, centrex+15, y, tempstring);
+	HL_WriteText(style, 1, centrex + 15, y, tempstring);
 
 	// Draw depth selection option
 	y += dy;
-	sprintf(tempstring, "%d bit", (new_scrmode.depth < 20) ? 16:32);
-	HL_WriteText(style,1, centrex+15, y, tempstring);
+	sprintf(tempstring, "%d bit", (new_scrmode.depth < 20) ? 16 : 32);
+	HL_WriteText(style, 1, centrex + 15, y, tempstring);
 
 	y += dy;
 	sprintf(tempstring, "%s", new_scrmode.full ? "Fullscreen" : "Windowed");
-	HL_WriteText(style,1, centrex+15, y, tempstring);
+	HL_WriteText(style, 1, centrex + 15, y, tempstring);
 
 	// Draw selected resolution and mode:
 	y = bottomy;
-	y += (dy/2);
+	y += (dy / 2);
 
 	sprintf(tempstring, "Current Resolution:");
-	HL_WriteText(style,3, 160 - (style->fonts[0]->StringWidth(tempstring) / 2), y, tempstring);
+	HL_WriteText(style, 3, 160 - (style->fonts[0]->StringWidth(tempstring) / 2), y, tempstring);
 
 	y += dy;
 
 	sprintf(tempstring, "%d x %d at %d-bit %s",
-			SCREENWIDTH, SCREENHEIGHT, (SCREENBITS < 20) ? 16 : 32,
-			FULLSCREEN ? "Fullscreen" : "Windowed");
+		SCREENWIDTH, SCREENHEIGHT, (SCREENBITS < 20) ? 16 : 32,
+		FULLSCREEN ? "Fullscreen" : "Windowed");
 
-	HL_WriteText(style,1, 160 - (style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
+	HL_WriteText(style, 1, 160 - (style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
 }
 
 //
@@ -1223,13 +1206,12 @@ static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int ce
 
 static void M_LanguageDrawer(int x, int y, int deltay)
 {
-	HL_WriteText(opt_def_style,1, x+15, y + deltay * LANGUAGE_POS, language.GetName());
+	HL_WriteText(opt_def_style, 1, x + 15, y + deltay * LANGUAGE_POS, language.GetName());
 }
-
 
 static void KeyMenu_Next()
 {
-	if (curr_key_menu >= NUM_KEY_MENUS-1)
+	if (curr_key_menu >= NUM_KEY_MENUS - 1)
 		return;
 
 	curr_key_menu++;
@@ -1256,10 +1238,10 @@ static void KeyMenu_Prev()
 //
 bool M_OptResponder(event_t * ev, int ch)
 {
-///--  	if (testticker != -1)
-///--  		return true;
+	///--  	if (testticker != -1)
+	///--  		return true;
 
-	// Scan for keycodes
+		// Scan for keycodes
 	if (keyscan)
 	{
 		int *blah;
@@ -1299,243 +1281,239 @@ bool M_OptResponder(event_t * ev, int ch)
 
 	switch (ch)
 	{
-		case KEYD_BACKSPACE:
-		case KEYD_DELETE:
+	case KEYD_BACKSPACE:
+	case KEYD_DELETE:
+	{
+		if (curr_item->type == OPT_KeyConfig)
+			*(int*)(curr_item->switchvar) = 0;
+		return true;
+	}
+
+	case KEYD_DOWNARROW:
+	case KEYD_WHEEL_DN:
+	{
+		do
 		{
-			if (curr_item->type == OPT_KeyConfig)
-				*(int*)(curr_item->switchvar) = 0;
+			curr_menu->pos++;
+			if (curr_menu->pos >= curr_menu->item_num)
+				curr_menu->pos = 0;
+			curr_item = curr_menu->items + curr_menu->pos;
+		} while (curr_item->type == 0);
+
+		S_StartFX(sfx_pstop);
+		return true;
+	}
+
+	case KEYD_UPARROW:
+	case KEYD_WHEEL_UP:
+	{
+		do
+		{
+			curr_menu->pos--;
+			if (curr_menu->pos < 0)
+				curr_menu->pos = curr_menu->item_num - 1;
+			curr_item = curr_menu->items + curr_menu->pos;
+		} while (curr_item->type == 0);
+
+		S_StartFX(sfx_pstop);
+		return true;
+	}
+
+	case KEYD_LEFTARROW:
+	{
+		if (curr_menu->key_page[0])
+		{
+			KeyMenu_Prev();
 			return true;
 		}
 
-		case KEYD_DOWNARROW:
-		case KEYD_WHEEL_DN:
+		switch (curr_item->type)
 		{
-			do
+		case OPT_Plain:
+		{
+			return false;
+		}
+
+		case OPT_Boolean:
+		{
+			bool *boolptr = (bool*)curr_item->switchvar;
+
+			*boolptr = !(*boolptr);
+
+			S_StartFX(sfx_pistol);
+
+			if (curr_item->routine != NULL)
+				curr_item->routine(ch);
+
+			return true;
+		}
+
+		case OPT_Switch:
+		{
+			int *val_ptr = (int*)curr_item->switchvar;
+
+			*val_ptr -= 1;
+
+			if (*val_ptr < 0)
+				*val_ptr = curr_item->numtypes - 1;
+
+			S_StartFX(sfx_pistol);
+
+			if (curr_item->routine != NULL)
+				curr_item->routine(ch);
+
+			return true;
+		}
+
+		case OPT_Function:
+		{
+			if (curr_item->routine != NULL)
+				curr_item->routine(ch);
+
+			S_StartFX(sfx_pistol);
+			return true;
+		}
+
+		case OPT_Slider:
+		{
+			int *val_ptr = (int*)curr_item->switchvar;
+
+			if (*val_ptr > 0)
 			{
-				curr_menu->pos++;
-				if (curr_menu->pos >= curr_menu->item_num)
-					curr_menu->pos = 0;
+				*val_ptr -= 1;
+
+				S_StartFX(sfx_stnmov);
+			}
+
+			if (curr_item->routine != NULL)
+				curr_item->routine(ch);
+
+			return true;
+		}
+
+		default:
+			break;
+		}
+	}
+
+	case KEYD_RIGHTARROW:
+		if (curr_menu->key_page[0])
+		{
+			KeyMenu_Next();
+			return true;
+		}
+
+		/* FALL THROUGH... */
+
+	case KEYD_ENTER:
+	case KEYD_MOUSE1:
+	{
+		switch (curr_item->type)
+		{
+		case OPT_Plain:
+			return false;
+
+		case OPT_Boolean:
+		{
+			bool *boolptr = (bool*)curr_item->switchvar;
+
+			*boolptr = !(*boolptr);
+
+			S_StartFX(sfx_pistol);
+
+			if (curr_item->routine != NULL)
+				curr_item->routine(ch);
+
+			return true;
+		}
+
+		case OPT_Switch:
+		{
+			int *val_ptr = (int*)curr_item->switchvar;
+
+			*val_ptr += 1;
+
+			if (*val_ptr >= curr_item->numtypes)
+				*val_ptr = 0;
+
+			S_StartFX(sfx_pistol);
+
+			if (curr_item->routine != NULL)
+				curr_item->routine(ch);
+
+			return true;
+		}
+
+		case OPT_Function:
+		{
+			if (curr_item->routine != NULL)
+				curr_item->routine(ch);
+
+			S_StartFX(sfx_pistol);
+			return true;
+		}
+
+		case OPT_Slider:
+		{
+			int *val_ptr = (int*)curr_item->switchvar;
+
+			if (*val_ptr < (curr_item->numtypes - 1))
+			{
+				*val_ptr += 1;
+
+				S_StartFX(sfx_stnmov);
+			}
+
+			if (curr_item->routine != NULL)
+				curr_item->routine(ch);
+
+			return true;
+		}
+
+		case OPT_KeyConfig:
+		{
+			keyscan = 1;
+			return true;
+		}
+
+		default:
+			break;
+		}
+		I_Error("Invalid menu type!");
+	}
+	case KEYD_ESCAPE:
+	case KEYD_MOUSE2:
+	case KEYD_MOUSE3:
+	{
+		if (heretic_mode)
+		{
+			if (curr_menu == &hereticmain_optmenu)
+			{
+				option_menuon = 0;
+			}
+			else
+			{
+				curr_menu = &hereticmain_optmenu;
 				curr_item = curr_menu->items + curr_menu->pos;
 			}
-			while (curr_item->type == 0);
-
-			S_StartFX(sfx_pstop);
+			S_StartFX(sfx_swtchx);
 			return true;
 		}
-
-		case KEYD_UPARROW:
-		case KEYD_WHEEL_UP:
+		else if (!heretic_mode)
 		{
-			do
+			if (curr_menu == &main_optmenu)
 			{
-				curr_menu->pos--;
-				if (curr_menu->pos < 0)
-					curr_menu->pos = curr_menu->item_num - 1;
+				option_menuon = 0;
+			}
+			else
+			{
+				curr_menu = &main_optmenu;
 				curr_item = curr_menu->items + curr_menu->pos;
 			}
-			while (curr_item->type == 0);
-
-			S_StartFX(sfx_pstop);
+			S_StartFX(sfx_swtchx);
 			return true;
 		}
-
-		case KEYD_LEFTARROW:
-		{
-			if (curr_menu->key_page[0])
-			{
-				KeyMenu_Prev();
-				return true;
-			}
-
-			switch (curr_item->type)
-			{
-				case OPT_Plain:
-				{
-					return false;
-				}
-
-				case OPT_Boolean:
-				{
-					bool *boolptr = (bool*)curr_item->switchvar;
-
-					*boolptr = !(*boolptr);
-
-					S_StartFX(sfx_pistol);
-
-					if (curr_item->routine != NULL)
-						curr_item->routine(ch);
-
-					return true;
-				}
-
-				case OPT_Switch:
-				{
-					int *val_ptr = (int*)curr_item->switchvar;
-
-					*val_ptr -= 1;
-
-					if (*val_ptr < 0)
-						*val_ptr = curr_item->numtypes - 1;
-
-					S_StartFX(sfx_pistol);
-
-					if (curr_item->routine != NULL)
-						curr_item->routine(ch);
-
-					return true;
-				}
-
-				case OPT_Function:
-				{
-					if (curr_item->routine != NULL)
-						curr_item->routine(ch);
-
-					S_StartFX(sfx_pistol);
-					return true;
-				}
-
-				case OPT_Slider:
-				{
-					int *val_ptr = (int*)curr_item->switchvar;
-
-					if (*val_ptr > 0)
-					{
-						*val_ptr -= 1;
-
-						S_StartFX(sfx_stnmov);
-					}
-
-					if (curr_item->routine != NULL)
-						curr_item->routine(ch);
-
-					return true;
-				}
-
-				default:
-					break;
-			}
-		}
-
-		case KEYD_RIGHTARROW:
-			if (curr_menu->key_page[0])
-			{
-				KeyMenu_Next();
-				return true;
-			}
-
-      /* FALL THROUGH... */
-
-		case KEYD_ENTER:
-		case KEYD_MOUSE1:
-		{
-			switch (curr_item->type)
-			{
-				case OPT_Plain:
-					return false;
-
-				case OPT_Boolean:
-				{
-					bool *boolptr = (bool*)curr_item->switchvar;
-
-					*boolptr = !(*boolptr);
-
-					S_StartFX(sfx_pistol);
-
-					if (curr_item->routine != NULL)
-						curr_item->routine(ch);
-
-					return true;
-				}
-
-				case OPT_Switch:
-				{
-					int *val_ptr = (int*)curr_item->switchvar;
-
-					*val_ptr += 1;
-
-					if (*val_ptr >= curr_item->numtypes)
-						*val_ptr = 0;
-
-					S_StartFX(sfx_pistol);
-
-					if (curr_item->routine != NULL)
-						curr_item->routine(ch);
-
-					return true;
-				}
-
-				case OPT_Function:
-				{
-					if (curr_item->routine != NULL)
-						curr_item->routine(ch);
-
-					S_StartFX(sfx_pistol);
-					return true;
-				}
-
-				case OPT_Slider:
-				{
-					int *val_ptr = (int*)curr_item->switchvar;
-
-					if (*val_ptr < (curr_item->numtypes - 1))
-					{
-						*val_ptr += 1;
-
-						S_StartFX(sfx_stnmov);
-					}
-
-					if (curr_item->routine != NULL)
-						curr_item->routine(ch);
-
-					return true;
-				}
-
-				case OPT_KeyConfig:
-				{
-					keyscan = 1;
-					return true;
-				}
-
-				default:
-					break;
-			}
-			I_Error("Invalid menu type!");
-		}
-		case KEYD_ESCAPE:
-		case KEYD_MOUSE2:
-		case KEYD_MOUSE3:
-		{
-
-			if (heretic_mode)
-			{
-				if (curr_menu == &hereticmain_optmenu)
-				{
-					option_menuon = 0;
-				}
-				else
-				{
-					curr_menu = &hereticmain_optmenu;
-					curr_item = curr_menu->items + curr_menu->pos;
-				}
-				S_StartFX(sfx_swtchx);
-				return true;
-			}
-			else if (!heretic_mode)
-			{
-				if (curr_menu == &main_optmenu)
-				{
-					option_menuon = 0;
-				}
-				else
-				{
-					curr_menu = &main_optmenu;
-					curr_item = curr_menu->items + curr_menu->pos;
-				}
-				S_StartFX(sfx_swtchx);
-				return true;
-			}
-
-		}
+	}
 	}
 	return false;
 }
@@ -1597,10 +1575,10 @@ static void M_DebugMenu(int keypressed)
 //
 static void M_ResolutionOptions(int keypressed)
 {
-	new_scrmode.width  = SCREENWIDTH;
+	new_scrmode.width = SCREENWIDTH;
 	new_scrmode.height = SCREENHEIGHT;
-	new_scrmode.depth  = SCREENBITS;
-	new_scrmode.full   = FULLSCREEN;
+	new_scrmode.depth = SCREENBITS;
+	new_scrmode.full = FULLSCREEN;
 
 	if (heretic_mode)
 	{
@@ -1710,7 +1688,6 @@ static void M_Key2String(int key, char *deststring)
 	}
 }
 
-
 //
 // M_ChangeGamma
 //
@@ -1718,9 +1695,8 @@ static void M_Key2String(int key, char *deststring)
 //
 static void M_ChangeGamma(int keypressed)
 {
-  /* nothing to do */
+	/* nothing to do */
 }
-
 
 static void M_ChangeMonitorSize(int key)
 {
@@ -1733,7 +1709,6 @@ static void M_ChangeMonitorSize(int key)
 
 	r_aspect = aspect_ratios[monitor_size];
 }
-
 
 //
 // M_ChangeBlood
@@ -1851,7 +1826,6 @@ static void M_ChangeMipMap(int keypressed)
 	W_DeleteAllImages();
 }
 
-
 static void M_ChangeShadows(int keypressed)
 {
 	if (currmap && ((currmap->force_on | currmap->force_off) & MPF_Shadows))
@@ -1917,10 +1891,6 @@ static void M_ChangeHUDTextScale(int keypressed)
 }
 #endif // 0
 
-
-
-
-
 //
 // M_ChangeLanguage
 //
@@ -1956,7 +1926,6 @@ static void M_ChangeLanguage(int keypressed)
 	// update cvar
 	m_language = language.GetName();
 }
-
 
 //
 // M_ChangeResSize
@@ -2021,14 +1990,14 @@ static void M_OptionSetResolution(int keypressed)
 	else
 	{
 		std::string msg(epi::STR_Format(language["ModeSelErr"],
-				new_scrmode.width, new_scrmode.height,
-				(new_scrmode.depth < 20) ? 16 : 32));
+			new_scrmode.width, new_scrmode.height,
+			(new_scrmode.depth < 20) ? 16 : 32));
 
 		M_StartMessage(msg.c_str(), NULL, false);
 
-///--  		testticker = -1;
+		///--  		testticker = -1;
 
-///??	selectedscrmode = prevscrmode;
+		///??	selectedscrmode = prevscrmode;
 	}
 }
 
@@ -2052,10 +2021,9 @@ static void M_OptionSetResolution(int keypressed)
 extern void M_NetHostBegun(void);
 extern void M_NetJoinBegun(void);
 
-
 void M_HostNetGame(int keypressed)
 {
-	option_menuon  = 0;
+	option_menuon = 0;
 	netgame_menuon = 1;
 
 	M_NetHostBegun();
@@ -2063,12 +2031,12 @@ void M_HostNetGame(int keypressed)
 
 void M_JoinNetGame(int keypressed)
 {
-//#if 0
-	option_menuon  = 0;
+	//#if 0
+	option_menuon = 0;
 	netgame_menuon = 2;
 
 	M_NetJoinBegun();
-//#endif
+	//#endif
 }
 
 void M_Options(int choice)
@@ -2082,7 +2050,6 @@ void M_Options(int choice)
 
 	// continued
 }
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
