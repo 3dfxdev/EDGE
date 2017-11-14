@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 OpenGL Rendering (Wipes)
 //----------------------------------------------------------------------------
-// 
-//  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
+//  Copyright (c) 1999-2017  The EDGE2 Team.
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -45,13 +45,23 @@ static int cur_wipe_progress;
 static int cur_wipe_lasttime;
 
 static GLuint cur_wipe_tex = 0;
-static float cur_wipe_right;
-static float cur_wipe_top;
+static float cur_wipe_left;  //tcleft, ROTT-specific
+static float cur_wipe_right; //tcright
+static float cur_wipe_top; //tctop
+static float cur_wipe_bot; //tcbot, ROTT-specific
 
+int scale, angle;
+int cx, cy;
+double rscale = 2048.0 / scale;
+double rangle = angle / 1024.0 * M_PI;
+double rcx = (cx / 320.0);
+double rcy = (cy / 200.0);// *r_aspect;
+
+double sina = sin(rangle);
+double cosa = cos(rangle);
 
 #define MELT_DIVS  128
-static int melt_yoffs[MELT_DIVS+1];
-
+static int melt_yoffs[MELT_DIVS + 1];
 
 static inline byte SpookyAlpha(int x, int y)
 {
@@ -63,7 +73,15 @@ static inline byte SpookyAlpha(int x, int y)
 	return (x*x + y * y) / 2;
 }
 
-static void CaptureScreenAsTexture(bool speckly, bool spooky)
+#if 0
+static inline byte RotateScreen(int x, int y)
+{
+	;
+}
+#endif // 0
+
+
+static void CaptureScreenAsTexture(bool speckly, bool spooky, bool rotate)
 {
 	int total_w = W_MakeValidSize(SCREENWIDTH);
 	int total_h = W_MakeValidSize(SCREENHEIGHT);
@@ -72,15 +90,14 @@ static void CaptureScreenAsTexture(bool speckly, bool spooky)
 
 	img.Clear();
 
-	cur_wipe_right = SCREENWIDTH  / (float)total_w;
-	cur_wipe_top   = SCREENHEIGHT / (float)total_h;
-
+	cur_wipe_right = SCREENWIDTH / (float)total_w;
+	cur_wipe_top = SCREENHEIGHT / (float)total_h;
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	for (int y=0; y < SCREENHEIGHT; y++)
+	for (int y = 0; y < SCREENHEIGHT; y++)
 	{
-		u8_t *dest = img.PixelAt(0, y);
+		u8_t *dest = img.PixelAt(0, y); //
 
 		glReadPixels(0, y, SCREENWIDTH, 1, GL_RGBA, GL_UNSIGNED_BYTE, dest);
 
@@ -88,18 +105,25 @@ static void CaptureScreenAsTexture(bool speckly, bool spooky)
 
 		if (spooky)
 		{
-			for (int x=0; x < total_w; x++)
-				dest[4*x+3] = SpookyAlpha(x, y);
+			for (int x = 0; x < total_w; x++)
+				dest[4 * x + 3] = SpookyAlpha(x, y);
 		}
 		else if (speckly)
 		{
-			for (int x=0; x < total_w; x++)
+			for (int x = 0; x < total_w; x++)
 			{
 				rnd_val = rnd_val * 1103515245 + 12345;
 
-				dest[4*x+3] = (rnd_val >> 16);
+				dest[4 * x + 3] = (rnd_val >> 16);
 			}
 		}
+		//else if (rotate)
+		//{
+		//	for (int x = 0; x < total_w; x++)
+		//	{
+		//		dest[4 * x + 3] = RotateScreen(x, y);
+		//	}
+		//}
 	}
 
 	cur_wipe_tex = R_UploadTexture(&img);
@@ -109,13 +133,13 @@ static void RGL_Init_Melt(void)
 {
 	int x, r;
 
-	melt_yoffs[0] = - (M_Random() % 16);
+	melt_yoffs[0] = -(M_Random() % 16);
 
-	for (x=1; x <= MELT_DIVS; x++)
+	for (x = 1; x <= MELT_DIVS; x++)
 	{
 		r = (M_Random() % 3) - 1;
 
-		melt_yoffs[x] = melt_yoffs[x-1] + r;
+		melt_yoffs[x] = melt_yoffs[x - 1] + r;
 		melt_yoffs[x] = MAX(-15, MIN(0, melt_yoffs[x]));
 	}
 }
@@ -126,7 +150,7 @@ static void RGL_Update_Melt(int tics)
 
 	for (; tics > 0; tics--)
 	{
-		for (x=0; x <= MELT_DIVS; x++)
+		for (x = 0; x <= MELT_DIVS; x++)
 		{
 			r = melt_yoffs[x];
 
@@ -142,29 +166,26 @@ static void RGL_Update_Melt(int tics)
 	}
 }
 
-
 void RGL_InitWipe(int reverse, wipetype_e effect)
 {
-	cur_wipe_reverse  = reverse;
-	cur_wipe_effect   = effect;
+	cur_wipe_reverse = reverse;
+	cur_wipe_effect = effect;
 
-	cur_wipe_progress =  0;
+	cur_wipe_progress = 0;
 	cur_wipe_lasttime = -1;
 
 	if (cur_wipe_effect == WIPE_None)
 		return;
 
 	CaptureScreenAsTexture(effect == WIPE_Pixelfade,
-		effect == WIPE_Spooky);
+		effect == WIPE_Spooky, effect == WIPE_Rotate); //CA: 10.28.17 - added screentex rotation from ROTT
 
 	if (cur_wipe_effect == WIPE_Melt)
 		RGL_Init_Melt();
 }
 
-
 void RGL_StopWipe(void)
 {
-	
 	cur_wipe_effect = WIPE_None;
 
 	if (cur_wipe_tex != 0)
@@ -174,6 +195,43 @@ void RGL_StopWipe(void)
 	}
 }
 
+#if 0
+void RGL_StartRotate(void)
+{
+	int rsw = powerof2(glscreenw);
+	int rsh = powerof2(glscreenh);
+	Uint32 *buf = (Uint32 *)gl_malloc(glscreenw * glscreenh * 4);
+	DrawScreenToBuffer(buf, 0, 0, glscreenw, glscreenh);
+
+	Uint32 *rtex = (Uint32*)gl_malloc(rsw * rsh * 4);
+
+	copy2d(buf, glscreenw, glscreenh, rtex, rsw, rsh, 0, 0,
+		0, 0, glscreenw, glscreenh);
+
+	glGenTextures(1, &screentex);
+
+	globallump = 0;//bna++
+	UploadTexture(screentex, rtex, rsw, rsh, 0, 0, 0, 20, rsw, rsh);
+
+	rtcx = 0.5;
+	rtcy = 0.5*screenratio;
+
+	gl_free(buf);
+	gl_free(rtex);
+	checkGLStatus();
+	DoingRotate = 1;
+	scrtrw = glscreenw / (double)rsw;
+	scrtrh = glscreenh / (double)rsh;
+}
+
+void GLStopRotate()
+{
+	glDeleteTextures(1, &screentex);
+	DoingRotate = 0;
+	DrawScreen = 1;
+	SetDrawMode(-1);
+}
+#endif // 0
 
 //----------------------------------------------------------------------------
 
@@ -251,14 +309,14 @@ static void RGL_Wipe_Melt(void)
 
 	glBegin(GL_QUAD_STRIP);
 
-	for (int x=0; x <= MELT_DIVS; x++)
+	for (int x = 0; x <= MELT_DIVS; x++)
 	{
 		int yoffs = MAX(0, melt_yoffs[x]);
 
-		float sx = (float) x * SCREENWIDTH / MELT_DIVS;
-		float sy = (float) (200 - yoffs) * SCREENHEIGHT / 200.0f;
+		float sx = (float)x * SCREENWIDTH / MELT_DIVS;
+		float sy = (float)(200 - yoffs) * SCREENHEIGHT / 200.0f;
 
-		float tx = cur_wipe_right * (float) x / MELT_DIVS;
+		float tx = cur_wipe_right * (float)x / MELT_DIVS;
 
 		glTexCoord2f(tx, cur_wipe_top);
 		glVertex2f(sx, sy);
@@ -272,6 +330,32 @@ static void RGL_Wipe_Melt(void)
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
 }
+
+#if 0
+void RGL_RotateScreen(int dx, int dy, int angle, int scale)
+{
+	glDepthMask(1);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glBindTexture(GL_TEXTURE_2D, cur_wipe_tex); //glbindtexture(screentex?)
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(0, 0);
+	glVertex2f(xtl, ytl);
+
+	glTexCoord2f(scrtrw, 0);
+	glVertex2f(xtr, ytr);
+
+	glTexCoord2f(scrtrw, scrtrh);
+	glVertex2f(xbr, ybr);
+
+	glTexCoord2f(0, scrtrh);
+	glVertex2f(xbl, ybl);
+	glEnd();
+
+	//SDL_GL_SwapBuffers();
+}
+#endif // 0
 
 static void RGL_Wipe_Slide(float how_far, float dx, float dy)
 {
@@ -306,8 +390,8 @@ static void RGL_Wipe_Slide(float how_far, float dx, float dy)
 
 static void RGL_Wipe_Doors(float how_far)
 {
-	float dx = cos(how_far * M_PI / 2) * (SCREENWIDTH/2);
-	float dy = sin(how_far * M_PI / 2) * (SCREENHEIGHT/3);
+	float dx = cos(how_far * M_PI / 2) * (SCREENWIDTH / 2);
+	float dy = sin(how_far * M_PI / 2) * (SCREENHEIGHT / 3);
 
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
@@ -371,7 +455,7 @@ bool RGL_DoWipe(void)
 
 	if (cur_wipe_lasttime >= 0)
 		tics = MAX(0, nowtime - cur_wipe_lasttime);
-	
+
 	cur_wipe_lasttime = nowtime;
 
 	// hack for large delays (like when loading a level)
@@ -382,50 +466,45 @@ bool RGL_DoWipe(void)
 	if (cur_wipe_progress > 40)  // FIXME: have option for wipe time
 		return true;
 
-	float how_far = (float) cur_wipe_progress / 20.0f;
-	
-	
+	float how_far = (float)cur_wipe_progress / 20.0f;
 
 	switch (cur_wipe_effect)
 	{
-		case WIPE_Melt:
-			RGL_Wipe_Melt();
-			RGL_Update_Melt(tics);
-			break;
+	case WIPE_Melt:
+		RGL_Wipe_Melt();
+		RGL_Update_Melt(tics);
+		break;
 
-		case WIPE_Top:
-			RGL_Wipe_Slide(how_far, 0, +SCREENHEIGHT);
-			break;
+	case WIPE_Top:
+		RGL_Wipe_Slide(how_far, 0, +SCREENHEIGHT);
+		break;
 
-		case WIPE_Bottom:
-			RGL_Wipe_Slide(how_far, 0, -SCREENHEIGHT);
-			break;
+	case WIPE_Bottom:
+		RGL_Wipe_Slide(how_far, 0, -SCREENHEIGHT);
+		break;
 
-		case WIPE_Left:
-			RGL_Wipe_Slide(how_far, -SCREENWIDTH, 0);
-			break;
+	case WIPE_Left:
+		RGL_Wipe_Slide(how_far, -SCREENWIDTH, 0);
+		break;
 
-		case WIPE_Right:
-			RGL_Wipe_Slide(how_far, +SCREENWIDTH, 0);
-			break;
+	case WIPE_Right:
+		RGL_Wipe_Slide(how_far, +SCREENWIDTH, 0);
+		break;
 
+	case WIPE_Doors:
+		RGL_Wipe_Doors(how_far);
+		break;
 
-		case WIPE_Doors:
-			RGL_Wipe_Doors(how_far);
-			break;
+	case WIPE_Spooky:  // difference is in alpha channel
+	case WIPE_Pixelfade:
+		RGL_Wipe_Pixelfade(how_far);
+		break;
 
-		case WIPE_Spooky:  // difference is in alpha channel
-		case WIPE_Pixelfade:
-			RGL_Wipe_Pixelfade(how_far);
-			break;
-
-		case WIPE_Crossfade:
-		default:
-			RGL_Wipe_Fading(how_far);
-			break;
+	case WIPE_Crossfade:
+	default:
+		RGL_Wipe_Fading(how_far);
+		break;
 	}
-	
-	
 
 	return false;
 }

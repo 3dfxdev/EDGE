@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  Texture Conversion and Caching code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -38,7 +38,6 @@
 #include "games/wolf3d/wlf_local.h"
 #include "games/wolf3d/wlf_rawdef.h"
 
-
 class texture_set_c
 {
 public:
@@ -63,13 +62,22 @@ private:
 	void CleanupObject(void *obj) { delete *(texture_set_c**)obj; }
 
 public:
-    // List Management
+	// List Management
 	int GetSize() { return array_entries; }
 	int Insert(texture_set_c *c) { return InsertObject((void*)&c); }
 	texture_set_c* operator[](int idx) { return *(texture_set_c**)FetchObject(idx); }
 };
 
 static texset_array_c tex_sets;
+
+#define REPEAT_X 1
+#define REPEAT_Y 2
+#define REPEAT_BOTH 3
+#define REPEAT_AUTO 4
+
+enum { FT_PATCH, LT_TPATCH, LT_LPIC, LT_WALL };
+
+
 
 #if 0
 static void InstallWolfensteinTextureLumps(int file, const vswap_info_c *vv)
@@ -120,7 +128,6 @@ static void InstallWolfensteinTextureLumps(int file, const vswap_info_c *vv)
 	numtextures1 = EPI_LE_S32(*maptex);
 	maxoff = W_LumpLength(vv->num_walls);
 	directory = maptex + 1;
-
 
 	maptex2 = NULL;
 	numtextures2 = 0;
@@ -202,7 +209,7 @@ static void InstallWolfensteinTextureLumps(int file, const vswap_info_c *vv)
 			patch->originy = EPI_LE_S16(mpatch->y_origin);
 			patch->patch = patchlookup[pname];
 
-			// work-around for strange Y offset in SKY1 of DOOM 1 
+			// work-around for strange Y offset in SKY1 of DOOM 1
 			if (is_sky && patch->originy < 0)
 				patch->originy = 0;
 
@@ -225,14 +232,9 @@ static void InstallWolfensteinTextureLumps(int file, const vswap_info_c *vv)
 		W_DoneWithLump(maptex2);
 
 	delete[] patchlookup;
-
-
-
-
 }
 
 #endif // 0
-
 
 //
 // InstallTextureLumps
@@ -265,7 +267,7 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 
 	const char *name_p = names + 4;
 
-	int *patchlookup = new int[nummappatches+1];
+	int *patchlookup = new int[nummappatches + 1];
 
 	for (i = 0; i < nummappatches; i++)
 	{
@@ -320,10 +322,10 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 		int offset = EPI_LE_S32(*directory);
 
 		if (offset < 0 || offset > maxoff)
-				I_Error("W_InitTextures: bad texture directory");
+			I_Error("W_InitTextures: bad texture directory");
 
 		const raw_texture_t *mtexture =
-			(const raw_texture_t *) ((const byte *) maptex + offset);
+			(const raw_texture_t *)((const byte *)maptex + offset);
 
 		// -ES- 2000/02/10 Texture must have patches.
 		int patchcount = EPI_LE_S16(mtexture->patch_count);
@@ -337,7 +339,7 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 		// -ES- Allocate texture, patches and columnlump/ofs in one big chunk
 		int base_size = sizeof(texturedef_t) + sizeof(texpatch_t) * (patchcount - 1);
 
-		texturedef_t * texture = (texturedef_t *) Z_Malloc(base_size + width * (sizeof(byte) + sizeof(short)));
+		texturedef_t * texture = (texturedef_t *)Z_Malloc(base_size + width * (sizeof(byte) + sizeof(short)));
 		cur_set->textures[i] = texture;
 
 		byte *base = (byte *)texture + base_size;
@@ -366,16 +368,16 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 
 			patch->originx = EPI_LE_S16(mpatch->x_origin);
 			patch->originy = EPI_LE_S16(mpatch->y_origin);
-			patch->patch   = patchlookup[pname];
+			patch->patch = patchlookup[pname];
 
-			// work-around for strange Y offset in SKY1 of DOOM 1 
+			// work-around for strange Y offset in SKY1 of DOOM 1
 			if (is_sky && patch->originy < 0)
 				patch->originy = 0;
 
 			if (patch->patch == -1)
 			{
 				I_Warning("Missing patch '%.8s' in texture \'%.8s\'\n",
-						  name_p + pname*8, texture->name);
+					name_p + pname * 8, texture->name);
 
 				// mark texture as a dud
 				texture->patchcount = 0;
@@ -389,7 +391,7 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 
 	if (maptex2)
 		W_DoneWithLump(maptex2);
-	
+
 	delete[] patchlookup;
 }
 
@@ -421,7 +423,7 @@ void W_InitTextures(void)
 	// iterate over each file, creating our sets of textures
 	// -ACB- 1998/09/09 Removed the Doom II SkyName change: unnecessary and not DDF.
 
-	for (file=0; file < num_files; file++)
+	for (file = 0; file < num_files; file++)
 	{
 		E_LocalProgress(file, num_files);
 
@@ -431,7 +433,7 @@ void W_InitTextures(void)
 		if (wolf3d_mode)
 			W_GetWolfTextureLumps(file, &WF);
 		else
-		W_GetTextureLumps(file, &WT);
+			W_GetTextureLumps(file, &WT);
 
 		if (WT.pnames < 0)
 			continue;
@@ -451,28 +453,27 @@ void W_InitTextures(void)
 			break;
 	}
 
-
 	if (tex_sets.GetSize() == 0)
 		if (!wolf3d_mode)
-		I_Error("No textures found !  Make sure the chosen IWAD is valid.\n");
+			I_Error("No textures found !  Make sure the chosen IWAD is valid.\n");
 		else
-		I_Printf("No textures found for Wolf, but DDF will grab 'em\n");
+			I_Printf("No textures found for Wolf, but DDF will grab 'em\n");
 
 	// now clump all of the texturedefs together and sort 'em, primarily
 	// by increasing name, secondarily by increasing file number
 	// (measure of newness).  We ignore "dud" textures (missing
 	// patches).
 
-	for (j=0; j < tex_sets.GetSize(); j++)
+	for (j = 0; j < tex_sets.GetSize(); j++)
 		numtextures += tex_sets[j]->num_tex;
 
 	textures = cur = new texturedef_t*[numtextures];
 
-	for (j=0; j < tex_sets.GetSize(); j++)
+	for (j = 0; j < tex_sets.GetSize(); j++)
 	{
 		texture_set_c *set = tex_sets[j];
 
-		for (t=0; t < set->num_tex; t++)
+		for (t = 0; t < set->num_tex; t++)
 			if (set->textures[t]->patchcount > 0)
 				*cur++ = set->textures[t];
 	}
@@ -482,14 +483,14 @@ void W_InitTextures(void)
 #define CMP(a, b)  \
 	(strcmp(a->name, b->name) < 0 || \
 	 (strcmp(a->name, b->name) == 0 && a->file < b->file))
-		QSORT(texturedef_t *, textures, numtextures, CUTOFF);
+	QSORT(texturedef_t *, textures, numtextures, CUTOFF);
 #undef CMP
 
 	// remove duplicate names.  Because the QSORT took newness into
 	// account, only the last entry in a run of identically named
 	// textures needs to be kept.
 
-	for (j=1; j < numtextures; j++)
+	for (j = 1; j < numtextures; j++)
 	{
 		texturedef_t * a = textures[j - 1];
 		texturedef_t * b = textures[j];
@@ -501,7 +502,7 @@ void W_InitTextures(void)
 	}
 
 #if 0  // DEBUGGING
-	for (j=0; j < numtextures; j++)
+	for (j = 0; j < numtextures; j++)
 	{
 		if (textures[j] == NULL)
 		{
@@ -509,23 +510,22 @@ void W_InitTextures(void)
 			continue;
 		}
 		L_WriteDebug("TEXTURE #%d:  name=[%s]  file=%d  size=%dx%d\n", j,
-				textures[j]->name, textures[j]->file,
-				textures[j]->width, textures[j]->height);
+			textures[j]->name, textures[j]->file,
+			textures[j]->width, textures[j]->height);
 	}
 #endif
 
-	W_ImageCreateTextures(textures, numtextures); 
+	W_ImageCreateTextures(textures, numtextures);
 
 	// free pointer array.  We need to keep the definitions in memory
 	// for (a) the image system and (b) texture anims.
-	delete [] textures;
+	delete[] textures;
 }
 
 #if 0
 void W_InitWolfensteinTextures(void)
 {
 	//WF_VSwapOpen();
-
 
 	int num_files = W_GetNumFiles();
 	int j, t, file;
@@ -579,7 +579,6 @@ void W_InitWolfensteinTextures(void)
 	{
 		I_Printf("WOLF: VSWAP OPENING...\n");
 		WF_VSwapOpen();
-
 	}
 
 	if (tex_sets.GetSize() == 0)
@@ -641,7 +640,7 @@ void W_InitWolfensteinTextures(void)
 		L_WriteDebug("TEXTURE #%d:  name=[%s]  file=%d  size=%dx%d\n", j,
 			textures[j]->name, textures[j]->file,
 			textures[j]->width, textures[j]->height);
-}
+	}
 #endif
 
 	W_ImageCreateTextures(textures, numtextures);
@@ -649,14 +648,8 @@ void W_InitWolfensteinTextures(void)
 	// free pointer array.  We need to keep the definitions in memory
 	// for (a) the image system and (b) texture anims.
 	delete[] textures;
-
-
-
-
-
 }
 #endif // 0
-
 
 //
 // W_FindTextureSequence
@@ -666,16 +659,16 @@ void W_InitWolfensteinTextures(void)
 // found.  Used by animation code.
 //
 // Note: search is from latest set to earliest set.
-// 
+//
 int W_FindTextureSequence(const char *start, const char *end,
-		int *s_offset, int *e_offset)
+	int *s_offset, int *e_offset)
 {
 	int i, j;
 
-	for (i = tex_sets.GetSize()-1; i >= 0; i--)
+	for (i = tex_sets.GetSize() - 1; i >= 0; i--)
 	{
 		// look for start name
-		for (j=0; j < tex_sets[i]->num_tex; j++)
+		for (j = 0; j < tex_sets[i]->num_tex; j++)
 			if (stricmp(start, tex_sets[i]->textures[j]->name) == 0)
 				break;
 
@@ -709,7 +702,6 @@ const char *W_TextureNameInSet(int set, int offset)
 
 	return tex_sets[set]->textures[offset]->name;
 }
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

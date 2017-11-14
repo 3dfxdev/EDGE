@@ -96,9 +96,11 @@ public:
 	union
 	{
 		// case IMSRC_Graphic:
+		// case IMSRC_ROTTGFX:
 		// case IMSRC_Sprite:
 		// case IMSRC_TX_HI:
 		struct { int lump; bool is_png; } graphic;
+
 
 		// case IMSRC_Flat:
 		// case IMSRC_Raw320x200:
@@ -242,6 +244,15 @@ typedef enum
 {
 	// Source was a graphic name
 	IMSRC_Graphic = 0,
+
+	// Rise of the Triad's patch_t
+	IMSRC_ROTTGFX,
+
+	// Rise of the Triad's maskedpatch_t
+	IMSRC_ROTTMASK,
+
+	// Rise of the Triad RAW
+	IMSRC_ROTTRAW,
 
 	// INTERNAL ONLY: Source was a raw block of 320x200 bytes (Heretic/Hexen)
 	IMSRC_Raw320x200,

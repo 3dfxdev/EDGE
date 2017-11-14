@@ -54,6 +54,9 @@ typedef enum
   WIPE_Left,
   WIPE_Right,
 
+  // Rise of the Triad: WIPE_Rotate
+  WIPE_Rotate,
+
   WIPE_Spooky,
 
   // Opens like doors

@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Main Menu Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -83,12 +83,14 @@ static int  menualphacolor = 0xff; // 255!
 //
 // Draw current display, possibly wiping it from the previous
 //
-// -ACB- 1998/07/27 Removed doublebufferflag check (unneeded).  
+// -ACB- 1998/07/27 Removed doublebufferflag check (unneeded).
 
 static bool wipe_gl_active = true;
 
 // Show messages has default, 0 = off, 1 = on
 int showMessages;
+// This is the original cfg variable, now reintroduced.
+int traditional_menu;
 
 cvar_c m_language;
 
@@ -98,8 +100,9 @@ static std::string msg_string;
 static int msg_lastmenu;
 static int msg_mode;
 static int MenuTime;
+char       *mn_wadname;            // wad to load
 
-static std::string input_string;		
+static std::string input_string;
 
 bool singleplayer;
 bool menuactive;
@@ -109,15 +112,12 @@ bool menuactive;
 #define SKULLXOFF   -24
 #define LINEHEIGHT   15  //!!!!
 
-
 #define HLEFT_DIR 0 //From Heretic
 #define HRIGHT_DIR 1 //From Heretic
 #define HSKULLXOFF   -28
 #define HSKULLYOFF   -1
 #define HLINEHEIGHT   20  //equiv to ITEM_HEIGHT in Heretic's source
 #define HASCII_CURSOR '[' //not sure what this is for...from Heretic.
-
-
 
 //
 // fade-in/out stuff
@@ -126,15 +126,14 @@ void M_MenuFadeIn(void);
 void M_MenuFadeOut(void);
 void(*menufadefunc)(void) = NULL;
 
-
 // timed message = no input from user
 static bool msg_needsinput;
 
-static void (* message_key_routine)(int response) = NULL;
-static void (* message_input_routine)(const char *response) = NULL;
+static void(*message_key_routine)(int response) = NULL;
+static void(*message_input_routine)(const char *response) = NULL;
 
 static int chosen_epi;
- 
+
 // SOUNDS
 sfx_t * sfx_swtchn;
 sfx_t * sfx_tink;
@@ -163,6 +162,7 @@ static const image_c *menu_gamefiles;
 static const image_c *menu_skill;
 static const image_c *menu_episode;
 static const image_c *menu_skull[2];
+static const image_c *rott_skull;
 static const image_c *menu_readthis[2];
 static const image_c *SkullBaseLump[18]; //replaced = NULL -> 17, 17 frames of animation
 
@@ -209,10 +209,10 @@ typedef struct slot_extra_info_s
 
 	char desc[SAVESTRINGSIZE];
 	char timestr[32];
-  
+
 	char mapname[10];
 	char gamename[32];
-  
+
 	int skill;
 	int netgame;
 	bool has_view;
@@ -238,15 +238,16 @@ typedef struct
 	// 0 = no cursor here, 1 = ok, 2 = arrows ok
 	int status;
 
-  	// image for menu entry
-	char patch_name[10];
-	const image_c *image;
+	// image for menu entry
+	char patch_name[10]; // inside of Quotes
+	const image_c *image; // NULL for image (TODO, need to add char *data from Eternity)
+	//char *data; // TEXT instead of image
 
 	//const char *text; //this is to sub out from *image?
 
-  	// choice = menu item #.
-  	// if status = 2, choice can be SLIDERLEFT or SLIDERRIGHT
-	void (* select_func)(int choice);
+	// choice = menu item #.
+	// if status = 2, choice can be SLIDERLEFT or SLIDERRIGHT
+	void(*select_func)(int choice); // What we actually end up selecting
 
 	// hotkey in menu
 	char alpha_key;
@@ -277,7 +278,7 @@ typedef struct menu_s
 	// # of menu items
 	int numitems;
 
-  // previous menu
+	// previous menu
 	struct menu_s *prevMenu;
 
 	// menu items
@@ -287,7 +288,7 @@ typedef struct menu_s
 	style_c **style_var;
 
 	// draw routine
-	void (* draw_func)(void);
+	void(*draw_func)(void);
 
 	// x,y of menu
 	int x, y;
@@ -297,20 +298,20 @@ typedef struct menu_s
 }
 menu_t;
 
-//typedef struct 
+//typedef struct
 //{
 //	cvar_c* mitem;
 //	float    mdefault;
 //} d64menudefault_t;
 
-//typedef struct 
+//typedef struct
 //{
 //	int item;
 //	float width;
 //	cvar_c *mitem;
 //} d64menuthermobar_t;
 
-//typedef struct d64menu_s 
+//typedef struct d64menu_s
 //{
 //	short               numitems;           // # of menu items
 //	bool            textonly;
@@ -330,7 +331,7 @@ menu_t;
 //	d64menuthermobar_t     *thermobars;
 //} d64menu_t;
 
-//typedef struct 
+//typedef struct
 //{
 //	char    *name;
 //	char    *action;
@@ -382,10 +383,8 @@ static void M_SetInputString(char* string, int len);
 static void M_Scroll(d64menu_t* menu, bool up);
 #endif // 0
 
-
-
 //------------------------------------------------------------------------
-// 3DGE 
+// 3DGE
 // PROTOTYPES
 //
 //------------------------------------------------------------------------
@@ -443,7 +442,6 @@ void M_ClearMenus(void);
 void M_StartControlPanel(void);
 // static void M_StopMessage(void);
 
-
 //
 // DOOM MENU
 //
@@ -475,7 +473,6 @@ typedef enum
 }
 hmain_e;
 
-
 #if 0
 d64menuitem_t MainMenu[] = {
 { 1,"New Game",M_NewGame,'n' },
@@ -485,7 +482,7 @@ d64menuitem_t MainMenu[] = {
 };
 #endif // 0
 
-
+// Heretic "old" main menu, planned to be phased out!
 static menuitem_t HereticMainMenu[] =
 {
 	{ 1, "H_NGAME",   NULL, M_NewGame, '1' },
@@ -496,20 +493,18 @@ static menuitem_t HereticMainMenu[] =
 	{ 1, "H_QUITG",   NULL, M_QuitEDGE, 'q' }
 };
 
-
-
+//traditional DOOM main menu support
 static menuitem_t MainMenu[] =
 {
-	{1, "M_NGAME",   NULL, M_NewGame, 'n'},
-	{1, "M_MULTI",   NULL, M_Multiplayer, 'p'},
-	{1, "M_OPTION",  NULL, M_Options, 'o'},
+	{1, "M_NGAME",   NULL,  M_NewGame, 'n'},
+	{1, "M_MULTI",   NULL,  M_Multiplayer, 'p'},
+	{1, "M_OPTION",  NULL,  M_Options, 'o'},
 	{1, "M_LOADG",   NULL, M_LoadGame, 'l'},
-	{1, "M_SAVEG",   NULL, M_SaveGame, 's'},
+	{1, "M_SAVEG",   NULL,  M_SaveGame, 's'},
 	// Another hickup with Special edition.
-	{1, "M_RDTHIS",  NULL, M_ReadThis, 'r'},
+	{1, "M_RDTHIS",  NULL,  M_ReadThis, 'r'},
 	{1, "M_QUITG",   NULL, M_QuitEDGE, 'q'}
 };
-
 
 static menu_t MainDef =
 {
@@ -519,8 +514,8 @@ static menu_t MainDef =
 	&main_menu_style,
 	M_DrawMainMenu,
 	97, 64,
-//Hypertension	37, 100, //97, 64
-	0
+	//Hypertension	37, 100, //97, 64
+		0
 };
 
 static menu_t HereticMainDef =
@@ -540,7 +535,7 @@ static menuitem_t MultiMenu[] = ///Dupe Doom Legacy's Multiplayer menu. . .
 	//{ 1, "M_STSERV", NULL, M_HostNetGame, 'o' }, // Pulls up the Advanced Start Menu (Host)
 	//{ 1, "M_CONNEC",  NULL, M_JoinNetGame, 'h' }, //Pulls up the Join Game Menu (client)
 	{ 1, "M_2PLAYR",  NULL, M_SplitScreenGame, 'z' }, //Goes to splitscreen game (II)
-	{ 1, "M_OPTION", NULL, M_Options, 'o' }, // Goes to Options...
+	{ 1, "M_OPTION", NULL,  M_Options, 'o' }, // Goes to Options...
 	{ 1, "M_QUITG",   NULL, M_EndGame, 'e'}
 };
 
@@ -563,7 +558,6 @@ static menuitem_t HMultiMenu[] = ///Dupe Doom Legacy's Multiplayer menu. . .
 	{ 1, "H_JOINNG",  NULL, M_JoinNetGame, 'h' }, //Pulls up the Join Game Menu (client)
 	{ 1, "M_2PLAYR",  NULL, M_SplitScreenGame, 'z' }, //Goes to splitscreen game (II)
 	{ 1, "H_OPTION", NULL, M_Options, 'o' } // Goes to Options...
-
 };
 
 static menu_t HMultiDef =
@@ -604,8 +598,6 @@ static menu_t FilesDef =
 //---------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------
-
-
 
 //
 // EPISODE SELECT
@@ -725,7 +717,6 @@ static menu_t ReadDef1 =
 	280, 185,
 	0
 };
-
 
 static menu_t HReadDef1 =
 {
@@ -876,20 +867,20 @@ void M_LoadSavePage(int choice)
 {
 	switch (choice)
 	{
-		case SLIDERLEFT:
-			// -AJA- could use `OOF' sound...
-			if (save_page == 0)
-				return;
+	case SLIDERLEFT:
+		// -AJA- could use `OOF' sound...
+		if (save_page == 0)
+			return;
 
-			save_page--;
-			break;
-      
-		case SLIDERRIGHT:
-			if (save_page >= SAVE_PAGES-1)
-				return;
+		save_page--;
+		break;
 
-			save_page++;
-			break;
+	case SLIDERRIGHT:
+		if (save_page >= SAVE_PAGES - 1)
+			return;
+
+		save_page++;
+		break;
 	}
 
 	S_StartFX(sfx_swtchn);
@@ -904,10 +895,10 @@ void M_LoadSavePage(int choice)
 void M_ReadSaveStrings(void)
 {
 	int i, version;
-  
+
 	saveglobals_t *globs;
 
-	for (i=0; i < SAVE_SLOTS; i++)
+	for (i = 0; i < SAVE_SLOTS; i++)
 	{
 		ex_slots[i].empty = false;
 		ex_slots[i].corrupt = true;
@@ -920,18 +911,18 @@ void M_ReadSaveStrings(void)
 		ex_slots[i].timestr[0] = 0;
 		ex_slots[i].mapname[0] = 0;
 		ex_slots[i].gamename[0] = 0;
-    
+
 		int slot = save_page * SAVE_SLOTS + i;
 		std::string fn(SV_FileName(SV_SlotName(slot), "head"));
 
-		if (! SV_OpenReadFile(fn.c_str()))
+		if (!SV_OpenReadFile(fn.c_str()))
 		{
 			ex_slots[i].empty = true;
 			ex_slots[i].corrupt = false;
 			continue;
 		}
 
-		if (! SV_VerifyHeader(&version))
+		if (!SV_VerifyHeader(&version))
 		{
 			SV_CloseReadFile();
 			continue;
@@ -942,7 +933,7 @@ void M_ReadSaveStrings(void)
 		// close file now -- we only need the globals
 		SV_CloseReadFile();
 
-		if (! globs)
+		if (!globs)
 			continue;
 
 		// --- pull info from global structure ---
@@ -955,27 +946,27 @@ void M_ReadSaveStrings(void)
 
 		ex_slots[i].corrupt = false;
 
-		Z_StrNCpy(ex_slots[i].gamename, globs->game,  32-1);
-		Z_StrNCpy(ex_slots[i].mapname,  globs->level, 10-1);
+		Z_StrNCpy(ex_slots[i].gamename, globs->game, 32 - 1);
+		Z_StrNCpy(ex_slots[i].mapname, globs->level, 10 - 1);
 
-		Z_StrNCpy(ex_slots[i].desc, globs->description, SAVESTRINGSIZE-1);
+		Z_StrNCpy(ex_slots[i].desc, globs->description, SAVESTRINGSIZE - 1);
 
 		if (globs->desc_date)
-			Z_StrNCpy(ex_slots[i].timestr, globs->desc_date, 32-1);
+			Z_StrNCpy(ex_slots[i].timestr, globs->desc_date, 32 - 1);
 
-		ex_slots[i].skill   = globs->skill;
+		ex_slots[i].skill = globs->skill;
 		ex_slots[i].netgame = globs->netgame;
 
 		SV_FreeGLOB(globs);
-    
+
 #if 0
 		// handle screenshot
 		if (globs->view_pixels)
 		{
 			int x, y;
-      
-			for (y=0; y < 100; y++)
-				for (x=0; x < 160; x++)
+
+			for (y = 0; y < 100; y++)
+				for (x = 0; x < 160; x++)
 				{
 					save_screenshot[x][y] = SV_GetShort();
 				}
@@ -984,18 +975,18 @@ void M_ReadSaveStrings(void)
 	}
 
 	// fix up descriptions
-	for (i=0; i < SAVE_SLOTS; i++)
+	for (i = 0; i < SAVE_SLOTS; i++)
 	{
 		if (ex_slots[i].corrupt)
 		{
 			strncpy(ex_slots[i].desc, language["Corrupt_Slot"],
-					SAVESTRINGSIZE - 1);
+				SAVESTRINGSIZE - 1);
 			continue;
 		}
 		else if (ex_slots[i].empty)
 		{
 			strncpy(ex_slots[i].desc, language["EmptySlot"],
-					SAVESTRINGSIZE - 1);
+				SAVESTRINGSIZE - 1);
 			continue;
 		}
 	}
@@ -1009,20 +1000,19 @@ static void M_DrawSaveLoadCommon(int row, int row2, style_c *style)
 
 	char mbuffer[200];
 
-
 	sprintf(mbuffer, "PAGE %d", save_page + 1);
 
 	// -KM-  1998/06/25 This could quite possibly be replaced by some graphics...
 	if (save_page > 0)
-		HL_WriteText(style,2, LoadDef.x - 4, y, "< PREV");
+		HL_WriteText(style, 2, LoadDef.x - 4, y, "< PREV");
 
-	HL_WriteText(style,2, LoadDef.x + 94 - style->fonts[2]->StringWidth(mbuffer) / 2, y,
-					  mbuffer);
+	HL_WriteText(style, 2, LoadDef.x + 94 - style->fonts[2]->StringWidth(mbuffer) / 2, y,
+		mbuffer);
 
-	if (save_page < SAVE_PAGES-1)
-		HL_WriteText(style,2, LoadDef.x + 192 - style->fonts[2]->StringWidth("NEXT >"), y,
-						  "NEXT >");
- 
+	if (save_page < SAVE_PAGES - 1)
+		HL_WriteText(style, 2, LoadDef.x + 192 - style->fonts[2]->StringWidth("NEXT >"), y,
+			"NEXT >");
+
 	info = ex_slots + itemOn;
 	SYS_ASSERT(0 <= itemOn && itemOn < SAVE_SLOTS);
 
@@ -1037,47 +1027,44 @@ static void M_DrawSaveLoadCommon(int row, int row2, style_c *style)
 
 	strcat(mbuffer, info->timestr);
 
-	HL_WriteText(style,3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
-
+	HL_WriteText(style, 3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
 
 	y -= LINEHEIGHT;
-    
+
 	mbuffer[0] = 0;
 
 	// FIXME: use the patches (but shrink them)
 	switch (info->skill)
 	{
-		case 0: strcat(mbuffer, "Too Young To Die"); break;
-		case 1: strcat(mbuffer, "Not Too Rough"); break;
-		case 2: strcat(mbuffer, "Hurt Me Plenty"); break;
-		case 3: strcat(mbuffer, "Ultra Violence"); break;
-		default: strcat(mbuffer, "NIGHTMARE"); break;
+	case 0: strcat(mbuffer, "Too Young To Die"); break;
+	case 1: strcat(mbuffer, "Not Too Rough"); break;
+	case 2: strcat(mbuffer, "Hurt Me Plenty"); break;
+	case 3: strcat(mbuffer, "Ultra Violence"); break;
+	default: strcat(mbuffer, "NIGHTMARE"); break;
 	}
 
-	HL_WriteText(style,3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
-
+	HL_WriteText(style, 3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
 
 	y -= LINEHEIGHT;
-  
+
 	mbuffer[0] = 0;
 
 	switch (info->netgame)
 	{
-		case 0: strcat(mbuffer, "SP MODE"); break;
-		case 1: strcat(mbuffer, "COOP MODE"); break;
-		default: strcat(mbuffer, "DM MODE"); break;
+	case 0: strcat(mbuffer, "SP MODE"); break;
+	case 1: strcat(mbuffer, "COOP MODE"); break;
+	default: strcat(mbuffer, "DM MODE"); break;
 	}
-  
-	HL_WriteText(style,3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
 
+	HL_WriteText(style, 3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
 
 	y -= LINEHEIGHT;
-  
+
 	mbuffer[0] = 0;
 
 	strcat(mbuffer, info->mapname);
 
-	HL_WriteText(style,3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
+	HL_WriteText(style, 3, 310 - style->fonts[3]->StringWidth(mbuffer), y, mbuffer);
 }
 
 //
@@ -1088,7 +1075,7 @@ void M_DrawLoad(void)
 	int i;
 
 	HUD_DrawImage(72, 8, menu_loadg);
-      
+
 	for (i = 0; i < SAVE_SLOTS; i++)
 		M_DrawSaveLoadBorder(LoadDef.x + 8, LoadDef.y + LINEHEIGHT * (i), 24);
 
@@ -1096,12 +1083,11 @@ void M_DrawLoad(void)
 
 	for (i = 0; i < SAVE_SLOTS; i++)
 		HL_WriteText(load_style, ex_slots[i].corrupt ? 3 : 0,
-		             LoadDef.x + 8, LoadDef.y + LINEHEIGHT * (i),
-					 ex_slots[i].desc);
+			LoadDef.x + 8, LoadDef.y + LINEHEIGHT * (i),
+			ex_slots[i].desc);
 
-	M_DrawSaveLoadCommon(i, i+1, load_style);
+	M_DrawSaveLoadCommon(i, i + 1, load_style);
 }
-
 
 //
 // Draw border for the savegame description
@@ -1134,8 +1120,6 @@ void M_DrawSaveLoadBorder(float x, float y, int len)
 
 		HUD_DrawImage(x, y + 7, R);
 	}
-
-	
 }
 
 //
@@ -1189,14 +1173,14 @@ void M_DrawSave(void)
 		{
 			len = save_style->fonts[1]->StringWidth(ex_slots[save_slot].desc);
 
-			HL_WriteText(save_style,1, LoadDef.x + 8, y, ex_slots[i].desc);
-			HL_WriteText(save_style,1, LoadDef.x + len + 8, y, "_");
+			HL_WriteText(save_style, 1, LoadDef.x + 8, y, ex_slots[i].desc);
+			HL_WriteText(save_style, 1, LoadDef.x + len + 8, y, "_");
 		}
 		else
-			HL_WriteText(save_style,0, LoadDef.x + 8, y, ex_slots[i].desc);
+			HL_WriteText(save_style, 0, LoadDef.x + 8, y, ex_slots[i].desc);
 	}
 
-	M_DrawSaveLoadCommon(i, i+1, save_style);
+	M_DrawSaveLoadCommon(i, i + 1, save_style);
 }
 
 //
@@ -1300,9 +1284,9 @@ void M_QuickSave(void)
 		quickSaveSlot = -2;  // means to pick a slot now
 		return;
 	}
-	
+
 	std::string s(epi::STR_Format(language["QuickSaveOver"],
-				  ex_slots[quickSaveSlot].desc));
+		ex_slots[quickSaveSlot].desc));
 
 	M_StartMessage(s.c_str(), QuickSaveResponse, true);
 }
@@ -1336,11 +1320,10 @@ void M_QuickLoad(void)
 	}
 
 	std::string s(epi::STR_Format(language["QuickLoad"],
-					ex_slots[quickSaveSlot].desc));
+		ex_slots[quickSaveSlot].desc));
 
 	M_StartMessage(s.c_str(), QuickLoadResponse, true);
 }
-
 
 //---------------------------------------------------------------------------
 //
@@ -1371,12 +1354,11 @@ void M_DrawReadThis2(void)
 	HUD_StretchImage(0, 0, 320, 200, menu_readthis[1]);
 }
 
-
 void M_DrawSound(void)
 {
 	HUD_DrawImage(60, 38, menu_svol);
 
-	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol   + 1), SND_SLIDER_NUM, sfx_volume, 1);
+	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol + 1), SND_SLIDER_NUM, sfx_volume, 1);
 	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), SND_SLIDER_NUM, mus_volume, 1);
 }
 
@@ -1400,17 +1382,17 @@ void M_SfxVol(int choice)
 {
 	switch (choice)
 	{
-		case SLIDERLEFT:
-			if (sfx_volume > 0)
-				sfx_volume--;
+	case SLIDERLEFT:
+		if (sfx_volume > 0)
+			sfx_volume--;
 
-			break;
+		break;
 
-		case SLIDERRIGHT:
-			if (sfx_volume < SND_SLIDER_NUM-1)
-				sfx_volume++;
+	case SLIDERRIGHT:
+		if (sfx_volume < SND_SLIDER_NUM - 1)
+			sfx_volume++;
 
-			break;
+		break;
 	}
 
 	S_ChangeSoundVolume();
@@ -1421,17 +1403,17 @@ void M_MusicVol(int choice)
 {
 	switch (choice)
 	{
-		case SLIDERLEFT:
-			if (mus_volume > 0)
-				mus_volume--;
+	case SLIDERLEFT:
+		if (mus_volume > 0)
+			mus_volume--;
 
-			break;
+		break;
 
-		case SLIDERRIGHT:
-			if (mus_volume < SND_SLIDER_NUM-1)
-				mus_volume++;
+	case SLIDERRIGHT:
+		if (mus_volume < SND_SLIDER_NUM - 1)
+			mus_volume++;
 
-			break;
+		break;
 	}
 
 	S_ChangeMusicVolume();
@@ -1441,7 +1423,7 @@ void HereticMainMenuDrawer(void)
 {
 	//int frame = (I_GetTime() / 3) % 18;
 	///int frame = (I_GetTime() / 3) % 18; //TODO: M_SKL00 has animations that need defining in ANIMS.DDF!!
-	int frame = (I_GetTime()/3)%18;
+	int frame = (I_GetTime() / 3) % 18;
 
 	HUD_DrawImage(40, 10, SkullBaseLump[goldskullAnimCounter]);// + (17 - frame)); LEFT
 
@@ -1475,7 +1457,6 @@ void M_DrawFileGFX(void)
 
 void M_NewGame(int choice)
 {
-
 	if (splitscreen_mode)
 	{
 		M_StartMessage(language["NewSplitGame"], NULL, false);
@@ -1511,7 +1492,7 @@ void M_Multiplayer(int choice)
 	{
 		M_SetupNextMenu(&MultiDef);
 	}
-	
+
 	// hack
 }
 
@@ -1535,7 +1516,7 @@ void M_HostNetGame(int choice)
 {
 	option_menuon = 0;
 	netgame_menuon = 1;
-	splitgame_menuon= 0;
+	splitgame_menuon = 0;
 
 	M_NetHostBegun();
 }
@@ -1545,7 +1526,7 @@ void M_JoinNetGame(int choice)
 	//#if 0
 	option_menuon = 0;
 	netgame_menuon = 2;
-	splitgame_menuon= 0;
+	splitgame_menuon = 0;
 
 	M_NetJoinBegun();
 	//#endif
@@ -1553,7 +1534,6 @@ void M_JoinNetGame(int choice)
 
 void M_SplitScreenGame(int choice)
 {
-
 	if (gamestate != GS_TITLESCREEN)
 	{
 		M_StartMessage(language["NewSplitGame"], NULL, false);
@@ -1587,7 +1567,7 @@ static void CreateEpisodeMenu(void)
 	for (it = gamedefs.GetBaseIterator(); it.IsValid(); it++)
 	{
 		gamedef_c *g = ITERATOR_TO_TYPE(it, gamedef_c*);
-		if (! g) continue;
+		if (!g) continue;
 
 		if (W_CheckNumForName(g->firstmap.c_str()) == -1)
 			continue;
@@ -1606,16 +1586,15 @@ static void CreateEpisodeMenu(void)
 	if (e == 0)
 		I_Error("No available episodes !\n");
 
-	EpiDef.numitems  = e;
+	EpiDef.numitems = e;
 	EpiDef.menuitems = EpisodeMenu;
 }
-
 
 void M_DrawEpisode(void)
 {
 	if (!EpisodeMenu)
 		CreateEpisodeMenu();
-    
+
 	HUD_DrawImage(54, 38, menu_episode);
 }
 
@@ -1635,7 +1614,7 @@ static void ReallyDoStartLevel(skill_t skill, gamedef_c *g)
 
 	params.map = G_LookupMap(g->firstmap.c_str());
 
-	if (! params.map)
+	if (!params.map)
 	{
 		// 23-6-98 KM Fixed this.
 		M_SetupNextMenu(&EpiDef);
@@ -1655,13 +1634,13 @@ static void DoStartLevel(skill_t skill)
 {
 	// -KM- 1998/12/17 Clear the intermission.
 	WI_Clear();
-  
+
 	// find episode
 	gamedef_c *g = NULL;
 	epi::array_iterator_c it;
 
-	for (it = gamedefs.GetBaseIterator(); it.IsValid(); it++) 
-	{ 
+	for (it = gamedefs.GetBaseIterator(); it.IsValid(); it++)
+	{
 		g = ITERATOR_TO_TYPE(it, gamedef_c*);
 
 		if (!strcmp(g->namegraphic.c_str(), EpisodeMenu[chosen_epi].patch_name))
@@ -1671,7 +1650,7 @@ static void DoStartLevel(skill_t skill)
 	}
 
 	// Sanity checking...
-	if (! g)
+	if (!g)
 	{
 		I_Warning("Internal Error: no episode for '%s'.\n",
 			EpisodeMenu[chosen_epi].patch_name);
@@ -1680,7 +1659,7 @@ static void DoStartLevel(skill_t skill)
 	}
 
 	const mapdef_c * map = G_LookupMap(g->firstmap.c_str());
-	if (! map)
+	if (!map)
 	{
 		I_Warning("Cannot find map for '%s' (episode %s)\n",
 			g->firstmap.c_str(),
@@ -1707,7 +1686,7 @@ void M_ChooseSkill(int choice)
 		M_StartMessage(language["NightMareCheck"], VerifyNightmare, true);
 		return;
 	}
-	
+
 	DoStartLevel((skill_t)choice);
 }
 
@@ -1720,11 +1699,9 @@ void M_Episode(int choice)
 		M_SetupNextMenu(&HereticSkillDef);
 		return;
 	}
-	else 
-	M_SetupNextMenu(&SkillDef);
+	else
+		M_SetupNextMenu(&SkillDef);
 }
-
-
 
 //
 // Toggle messages on/off
@@ -1732,7 +1709,7 @@ void M_Episode(int choice)
 void M_ChangeMessages(int choice)
 {
 	// warning: unused parameter `int choice'
-	(void) choice;
+	(void)choice;
 
 	showMessages = 1 - showMessages;
 
@@ -1762,7 +1739,7 @@ void M_EndGame(int choice)
 		return;
 	}
 
-	option_menuon  = 0;
+	option_menuon = 0;
 	netgame_menuon = 0;
 	splitgame_menuon = 0;
 
@@ -1814,7 +1791,7 @@ static void QuitResponse(int ch)
 {
 	if (ch != 'y')
 		return;
-		
+
 	if (!netgame)
 	{
 		int numsounds = 0;
@@ -1830,8 +1807,7 @@ static void QuitResponse(int ch)
 				numsounds++;
 			else
 				break;
-		}
-		while (true);
+		} while (true);
 
 		if (numsounds)
 		{
@@ -1848,8 +1824,7 @@ static void QuitResponse(int ch)
 					break;
 				}
 				i = (i + 1) % numsounds;
-			}
-			while (i != start);
+			} while (i != start);
 		}
 	}
 
@@ -1893,8 +1868,7 @@ void M_QuitEDGE(int choice)
 		num_quitmessages++;
 
 		sprintf(ref, "QUITMSG%d", num_quitmessages);
-	}
-	while (language.IsValidRef(ref));
+	} while (language.IsValidRef(ref));
 
 	// we stopped at one higher than the last
 	num_quitmessages--;
@@ -1917,7 +1891,6 @@ void M_QuitEDGE(int choice)
 	M_StartMessage(msg.c_str(), QuitResponse, true);
 }
 
-
 //----------------------------------------------------------------------------
 //   MENU FUNCTIONS
 //----------------------------------------------------------------------------
@@ -1930,18 +1903,18 @@ void M_DrawThermo(int x, int y, int thermWidth, int thermDot, int div)
 	// Note: the (step+1) here is for compatibility with the original
 	// code.  It seems required to make the thermo bar tile properly.
 
-	HUD_StretchImage(x, y, step+1, IM_HEIGHT(therm_l)/div, therm_l);
+	HUD_StretchImage(x, y, step + 1, IM_HEIGHT(therm_l) / div, therm_l);
 
-	for (i=0, x += step; i < thermWidth; i++, x += step)
+	for (i = 0, x += step; i < thermWidth; i++, x += step)
 	{
-		HUD_StretchImage(x, y, step+1, IM_HEIGHT(therm_m)/div, therm_m);
+		HUD_StretchImage(x, y, step + 1, IM_HEIGHT(therm_m) / div, therm_m);
 	}
 
-	HUD_StretchImage(x, y, step+1, IM_HEIGHT(therm_r)/div, therm_r);
+	HUD_StretchImage(x, y, step + 1, IM_HEIGHT(therm_r) / div, therm_r);
 
 	x = basex + step + thermDot * step;
 
-	HUD_StretchImage(x, y, step+1, IM_HEIGHT(therm_o)/div, therm_o);
+	HUD_StretchImage(x, y, step + 1, IM_HEIGHT(therm_o) / div, therm_o);
 }
 
 //----------------------------------------------------------------------------
@@ -1958,16 +1931,14 @@ void M_DrawSlider(menu_t *currentMenu, int item, int width, int slot)
 	int x2;
 	int count; //compat with Heretic, we can hack around step int and use count like Vanilla Heretic..
 
-
 			 // Note: the (step+1) here is for compatibility with the original
 			 // code.  It seems required to make the thermo bar tile properly.
 			 // int step = (8 / div);
 
-			 //NOTE: Assume weird void above 
+			 //NOTE: Assume weird void above
 
 	x = currentMenu->x + 24;
 	y = currentMenu->y + 2 + (item * LINEHEIGHT);
-
 
 	//HUD_StretchImage(x - 32, y, IM_HEIGHT(therm_l));
 	HUD_DrawImage(x - 32, y, therm_l);
@@ -1983,8 +1954,8 @@ void M_DrawSlider(menu_t *currentMenu, int item, int width, int slot)
 }
 #endif // 0
 
-void M_StartMessage(const char *string, void (* routine)(int response), 
-					bool input)
+void M_StartMessage(const char *string, void(*routine)(int response),
+	bool input)
 {
 	msg_lastmenu = menuactive;
 	msg_mode = 1;
@@ -2001,7 +1972,7 @@ void M_StartMessage(const char *string, void (* routine)(int response),
 //
 // -KM- 1998/07/21 Call M_StartMesageInput to start a message that needs a
 //                 string input. (You can convert it to a number if you want to.)
-//                 
+//
 // string:  The prompt.
 //
 // routine: Format is void routine(char *s)  Routine will be called
@@ -2009,7 +1980,7 @@ void M_StartMessage(const char *string, void (* routine)(int response),
 //          pressed ESCAPE to cancel the input.
 //
 void M_StartMessageInput(const char *string,
-						 void (* routine)(const char *response))
+	void(*routine)(const char *response))
 {
 	msg_lastmenu = menuactive;
 	msg_mode = 2;
@@ -2026,10 +1997,10 @@ void M_StartMessageInput(const char *string,
 #if 0
 void M_StopMessage(void)
 {
-	menuactive = msg_lastmenu?true:false;
+	menuactive = msg_lastmenu ? true : false;
 	msg_string.Clear();
 	msg_mode = 0;
-  
+
 	if (!menuactive)
 		save_screenshot_valid = false;
 }
@@ -2068,26 +2039,26 @@ bool M_Responder(event_t * ev)
 
 		msg_mode = 0;
 		// -KM- 1998/07/31 Moved this up here to fix bugs.
-		menuactive = msg_lastmenu?true:false;
+		menuactive = msg_lastmenu ? true : false;
 
 		if (message_key_routine)
-			(* message_key_routine)(ch);
+			(*message_key_routine)(ch);
 
 		S_StartFX(sfx_swtchx);
 		return true;
 	}
 	else if (msg_mode == 2)
-	{		
+	{
 		if (ch == KEYD_ENTER)
 		{
-			menuactive = msg_lastmenu?true:false;
+			menuactive = msg_lastmenu ? true : false;
 			msg_mode = 0;
 
 			if (message_input_routine)
-				(* message_input_routine)(input_string.c_str());
+				(*message_input_routine)(input_string.c_str());
 
 			input_string.clear();
-			
+
 			M_ClearMenus();
 			S_StartFX(sfx_swtchx);
 			return true;
@@ -2095,14 +2066,14 @@ bool M_Responder(event_t * ev)
 
 		if (ch == KEYD_ESCAPE)
 		{
-			menuactive = msg_lastmenu?true:false;
+			menuactive = msg_lastmenu ? true : false;
 			msg_mode = 0;
-      
+
 			if (message_input_routine)
-				(* message_input_routine)(NULL);
+				(*message_input_routine)(NULL);
 
 			input_string.clear();
-			
+
 			M_ClearMenus();
 			S_StartFX(sfx_swtchx);
 			return true;
@@ -2119,11 +2090,11 @@ bool M_Responder(event_t * ev)
 
 			return true;
 		}
-		
+
 		ch = toupper(ch);
 		if (ch == '-')
 			ch = '_';
-			
+
 		if (ch >= 32 && ch <= 126)  // FIXME: international characters ??
 		{
 			// Set the input_string only if fits
@@ -2151,37 +2122,37 @@ bool M_Responder(event_t * ev)
 	{
 		switch (ch)
 		{
-			case KEYD_BACKSPACE:
-				if (saveCharIndex > 0)
-				{
-					saveCharIndex--;
-					ex_slots[save_slot].desc[saveCharIndex] = 0;
-				}
-				break;
+		case KEYD_BACKSPACE:
+			if (saveCharIndex > 0)
+			{
+				saveCharIndex--;
+				ex_slots[save_slot].desc[saveCharIndex] = 0;
+			}
+			break;
 
-			case KEYD_ESCAPE:
-				saveStringEnter = 0;
-				strcpy(ex_slots[save_slot].desc, saveOldString);
-				break;
+		case KEYD_ESCAPE:
+			saveStringEnter = 0;
+			strcpy(ex_slots[save_slot].desc, saveOldString);
+			break;
 
-			case KEYD_ENTER:
-				saveStringEnter = 0;
-				if (ex_slots[save_slot].desc[0])
-					M_DoSave(save_page, save_slot);
-				break;
+		case KEYD_ENTER:
+			saveStringEnter = 0;
+			if (ex_slots[save_slot].desc[0])
+				M_DoSave(save_page, save_slot);
+			break;
 
-			default:
-				ch = toupper(ch);
-				SYS_ASSERT(save_style);
-				if (ch >= 32 && ch <= 127 &&
-					saveCharIndex < SAVESTRINGSIZE - 1 &&
-					save_style->fonts[1]->StringWidth(ex_slots[save_slot].desc) <
-					(SAVESTRINGSIZE - 2) * 8)
-				{
-					ex_slots[save_slot].desc[saveCharIndex++] = ch;
-					ex_slots[save_slot].desc[saveCharIndex] = 0;
-				}
-				break;
+		default:
+			ch = toupper(ch);
+			SYS_ASSERT(save_style);
+			if (ch >= 32 && ch <= 127 &&
+				saveCharIndex < SAVESTRINGSIZE - 1 &&
+				save_style->fonts[1]->StringWidth(ex_slots[save_slot].desc) <
+				(SAVESTRINGSIZE - 2) * 8)
+			{
+				ex_slots[save_slot].desc[saveCharIndex++] = ch;
+				ex_slots[save_slot].desc[saveCharIndex] = 0;
+			}
+			break;
 		}
 		return true;
 	}
@@ -2191,112 +2162,111 @@ bool M_Responder(event_t * ev)
 	{
 		switch (ch)
 		{
-			case KEYD_MINUS:  // Screen size down
+		case KEYD_MINUS:  // Screen size down
 
-				if (automapactive || chat_on)
-					return false;
+			if (automapactive || chat_on)
+				return false;
 
-				screen_hud = (screen_hud - 1 + NUMHUD) % NUMHUD;
+			screen_hud = (screen_hud - 1 + NUMHUD) % NUMHUD;
 
-				S_StartFX(sfx_stnmov);
-				return true;
+			S_StartFX(sfx_stnmov);
+			return true;
 
-			case KEYD_EQUALS:  // Screen size up
+		case KEYD_EQUALS:  // Screen size up
 
-				if (automapactive || chat_on)
-					return false;
+			if (automapactive || chat_on)
+				return false;
 
-				screen_hud = (screen_hud + 1) % NUMHUD;
+			screen_hud = (screen_hud + 1) % NUMHUD;
 
-				S_StartFX(sfx_stnmov);
-				return true;
+			S_StartFX(sfx_stnmov);
+			return true;
 
-			case KEYD_F2:  // Save
+		case KEYD_F2:  // Save
 
-				M_StartControlPanel();
-				S_StartFX(sfx_swtchn);
-				M_SaveGame(0);
-				return true;
+			M_StartControlPanel();
+			S_StartFX(sfx_swtchn);
+			M_SaveGame(0);
+			return true;
 
-			case KEYD_F3:  // Load
+		case KEYD_F3:  // Load
 
-				M_StartControlPanel();
-				S_StartFX(sfx_swtchn);
-				M_LoadGame(0);
-				return true;
+			M_StartControlPanel();
+			S_StartFX(sfx_swtchn);
+			M_LoadGame(0);
+			return true;
 
-			case KEYD_F4:  // Sound Volume
+		case KEYD_F4:  // Sound Volume
 
-				M_StartControlPanel();
-				currentMenu = &SoundDef;
-				itemOn = sfx_vol;
-				S_StartFX(sfx_swtchn);
-				return true;
+			M_StartControlPanel();
+			currentMenu = &SoundDef;
+			itemOn = sfx_vol;
+			S_StartFX(sfx_swtchn);
+			return true;
 
-			case KEYD_F5:  // Detail toggle, now loads options menu
-				// -KM- 1998/07/31 F5 now loads options menu, detail is obsolete.
+		case KEYD_F5:  // Detail toggle, now loads options menu
+			// -KM- 1998/07/31 F5 now loads options menu, detail is obsolete.
 
-				S_StartFX(sfx_swtchn);
-				M_StartControlPanel();
-				M_Options(0);
-				return true;
+			S_StartFX(sfx_swtchn);
+			M_StartControlPanel();
+			M_Options(0);
+			return true;
 
-			case KEYD_F6:  // Quicksave
+		case KEYD_F6:  // Quicksave
 
-				S_StartFX(sfx_swtchn);
-				M_QuickSave();
-				return true;
+			S_StartFX(sfx_swtchn);
+			M_QuickSave();
+			return true;
 
-			case KEYD_F7:  // End game
+		case KEYD_F7:  // End game
 
-				S_StartFX(sfx_swtchn);
-				M_EndGame(0);
-				return true;
+			S_StartFX(sfx_swtchn);
+			M_EndGame(0);
+			return true;
 
-			case KEYD_F8:  // Toggle messages
+		case KEYD_F8:  // Toggle messages
 
-				M_ChangeMessages(0);
-				S_StartFX(sfx_swtchn);
-				return true;
+			M_ChangeMessages(0);
+			S_StartFX(sfx_swtchn);
+			return true;
 
-			case KEYD_F9:  // Quickload
+		case KEYD_F9:  // Quickload
 
-				S_StartFX(sfx_swtchn);
-				M_QuickLoad();
-				return true;
+			S_StartFX(sfx_swtchn);
+			M_QuickLoad();
+			return true;
 
-			case KEYD_F10:  // Quit DOOM
+		case KEYD_F10:  // Quit DOOM
 
-				S_StartFX(sfx_swtchn);
-				M_QuitEDGE(0);
-				return true;
+			S_StartFX(sfx_swtchn);
+			M_QuitEDGE(0);
+			return true;
 
-			case KEYD_F11:  // gamma toggle
+		case KEYD_F11:  // gamma toggle
 
-				var_gamma++;
-				if (var_gamma > 5)
-					var_gamma = 0;
+			var_gamma++;
+			if (var_gamma > 5)
+				var_gamma = 0;
 
-				const char *msg = NULL;
-				
-				switch(var_gamma)
-				{
-					case 0: { msg = language["GammaOff"];  break; }
-					case 1: { msg = language["GammaLevelOne"];  break; }
-					case 2: { msg = language["GammaLevelTwo"];  break; }
-					case 3: { msg = language["GammaLevelThree"];  break; }
-					case 4: { msg = language["GammaLevelFour"];  break; }
-					case 5: { msg = language["GammaLevelFive"];  break; }
+			const char *msg = NULL;
 
-					default: { msg = NULL; break; }
-				}
-				
-				if (msg)
-					CON_PlayerMessage(consoleplayer1, "%s", msg);
+			switch (var_gamma)
+			{
+			case 0: { msg = language["GammaOff"];  break; }
+			case 1: { msg = language["GammaLevelOne"];  break; }
+			case 2: { msg = language["GammaLevelTwo"];  break; }
+			case 3: { msg = language["GammaLevelThree"];  break; }
+			case 4: { msg = language["GammaLevelFour"];  break; }
+			case 5: { msg = language["GammaLevelFive"];  break; }
 
-				// -AJA- 1999/07/03: removed PLAYPAL reference.
-				return true;
+			default: { msg = NULL; break; }
+			}
 
+			if (msg)
+				CON_PlayerMessage(consoleplayer1, "%s", msg);
+
+			// -AJA- 1999/07/03: removed PLAYPAL reference.
+			return true;
 		}
 
 		// Pop-up menu?
@@ -2312,105 +2282,101 @@ bool M_Responder(event_t * ev)
 	// Keys usable within menu
 	switch (ch)
 	{
-		case KEYD_DOWNARROW:
-		case KEYD_WHEEL_DN:
-			do
-			{
-				if (itemOn + 1 > currentMenu->numitems - 1)
-					itemOn = 0;
-				else
-					itemOn++;
-				S_StartFX(sfx_pstop);
-			}
-			while (currentMenu->menuitems[itemOn].status == -1);
-			return true;
+	case KEYD_DOWNARROW:
+	case KEYD_WHEEL_DN:
+		do
+		{
+			if (itemOn + 1 > currentMenu->numitems - 1)
+				itemOn = 0;
+			else
+				itemOn++;
+			S_StartFX(sfx_pstop);
+		} while (currentMenu->menuitems[itemOn].status == -1);
+		return true;
 
-		case KEYD_UPARROW:
-		case KEYD_WHEEL_UP:
-			do
-			{
-				if (itemOn == 0)
-					itemOn = currentMenu->numitems - 1;
-				else
-					itemOn--;
-				S_StartFX(sfx_pstop);
-			}
-			while (currentMenu->menuitems[itemOn].status == -1);
-			return true;
+	case KEYD_UPARROW:
+	case KEYD_WHEEL_UP:
+		do
+		{
+			if (itemOn == 0)
+				itemOn = currentMenu->numitems - 1;
+			else
+				itemOn--;
+			S_StartFX(sfx_pstop);
+		} while (currentMenu->menuitems[itemOn].status == -1);
+		return true;
 
-		case KEYD_PGUP:
-		case KEYD_LEFTARROW:
-			if (currentMenu->menuitems[itemOn].select_func &&
-				currentMenu->menuitems[itemOn].status == 2)
-			{
-				S_StartFX(sfx_stnmov);
-				// 98-7-10 KM Use new defines
-				(* currentMenu->menuitems[itemOn].select_func)(SLIDERLEFT);
-			}
-			return true;
+	case KEYD_PGUP:
+	case KEYD_LEFTARROW:
+		if (currentMenu->menuitems[itemOn].select_func &&
+			currentMenu->menuitems[itemOn].status == 2)
+		{
+			S_StartFX(sfx_stnmov);
+			// 98-7-10 KM Use new defines
+			(*currentMenu->menuitems[itemOn].select_func)(SLIDERLEFT);
+		}
+		return true;
 
-		case KEYD_PGDN:
-		case KEYD_RIGHTARROW:
-			if (currentMenu->menuitems[itemOn].select_func &&
-				currentMenu->menuitems[itemOn].status == 2)
-			{
-				S_StartFX(sfx_stnmov);
-				// 98-7-10 KM Use new defines
-				(* currentMenu->menuitems[itemOn].select_func)(SLIDERRIGHT);
-			}
-			return true;
+	case KEYD_PGDN:
+	case KEYD_RIGHTARROW:
+		if (currentMenu->menuitems[itemOn].select_func &&
+			currentMenu->menuitems[itemOn].status == 2)
+		{
+			S_StartFX(sfx_stnmov);
+			// 98-7-10 KM Use new defines
+			(*currentMenu->menuitems[itemOn].select_func)(SLIDERRIGHT);
+		}
+		return true;
 
-		case KEYD_ENTER:
-		case KEYD_MOUSE1:
-			if (currentMenu->menuitems[itemOn].select_func &&
-				currentMenu->menuitems[itemOn].status)
-			{
-				currentMenu->lastOn = itemOn;
-				(* currentMenu->menuitems[itemOn].select_func)(itemOn);
-				S_StartFX(sfx_pistol);
-			}
-			return true;
-
-		case KEYD_ESCAPE:
-		case KEYD_MOUSE2:
-		case KEYD_MOUSE3:
+	case KEYD_ENTER:
+	case KEYD_MOUSE1:
+		if (currentMenu->menuitems[itemOn].select_func &&
+			currentMenu->menuitems[itemOn].status)
+		{
 			currentMenu->lastOn = itemOn;
-			M_ClearMenus();
-			S_StartFX(sfx_swtchx);
-			return true;
+			(*currentMenu->menuitems[itemOn].select_func)(itemOn);
+			S_StartFX(sfx_pistol);
+		}
+		return true;
 
-		case KEYD_BACKSPACE:
-			currentMenu->lastOn = itemOn;
-			if (currentMenu->prevMenu)
+	case KEYD_ESCAPE:
+	case KEYD_MOUSE2:
+	case KEYD_MOUSE3:
+		currentMenu->lastOn = itemOn;
+		M_ClearMenus();
+		S_StartFX(sfx_swtchx);
+		return true;
+
+	case KEYD_BACKSPACE:
+		currentMenu->lastOn = itemOn;
+		if (currentMenu->prevMenu)
+		{
+			currentMenu = currentMenu->prevMenu;
+			itemOn = currentMenu->lastOn;
+			S_StartFX(sfx_swtchn);
+		}
+		return true;
+
+	default:
+		for (i = itemOn + 1; i < currentMenu->numitems; i++)
+			if (currentMenu->menuitems[i].alpha_key == ch)
 			{
-				currentMenu = currentMenu->prevMenu;
-				itemOn = currentMenu->lastOn;
-				S_StartFX(sfx_swtchn);
+				itemOn = i;
+				S_StartFX(sfx_pstop);
+				return true;
 			}
-			return true;
-
-		default:
-			for (i = itemOn + 1; i < currentMenu->numitems; i++)
-				if (currentMenu->menuitems[i].alpha_key == ch)
-				{
-					itemOn = i;
-					S_StartFX(sfx_pstop);
-					return true;
-				}
-			for (i = 0; i <= itemOn; i++)
-				if (currentMenu->menuitems[i].alpha_key == ch)
-				{
-					itemOn = i;
-					S_StartFX(sfx_pstop);
-					return true;
-				}
-			break;
-
+		for (i = 0; i <= itemOn; i++)
+			if (currentMenu->menuitems[i].alpha_key == ch)
+			{
+				itemOn = i;
+				S_StartFX(sfx_pstop);
+				return true;
+			}
+		break;
 	}
 
 	return false;
 }
-
 
 void M_StartControlPanel(void)
 {
@@ -2430,13 +2396,12 @@ void M_StartControlPanel(void)
 	{
 		currentMenu = &MainDef;  // JDC
 	}
-	
+
 	itemOn = currentMenu->lastOn;  // JDC
 
 	//Disable this for now.
 	//M_OptCheckNetgame();
 }
-
 
 static int FindChar(std::string& str, char ch, int pos)
 {
@@ -2444,12 +2409,11 @@ static int FindChar(std::string& str, char ch, int pos)
 
 	const char *scan = strchr(str.c_str() + pos, ch);
 
-	if (! scan)
+	if (!scan)
 		return -1;
 
 	return (int)(scan - str.c_str());
 }
-
 
 static std::string GetMiddle(std::string& str, int pos, int len)
 {
@@ -2462,7 +2426,6 @@ static std::string GetMiddle(std::string& str, int pos, int len)
 	return std::string(str.c_str() + pos, len);
 }
 
-
 static void DrawMessage(void)
 {
 	short x, y;
@@ -2473,7 +2436,6 @@ static void DrawMessage(void)
 	// disable for test : dialog_style->DrawBackground(); //to replace above call
 	HUD_SetAlpha();
 
-
 	// FIXME: HU code should support center justification: this
 	// would remove the code duplication below...
 
@@ -2483,14 +2445,14 @@ static void DrawMessage(void)
 
 	if (msg_mode == 2)
 		input += "_";
-	
+
 	// Calc required height
 	SYS_ASSERT(dialog_style);
 
 	std::string s = msg + input;
 
 	y = 100 - (dialog_style->fonts[0]->StringLines(s.c_str()) *
-		dialog_style->fonts[0]->NominalHeight()/ 2);
+		dialog_style->fonts[0]->NominalHeight() / 2);
 
 	if (!msg.empty())
 	{
@@ -2504,22 +2466,21 @@ static void DrawMessage(void)
 			if (pos < 0)
 				s = std::string(msg, oldpos);
 			else
-				s = GetMiddle(msg, oldpos, pos-oldpos);
-		
+				s = GetMiddle(msg, oldpos, pos - oldpos);
+
 			if (s.size() > 0)
 			{
 				x = 160 - (dialog_style->fonts[0]->StringWidth(s.c_str()) / 2);
-				HL_WriteText(dialog_style,0, x, y, s.c_str());
+				HL_WriteText(dialog_style, 0, x, y, s.c_str());
 			}
-			
+
 			y += dialog_style->fonts[0]->NominalHeight();
 
 			oldpos = pos + 1;
-		}
-		while (pos >= 0 && oldpos < (int)msg.size());
+		} while (pos >= 0 && oldpos < (int)msg.size());
 	}
 
-	if (! input.empty())
+	if (!input.empty())
 	{
 		int oldpos = 0;
 		int pos;
@@ -2531,19 +2492,18 @@ static void DrawMessage(void)
 			if (pos < 0)
 				s = std::string(input, oldpos);
 			else
-				s = GetMiddle(input, oldpos, pos-oldpos);
-		
+				s = GetMiddle(input, oldpos, pos - oldpos);
+
 			if (s.size() > 0)
 			{
 				x = 160 - (dialog_style->fonts[1]->StringWidth(s.c_str()) / 2);
-				HL_WriteText(dialog_style,1, x, y, s.c_str());
+				HL_WriteText(dialog_style, 1, x, y, s.c_str());
 			}
-			
+
 			y += dialog_style->fonts[1]->NominalHeight();
 
 			oldpos = pos + 1;
-		}
-		while (pos >= 0 && oldpos < (int)input.size());
+		} while (pos >= 0 && oldpos < (int)input.size());
 	}
 }
 
@@ -2601,7 +2561,7 @@ void M_Drawer(void)
 
 	// call Draw routine
 	if (currentMenu->draw_func)
-		(* currentMenu->draw_func)();
+		(*currentMenu->draw_func)();
 
 	// DRAW MENU
 	x = currentMenu->x;
@@ -2611,10 +2571,10 @@ void M_Drawer(void)
 	for (i = 0; i < max; i++, y += LINEHEIGHT)
 	{
 		// ignore blank lines
-		if (! currentMenu->menuitems[i].patch_name[0])
+		if (!currentMenu->menuitems[i].patch_name[0])
 			continue;
 
-		if (! currentMenu->menuitems[i].image)
+		if (!currentMenu->menuitems[i].image)
 			currentMenu->menuitems[i].image = W_ImageLookup(
 				currentMenu->menuitems[i].patch_name);
 
@@ -2643,13 +2603,18 @@ void M_Drawer(void)
 		int sx = x + SKULLXOFF;
 		int sy = currentMenu->y - 5 + itemOn * LINEHEIGHT;
 
-		HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
-	//}
+		//HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
+		
+		if (rott_mode)
+		{
+			HUD_DrawImage(sx, sy, rott_skull);
+		}
+		else
+			HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
 }
 
-
-void H_Drawer(void)
-{
+	void H_Drawer(void)
+	{
 		short x, y;
 
 		unsigned int i;
@@ -2690,7 +2655,6 @@ void H_Drawer(void)
 		HUD_SolidBox(0, 0, 320, 200, T_BLACK);
 		HUD_SetAlpha();
 
-
 		// call Draw routine
 		if (currentMenu->draw_func)
 			(*currentMenu->draw_func)();
@@ -2717,210 +2681,206 @@ void H_Drawer(void)
 
 		// DRAW SKULL
 
-			int sx = x + HSKULLXOFF;
-			int sy = currentMenu->y - 5 + itemOn * HLINEHEIGHT;
+		int sx = x + HSKULLXOFF;
+		int sy = currentMenu->y - 5 + itemOn * HLINEHEIGHT;
 
-			HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
-			//}
-}
-
-void M_ClearMenus(void)
-{
-	// -AJA- 2007/12/24: save user changes ASAP (in case of crash)
-	if (menuactive)
-	{
-		M_SaveDefaults();
+		HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
+		//}
 	}
 
-	menuactive = false;
-	save_screenshot_valid = false;
-}
+	void M_ClearMenus(void)
+	{
+		// -AJA- 2007/12/24: save user changes ASAP (in case of crash)
+		if (menuactive)
+		{
+			M_SaveDefaults();
+		}
 
-void M_SetupNextMenu(menu_t * menudef)
-{
-	currentMenu = menudef;
-	itemOn = currentMenu->lastOn;
-}
+		menuactive = false;
+		save_screenshot_valid = false;
+	}
 
-//
-// M_MenuFadeIn / M_MenuFadeOut
-//
+	void M_SetupNextMenu(menu_t * menudef)
+	{
+		currentMenu = menudef;
+		itemOn = currentMenu->lastOn;
+	}
+
+	//
+	// M_MenuFadeIn / M_MenuFadeOut
+	//
 
 #if 0
-void M_MenuFadeIn(void)
-{
-	int fadetime = (int)(m_menufadetime.value + 20);
-
-	if ((menualphacolor + fadetime) < 0xff) //0xff = 25
+	void M_MenuFadeIn(void)
 	{
-		menualphacolor += fadetime;
+		int fadetime = (int)(m_menufadetime.value + 20);
+
+		if ((menualphacolor + fadetime) < 0xff) //0xff = 25
+		{
+			menualphacolor += fadetime;
+		}
+		else
+		{
+			menualphacolor = 0xff;
+			alphaprevmenu = false;
+			menufadefunc = NULL;
+			nextmenu = NULL;
+		}
 	}
-	else
+
+	//
+	// M_MenuFadeOut
+	//
+
+	void M_MenuFadeOut(void)
 	{
-		menualphacolor = 0xff;
-		alphaprevmenu = false;
-		menufadefunc = NULL;
-		nextmenu = NULL;
-	}
-}
+		int fadetime = (int)(m_menufadetime.value + 20);
 
-
-//
-// M_MenuFadeOut
-//
-
-void M_MenuFadeOut(void)
-{
-	int fadetime = (int)(m_menufadetime.value + 20);
-
-	if (menualphacolor > fadetime) {
-		menualphacolor -= fadetime;
-	}
-	else {
-		menualphacolor = 0;
-
-		if (alphaprevmenu == false) {
-			currentMenu = nextmenu;
-			itemOn = currentMenu->lastOn;
+		if (menualphacolor > fadetime) {
+			menualphacolor -= fadetime;
 		}
 		else {
-			currentMenu = currentMenu->prevMenu;
-			itemOn = currentMenu->lastOn;
-		}
+			menualphacolor = 0;
 
-		menufadefunc = M_MenuFadeIn;
+			if (alphaprevmenu == false) {
+				currentMenu = nextmenu;
+				itemOn = currentMenu->lastOn;
+			}
+			else {
+				currentMenu = currentMenu->prevMenu;
+				itemOn = currentMenu->lastOn;
+			}
+
+			menufadefunc = M_MenuFadeIn;
+		}
 	}
-}
 #endif // 0
 
-
-
-void M_Ticker(void)
-{
-	// update language if it changed
-	if (m_language.CheckModified())
-		if (! language.Select(m_language.str))
-			I_Printf("Unknown language: %s\n", m_language.str);
-
-	if (option_menuon)
+	void M_Ticker(void)
 	{
-		M_OptTicker();
-		return;
+		// update language if it changed
+		if (m_language.CheckModified())
+			if (!language.Select(m_language.str))
+				I_Printf("Unknown language: %s\n", m_language.str);
+
+		if (option_menuon)
+		{
+			M_OptTicker();
+			return;
+		}
+
+		if (netgame_menuon)
+		{
+			M_NetGameTicker();
+			return;
+		}
+
+		if (splitgame_menuon)
+		{
+			M_NetGameTicker();
+			return;
+		}
+
+		if (--skullAnimCounter <= 0)
+		{
+			whichSkull ^= 1;
+			skullAnimCounter = 8;
+		}
+
+		if (--goldskullAnimCounter <= 0)
+		{
+			whichgoldSkull ^= 1;
+			goldskullAnimCounter = 17;
+		}
 	}
 
-	if (netgame_menuon)
+	void H_Init(void)
 	{
-		M_NetGameTicker();
-		return;
-	}
+		if (!heretic_mode)
+		{
+			I_Printf("Heretic mode not detected, breaking into M_Init!\n");
+			return;
+		}
 
-	if (splitgame_menuon)
-	{
-		M_NetGameTicker();
-		return;
-	}
+		I_Printf("- Heretic Main Menu Init\n");
 
-	if (--skullAnimCounter <= 0)
-	{
-		whichSkull ^= 1;
-		skullAnimCounter = 8;
-	}
+		E_ProgressMessage(language["MiscInfo"]);
 
-	if (--goldskullAnimCounter <= 0)
-	{
-		whichgoldSkull ^= 1;
+		currentMenu = &HereticMainDef;
+		menuactive = false;
+		itemOn = currentMenu->lastOn;
+		whichSkull = 0;
+		skullAnimCounter = 10;
+		whichgoldSkull = 0;
 		goldskullAnimCounter = 17;
-	}
-}
+		msg_mode = 0;
+		msg_string.clear();
+		msg_lastmenu = menuactive;
+		quickSaveSlot = -1;
 
-void H_Init(void)
-{
-	if (!heretic_mode)
-	{
-		I_Printf("Heretic mode not detected, breaking into M_Init!\n");
-		return;
-	}
+		// lookup styles
+		styledef_c *def;
 
-	I_Printf("- Heretic Main Menu Init\n");
+		def = styledefs.Lookup("MENU");
+		if (!def) def = default_style;
+		menu_def_style = hu_styles.Lookup(def);
 
-	E_ProgressMessage(language["MiscInfo"]);
+		def = styledefs.Lookup("MULTIPLAYER");
+		if (!def) def = default_style;
+		menu_def_style = hu_styles.Lookup(def);
 
-	currentMenu = &HereticMainDef;
-	menuactive = false;
-	itemOn = currentMenu->lastOn;
-	whichSkull = 0;
-	skullAnimCounter = 10;
-	whichgoldSkull = 0;
-	goldskullAnimCounter = 17;
-	msg_mode = 0;
-	msg_string.clear();
-	msg_lastmenu = menuactive;
-	quickSaveSlot = -1;
+		def = styledefs.Lookup("OPTIONS");
+		if (!def) def = default_style;
+		menu_def_style = hu_styles.Lookup(def);
 
+		def = styledefs.Lookup("MAIN MENU");
+		main_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-	// lookup styles
-	styledef_c *def;
+		def = styledefs.Lookup("CHOOSE EPISODE");
+		episode_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-	def = styledefs.Lookup("MENU");
-	if (!def) def = default_style;
-	menu_def_style = hu_styles.Lookup(def);
+		def = styledefs.Lookup("CHOOSE SKILL");
+		skill_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-	def = styledefs.Lookup("MULTIPLAYER");
-	if (!def) def = default_style;
-	menu_def_style = hu_styles.Lookup(def);
+		def = styledefs.Lookup("GAME FILES");
+		files_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-	def = styledefs.Lookup("OPTIONS");
-	if (!def) def = default_style;
-	menu_def_style = hu_styles.Lookup(def);
+		def = styledefs.Lookup("LOAD MENU");
+		load_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-	def = styledefs.Lookup("MAIN MENU");
-	main_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
+		def = styledefs.Lookup("SAVE MENU");
+		save_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-	def = styledefs.Lookup("CHOOSE EPISODE");
-	episode_style = def ? hu_styles.Lookup(def) : menu_def_style;
+		def = styledefs.Lookup("DIALOG");
+		dialog_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-	def = styledefs.Lookup("CHOOSE SKILL");
-	skill_style = def ? hu_styles.Lookup(def) : menu_def_style;
+		def = styledefs.Lookup("SOUND VOLUME");
+		if (!def) def = styledefs.Lookup("OPTIONS");
+		if (!def) def = default_style;
+		sound_vol_style = hu_styles.Lookup(def);
 
-	def = styledefs.Lookup("GAME FILES");
-	files_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
+		// lookup required images
 
-	def = styledefs.Lookup("LOAD MENU");
-	load_style = def ? hu_styles.Lookup(def) : menu_def_style;
+		therm_l = W_ImageLookup("H_THERML");
 
-	def = styledefs.Lookup("SAVE MENU");
-	save_style = def ? hu_styles.Lookup(def) : menu_def_style;
+		therm_m = W_ImageLookup("H_THERMM");
 
-	def = styledefs.Lookup("DIALOG");
-	dialog_style = def ? hu_styles.Lookup(def) : menu_def_style;
+		therm_r = W_ImageLookup("H_THERMR");
 
-	def = styledefs.Lookup("SOUND VOLUME");
-	if (!def) def = styledefs.Lookup("OPTIONS");
-	if (!def) def = default_style;
-	sound_vol_style = hu_styles.Lookup(def);
+		therm_o = W_ImageLookup("H_THERMO"); //Heretic: M_SLDKB */
 
-	// lookup required images
-
-	therm_l = W_ImageLookup("H_THERML");
-
-	therm_m = W_ImageLookup("H_THERMM");
-
-	therm_r = W_ImageLookup("H_THERMR");
-
-	therm_o = W_ImageLookup("H_THERMO"); //Heretic: M_SLDKB */
-
-	menu_loadg = W_ImageLookup("H_LOADG");
-	menu_saveg = W_ImageLookup("H_SAVEG");
-	menu_svol = W_ImageLookup("H_SNDOPT");
-	menu_newgame = W_ImageLookup("H_NGAME");
-	menu_multiplayer = W_ImageLookup("H_MULTI");
-	///menu_skill = W_ImageLookup("H_SKILL");
-	menu_skill = W_ImageLookup("NULL");
-	menu_episode = W_ImageLookup("H_EPISOD");
+		menu_loadg = W_ImageLookup("H_LOADG");
+		menu_saveg = W_ImageLookup("H_SAVEG");
+		menu_svol = W_ImageLookup("H_SNDOPT");
+		menu_newgame = W_ImageLookup("H_NGAME");
+		menu_multiplayer = W_ImageLookup("H_MULTI");
+		///menu_skill = W_ImageLookup("H_SKILL");
+		menu_skill = W_ImageLookup("NULL");
+		menu_episode = W_ImageLookup("H_EPISOD");
 
 		menu_doom = W_ImageLookup("M_HTIC");
 
-		// Menu Skull code. Notice the int is [2], but this holds [0] and [1], which as in integer = 2! 
+		// Menu Skull code. Notice the int is [2], but this holds [0] and [1], which as in integer = 2!
 		// Heretic logic: int is [17], but should go from [0] to [16], which as an intereger = 17!
 		menu_skull[0] = W_ImageLookup("M_SLCTR1");
 		menu_skull[1] = W_ImageLookup("M_SLCTR2");
@@ -2944,205 +2904,201 @@ void H_Init(void)
 		SkullBaseLump[16] = W_ImageLookup("M_SKL16");
 		SkullBaseLump[17] = W_ImageLookup("M_SKL17");
 
+		// Further code switches out DOOM -> Heretic graphics
 
-	// Further code switches out DOOM -> Heretic graphics
+		// Here we could catch other version dependencies,
+		//  like HELP1/2, and four episodes.
+		//    if (W_CheckNumForName("M_EPI4") < 0)
+		//      EpiDef.numitems -= 2;
+		//    else if (W_CheckNumForName("M_EPI5") < 0)
+		//      EpiDef.numitems--;
 
+		if (W_CheckNumForName("HELP") >= 0)
+			menu_readthis[0] = W_ImageLookup("HELP");
+		else
+			menu_readthis[0] = W_ImageLookup("HELP1");
 
-	// Here we could catch other version dependencies,
-	//  like HELP1/2, and four episodes.
-	//    if (W_CheckNumForName("M_EPI4") < 0)
-	//      EpiDef.numitems -= 2;
-	//    else if (W_CheckNumForName("M_EPI5") < 0)
-	//      EpiDef.numitems--;
+		if (W_CheckNumForName("HELP2") >= 0)
+			menu_readthis[1] = W_ImageLookup("HELP2");
+		else
+		{
+			menu_readthis[1] = W_ImageLookup("CREDIT");
 
-	if (W_CheckNumForName("HELP") >= 0)
-		menu_readthis[0] = W_ImageLookup("HELP");
-	else
-		menu_readthis[0] = W_ImageLookup("HELP1");
+			// This is used because DOOM 2 had only one HELP
+			//  page. I use CREDIT as second page now, but
+			//  kept this hack for educational purposes.
 
-	if (W_CheckNumForName("HELP2") >= 0)
-		menu_readthis[1] = W_ImageLookup("HELP2");
-	else
-	{
-		menu_readthis[1] = W_ImageLookup("CREDIT");
+			HereticMainMenu[hreadthis] = HereticMainMenu[quitheretic];
+			HereticMainDef.numitems--;
+			HereticMainDef.y += 8; // FIXME
+			SkillDef.prevMenu = &HereticMainDef;
+			HReadDef1.draw_func = M_DrawReadThis1;
+			HReadDef1.x = 330;
+			HReadDef1.y = 165;
+			HReadMenu1[0].select_func = H_FinishReadThis;
+		}
 
-		// This is used because DOOM 2 had only one HELP
-		//  page. I use CREDIT as second page now, but
-		//  kept this hack for educational purposes.
+		sfx_swtchn = sfxdefs.GetEffect("SWTCHN");
+		sfx_tink = sfxdefs.GetEffect("TINK");
+		sfx_radio = sfxdefs.GetEffect("RADIO");
+		sfx_oof = sfxdefs.GetEffect("OOF");
+		sfx_pstop = sfxdefs.GetEffect("PSTOP");
+		sfx_stnmov = sfxdefs.GetEffect("STNMOV");
+		sfx_pistol = sfxdefs.GetEffect("PISTOL");
+		sfx_swtchx = sfxdefs.GetEffect("SWTCHX");
+		sfx_network = sfxdefs.GetEffect("DSSECRET");
 
-		HereticMainMenu[hreadthis] = HereticMainMenu[quitheretic];
-		HereticMainDef.numitems--;
-		HereticMainDef.y += 8; // FIXME
-		SkillDef.prevMenu = &HereticMainDef;
-		HReadDef1.draw_func = M_DrawReadThis1;
-		HReadDef1.x = 330;
-		HReadDef1.y = 165;
-		HReadMenu1[0].select_func = H_FinishReadThis;
+		M_OptMenuInit();
+		M_NetGameInit();
+
+		M_InitShiftXForm();
 	}
 
-	sfx_swtchn = sfxdefs.GetEffect("SWTCHN");
-	sfx_tink = sfxdefs.GetEffect("TINK");
-	sfx_radio = sfxdefs.GetEffect("RADIO");
-	sfx_oof = sfxdefs.GetEffect("OOF");
-	sfx_pstop = sfxdefs.GetEffect("PSTOP");
-	sfx_stnmov = sfxdefs.GetEffect("STNMOV");
-	sfx_pistol = sfxdefs.GetEffect("PISTOL");
-	sfx_swtchx = sfxdefs.GetEffect("SWTCHX");
-	sfx_network = sfxdefs.GetEffect("DSSECRET");
-
-	M_OptMenuInit();
-	M_NetGameInit();
-
-	M_InitShiftXForm();
-}
-
-
-void M_Init(void)
-{
-	if (heretic_mode)
+	void M_Init(void)
 	{
-		H_Init();
-		return; 
-	}
+		if (heretic_mode)
+		{
+			H_Init();
+			return;
+		}
 
-	E_ProgressMessage(language["MiscInfo"]);
+		E_ProgressMessage(language["MiscInfo"]);
 
-	currentMenu = &MainDef;
-	menuactive = false;
-	itemOn = currentMenu->lastOn;
-	whichSkull = 0;
-	skullAnimCounter = 15;
-	msg_mode = 0;
-	msg_string.clear();
-	msg_lastmenu = menuactive;
-	quickSaveSlot = -1;
+		currentMenu = &MainDef;
+		menuactive = false;
+		itemOn = currentMenu->lastOn;
+		whichSkull = 0;
+		skullAnimCounter = 15;
+		msg_mode = 0;
+		msg_string.clear();
+		msg_lastmenu = menuactive;
+		quickSaveSlot = -1;
 
-	// lookup styles
-	styledef_c *def;
+		// lookup styles
+		styledef_c *def;
 
-	def = styledefs.Lookup("MENU");
-	if (!def) def = default_style;
-	menu_def_style = hu_styles.Lookup(def);
+		def = styledefs.Lookup("MENU");
+		if (!def) def = default_style;
+		menu_def_style = hu_styles.Lookup(def);
 
-	def = styledefs.Lookup("MULTIPLAYER");
-	if (!def) def = default_style;
-	menu_def_style = hu_styles.Lookup(def);
+		def = styledefs.Lookup("MULTIPLAYER");
+		if (!def) def = default_style;
+		menu_def_style = hu_styles.Lookup(def);
 
-	def = styledefs.Lookup("OPTIONS");
-	if (!def) def = default_style;
-	menu_def_style = hu_styles.Lookup(def);
+		def = styledefs.Lookup("OPTIONS");
+		if (!def) def = default_style;
+		menu_def_style = hu_styles.Lookup(def);
 
-	def = styledefs.Lookup("MAIN MENU");
-	main_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
+		def = styledefs.Lookup("MAIN MENU");
+		main_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-	def = styledefs.Lookup("CHOOSE EPISODE");
-	episode_style = def ? hu_styles.Lookup(def) : menu_def_style;
+		def = styledefs.Lookup("CHOOSE EPISODE");
+		episode_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-	def = styledefs.Lookup("CHOOSE SKILL");
-	skill_style = def ? hu_styles.Lookup(def) : menu_def_style;
+		def = styledefs.Lookup("CHOOSE SKILL");
+		skill_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-	def = styledefs.Lookup("LOAD MENU");
-	load_style = def ? hu_styles.Lookup(def) : menu_def_style;
+		def = styledefs.Lookup("LOAD MENU");
+		load_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-	def = styledefs.Lookup("SAVE MENU");
-	save_style = def ? hu_styles.Lookup(def) : menu_def_style;
+		def = styledefs.Lookup("SAVE MENU");
+		save_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-	def = styledefs.Lookup("DIALOG");
-	dialog_style = def ? hu_styles.Lookup(def) : menu_def_style;
+		def = styledefs.Lookup("DIALOG");
+		dialog_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-	def = styledefs.Lookup("SOUND VOLUME");
-	if (!def) def = styledefs.Lookup("OPTIONS");
-	if (!def) def = default_style;
-	sound_vol_style = hu_styles.Lookup(def);
+		def = styledefs.Lookup("SOUND VOLUME");
+		if (!def) def = styledefs.Lookup("OPTIONS");
+		if (!def) def = default_style;
+		sound_vol_style = hu_styles.Lookup(def);
 
-	// lookup required images
-	therm_l = W_ImageLookup("M_THERML");
-	therm_m = W_ImageLookup("M_THERMM");
-	therm_r = W_ImageLookup("M_THERMR");
-	therm_o = W_ImageLookup("M_THERMO");
+		// lookup required images
+		therm_l = W_ImageLookup("M_THERML");
+		therm_m = W_ImageLookup("M_THERMM");
+		therm_r = W_ImageLookup("M_THERMR");
+		therm_o = W_ImageLookup("M_THERMO");
 
-	menu_loadg = W_ImageLookup("M_LOADG");
-	menu_saveg = W_ImageLookup("M_SAVEG");
-	menu_svol = W_ImageLookup("M_SVOL");
-	menu_newgame = W_ImageLookup("M_NEWG");
-	menu_multiplayer = W_ImageLookup("M_MULTI");
-	menu_skill = W_ImageLookup("M_SKILL");
-	menu_episode = W_ImageLookup("M_EPISOD");
-	menu_skull[0] = W_ImageLookup("M_SKULL1");
-	menu_skull[1] = W_ImageLookup("M_SKULL2");
+		menu_loadg = W_ImageLookup("M_LOADG");
+		menu_saveg = W_ImageLookup("M_SAVEG");
+		menu_svol = W_ImageLookup("M_SVOL");
+		menu_newgame = W_ImageLookup("M_NEWG");
+		menu_multiplayer = W_ImageLookup("M_MULTI");
+		menu_skill = W_ImageLookup("M_SKILL");
+		menu_episode = W_ImageLookup("M_EPISOD");
 
-	//	if (W_CheckNumForName("M_NEWG") >= 0)
-	//	    DrawKeyword("NEW GAME");//HL_WriteText(style,2, 80, 30, "NEW GAME");//HUD_DrawText(0, 0, "NEW GAME");//HL_WriteText(style,2, LoadDef.x - 4, y, "NEW GAME");
-	//or
-	// menu_doom = HL_WriteText(style,2,LoadDef.x,y, "NEW GAME");
-	if (W_CheckNumForName("M_HTIC") >= 0)
-		menu_doom = W_ImageLookup("M_HTIC");
-	else
-		menu_doom = W_ImageLookup("M_DOOM");
-
-	//code below switches out skull
-	if (W_CheckNumForName("M_SLCTR1") >= 0)
-		menu_skull[0] = W_ImageLookup("M_SLCTR1");
-	else
 		menu_skull[0] = W_ImageLookup("M_SKULL1");
-
-	if (W_CheckNumForName("M_SLCTR2") >= 0)
-		menu_skull[1] = W_ImageLookup("M_SLCTR2");
-	else
 		menu_skull[1] = W_ImageLookup("M_SKULL2");
 
+		rott_skull = W_ImageLookup("CURSOR01");
 
+		//	if (W_CheckNumForName("M_NEWG") >= 0)
+		//	    DrawKeyword("NEW GAME");//HL_WriteText(style,2, 80, 30, "NEW GAME");//HUD_DrawText(0, 0, "NEW GAME");//HL_WriteText(style,2, LoadDef.x - 4, y, "NEW GAME");
+		//or
+		// menu_doom = HL_WriteText(style,2,LoadDef.x,y, "NEW GAME");
+		if (W_CheckNumForName("M_HTIC") >= 0)
+			menu_doom = W_ImageLookup("M_HTIC");
+		else
+			menu_doom = W_ImageLookup("M_DOOM");
 
-	// Further code switches out DOOM -> Heretic graphics
+		//code below switches out skull
+		if (W_CheckNumForName("M_SLCTR1") >= 0)
+			menu_skull[0] = W_ImageLookup("M_SLCTR1");
+		else
+			menu_skull[0] = W_ImageLookup("M_SKULL1");
 
+		if (W_CheckNumForName("M_SLCTR2") >= 0)
+			menu_skull[1] = W_ImageLookup("M_SLCTR2");
+		else
+			menu_skull[1] = W_ImageLookup("M_SKULL2");
 
-	// Here we could catch other version dependencies,
-	//  like HELP1/2, and four episodes.
-	//    if (W_CheckNumForName("M_EPI4") < 0)
-	//      EpiDef.numitems -= 2;
-	//    else if (W_CheckNumForName("M_EPI5") < 0)
-	//      EpiDef.numitems--;
+		// Further code switches out DOOM -> Heretic graphics
 
-	if (W_CheckNumForName("HELP") >= 0)
-		menu_readthis[0] = W_ImageLookup("HELP");
-	else
-		menu_readthis[0] = W_ImageLookup("HELP1");
+		// Here we could catch other version dependencies,
+		//  like HELP1/2, and four episodes.
+		//    if (W_CheckNumForName("M_EPI4") < 0)
+		//      EpiDef.numitems -= 2;
+		//    else if (W_CheckNumForName("M_EPI5") < 0)
+		//      EpiDef.numitems--;
 
-	if (W_CheckNumForName("HELP2") >= 0)
-		menu_readthis[1] = W_ImageLookup("HELP2");
-	else
-	{
-		menu_readthis[1] = W_ImageLookup("CREDIT");
+		if (W_CheckNumForName("HELP") >= 0)
+			menu_readthis[0] = W_ImageLookup("HELP");
+		else
+			menu_readthis[0] = W_ImageLookup("HELP1");
 
-		// This is used because DOOM 2 had only one HELP
-		//  page. I use CREDIT as second page now, but
-		//  kept this hack for educational purposes.
+		if (W_CheckNumForName("HELP2") >= 0)
+			menu_readthis[1] = W_ImageLookup("HELP2");
+		else
+		{
+			menu_readthis[1] = W_ImageLookup("CREDIT");
 
-		MainMenu[readthis] = MainMenu[quitdoom];
-		MainDef.numitems--;
-		MainDef.y += 8; // FIXME
-		SkillDef.prevMenu = &MainDef;
-		ReadDef1.draw_func = M_DrawReadThis1;
-		ReadDef1.x = 330;
-		ReadDef1.y = 165;
-		ReadMenu1[0].select_func = M_FinishReadThis;
+			// This is used because DOOM 2 had only one HELP
+			//  page. I use CREDIT as second page now, but
+			//  kept this hack for educational purposes.
+
+			MainMenu[readthis] = MainMenu[quitdoom];
+			MainDef.numitems--;
+			MainDef.y += 8; // FIXME
+			SkillDef.prevMenu = &MainDef;
+			ReadDef1.draw_func = M_DrawReadThis1;
+			ReadDef1.x = 330;
+			ReadDef1.y = 165;
+			ReadMenu1[0].select_func = M_FinishReadThis;
+		}
+
+		sfx_swtchn = sfxdefs.GetEffect("SWTCHN");
+		sfx_tink = sfxdefs.GetEffect("TINK");
+		sfx_radio = sfxdefs.GetEffect("RADIO");
+		sfx_oof = sfxdefs.GetEffect("OOF");
+		sfx_pstop = sfxdefs.GetEffect("PSTOP");
+		sfx_stnmov = sfxdefs.GetEffect("STNMOV");
+		sfx_pistol = sfxdefs.GetEffect("PISTOL");
+		sfx_swtchx = sfxdefs.GetEffect("SWTCHX");
+
+		M_OptMenuInit();
+		M_NetGameInit();
+
+		M_InitShiftXForm();
 	}
 
-	sfx_swtchn = sfxdefs.GetEffect("SWTCHN");
-	sfx_tink = sfxdefs.GetEffect("TINK");
-	sfx_radio = sfxdefs.GetEffect("RADIO");
-	sfx_oof = sfxdefs.GetEffect("OOF");
-	sfx_pstop = sfxdefs.GetEffect("PSTOP");
-	sfx_stnmov = sfxdefs.GetEffect("STNMOV");
-	sfx_pistol = sfxdefs.GetEffect("PISTOL");
-	sfx_swtchx = sfxdefs.GetEffect("SWTCHX");
-
-	M_OptMenuInit();
-	M_NetGameInit();
-
-	M_InitShiftXForm();
-}
-
-
-//--- editor settings ---
-// vi:ts=4:sw=4:noexpandtab
+	//--- editor settings ---
+	// vi:ts=4:sw=4:noexpandtab

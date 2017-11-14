@@ -34,6 +34,7 @@
 #define GL_EXT_texture_filter_anisotropic_Init() \
 	has_GL_EXT_texture_filter_anisotropic = RGL_CheckExtensions("GL_EXT_texture_filter_anisotropic");
 
+
 // implementation limits
 
 int glmax_lights;
@@ -56,10 +57,10 @@ cvar_c r_stretchworld;
 
 typedef enum
 {
-	PFT_LIGHTING   = (1 << 0),
-	PFT_COLOR_MAT  = (1 << 1),
-	PFT_SKY        = (1 << 2),
-	PFT_MULTI_TEX  = (1 << 3),
+	PFT_LIGHTING = (1 << 0),
+	PFT_COLOR_MAT = (1 << 1),
+	PFT_SKY = (1 << 2),
+	PFT_MULTI_TEX = (1 << 3),
 }
 problematic_feature_e;
 
@@ -81,28 +82,27 @@ static const driver_bug_t driver_bugs[] =
 	{ "Radeon",   NULL, NULL, PFT_LIGHTING | PFT_COLOR_MAT, 0 },
 	{ "RADEON",   NULL, NULL, PFT_LIGHTING | PFT_COLOR_MAT, 0 },
 
-//	{ "R200",     NULL, "Mesa 6.4", PFT_VERTEX_ARRAY, 0 },
-//	{ "R200",     NULL, "Mesa 6.5", PFT_VERTEX_ARRAY, 0 },
-//	{ "Intel",    NULL, "Mesa 6.5", PFT_VERTEX_ARRAY, 0 },
+	//	{ "R200",     NULL, "Mesa 6.4", PFT_VERTEX_ARRAY, 0 },
+	//	{ "R200",     NULL, "Mesa 6.5", PFT_VERTEX_ARRAY, 0 },
+	//	{ "Intel",    NULL, "Mesa 6.5", PFT_VERTEX_ARRAY, 0 },
 
-	{ "TNT2",     NULL, NULL, PFT_COLOR_MAT, 0 },
+		{ "TNT2",     NULL, NULL, PFT_COLOR_MAT, 0 },
 
-	{ "Velocity", NULL, NULL, PFT_COLOR_MAT | PFT_SKY, 0 },
-	{ "Voodoo3",  NULL, NULL, PFT_SKY | PFT_MULTI_TEX, 0 },
+		{ "Velocity", NULL, NULL, PFT_COLOR_MAT | PFT_SKY, 0 },
+		{ "Voodoo3",  NULL, NULL, PFT_SKY | PFT_MULTI_TEX, 0 },
 };
 
 #define NUM_DRIVER_BUGS  (sizeof(driver_bugs) / sizeof(driver_bug_t))
 
-
 void SetupStencilBuffer(void)
 {
-  glDisable(GL_BLEND);
-  glEnable(GL_STENCIL_TEST);
-  glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
-  glStencilFunc(GL_ALWAYS, 1, 0xffffffff);
-  glDisable(GL_DEPTH_TEST);
-  glColorMask(0, 0, 0, 1); /* Just update destination alpha. */
-  glEnable(GL_TEXTURE_2D);
+	glDisable(GL_BLEND);
+	glEnable(GL_STENCIL_TEST);
+	glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+	glStencilFunc(GL_ALWAYS, 1, 0xffffffff);
+	glDisable(GL_DEPTH_TEST);
+	glColorMask(0, 0, 0, 1); /* Just update destination alpha. */
+	glEnable(GL_TEXTURE_2D);
 }
 //
 // RGL_SetupMatrices2D
@@ -116,7 +116,7 @@ void RGL_SetupMatrices2D(void)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0.0f, (float)SCREENWIDTH,
-			0.0f, (float)SCREENHEIGHT, -1.0f, 1.0f);
+		0.0f, (float)SCREENHEIGHT, -1.0f, 1.0f);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -127,7 +127,6 @@ void RGL_SetupMatrices2D(void)
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
-
 
 //
 // RGL_SetupMatrices3D
@@ -147,8 +146,8 @@ void RGL_SetupMatrices3D(void)
 	glLoadIdentity();
 
 	glFrustum(-view_x_slope * r_nearclip.f, view_x_slope * r_nearclip.f,
-			  -view_y_slope * r_nearclip.f, view_y_slope * r_nearclip.f,
-			  r_nearclip.f, r_farclip.f);
+		-view_y_slope * r_nearclip.f, view_y_slope * r_nearclip.f,
+		r_nearclip.f, r_farclip.f);
 
 	// calculate look-at matrix
 
@@ -226,10 +225,10 @@ void RGL_CheckExtensions(void)
 			glewGetErrorString(err));
 
 	// -ACB- 2004/08/11 Made local: these are not yet used elsewhere
-	std::string glstr_version (SafeStr(glGetString(GL_VERSION)));
+	std::string glstr_version(SafeStr(glGetString(GL_VERSION)));
 	std::string glstr_renderer(SafeStr(glGetString(GL_RENDERER)));
-	std::string glstr_vendor  (SafeStr(glGetString(GL_VENDOR)));
-	std::string glstr_glsl    (SafeStr(glGetString(GL_SHADING_LANGUAGE_VERSION)));
+	std::string glstr_vendor(SafeStr(glGetString(GL_VENDOR)));
+	std::string glstr_glsl(SafeStr(glGetString(GL_SHADING_LANGUAGE_VERSION)));
 
 	I_Printf("OpenGL: Version: %s\n", glstr_version.c_str());
 	I_Printf("OpenGL: Renderer: %s\n", glstr_renderer.c_str());
@@ -253,7 +252,8 @@ void RGL_CheckExtensions(void)
 	// Check for various extensions
 
 	if (GLEW_VERSION_1_3 || GLEW_ARB_multitexture)
-	{ /* OK */ }
+	{ /* OK */
+	}
 	else
 		I_Error("OpenGL driver does not support Multitexturing.\n");
 
@@ -278,7 +278,8 @@ void RGL_CheckExtensions(void)
 	if (GLEW_VERSION_1_3 ||
 		GLEW_ARB_texture_env_combine ||
 		GLEW_EXT_texture_env_combine)
-	{ /* OK */ }
+	{ /* OK */
+	}
 	else
 	{
 		I_Warning("OpenGL driver does not support COMBINE.\n");
@@ -288,13 +289,13 @@ void RGL_CheckExtensions(void)
 	if (GLEW_VERSION_1_2 ||
 		GLEW_EXT_texture_edge_clamp ||
 		GLEW_SGIS_texture_edge_clamp)
-	{ /* OK */ }
+	{ /* OK */
+	}
 	else
 	{
 		I_Warning("OpenGL driver does not support EDGE-Clamp.\n");
 		r_dumbclamp = 1;
 	}
-
 
 	// --- Detect buggy drivers, enable workarounds ---
 
@@ -312,8 +313,8 @@ void RGL_CheckExtensions(void)
 			continue;
 
 		I_Printf("OpenGL: Enabling workarounds for %s.\n",
-				bug->renderer ? bug->renderer :
-				bug->vendor   ? bug->vendor : "the Axis of Evil");
+			bug->renderer ? bug->renderer :
+			bug->vendor ? bug->vendor : "the Axis of Evil");
 
 		if (bug->disable & PFT_LIGHTING)  r_colorlighting = 0;
 		if (bug->disable & PFT_COLOR_MAT) r_colormaterial = 0;
@@ -326,9 +327,9 @@ void RGL_CheckExtensions(void)
 		if (bug->enable & PFT_MULTI_TEX)  r_dumbmulti = 0;
 	}
 #else
-	std::string glstr_version (SafeStr(glGetString(GL_VERSION)));
+	std::string glstr_version(SafeStr(glGetString(GL_VERSION)));
 	std::string glstr_renderer(SafeStr(glGetString(GL_RENDERER)));
-	std::string glstr_vendor  (SafeStr(glGetString(GL_VENDOR)));
+	std::string glstr_vendor(SafeStr(glGetString(GL_VENDOR)));
 
 	I_Printf("OpenGL: Version: %s\n", glstr_version.c_str());
 	I_Printf("OpenGL: Renderer: %s\n", glstr_renderer.c_str());
@@ -349,7 +350,6 @@ void RGL_CheckExtensions(void)
 //
 void RGL_SoftInit(void)
 {
-
 	glDisable(GL_FOG);
 	glDisable(GL_BLEND);
 	glDisable(GL_LIGHTING);
@@ -392,12 +392,11 @@ void RGL_Init(void)
 
 	RGL_CheckExtensions();
 
-
 	// read implementation limits
 	{
 		GLint max_tex_size;
 
-		glGetIntegerv(GL_MAX_TEXTURE_SIZE,  &max_tex_size);
+		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size);
 		glmax_tex_size = max_tex_size;
 
 #ifndef DREAMCAST
@@ -405,8 +404,8 @@ void RGL_Init(void)
 		GLint max_clip_planes;
 		GLint max_tex_units;
 
-		glGetIntegerv(GL_MAX_LIGHTS,        &max_lights);
-		glGetIntegerv(GL_MAX_CLIP_PLANES,   &max_clip_planes);
+		glGetIntegerv(GL_MAX_LIGHTS, &max_lights);
+		glGetIntegerv(GL_MAX_CLIP_PLANES, &max_clip_planes);
 		glGetIntegerv(GL_MAX_TEXTURE_UNITS, &max_tex_units);
 
 		glmax_lights = max_lights;
@@ -420,14 +419,13 @@ void RGL_Init(void)
 	}
 
 	I_Printf("OpenGL: Lights: %d  Clips: %d  Tex: %d  Units: %d\n",
-			 glmax_lights, glmax_clip_planes, glmax_tex_size, glmax_tex_units);
+		glmax_lights, glmax_clip_planes, glmax_tex_size, glmax_tex_units);
 	I_Printf("==============================================================================\n");
 
 	GLfloat max_anisotropic;
 
 	// initialise Anisotropic Filter
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_anisotropic);
-
 
 	RGL_SoftInit();
 
@@ -441,6 +439,29 @@ void RGL_Init(void)
 	RGL_InitRenderBuffers();
 }
 
+void print_stack(int);
+
+#if 0
+void RGL_Error(int errCode)
+{
+	const GLubyte *errString;
+	errString = gluErrorString(errCode);
+	I_Error("OpenGL Error: %s\n", errString);
+	print_stack(1);
+	//glewGetErrorString(errCode));
+	exit(1);
+}
+void checkGLStatus()
+{
+	GLenum errCode;
+
+	if ((errCode = glGetError()) != GL_NO_ERROR)
+	{
+		//GLError(errCode);//bna_removed
+	}
+}
+
+#endif // 0
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
