@@ -33,6 +33,7 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
 ## Codebase Contributors
 ---
+* Birger N. Andreasen (WinROTT, Rise of the Triad support)
 * Benjamin "The Zombie Killer" Moir (Visual Studio/CMake support)
 * AlexeyNukeyT (OPL and sound code)
 * CeeJay (writing the Heretic definitions)
