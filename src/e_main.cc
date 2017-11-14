@@ -129,6 +129,8 @@ bool need_save_screenshot = false;
 FILE *logfile = NULL;
 FILE *debugfile = NULL;
 
+cvar_c i_skipsplash;
+
 gameflags_t default_gameflags =
 {
 	false,  // nomonsters
@@ -1848,7 +1850,7 @@ static void E_Startup(void)
 
 	//Splash Screen Check
 	M_CheckBooleanParm("nosplash", &nosplash, false);
-	if (!nosplash)
+	if (!nosplash && i_skipsplash.d == 0)
 	{
 		E_SplashScreen();
 	}
