@@ -31,7 +31,6 @@
 
 #include "../src/p_action.h"
 
-
 #undef  DF
 #define DF  DDF_FIELD
 
@@ -55,7 +54,6 @@ static void AddPickupEffect(pickup_effect_c **list, pickup_effect_c *cur);
 
 static int dlight_radius_warnings = 0;
 
-
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  dummy_dlight
 static dlight_info_c dummy_dlight;
@@ -75,7 +73,6 @@ const commandlist_t dlight_commands[] =
 	DDF_CMD_END
 };
 
-
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  dummy_weakness
 static weakness_info_c dummy_weakness;
@@ -90,7 +87,6 @@ const commandlist_t weakness_commands[] =
 
 	DDF_CMD_END
 };
-
 
 mobjtype_c *dynamic_mobj;
 
@@ -249,89 +245,88 @@ const actioncode_t thing_actions[] =
 	{"CLOSE_ATTACK",      P_ActMeleeAttack, DDF_StateGetAttack},
 	{"RANGE_ATTACK",      P_ActRangeAttack, DDF_StateGetAttack},
 	{"SPARE_ATTACK",      P_ActSpareAttack, DDF_StateGetAttack},
-/* 	{"MAKEMIRRORED",      P_ActMakeMirrored, NULL}, */
+	/* 	{"MAKEMIRRORED",      P_ActMakeMirrored, NULL}, */
 
-	{"RANGEATTEMPTSND",   P_ActMakeRangeAttemptSound, NULL},
-	{"REFIRE_CHECK",      P_ActRefireCheck, NULL},
-	{"RELOAD_CHECK",      P_ActReloadCheck, NULL},
-	{"RELOAD_RESET",      P_ActReloadReset, NULL},
-	{"LOOKOUT",           P_ActStandardLook, NULL},
-	{"SUPPORT_LOOKOUT",   P_ActPlayerSupportLook, NULL},
-	{"CHASE",             P_ActStandardChase, NULL},
-	{"RESCHASE",          P_ActResurrectChase, NULL},
-	{"WALKSOUND_CHASE",   P_ActWalkSoundChase, NULL},
-	{"MEANDER",           P_ActStandardMeander, NULL},
-	{"SUPPORT_MEANDER",   P_ActPlayerSupportMeander, NULL},
-	{"EXPLOSIONDAMAGE",   P_ActDamageExplosion, NULL},
-	{"THRUST",            P_ActThrust, NULL},
-	{"TRACER",            P_ActHomingProjectile, NULL},
-	{"RANDOM_TRACER",     P_ActHomingProjectile, NULL},  // same as above
-	{"RESET_SPREADER",    P_ActResetSpreadCount, NULL},
-	{"SMOKING",           P_ActCreateSmokeTrail, NULL},
-	{"TRACKERACTIVE",     P_ActTrackerActive, NULL},
-	{"TRACKERFOLLOW",     P_ActTrackerFollow, NULL},
-	{"TRACKERSTART",      P_ActTrackerStart, NULL},
-	{"EFFECTTRACKER",     P_ActEffectTracker, NULL},
-	{"CHECKBLOOD",        P_ActCheckBlood, NULL},
-	{"CHECKMOVING",       P_ActCheckMoving, NULL},
-	{"CHECK_ACTIVITY",    P_ActCheckActivity, NULL},
-	{"JUMP",              P_ActJump, DDF_StateGetJump},
-	{"BECOME",            P_ActBecome, DDF_StateGetBecome},
-	{"EXPLODE",           P_ActExplode, NULL},
-	{"ACTIVATE_LINETYPE", P_ActActivateLineType, DDF_StateGetIntPair},
-	{"RTS_ENABLE_TAGGED", P_ActEnableRadTrig,  DDF_StateGetInteger},
-	{"RTS_DISABLE_TAGGED",P_ActDisableRadTrig, DDF_StateGetInteger},
-	{"TOUCHY_REARM",      P_ActTouchyRearm, NULL},
-	{"TOUCHY_DISARM",     P_ActTouchyDisarm, NULL},
-	{"BOUNCE_REARM",      P_ActBounceRearm, NULL},
-	{"BOUNCE_DISARM",     P_ActBounceDisarm, NULL},
-	{"PATH_CHECK",        P_ActPathCheck, NULL},
-	{"PATH_FOLLOW",       P_ActPathFollow, NULL},
-	{"SET_INVULNERABLE",  P_ActSetInvuln,   NULL},
-	{"CLEAR_INVULNERABLE",P_ActClearInvuln, NULL},
+		{"RANGEATTEMPTSND",   P_ActMakeRangeAttemptSound, NULL},
+		{"REFIRE_CHECK",      P_ActRefireCheck, NULL},
+		{"RELOAD_CHECK",      P_ActReloadCheck, NULL},
+		{"RELOAD_RESET",      P_ActReloadReset, NULL},
+		{"LOOKOUT",           P_ActStandardLook, NULL},
+		{"SUPPORT_LOOKOUT",   P_ActPlayerSupportLook, NULL},
+		{"CHASE",             P_ActStandardChase, NULL},
+		{"RESCHASE",          P_ActResurrectChase, NULL},
+		{"WALKSOUND_CHASE",   P_ActWalkSoundChase, NULL},
+		{"MEANDER",           P_ActStandardMeander, NULL},
+		{"SUPPORT_MEANDER",   P_ActPlayerSupportMeander, NULL},
+		{"EXPLOSIONDAMAGE",   P_ActDamageExplosion, NULL},
+		{"THRUST",            P_ActThrust, NULL},
+		{"TRACER",            P_ActHomingProjectile, NULL},
+		{"RANDOM_TRACER",     P_ActHomingProjectile, NULL},  // same as above
+		{"RESET_SPREADER",    P_ActResetSpreadCount, NULL},
+		{"SMOKING",           P_ActCreateSmokeTrail, NULL},
+		{"TRACKERACTIVE",     P_ActTrackerActive, NULL},
+		{"TRACKERFOLLOW",     P_ActTrackerFollow, NULL},
+		{"TRACKERSTART",      P_ActTrackerStart, NULL},
+		{"EFFECTTRACKER",     P_ActEffectTracker, NULL},
+		{"CHECKBLOOD",        P_ActCheckBlood, NULL},
+		{"CHECKMOVING",       P_ActCheckMoving, NULL},
+		{"CHECK_ACTIVITY",    P_ActCheckActivity, NULL},
+		{"JUMP",              P_ActJump, DDF_StateGetJump},
+		{"BECOME",            P_ActBecome, DDF_StateGetBecome},
+		{"EXPLODE",           P_ActExplode, NULL},
+		{"ACTIVATE_LINETYPE", P_ActActivateLineType, DDF_StateGetIntPair},
+		{"RTS_ENABLE_TAGGED", P_ActEnableRadTrig,  DDF_StateGetInteger},
+		{"RTS_DISABLE_TAGGED",P_ActDisableRadTrig, DDF_StateGetInteger},
+		{"TOUCHY_REARM",      P_ActTouchyRearm, NULL},
+		{"TOUCHY_DISARM",     P_ActTouchyDisarm, NULL},
+		{"BOUNCE_REARM",      P_ActBounceRearm, NULL},
+		{"BOUNCE_DISARM",     P_ActBounceDisarm, NULL},
+		{"PATH_CHECK",        P_ActPathCheck, NULL},
+		{"PATH_FOLLOW",       P_ActPathFollow, NULL},
+		{"SET_INVULNERABLE",  P_ActSetInvuln,   NULL},
+		{"CLEAR_INVULNERABLE",P_ActClearInvuln, NULL},
 
-	{"DROPITEM",          P_ActDropItem, DDF_StateGetMobj},
-	{"SPAWN",             P_ActSpawn,    DDF_StateGetMobj},
-	{"TRANS_SET",         P_ActTransSet, DDF_StateGetPercent},
-	{"TRANS_FADE",        P_ActTransFade, DDF_StateGetPercent},
-	{"TRANS_MORE",        P_ActTransMore, DDF_StateGetPercent},
-	{"TRANS_LESS",        P_ActTransLess, DDF_StateGetPercent},
-	{"TRANS_ALTERNATE",   P_ActTransAlternate, DDF_StateGetPercent},
-	{"DLIGHT_SET",        P_ActDLightSet,  DDF_StateGetInteger},
-	{"DLIGHT_FADE",       P_ActDLightFade, DDF_StateGetInteger},
-	{"DLIGHT_RANDOM",     P_ActDLightRandom, DDF_StateGetIntPair},
-	{"DLIGHT_COLOUR",     P_ActDLightColour, DDF_StateGetRGB},
-	{"SET_SKIN",          P_ActSetSkin,   DDF_StateGetInteger},
+		{"DROPITEM",          P_ActDropItem, DDF_StateGetMobj},
+		{"SPAWN",             P_ActSpawn,    DDF_StateGetMobj},
+		{"TRANS_SET",         P_ActTransSet, DDF_StateGetPercent},
+		{"TRANS_FADE",        P_ActTransFade, DDF_StateGetPercent},
+		{"TRANS_MORE",        P_ActTransMore, DDF_StateGetPercent},
+		{"TRANS_LESS",        P_ActTransLess, DDF_StateGetPercent},
+		{"TRANS_ALTERNATE",   P_ActTransAlternate, DDF_StateGetPercent},
+		{"DLIGHT_SET",        P_ActDLightSet,  DDF_StateGetInteger},
+		{"DLIGHT_FADE",       P_ActDLightFade, DDF_StateGetInteger},
+		{"DLIGHT_RANDOM",     P_ActDLightRandom, DDF_StateGetIntPair},
+		{"DLIGHT_COLOUR",     P_ActDLightColour, DDF_StateGetRGB},
+		{"SET_SKIN",          P_ActSetSkin,   DDF_StateGetInteger},
 
-    {"FACE",              P_ActFaceDir, DDF_StateGetAngle},
-    {"TURN",              P_ActTurnDir, DDF_StateGetAngle},
-    {"TURN_RANDOM",       P_ActTurnRandom, DDF_StateGetAngle},
-	{"MLOOK_FACE",        P_ActMlookFace, DDF_StateGetSlope},
-	{"MLOOK_TURN",        P_ActMlookTurn, DDF_StateGetSlope},
-	{"MOVE_FWD",          P_ActMoveFwd, DDF_StateGetFloat},
-	{"MOVE_RIGHT",        P_ActMoveRight, DDF_StateGetFloat},
-	{"MOVE_UP",           P_ActMoveUp, DDF_StateGetFloat},
-	{"STOP",              P_ActStopMoving, NULL},
+		{"FACE",              P_ActFaceDir, DDF_StateGetAngle},
+		{"TURN",              P_ActTurnDir, DDF_StateGetAngle},
+		{"TURN_RANDOM",       P_ActTurnRandom, DDF_StateGetAngle},
+		{"MLOOK_FACE",        P_ActMlookFace, DDF_StateGetSlope},
+		{"MLOOK_TURN",        P_ActMlookTurn, DDF_StateGetSlope},
+		{"MOVE_FWD",          P_ActMoveFwd, DDF_StateGetFloat},
+		{"MOVE_RIGHT",        P_ActMoveRight, DDF_StateGetFloat},
+		{"MOVE_UP",           P_ActMoveUp, DDF_StateGetFloat},
+		{"STOP",              P_ActStopMoving, NULL},
 
-	// Boom/MBF compatibility
-	{"DIE",               P_ActDie, NULL},
-	{"KEEN_DIE",          P_ActKeenDie, NULL},
+		// Boom/MBF compatibility
+		{"DIE",               P_ActDie, NULL},
+		{"KEEN_DIE",          P_ActKeenDie, NULL},
 
-	// bossbrain actions
-	{"BRAINSPIT", P_ActBrainSpit, NULL},
-	{"CUBESPAWN", P_ActCubeSpawn, NULL},
-	{"CUBETRACER", P_ActHomeToSpot, NULL},
-	{"BRAINSCREAM", P_ActBrainScream, NULL},
-	{"BRAINMISSILEEXPLODE", P_ActBrainMissileExplode, NULL},
-	{"BRAINDIE", P_ActBrainDie, NULL},
+		// bossbrain actions
+		{"BRAINSPIT", P_ActBrainSpit, NULL},
+		{"CUBESPAWN", P_ActCubeSpawn, NULL},
+		{"CUBETRACER", P_ActHomeToSpot, NULL},
+		{"BRAINSCREAM", P_ActBrainScream, NULL},
+		{"BRAINMISSILEEXPLODE", P_ActBrainMissileExplode, NULL},
+		{"BRAINDIE", P_ActBrainDie, NULL},
 
-	// -AJA- backwards compatibility cruft...
-	{"VARIEDEXPDAMAGE",   P_ActDamageExplosion, NULL},
-	{"VARIED_THRUST",     P_ActThrust, NULL},
+		// -AJA- backwards compatibility cruft...
+		{"VARIEDEXPDAMAGE",   P_ActDamageExplosion, NULL},
+		{"VARIED_THRUST",     P_ActThrust, NULL},
 
-	{NULL, NULL, NULL}
+		{NULL, NULL, NULL}
 };
-
 
 const specflags_t keytype_names[] =
 {
@@ -368,7 +363,6 @@ const specflags_t keytype_names[] =
 	{NULL, 0, 0}
 };
 
-
 const specflags_t armourtype_names[] =
 {
 	{"GREEN_ARMOUR",  ARMOUR_Green,  0},
@@ -378,7 +372,6 @@ const specflags_t armourtype_names[] =
 	{"RED_ARMOUR",    ARMOUR_Red,    0},
 	{NULL, 0, 0}
 };
-
 
 const specflags_t powertype_names[] =
 {
@@ -394,7 +387,6 @@ const specflags_t powertype_names[] =
 	{"POWERUP_SCUBA",        PW_Scuba,        0},
 	{NULL, 0, 0}
 };
-
 
 const specflags_t simplecond_names[] =
 {
@@ -440,7 +432,6 @@ int DDF_CompareName(const char *A, const char *B)
 	}
 }
 
-
 //
 //  DDF PARSE ROUTINES
 //
@@ -462,7 +453,7 @@ static void ThingStartEntry(const char *buffer, bool extend)
 	{
 		name = std::string(buffer, pos - buffer);
 
-		number = MAX(0, atoi(pos+1));
+		number = MAX(0, atoi(pos + 1));
 
 		if (name.empty())
 		{
@@ -478,12 +469,12 @@ static void ThingStartEntry(const char *buffer, bool extend)
 	if (idx >= 0)
 	{
 		mobjtypes.MoveToEnd(idx);
-		dynamic_mobj = mobjtypes[mobjtypes.GetSize()-1];
+		dynamic_mobj = mobjtypes[mobjtypes.GetSize() - 1];
 	}
 
 	if (extend)
 	{
-		if (! dynamic_mobj)
+		if (!dynamic_mobj)
 			DDF_Error("Unknown thing to extend: %s\n", name.c_str());
 
 		if (number > 0)
@@ -512,7 +503,6 @@ static void ThingStartEntry(const char *buffer, bool extend)
 	DDF_StateBeginRange(dynamic_mobj->state_grp);
 }
 
-
 static void ThingDoTemplate(const char *contents)
 {
 	int idx = mobjtypes.FindFirst(contents, 0);
@@ -530,9 +520,8 @@ static void ThingDoTemplate(const char *contents)
 	DDF_StateBeginRange(dynamic_mobj->state_grp);
 }
 
-
 void ThingParseField(const char *field, const char *contents,
-					 int index, bool is_last)
+	int index, bool is_last)
 {
 #if (DEBUG_DDF)
 	I_Debugf("THING_PARSE: %s = %s;\n", field, contents);
@@ -546,7 +535,7 @@ void ThingParseField(const char *field, const char *contents,
 
 	// -AJA- this needs special handling (it touches several fields)
 	if (DDF_CompareName(field, "SPECIAL") == 0 ||
-	    DDF_CompareName(field, "PROJECTILE_SPECIAL") == 0)
+		DDF_CompareName(field, "PROJECTILE_SPECIAL") == 0)
 	{
 		DDF_MobjGetSpecial(contents);
 		return;
@@ -556,14 +545,12 @@ void ThingParseField(const char *field, const char *contents,
 		return;
 
 	if (DDF_MainParseState((byte *)dynamic_mobj, dynamic_mobj->state_grp,
-	                       field, contents, index, is_last, false /* is_weapon */,
-						   thing_starters, thing_actions))
+		field, contents, index, is_last, false /* is_weapon */,
+		thing_starters, thing_actions))
 		return;
-
 
 	DDF_WarnError("Unknown thing/attack command: %s\n", field);
 }
-
 
 static void ThingFinishEntry(void)
 {
@@ -592,13 +579,13 @@ static void ThingFinishEntry(void)
 	// check CAST stuff
 	if (dynamic_mobj->castorder > 0)
 	{
-		if (! dynamic_mobj->chase_state)
+		if (!dynamic_mobj->chase_state)
 			DDF_Error("Cast object must have CHASE states !\n");
 
-	//	if (! dynamic_mobj->swim_state)
-	//		DDF_Error("Cast object must have SWIM states !\n");
+		//	if (! dynamic_mobj->swim_state)
+		//		DDF_Error("Cast object must have SWIM states !\n");
 
-		if (! dynamic_mobj->death_state)
+		if (!dynamic_mobj->death_state)
 			DDF_Error("Cast object must have DEATH states !\n");
 	}
 
@@ -631,7 +618,7 @@ static void ThingFinishEntry(void)
 		DDF_Error("Bad MODEL_SKIN value %d in DDF (must be 0-9).\n",
 			dynamic_mobj->model_skin);
 
-    if (dynamic_mobj->dlight[0].radius > 512)
+	if (dynamic_mobj->dlight[0].radius > 512)
 	{
 		if (dlight_radius_warnings < 3)
 			DDF_Warning("DLIGHT_RADIUS value %1.1f too large (over 512).\n",
@@ -651,12 +638,10 @@ static void ThingFinishEntry(void)
 	dynamic_mobj->DLightCompatibility();
 }
 
-
 static void ThingClearAll(void)
 {
 	I_Warning("Ignoring #CLEARALL in things.ddf\n");
 }
-
 
 bool DDF_ReadThings(void *data, int size)
 {
@@ -680,10 +665,10 @@ bool DDF_ReadThings(void *data, int size)
 		things.lumpname = NULL;
 	}
 
-	things.start_entry  = ThingStartEntry;
-	things.parse_field  = ThingParseField;
+	things.start_entry = ThingStartEntry;
+	things.parse_field = ThingParseField;
 	things.finish_entry = ThingFinishEntry;
-	things.clear_all    = ThingClearAll;
+	things.clear_all = ThingClearAll;
 
 	return DDF_MainReadFile(&things);
 }
@@ -693,7 +678,7 @@ void DDF_MobjInit(void)
 	mobjtypes.Clear();
 
 	default_mobjtype = new mobjtype_c();
-	default_mobjtype->name   = "__DEFAULT_MOBJ";
+	default_mobjtype->name = "__DEFAULT_MOBJ";
 	default_mobjtype->number = 0;
 }
 
@@ -715,7 +700,7 @@ void DDF_MobjCleanUp(void)
 		m->respawneffect = m->respawneffect_ref ?
 			mobjtypes.Lookup(m->respawneffect_ref) :
 			(m->flags & MF_SPECIAL) ? mobjtypes.Lookup("ITEM_RESPAWN")
-				                    : mobjtypes.Lookup("RESPAWN_FLASH");
+			: mobjtypes.Lookup("RESPAWN_FLASH");
 
 		m->spitspot = m->spitspot_ref ? mobjtypes.Lookup(m->spitspot_ref) : NULL;
 
@@ -735,7 +720,7 @@ void DDF_MobjCleanUp(void)
 // param string will be empty).   FIXME: this interface is fucked.
 //
 static int ParseBenefitString(const char *info, char *name, char *param,
-							  float *value, float *limit)
+	float *value, float *limit)
 {
 	int len = strlen(info);
 
@@ -755,14 +740,14 @@ static int ParseBenefitString(const char *info, char *name, char *param,
 
 		switch (sscanf(param, " %f : %f ", value, limit))
 		{
-			case 0: return 0;
+		case 0: return 0;
 
-			case 1: param[0] = 0; return 1;
-			case 2: param[0] = 0; return 2;
+		case 1: param[0] = 0; return 1;
+		case 2: param[0] = 0; return 2;
 
-			default:
-				DDF_WarnError("Bad value in benefit string: %s\n", info);
-				return -1;
+		default:
+			DDF_WarnError("Bad value in benefit string: %s\n", info);
+			return -1;
 		}
 	}
 	else if (pos)
@@ -785,7 +770,7 @@ static int ParseBenefitString(const char *info, char *name, char *param,
 //
 
 static bool BenefitTryAmmo(const char *name, benefit_t *be,
-								int num_vals)
+	int num_vals)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, ammo_types,
 		&be->sub.type, false, false))
@@ -816,14 +801,14 @@ static bool BenefitTryAmmo(const char *name, benefit_t *be,
 }
 
 static bool BenefitTryAmmoLimit(const char *name, benefit_t *be,
-									 int num_vals)
+	int num_vals)
 {
 	char namebuf[200];
 	int len = strlen(name);
 
 	// check for ".LIMIT" prefix
 
-	if (len < 7 || DDF_CompareName(name+len-6, ".LIMIT") != 0)
+	if (len < 7 || DDF_CompareName(name + len - 6, ".LIMIT") != 0)
 		return false;
 
 	len -= 6;
@@ -860,7 +845,7 @@ static bool BenefitTryAmmoLimit(const char *name, benefit_t *be,
 }
 
 static bool BenefitTryWeapon(const char *name, benefit_t *be,
-								  int num_vals)
+	int num_vals)
 {
 	int idx = weapondefs.FindFirst(name, 0);
 
@@ -890,7 +875,7 @@ static bool BenefitTryWeapon(const char *name, benefit_t *be,
 }
 
 static bool BenefitTryKey(const char *name, benefit_t *be,
-							   int num_vals)
+	int num_vals)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, keytype_names,
 		&be->sub.type, false, false))
@@ -919,7 +904,7 @@ static bool BenefitTryKey(const char *name, benefit_t *be,
 }
 
 static bool BenefitTryHealth(const char *name, benefit_t *be,
-								  int num_vals)
+	int num_vals)
 {
 	if (DDF_CompareName(name, "HEALTH") != 0)
 		return false;
@@ -940,7 +925,7 @@ static bool BenefitTryHealth(const char *name, benefit_t *be,
 }
 
 static bool BenefitTryArmour(const char *name, benefit_t *be,
-								  int num_vals)
+	int num_vals)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, armourtype_names,
 		&be->sub.type, false, false))
@@ -960,12 +945,12 @@ static bool BenefitTryArmour(const char *name, benefit_t *be,
 	{
 		switch (be->sub.type)
 		{
-			case ARMOUR_Green:  be->limit = 100; break;
-			case ARMOUR_Blue:   be->limit = 200; break;
-			case ARMOUR_Purple: be->limit = 200; break;
-			case ARMOUR_Yellow: be->limit = 200; break;
-			case ARMOUR_Red:    be->limit = 200; break;
-			default: ;
+		case ARMOUR_Green:  be->limit = 100; break;
+		case ARMOUR_Blue:   be->limit = 200; break;
+		case ARMOUR_Purple: be->limit = 200; break;
+		case ARMOUR_Yellow: be->limit = 200; break;
+		case ARMOUR_Red:    be->limit = 200; break;
+		default:;
 		}
 	}
 
@@ -1012,7 +997,7 @@ static void BenefitAdd(benefit_t **list, benefit_t *source)
 	benefit_t *cur, *tail;
 
 	// check if this benefit overrides a previous one
-	for (cur=(*list); cur; cur=cur->next)
+	for (cur = (*list); cur; cur = cur->next)
 	{
 		if (cur->type == BENEFIT_Weapon)
 			continue;
@@ -1020,7 +1005,7 @@ static void BenefitAdd(benefit_t **list, benefit_t *source)
 		if (cur->type == source->type && cur->sub.type == source->sub.type)
 		{
 			cur->amount = source->amount;
-			cur->limit  = source->limit;
+			cur->limit = source->limit;
 			return;
 		}
 	}
@@ -1037,8 +1022,9 @@ static void BenefitAdd(benefit_t **list, benefit_t *source)
 		return;
 	}
 
-	for (tail = (*list); tail && tail->next; tail=tail->next)
-	{ }
+	for (tail = (*list); tail && tail->next; tail = tail->next)
+	{
+	}
 
 	tail->next = cur;
 }
@@ -1074,7 +1060,7 @@ void DDF_MobjGetBenefit(const char *info, void *storage)
 		BenefitTryArmour(namebuf, &temp, num_vals) ||
 		BenefitTryPowerup(namebuf, &temp, num_vals))
 	{
-		BenefitAdd((benefit_t **) storage, &temp);
+		BenefitAdd((benefit_t **)storage, &temp);
 		return;
 	}
 
@@ -1083,14 +1069,14 @@ void DDF_MobjGetBenefit(const char *info, void *storage)
 
 pickup_effect_c::pickup_effect_c(pickup_effect_type_e _type,
 	int _sub, int _slot, float _time) :
-		next(NULL), type(_type), slot(_slot), time(_time)
+	next(NULL), type(_type), slot(_slot), time(_time)
 {
 	sub.type = _sub;
 }
 
 pickup_effect_c::pickup_effect_c(pickup_effect_type_e _type,
 	weapondef_c *_weap, int _slot, float _time) :
-		next(NULL), type(_type), slot(_slot), time(_time)
+	next(NULL), type(_type), slot(_slot), time(_time)
 {
 	sub.weap = _weap;
 }
@@ -1107,8 +1093,9 @@ static void AddPickupEffect(pickup_effect_c **list, pickup_effect_c *cur)
 
 	pickup_effect_c *tail;
 
-	for (tail = (*list); tail && tail->next; tail=tail->next)
-	{ }
+	for (tail = (*list); tail && tail->next; tail = tail->next)
+	{
+	}
 
 	tail->next = cur;
 }
@@ -1172,8 +1159,8 @@ typedef struct pick_fx_parser_s
 {
 	const char *name;
 	int num_pars;  // -1 means a single word
-	void (* parser)(pickup_effect_c **list,
-			int pnum, float par1, float par2, const char *word_par);
+	void(*parser)(pickup_effect_c **list,
+		int pnum, float par1, float par2, const char *word_par);
 }
 pick_fx_parser_t;
 
@@ -1201,7 +1188,7 @@ void DDF_MobjGetPickupEffect(const char *info, void *storage)
 
 	SYS_ASSERT(storage);
 
-	pickup_effect_c **fx_list = (pickup_effect_c **) storage;
+	pickup_effect_c **fx_list = (pickup_effect_c **)storage;
 
 	benefit_t temp; // FIXME kludge (write new parser method ?)
 
@@ -1214,19 +1201,19 @@ void DDF_MobjGetPickupEffect(const char *info, void *storage)
 	if (parambuf[0])
 		num_vals = -1;
 
-	for (int i=0; pick_fx_parsers[i].name; i++)
+	for (int i = 0; pick_fx_parsers[i].name; i++)
 	{
 		if (DDF_CompareName(pick_fx_parsers[i].name, namebuf) != 0)
 			continue;
 
-		(* pick_fx_parsers[i].parser)(fx_list, num_vals,
+		(*pick_fx_parsers[i].parser)(fx_list, num_vals,
 			temp.amount, temp.limit, parambuf);
 
 		return;
 	}
 
 	// secondly, try the powerups
-	for (int p=0; powertype_names[p].name; p++)
+	for (int p = 0; powertype_names[p].name; p++)
 	{
 		if (DDF_CompareName(powertype_names[p].name, namebuf) != 0)
 			continue;
@@ -1372,7 +1359,7 @@ void DDF_MobjGetSpecial(const char *info)
 		flag_ptr = &dynamic_mobj->extendedflags;
 
 		res = DDF_MainCheckSpecialFlag(info, extended_specials,
-				&flag_value, true, false);
+			&flag_value, true, false);
 	}
 
 	if (res == CHKF_User || res == CHKF_Unknown)
@@ -1381,23 +1368,23 @@ void DDF_MobjGetSpecial(const char *info)
 		flag_ptr = &dynamic_mobj->hyperflags;
 
 		res = DDF_MainCheckSpecialFlag(info, hyper_specials,
-				&flag_value, true, false);
+			&flag_value, true, false);
 	}
 
 	switch (res)
 	{
-		case CHKF_Positive:
-			*flag_ptr |= flag_value;
-			break;
+	case CHKF_Positive:
+		*flag_ptr |= flag_value;
+		break;
 
-		case CHKF_Negative:
-			*flag_ptr &= ~flag_value;
-			break;
+	case CHKF_Negative:
+		*flag_ptr &= ~flag_value;
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("DDF_MobjGetSpecial: Unknown special '%s'\n", info);
-			break;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("DDF_MobjGetSpecial: Unknown special '%s'\n", info);
+		break;
 	}
 }
 
@@ -1470,7 +1457,6 @@ void DDF_MobjGetPlayer(const char *info, void *storage)
 		DDF_Warning("Player number '%d' will not work.", *dest);
 }
 
-
 static const specflags_t glow_type_names[] =
 {
 	{"FLOOR",   GLOW_Floor,   0},
@@ -1483,12 +1469,11 @@ static const specflags_t glow_type_names[] =
 static void DDF_MobjGetGlowType(const char *info, void *storage)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info,
-		glow_type_names, (int *) storage, false, false))
+		glow_type_names, (int *)storage, false, false))
 	{
 		DDF_WarnError("DDF_MobjGetGlowType: Unknown glow type: %s\n", info);
 	}
 }
-
 
 static const specflags_t sprite_yalign_names[] =
 {
@@ -1502,7 +1487,7 @@ static const specflags_t sprite_yalign_names[] =
 static void DDF_MobjGetYAlign(const char *info, void *storage)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info,
-		sprite_yalign_names, (int *) storage, false, false))
+		sprite_yalign_names, (int *)storage, false, false))
 	{
 		DDF_WarnError("DDF_MobjGetYAlign: Unknown alignment: %s\n", info);
 	}
@@ -1514,7 +1499,7 @@ static void DDF_MobjGetPercentRange(const char *info, void *storage)
 
 	float *dest = (float *)storage;
 
-	if (sscanf(info, "%f%%:%f%%", dest+0, dest+1) != 2)
+	if (sscanf(info, "%f%%:%f%%", dest + 0, dest + 1) != 2)
 		DDF_Error("Bad percentage range: %s\n", info);
 
 	dest[0] /= 100.0f;
@@ -1535,12 +1520,12 @@ static void DDF_MobjGetAngleRange(const char *info, void *storage)
 	if (sscanf(info, "%f:%f", &val1, &val2) != 2)
 		DDF_Error("Bad angle range: %s\n", info);
 
-	if ((int) val1 == 360)
+	if ((int)val1 == 360)
 		val1 = 359.5;
 	else if (val1 > 360.0f)
 		DDF_Error("Angle '%1.1f' too large (must be less than 360)\n", val1);
 
-	if ((int) val2 == 360)
+	if ((int)val2 == 360)
 		val2 = 359.5;
 	else if (val2 > 360.0f)
 		DDF_Error("Angle '%1.1f' too large (must be less than 360)\n", val2);
@@ -1548,7 +1533,6 @@ static void DDF_MobjGetAngleRange(const char *info, void *storage)
 	dest[0] = FLOAT_2_ANG(val1);
 	dest[1] = FLOAT_2_ANG(val2);
 }
-
 
 //
 //  CONDITION TESTERS
@@ -1559,7 +1543,7 @@ static void DDF_MobjGetAngleRange(const char *info, void *storage)
 //
 
 static bool ConditionTryAmmo(const char *name, const char *sub,
-								  condition_check_t *cond)
+	condition_check_t *cond)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, ammo_types,
 		&cond->sub.type, false, false))
@@ -1581,7 +1565,7 @@ static bool ConditionTryAmmo(const char *name, const char *sub,
 }
 
 static bool ConditionTryWeapon(const char *name, const char *sub,
-									condition_check_t *cond)
+	condition_check_t *cond)
 {
 	int idx = weapondefs.FindFirst(name, 0);
 
@@ -1595,7 +1579,7 @@ static bool ConditionTryWeapon(const char *name, const char *sub,
 }
 
 static bool ConditionTryKey(const char *name, const char *sub,
-								 condition_check_t *cond)
+	condition_check_t *cond)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, keytype_names,
 		&cond->sub.type, false, false))
@@ -1608,7 +1592,7 @@ static bool ConditionTryKey(const char *name, const char *sub,
 }
 
 static bool ConditionTryHealth(const char *name, const char *sub,
-									condition_check_t *cond)
+	condition_check_t *cond)
 {
 	if (DDF_CompareName(name, "HEALTH") != 0)
 		return false;
@@ -1621,7 +1605,7 @@ static bool ConditionTryHealth(const char *name, const char *sub,
 }
 
 static bool ConditionTryArmour(const char *name, const char *sub,
-									condition_check_t *cond)
+	condition_check_t *cond)
 {
 	if (DDF_CompareName(name, "ARMOUR") == 0)
 	{
@@ -1641,7 +1625,7 @@ static bool ConditionTryArmour(const char *name, const char *sub,
 }
 
 static bool ConditionTryPowerup(const char *name, const char *sub,
-									 condition_check_t *cond)
+	condition_check_t *cond)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, powertype_names,
 		&cond->sub.type, false, false))
@@ -1661,7 +1645,7 @@ static bool ConditionTryPowerup(const char *name, const char *sub,
 }
 
 static bool ConditionTryPlayerState(const char *name, const char *sub,
-										 condition_check_t *cond)
+	condition_check_t *cond)
 {
 	return (CHKF_Positive == DDF_MainCheckSpecialFlag(name,
 		simplecond_names, (int *)&cond->cond_type, false, false));
@@ -1690,7 +1674,7 @@ bool DDF_MainParseCondition(const char *info, condition_check_t *cond)
 	pos = strchr(info, '(');
 
 	// do we have matched parentheses ?
-	if (pos && pos > info && len >= 4 && info[len-1] == ')')
+	if (pos && pos > info && len >= 4 && info[len - 1] == ')')
 	{
 		int len2 = (pos - info);
 
@@ -1733,7 +1717,6 @@ bool DDF_MainParseCondition(const char *info, condition_check_t *cond)
 	return false;
 }
 
-
 // ---> mobjdef class
 
 mobjtype_c::mobjtype_c() : name(), state_grp()
@@ -1745,7 +1728,6 @@ mobjtype_c::~mobjtype_c()
 {
 }
 
-
 void mobjtype_c::CopyDetail(mobjtype_c &src)
 {
 	state_grp.clear();
@@ -1753,36 +1735,36 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	for (unsigned int i = 0; i < src.state_grp.size(); i++)
 		state_grp.push_back(src.state_grp[i]);
 
-    spawn_state = src.spawn_state;
-    idle_state = src.idle_state;
-    chase_state = src.chase_state;
+	spawn_state = src.spawn_state;
+	idle_state = src.idle_state;
+	chase_state = src.chase_state;
 	//swim_state = src.swim_state;
-    pain_state = src.pain_state;
-    missile_state = src.missile_state;
-    melee_state = src.melee_state;
-    death_state = src.death_state;
-    overkill_state = src.overkill_state;
-    raise_state = src.raise_state;
-    res_state = src.res_state;
-    meander_state = src.meander_state;
-    bounce_state = src.bounce_state;
-    touch_state = src.touch_state;
-    reload_state = src.reload_state;
-    gib_state = src.gib_state;
+	pain_state = src.pain_state;
+	missile_state = src.missile_state;
+	melee_state = src.melee_state;
+	death_state = src.death_state;
+	overkill_state = src.overkill_state;
+	raise_state = src.raise_state;
+	res_state = src.res_state;
+	meander_state = src.meander_state;
+	bounce_state = src.bounce_state;
+	touch_state = src.touch_state;
+	reload_state = src.reload_state;
+	gib_state = src.gib_state;
 
-    reactiontime = src.reactiontime;
+	reactiontime = src.reactiontime;
 	painchance = src.painchance;
 	spawnhealth = src.spawnhealth;
-    speed = src.speed;
+	speed = src.speed;
 	float_speed = src.float_speed;
-    radius = src.radius;
-    height = src.height;
+	radius = src.radius;
+	height = src.height;
 	step_size = src.step_size;
 	mass = src.mass;
 
-    flags = src.flags;
-    extendedflags = src.extendedflags;
-    hyperflags = src.hyperflags;
+	flags = src.flags;
+	extendedflags = src.extendedflags;
+	hyperflags = src.hyperflags;
 
 	explode_damage = src.explode_damage;
 	explode_radius = src.explode_radius;
@@ -1793,7 +1775,7 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	pickup_message = src.pickup_message;
 	initial_benefits = src.initial_benefits;
 
-    castorder = src.castorder;
+	castorder = src.castorder;
 	cast_title = src.cast_title;
 	respawntime = src.respawntime;
 	translucency = src.translucency;
@@ -1801,11 +1783,11 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	palremap = src.palremap;
 
 	jump_delay = src.jump_delay;
-    jumpheight = src.jumpheight;
-    crouchheight = src.crouchheight;
+	jumpheight = src.jumpheight;
+	crouchheight = src.crouchheight;
 	viewheight = src.viewheight;
 	shotheight = src.shotheight;
-    maxfall = src.maxfall;
+	maxfall = src.maxfall;
 	fast = src.fast;
 
 	scale = src.scale;
@@ -1829,7 +1811,7 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	attacksound = src.attacksound;
 	painsound = src.painsound;
 	deathsound = src.deathsound;
-	secretsound=src.secretsound;
+	secretsound = src.secretsound;
 	overkill_sound = src.overkill_sound;
 	activesound = src.activesound;
 	walksound = src.walksound;
@@ -1840,14 +1822,14 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	gasp_sound = src.gasp_sound;
 	gloopsound = src.gloopsound;
 
-    fuse = src.fuse;
+	fuse = src.fuse;
 	reload_shots = src.reload_shots;
 	armour_protect = src.armour_protect;
 	armour_deplete = src.armour_deplete;
 	armour_class = src.armour_class;
 
 	side = src.side;
-    playernum = src.playernum;
+	playernum = src.playernum;
 	lung_capacity = src.lung_capacity;
 	gasp_start = src.gasp_start;
 
@@ -1881,40 +1863,39 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	spitspot_ref = src.spitspot_ref;
 }
 
-
 void mobjtype_c::Default()
 {
 	state_grp.clear();
 
-    spawn_state = 0;
-    idle_state = 0;
-    chase_state = 0;
+	spawn_state = 0;
+	idle_state = 0;
+	chase_state = 0;
 	//swim_state = 0;
-    pain_state = 0;
-    missile_state = 0;
-    melee_state = 0;
-    death_state = 0;
-    overkill_state = 0;
-    raise_state = 0;
-    res_state = 0;
-    meander_state = 0;
-    bounce_state = 0;
-    touch_state = 0;
-    reload_state = 0;
-    gib_state = 0;
+	pain_state = 0;
+	missile_state = 0;
+	melee_state = 0;
+	death_state = 0;
+	overkill_state = 0;
+	raise_state = 0;
+	res_state = 0;
+	meander_state = 0;
+	bounce_state = 0;
+	touch_state = 0;
+	reload_state = 0;
+	gib_state = 0;
 
-    reactiontime = 0;
+	reactiontime = 0;
 	painchance = PERCENT_MAKE(0);
 	spawnhealth = 1000.0f;
-    speed = 0;
+	speed = 0;
 	float_speed = 2.0f;
-    radius = 0;
-    height = 0;
+	radius = 0;
+	height = 0;
 	step_size = 24.0f;
 	mass = 100.0f;
 
-    flags = 0;
-    extendedflags = 0;
+	flags = 0;
+	extendedflags = 0;
 	hyperflags = 0;
 
 	explode_damage.Default(damage_c::DEFAULT_Mobj);
@@ -1926,7 +1907,7 @@ void mobjtype_c::Default()
 	pickup_message = NULL;
 	initial_benefits = NULL;
 
-    castorder = 0;
+	castorder = 0;
 	cast_title.clear();
 	respawntime = 30 * TICRATE;
 	translucency = PERCENT_MAKE(100);
@@ -1934,11 +1915,11 @@ void mobjtype_c::Default()
 	palremap = NULL;
 
 	jump_delay = 1 * TICRATE;
-    jumpheight = 0;
-    crouchheight = 0;
+	jumpheight = 0;
+	crouchheight = 0;
 	viewheight = PERCENT_MAKE(75);
 	shotheight = PERCENT_MAKE(64);
-    maxfall = 0;
+	maxfall = 0;
 	fast = 1.0f;
 	scale = 1.0f;
 	aspect = 1.0f;
@@ -1969,16 +1950,16 @@ void mobjtype_c::Default()
 	oof_sound = sfx_None;
 	gasp_sound = sfx_None;
 
-    fuse = 0;
+	fuse = 0;
 	reload_shots = 5;
 	armour_protect = -1.0;  // disabled!
 	armour_deplete = PERCENT_MAKE(100);
 	armour_class = BITSET_FULL;
 
 	side = BITSET_EMPTY;
-    playernum = 0;
+	playernum = 0;
 	lung_capacity = 20 * TICRATE;
-	gasp_start = 2  * TICRATE;
+	gasp_start = 2 * TICRATE;
 
 	choke_damage.Default(damage_c::DEFAULT_MobjChoke);
 
@@ -2024,29 +2005,28 @@ void mobjtype_c::DLightCompatibility(void)
 
 		switch (dlight[DL].type)
 		{
-			case DLITE_Compat_QUAD:
-				dlight[DL].type = DLITE_Modulate;
-				dlight[DL].radius = DLIT_COMPAT_RAD(dlight[DL].radius);
-				dlight[DL].colour = RGB_MAKE(r, g, b);
+		case DLITE_Compat_QUAD:
+			dlight[DL].type = DLITE_Modulate;
+			dlight[DL].radius = DLIT_COMPAT_RAD(dlight[DL].radius);
+			dlight[DL].colour = RGB_MAKE(r, g, b);
 
-				hyperflags |= HF_QUADRATIC_COMPAT;
-				break;
+			hyperflags |= HF_QUADRATIC_COMPAT;
+			break;
 
-			case DLITE_Compat_LIN:
-				dlight[DL].type = DLITE_Modulate;
-				dlight[DL].radius *= 1.3;
-				dlight[DL].colour = RGB_MAKE(r, g, b);
-				break;
+		case DLITE_Compat_LIN:
+			dlight[DL].type = DLITE_Modulate;
+			dlight[DL].radius *= 1.3;
+			dlight[DL].colour = RGB_MAKE(r, g, b);
+			break;
 
-			default: // nothing to do
-				break;
+		default: // nothing to do
+			break;
 		}
 
-//??	if (dlight[DL].radius > 500)
-//??		dlight[DL].radius = 500;
+		//??	if (dlight[DL].radius > 500)
+		//??		dlight[DL].radius = 500;
 	}
 }
-
 
 // --> mobjtype_container_c class
 
@@ -2055,12 +2035,10 @@ mobjtype_container_c::mobjtype_container_c() : epi::array_c(sizeof(mobjtype_c*))
 	memset(lookup_cache, 0, sizeof(mobjtype_c*) * LOOKUP_CACHESIZE);
 }
 
-
 mobjtype_container_c::~mobjtype_container_c()
 {
 	Clear();					// <-- Destroy self before exiting
 }
-
 
 void mobjtype_container_c::CleanupObject(void *obj)
 {
@@ -2072,13 +2050,12 @@ void mobjtype_container_c::CleanupObject(void *obj)
 	return;
 }
 
-
 int mobjtype_container_c::FindFirst(const char *name, int startpos)
 {
 	epi::array_iterator_c it;
 	mobjtype_c *m;
 
-	if (startpos>0)
+	if (startpos > 0)
 		it = GetIterator(startpos);
 	else
 		it = GetBaseIterator();
@@ -2097,13 +2074,12 @@ int mobjtype_container_c::FindFirst(const char *name, int startpos)
 	return -1;
 }
 
-
 int mobjtype_container_c::FindLast(const char *name, int startpos)
 {
 	epi::array_iterator_c it;
 	mobjtype_c *m;
 
-	if (startpos>=0 && startpos<array_entries)
+	if (startpos >= 0 && startpos < array_entries)
 		it = GetIterator(startpos);
 	else
 		it = GetTailIterator();
@@ -2122,7 +2098,6 @@ int mobjtype_container_c::FindLast(const char *name, int startpos)
 	return -1;
 }
 
-
 bool mobjtype_container_c::MoveToEnd(int idx)
 {
 	// Moves an entry from its current position to end of the list.
@@ -2139,13 +2114,12 @@ bool mobjtype_container_c::MoveToEnd(int idx)
 	m = (*this)[idx];
 
 	memmove(&array[idx*array_block_objsize],
-		&array[(idx+1)*array_block_objsize],
-		(array_entries-(idx+1))*array_objsize);
+		&array[(idx + 1)*array_block_objsize],
+		(array_entries - (idx + 1))*array_objsize);
 
-	memcpy(&array[(array_entries-1)*array_block_objsize], (void*)&m, sizeof(mobjtype_c*));
+	memcpy(&array[(array_entries - 1)*array_block_objsize], (void*)&m, sizeof(mobjtype_c*));
 	return true;
 }
-
 
 const mobjtype_c *mobjtype_container_c::Lookup(const char *refname)
 {
@@ -2163,7 +2137,6 @@ const mobjtype_c *mobjtype_container_c::Lookup(const char *refname)
 	DDF_Error("Unknown thing type: %s\n", refname);
 	return NULL; /* NOT REACHED */
 }
-
 
 const mobjtype_c *mobjtype_container_c::Lookup(int id)
 {
@@ -2198,7 +2171,6 @@ const mobjtype_c *mobjtype_container_c::Lookup(int id)
 
 	return NULL;
 }
-
 
 const mobjtype_c *mobjtype_container_c::LookupCastMember(int castpos)
 {
@@ -2264,7 +2236,6 @@ const mobjtype_c *mobjtype_container_c::LookupCastMember(int castpos)
 
 	return best;
 }
-
 
 const mobjtype_c* mobjtype_container_c::LookupPlayer(int playernum)
 {

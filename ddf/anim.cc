@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition File Code (Animated textures)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -26,7 +26,7 @@
 static animdef_c *dynamic_anim;
 
 static void DDF_AnimGetType(const char *info, void *storage);
-static void DDF_AnimGetPic (const char *info, void *storage);
+static void DDF_AnimGetPic(const char *info, void *storage);
 
 // -ACB- 1998/08/10 Use DDF_MainGetLumpName for getting the..lump name.
 // -KM- 1998/09/27 Use DDF_MainGetTime for getting tics
@@ -55,7 +55,6 @@ static const commandlist_t anim_commands[] =
 // -ACB- 2004/06/03 Replaced array and size with purpose-built class
 animdef_container_c animdefs;
 
-
 static animdef_c * animdefs_Lookup(const char *name)
 {
 	epi::array_iterator_c it;
@@ -70,7 +69,6 @@ static animdef_c * animdefs_Lookup(const char *name)
 
 	return NULL;  // not found
 }
-
 
 //
 //  DDF PARSE ROUTINES
@@ -87,7 +85,7 @@ static void AnimStartEntry(const char *name, bool extend)
 
 	if (extend)
 	{
-		if (! dynamic_anim)
+		if (!dynamic_anim)
 			DDF_Error("Unknown animdef to extend: %s\n", name);
 		return;
 	}
@@ -107,10 +105,9 @@ static void AnimStartEntry(const char *name, bool extend)
 	animdefs.Insert(dynamic_anim);
 }
 
-
 static void AnimParseField(const char *field, const char *contents, int index, bool is_last)
 {
-#if (DEBUG_DDF)  
+#if (DEBUG_DDF)
 	I_Debugf("ANIM_PARSE: %s = %s;\n", field, contents);
 #endif
 
@@ -131,7 +128,7 @@ static void AnimFinishEntry(void)
 	if (dynamic_anim->pics.GetSize() == 0)
 	{
 		if (!dynamic_anim->startname || !dynamic_anim->startname[0] ||
-		    !dynamic_anim->endname   || !dynamic_anim->endname[0])
+			!dynamic_anim->endname || !dynamic_anim->endname[0])
 		{
 			DDF_Error("Missing animation sequence.\n");
 		}
@@ -141,13 +138,11 @@ static void AnimFinishEntry(void)
 	}
 }
 
-
 static void AnimClearAll(void)
 {
 	// 100% safe to delete all animations
 	animdefs.Clear();
 }
-
 
 bool DDF_ReadAnims(void *data, int size)
 {
@@ -171,10 +166,10 @@ bool DDF_ReadAnims(void *data, int size)
 		anims.lumpname = NULL;
 	}
 
-	anims.start_entry  = AnimStartEntry;
-	anims.parse_field  = AnimParseField;
+	anims.start_entry = AnimStartEntry;
+	anims.parse_field = AnimParseField;
 	anims.finish_entry = AnimFinishEntry;
-	anims.clear_all    = AnimClearAll;
+	anims.clear_all = AnimClearAll;
 
 	return DDF_MainReadFile(&anims);
 }
@@ -202,7 +197,7 @@ static void DDF_AnimGetType(const char *info, void *storage)
 {
 	SYS_ASSERT(storage);
 
-	int *type = (int *) storage;
+	int *type = (int *)storage;
 
 	if (DDF_CompareName(info, "FLAT") == 0)
 		(*type) = animdef_c::A_Flat;
@@ -220,7 +215,7 @@ static void DDF_AnimGetType(const char *info, void *storage)
 //
 // DDF_AnimGetPic
 //
-static void DDF_AnimGetPic (const char *info, void *storage)
+static void DDF_AnimGetPic(const char *info, void *storage)
 {
 	dynamic_anim->pics.Insert(info);
 }
@@ -238,8 +233,8 @@ void DDF_ParseANIMATED(const byte *data, int size)
 		char  last[10];
 
 		// make sure names are NUL-terminated
-		memcpy(first, data+10, 9);  last[8] = 0;
-		memcpy( last, data+ 1, 9); first[8] = 0;
+		memcpy(first, data + 10, 9);  last[8] = 0;
+		memcpy(last, data + 1, 9); first[8] = 0;
 
 		I_Debugf("- ANIMATED LUMP: start '%s' : end '%s'\n", first, last);
 
@@ -252,17 +247,16 @@ void DDF_ParseANIMATED(const byte *data, int size)
 		def->name = "BOOM_ANIM";
 
 		def->Default();
-		
+
 		def->type = (data[0] & 1) ? animdef_c::A_Texture : animdef_c::A_Flat;
 		def->speed = MAX(1, speed);
 
 		def->startname.Set(first);
-		def->endname  .Set(last);
+		def->endname.Set(last);
 
 		animdefs.Insert(def);
 	}
 }
-
 
 // ---> animdef_c class
 
@@ -273,7 +267,6 @@ animdef_c::animdef_c() : name()
 {
 	Default();
 }
-
 
 //
 // animdef_c::CopyDetail()
@@ -304,7 +297,6 @@ void animdef_c::Default()
 	speed = 8;
 }
 
-
 // ---> animdef_container_c class
 
 //
@@ -319,7 +311,6 @@ void animdef_container_c::CleanupObject(void *obj)
 
 	return;
 }
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

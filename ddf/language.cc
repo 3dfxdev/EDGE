@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition File Code (Language handling settings)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -43,16 +43,16 @@
 class ddf_bi_lang_c
 {
 public:
-	ddf_bi_lang_c() 
+	ddf_bi_lang_c()
 	{
-		treehead = NULL; 
+		treehead = NULL;
 	}
-	
-	~ddf_bi_lang_c() 
-	{ 
-		DeleteLangNodes(); 
+
+	~ddf_bi_lang_c()
+	{
+		DeleteLangNodes();
 	}
-	
+
 	struct langentry_s
 	{
 		langentry_s()
@@ -60,44 +60,44 @@ public:
 			// Binary tree for sorting
 			left = NULL;
 			right = NULL;
-			
+
 			// Next entry with matching ref
 			lang_next = NULL;
-			
+
 			// Linked list
 			prev = NULL;
 			next = NULL;
 		}
-		
+
 		int lang;
-	
+
 		epi::strent_c ref;
-		epi::strent_c value;	
-		
+		epi::strent_c value;
+
 		// A linked list + binary tree is wasteful, but speed efficent and
 		// avoids stack overflow issues that may occur
 		struct langentry_s* left;
 		struct langentry_s* right;
-		
+
 		struct langentry_s* prev;
 		struct langentry_s* next;
 
-		// Next entry 
-		struct langentry_s* lang_next;		
+		// Next entry
+		struct langentry_s* lang_next;
 	};
-	
+
 private:
 	langentry_s *treehead;
-	 
+
 public:
 	epi::strlist_c langnames;
 	int currlang;
-	
+
 	epi::strlist_c comp_langrefs;   // Compiled language references
 	epi::strlist_c comp_langvalues; // Compiled language values (1 per lang)
-	
+
 	// LANGUAGE ENTRY NODE HANDLING
-	
+
 	void AddLangNode(const char *_ref, const char *value)
 	{
 		langentry_s *currnode, *node, *newnode;
@@ -112,12 +112,12 @@ public:
 		while (node && act != REPLACE)
 		{
 			currnode = node;
-			
+
 			if (act != ADD)
 				cmp = stricmp(_ref, node->ref);
 			else
 				cmp = 0;	// Has to be a match if the last act was ADD
-					
+
 			if (cmp == 0)
 			{
 				//
@@ -133,7 +133,7 @@ public:
 					act = ADD;
 					node = node->lang_next;
 				}
-			} 
+			}
 			else if (cmp < 0)
 			{
 				act = TO_LEFT;
@@ -145,91 +145,91 @@ public:
 				node = node->right;
 			}
 		}
-	
+
 		// Handle replace seperately, since we not creating anything
 		if (act == REPLACE)
 		{
 			node->value.Set(value);
 			return;
 		}
-	
+
 		newnode = new langentry_s;
 
 		if (act != ADD) { newnode->ref.Set(_ref); }
 
 		newnode->value.Set(value);
 		newnode->lang = currlang;
-		
+
 		switch (act)
 		{
-			case CREATE_HEAD:	
-			{ 
-				treehead = newnode; 
-				break;
-			}
-			
-			case TO_LEFT:		
-			{ 
-				// Update the binary tree
-				currnode->left = newnode;
-				
-				// Update the linked list (Insert behind current node)
-				if (currnode->prev) 
-				{ 
-					currnode->prev->next = newnode; 
-					newnode->prev = currnode->prev;
-				}
-				
-				currnode->prev = newnode;
-				newnode->next = currnode; 
-				break;
-			}
-			
-			case TO_RIGHT:  	
-			{ 
-				// Update the binary tree
-				currnode->right = newnode; 
+		case CREATE_HEAD:
+		{
+			treehead = newnode;
+			break;
+		}
 
-				// Update the linked list (Insert infront of current node)
-				if (currnode->next) 
-				{ 
-					currnode->next->prev = newnode; 
-					newnode->next = currnode->next;
-				}
-				
-				currnode->next = newnode;
-				newnode->prev = currnode; 
-				break;
+		case TO_LEFT:
+		{
+			// Update the binary tree
+			currnode->left = newnode;
+
+			// Update the linked list (Insert behind current node)
+			if (currnode->prev)
+			{
+				currnode->prev->next = newnode;
+				newnode->prev = currnode->prev;
 			}
-			
-			case ADD:  		
-			{ 
-				currnode->lang_next = newnode; 
-				break;
+
+			currnode->prev = newnode;
+			newnode->next = currnode;
+			break;
+		}
+
+		case TO_RIGHT:
+		{
+			// Update the binary tree
+			currnode->right = newnode;
+
+			// Update the linked list (Insert infront of current node)
+			if (currnode->next)
+			{
+				currnode->next->prev = newnode;
+				newnode->next = currnode->next;
 			}
-			
-			default: 			
-			{ 
-				break; /* FIXME!! Throw error */ 
-			}
+
+			currnode->next = newnode;
+			newnode->prev = currnode;
+			break;
+		}
+
+		case ADD:
+		{
+			currnode->lang_next = newnode;
+			break;
+		}
+
+		default:
+		{
+			break; /* FIXME!! Throw error */
+		}
 		}
 	}
-	
+
 	void DeleteLangNodes()
 	{
 		if (!treehead)
 			return;
-		
+
 		// The node head is the head for the binary tree, so
 		// we have to find the head by going backwards from
 		// the treehead
-		
+
 		langentry_s *currnode, *savenode;
 
 		currnode = treehead;
 		while (currnode->prev)
 			currnode = currnode->prev;
-			
+
 		while (currnode)
 		{
 			savenode = currnode->next;
@@ -237,9 +237,9 @@ public:
 			currnode = savenode;
 		}
 	}
-	
+
 	// LANGUAGES
-	
+
 	//
 	// AddLanguage()
 	//
@@ -248,7 +248,7 @@ public:
 	bool AddLanguage(const char *name)
 	{
 		int langsel = -1;
-		
+
 		// Look for an existing language entry if one exists
 		{
 			epi::array_iterator_c it;
@@ -264,7 +264,7 @@ public:
 				}
 			}
 		}
-		
+
 		// Setup the current language index, adding the new entry if needs be
 		if (langsel < 0)
 		{
@@ -276,29 +276,28 @@ public:
 		{
 			currlang = langsel;
 		}
-		
-		
+
 		return (langsel < 0);
 	}
-	
+
 	// LIST COMPILING
-			
+
 	void CompileLanguageReferences()
 	{
 		comp_langrefs.Clear();
-		
+
 		if (!treehead)
 			return;					// Nothing to do
 
 		langentry_s *currnode, *head;
 		int count;
-		
+
 		currnode = treehead;
 		while (currnode->prev)
 			currnode = currnode->prev;
-			
+
 		head = currnode;
-			
+
 		// Count the entries so strlist_c does not over-fragment memory
 		count = 0;
 		while (currnode)
@@ -306,35 +305,35 @@ public:
 			currnode = currnode->next;
 			count++;
 		}
-		
+
 		comp_langrefs.Size(count);
-		
+
 		// Add entries
 		for (currnode = head; currnode; currnode = currnode->next)
 			comp_langrefs.Insert(currnode->ref);
-		
-		return;		
+
+		return;
 	}
-	
+
 	void CompileLanguageValues(int lang)
 	{
-		SYS_ASSERT(lang >=0 && lang <= langnames.GetSize());
-			
+		SYS_ASSERT(lang >= 0 && lang <= langnames.GetSize());
+
 		comp_langvalues.Clear();
-		
+
 		if (!treehead)
 			return;					// Nothing to do
 
 		langentry_s *currnode, *head, *langnode;
 		int count;
-		
+
 		// Find me head, son!
 		currnode = treehead;
 		while (currnode->prev)
 			currnode = currnode->prev;
-			
+
 		head = currnode;
-			
+
 		// Count the entries so strlist_c does not over-fragment memory
 		count = 0;
 		while (currnode)
@@ -342,22 +341,22 @@ public:
 			currnode = currnode->next;
 			count++;
 		}
-		
+
 		comp_langvalues.Size(count);
-		
+
 		// Add entries
 		for (currnode = head; currnode; currnode = currnode->next)
 		{
 			langnode = currnode;
 			while (langnode && langnode->lang != lang)
 				langnode = langnode->lang_next;
-				
+
 			if (langnode)
 				comp_langvalues.Insert(langnode->value);
-			else	
+			else
 				comp_langvalues.Insert(NULL);
 		}
-		
+
 		return;
 	}
 };
@@ -384,15 +383,14 @@ static void LanguageStartEntry(const char *name, bool extend)
 	lang_buildinfo->AddLanguage(name);
 }
 
-
 static void LanguageParseField(const char *field, const char *contents,
-    int index, bool is_last)
+	int index, bool is_last)
 {
-#if (DEBUG_DDF)  
-	I_Debugf("LANGUAGE_PARSE: %s = %s;\n", field, contents);
+#if (DEBUG_DDF)
+	//I_Debugf("LANGUAGE_PARSE: %s = %s;\n", field, contents);
 #endif
 
-	if (! is_last)
+	if (!is_last)
 	{
 		DDF_WarnError("Unexpected comma `,' in LANGUAGE.LDF\n");
 		return;
@@ -411,7 +409,6 @@ static void LanguageClearAll(void)
 	// safe to delete all language entries
 	language.Clear();
 }
-
 
 bool DDF_ReadLangs(void *data, int size)
 {
@@ -435,10 +432,10 @@ bool DDF_ReadLangs(void *data, int size)
 		languages.lumpname = NULL;
 	}
 
-	languages.start_entry  = LanguageStartEntry;
-	languages.parse_field  = LanguageParseField;
+	languages.start_entry = LanguageStartEntry;
+	languages.parse_field = LanguageParseField;
 	languages.finish_entry = LanguageFinishEntry;
-	languages.clear_all    = LanguageClearAll;
+	languages.clear_all = LanguageClearAll;
 
 	return DDF_MainReadFile(&languages);
 }
@@ -460,25 +457,25 @@ void DDF_LanguageCleanUp(void)
 	int langcount = lang_buildinfo->langnames.GetSize();
 	if (langcount == 0)
 		I_Error("Missing languages !\n");
-	
+
 	// Load the choice of languages
 	language.LoadLanguageChoices(lang_buildinfo->langnames);
-	
+
 	// Load the reference table
 	lang_buildinfo->CompileLanguageReferences();
 	language.LoadLanguageReferences(lang_buildinfo->comp_langrefs);
-	
+
 	// Load the value table for each one of the languages
 	int i;
-	for (i=0; i<langcount; i++)
+	for (i = 0; i < langcount; i++)
 	{
 		lang_buildinfo->CompileLanguageValues(i);
 		language.LoadLanguageValues(i, lang_buildinfo->comp_langvalues);
 	}
-	
+
 	//language.Dump();
 	//exit(1);
-	
+
 	// Dispose of the data
 	delete lang_buildinfo;
 }
@@ -508,13 +505,13 @@ void language_c::Clear()
 {
 	choices.Clear();
 	refs.Clear();
-	
+
 	if (values)
 	{
-		delete [] values;
+		delete[] values;
 		values = NULL;
 	}
-	
+
 	current = -1;
 }
 
@@ -528,7 +525,7 @@ int language_c::Find(const char *name)
 
 	// TODO Optimise search - this list is sorted in order
 
-	for (int i = refs.GetSize()-1; i >= 0; i--)
+	for (int i = refs.GetSize() - 1; i >= 0; i--)
 		if (stricmp(refs[i], name) == 0)
 			return i;
 
@@ -537,7 +534,7 @@ int language_c::Find(const char *name)
 
 //
 // const char* language_c::GetName()
-//	
+//
 // Returns the current name if idx is isvalid, can be
 // NULL if the choices table has not been setup
 //
@@ -545,10 +542,10 @@ const char* language_c::GetName(int idx)
 {
 	if (idx < 0)
 		idx = current;
-		
+
 	if (idx < 0 || idx >= choices.GetSize())
-		return NULL; 
-	
+		return NULL;
+
 	return choices[idx];
 }
 
@@ -557,12 +554,12 @@ const char* language_c::GetName(int idx)
 //
 bool language_c::IsValidRef(const char *refname)
 {
-	return (Find(refname)>=0);
+	return (Find(refname) >= 0);
 }
 
 //
 // language_c::LoadLanguageChoices()
-//	
+//
 void language_c::LoadLanguageChoices(epi::strlist_c& _langnames)
 {
 	choices.Set(_langnames);
@@ -574,11 +571,11 @@ void language_c::LoadLanguageChoices(epi::strlist_c& _langnames)
 void language_c::LoadLanguageReferences(epi::strlist_c& _refs)
 {
 	if (values)
-		delete [] values;
-	
+		delete[] values;
+
 	refs.Set(_refs);
 	values = new epi::strbox_c[refs.GetSize()];
-	
+
 	return;
 }
 
@@ -589,12 +586,12 @@ void language_c::LoadLanguageValues(int lang, epi::strlist_c& _values)
 {
 	if (_values.GetSize() != refs.GetSize())
 		return;	// FIXME!! Throw error
-		
+
 	if (lang < 0 || lang >= choices.GetSize())
 		return;	// FIXME!! Throw error
-		
+
 	values[lang].Set(_values);
-	
+
 	return;
 }
 
@@ -604,16 +601,16 @@ void language_c::LoadLanguageValues(int lang, epi::strlist_c& _values)
 bool language_c::Select(const char *name)
 {
 	int i, max;
-	
-	for(i=0, max=choices.GetSize(); i<max; i++)
+
+	for (i = 0, max = choices.GetSize(); i < max; i++)
 	{
-		if (! DDF_CompareName(name, choices[i]))
+		if (!DDF_CompareName(name, choices[i]))
 		{
 			current = i;
 			return true;
 		}
 	}
-	
+
 	// FIXME!! Throw error
 	return false;
 }
@@ -625,31 +622,31 @@ bool language_c::Select(int idx)
 {
 	if (idx < 0 || idx >= choices.GetSize())
 		return false;	// FIXME!! Throw error
-		
+
 	current = idx;
 	return true;
 }
 
 //
 // const char* language_c::operator[]()
-//	
+//
 const char* language_c::operator[](const char *refname)
 {
 	int idx;
-	
+
 	idx = Find(refname);
-	if (idx>=0)
+	if (idx >= 0)
 	{
 		if (current < 0 || current >= choices.GetSize())
 			return refname;  // -AJA- preserve old behaviour
-		
+
 		char *s = values[current][idx];
 		if (s != NULL)
 			return s;
-			
+
 		// Look through other language definitions is one does not exist
 		int i, max;
-		for (i=0, max=choices.GetSize(); i<max; i++)
+		for (i = 0, max = choices.GetSize(); i < max; i++)
 		{
 			if (i != current)
 			{
@@ -659,7 +656,7 @@ const char* language_c::operator[](const char *refname)
 			}
 		}
 	}
-	
+
 	return refname;  // -AJA- preserve old behaviour
 }
 
@@ -670,7 +667,7 @@ void language_c::Dump(void)
 	for (i=0; i<choices.GetSize(); i++)
 	{
 		I_Printf("Language %d is %s\n", i, choices[i]);
-	}	
+	}
 	I_Printf("\n");
 
 	for (i=0; i<refs.GetSize(); i++)
@@ -683,9 +680,9 @@ void language_c::Dump(void)
 	{
 		for (j=0; j<values[i].GetSize(); j++)
 			I_Printf("Value %d/%d (%s) is %s\n", i, j, refs[j], values[i][j]);
-			
+
 		I_Printf("\n");
-	}	
+	}
 }
 */
 

@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition File Code (Attack Types)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -104,7 +104,6 @@ static const commandlist_t attack_commands[] =
 	DDF_CMD_END
 };
 
-
 static mobjtype_c * CreateAtkMobj(const char *atk_name)
 {
 	mobjtype_c *mobj = new mobjtype_c();
@@ -112,7 +111,7 @@ static mobjtype_c * CreateAtkMobj(const char *atk_name)
 	// determine a name
 	char mobj_name[256];
 
-	snprintf(mobj_name, sizeof(mobj_name)-2, "atk:%s", atk_name);
+	snprintf(mobj_name, sizeof(mobj_name) - 2, "atk:%s", atk_name);
 	mobj_name[255] = 0;
 
 	mobj->name = mobj_name;  // copies it
@@ -120,7 +119,6 @@ static mobjtype_c * CreateAtkMobj(const char *atk_name)
 
 	return mobj;
 }
-
 
 //
 //  DDF PARSE ROUTINES
@@ -144,7 +142,7 @@ static void AttackStartEntry(const char *name, bool extend)
 
 	if (extend)
 	{
-		if (! dynamic_atk)
+		if (!dynamic_atk)
 			DDF_Error("Unknown attack to extend: %s\n", name);
 
 		// Intentional Const Override
@@ -170,7 +168,6 @@ static void AttackStartEntry(const char *name, bool extend)
 	atkdefs.Insert(dynamic_atk);
 }
 
-
 static void AttackDoTemplate(const char *contents)
 {
 	atkdef_c *other = atkdefs.Lookup(contents);
@@ -195,11 +192,10 @@ static void AttackDoTemplate(const char *contents)
 	}
 }
 
-
 static void AttackParseField(const char *field, const char *contents,
-							 int index, bool is_last)
+	int index, bool is_last)
 {
-#if (DEBUG_DDF)  
+#if (DEBUG_DDF)
 	I_Debugf("ATTACK_PARSE: %s = %s;\n", field, contents);
 #endif
 
@@ -226,7 +222,7 @@ static void AttackParseField(const char *field, const char *contents,
 		return;
 
 	// we need to create an MOBJ for this attack
-	if (! dynamic_mobj)
+	if (!dynamic_mobj)
 	{
 		dynamic_mobj = CreateAtkMobj(dynamic_atk->name.c_str());
 
@@ -237,7 +233,6 @@ static void AttackParseField(const char *field, const char *contents,
 
 	ThingParseField(field, contents, index, is_last);
 }
-
 
 static void AttackFinishEntry(void)
 {
@@ -278,9 +273,9 @@ static void AttackFinishEntry(void)
 	// compute an attack class, if none specified
 	if (dynamic_atk->attack_class == BITSET_EMPTY)
 	{
-		dynamic_atk->attack_class = dynamic_mobj ? BITSET_MAKE('M') : 
+		dynamic_atk->attack_class = dynamic_mobj ? BITSET_MAKE('M') :
 			(dynamic_atk->attackstyle == ATK_CLOSECOMBAT ||
-			 dynamic_atk->attackstyle == ATK_SKULLFLY) ? 
+				dynamic_atk->attackstyle == ATK_SKULLFLY) ?
 			BITSET_MAKE('C') : BITSET_MAKE('B');
 	}
 
@@ -303,12 +298,10 @@ static void AttackFinishEntry(void)
 	// TODO: check more stuff...
 }
 
-
 static void AttackClearAll(void)
 {
 	I_Warning("Ignoring #CLEARALL in attacks.ddf\n");
 }
-
 
 bool DDF_ReadAtks(void *data, int size)
 {
@@ -332,10 +325,10 @@ bool DDF_ReadAtks(void *data, int size)
 		attacks.lumpname = NULL;
 	}
 
-	attacks.start_entry  = AttackStartEntry;
-	attacks.parse_field  = AttackParseField;
+	attacks.start_entry = AttackStartEntry;
+	attacks.parse_field = AttackParseField;
 	attacks.finish_entry = AttackFinishEntry;
-	attacks.clear_all    = AttackClearAll;
+	attacks.clear_all = AttackClearAll;
 
 	return DDF_MainReadFile(&attacks);
 }
@@ -358,12 +351,12 @@ void DDF_AttackCleanUp(void)
 
 		// lookup thing references
 
-		a->puff = a->puff_ref.empty() ? 
-				NULL : mobjtypes.Lookup(a->puff_ref);
+		a->puff = a->puff_ref.empty() ?
+			NULL : mobjtypes.Lookup(a->puff_ref);
 
-		a->spawnedobj = a->spawnedobj_ref.empty() ? 
-						NULL : mobjtypes.Lookup(a->spawnedobj_ref);
-      
+		a->spawnedobj = a->spawnedobj_ref.empty() ?
+			NULL : mobjtypes.Lookup(a->spawnedobj_ref);
+
 		if (a->spawnedobj)
 		{
 			if (a->objinitstate_ref.empty())
@@ -378,29 +371,28 @@ void DDF_AttackCleanUp(void)
 	atkdefs.Trim();
 }
 
-
 static const specflags_t attack_specials[] =
 {
-    {"SMOKING_TRACER", AF_TraceSmoke, 0},
-    {"KILL_FAILED_SPAWN", AF_KillFailedSpawn, 0},
-    {"REMOVE_FAILED_SPAWN", AF_KillFailedSpawn, 1},
-    {"PRESTEP_SPAWN", AF_PrestepSpawn, 0},
-    {"SPAWN_TELEFRAGS", AF_SpawnTelefrags, 0},
-    {"NEED_SIGHT", AF_NeedSight, 0},
-    {"FACE_TARGET", AF_FaceTarget, 0},
+	{"SMOKING_TRACER", AF_TraceSmoke, 0},
+	{"KILL_FAILED_SPAWN", AF_KillFailedSpawn, 0},
+	{"REMOVE_FAILED_SPAWN", AF_KillFailedSpawn, 1},
+	{"PRESTEP_SPAWN", AF_PrestepSpawn, 0},
+	{"SPAWN_TELEFRAGS", AF_SpawnTelefrags, 0},
+	{"NEED_SIGHT", AF_NeedSight, 0},
+	{"FACE_TARGET", AF_FaceTarget, 0},
 
-    {"FORCE_AIM", AF_ForceAim, 0},
-    {"ANGLED_SPAWN", AF_AngledSpawn, 0},
-    {"PLAYER_ATTACK", AF_Player, 0},
-    {"TRIGGER_LINES", AF_NoTriggerLines, 1},
-    {"SILENT_TO_MONSTERS", AF_SilentToMon, 0},
-    {"TARGET", AF_NoTarget, 1},
-    {"VAMPIRE", AF_Vampire, 0},
+	{"FORCE_AIM", AF_ForceAim, 0},
+	{"ANGLED_SPAWN", AF_AngledSpawn, 0},
+	{"PLAYER_ATTACK", AF_Player, 0},
+	{"TRIGGER_LINES", AF_NoTriggerLines, 1},
+	{"SILENT_TO_MONSTERS", AF_SilentToMon, 0},
+	{"TARGET", AF_NoTarget, 1},
+	{"VAMPIRE", AF_Vampire, 0},
 
-    // -AJA- backwards compatibility cruft...
-    {"NOAMMO", AF_None, 0},
+	// -AJA- backwards compatibility cruft...
+	{"NOAMMO", AF_None, 0},
 
-    {NULL, AF_None, 0}
+	{NULL, AF_None, 0}
 };
 
 static void DDF_AtkGetSpecial(const char *info, void *storage)
@@ -411,37 +403,37 @@ static void DDF_AtkGetSpecial(const char *info, void *storage)
 
 	switch (DDF_MainCheckSpecialFlag(info, attack_specials, &flag_value, true, false))
 	{
-		case CHKF_Positive:
-			*var = (attackflags_e)(*var | flag_value);
-			break;
-    
-		case CHKF_Negative:
-			*var = (attackflags_e)(*var & ~flag_value);
-			break;
+	case CHKF_Positive:
+		*var = (attackflags_e)(*var | flag_value);
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("DDF_AtkGetSpecials: Unknown Attack Special: %s\n", info);
-			break;
+	case CHKF_Negative:
+		*var = (attackflags_e)(*var & ~flag_value);
+		break;
+
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("DDF_AtkGetSpecials: Unknown Attack Special: %s\n", info);
+		break;
 	}
 }
 
 // -KM- 1998/11/25 Added new attack type for BFG: Spray
 static const char *attack_class[NUMATKCLASS] =
 {
-    "NONE",
-    "PROJECTILE",
-    "SPAWNER",
-    "TRIPLE_SPAWNER",
-    "FIXED_SPREADER",
-    "RANDOM_SPREADER",
-    "SHOT",
-    "TRACKER",
-    "CLOSECOMBAT",
-    "SHOOTTOSPOT",
-    "SKULLFLY",
-    "SMARTPROJECTILE",
-    "SPRAY"
+	"NONE",
+	"PROJECTILE",
+	"SPAWNER",
+	"TRIPLE_SPAWNER",
+	"FIXED_SPREADER",
+	"RANDOM_SPREADER",
+	"SHOT",
+	"TRACKER",
+	"CLOSECOMBAT",
+	"SHOOTTOSPOT",
+	"SKULLFLY",
+	"SMARTPROJECTILE",
+	"SPRAY"
 };
 
 static void DDF_AtkGetType(const char *info, void *storage)
@@ -450,7 +442,7 @@ static void DDF_AtkGetType(const char *info, void *storage)
 
 	int i;
 
-	for (i=0; i < NUMATKCLASS; i++)
+	for (i = 0; i < NUMATKCLASS; i++)
 		if (DDF_CompareName(info, attack_class[i]) == 0)
 			break;
 
@@ -460,8 +452,8 @@ static void DDF_AtkGetType(const char *info, void *storage)
 		*var = ATK_SHOT;
 		return;
 	}
-  
-  	*var = (attackstyle_e) i;
+
+	*var = (attackstyle_e)i;
 }
 
 //
@@ -480,12 +472,12 @@ static void DDF_AtkGetLabel(const char *info, void *storage)
 		DDF_Error("Bad State `%s'.\n", info);
 
 	lab->label.Set(info, i);
-	lab->offset = div ? MAX(0, atoi(div+1) - 1) : 0;
+	lab->offset = div ? MAX(0, atoi(div + 1) - 1) : 0;
 }
 
 // Attack definition class
 
-// 
+//
 // atkdef_c Constructor
 //
 atkdef_c::atkdef_c() : name()
@@ -515,7 +507,7 @@ void atkdef_c::CopyDetail(atkdef_c &src)
 	yoffset = src.yoffset;
 	angle_offset = src.angle_offset;
 	slope_offset = src.slope_offset;
-	trace_angle  = src.trace_angle;
+	trace_angle = src.trace_angle;
 	assault_speed = src.assault_speed;
 	height = src.height;
 	range = src.range;
@@ -563,10 +555,10 @@ void atkdef_c::Default()
 
 	damage.Default(damage_c::DEFAULT_Attack);
 
-	attack_class = BITSET_EMPTY; 
+	attack_class = BITSET_EMPTY;
 	objinitstate = 0;
 	objinitstate_ref.clear();
-	notracechance = PERCENT_MAKE(0); 
+	notracechance = PERCENT_MAKE(0);
 	keepfirechance = PERCENT_MAKE(0);
 	atk_mobj = NULL;
 	spawnedobj = NULL;
@@ -575,7 +567,6 @@ void atkdef_c::Default()
 	puff = NULL;
 	puff_ref.clear();
 }
-
 
 // --> atkdef_container_c class
 

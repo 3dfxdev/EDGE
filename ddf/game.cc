@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition File Code (Game settings)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -21,7 +21,6 @@
 
 #include "local.h"
 
-
 #undef  DF
 #define DF  DDF_FIELD
 
@@ -32,15 +31,15 @@ static gamedef_c *dynamic_gamedef;
 static wi_animdef_c  buffer_animdef;
 static wi_framedef_c buffer_framedef;
 
-static void DDF_GameGetPic (const char *info, void *storage);
+static void DDF_GameGetPic(const char *info, void *storage);
 static void DDF_GameGetAnim(const char *info, void *storage);
-static void DDF_GameGetMap (const char *info, void *storage);
+static void DDF_GameGetMap(const char *info, void *storage);
 static void DDF_GameGetLighting(const char *info, void *storage);
 
 #define DDF_CMD_BASE  dummy_gamedef
 static gamedef_c  dummy_gamedef;
 
-static const commandlist_t gamedef_commands[] = 
+static const commandlist_t gamedef_commands[] =
 {
 	DF("INTERMISSION_GRAPHIC", background, DDF_MainGetLumpName),
 	DF("INTERMISSION_CAMERA", bg_camera, DDF_MainGetString),
@@ -64,7 +63,6 @@ static const commandlist_t gamedef_commands[] =
 	DDF_CMD_END
 };
 
-
 //
 //  DDF PARSE ROUTINES
 //
@@ -86,7 +84,7 @@ static void GameStartEntry(const char *name, bool extend)
 
 	if (extend)
 	{
-		if (! dynamic_gamedef)
+		if (!dynamic_gamedef)
 			DDF_Error("Unknown game to extend: %s\n", name);
 		return;
 	}
@@ -104,7 +102,6 @@ static void GameStartEntry(const char *name, bool extend)
 	gamedefs.Insert(dynamic_gamedef);
 }
 
-
 static void GameDoTemplate(const char *contents)
 {
 	gamedef_c *other = gamedefs.Lookup(contents);
@@ -115,12 +112,11 @@ static void GameDoTemplate(const char *contents)
 	dynamic_gamedef->CopyDetail(*other);
 }
 
-
 static void GameParseField(const char *field, const char *contents,
-						   int index, bool is_last)
+	int index, bool is_last)
 {
 #if (DEBUG_DDF)
-	I_Debugf ("GAME_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("GAME_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	if (DDF_CompareName(field, "TEMPLATE") == 0)
@@ -152,25 +148,22 @@ static void GameParseField(const char *field, const char *contents,
 	DDF_WarnError("Unknown games.ddf command: %s\n", field);
 }
 
-
-static void GameFinishEntry (void)
+static void GameFinishEntry(void)
 {
 	// TODO: check stuff...
 }
 
-
-static void GameClearAll (void)
+static void GameClearAll(void)
 {
 	// 100% safe to delete all game entries
 	gamedefs.Clear();
 }
 
-
-bool DDF_ReadGames (void *data, int size)
+bool DDF_ReadGames(void *data, int size)
 {
 	readinfo_t games;
 
-	games.memfile = (char *) data;
+	games.memfile = (char *)data;
 	games.memsize = size;
 	games.tag = "GAMES";
 	games.entries_per_dot = 1;
@@ -193,22 +186,19 @@ bool DDF_ReadGames (void *data, int size)
 	games.finish_entry = GameFinishEntry;
 	games.clear_all = GameClearAll;
 
-	return DDF_MainReadFile (&games);
+	return DDF_MainReadFile(&games);
 }
-
 
 void DDF_GameInit(void)
 {
 	gamedefs.Clear();		// <-- Consistent with existing behaviour (-ACB- 2004/05/23)
 }
 
-
 void DDF_GameCleanUp(void)
 {
 	if (gamedefs.GetSize() == 0)
 		I_Error("There are no games defined in DDF !\n");
 }
-
 
 static void DDF_GameAddFrame(void)
 {
@@ -236,11 +226,11 @@ static void DDF_GameAddAnim(void)
 static void ParseFrame(const char *info, wi_framedef_c *f)
 {
 	const char *p = strchr(info, ':');
-	if (! p || p == info)
+	if (!p || p == info)
 		DDF_Error("Bad frame def: '%s' (missing pic name)\n", info);
 
 	std::string temp(info, p - info);
-	
+
 	f->pic.Set(temp.c_str());
 
 	p++;
@@ -251,7 +241,7 @@ static void ParseFrame(const char *info, wi_framedef_c *f)
 
 static void DDF_GameGetAnim(const char *info, void *storage)
 {
-	wi_framedef_c *f = (wi_framedef_c *) storage;
+	wi_framedef_c *f = (wi_framedef_c *)storage;
 
 	if (DDF_CompareName(info, "#END") == 0)
 	{
@@ -267,10 +257,10 @@ static void DDF_GameGetAnim(const char *info, void *storage)
 			DDF_Error("Invalid # command: '%s'\n", info);
 
 		p = strchr(info, ':');
-		if (! p || p <= info+1)
+		if (!p || p <= info + 1)
 			DDF_Error("Invalid # command: '%s'\n", info);
 
-		std::string temp(info+1, p - (info+1));
+		std::string temp(info + 1, p - (info + 1));
 
 		buffer_animdef.level.Set(temp.c_str());
 
@@ -283,11 +273,10 @@ static void DDF_GameGetAnim(const char *info, void *storage)
 	DDF_GameAddFrame();
 }
 
-
 static void ParseMap(const char *info, wi_mapposdef_c *mp)
 {
 	const char *p = strchr(info, ':');
-	if (! p || p == info)
+	if (!p || p == info)
 		DDF_Error("Bad map def: '%s' (missing level name)\n", info);
 
 	std::string temp(info, p - info);
@@ -309,11 +298,10 @@ static void DDF_GameGetMap(const char *info, void *storage)
 	dynamic_gamedef->mappos.Insert(mp);
 }
 
-static void DDF_GameGetPic (const char *info, void *storage)
+static void DDF_GameGetPic(const char *info, void *storage)
 {
 	dynamic_gamedef->titlepics.Insert(info);
 }
-
 
 static specflags_t lighting_names[] =
 {
@@ -328,7 +316,7 @@ void DDF_GameGetLighting(const char *info, void *storage)
 {
 	int flag_value;
 
-	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info, 
+	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info,
 		lighting_names, &flag_value, false, false))
 	{
 		DDF_WarnError("GAMES.DDF LIGHTING: Unknown model: %s", info);
@@ -337,8 +325,6 @@ void DDF_GameGetLighting(const char *info, void *storage)
 
 	((lighting_model_e *)storage)[0] = (lighting_model_e)flag_value;
 }
-
-
 
 // --> world intermission mappos class
 
@@ -370,8 +356,8 @@ wi_mapposdef_c::~wi_mapposdef_c()
 void wi_mapposdef_c::Copy(wi_mapposdef_c &src)
 {
 	name = src.name;
-	x    = src.x;
-	y    = src.y;
+	x = src.x;
+	y = src.y;
 }
 
 //
@@ -390,7 +376,7 @@ wi_mapposdef_c& wi_mapposdef_c::operator=(wi_mapposdef_c &rhs)
 //
 // wi_mapposdef_container_c Constructor
 //
-wi_mapposdef_container_c::wi_mapposdef_container_c() 
+wi_mapposdef_container_c::wi_mapposdef_container_c()
 	: epi::array_c(sizeof(wi_mapposdef_c*))
 {
 }
@@ -478,7 +464,7 @@ wi_framedef_c::wi_framedef_c()
 //
 wi_framedef_c::wi_framedef_c(wi_framedef_c &rhs)
 {
-	Copy(rhs); 
+	Copy(rhs);
 }
 
 //
@@ -493,10 +479,10 @@ wi_framedef_c::~wi_framedef_c()
 //
 void wi_framedef_c::Copy(wi_framedef_c &src)
 {
-	pic  = src.pic;
+	pic = src.pic;
 	tics = src.tics;
-	x    = src.x;
-	y    = src.y;
+	x = src.x;
+	y = src.y;
 }
 
 //
@@ -504,7 +490,7 @@ void wi_framedef_c::Copy(wi_framedef_c &src)
 //
 void wi_framedef_c::Default()
 {
-	pic.clear(); 
+	pic.clear();
 	tics = 0;
 	x = y = 0;
 }
@@ -644,7 +630,6 @@ void wi_animdef_c::Default()
 	frames.Clear();
 }
 
-
 //
 // wi_animdef_c assignment operator
 //
@@ -719,7 +704,6 @@ void wi_animdef_container_c::Copy(wi_animdef_container_c &src)
 	Trim();
 }
 
-
 //
 // wi_animdef_container_c assignment operator
 //
@@ -734,8 +718,7 @@ wi_animdef_container_c& wi_animdef_container_c::operator=(wi_animdef_container_c
 	return *this;
 }
 
-
-// --> game definition class 
+// --> game definition class
 
 //
 // gamedef_c Constructor
@@ -751,7 +734,6 @@ gamedef_c::gamedef_c() : name()
 gamedef_c::~gamedef_c()
 {
 }
-
 
 //
 // gamedef_c::CopyDetail()
@@ -780,9 +762,10 @@ void gamedef_c::CopyDetail(gamedef_c &src)
 	firstmap = src.firstmap;
 	namegraphic = src.namegraphic;
 
-	titlepics  = src.titlepics;
+	titlepics = src.titlepics;
 	titlemusic = src.titlemusic;
-	titletics  = src.titletics;
+	titletics = src.titletics;
+
 
 	special_music = src.special_music;
 	lighting = src.lighting;
@@ -823,7 +806,6 @@ void gamedef_c::Default()
 	special_music = 0;
 	lighting = LMODEL_Doom;
 }
-
 
 // --> game definition container class
 

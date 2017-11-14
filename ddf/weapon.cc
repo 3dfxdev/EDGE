@@ -95,7 +95,6 @@ static const commandlist_t weapon_commands[] =
 	DDF_CMD_END
 };
 
-
 static const state_starter_t weapon_starters[] =
 {
 	DDF_STATE("UP",        "UP",        up_state),
@@ -120,7 +119,6 @@ static const state_starter_t weapon_starters[] =
 
 	DDF_STATE_END
 };
-
 
 static const actioncode_t weapon_actions[] =
 {
@@ -176,42 +174,39 @@ static const actioncode_t weapon_actions[] =
 	{NULL, NULL, NULL}
 };
 
-
 const specflags_t ammo_types[] =
 {
-    {"NOAMMO",  AM_NoAmmo, 0},
+	{"NOAMMO",  AM_NoAmmo, 0},
 
-    {"BULLETS",  AM_Bullet,  0},
-    {"SHELLS",   AM_Shell,   0},
-    {"ROCKETS",  AM_Rocket,  0},
-    {"CELLS",    AM_Cell,    0},
-    {"PELLETS",  AM_Pellet,  0},
-    {"NAILS",    AM_Nail,    0},
-    {"GRENADES", AM_Grenade, 0},
-    {"GAS",      AM_Gas,     0},
+	{"BULLETS",  AM_Bullet,  0},
+	{"SHELLS",   AM_Shell,   0},
+	{"ROCKETS",  AM_Rocket,  0},
+	{"CELLS",    AM_Cell,    0},
+	{"PELLETS",  AM_Pellet,  0},
+	{"NAILS",    AM_Nail,    0},
+	{"GRENADES", AM_Grenade, 0},
+	{"GAS",      AM_Gas,     0},
 
-    {"AMMO1",  AM_Bullet,  0},
-    {"AMMO2",  AM_Shell,   0},
-    {"AMMO3",  AM_Rocket,  0},
-    {"AMMO4",  AM_Cell,    0},
-    {"AMMO5",  AM_Pellet,  0},
-    {"AMMO6",  AM_Nail,    0},
-    {"AMMO7",  AM_Grenade, 0},
-    {"AMMO8",  AM_Gas,     0},
+	{"AMMO1",  AM_Bullet,  0},
+	{"AMMO2",  AM_Shell,   0},
+	{"AMMO3",  AM_Rocket,  0},
+	{"AMMO4",  AM_Cell,    0},
+	{"AMMO5",  AM_Pellet,  0},
+	{"AMMO6",  AM_Nail,    0},
+	{"AMMO7",  AM_Grenade, 0},
+	{"AMMO8",  AM_Gas,     0},
 
-    {"AMMO9",  AM_9,  0},
-    {"AMMO10", AM_10, 0},
-    {"AMMO11", AM_11, 0},
-    {"AMMO12", AM_12, 0},
-    {"AMMO13", AM_13, 0},
-    {"AMMO14", AM_14, 0},
-    {"AMMO15", AM_15, 0},
-    {"AMMO16", AM_16, 0},
+	{"AMMO9",  AM_9,  0},
+	{"AMMO10", AM_10, 0},
+	{"AMMO11", AM_11, 0},
+	{"AMMO12", AM_12, 0},
+	{"AMMO13", AM_13, 0},
+	{"AMMO14", AM_14, 0},
+	{"AMMO15", AM_15, 0},
+	{"AMMO16", AM_16, 0},
 
-    {NULL, 0, 0}
+	{NULL, 0, 0}
 };
-
-
 
 //
 //  DDF PARSE ROUTINES
@@ -229,7 +224,7 @@ static void WeaponStartEntry(const char *name, bool extend)
 
 	if (extend)
 	{
-		if (! dynamic_weapon)
+		if (!dynamic_weapon)
 			DDF_Error("Unknown weapon to extend: %s\n", name);
 
 		DDF_StateBeginRange(dynamic_weapon->state_grp);
@@ -253,7 +248,6 @@ static void WeaponStartEntry(const char *name, bool extend)
 	DDF_StateBeginRange(dynamic_weapon->state_grp);
 }
 
-
 static void WeaponDoTemplate(const char *contents)
 {
 	weapondef_c *other = weapondefs.Lookup(contents);
@@ -266,9 +260,8 @@ static void WeaponDoTemplate(const char *contents)
 	DDF_StateBeginRange(dynamic_weapon->state_grp);
 }
 
-
 static void WeaponParseField(const char *field, const char *contents,
-    int index, bool is_last)
+	int index, bool is_last)
 {
 #if (DEBUG_DDF)
 	I_Debugf("WEAPON_PARSE: %s = %s;\n", field, contents);
@@ -284,17 +277,16 @@ static void WeaponParseField(const char *field, const char *contents,
 		return;
 
 	if (DDF_MainParseState((byte *)dynamic_weapon, dynamic_weapon->state_grp,
-	                       field, contents, index, is_last, true /* is_weapon */,
-						   weapon_starters, weapon_actions))
+		field, contents, index, is_last, true /* is_weapon */,
+		weapon_starters, weapon_actions))
 		return;
 
 	DDF_WarnError("Unknown weapons.ddf command: %s\n", field);
 }
 
-
 static void WeaponFinishEntry(void)
 {
-	if (! dynamic_weapon->state_grp.back().first)
+	if (!dynamic_weapon->state_grp.back().first)
 		DDF_Error("Weapon `%s' has missing states.\n",
 			dynamic_weapon->name.c_str());
 
@@ -308,7 +300,7 @@ static void WeaponFinishEntry(void)
 		if (dynamic_weapon->ammopershot[ATK] < 0)
 		{
 			DDF_WarnError("Bad %sAMMOPERSHOT value for weapon: %d\n",
-					ATK ? "SEC_" : "", dynamic_weapon->ammopershot[ATK]);
+				ATK ? "SEC_" : "", dynamic_weapon->ammopershot[ATK]);
 			dynamic_weapon->ammopershot[ATK] = 0;
 		}
 
@@ -319,14 +311,14 @@ static void WeaponFinishEntry(void)
 		if (dynamic_weapon->clip_size[ATK] < 0)
 		{
 			DDF_WarnError("Bad %sCLIPSIZE value for weapon: %d\n",
-					ATK ? "SEC_" : "", dynamic_weapon->clip_size[ATK]);
+				ATK ? "SEC_" : "", dynamic_weapon->clip_size[ATK]);
 			dynamic_weapon->clip_size[ATK] = 0;
 		}
 
 		// check if clip_size + ammopershot makes sense
 		if (dynamic_weapon->clip_size[ATK] > 0 && dynamic_weapon->ammo[ATK] != AM_NoAmmo &&
 			(dynamic_weapon->clip_size[ATK] < dynamic_weapon->ammopershot[ATK] ||
-			 (dynamic_weapon->clip_size[ATK] % dynamic_weapon->ammopershot[ATK] != 0)))
+			(dynamic_weapon->clip_size[ATK] % dynamic_weapon->ammopershot[ATK] != 0)))
 		{
 			DDF_WarnError("%sAMMOPERSHOT=%d incompatible with %sCLIPSIZE=%d\n",
 				ATK ? "SEC_" : "", dynamic_weapon->ammopershot[ATK],
@@ -336,7 +328,7 @@ static void WeaponFinishEntry(void)
 
 		// DISCARD states require the PARTIAL special
 		if (dynamic_weapon->discard_state[ATK] &&
-			! (dynamic_weapon->specials[ATK] & WPSP_Partial))
+			!(dynamic_weapon->specials[ATK] & WPSP_Partial))
 		{
 			DDF_Error("Cannot use %sDISCARD states with NO_PARTIAL special.\n",
 				ATK ? "SEC_" : "");
@@ -373,7 +365,6 @@ static void WeaponFinishEntry(void)
 	}
 }
 
-
 static void WeaponClearAll(void)
 {
 	// not safe to delete weapons, there are (integer) references
@@ -393,7 +384,6 @@ static void WeaponClearAll(void)
 		}
 	}
 }
-
 
 //
 // DDF_ReadWeapons
@@ -420,10 +410,10 @@ bool DDF_ReadWeapons(void *data, int size)
 		weapons.lumpname = NULL;
 	}
 
-	weapons.start_entry  = WeaponStartEntry;
-	weapons.parse_field  = WeaponParseField;
+	weapons.start_entry = WeaponStartEntry;
+	weapons.parse_field = WeaponParseField;
 	weapons.finish_entry = WeaponFinishEntry;
-	weapons.clear_all    = WeaponClearAll;
+	weapons.clear_all = WeaponClearAll;
 
 	return DDF_MainReadFile(&weapons);
 }
@@ -445,20 +435,19 @@ static void DDF_WGetAmmo(const char *info, void *storage)
 	int flag_value;
 
 	switch (DDF_MainCheckSpecialFlag(info, ammo_types, &flag_value,
-				false, false))
+		false, false))
 	{
-		case CHKF_Positive:
-		case CHKF_Negative:
-			(*ammo) = flag_value;
-			break;
+	case CHKF_Positive:
+	case CHKF_Negative:
+		(*ammo) = flag_value;
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("Unknown Ammo type '%s'\n", info);
-			break;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("Unknown Ammo type '%s'\n", info);
+		break;
 	}
 }
-
 
 static void DDF_WGetUpgrade(const char *info, void *storage)
 {
@@ -472,14 +461,14 @@ static void DDF_WGetUpgrade(const char *info, void *storage)
 
 static specflags_t weapon_specials[] =
 {
-    {"SILENT_TO_MONSTERS", WPSP_SilentToMon, 0},
-    {"ANIMATED",  WPSP_Animated, 0},
-    {"SWITCH",  WPSP_SwitchAway, 0},
+	{"SILENT_TO_MONSTERS", WPSP_SilentToMon, 0},
+	{"ANIMATED",  WPSP_Animated, 0},
+	{"SWITCH",  WPSP_SwitchAway, 0},
 	{"TRIGGER", WPSP_Trigger, 0},
 	{"FRESH",   WPSP_Fresh, 0},
 	{"MANUAL",  WPSP_Manual, 0},
 	{"PARTIAL", WPSP_Partial, 0},
-    {NULL, WPSP_None, 0}
+	{NULL, WPSP_None, 0}
 };
 
 //
@@ -489,23 +478,23 @@ static void DDF_WGetSpecialFlags(const char *info, void *storage)
 {
 	int flag_value;
 
-	weapon_flag_e *dest = (weapon_flag_e *) storage;
+	weapon_flag_e *dest = (weapon_flag_e *)storage;
 
 	switch (DDF_MainCheckSpecialFlag(info, weapon_specials, &flag_value,
-				true, false))
+		true, false))
 	{
-		case CHKF_Positive:
-			*dest = (weapon_flag_e)(*dest | flag_value);
-			break;
+	case CHKF_Positive:
+		*dest = (weapon_flag_e)(*dest | flag_value);
+		break;
 
-		case CHKF_Negative:
-			*dest = (weapon_flag_e)(*dest & ~flag_value);
-			break;
+	case CHKF_Negative:
+		*dest = (weapon_flag_e)(*dest & ~flag_value);
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("DDF_WGetSpecialFlags: Unknown Special: %s", info);
-			return;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("DDF_WGetSpecialFlags: Unknown Special: %s", info);
+		return;
 	}
 }
 
@@ -522,7 +511,7 @@ bool DDF_WeaponIsUpgrade(weapondef_c *weap, weapondef_c *old)
 
 	for (int loop = 0; loop < 10; loop++)
 	{
-		if (! weap->upgrade_weap)
+		if (!weap->upgrade_weap)
 			return false;
 
 		if (weap->upgrade_weap == old)
@@ -544,7 +533,6 @@ weapondef_c::weapondef_c() : name(), state_grp()
 	Default();
 }
 
-
 //
 // weapondef_c Destructor
 //
@@ -565,28 +553,28 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 	for (int ATK = 0; ATK < 2; ATK++)
 	{
 		attack[ATK] = src.attack[ATK];
-		ammo[ATK]   = src.ammo[ATK];
+		ammo[ATK] = src.ammo[ATK];
 		ammopershot[ATK] = src.ammopershot[ATK];
-		autofire[ATK]  = src.autofire[ATK];
+		autofire[ATK] = src.autofire[ATK];
 		clip_size[ATK] = src.clip_size[ATK];
-		specials[ATK]  = src.specials[ATK];
+		specials[ATK] = src.specials[ATK];
 
-		attack_state[ATK]  = src.attack_state[ATK];
-		reload_state[ATK]  = src.reload_state[ATK];
+		attack_state[ATK] = src.attack_state[ATK];
+		reload_state[ATK] = src.reload_state[ATK];
 		discard_state[ATK] = src.discard_state[ATK];
-		warmup_state[ATK]  = src.warmup_state[ATK];
-		flash_state[ATK]   = src.flash_state[ATK];
+		warmup_state[ATK] = src.warmup_state[ATK];
+		flash_state[ATK] = src.flash_state[ATK];
 	}
 
 	kick = src.kick;
 
-	up_state    = src.up_state;
-	down_state  = src.down_state;
+	up_state = src.up_state;
+	down_state = src.down_state;
 	ready_state = src.ready_state;
 	empty_state = src.empty_state;
-	idle_state  = src.idle_state;
-	crosshair   = src.crosshair;
-	zoom_state  = src.zoom_state;
+	idle_state = src.idle_state;
+	crosshair = src.crosshair;
+	zoom_state = src.zoom_state;
 
 	no_cheat = src.no_cheat;
 
@@ -610,7 +598,7 @@ void weapondef_c::CopyDetail(weapondef_c &src)
 
 	nothrust = src.nothrust;
 
-  	bind_key = src.bind_key;
+	bind_key = src.bind_key;
 
 	zoom_fov = src.zoom_fov;
 	refire_inacc = src.refire_inacc;
@@ -640,16 +628,16 @@ void weapondef_c::Default(void)
 	for (int ATK = 0; ATK < 2; ATK++)
 	{
 		attack[ATK] = NULL;
-		ammo[ATK]   = AM_NoAmmo;
+		ammo[ATK] = AM_NoAmmo;
 		ammopershot[ATK] = 0;
-		clip_size[ATK]   = 0;
-		autofire[ATK]    = false;
+		clip_size[ATK] = 0;
+		autofire[ATK] = false;
 
-		attack_state[ATK]  = 0;
-		reload_state[ATK]  = 0;
+		attack_state[ATK] = 0;
+		reload_state[ATK] = 0;
 		discard_state[ATK] = 0;
-		warmup_state[ATK]  = 0;
-		flash_state[ATK]   = 0;
+		warmup_state[ATK] = 0;
+		flash_state[ATK] = 0;
 	}
 
 	specials[0] = DEFAULT_WPSP;
@@ -658,7 +646,7 @@ void weapondef_c::Default(void)
 	kick = 0;
 
 	up_state = 0;
-	down_state= 0;
+	down_state = 0;
 	ready_state = 0;
 	empty_state = 0;
 	idle_state = 0;
@@ -704,7 +692,6 @@ void weapondef_c::Default(void)
 	model_side = 0.0f;
 }
 
-
 // --> Weapon Definition Container
 
 //
@@ -744,7 +731,7 @@ int weapondef_container_c::FindFirst(const char *name, int startpos)
 	epi::array_iterator_c it;
 	weapondef_c *w;
 
-	if (startpos>0)
+	if (startpos > 0)
 		it = GetIterator(startpos);
 	else
 		it = GetBaseIterator();
@@ -774,7 +761,6 @@ weapondef_c* weapondef_container_c::Lookup(const char* refname)
 
 	return NULL;
 }
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

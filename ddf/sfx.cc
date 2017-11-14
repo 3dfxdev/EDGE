@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition File Code (Sounds)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -45,7 +45,6 @@ static const commandlist_t sfx_commands[] =
 	DDF_CMD_END
 };
 
-
 //
 //  DDF PARSE ROUTINES
 //
@@ -62,7 +61,7 @@ static void SoundStartEntry(const char *name, bool extend)
 
 	if (extend)
 	{
-		if (! dynamic_sfx)
+		if (!dynamic_sfx)
 			DDF_Error("Unknown sound to extend: %s\n", name);
 		return;
 	}
@@ -88,21 +87,20 @@ static void SoundStartEntry(const char *name, bool extend)
 	sfxdefs.Insert(dynamic_sfx);
 
 	// give it a self-referencing ID number
-	dynamic_sfx->normal.sounds[0] = sfxdefs.GetSize()-1;
+	dynamic_sfx->normal.sounds[0] = sfxdefs.GetSize() - 1;
 	dynamic_sfx->normal.num = 1;
 }
 
-
 static void SoundParseField(const char *field, const char *contents,
-    int index, bool is_last)
+	int index, bool is_last)
 {
-#if (1)  
+#if (1)
 	I_Debugf("SOUND_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	// -AJA- ignore these for backwards compatibility
 	if (DDF_CompareName(field, "BITS") == 0 ||
-	    DDF_CompareName(field, "STEREO") == 0)
+		DDF_CompareName(field, "STEREO") == 0)
 		return;
 
 	if (DDF_MainParseField(sfx_commands, field, contents, (byte *)dynamic_sfx))
@@ -110,7 +108,6 @@ static void SoundParseField(const char *field, const char *contents,
 
 	DDF_WarnError("Unknown sounds.ddf command: %s\n", field);
 }
-
 
 static void SoundFinishEntry(void)
 {
@@ -121,12 +118,10 @@ static void SoundFinishEntry(void)
 	}
 }
 
-
 static void SoundClearAll(void)
 {
 	I_Warning("Ignoring #CLEARALL in sounds.ddf\n");
 }
-
 
 bool DDF_ReadSFX(void *data, int size)
 {
@@ -150,10 +145,10 @@ bool DDF_ReadSFX(void *data, int size)
 		sfx_r.lumpname = NULL;
 	}
 
-	sfx_r.start_entry  = SoundStartEntry;
-	sfx_r.parse_field  = SoundParseField;
+	sfx_r.start_entry = SoundStartEntry;
+	sfx_r.parse_field = SoundParseField;
 	sfx_r.finish_entry = SoundFinishEntry;
-	sfx_r.clear_all    = SoundClearAll;
+	sfx_r.clear_all = SoundClearAll;
 
 	return DDF_MainReadFile(&sfx_r);
 }
@@ -245,7 +240,6 @@ void sfxdef_c::Default()
 	max_distance = S_CLIPPING_DIST; // max_distance
 }
 
-
 // --> Sound Effect Definition Containter Class
 
 //
@@ -280,7 +274,6 @@ static int strncasecmpwild(const char *s1, const char *s2, int n)
 	return s1[i] - s2[i];
 }
 
-
 //
 // sfxdef_container_c::GetEffect()
 //
@@ -296,16 +289,16 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 	sfx_t *r;
 
 	// NULL Sound
-	if (!name || !name[0] || DDF_CompareName(name, "NULL")==0)
+	if (!name || !name[0] || DDF_CompareName(name, "NULL") == 0)
 		return NULL;
 
 	// count them
-	for (count=0, it=GetTailIterator(); 
-		it.IsValid() && it.GetPos() >= 0; 
+	for (count = 0, it = GetTailIterator();
+		it.IsValid() && it.GetPos() >= 0;
 		it--)
 	{
 		si = ITERATOR_TO_TYPE(it, sfxdef_c*);
-		
+
 		if (strncasecmpwild(name, si->name.c_str(), 8) == 0)
 		{
 			count++;
@@ -335,16 +328,16 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 	//
 	// allocate elements.  Uses (count-1) since sfx_t already includes
 	// the first integer.
-	// 
-	r = (sfx_t*) new byte[sizeof(sfx_t) + ((count-1) * sizeof(int))];
+	//
+	r = (sfx_t*) new byte[sizeof(sfx_t) + ((count - 1) * sizeof(int))];
 
 	// now store them
-	for (r->num=0, it=GetTailIterator(); 
-		it.IsValid() && it.GetPos() >= 0; 
+	for (r->num = 0, it = GetTailIterator();
+		it.IsValid() && it.GetPos() >= 0;
 		it--)
 	{
 		si = ITERATOR_TO_TYPE(it, sfxdef_c*);
-		
+
 		if (strncasecmpwild(name, si->name.c_str(), 8) == 0)
 			r->sounds[r->num++] = it.GetPos();
 	}
@@ -360,15 +353,15 @@ sfx_t* sfxdef_container_c::GetEffect(const char *name, bool error)
 sfxdef_c* sfxdef_container_c::Lookup(const char *name)
 {
 	epi::array_iterator_c it;
-	
-	for (it=GetIterator(0); it.IsValid(); it++)
+
+	for (it = GetIterator(0); it.IsValid(); it++)
 	{
 		sfxdef_c *s = ITERATOR_TO_TYPE(it, sfxdef_c*);
 
 		if (DDF_CompareName(s->name.c_str(), name) == 0)
 			return s;
 	}
-	
+
 	return NULL;
 }
 

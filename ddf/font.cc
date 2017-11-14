@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition File Code (Fonts)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -25,7 +25,7 @@
 
 static fontdef_c *dynamic_font;
 
-static void DDF_FontGetType( const char *info, void *storage);
+static void DDF_FontGetType(const char *info, void *storage);
 static void DDF_FontGetPatch(const char *info, void *storage);
 
 #define DDF_CMD_BASE  dummy_font
@@ -59,7 +59,7 @@ static void FontStartEntry(const char *name, bool extend)
 
 	if (extend)
 	{
-		if (! dynamic_font)
+		if (!dynamic_font)
 			DDF_Error("Unknown font to extend: %s\n", name);
 		return;
 	}
@@ -79,10 +79,9 @@ static void FontStartEntry(const char *name, bool extend)
 	fontdefs.Insert(dynamic_font);
 }
 
-
 static void FontParseField(const char *field, const char *contents, int index, bool is_last)
 {
-#if (DEBUG_DDF)  
+#if (DEBUG_DDF)
 	I_Debugf("FONT_PARSE: %s = %s;\n", field, contents);
 #endif
 
@@ -92,24 +91,21 @@ static void FontParseField(const char *field, const char *contents, int index, b
 	DDF_Error("Unknown fonts.ddf command: %s\n", field);
 }
 
-
 static void FontFinishEntry(void)
 {
 	if (dynamic_font->type == FNTYP_UNSET)
 		DDF_Error("No type specified for font.\n");
 
-	if (dynamic_font->type == FNTYP_Patch && ! dynamic_font->patches)
+	if (dynamic_font->type == FNTYP_Patch && !dynamic_font->patches)
 		DDF_Error("Missing font patch list.\n");
 
 	// FIXME: check FNTYP_Image
 }
 
-
 static void FontClearAll(void)
 {
 	I_Warning("Ignoring #CLEARALL in fonts.ddf\n");
 }
-
 
 bool DDF_ReadFonts(void *data, int size)
 {
@@ -122,21 +118,21 @@ bool DDF_ReadFonts(void *data, int size)
 
 	if (fonts.memfile)
 	{
-		fonts.message  = NULL;
+		fonts.message = NULL;
 		fonts.filename = NULL;
 		fonts.lumpname = "DDFFONT";
 	}
 	else
 	{
-		fonts.message  = "DDF_InitFonts";
+		fonts.message = "DDF_InitFonts";
 		fonts.filename = "fonts.ddf";
 		fonts.lumpname = NULL;
 	}
 
-	fonts.start_entry  = FontStartEntry;
-	fonts.parse_field  = FontParseField;
+	fonts.start_entry = FontStartEntry;
+	fonts.parse_field = FontParseField;
 	fonts.finish_entry = FontFinishEntry;
-	fonts.clear_all    = FontClearAll;
+	fonts.clear_all = FontClearAll;
 
 	return DDF_MainReadFile(&fonts);
 }
@@ -167,7 +163,7 @@ static void DDF_FontGetType(const char *info, void *storage)
 {
 	SYS_ASSERT(storage);
 
-	fonttype_e *type = (fonttype_e *) storage;
+	fonttype_e *type = (fonttype_e *)storage;
 
 	if (DDF_CompareName(info, "PATCH") == 0)
 		(*type) = FNTYP_Patch;
@@ -193,9 +189,9 @@ static int FontParseCharacter(const char *buf)
 	}
 #endif
 
-	if (buf[0]>0 && isdigit(buf[0]) && isdigit(buf[1]))
+	if (buf[0] > 0 && isdigit(buf[0]) && isdigit(buf[1]))
 		return atoi(buf);
-	
+
 	return buf[0];
 
 #if 0
@@ -217,14 +213,14 @@ static void DDF_FontGetPatch(const char *info, void *storage)
 	char patch_buf[100];
 	char range_buf[100];
 
-	if (! DDF_MainDecodeBrackets(info, patch_buf, range_buf, 100))
+	if (!DDF_MainDecodeBrackets(info, patch_buf, range_buf, 100))
 		DDF_Error("Malformed font patch: %s\n", info);
 
 	// find dividing colon
 	char *colon = NULL;
-	
+
 	if (strlen(range_buf) > 1)
-		colon = (char *) DDF_MainDecodeList(range_buf, ':', true);
+		colon = (char *)DDF_MainDecodeList(range_buf, ':', true);
 
 	if (colon)
 		*colon++ = 0;
@@ -249,10 +245,9 @@ static void DDF_FontGetPatch(const char *info, void *storage)
 
 	// add to list
 	pat->next = *patch_list;
-	
+
 	*patch_list = pat;
 }
-
 
 // ---> fontpatch_c class
 
@@ -294,7 +289,6 @@ void fontdef_c::Default()
 	missing_patch.clear();
 }
 
-
 // ---> fontdef_container_c class
 
 //
@@ -314,7 +308,7 @@ fontdef_c* fontdef_container_c::Lookup(const char *refname)
 {
 	if (!refname || !refname[0])
 		return NULL;
-	
+
 	for (epi::array_iterator_c it = GetIterator(0); it.IsValid(); it++)
 	{
 		fontdef_c *f = ITERATOR_TO_TYPE(it, fontdef_c*);
@@ -337,7 +331,6 @@ void DDF_MainLookupFont(const char *info, void *storage)
 	if (*dest == NULL)
 		DDF_Error("Unknown font: %s\n", info);
 }
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
