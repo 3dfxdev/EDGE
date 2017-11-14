@@ -72,8 +72,6 @@
 #define TILE_ELEVATOR     0x15
 #define TILE_SECRET_ELEV  0x6B
 
-
-
 extern void P_ShutdownLevel(void);
 extern void GroupLines(void);
 extern void GenerateBlockMap(int min_x, int min_y, int max_x, int max_y);
@@ -100,7 +98,6 @@ int max_lines;
 int max_sides;
 int max_segs;
 
-
 #define M_INDEX(x,y)    ((y) * WLFMAP_W + (x))
 #define MP1_INDEX(x,y)  ((y) * (WLFMAP_W+1) + (x))
 
@@ -117,12 +114,12 @@ static int max_analysis_points = 0;
 
 // tiles that have been processed have (Sec# + 1) here
 static short *sector_matrix = NULL;
-static int marked_cur_sec=0;
+static int marked_cur_sec = 0;
 
 // array (65x65 for example) of (Vert# + 1).
 static short *vertex_matrix = NULL;
 
-static int marked_cur_vert=0;
+static int marked_cur_vert = 0;
 
 // array (65x65x2) of (Sec# or -2 for seg or -1 for void).  First in
 // pair is horizontal top of tile, second is vertical left side.
@@ -133,7 +130,6 @@ short *door_matrix = NULL;
 int door_vertexes;
 int num_doors;
 
-
 #define OBJTILE_PL_STARTS  19
 #define OBJTILE_PUSHABLE   98
 
@@ -141,28 +137,26 @@ int num_doors;
 #define MAPTILE_AREAS   108
 #define MAPTILE_AMBUSH  106
 
-
 static void FindPlayer(int *px, int *py)
 {
 	int x, y;
 
-	for (y=0; y < WLFMAP_H; y++)
-	for (x=0; x < WLFMAP_W; x++)
-	{
-		int obj = wlf_obj_tiles[y*WLFMAP_W + x];
-
-		if (OBJTILE_PL_STARTS <= obj && obj <= OBJTILE_PL_STARTS+3)
+	for (y = 0; y < WLFMAP_H; y++)
+		for (x = 0; x < WLFMAP_W; x++)
 		{
-			(*px) = x;
-			(*py) = y;
+			int obj = wlf_obj_tiles[y*WLFMAP_W + x];
 
-			return;
+			if (OBJTILE_PL_STARTS <= obj && obj <= OBJTILE_PL_STARTS + 3)
+			{
+				(*px) = x;
+				(*py) = y;
+
+				return;
+			}
 		}
-	}
 
 	I_Error("WF_SetupLevel: missing player start !\n");
 }
-
 
 static void AddAnalysisPoint(int x, int y, int ox, int oy)
 {
@@ -175,7 +169,7 @@ static void AddAnalysisPoint(int x, int y, int ox, int oy)
 	SYS_ASSERT(0 <= oy && oy < WLFMAP_H);
 
 	// don't bother adding point if already handled
-	if (sector_matrix[M_INDEX(x,y)])
+	if (sector_matrix[M_INDEX(x, y)])
 		return;
 
 	if (num_analysis_points == max_analysis_points)
@@ -195,16 +189,16 @@ static void AddAnalysisPoint(int x, int y, int ox, int oy)
 	if (x == ox && y == oy)
 		return;
 
-	tile = wlf_map_tiles[M_INDEX(x,y)];
-	obj  = wlf_obj_tiles[M_INDEX(x,y)];
+	tile = wlf_map_tiles[M_INDEX(x, y)];
+	obj = wlf_obj_tiles[M_INDEX(x, y)];
 
 	if (tile < MAPTILE_DOORS && obj == OBJTILE_PUSHABLE)
 	{
 		int dx = x - ox;
 		int dy = y - oy;
 
-		if (x + 2*dx < 0 || x + 2*dx >= WLFMAP_W ||
-			y + 2*dy < 0 || y + 2*dy >= WLFMAP_H)
+		if (x + 2 * dx < 0 || x + 2 * dx >= WLFMAP_W ||
+			y + 2 * dy < 0 || y + 2 * dy >= WLFMAP_H)
 		{
 			// nowhere for the pushwall to go
 			// !!! CONVERT TO lowering wall
@@ -214,7 +208,7 @@ static void AddAnalysisPoint(int x, int y, int ox, int oy)
 		return;
 	}
 
-	if (MAPTILE_DOORS <= tile && tile <= MAPTILE_DOORS+11)
+	if (MAPTILE_DOORS <= tile && tile <= MAPTILE_DOORS + 11)
 	{
 		int vert_bit = (tile & 1) ^ 1;
 		int kind = (tile - MAPTILE_DOORS) / 2;
@@ -224,7 +218,7 @@ static void AddAnalysisPoint(int x, int y, int ox, int oy)
 		else
 		{
 			num_doors++;
-			door_matrix[M_INDEX(x,y)] = (num_doors * 16) + ((tile-MAPTILE_DOORS)^1);
+			door_matrix[M_INDEX(x, y)] = (num_doors * 16) + ((tile - MAPTILE_DOORS) ^ 1);
 		}
 		return;
 	}
@@ -253,10 +247,10 @@ static int TestBoundary(int x1, int y1, int x2, int y2)
 	}
 
 	tile1 = wlf_map_tiles[y1*WLFMAP_W + x1];
-	obj1  = wlf_obj_tiles[y1*WLFMAP_W + x1];
+	obj1 = wlf_obj_tiles[y1*WLFMAP_W + x1];
 
 	tile2 = wlf_map_tiles[y2*WLFMAP_W + x2];
-	obj2  = wlf_obj_tiles[y2*WLFMAP_W + x2];
+	obj2 = wlf_obj_tiles[y2*WLFMAP_W + x2];
 
 	if (tile1 < MAPTILE_DOORS && obj1 == OBJTILE_PUSHABLE)
 		tile1 = MAPTILE_DOORS;
@@ -282,7 +276,7 @@ vertex_t *WF_GetVertex(int vx, int vy)
 	SYS_ASSERT(0 <= vx && vx <= WLFMAP_W);
 	SYS_ASSERT(0 <= vy && vy <= WLFMAP_H);
 
-	v_num = vertex_matrix[MP1_INDEX(vx,vy)];
+	v_num = vertex_matrix[MP1_INDEX(vx, vy)];
 	SYS_ASSERT(0 < v_num && v_num <= numvertexes);
 
 	return vertexes + (v_num - 1);
@@ -296,11 +290,11 @@ vertex_t *GetDoorVertex(int tx, int ty, int which)
 	SYS_ASSERT(0 <= tx && tx < WLFMAP_W);
 	SYS_ASSERT(0 <= ty && ty < WLFMAP_H);
 
-	d_num = door_matrix[M_INDEX(tx,ty)];
+	d_num = door_matrix[M_INDEX(tx, ty)];
 
-	SYS_ASSERT(0 < (d_num/16) <= num_doors);
+	SYS_ASSERT(0 < (d_num / 16) <= num_doors);
 
-	v = vertexes + (door_vertexes + (d_num/16 - 1) * 2 + which);
+	v = vertexes + (door_vertexes + (d_num / 16 - 1) * 2 + which);
 
 	// initialise if not already
 	if (v->x == 0 && v->y == 0)
@@ -308,20 +302,19 @@ vertex_t *GetDoorVertex(int tx, int ty, int which)
 		if (d_num & 1)
 		{
 			// vertical
-			v->x = 64*(tx) + 32;
-			v->y = 64*(ty + which);
+			v->x = 64 * (tx)+32;
+			v->y = 64 * (ty + which);
 		}
 		else
 		{
 			// horizontal
-			v->x = 64*(tx + which);
-			v->y = 64*(ty) + 32;
+			v->x = 64 * (tx + which);
+			v->y = 64 * (ty)+32;
 		}
 	}
 
 	return v;
 }
-
 
 //----------------------------------------------------------------------------
 
@@ -343,32 +336,32 @@ static void FillMapArea(short ax, short ay, short sec_num)
 	SYS_ASSERT(0 <= ay && ay < WLFMAP_H);
 
 	// ignore point if already handled
-	if (sector_matrix[M_INDEX(ax,ay)])
+	if (sector_matrix[M_INDEX(ax, ay)])
 		return;
 
 	// move left until we hit the leftmost boundary
 	for (; ; ax--)
 	{
-		top = TestBoundary(ax, ay, ax-1, ay);
+		top = TestBoundary(ax, ay, ax - 1, ay);
 		if (top != 0)
 			break;
 	}
 
 	if (top == 1)
-		AddAnalysisPoint(ax-1, ay, ax, ay);
+		AddAnalysisPoint(ax - 1, ay, ax, ay);
 
 	// move right as far as we can, marking all the tiles
-	for (bx=ax; ; bx++)
+	for (bx = ax; ; bx++)
 	{
-		sector_matrix[M_INDEX(bx,ay)] = sec_num;
+		sector_matrix[M_INDEX(bx, ay)] = sec_num;
 
-		bot = TestBoundary(bx, ay, bx+1, ay);
+		bot = TestBoundary(bx, ay, bx + 1, ay);
 		if (bot != 0)
 			break;
 	}
 
 	if (bot == 1)
-		AddAnalysisPoint(bx+1, ay, bx, ay);
+		AddAnalysisPoint(bx + 1, ay, bx, ay);
 
 	last_top = 2;
 	last_bot = 2;
@@ -379,26 +372,26 @@ static void FillMapArea(short ax, short ay, short sec_num)
 
 	for (; ax <= bx; ax++)
 	{
-		top = TestBoundary(ax, ay, ax, ay+1);
+		top = TestBoundary(ax, ay, ax, ay + 1);
 
 		if (top != last_top)
 		{
 			if (top == 0)
-				FillMapArea(ax, ay+1, sec_num);
+				FillMapArea(ax, ay + 1, sec_num);
 			else if (top == 1)
-				AddAnalysisPoint(ax, ay+1, ax, ay);
+				AddAnalysisPoint(ax, ay + 1, ax, ay);
 
 			last_top = top;
 		}
 
-		bot = TestBoundary(ax, ay, ax, ay-1);
+		bot = TestBoundary(ax, ay, ax, ay - 1);
 
 		if (bot != last_bot)
 		{
 			if (bot == 0)
-				FillMapArea(ax, ay-1, sec_num);
+				FillMapArea(ax, ay - 1, sec_num);
 			else if (bot == 1)
-				AddAnalysisPoint(ax, ay-1, ax, ay);
+				AddAnalysisPoint(ax, ay - 1, ax, ay);
 
 			last_bot = bot;
 		}
@@ -428,7 +421,7 @@ static void BuildSectors(void)
 	//ms = (const raw_sector_t *) data;
 	//ss = sectors;
 
-	for (i=0; i < numsectors; i++)
+	for (i = 0; i < numsectors; i++)
 	{
 		sector_t *sec = sectors + i;
 
@@ -444,7 +437,7 @@ static void BuildSectors(void)
 		// FIXME: floor/ceiling flats -- what/how ?
 
 		sec->floor.image = W_ImageLookup("FLAT19", INS_Flat);
-		sec->ceil.image  = W_ImageLookup("FLAT1",  INS_Flat);
+		sec->ceil.image = W_ImageLookup("FLAT1", INS_Flat);
 
 		sec->tag = 0;
 
@@ -454,10 +447,10 @@ static void BuildSectors(void)
 
 		sec->props.colourmap = colourmaps.Lookup("NORMAL");
 
-		sec->props.gravity   = GRAVITY;
-		sec->props.friction  = FRICTION;
+		sec->props.gravity = GRAVITY;
+		sec->props.friction = FRICTION;
 		sec->props.viscosity = VISCOSITY;
-		sec->props.drag      = DRAG;
+		sec->props.drag = DRAG;
 
 		sec->p = &sec->props;
 
@@ -479,11 +472,11 @@ void TryVertex(int x1, int y1, int dx, int dy)
 	SYS_ASSERT(0 <= vy <= WLFMAP_H);
 
 	// already marked ?
-	if (vertex_matrix[MP1_INDEX(vx,vy)] > 0)
+	if (vertex_matrix[MP1_INDEX(vx, vy)] > 0)
 		return;
 
 	marked_cur_vert++;
-	vertex_matrix[MP1_INDEX(vx,vy)] = marked_cur_vert;
+	vertex_matrix[MP1_INDEX(vx, vy)] = marked_cur_vert;
 }
 
 //
@@ -494,12 +487,12 @@ static void BuildVertices(void)
 	int x, y;
 
 	// find which vertices are needed
-	for (y=0; y < WLFMAP_H; y++)
-		for (x=0; x < WLFMAP_W; x++)
+	for (y = 0; y < WLFMAP_H; y++)
+		for (x = 0; x < WLFMAP_W; x++)
 		{
-			int sec = sector_matrix[M_INDEX(x,y)];
+			int sec = sector_matrix[M_INDEX(x, y)];
 
-			if (! sec)
+			if (!sec)
 				continue;
 
 			TryVertex(x, y, +1, +1);
@@ -517,17 +510,17 @@ static void BuildVertices(void)
 	max_vertexes = numvertexes + 0;
 	//vertexes = new vec2_t(vertex_t, max_vertexes);
 
-	for (y=0; y <= WLFMAP_H; y++)
-	for (x=0; x <= WLFMAP_W; x++)
-	{
-		int v_num = vertex_matrix[y * (WLFMAP_W + 1) + x];
+	for (y = 0; y <= WLFMAP_H; y++)
+		for (x = 0; x <= WLFMAP_W; x++)
+		{
+			int v_num = vertex_matrix[y * (WLFMAP_W + 1) + x];
 
-		if (! v_num)
-			continue;
+			if (!v_num)
+				continue;
 
-		vertexes[v_num - 1].x = 64*(x);
-		vertexes[v_num - 1].y = 64*(y);
-	}
+			vertexes[v_num - 1].x = 64 * (x);
+			vertexes[v_num - 1].y = 64 * (y);
+		}
 
 	// Note: door vertexes are created on-the-fly
 }
@@ -575,7 +568,7 @@ void WF_ComputeLinedefData(line_t *ld)
 }
 
 static void MakeOneSided(line_t *ld, side_t *sd, int f_sec,
-		int special_kind, const char *texname)
+	int special_kind, const char *texname)
 {
 	SYS_ASSERT(ld->v1 != ld->v2);
 
@@ -583,8 +576,8 @@ static void MakeOneSided(line_t *ld, side_t *sd, int f_sec,
 
 	WF_ComputeLinedefData(ld);
 
-  if (special_kind > 0)
-    ld->special = linetypes.Lookup(special_kind);
+	if (special_kind > 0)
+		ld->special = linetypes.Lookup(special_kind);
 
 	ld->side[0] = sd;
 
@@ -597,18 +590,17 @@ static void MakeOneSided(line_t *ld, side_t *sd, int f_sec,
 	ld->side[0]->middle.x_mat.x = 1;  ld->side[0]->middle.x_mat.y = 0;
 	ld->side[0]->middle.y_mat.x = 0;  ld->side[0]->middle.y_mat.y = 1;
 
-///---	P_ComputeGaps(ld);
+	///---	P_ComputeGaps(ld);
 }
 
 static void MakeTwoSided(line_t *ld, side_t *sd, int f_sec, int b_sec,
-		const char *texname)
+	const char *texname)
 {
 	SYS_ASSERT(ld->v1 != ld->v2);
 
 	ld->flags = MLF_TwoSided;
 
 	WF_ComputeLinedefData(ld);
-
 
 	ld->side[0] = sd;
 
@@ -632,14 +624,14 @@ static void MakeTwoSided(line_t *ld, side_t *sd, int f_sec, int b_sec,
 	ld->side[1]->middle.y_mat.x = 0;  ld->side[1]->middle.y_mat.y = 1;
 
 	ld->frontsector = ld->side[0]->sector;
-	ld->backsector  = ld->side[1]->sector;
+	ld->backsector = ld->side[1]->sector;
 
 	P_ComputeGaps(ld);
 }
 
 static void AddLinedef(int *l_index, int *s_index,
-		int sx, int sy, int ex, int ey, int f_sec, int b_sec,
-		int f_door, int f_dx, int f_dy, bool count_only)
+	int sx, int sy, int ex, int ey, int f_sec, int b_sec,
+	int f_door, int f_dx, int f_dy, bool count_only)
 {
 	line_t *ld = NULL;
 	side_t *sd = NULL;
@@ -649,7 +641,7 @@ static void AddLinedef(int *l_index, int *s_index,
 
 	int vertical = (sx == ex) ? 1 : 0;
 
-	if (! count_only)
+	if (!count_only)
 	{
 		SYS_ASSERT(0 <= (*l_index) && (*l_index) < numlines);
 		SYS_ASSERT(0 <= (*s_index) && (*s_index) < numsides);
@@ -679,7 +671,7 @@ static void AddLinedef(int *l_index, int *s_index,
 
 	// check for door itself
 	door = (f_door > 0 && f_sec > 0 && (f_door & 1) == vertical &&
-			ex - sx >= 0 && ey - sy >= 0);
+		ex - sx >= 0 && ey - sy >= 0);
 	if (door)
 	{
 		(*l_index)++;
@@ -700,8 +692,8 @@ static void AddLinedef(int *l_index, int *s_index,
 		ld[1].v1 = ld[0].v2;
 		ld[1].v2 = WF_GetVertex(ex, ey);
 
-		MakeOneSided(ld+0, sd+0, f_sec, 0, vertical ? "DOORJAMV" : "DOORJAMH");
-		MakeOneSided(ld+1, sd+1, f_sec, 0, vertical ? "DOORJAMV" : "DOORJAMH");
+		MakeOneSided(ld + 0, sd + 0, f_sec, 0, vertical ? "DOORJAMV" : "DOORJAMH");
+		MakeOneSided(ld + 1, sd + 1, f_sec, 0, vertical ? "DOORJAMV" : "DOORJAMH");
 
 		// door jam overrides
 		return;
@@ -721,9 +713,9 @@ static void AddLinedef(int *l_index, int *s_index,
 			ld->v1 = GetDoorVertex(f_dx, f_dy, 1);
 		}
 
-    int door_kind = (f_door >> 1) & 7;
+		int door_kind = (f_door >> 1) & 7;
 
-		ld->special = linetypes.Lookup(10+door_kind);
+		ld->special = linetypes.Lookup(10 + door_kind);
 
 		if (door_kind == 5)
 			MakeTwoSided(ld, sd, f_sec, f_sec, vertical ? "ELVDOORV" : "ELVDOORH");
@@ -749,40 +741,40 @@ static void AddLinedef(int *l_index, int *s_index,
 
 	// determine texture on wall
 	int back_kind;
-  int front_kind;
+	int front_kind;
 
 	if (vertical)
 	{
-    back_kind  = (sx <= 0) ? -1 : wlf_map_tiles[M_INDEX(sx-1, sy)];
+		back_kind = (sx <= 0) ? -1 : wlf_map_tiles[M_INDEX(sx - 1, sy)];
 		front_kind = (sx >= WLFMAP_W) ? -1 : wlf_map_tiles[M_INDEX(sx, ey)];
 	}
 	else
 	{
-    back_kind  = (sy <= 0) ? -1 : wlf_map_tiles[M_INDEX(ex, sy-1)];
-    front_kind = (sy >= WLFMAP_H) ? -1 : wlf_map_tiles[M_INDEX(sx, sy)];
+		back_kind = (sy <= 0) ? -1 : wlf_map_tiles[M_INDEX(ex, sy - 1)];
+		front_kind = (sy >= WLFMAP_H) ? -1 : wlf_map_tiles[M_INDEX(sx, sy)];
 	}
 
-  if (ex > sx || ey < sy)
-  {
-    int tmp = back_kind;
-    back_kind = front_kind;
-    front_kind = tmp;
-  }
+	if (ex > sx || ey < sy)
+	{
+		int tmp = back_kind;
+		back_kind = front_kind;
+		front_kind = tmp;
+	}
 
 	if (back_kind < 1 || back_kind > 49)
 		MakeOneSided(ld, sd, f_sec, 0, "WEIRD");
 	else
-  {
-    char texname[32];
-    sprintf(texname, "WALL%03d%c", back_kind, vertical ? 'V' : 'H');
+	{
+		char texname[32];
+		sprintf(texname, "WALL%03d%c", back_kind, vertical ? 'V' : 'H');
 
-    int special = 0;
+		int special = 0;
 
-    if (back_kind == TILE_ELEVATOR)
-      special = (front_kind == TILE_SECRET_ELEV) ? 3 : 2;
+		if (back_kind == TILE_ELEVATOR)
+			special = (front_kind == TILE_SECRET_ELEV) ? 3 : 2;
 
 		MakeOneSided(ld, sd, f_sec, special, texname);
-  }
+	}
 }
 
 //
@@ -796,72 +788,72 @@ static void BuildLines(bool count_only)
 	int s_index = 0;
 
 	int x, y;
-	int f_sec,  b_sec;
+	int f_sec, b_sec;
 	int f_door, b_door;
 
 	// first check the horizontal lines
-	for (y=0; y <= WLFMAP_H; y++)
+	for (y = 0; y <= WLFMAP_H; y++)
 	{
-		for (x=0; x < WLFMAP_W; x++)
+		for (x = 0; x < WLFMAP_W; x++)
 		{
-			f_sec = (y <= 0) ? 0 : sector_matrix[M_INDEX(x,y-1)];
-			b_sec = (y >= WLFMAP_H) ? 0 : sector_matrix[M_INDEX(x,y)];
+			f_sec = (y <= 0) ? 0 : sector_matrix[M_INDEX(x, y - 1)];
+			b_sec = (y >= WLFMAP_H) ? 0 : sector_matrix[M_INDEX(x, y)];
 
 			if (f_sec == 0 && b_sec == 0)
 				continue;
 
 			if (f_sec == b_sec)
 			{
-				wlf_seg_matrix[MP1_INDEX(x,y) * 2 + 0] = f_sec;
+				wlf_seg_matrix[MP1_INDEX(x, y) * 2 + 0] = f_sec;
 				continue;
 			}
 
-			wlf_seg_matrix[MP1_INDEX(x,y) * 2 + 0] = -2;
+			wlf_seg_matrix[MP1_INDEX(x, y) * 2 + 0] = -2;
 
-			f_door = (y <= 0) ? 0 : door_matrix[M_INDEX(x,y-1)];
-			b_door = (y >= WLFMAP_H) ? 0 : door_matrix[M_INDEX(x,y)];
+			f_door = (y <= 0) ? 0 : door_matrix[M_INDEX(x, y - 1)];
+			b_door = (y >= WLFMAP_H) ? 0 : door_matrix[M_INDEX(x, y)];
 
 			if (f_sec == 0)
-				AddLinedef(&l_index, &s_index, x+1, y, x, y, b_sec, f_sec,
-						b_door, x, y, count_only);
+				AddLinedef(&l_index, &s_index, x + 1, y, x, y, b_sec, f_sec,
+					b_door, x, y, count_only);
 			else
-				AddLinedef(&l_index, &s_index, x, y, x+1, y, f_sec, b_sec,
-						f_door, x, y-1, count_only);
+				AddLinedef(&l_index, &s_index, x, y, x + 1, y, f_sec, b_sec,
+					f_door, x, y - 1, count_only);
 		}
 	}
 
 	// second check the vertical lines
-	for (x=0; x <= WLFMAP_W; x++)
+	for (x = 0; x <= WLFMAP_W; x++)
 	{
-		for (y=0; y < WLFMAP_H; y++)
+		for (y = 0; y < WLFMAP_H; y++)
 		{
-			f_sec = (x >= WLFMAP_W) ? 0 : sector_matrix[M_INDEX(x,y)];
-			b_sec = (x <= 0) ? 0 : sector_matrix[M_INDEX(x-1,y)];
+			f_sec = (x >= WLFMAP_W) ? 0 : sector_matrix[M_INDEX(x, y)];
+			b_sec = (x <= 0) ? 0 : sector_matrix[M_INDEX(x - 1, y)];
 
 			if (f_sec == 0 && b_sec == 0)
 				continue;
 
 			if (f_sec == b_sec)
 			{
-				wlf_seg_matrix[MP1_INDEX(x,y) * 2 + 1] = f_sec;
+				wlf_seg_matrix[MP1_INDEX(x, y) * 2 + 1] = f_sec;
 				continue;
 			}
 
-			wlf_seg_matrix[MP1_INDEX(x,y) * 2 + 1] = -2;
+			wlf_seg_matrix[MP1_INDEX(x, y) * 2 + 1] = -2;
 
-			f_door = (x >= WLFMAP_W) ? 0 : door_matrix[M_INDEX(x,y)];
-			b_door = (x <= 0) ? 0 : door_matrix[M_INDEX(x-1,y)];
+			f_door = (x >= WLFMAP_W) ? 0 : door_matrix[M_INDEX(x, y)];
+			b_door = (x <= 0) ? 0 : door_matrix[M_INDEX(x - 1, y)];
 
 			if (f_sec == 0)
-				AddLinedef(&l_index, &s_index, x, y+1, x, y, b_sec, f_sec,
-						b_door, x-1, y, count_only);
+				AddLinedef(&l_index, &s_index, x, y + 1, x, y, b_sec, f_sec,
+					b_door, x - 1, y, count_only);
 			else
-				AddLinedef(&l_index, &s_index, x, y, x, y+1, f_sec, b_sec,
-						f_door, x, y, count_only);
+				AddLinedef(&l_index, &s_index, x, y, x, y + 1, f_sec, b_sec,
+					f_door, x, y, count_only);
 		}
 	}
 
-	if (! count_only)
+	if (!count_only)
 		return;
 
 	// setup linedef & sidedef arrays
@@ -873,7 +865,6 @@ static void BuildLines(bool count_only)
 	numsides = s_index;
 	max_sides = numsides + 0;
 	sides = new side_t[max_sides];
-
 }
 
 //
@@ -885,7 +876,7 @@ static void BuildLines(bool count_only)
 static void AnalyseMap(void)
 {
 	int pl_x = 0;
-  int pl_y = 0;
+	int pl_y = 0;
 
 	int ax, ay;
 
@@ -907,7 +898,7 @@ static void AnalyseMap(void)
 	marked_cur_sec = 0;
 
 	vertex_matrix = Z_New(short, (WLFMAP_W + 1) *
-			(WLFMAP_H + 1));
+		(WLFMAP_H + 1));
 	marked_cur_vert = 0;
 
 	{
@@ -937,7 +928,7 @@ static void AnalyseMap(void)
 		ay = analysis_points[num_analysis_points].y;
 
 		// check if already processed
-		if (sector_matrix[M_INDEX(ax,ay)] > 0)
+		if (sector_matrix[M_INDEX(ax, ay)] > 0)
 			continue;
 
 		// create new sector number
@@ -970,7 +961,6 @@ static void AnalyseMap(void)
 	Z_Free(wlf_seg_matrix);
 }
 
-
 //----------------------------------------------------------------------------
 
 //
@@ -986,7 +976,7 @@ static const mobjtype_c * LookupWolfObject(int obj, int *options, angle_t *angle
 	bool patrol = false;
 
 	// the player
-	if (OBJTILE_PL_STARTS <= obj && obj <= OBJTILE_PL_STARTS+3)
+	if (OBJTILE_PL_STARTS <= obj && obj <= OBJTILE_PL_STARTS + 3)
 	{
 		*angle = FLOAT_2_ANG(((obj - OBJTILE_PL_STARTS) ^ 1) * 90);
 
@@ -995,68 +985,68 @@ static const mobjtype_c * LookupWolfObject(int obj, int *options, angle_t *angle
 
 	// static items
 	if (23 <= obj && obj <= 97)
-	{ }
-  else
-  {
-    // these only occur on hard difficulty
-    if ((180 <= obj && obj <= 195) ||
-        (198 <= obj && obj <= 213))
-    {
-      (*options) &= ~(MTF_NORMAL | MTF_EASY);
-      obj -= 72;
-    }
-    else if (252 <= obj && obj <= 259)
-    {
-      (*options) &= ~(MTF_NORMAL | MTF_EASY);
-      obj -= 36;
-    }
+	{
+	}
+	else
+	{
+		// these only occur on hard difficulty
+		if ((180 <= obj && obj <= 195) ||
+			(198 <= obj && obj <= 213))
+		{
+			(*options) &= ~(MTF_NORMAL | MTF_EASY);
+			obj -= 72;
+		}
+		else if (252 <= obj && obj <= 259)
+		{
+			(*options) &= ~(MTF_NORMAL | MTF_EASY);
+			obj -= 36;
+		}
 
-    // these only occur on medium difficulty or higher
-    if ((144 <= obj && obj <= 159) || (162 <= obj && obj <= 177))
-    {
-      (*options) &= ~MTF_EASY;
-      obj -= 36;
-    }
-    else if ((234 <= obj && obj <= 241))
-    {
-      (*options) &= ~MTF_EASY;
-      obj -= 18;
-    }
+		// these only occur on medium difficulty or higher
+		if ((144 <= obj && obj <= 159) || (162 <= obj && obj <= 177))
+		{
+			(*options) &= ~MTF_EASY;
+			obj -= 36;
+		}
+		else if ((234 <= obj && obj <= 241))
+		{
+			(*options) &= ~MTF_EASY;
+			obj -= 18;
+		}
 
-    // these enemies are patrolling versions
-    if ((112 <= obj && obj <= 115) ||
-        (120 <= obj && obj <= 123) ||
-        (130 <= obj && obj <= 133) ||
-//!!!   (138 <= obj && obj <= 141) ||
-        (220 <= obj && obj <= 223))
-    {
-      patrol = true;
-      obj -= 4;
-    }
+		// these enemies are patrolling versions
+		if ((112 <= obj && obj <= 115) ||
+			(120 <= obj && obj <= 123) ||
+			(130 <= obj && obj <= 133) ||
+			//!!!   (138 <= obj && obj <= 141) ||
+			(220 <= obj && obj <= 223))
+		{
+			patrol = true;
+			obj -= 4;
+		}
 
-    // enemies that have direction
-    if ((108 <= obj && obj <= 123) ||
-        (216 <= obj && obj <= 223))
-    {
-      *angle = FLOAT_2_ANG(((obj & 3) ^ 0) * 90);
+		// enemies that have direction
+		if ((108 <= obj && obj <= 123) ||
+			(216 <= obj && obj <= 223))
+		{
+			*angle = FLOAT_2_ANG(((obj & 3) ^ 0) * 90);
 
-      obj &= ~3;
-    }
-    else if ((126 <= obj && obj <= 141))
-    {
-      *angle = ((obj & 3) ^ 1) * 90;
+			obj &= ~3;
+		}
+		else if ((126 <= obj && obj <= 141))
+		{
+			*angle = ((obj & 3) ^ 1) * 90;
 
-      obj -= (obj - 126) & 3;
-    }
-  }
+			obj -= (obj - 126) & 3;
+		}
+	}
 
-////  if (patrol)
-////    (*options) |= MTF_MEANDER;
+	////  if (patrol)
+	////    (*options) |= MTF_MEANDER;
 
-L_WriteDebug("LOOKING FOR OBJ: %d\n", obj);
-  return mobjtypes.Lookup(obj);
+	L_WriteDebug("LOOKING FOR OBJ: %d\n", obj);
+	return mobjtypes.Lookup(obj);
 }
-
 
 extern void SpawnMapThing(const mobjtype_c *info,
 	float x, float y, float z,
@@ -1076,44 +1066,43 @@ static void AnalyseObjects(void)
 	const raw_thing_t *mt;
 	//const mobjtype_c *info;
 
-  for (y=0; y < WLFMAP_H; y++)
-  for (x=0; x < WLFMAP_W; x++)
-  {
-    int tile = wlf_map_tiles[M_INDEX(x,y)];
-    int obj  = wlf_obj_tiles[M_INDEX(x,y)];
+	for (y = 0; y < WLFMAP_H; y++)
+		for (x = 0; x < WLFMAP_W; x++)
+		{
+			int tile = wlf_map_tiles[M_INDEX(x, y)];
+			int obj = wlf_obj_tiles[M_INDEX(x, y)];
 
-    if (tile < MAPTILE_AMBUSH || obj == 0 ||
-        obj == OBJTILE_PUSHABLE)
-    {
-      continue;
-    }
+			if (tile < MAPTILE_AMBUSH || obj == 0 ||
+				obj == OBJTILE_PUSHABLE)
+			{
+				continue;
+			}
 
-    angle_t angle = 0;
+			angle_t angle = 0;
 
-    int options = MTF_EASY | MTF_NORMAL | MTF_HARD;
+			int options = MTF_EASY | MTF_NORMAL | MTF_HARD;
 
-    const mobjtype_c *info = LookupWolfObject(obj, &options, &angle);
+			const mobjtype_c *info = LookupWolfObject(obj, &options, &angle);
 
-    if (! info)
-    {
-			if (!no_warnings)
-				I_Warning("Unknown thing type %i at block (%d,%d)\n", obj, x, y);
-      continue;
-    }
+			if (!info)
+			{
+				if (!no_warnings)
+					I_Warning("Unknown thing type %i at block (%d,%d)\n", obj, x, y);
+				continue;
+			}
 
-	sector_t *sec = R_PointInSubsector(x, y)->sector;
+			sector_t *sec = R_PointInSubsector(x, y)->sector;
 
-    float tx = 64*(x) + 32;
-    float ty = 64*(y) + 32;
+			float tx = 64 * (x)+32;
+			float ty = 64 * (y)+32;
 
-    if (tile == MAPTILE_AMBUSH)
-      options |= MTF_AMBUSH;
+			if (tile == MAPTILE_AMBUSH)
+				options |= MTF_AMBUSH;
 
-	/// See if tx, ty conversion above properly converts int -> float for spawnmapthing. . .
-    SpawnMapThing(info, x, y, 0, sec, angle, options, 0);
-  }
+			/// See if tx, ty conversion above properly converts int -> float for spawnmapthing. . .
+			SpawnMapThing(info, x, y, 0, sec, angle, options, 0);
+		}
 }
-
 
 static void DumpMap(int mode)
 {
@@ -1123,14 +1112,14 @@ static void DumpMap(int mode)
 
 	L_WriteDebug("\n");
 
-	for (y=WLFMAP_H-1; y >= 0; y--)
+	for (y = WLFMAP_H - 1; y >= 0; y--)
 	{
 		linebuf[0] = 0;
 
-		for (x=0; x < WLFMAP_W; x++)
+		for (x = 0; x < WLFMAP_W; x++)
 		{
-			int tile = wlf_map_tiles[M_INDEX(x,y)];
-			int obj  = wlf_obj_tiles[M_INDEX(x,y)];
+			int tile = wlf_map_tiles[M_INDEX(x, y)];
+			int obj = wlf_obj_tiles[M_INDEX(x, y)];
 
 			if (mode == 0)
 			{
@@ -1168,7 +1157,6 @@ static void DumpMap(int mode)
 	}
 }
 
-
 // static void DoReject(void)
 //{
 	//rejectmatrix = NULL;
@@ -1182,7 +1170,7 @@ static void DoBlockMap(int lump)
 	int max_x = (int)vertexes[0].x;
 	int max_y = (int)vertexes[0].y;
 
-	for (int i=1; i < numvertexes; i++)
+	for (int i = 1; i < numvertexes; i++)
 	{
 		vec2_t *v = vertexes + i;
 
@@ -1221,28 +1209,26 @@ void WF_SetupLevel(void)
 
 	lumpnum = W_GetNumForName(currmap->lump);
 
-
 	// clear CRC values
 	mapsector_CRC.Reset();
 	mapline_CRC.Reset();
 	mapthing_CRC.Reset();
-
 
 	//wi_stats.kills = wi_stats.items = wi_stats.secret = 0;
 
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
 		player_t *p = players[pnum];
-		if (! p) continue;
+		if (!p) continue;
 
 		p->killcount = p->secretcount = p->itemcount = 0;
 		p->mo = NULL;
 	}
 
-//	wminfo.partime = 90; /// currmap->partime;
+	//	wminfo.partime = 90; /// currmap->partime;
 
-	// Initial height of PointOfView
-	// will be set by player think.
+		// Initial height of PointOfView
+		// will be set by player think.
 	players[consoleplayer1]->viewz = FLO_UNUSED;
 
 	if (consoleplayer2 >= 0)
@@ -1255,94 +1241,91 @@ void WF_SetupLevel(void)
 	numvertgaps = 0;
 	VM_BeginLevel();
 
-// <-----  COMMON TO P_SetupLevel
+	// <-----  COMMON TO P_SetupLevel
 
-//!!!!
-int mapnum;
-const char *s=M_GetParm("-wolfmap");
-if (s) mapnum = atoi(s) - 1;
-else mapnum = 0;
+	//!!!!
+	int mapnum;
+	const char *s = M_GetParm("-wolfmap");
+	if (s) mapnum = atoi(s) - 1;
+	else mapnum = 0;
 
-  // read in stuff from files
-  cur_map_num = mapnum;
-  WF_LoadMap(cur_map_num);
+	// read in stuff from files
+	cur_map_num = mapnum;
+	WF_LoadMap(cur_map_num);
 
-  // initialize lists
-  numlines = 0;       lines = NULL;
-  numsectors = 0;     sectors = NULL;
-  numsides = 0;       sides = NULL;
-  numvertexes = 0;    vertexes = NULL;
+	// initialize lists
+	numlines = 0;       lines = NULL;
+	numsectors = 0;     sectors = NULL;
+	numsides = 0;       sides = NULL;
+	numvertexes = 0;    vertexes = NULL;
 
-  // Ugh, this ain't very pretty, but it works
-  max_segs = WLFMAP_W * WLFMAP_H * 2;
+	// Ugh, this ain't very pretty, but it works
+	max_segs = WLFMAP_W * WLFMAP_H * 2;
 
-  segs = Z_New(seg_t, max_segs);
-  numsegs = 0;
+	segs = Z_New(seg_t, max_segs);
+	numsegs = 0;
 
-  nodes = Z_New(node_t, max_segs);
-  numnodes = 0;
+	nodes = Z_New(node_t, max_segs);
+	numnodes = 0;
 
-  subsectors = Z_New(subsector_t, max_segs);
-  numsubsectors = 0;
+	subsectors = Z_New(subsector_t, max_segs);
+	numsubsectors = 0;
 
-//!!!!
-DumpMap(0);
-DumpMap(1);
- I_Printf("WOLF: DumpMap 0-1 DONE..\n");
+	//!!!!
+	DumpMap(0);
+	DumpMap(1);
+	I_Printf("WOLF: DumpMap 0-1 DONE..\n");
 
-  AnalyseMap();
+	AnalyseMap();
 
-  //DoReject();
-  DoBlockMap(lumpnum + ML_BLOCKMAP);
+	//DoReject();
+	DoBlockMap(lumpnum + ML_BLOCKMAP);
 
-///  WF_FreeMap();
-
+	///  WF_FreeMap();
 
 #if 0
   // if deathmatch, randomly spawn the active players
-  if (deathmatch)
-  {
-    for (p = players; p; p = p->next)
-    {
-      if (p->in_game)
-      {
-        p->mo = NULL;
-        G_DeathMatchSpawnPlayer(p);
-        if (p->level_init)
-          p->level_init(p, p->data);
-      }
-    }
-  }
+	if (deathmatch)
+	{
+		for (p = players; p; p = p->next)
+		{
+			if (p->in_game)
+			{
+				p->mo = NULL;
+				G_DeathMatchSpawnPlayer(p);
+				if (p->level_init)
+					p->level_init(p, p->data);
+			}
+		}
+	}
 #endif
 
+	// ----->  COMMON TO P_SetupLevel
 
-// ----->  COMMON TO P_SetupLevel
-
-	//SetupExtrafloors();
-	//SetupWallTiles();
-	//SetupVertGaps();
+		//SetupExtrafloors();
+		//SetupWallTiles();
+		//SetupVertGaps();
 
 	GroupLines();
-//	{
-//		int j;
-////		for (j=0; j < numsectors; j++)
-//			P_RecomputeTilesInSector(sectors + j);
-//	}
+	//	{
+	//		int j;
+	////		for (j=0; j < numsectors; j++)
+	//			P_RecomputeTilesInSector(sectors + j);
+	//	}
 
 	R_ComputeSkyHeights();
 
 	// compute sector and line gaps
-	for (int j=0; j < numsectors; j++)
+	for (int j = 0; j < numsectors; j++)
 		P_RecomputeGapsAroundSector(sectors + j);
 
-    G_ClearBodyQueue();
+	G_ClearBodyQueue();
 
 	// -AJA- 1999/10/21: Clear out player starts (ready to load).
 	G_ClearPlayerStarts();
 
-// ---!!--- difference from P_SetupLevel
-     AnalyseObjects();
-
+	// ---!!--- difference from P_SetupLevel
+	AnalyseObjects();
 
 	// set up world state
 	P_SpawnSpecials1();//P_SpawnSpecials(0);
@@ -1362,4 +1345,3 @@ DumpMap(1);
 
 	level_active = true;
 }
-
