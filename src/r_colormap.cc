@@ -100,7 +100,9 @@ void V_InitPalette(void)
 
 	const byte *pal = (const byte*)W_CacheLumpName("PLAYPAL");
 
-	const byte *rotpal = (const byte*)W_CacheLumpName("PAL");
+	const byte *rotpal = 0;
+	if (rott_mode)
+		rotpal = (const byte*)W_CacheLumpName("PAL");
 
 	max_file = W_GetNumFiles();
 	pal_lump = -1;
