@@ -65,7 +65,7 @@
 
 //#include "games/rott/rott_local.h" //RISE OF THE TRIAD
 //#include "games/rott/rott_structs.h" //RISE OF THE TRIAD
-#include "games/rott/rott_types.h" //RISE OF THE TRIAD
+//#include "games/rott/rott_types.h" //RISE OF THE TRIAD
 
 
 
