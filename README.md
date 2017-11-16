@@ -5,6 +5,8 @@ Welcome to hyper3DGE!
 
 ![](https://ci.appveyor.com/api/projects/status/ghevag13p9ue60no/branch/master?svg=true)
 
+![](https://api.travis-ci.org/3dfxdev/hyper3DGE.svg?branch=master)
+
 #### 3DGE is an advanced OpenGL source port based on the DOOM engine
 
 # (C) 2011-2017 Isotope SoftWorks & Contributors
