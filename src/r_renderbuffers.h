@@ -9,6 +9,10 @@
 #include <vector>
 #include <string>
 
+#ifndef nullptr
+#define nullptr NULL
+#endif
+
 void RGL_InitRenderBuffers();
 
 std::string RGL_ScreenQuadVertexCode();
