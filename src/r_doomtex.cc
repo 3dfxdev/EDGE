@@ -209,12 +209,12 @@ static bool CheckIfRottFlat(epi::file_c &file)
 {
 	if (file.GetLength() < 9) return false;
 
-	WORD header[2];
+	uint16_t header[2];
 	file.Seek(0, SEEK_SET);
 	file.Read(header, 4);
 
-	WORD Width = EPI_LE_U16(header[0]);
-	WORD Height = EPI_LE_U16(header[1]);
+	uint16_t Width = EPI_LE_U16(header[0]);
+	uint16_t Height = EPI_LE_U16(header[1]);
 	if (file.GetLength() == Width*Height + 8)
 		return true;
 	return false;
