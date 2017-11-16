@@ -29,7 +29,6 @@ matrix:
             - libogg-dev
             - libvorbis-dev
             - libghc-zlib-dev
-            - cpuid
             - libjpeg-turbo8-dev
 
     - os: linux
@@ -51,7 +50,6 @@ matrix:
             - libogg-dev
             - libvorbis-dev
             - libghc-zlib-dev
-            - cpuid
             - libjpeg-turbo8-dev
 
     - os: linux
@@ -81,7 +79,6 @@ matrix:
             - libogg-dev
             - libvorbis-dev
             - libghc-zlib-dev
-            - cpuid
             - libjpeg-turbo8-dev
 
 before_install:
@@ -92,6 +89,12 @@ before_install:
 
 script:
   - echo ${TRAVIS_BUILD_DIR}
+  - git clone https://github.com/anrieff/libcpuid
+  - cd libcpuid
+  - ./configure
+  - make
+  - make install
+  - cd ..
   - mkdir build
   - cd build
   - cmake ${CMAKE_OPTIONS} ..
