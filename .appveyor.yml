@@ -16,10 +16,10 @@ environment:
       CONFIGURATION: Release
       TOOLSET: v141_xp
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2017"
-    - GENERATOR: "Visual Studio 14 2017"
+    - GENERATOR: "Visual Studio 15 2017"
       CONFIGURATION: Debug
       TOOLSET: v141
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2017"
 
 build_script:
   - appveyor DownloadFile http://tdgmods.net/VSLibs.7z
