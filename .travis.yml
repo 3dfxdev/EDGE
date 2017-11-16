@@ -30,6 +30,9 @@ matrix:
             - libvorbis-dev
             - libghc-zlib-dev
             - libjpeg-turbo8-dev
+            - autoconf
+            - automake
+            - libtool
 
     - os: linux
       compiler: gcc
@@ -51,12 +54,15 @@ matrix:
             - libvorbis-dev
             - libghc-zlib-dev
             - libjpeg-turbo8-dev
+            - autoconf
+            - automake
+            - libtool
 
     - os: linux
       compiler: clang
       env:
         - CLANG_VERSION=5.0
-        - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=MinSizeRel -DDYN_OPENAL=NO -DDYN_SNDFILE=NO -DDYN_MPG123=NO -DDYN_FLUIDSYNTH=NO"
+        - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=MinSizeRel"
       addons:
         apt:
           sources:
@@ -80,21 +86,26 @@ matrix:
             - libvorbis-dev
             - libghc-zlib-dev
             - libjpeg-turbo8-dev
+            - autoconf
+            - automake
+            - libtool
 
 before_install:
   - if [ -n "$GCC_VERSION" ]; then export CC="gcc-${GCC_VERSION}" CXX="g++-${GCC_VERSION}"; fi
   - if [ -n "$CLANG_VERSION" ]; then export CC="clang-${CLANG_VERSION}" CXX="clang++-${CLANG_VERSION}"; fi
   - $CC --version
   - $CXX --version
+  - git clone https://github.com/anrieff/libcpuid
+  - cd libcpuid
+  - libtoolize
+  - autoreconf --install
+  - ./configure
+  - make
+  - sudo make install
+  - cd ..
 
 script:
   - echo ${TRAVIS_BUILD_DIR}
-  - git clone https://github.com/anrieff/libcpuid
-  - cd libcpuid
-  - ./configure
-  - make
-  - make install
-  - cd ..
   - mkdir build
   - cd build
   - cmake ${CMAKE_OPTIONS} ..
