@@ -27,7 +27,7 @@ matrix:
       compiler: gcc
       env:
         - GCC_VERSION=7
-	- CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Debug"
+        - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Debug"
       addons:
         apt:
           sources:
