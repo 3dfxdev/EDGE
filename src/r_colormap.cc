@@ -98,11 +98,13 @@ void V_InitPalette(void)
 	int t, i, r, g, b, max_file, pal_lump;
 	wadtex_resource_c WT;
 
-	const byte *pal = (const byte*)W_CacheLumpName("PLAYPAL");
-
+	const byte *pal = 0;
 	const byte *rotpal = 0;
+
 	if (rott_mode)
 		rotpal = (const byte*)W_CacheLumpName("PAL");
+	else
+		pal = (const byte*)W_CacheLumpName("PLAYPAL");
 
 	max_file = W_GetNumFiles();
 	pal_lump = -1;
