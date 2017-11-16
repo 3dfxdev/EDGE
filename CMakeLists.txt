@@ -432,5 +432,5 @@ if (WIN32)
 		opengl32
 	)
 else()
-	target_link_libraries(3DGE GL)
+	target_link_libraries(3DGE GLEW GL)
 endif()
