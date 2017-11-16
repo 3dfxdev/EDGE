@@ -23,7 +23,7 @@ matrix:
             - g++-4.9
             - libsdl2-dev
             - libphysfs-dev
-            - libsdl-net1.2-dev
+            - libsdl2-net-dev
             - libglew-dev
             - libpng++-dev
             - libogg-dev
@@ -45,7 +45,7 @@ matrix:
             - g++-7
             - libsdl2-dev
             - libphysfs-dev
-            - libsdl-net1.2-dev
+            - libsdl2-net-dev
             - libglew-dev
             - libpng++-dev
             - libogg-dev
@@ -75,7 +75,7 @@ matrix:
             - libfluidsynth-dev
             - libgtk-3-dev
             - libphysfs-dev
-            - libsdl-net1.2-dev
+            - libsdl2-net-dev
             - libglew-dev
             - libpng++-dev
             - libogg-dev
