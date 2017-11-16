@@ -677,7 +677,7 @@ void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera)
 	int sceneWidth = xy[2] - xy[0];
 	int sceneHeight = xy[3] - xy[1];
 
-	auto renderbuffers = FGLRenderBuffers::Instance();
+	FGLRenderBuffers* renderbuffers = FGLRenderBuffers::Instance();
 
 	if (!no_render_buffers /*&& RGL_GL3Enabled()*/ && !splitscreen_mode && renderbuffers->Setup(SCREENWIDTH, SCREENHEIGHT, sceneWidth, sceneHeight))
 	{

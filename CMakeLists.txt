@@ -5,6 +5,8 @@ project(3DGE)
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
 	set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT ${CMAKE_CXX_FLAGS} /arch:SSE2" )
+else()
+	set ( CMAKE_CXX_FLAGS "-std=gnu++11 ${CMAKE_CXX_FLAGS}" )
 endif()
 
 add_definitions(
