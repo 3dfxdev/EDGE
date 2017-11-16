@@ -3,6 +3,8 @@ Welcome to hyper3DGE!
 
 ![](http://a.fsdn.com/con/app/proj/edge2/screenshots/327069.jpg)
 
+![](https://ci.appveyor.com/api/projects/status/ghevag13p9ue60no/branch/master?svg=true)
+
 #### 3DGE is an advanced OpenGL source port based on the DOOM engine
 
 # (C) 2011-2017 Isotope SoftWorks & Contributors
@@ -14,6 +16,7 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
 ## Build System for 3DGE
 ---
+![](https://ci.appveyor.com/api/projects/status/ghevag13p9ue60no/branch/master?svg=true)
 To build 3DGE, please see the [build guides](https://github.com/3dfxdev/hyper3DGE/tree/master/build_guide) and choose
 based on your platform and compiler. They are step-by-step guides
 in order to lessen the amount of fumbling around that was previously
