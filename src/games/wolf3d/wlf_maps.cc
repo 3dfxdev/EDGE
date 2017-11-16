@@ -43,8 +43,11 @@
 #include "../../z_zone.h"
 #include "../../vm_coal.h"
 
+namespace
+{
 const char *wlf_extension = "maphead.wl6";
 const char *wlf_maptemp = "maptemp.wl6";
+}
 
 u16_t *wlf_map_tiles;
 u16_t *wlf_obj_tiles;
@@ -246,3 +249,5 @@ void WF_InitMaps(void)
 	WF_LoadMap(0);  // !!!! TEST
 	//TinyBSP();
 }
+
+
