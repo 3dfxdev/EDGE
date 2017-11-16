@@ -25,7 +25,7 @@ matrix:
             - libphysfs-dev
             - libsdl-net1.2-dev
             - libglew-dev
-            - libpng16-dev
+            - libpng++-dev
             - libogg-dev
             - libvorbis-dev
             - libghc-zlib-dev
@@ -47,7 +47,7 @@ matrix:
             - libphysfs-dev
             - libsdl-net1.2-dev
             - libglew-dev
-            - libpng16-dev
+            - libpng++-dev
             - libogg-dev
             - libvorbis-dev
             - libghc-zlib-dev
@@ -77,7 +77,7 @@ matrix:
             - libphysfs-dev
             - libsdl-net1.2-dev
             - libglew-dev
-            - libpng16-dev
+            - libpng++-dev
             - libogg-dev
             - libvorbis-dev
             - libghc-zlib-dev
