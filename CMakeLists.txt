@@ -402,6 +402,8 @@ add_executable(3DGE
 	${3DGE_SOURCES}
 )
 
+add_dependencies( 3DGE revision_check eecrashreport )
+
 target_link_libraries(3DGE
 	${SDL2MAIN_LIBRARY}
 	${SDL2_LIBRARY}
