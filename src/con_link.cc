@@ -67,7 +67,7 @@ extern cvar_c r_colormaterial, r_colorlighting;
 extern cvar_c r_dumbsky, r_dumbmulti, r_dumbcombine, r_dumbclamp;
 extern cvar_c r_nearclip, r_farclip, r_fadepower;
 extern cvar_c r_fov, r_zoomfov, r_aspect;
-extern cvar_c r_mipmapping, r_smoothing, r_anisotropy;
+extern cvar_c r_mipmapping, r_smoothing, r_anisotropy;// , r_anisotropyval;
 extern cvar_c r_dithering, r_hq2x;
 extern cvar_c r_dynlight, r_invultex;
 extern cvar_c r_gamma, r_detaillevel;
@@ -196,6 +196,8 @@ cvar_link_t  all_cvars[] =
 	{ "r_precache_sprite", &r_precache_sprite, "c", "1" },
 	{ "r_precache_model",  &r_precache_model,  "c", "1" },
 
+	{ "r_anisotropy",	&r_anisotropy,			"c",   "1" },
+	//{ "r_anisotropyval",	&r_anisotropyval,			"c",   "0.0" },
 	{ "r_colormaterial",&r_colormaterial, "",   "1"  },
 	{ "r_colorlighting",&r_colorlighting, "",   "1"  },
 	{ "r_dumbsky",      &r_dumbsky,       "",   "0"  },
