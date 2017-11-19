@@ -46,6 +46,8 @@
 #include <physfs.h>
 #endif
 
+#include <iostream>
+
 #include "../epi/exe_path.h"
 #include "../epi/file.h"
 #include "../epi/filesystem.h"
@@ -997,6 +999,7 @@ void InitDirectories(void)
 // Kept freedoom.wad for backward compatibility
 // 2016/02/07: Added Darkwar.wad for ROTT
 const char *wadname[] = { "doom2", "doom","hyper", "plutonia", "tnt", "hacx", "heretic", "freedoom", "freedm", "chex", "freedoom1", "freedoom2", "darkwar", "slave", NULL };
+uint32_t wadflags[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1 };
 
 static void IdentifyVersion(void)
 {
@@ -1026,7 +1029,6 @@ static void IdentifyVersion(void)
 	std::string pak_par;
 	std::string pak_file;
 	std::string pak_dir;
-
 
 	const char *s = M_GetParm("-iwad");
 
@@ -1163,6 +1165,42 @@ static void IdentifyVersion(void)
 		{
 			location = (i == 0 ? iwad_dir.c_str() : game_dir.c_str());
 
+			if (!M_GetParm("-iwad"))
+			{
+				uint8_t foundNum = 0;
+				char input[40];
+				std::cout << "0. Default\n";
+
+				for (int w_idx = 0; wadname[w_idx]; w_idx++)
+				{
+					std::string fn(epi::PATH_Join(location, wadname[w_idx]));
+					fn += ("." EDGEWADEXT);
+
+					if (epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
+					{
+						foundNum++;
+						std::cout << (int)foundNum << ". " << wadname[w_idx] << "\n";
+						wadflags[w_idx] |= 1;
+					}
+				}
+				std::cin >> input;
+				if (atoi(input) != 0)
+				{
+					foundNum = 0;
+					for (int w_idx = 0; wadname[w_idx]; w_idx++)
+					{
+						if (wadflags[w_idx] & 1)
+						{
+							foundNum++;
+							if (atoi(input) != foundNum)
+								wadflags[w_idx] |= 2;
+						}
+						else
+							wadflags[w_idx] |= 2;
+					}					
+				}
+			}
+
 			//
 			// go through the available wad names constructing an access
 			// name for each, adding the file if they exist.
@@ -1177,8 +1215,9 @@ static void IdentifyVersion(void)
 
 					fn += ("." EDGEWADEXT);
 
+				std::cout << wadname[w_idx] << " " << wadflags[w_idx] << "\n";
 
-				if (epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
+				if (!(wadflags[w_idx] & 2) && (epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ)))
 				{
 					// next two lines check for Heretic mode, and set it to true
 					if (stricmp(wadname[w_idx], "heretic") == 0)
