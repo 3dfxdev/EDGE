@@ -207,7 +207,7 @@ static char JoyDevs[] = "None/1/2/3/4/5/6";
 static char DLMode[] = "Off/On";
 static char JpgPng[] = "JPEG/PNG";  // basic on/off
 static char AAim[] = "Off/On/Mlook";
-static char MipMaps[] = "None/Bilinear/Trilinear"; ///CA - Renamed for better understanding of what they are changing
+static char MipMaps[] = "None/Bilinear/Trilinear/Anisotropic"; ///CA - Renamed for better understanding of what they are changing
 static char Anisotropy[] = "Off/On";
 static char Details[] = "Low/Medium/High";
 static char Hq2xMode[] = "Off/UI Only/UI & Sprites/All";
@@ -425,8 +425,8 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch,  "Smoothing",     YesNo, 2, &var_smoothing, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "H.Q.2x Scaling", Hq2xMode, 4, &hq2x_scaling, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Detail Level",   Details,  3, &detail_level, M_ChangeMipMap, NULL},
-	{OPT_Switch,  "Texture Filtering",     MipMaps,  3, &var_mipmapping, M_ChangeMipMap, NULL},
-	{OPT_Switch,  "Texture Anisotropy",  Anisotropy,  2,  &r_anisotropy, NULL, "Experimental"},
+	{OPT_Switch,  "Texture Filtering",     MipMaps,  4, &var_mipmapping, M_ChangeMipMap, NULL},
+	{OPT_Switch,  "Texture Anisotropy Value",  Anisotropy,  2,  &r_anisotropy, NULL, "Experimental filtering"},
 	{OPT_Boolean, "Show Disk Icon",  YesNo, 1, &m_diskicon, NULL, NULL},
 	//{OPT_Slider,  "HUD Text Scale",  HudT,  20,  &r_textscale, NULL, "Experimental"},
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },

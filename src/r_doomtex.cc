@@ -326,19 +326,21 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 		// copy the pixels, remapping any TRANS_PIXEL values
 		for (; count > 0; count--, src++, top++)
 		{
-			if (*src == TRANS_PIXEL)
+			if (r_transfix.d > 0)
 			{
-				I_Debugf("DoomTex: Remapping trans_pixel 247 -> pal_black\n");
+				//I_Printf("DoomTex: No transparent pixel remapping mode ENABLED\n");
+				dest[(h1 - 1 - top) * w2] = *src;
+			}
+
+			if ((r_transfix.d == 0) && (*src == TRANS_PIXEL))
+			{
+				//I_Debugf("DoomTex: Remapping trans_pixel 247 -> pal_black\n");
 				dest[(h1 - 1 - top) * w2] = TRANS_REPLACE;
 			}
 			else
 				dest[(h1 - 1 - top) * w2] = *src;
 
-			if (r_transfix.d > 0)
-			{
-				I_Printf("DoomTex: No transparent pixel remapping mode ENABLED\n");
-				dest[(h1 - 1 - top) * w2] = *src;
-			}
+			
 		}
 
 		patchcol = (const column_t *)((const byte *)patchcol +
@@ -388,18 +390,20 @@ static void DrawROTTColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 		for (; count > 0; count--, src++, top++)
 		{
 			if (*src == TRANS_PIXEL)
+
+				if (r_transfix.d > 0)
+				{
+					//I_Printf("DoomTex: No transparent pixel remapping mode ENABLED\n");
+					dest[(h1 - 1 - top) * w2] = *src;
+				}
+				else if (r_transfix.d == 0)
 			{
-				I_Debugf("DoomTex: Remapping trans_pixel 247 -> pal_black\n");
+				//I_Debugf("DoomTex: Remapping trans_pixel 247 -> pal_black\n");
 				dest[(h1 - 1 - top) * w2] = TRANS_REPLACE;
 			}
-			else
+				else
 				dest[(h1 - 1 - top) * w2] = *src;
 
-			if (r_transfix.d > 0)
-			{
-				I_Printf("DoomTex: No transparent pixel remapping mode ENABLED\n");
-				dest[(h1 - 1 - top) * w2] = *src;
-			}
 		}
 
 		patchcol = (const column_t *)((const byte *)patchcol +
@@ -623,15 +627,6 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 	for (int x = 0; x < rim->actual_w; x++)
 	{
 		int offset = EPI_LE_S32(realpatch->columnofs[x]);
-		//int offset;
-#if 0
-		if (rott_mode)
-		{
-			int offset = EPI_LE_U16(rottpatch->columnofs[x]);
-			I_Printf("ROTT_MODE: Offset set to EPI_LE_U16 for realpatch->columnofs\n");
-
-
-#endif // 0
 
 			if (offset < 0 || offset >= realsize)
 			{

@@ -197,6 +197,8 @@ int var_mipmapping = 1;
 
 int var_smoothing = 1;
 
+int var_anisotropic = 1;
+
 bool var_dithering = false;
 
 int hq2x_scaling = 1;
@@ -1600,8 +1602,10 @@ bool W_InitImages(void)
 		var_mipmapping = 1;
 	else if (M_CheckParm("-trilinear"))
 		var_mipmapping = 2;
+	else if (M_CheckParm("-aafilter"))
+		var_mipmapping = 3;
 
-	M_CheckBooleanParm("dither", &var_dithering, false);
+	//M_CheckBooleanParm("dither", &var_dithering, false);
 
 	W_CreateDummyImages();
 
