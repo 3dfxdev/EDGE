@@ -65,7 +65,9 @@ int ff_intensity[MAXPLAYERS];
 int ff_timeout[MAXPLAYERS];
 
 int ff_rumble[MAXPLAYERS];
+#ifndef MACOSX
 struct ff_effect effect[MAXPLAYERS];
+#endif // !MACOSX
 
 #ifdef USE_FLTK
 
