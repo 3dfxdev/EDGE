@@ -575,7 +575,7 @@ bool W_CheckSpritesExist(const state_group_t& group)
 			if (states[i].sprite == SPR_NULL)
 				continue;
 
-			if (sprites[states[i].sprite]->frames > 0)
+			if (sprites[states[i].sprite]->frames != NULL)
 				return true;
 
 			// -AJA- only check one per group.  It _should_ check them all,

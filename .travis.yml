@@ -57,8 +57,19 @@ matrix:
             - autoconf
             - automake
             - libtool
+            
+    - os: osx
+      osx_image: xcode9.1
+      env:
+        # CMake has some issues locating SDL2 library installed by Homebrew 
+        - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release -DSDL2_LIBRARY=/usr/local/lib/libSDL2.dylib"
 
 before_install:
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+      brew update;
+      brew install glew jpeg-turbo physfs png++ sdl2_net libvorbis;
+      ln -s /usr/local/bin/glibtoolize /usr/local/bin/libtoolize;
+    fi
   - if [ -n "$GCC_VERSION" ]; then export CC="gcc-${GCC_VERSION}" CXX="g++-${GCC_VERSION}"; fi
   - if [ -n "$CLANG_VERSION" ]; then export CC="clang-${CLANG_VERSION}" CXX="clang++-${CLANG_VERSION}"; fi
   - $CC --version

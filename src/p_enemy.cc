@@ -528,7 +528,7 @@ void P_FreeShootSpots(void)
 	if (brain_spots.number < 0)
 		return;
 
-	if (brain_spots.targets > 0)
+	if (brain_spots.targets != NULL)
 	{
 		SYS_ASSERT(brain_spots.targets);
 
