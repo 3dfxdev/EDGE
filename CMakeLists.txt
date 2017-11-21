@@ -14,12 +14,17 @@ add_definitions(
 	-DHAVE_PHYSFS
 )
 # Removed HAVE_STDINT_H on Visual Studio/Win32 machines (Caused problems, so I Shoved it into UNIX define)
-if(UNIX)
+if(APPLE)
+	add_definitions(
+		-DMACOSX
+		-DHAVE_STDINT_H
+	)
+elseif(UNIX)
 	add_definitions(
 		-DLINUX
 		-DHAVE_STDINT_H
 	)
-endif(UNIX)
+endif()
 
 # Module Paths
 #list(APPEND CMAKE_MODULE_PATH
@@ -384,6 +389,13 @@ set(3DGE_DREAMCAST_SOURCES
 	src/i_main.cc
 )
 
+if (APPLE)
+	set(3DGE_UNIX_SOURCES
+		${3DGE_UNIX_SOURCES}
+		src/system/unx/mac/mac_ui.mm
+	)
+endif()
+
 add_subdirectory( tools )
 
 if(WIN32)
@@ -431,6 +443,8 @@ if (WIN32)
 		gdi32
 		opengl32
 	)
+elseif(APPLE)
+	set_target_properties(3DGE PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa")
 else()
 	target_link_libraries(3DGE GLEW GL)
 endif()

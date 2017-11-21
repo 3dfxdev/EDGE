@@ -35,6 +35,8 @@
 #define strcasecmp _stricmp
 #define uint unsigned int
 #pragma warning( disable : 4099)
+#elif defined MACOSX
+typedef unsigned int uint;
 #endif
 
 
