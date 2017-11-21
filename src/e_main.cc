@@ -999,7 +999,7 @@ void InitDirectories(void)
 // Kept freedoom.wad for backward compatibility
 // 2016/02/07: Added Darkwar.wad for ROTT
 const char *wadname[] = { "doom2", "doom","hyper", "plutonia", "tnt", "hacx", "heretic", "freedoom", "freedm", "chex", "freedoom1", "freedoom2", "darkwar", "slave", NULL };
-uint32_t wadflags[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1 };
+uint32_t wadflags[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255 };
 
 static void IdentifyVersion(void)
 {
