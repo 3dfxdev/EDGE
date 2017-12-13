@@ -42,7 +42,7 @@
 #define DAMAGE_ADD_MIN  3
 #define DAMAGE_LIMIT  100
 
-
+extern cvar_c m_tactile;
 bool var_obituaries = true;
 
 
@@ -1168,6 +1168,7 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 
         int temp = damage < DAMAGE_LIMIT ? damage : DAMAGE_LIMIT;
 
+		if (m_tactile.d > 0)
 		I_Tactile(5, (1 + (temp >> 4)) * 10, player->pnum);
 	}
 
