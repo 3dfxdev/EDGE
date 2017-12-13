@@ -46,6 +46,8 @@ int graphics_shutdown = 0;
 
 cvar_c in_grab;
 
+cvar_c r_swapinterval;
+
 static bool grab_state;
 
 static int display_W, display_H;
@@ -191,27 +193,16 @@ SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
         return;
     }
 
-/* 	Some systems allow specifying -1 for the interval,
-	to enable late swap tearing. Late swap tearing works
-	the same as vsync, but if you've already missed the
-	vertical retrace for a given frame, it swaps buffers
-	immediately, which might be less jarring for the user
-	during occasional framerate drops. If application
-	requests late swap tearing and the system does not support
-	it, this function will fail and return -1. In such a case,
-	you should probably retry the call with 1 for the interval. */
-
-	if (r_vsync.d == 1)
-		SDL_GL_SetSwapInterval(1);
-	else
-		SDL_GL_SetSwapInterval(-1);
 
 	// add fullscreen modes
 	int nummodes = SDL_GetNumDisplayModes(0); // for now just assume display #0
+
 	for (int i=0; i<nummodes; i++)
 	{
 		SDL_DisplayMode mode;
+
 		memset(&mode, 0, sizeof(mode));
+
 		if (SDL_GetDisplayMode(0, i, &mode) == 0)
 		{
 			scrmode_c scr_mode;
@@ -335,18 +326,49 @@ void I_FinishFrame(void)
 
 	//FIXME: WIN32 relies on WGLEW, so when we go to GLAD, make sure to generate a WGL_GLAD header to compensate.
 	//       I wonder if SDL_GL_SwapWindow will work under Win32 without WGLEW extensions. hmmm.
-	#ifdef WIN32
+#ifdef WIN32
 	if (WGLEW_EXT_swap_control)
 	{
 		if (r_vsync.d > 0)
 			glFinish();
+
 		wglSwapIntervalEXT(r_vsync.d != 0);
 	}
-	#endif
+#endif
+
+	/* 	Some systems allow specifying -1 for the interval,
+	to enable late swap tearing. Late swap tearing works
+	the same as vsync, but if you've already missed the
+	vertical retrace for a given frame, it swaps buffers
+	immediately, which might be less jarring for the user
+	during occasional framerate drops. If application
+	requests late swap tearing and the system does not support
+	it, this function will fail and return -1. In such a case,
+	you should probably retry the call with 1 for the interval. */
+
+	if (r_swapinterval.d == 1)
+	{
+		// SDL-based standard
+		SDL_GL_SetSwapInterval(1);
+	}
+
+	else if (r_swapinterval.d == 2)
+	{
+		// Adaptive GL
+		wglSwapIntervalEXT(-1);
+	}
+
+	else
+		// Disabled thru SDL
+		SDL_GL_SetSwapInterval(-1);
+
+
 
 	SDL_GL_SwapWindow(my_vis);
+
 	if (r_vsync.d > 0)
 			glFinish();
+
 	if (in_grab.CheckModified())
 		I_GrabCursor(grab_state);
 
