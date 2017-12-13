@@ -400,7 +400,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 		offset_x = EPI_LE_S16(pat->leftoffset);
 		offset_y = EPI_LE_S16(pat->topoffset);
 
-#if 1
+#if 0
 		L_WriteDebug("DOOM GETINFO [%s] : size %dx%d\n", W_GetLumpName(lump), pat->width, pat->height);
 		if (rott_mode)
 		L_WriteDebug("ROTT GETINFO [%s] : size %dx%d\n", W_GetLumpName(lump), rpat->origsize, pat->width, pat->height);
@@ -444,7 +444,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	rim->offset_y = offset_y;
 
 	strcpy(rim->name, name);
-	I_Printf("IMAGE: Creating new image [%s].\n", rim->name, name);
+	//I_Printf("IMAGE: Creating new image [%s].\n", rim->name, name);
 
 	rim->source_type = type;
 	rim->source.graphic.lump = lump;
@@ -518,7 +518,11 @@ static image_c *AddImageFlat(const char *name, int lump)
 	rim = NewImage(size, size, OPAC_Solid);
 
 	strcpy(rim->name, name);
-	I_Printf("ROTT Flats: Loading %s\n", name);
+
+	if (rott_mode)
+	{
+		I_Printf("ROTT Flats: Loading %s\n", name);
+	}
 
 	rim->source_type = IMSRC_Flat;
 	rim->source.flat.lump = lump;
@@ -995,7 +999,7 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans2)
 	const colourmap_c *trans = trans2 == (const colourmap_c *)-1 ? NULL : trans2;
 
 	
-	I_Printf("LoadImageOGL: Loading \"%.*s\"\n",16,rim->name);
+	//I_Printf("LoadImageOGL: Loading \"%.*s\"\n",16,rim->name);
 	
 	if (rim->source_type == IMSRC_User)
 	{
