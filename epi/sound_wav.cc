@@ -135,6 +135,7 @@ namespace epi
 				s8_t nibble;
 			} adpcm;
 
+#if 0
 			struct
 			{
 				u8_t Description[20];
@@ -142,6 +143,8 @@ namespace epi
 				u16_t Version;
 				u16_t IDCode;
 			} VocHeader;
+
+#endif // 0
 
 
 			/* put other format-specific data here... */
@@ -829,11 +832,11 @@ namespace epi
 		u32_t header_id;
 		u32_t header_file_len;
 
-		if (!read_le_u32(f, &header_id) || header_id != ID_VOC)
-		{
-			I_Warning("WAV Loader: Not a VOC file??\n");
-			return false;// false;
-		}
+		//if (!read_le_u32(f, &header_id) || header_id != ID_VOC)
+		//{
+		//	I_Warning("WAV Loader: Not a VOC file??\n");
+			//return false;// false;
+		//}
 
 		if (!read_le_u32(f, &header_id) || header_id != ID_RIFF)
 		{
