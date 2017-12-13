@@ -58,7 +58,7 @@
 
 
 cvar_c g_aggression;
-
+cvar_c m_tactile;
 
 static int AttackSfxCat(const mobj_t *mo)
 {
@@ -1885,7 +1885,7 @@ static void DoMeleeAttack(mobj_t * mo)
 		S_StartFX(attack->sound, AttackSfxCat(mo), mo);
 
 	//CA: Halved this so the effect isn't so extreme
-	if (mo->player)
+	if ((mo->player) && (m_tactile.d > 0))
 		I_Tactile(10, (2 + (int)(damage / 4.0f)) * 5, mo->player->pnum);
 
 	float slope;

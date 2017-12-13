@@ -72,6 +72,7 @@
 int monitor_size;
 
 cvar_c m_diskicon;
+extern cvar_c m_tactile;
 extern cvar_c r_vsync;
 extern cvar_c r_lerp;
 extern cvar_c r_shadows;

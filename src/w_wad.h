@@ -54,6 +54,7 @@ typedef enum
 	FLKIND_RTLMAPS,   // Rise of the Triad DARKWAR.rtl, similar to maphead
 
 	FLKIND_HWad,      // deHacked wad
+	FLKIND_EPK,       // EDGE EPK (zip) file
 	FLKIND_PAK,       // Quake PAK
 	FLKIND_PK3,       // PK3 zip file
 	FLKIND_PK7,       // PK7 7zip file

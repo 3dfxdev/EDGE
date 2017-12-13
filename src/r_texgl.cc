@@ -56,11 +56,11 @@ static void RGL_SetAnisotropic(GLfloat aniso)
 
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
 
-		I_Debugf("OpenGL: Anisotropic filter value set to %d/n", aniso);
+		//I_Debugf("OpenGL: Anisotropic filter value set to %d/n", aniso);
 
 		if (glGetError() != GL_NO_ERROR)
 		{
-			I_Warning("Warning: Anisotropic filtering not supported by driver, using trilinear filtering.\n");
+			//I_Warning("Warning: Anisotropic filtering not supported by driver, using trilinear filtering.\n");
 			return;
 		}
 	//}
@@ -136,7 +136,7 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 
 	SYS_ASSERT(img->bpp == 3 || img->bpp == 4);
 	//DREAMCAST DEBUG
-	I_Printf("R_UploadTexture: Loading %ix%i %i bpp texture\n", img->width, img->height, img->bpp);
+	//I_Printf("R_UploadTexture: Loading %ix%i %i bpp texture\n", img->width, img->height, img->bpp);
 
 	bool clamp = (flags & UPL_Clamp) ? true : false;
 	bool nomip = (flags & UPL_MipMap) ? false : true;
@@ -185,12 +185,9 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 		smooth ? GL_LINEAR : GL_NEAREST);
 
 	// minification mode
-	int mip_level = CLAMP(0, var_mipmapping, 3);
+	int mip_level = CLAMP(0, var_mipmapping, 2);//3);
 
 	// Anisotropy
-
-
-
 
 
 	// special logic for mid-masked textures.  The UPL_Thresh flag
@@ -200,21 +197,21 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 	if (flags & UPL_Thresh)
 		mip_level = CLAMP(0, mip_level, 1);
 
-	static GLuint minif_modes[2 * 4] =
+	static GLuint minif_modes[2 * 3] =//4] =
 	{
 		GL_NEAREST,
 		GL_NEAREST_MIPMAP_NEAREST,
 		GL_NEAREST_MIPMAP_LINEAR,
-		GL_NEAREST_MIPMAP_NEAREST + GL_TEXTURE_MAX_ANISOTROPY_EXT,
+		//GL_NEAREST_MIPMAP_NEAREST + GL_TEXTURE_MAX_ANISOTROPY_EXT,
 
 		GL_LINEAR,
 		GL_LINEAR_MIPMAP_NEAREST,
 		GL_LINEAR_MIPMAP_LINEAR,
-		GL_LINEAR_MIPMAP_NEAREST + GL_TEXTURE_MAX_ANISOTROPY_EXT,
+		//GL_LINEAR_MIPMAP_NEAREST + GL_TEXTURE_MAX_ANISOTROPY_EXT,
 	};
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-		minif_modes[(smooth ? 4 : 0) +
+		minif_modes[(smooth ? 3 : 0) +
 		(nomip ? 0 : mip_level)]);
 
 	for (int mip = 0; ; mip++)
@@ -226,18 +223,21 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 			if (flags & UPL_Thresh)
 				img->ThresholdAlpha((mip & 1) ? 96 : 144);
 		}
+#if 0
 
 		if ((r_anisotropy.d > 0) && (!nomip))
 		{
 			//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropic);
-			RGL_SetAnisotropic(2.0);
-			I_Printf("OPENGL: Setting Anisotropic filtering!\n");
+			//RGL_SetAnisotropic(2.0);
+			//I_Printf("OPENGL: Setting Anisotropic filtering!\n");
 		}
 		else if ((r_anisotropy.d == 0) && (nomip))
 		{
 			//RGL_SetAnisotropic(-1);
 			//I_Printf("OPENGL: Anisotropic filtering DISABLED!\n");
 		}
+#endif // 0
+
 
 		glTexImage2D(GL_TEXTURE_2D, mip, (img->bpp == 3) ? GL_RGB : GL_RGBA,
 			new_w, new_h, 0 /* border */,

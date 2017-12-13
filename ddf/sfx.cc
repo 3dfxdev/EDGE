@@ -94,7 +94,7 @@ static void SoundStartEntry(const char *name, bool extend)
 static void SoundParseField(const char *field, const char *contents,
 	int index, bool is_last)
 {
-#if (1)
+#if (0)
 	I_Debugf("SOUND_PARSE: %s = %s;\n", field, contents);
 #endif
 
