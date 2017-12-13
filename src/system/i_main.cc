@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 #ifdef WIN32
 	// -AJA- give us a proper name in the Task Manager
 	SDL_RegisterApp(TITLE, 0, 0);
-	//I_TweakConsole();
+	I_TweakConsole();
 #endif
 
     I_CheckAlreadyRunning();
