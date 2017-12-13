@@ -42,6 +42,7 @@ extern cvar_c am_gridsize;
 
 extern cvar_c m_language;
 extern cvar_c m_diskicon, m_busywait, m_screenhud;
+extern cvar_c m_tactile; //screen shake
 extern cvar_c m_messages, m_obituaries;
 extern cvar_c m_centerem;
 extern cvar_c m_goobers;
@@ -101,7 +102,7 @@ extern cvar_c debug_fullbright, debug_hom;
 extern cvar_c debug_mouse,      debug_joyaxis;
 extern cvar_c debug_fps,        debug_pos;
 
-extern cvar_c r_lerp, r_maxfps, r_vsync;
+extern cvar_c r_lerp, r_maxfps, r_vsync, r_swapinterval;
 extern cvar_c r_shadows;
 extern cvar_c r_md5scale;
 
@@ -144,6 +145,8 @@ cvar_link_t  all_cvars[] =
 
 	{ "spriteflip",      &r_spriteflip,       "c",   "0"  },
 
+	{ "screen_shake",    &m_tactile,       "c",   "1" },
+
 	{ "shadows",         &r_shadows,          "c",   "1" },
 
 	{ "soundpitch",      &sound_pitch,         "c",    "1" },
@@ -173,7 +176,7 @@ cvar_link_t  all_cvars[] =
 	{ "camera_subdir",  &camera_subdir,  "c",   "doom_ddf/cameras" },
 
 	/* Experimental Text Scaling Stuff*/
-	{ "r_textscale",    &r_textscale,   "c",   "0.7" }, //0.7f is the default for HUD_SetScale(). Sets HUD Text Scale.
+	{ "r_textscale",    &r_textscale,   "c",   "0.7" }, //0.7f is the default for HUD_SetScale(). Sets HUD Text Scale. Dupliate for RTS tips.
 	{ "r_text_xpos",    &r_text_x,      "c",   "160" }, // THESE TWO VALUES, XPOS AND YPOS, ACTUALLY CENTER THE TEXT BY DEFAULT.
 	{ "r_text_ypos",    &r_text_y,      "c",   "3" }, // THESE TWO VALUES, XPOS AND YPOS, ACTUALLY CENTER THE TEXT BY DEFAULT.
 
@@ -196,7 +199,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_precache_sprite", &r_precache_sprite, "c", "1" },
 	{ "r_precache_model",  &r_precache_model,  "c", "1" },
 
-	{ "r_anisotropy",	&r_anisotropy,			"c",   "1" },
+	{ "r_anisotropy",	&r_anisotropy,			"c",   "0" },
 	//{ "r_anisotropyval",	&r_anisotropyval,			"c",   "0.0" },
 	{ "r_colormaterial",&r_colormaterial, "",   "1"  },
 	{ "r_colorlighting",&r_colorlighting, "",   "1"  },
@@ -205,6 +208,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_dumbcombine",  &r_dumbcombine,   "",   "0"  },
 	{ "r_dumbclamp",    &r_dumbclamp,     "",   "0"  },
 	{ "r_gl3_path",     &r_gl3_path,      "c",   "0"  },
+	{ "r_swapinterval", &r_swapinterval,  "c",   "1" },
 
 	{ "r_gpuswitch",    &r_gpuswitch,     "c",   "0"  }, // notebook optimus gpu selector
 
@@ -229,10 +233,10 @@ cvar_link_t  all_cvars[] =
 
 	{ "r_md5scale",        &r_md5scale,        "c", "0" },
 	{ "r_lerp",        &r_lerp,        "c", "1" },
-	{ "r_maxfps",        &r_maxfps,        "c", "0" },
+	{ "r_maxfps",        &r_maxfps,        "c", "0" }, //experimental. . .
 	{ "r_vsync",           &r_vsync,        "c", "0" },
 	{ "r_bloom",           &r_bloom,        "c", "1" },
-	{ "r_bloom_amount",    &r_bloom_amount, "c", "1.24" },
+	{ "r_bloom_amount",    &r_bloom_amount, "c", "1.0" },
 	{ "r_lens",		       &r_lens,			"c", "1" },
 	{ "r_fxaa",            &r_fxaa,         "c", "1" },
 

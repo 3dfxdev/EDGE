@@ -131,6 +131,7 @@ extern cvar_c r_lens;
 extern cvar_c sound_pitch;
 extern cvar_c r_stretchworld;
 extern cvar_c r_fixspritescale;
+extern cvar_c m_tactile;
 
 //extern cvar_c r_textscale; //temp hack for HUD text scaling size
 
@@ -227,7 +228,7 @@ static char SoundBits[] = "8 bit/16 bit";
 static char StereoNess[] = "Off/On/Swapped";
 static char MixChans[] = "8/16/32/64/96";
 static char QuietNess[] = "Loud (distorted)/Normal/Soft/Very Soft";
-static char MusicDevs[] = "System (see message)/Timidity/OPL";
+static char MusicDevs[] = "System/Timidity/OPL";
 static char SoundPitching[] = "Off/On";
 static char OPL[] = "OPL 1/OPL 3";
 
@@ -424,12 +425,13 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch,  "Monitor Size",  MonitSiz,  5, &monitor_size, M_ChangeMonitorSize, NULL},
 	{OPT_Switch,  "Smoothing",     YesNo, 2, &var_smoothing, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "H.Q.2x Scaling", Hq2xMode, 4, &hq2x_scaling, M_ChangeMipMap, NULL},
-	{OPT_Switch,  "Detail Level",   Details,  3, &detail_level, M_ChangeMipMap, NULL},
+	{OPT_Switch ,  "Detail Level",   Details,  3, &detail_level, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Texture Filtering",     MipMaps,  4, &var_mipmapping, M_ChangeMipMap, NULL},
-	{OPT_Switch,  "Texture Anisotropy Value",  Anisotropy,  2,  &r_anisotropy, NULL, "Experimental filtering"},
+	{OPT_Switch,  "Anisotropy Value",  Anisotropy,  2,  &r_anisotropy, NULL, "Requires restart."},
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Boolean, "Show Disk Icon",  YesNo, 1, &m_diskicon, NULL, NULL},
 	//{OPT_Slider,  "HUD Text Scale",  HudT,  20,  &r_textscale, NULL, "Experimental"},
-	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Boolean, "Screen Shake",  YesNo, 1, &m_tactile, NULL, NULL },
 	{OPT_Switch,  "Crosshair",       CrossH, 10, &menu_crosshair, M_ChangeCrossHair, NULL},
 	{OPT_Slider, "Crosshair Scale",  NULL, 15, &menu_crosshair2, M_ChangeCrossHairSize, NULL }, /// -- New Crosshair Size Slider (like Global MD5 Scale), define this in LDF!
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
@@ -437,18 +439,17 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch,  "Teleport Flash",  YesNo,   2, &telept_flash, NULL, NULL},
 	{OPT_Switch,  "Teleport Effect",  TeleEff,   3, &telept_effect, NULL, NULL},
 	{OPT_Switch,  "Wipe method",     WIPE_EnumStr, WIPE_NUMWIPES, &wipe_method, NULL, NULL},
-	{OPT_Boolean, "Screenshot Format", JpgPng, 2, &png_scrshots, NULL, NULL}
 };
 
 static optmenuitem_t advancedoptions[] =
 {
-	//{OPT_Switch, "OpenGL 3x",     YesNo, 2, &r_gl3_path, NULL, "OpenGL 3.x mode. Disable for OpenGL 1.1 renderer!"}, /// Change from GL1 to GL3
-	{OPT_Plain,   "OpenGL Path (fixed-path)",  NULL,  0,  NULL, NULL, "Currently OpenGL3 mode is broken!"},
+	{OPT_Switch, "OpenGL 3 Mode",     YesNo, 2, &r_gl3_path, NULL, "OpenGL defaults to 1.x (off)"}, /// Change from GL1 to GL3
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Switch,   "Bloom Processing",  YesNo,  2,  &r_bloom, NULL, "Toggle Bloom Shader On or Off"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Switch,   "Lens Distortion",  YesNo,  2,  &r_lens, NULL, "Toggle Lens Distortion Effect"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
-	{OPT_Boolean, "Video Sync",   Lerp,   3, &r_vsync, NULL, "Check value in console with 'r_vsync'"},
+	{OPT_Boolean, "Video Sync",   YesNo,   2, &r_vsync, NULL, "Enable VSYNC"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Switch,  "Interpolation",    YesNo,   2, &r_lerp, NULL, "Frame Prediction"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
@@ -461,7 +462,8 @@ static optmenuitem_t advancedoptions[] =
 	{OPT_Switch,  "Fix Sprite Scale", YesNo, 2,  &r_fixspritescale, NULL, "SpriteScale" }, //LDF Lookup
 
 	{OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  &var_invul_fx, NULL, "Set GodMode Rendering"},
-	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL}
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Boolean, "Screenshot Format", JpgPng, 2, &png_scrshots, NULL, NULL }
 };
 
 static optmenuitem_t debuggingoptions[] =

@@ -27,7 +27,7 @@
 #define __DOOM_STRINGS__
 
 // Misc. other strings.
-#define REQUIREDWAD    "edge2"
+#define REQUIREDWAD    "edge"
 #define REQUIREDPAK    "edge2" // this will become edge2.epk
 #define EDGECONFIGFILE "EDGE2.cfg"
 #define EDGELOGFILE    "EDGE2.log"

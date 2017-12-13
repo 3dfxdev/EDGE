@@ -1946,7 +1946,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	within_tex_list = within_hires_list = false;
 
 	// handle pak/pk3/pk7 files before default file handling
-	if ((kind == FLKIND_PAK) || (kind == FLKIND_PK3) || (kind == FLKIND_PK7))
+	if ((kind == FLKIND_PAK) || (kind == FLKIND_PK3) || (kind == FLKIND_PK7) || (kind == FLKIND_EPK))
 	{
 #ifdef HAVE_PHYSFS
 		file_info_t userData;
@@ -2603,7 +2603,8 @@ epi::file_c *W_OpenLump(int lump)
 	lumpinfo_t *l = lumpinfo + lump;
 
 	data_file_c *df = data_files[l->file];
-	I_Debugf("W_OpenLump: %d(%s)\n", lump, l->name);
+
+	//I_Debugf("W_OpenLump: %d(%s)\n", lump, l->name);
 
 	if (df->file == NULL)
 	{
@@ -2959,7 +2960,7 @@ static void W_ReadLump(int lump, void *dest)
 	// -KM- 1998/07/31 This puts the loading icon in the corner of the screen :-)
 	display_disk = true;
 
-	if ((df->kind == FLKIND_PAK) || (df->kind == FLKIND_PK3) || (df->kind == FLKIND_PK7))
+	if ((df->kind == FLKIND_PAK) || (df->kind == FLKIND_PK3) || (df->kind == FLKIND_PK7) || (df->kind == FLKIND_EPK))
 	{
 #ifdef HAVE_PHYSFS
 		// do PHSYFS read of data

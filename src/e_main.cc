@@ -965,7 +965,7 @@ void InitDirectories(void)
 	}
 	else
 	{
-	epakfile = epi::PATH_Join(home_dir.c_str(), "edge.pak");
+	epakfile = epi::PATH_Join(home_dir.c_str(), "edge.epk");
 	}
 
 	// cache directory
@@ -1219,7 +1219,7 @@ static void IdentifyVersion(void)
 
 	// Look for the required wad in the IWADs dir and then the gamedir
 
-	std::string reqwad(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT));
+	std::string reqwad(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEEPKEXT));
 
 
 	///this one will join pak files with IWAD.
@@ -1227,16 +1227,16 @@ static void IdentifyVersion(void)
 
 	if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
 	{
-		reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT);
+		reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEEPKEXT);
 
 		if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
 		{
 			I_Error("IdentifyVersion: Could not find required %s.%s!\n",
-				REQUIREDWAD, EDGEPAKEXT);
+				REQUIREDWAD, EDGEEPKEXT);
 		}
 	}
 
-	W_AddRawFilename(reqwad.c_str(), FLKIND_PAK);
+	W_AddRawFilename(reqwad.c_str(), FLKIND_EPK);
 }
 
 //WLF_EXTENSION ADDS ALL WL6 FILES ALL AT ONCE FOR WOLFENSTEIN, JUST FOR TESTING, MAYBE MAKE THIS MORE ROBUST IN THE FUTURE...?
@@ -1425,7 +1425,7 @@ static void IdentifyWolfenstein(void)
 
 	//W_AddRawFilename()
 
-	W_AddRawFilename(reqwad.c_str(), FLKIND_PAK);
+	W_AddRawFilename(reqwad.c_str(), FLKIND_EPK);
 
 	I_Printf("Wolfenstein Data is loaded and joined with 3DGE -- let's keep going!\n");
 
@@ -1593,6 +1593,8 @@ static void AddSingleCmdLineFile(const char *name)
 		kind = FLKIND_PK3;
 	else if (stricmp(ext.c_str(), "pk7") == 0) /// ~CW~ 1.8.2017 - new PK7 class file
 		kind = FLKIND_PK7;
+	else if (stricmp(ext.c_str(), "epk") == 0) /// ~CA~ 12.13.2017 - new EPK class file
+		kind = FLKIND_EPK;
 #else
 	else if (stricmp(ext.c_str(), "pak") == 0)
 		I_Error("PAK files not supported\n");
