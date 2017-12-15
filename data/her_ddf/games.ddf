@@ -10,11 +10,6 @@
 
 // HERETIC DDF code by C.J. Mullen (c_eejay@hotmail.com)
 
-// this entry is for compability with mods
-[EDGE]
-TITLE_GRAPHIC="SOLID_BLACK";
-TITLE_TIME=1T;
-
 [HERETIC]
 TITLE_GRAPHIC="TITLE","CREDIT";
 TITLE_TIME=365T;
