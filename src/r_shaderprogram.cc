@@ -85,22 +85,30 @@ void FShaderProgram::CreateShader(ShaderType type)
 //
 //==========================================================================
 
-
-#if 0
-void FShaderProgram::Compile(ShaderType type, const char *lumpName, const char *defines, int maxGlslVersion)
+void FShaderProgram::Compile(ShaderType type, const char *lumpname, const char *defines, int maxGlslVersion)
 {
-	int lump = W_CheckNumForName(lumpName, 0);
-	const char *lumpName = W_GetLumpName(lump);
+	int lump = W_CheckNumForName(lumpname, 0);
 
-	if (lump == -1) I_FatalError("Unable to load '%s'", lumpName);
+	if (lump == -1)
+		I_FatalError("RGL_GLSL: Unable to load '%s'", lumpname);
 
-	std::string code = W_LoadLumpName(lumpName, defines, maxGlslVersion);
+	epi::file_c *f = W_OpenLump(lump);
 
-	Compile(type, lumpName, code, defines, maxGlslVersion);
+	// CA: bytecode->string (pretty sure EPI has a cleaner, mem-efficient way of doing this)..
+	const byte* strcode = reinterpret_cast<const byte*>(f->LoadIntoMemory());
+
+	int len = strlen(reinterpret_cast<const char*>(strcode));
+
+	std::string code(strcode, strcode + len);
+
+	//byte *code = f->LoadIntoMemory();
+	
+	I_Printf("RGL_GLSL: Loading '%s'", lumpname);
+
+	SYS_ASSERT(code);
+
+	Compile(type, lumpname, code, defines, maxGlslVersion);
 }
-#endif // 0
-
-
 
 
 void FShaderProgram::Compile(ShaderType type, const char *name, const std::string &code, const char *defines, int maxGlslVersion)
