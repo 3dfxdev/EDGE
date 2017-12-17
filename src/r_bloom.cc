@@ -331,10 +331,10 @@ void FBloomExtractShader::Bind()
 {
 	if (!mShader)
 	{
-		mShader.Compile(FShaderProgram::Vertex, "shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 330);
-		mShader.Compile(FShaderProgram::Fragment, "shaders/glsl/bloomextract.fp", RGL_BloomExtractFragmentCode(), "", 330);
+		mShader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 330);
+		mShader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/bloomextract.fp", RGL_BloomExtractFragmentCode(), "", 330);
 		mShader.SetFragDataLocation(0, "FragColor");
-		mShader.Link("shaders/glsl/bloomextract");
+		mShader.Link("pack0/shaders/glsl/bloomextract");
 		mShader.SetAttribLocation(0, "PositionInProjection");
 		mShader.SetAttribLocation(1, "UV");
 		SceneTexture.Init(mShader, "SceneTexture");
@@ -349,10 +349,10 @@ void FBloomCombineShader::Bind()
 {
 	if (!mShader)
 	{
-		mShader.Compile(FShaderProgram::Vertex, "shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 330);
-		mShader.Compile(FShaderProgram::Fragment, "shaders/glsl/bloomcombine.fp", RGL_BloomCombineFragmentCode(), "", 330);
+		mShader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 330);
+		mShader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/bloomcombine.fp", RGL_BloomCombineFragmentCode(), "", 330);
 		mShader.SetFragDataLocation(0, "FragColor");
-		mShader.Link("shaders/glsl/bloomcombine");
+		mShader.Link("pack0/shaders/glsl/bloomcombine");
 		mShader.SetAttribLocation(0, "PositionInProjection");
 		mShader.SetAttribLocation(1, "UV");
 		BloomTexture.Init(mShader, "Bloom");
@@ -364,10 +364,10 @@ void FExposureExtractShader::Bind()
 {
 	if (!mShader)
 	{
-		mShader.Compile(FShaderProgram::Vertex, "shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 330);
-		mShader.Compile(FShaderProgram::Fragment, "shaders/glsl/exposureextract.fp", RGL_ExposureExtractFragmentCode(), "", 330);
+		mShader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 330);
+		mShader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/exposureextract.fp", RGL_ExposureExtractFragmentCode(), "", 330);
 		mShader.SetFragDataLocation(0, "FragColor");
-		mShader.Link("shaders/glsl/exposureextract");
+		mShader.Link("pack0/shaders/glsl/exposureextract");
 		mShader.SetAttribLocation(0, "PositionInProjection");
 		mShader.SetAttribLocation(1, "UV");
 		SceneTexture.Init(mShader, "SceneTexture");
@@ -381,10 +381,10 @@ void FExposureAverageShader::Bind()
 {
 	if (!mShader)
 	{
-		mShader.Compile(FShaderProgram::Vertex, "shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 400);
-		mShader.Compile(FShaderProgram::Fragment, "shaders/glsl/exposureaverage.fp", RGL_ExposureAverageFragmentCode(), "", 400);
+		mShader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 400);
+		mShader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/exposureaverage.fp", RGL_ExposureAverageFragmentCode(), "", 400);
 		mShader.SetFragDataLocation(0, "FragColor");
-		mShader.Link("shaders/glsl/exposureaverage");
+		mShader.Link("pack0/shaders/glsl/exposureaverage");
 		mShader.SetAttribLocation(0, "PositionInProjection");
 		mShader.SetAttribLocation(1, "UV");
 		ExposureTexture.Init(mShader, "ExposureTexture");
@@ -396,10 +396,10 @@ void FExposureCombineShader::Bind()
 {
 	if (!mShader)
 	{
-		mShader.Compile(FShaderProgram::Vertex, "shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 330);
-		mShader.Compile(FShaderProgram::Fragment, "shaders/glsl/exposurecombine.fp", RGL_ExposureCombineFragmentCode(), "", 330);
+		mShader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 330);
+		mShader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/exposurecombine.fp", RGL_ExposureCombineFragmentCode(), "", 330);
 		mShader.SetFragDataLocation(0, "FragColor");
-		mShader.Link("shaders/glsl/exposurecombine");
+		mShader.Link("pack0/shaders/glsl/exposurecombine");
 		mShader.SetAttribLocation(0, "PositionInProjection");
 		mShader.SetAttribLocation(1, "UV");
 		ExposureTexture.Init(mShader, "ExposureTexture");

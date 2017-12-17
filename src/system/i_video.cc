@@ -354,15 +354,13 @@ void I_FinishFrame(void)
 	{
 #ifdef WIN32
 		if (WGLEW_EXT_swap_control)
-		{
+	{
 			// Adaptive GL
 			wglSwapIntervalEXT(-1);
 #endif
-#if defined LINUX || defined MACOSX
-			SDL_GL_SetSwapInterval(-1);
-#endif
-		}
+		SDL_GL_SetSwapInterval(-1);
 
+	}
 		else
 			// Disabled thru SDL
 			SDL_GL_SetSwapInterval(-1);
