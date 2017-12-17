@@ -122,6 +122,7 @@ int W_CheckNumForName_GFX(const char *name);
 int W_GetNumForName2(const char *name);
 int W_CheckNumForName3(const char *name);
 int W_CheckNumForTexPatch(const char *name);
+int W_FindLumpFromPath(const std::string &path);
 
 int W_LumpLength(int lump);
 
@@ -154,6 +155,7 @@ int W_GetFileForLump(int lump);
 void W_ShowLumps(int for_file, const char *match);
 void W_ShowFiles(void);
 
+static void W_ReadLump(int lump, void *dest);
 // Define this only in an emergency.  All these debug printfs quickly
 // add up, and it takes only a few seconds to end up with a 40 meg debug file!
 #ifdef WAD_CHECK

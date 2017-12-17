@@ -967,10 +967,10 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 
 	Z_StrNCpy(lump_p->path, path, 255);
 
-#if 0
+//#if 0
 	I_Debugf("AddLumpEx: %p, %d, %d, %d, %d, %d, %s, %d, %s\n",
 		df, lump, pos, size, file, sort_index, lump_p->name, allow_ddf, lump_p->path);
-#endif
+//#endif
 
 	// -- handle special names --
 
@@ -2825,73 +2825,22 @@ int W_GetNumForName2(const char *name)
 
 //==========================================================================
 //
-// W_CheckNumForFullName
+// W_FindLumpFromPath
 //
-// Same as above but looks for a fully qualified name from a .zip
-// These don't care about namespaces though because those are part
-// of the path.
+// Ignore 8 character limit and retrieve lump from path to use that instead.
+// 
 //
 //==========================================================================
 
-int W_CheckNumForFullName(const char *name, int namespc)
+int W_FindLumpFromPath(const std::string &path)
 {
-	u32_t i;
-	char buf[256];
-	//bool trynormal;
-
-	if (name == NULL)
+	for (int i = 0; i < numlumps; i++)
 	{
-		return -1;
-	}
-
-	i = QuickFindLumpMap(buf);
-
-	if (i < 0)
-		return -1; // not found
-
-	if (i != NULL_INDEX) return i;
-
-	if (strlen(name) <= 8 && !strpbrk(name, "./"))
-	{
-		return W_CheckNumForName(name, namespc);
+		if (lumpinfo[i].path == path)
+			I_Printf("FindLumpFromPath: returned '%s'", path);
+			return i;
 	}
 	return -1;
-}
-
-
-int W_CheckNumForFullName2(const char *name, int wadnum)
-{
-	u32_t i;
-	char buf[256];
-
-	if (wadnum < 0)
-	{
-		return W_CheckNumForFullName(name);
-	}
-
-	i = QuickFindLumpMap(buf);
-
-	return i != NULL_INDEX ? i : -1;
-}
-
-//==========================================================================
-//
-// W_GetNumForFullName
-//
-// Calls W_CheckNumForFullName, but bombs out if not found.
-//
-//==========================================================================
-
-int W_GetNumForFullName(const char *name)
-{
-	int	i;
-
-	i = W_CheckNumForFullName(name);
-
-	if (i == -1)
-		I_Error("GetNumForFullName: %s not found!", name);
-
-	return i;
 }
 
 

@@ -84,59 +84,31 @@ void FShaderProgram::CreateShader(ShaderType type)
 //==========================================================================
 //
 // Compiles a shader and attaches it the program object
+// (special thanks to dpJudas for adding a new function to load these) <3
 //
 //==========================================================================
 
-#if 0
 void FShaderProgram::Compile(ShaderType type, const char *lumpname, const char *defines, int maxGlslVersion)
 {
+	int lump = W_FindLumpFromPath(lumpname);
 
-	epi::file_c *f = W_LoadLumpName(lumpname);
+	if (lump == -1) 
+		I_Error("Unable to load '%s'", lumpname);
 
-	int length;
+	I_Printf("Compiling GLSL shader: '%s'", lumpname);
 
-	// CA: bytecode->string (pretty sure EPI has a cleaner, mem-efficient way of doing this)..
-	//const byte* strcode = reinterpret_cast<const byte*>(char *data = (char *)W_ReadLumpAlloc(lumpnum, &length););
-	char *code = (char *)W_ReadLumpAlloc(lump, &length);
+	//std::vector<char> buffer(W_LumpLength(lump) + 1);
 
-	//std::string code(strcode, strcode + len);
+	int length = 0;
 
-	//byte *code = f->LoadIntoMemory();
+	byte *code = W_ReadLumpAlloc(lump, &length);
 
-	I_Printf("RGL_GLSL: Loading '%s'", lumpname);
+	Compile(type, lumpname, (const char *)code, defines, maxGlslVersion);
 
-	//SYS_ASSERT(code);
-
-	Compile(type, lumpname, code, defines, maxGlslVersion);
-}
-#endif // 0
-
-
-#if 0
-void FShaderProgram::Compile(ShaderType type, const char *lumpname, const char *defines, int maxGlslVersion)
-{
-	epi::file_c *F = epi::FS_Open(filename, epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
-
-	if (!F)
-	{
-		//I_Warning("Could not open coal script: %s\n", filename);
-		return;
-	}
-	I_Printf("Compiling GLSL script: %s\n", lumpname);
-
-	int lump = PHYSFS_openRead(lumpname);
-
-	byte *data = F->LoadIntoMemory();
-
-	Compile(type, lumpname, code, defines, maxGlslVersion);
-
+	//Free it!
 	delete[] code;
+
 }
-#endif // 0
-
-
-
-
 
 void FShaderProgram::Compile(ShaderType type, const char *name, const std::string &code, const char *defines, int maxGlslVersion)
 {
