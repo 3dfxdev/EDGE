@@ -109,14 +109,12 @@ fflush(stdout);
 
 
 
-
-#if 0
 #if defined(_DEBUG) && defined(_MSC_VER)
 	// Uncomment this line to make the Visual C++ CRT check the heap before
 	// every allocation and deallocation. This will be slow, but it can be a
 	// great help in finding problem areas.
 
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_CHECK_ALWAYS_DF);
+	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_CHECK_ALWAYS_DF);
 
 	// Enable leak checking at exit.
 	_CrtSetDbgFlag(_CrtSetDbgFlag(0) | _CRTDBG_LEAK_CHECK_DF);
@@ -136,39 +134,37 @@ fflush(stdout);
 		E_Main(argc, (const char **) argv);
 		//common_main(argc, argv);
 	}
+
 	__except (I_W32ExceptionHandler(GetExceptionInformation()))
 	{
 		I_Error(0, "Exception caught in main: see CRASHLOG.TXT for info\n");
 	}
 #endif
-	E_Main(argc, (const char **)argv);
-#endif
-
-	//E_Main(argc, (const char **) argv);
-
 	return 0;
+
 }
 
 #if 0
+
 #if !defined(_DEBUG) && defined (WIN32)
 int main(int argc, char **argv)
 {
-	#ifdef WIN32
+#ifdef WIN32
 	// -AJA- give us a proper name in the Task Manager
 	SDL_RegisterApp(TITLE, 0, 0);
 	I_TweakConsole();
 #endif
 
-    I_CheckAlreadyRunning();
+	I_CheckAlreadyRunning();
 
 	win32_exe_path = epi::GetExecutablePath(argv[0]);
 
-    ::SetCurrentDirectory(win32_exe_path);
+	::SetCurrentDirectory(win32_exe_path);
 
 	__try
 	{
 		I_TweakConsole();
-		E_Main(argc, (const char **) argv);
+		E_Main(argc, (const char **)argv);
 		//common_main(argc, argv);
 	}
 	__except (I_W32ExceptionHandler(GetExceptionInformation()))
@@ -178,8 +174,10 @@ int main(int argc, char **argv)
 
 	return 0;
 }
-#endif  
+#endif    
 #endif // 0
+
+
 
 
 

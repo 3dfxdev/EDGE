@@ -158,10 +158,8 @@ void I_StartupGraphics(void)
 	if (M_CheckParm("-nograb"))
 		in_grab = 0;
 
-#ifdef OPENGL_2
-SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
-SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
-#endif
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,   8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,    8);
@@ -354,8 +352,15 @@ void I_FinishFrame(void)
 
 	else if (r_swapinterval.d == 2)
 	{
+#ifdef WIN32
+		if (WGLEW_EXT_swap_control)
+		{
 		// Adaptive GL
 		wglSwapIntervalEXT(-1);
+#endif
+#if defined LINUX || defined MACOSX
+	SDL_GL_SetSwapInterval(-1);
+#endif
 	}
 
 	else

@@ -120,6 +120,7 @@ void W_ReadCoalLumps(void);
 int W_CheckNumForName2(const char *name);
 int W_CheckNumForName_GFX(const char *name);
 int W_GetNumForName2(const char *name);
+int W_CheckNumForName3(const char *name);
 int W_CheckNumForTexPatch(const char *name);
 
 int W_LumpLength(int lump);
@@ -190,6 +191,7 @@ static void *W_CacheLumpName3(const char *name, const char *file, int line)
 
 #else
 #define W_CheckNumForName(x) W_CheckNumForName2(x)
+#define W_CheckNumForFullName(x) W_CheckNumForFullName2(x)
 #define W_GetNumForName(x) W_GetNumForName2(x)
 #define W_CacheLumpNum(x) W_CacheLumpNum2(x)
 #define W_CacheLumpName(x) W_CacheLumpName2(x)

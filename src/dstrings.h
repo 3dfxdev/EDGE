@@ -62,6 +62,9 @@
 #define HUBDIR         "hubs"
 #define HUBBASE        "hub"
 
+#define FRAGEXT "fp"
+#define VERTEXT "vp"
+
 #ifdef WIN32 //TODO: Application Data (WinXP?), do we need this explicit?
 #define EDGEHOMESUBDIR  "Application Data\\EDGE2"
 #elif MACOSX
