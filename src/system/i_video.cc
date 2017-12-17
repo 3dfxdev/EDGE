@@ -306,21 +306,21 @@ void I_FinishFrame(void)
 {
 	extern cvar_c r_vsync;
 
-	#ifdef GL_BRIGHTNESS
+#ifdef GL_BRIGHTNESS
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBegin(GL_QUADS);
 	glColor4f(fade_active ? 0.0f : 1.0f,
-			  fade_active ? 0.0f : 1.0f,
-			  fade_active ? 0.0f : 1.0f,
-			  fade_active ? 1.0f - fade_gamma : gamma_settings);
-	glVertex3i(0,0,0);
-	glVertex3i(display_W,0,0);
-	glVertex3i(display_W,display_H,0);
-	glVertex3i(0,display_H,0);
+		fade_active ? 0.0f : 1.0f,
+		fade_active ? 0.0f : 1.0f,
+		fade_active ? 1.0f - fade_gamma : gamma_settings);
+	glVertex3i(0, 0, 0);
+	glVertex3i(display_W, 0, 0);
+	glVertex3i(display_W, display_H, 0);
+	glVertex3i(0, display_H, 0);
 	glEnd();
 	glColor4f(1, 1, 1, 1);
-	#endif
+#endif
 
 	//FIXME: WIN32 relies on WGLEW, so when we go to GLAD, make sure to generate a WGL_GLAD header to compensate.
 	//       I wonder if SDL_GL_SwapWindow will work under Win32 without WGLEW extensions. hmmm.
@@ -355,30 +355,28 @@ void I_FinishFrame(void)
 #ifdef WIN32
 		if (WGLEW_EXT_swap_control)
 		{
-		// Adaptive GL
-		wglSwapIntervalEXT(-1);
+			// Adaptive GL
+			wglSwapIntervalEXT(-1);
 #endif
 #if defined LINUX || defined MACOSX
-	SDL_GL_SetSwapInterval(-1);
+			SDL_GL_SetSwapInterval(-1);
 #endif
-	}
+		}
 
-	else
-		// Disabled thru SDL
-		SDL_GL_SetSwapInterval(-1);
+		else
+			// Disabled thru SDL
+			SDL_GL_SetSwapInterval(-1);
 
+		SDL_GL_SwapWindow(my_vis);
 
-
-	SDL_GL_SwapWindow(my_vis);
-
-	if (r_vsync.d > 0)
+		if (r_vsync.d > 0)
 			glFinish();
 
-	if (in_grab.CheckModified())
-		I_GrabCursor(grab_state);
+		if (in_grab.CheckModified())
+			I_GrabCursor(grab_state);
 
+	}
 }
-
 
 void I_PutTitle(const char *title)
 {
