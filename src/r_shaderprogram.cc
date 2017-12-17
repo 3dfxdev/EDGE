@@ -1,4 +1,5 @@
-// 
+//---------------------------------------------------------------------------
+// EDGE 2 GLSL Shader Program Manager
 //---------------------------------------------------------------------------
 //
 // Copyright(C) 2016 Magnus Norddahl
@@ -21,6 +22,7 @@
 //
 
 #include "../epi/str_format.h"
+#include "../epi/filesystem.h"
 #include "system/i_defs.h"
 #include "system/i_defs_gl.h"
 #include "system/i_sdlinc.h"
@@ -85,35 +87,61 @@ void FShaderProgram::CreateShader(ShaderType type)
 //
 //==========================================================================
 
+#if 0
 void FShaderProgram::Compile(ShaderType type, const char *lumpname, const char *defines, int maxGlslVersion)
 {
-	int lump = W_CheckNumForName(lumpname, 0);
 
-	if (lump == -1)
-		I_FatalError("RGL_GLSL: Unable to load '%s'", lumpname);
+	epi::file_c *f = W_LoadLumpName(lumpname);
 
-	epi::file_c *f = W_OpenLump(lump);
+	int length;
 
 	// CA: bytecode->string (pretty sure EPI has a cleaner, mem-efficient way of doing this)..
-	const byte* strcode = reinterpret_cast<const byte*>(f->LoadIntoMemory());
+	//const byte* strcode = reinterpret_cast<const byte*>(char *data = (char *)W_ReadLumpAlloc(lumpnum, &length););
+	char *code = (char *)W_ReadLumpAlloc(lump, &length);
 
-	int len = strlen(reinterpret_cast<const char*>(strcode));
-
-	std::string code(strcode, strcode + len);
+	//std::string code(strcode, strcode + len);
 
 	//byte *code = f->LoadIntoMemory();
-	
+
 	I_Printf("RGL_GLSL: Loading '%s'", lumpname);
 
-	SYS_ASSERT(code);
+	//SYS_ASSERT(code);
 
 	Compile(type, lumpname, code, defines, maxGlslVersion);
 }
+#endif // 0
+
+
+#if 0
+void FShaderProgram::Compile(ShaderType type, const char *lumpname, const char *defines, int maxGlslVersion)
+{
+	epi::file_c *F = epi::FS_Open(filename, epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
+
+	if (!F)
+	{
+		//I_Warning("Could not open coal script: %s\n", filename);
+		return;
+	}
+	I_Printf("Compiling GLSL script: %s\n", lumpname);
+
+	int lump = PHYSFS_openRead(lumpname);
+
+	byte *data = F->LoadIntoMemory();
+
+	Compile(type, lumpname, code, defines, maxGlslVersion);
+
+	delete[] code;
+}
+#endif // 0
+
+
+
 
 
 void FShaderProgram::Compile(ShaderType type, const char *name, const std::string &code, const char *defines, int maxGlslVersion)
 {
 	CreateShader(type);
+	//I_Printf("GLSL: Creating Shader %s\n", type);
 
 	const auto &handle = mShaders[type];
 
@@ -136,6 +164,7 @@ void FShaderProgram::Compile(ShaderType type, const char *name, const std::strin
 	{
 		if (mProgram == 0)
 			mProgram = glCreateProgram();
+		//I_Printf("Compile Shader '%s':\n%s\n", name);
 		glAttachShader(mProgram, handle);
 	}
 }

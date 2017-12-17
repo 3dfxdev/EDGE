@@ -24,7 +24,9 @@
 #include "../con_var.h"
 #include "i_system.h"
 
-#define HAVE_PHYSFS 1
+#ifdef HAVE_PHYSFS
+#include <physfs.h>
+#endif
 
 /// `CA- 6.5.2016: quick hacks to change these in Visual Studio (less warnings). 
 #ifdef _MSC_VER

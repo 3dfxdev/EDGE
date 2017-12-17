@@ -121,6 +121,8 @@ static ddf_reader_t DDF_Readers[] =
 #define GAME_READER  14
 #define RTS_READER   16
 
+#define NULL_INDEX		(0xffffffff)
+
 class data_file_c
 {
 public:
@@ -257,6 +259,7 @@ typedef struct
 #ifdef HAVE_PHYSFS
 	// pathname for PHYSFS file - wasteful, but no biggy on a PC
 	char path[256];
+	
 #endif
 }
 lumpinfo_t;
@@ -1844,7 +1847,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 		else if (stricmp(fname, "shaders") == 0)
 		{
 			// enumerate scripts subdirectory
-			PHYSFS_enumerateFilesCallback(path, ScriptNamespace, userData);
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
 		}
 		else if (strncasecmp(fname, "root", 4) == 0)
 		{
@@ -2057,6 +2060,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 			I_Printf("WOLF: Not implemented!\n");
 		}
+
 		// handle DeHackEd patch files
 		if (df->deh_lump >= 0)
 		{
@@ -2604,7 +2608,9 @@ epi::file_c *W_OpenLump(int lump)
 
 	data_file_c *df = data_files[l->file];
 
-	//I_Debugf("W_OpenLump: %d(%s)\n", lump, l->name);
+#if _DEBUG
+I_Debugf("W_OpenLump: %d(%s)\n", lump, l->name);
+#endif
 
 	if (df->file == NULL)
 	{
@@ -2623,7 +2629,9 @@ epi::file_c *W_OpenLump(int lump)
 
 epi::file_c *W_OpenLump(const char *name)
 {
-	//I_Printf("W_OpenLump: %s\n", name);
+#if _DEBUG
+	I_Printf("W_OpenLump: %s\n", name);
+#endif
 	return W_OpenLump(W_GetNumForName(name));
 }
 
@@ -2744,6 +2752,28 @@ int W_CheckNumForName2(const char *name)
 	return lumpmap[i];
 }
 
+int W_CheckNumForName3(const char *name)
+{
+	int i;
+	char buf[256];
+
+	for (i = 0; name[i]; i++)
+	{
+		buf[i] = toupper(name[i]);
+	}
+	buf[i] = 0;
+
+	i = QuickFindLumpMap(buf);
+
+	if (i < 0)
+	{
+		I_Printf("W_CheckNumForName3: i is %s\n", name);
+		return -1; // not found
+	}
+
+	return lumpmap[i];
+}
+
 int W_CheckNumForName_GFX(const char *name)
 {
 	// this looks for a graphic lump, skipping anything which would
@@ -2792,6 +2822,78 @@ int W_GetNumForName2(const char *name)
 
 	return i;
 }
+
+//==========================================================================
+//
+// W_CheckNumForFullName
+//
+// Same as above but looks for a fully qualified name from a .zip
+// These don't care about namespaces though because those are part
+// of the path.
+//
+//==========================================================================
+
+int W_CheckNumForFullName(const char *name, int namespc)
+{
+	u32_t i;
+	char buf[256];
+	//bool trynormal;
+
+	if (name == NULL)
+	{
+		return -1;
+	}
+
+	i = QuickFindLumpMap(buf);
+
+	if (i < 0)
+		return -1; // not found
+
+	if (i != NULL_INDEX) return i;
+
+	if (strlen(name) <= 8 && !strpbrk(name, "./"))
+	{
+		return W_CheckNumForName(name, namespc);
+	}
+	return -1;
+}
+
+
+int W_CheckNumForFullName2(const char *name, int wadnum)
+{
+	u32_t i;
+	char buf[256];
+
+	if (wadnum < 0)
+	{
+		return W_CheckNumForFullName(name);
+	}
+
+	i = QuickFindLumpMap(buf);
+
+	return i != NULL_INDEX ? i : -1;
+}
+
+//==========================================================================
+//
+// W_GetNumForFullName
+//
+// Calls W_CheckNumForFullName, but bombs out if not found.
+//
+//==========================================================================
+
+int W_GetNumForFullName(const char *name)
+{
+	int	i;
+
+	i = W_CheckNumForFullName(name);
+
+	if (i == -1)
+		I_Error("GetNumForFullName: %s not found!", name);
+
+	return i;
+}
+
 
 //
 // W_CheckNumForTexPatch
