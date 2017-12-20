@@ -357,14 +357,12 @@ void I_FinishFrame(void)
 		{
 			// Adaptive GL
 			wglSwapIntervalEXT(-1);
-#endif
 			SDL_GL_SetSwapInterval(-1);
-#ifdef WIN32
 		}
 		else
+#endif
 			// Disabled thru SDL
 			SDL_GL_SetSwapInterval(-1);
-#endif
 		SDL_GL_SwapWindow(my_vis);
 
 		if (r_vsync.d > 0)
