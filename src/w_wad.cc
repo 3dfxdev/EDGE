@@ -241,6 +241,7 @@ lump_kind_e;
 typedef struct
 {
 	char name[10];
+	std::string fullname; //only valid for files loaded in archives and NOT wads!
 	int position;
 	int size;
 
@@ -258,6 +259,7 @@ typedef struct
 	short kind;
 #ifdef HAVE_PHYSFS
 	// pathname for PHYSFS file - wasteful, but no biggy on a PC
+//	char fullname[256];
 	char path[256];
 	
 #endif
@@ -276,6 +278,7 @@ static int *lumpmap = NULL;
 int numlumps;
 
 #define LUMP_MAP_CMP(a) (strncmp(lumpinfo[lumpmap[a]].name, buf, 8))
+#define SHADER_MAP_CMP(a) (strncmp(lumpinfo[lumpmap[a]].name, buf, 32))
 
 typedef struct lumpheader_s
 {
@@ -1631,6 +1634,53 @@ static void ScriptNamespace(void *userData, const char *origDir, const char *fna
 #endif
 }
 
+
+static void ShaderNamespace(void *userData, const char *origDir, const char *fname)
+{
+#ifdef HAVE_PHYSFS
+	file_info_t *user_data = (file_info_t *)userData;
+	char check[32];
+	char path[256];
+	strcpy(path, origDir);
+	strcat(path, "/");
+	strcat(path, fname);
+
+	I_Printf("ScriptNamespace: processing %s\n", path);
+
+	if (PHYSFS_isDirectory(path))
+	{
+		I_Printf("ScriptNamespace: found subdirectory %s\n", fname);
+		{
+			if (stricmp(fname, "shaders") == 0)
+			{
+				// recurse shaders subdirectory to TopLevel
+				PHYSFS_enumerateFilesCallback(path, TopLevel, userData);
+			}
+		}
+
+		return;
+	}
+
+	// check if add global lump - TODO
+	if (1)
+	{
+		// add global lump
+		I_Printf("  checking global lump %s\n", fname);
+		PHYSFS_File *file = PHYSFS_openRead(path);
+		if (!file)
+			return; // couldn't open file - skip
+		int length = PHYSFS_fileLength(file);
+		PHYSFS_close(file);
+
+		I_Printf("  adding global lump %s\n", fname);
+		numlumps++;
+		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+		AddLumpEx(user_data->dfile, numlumps - 1, 0, length,
+			user_data->dfindex, user_data->index, fname, 1, path);
+	}
+#endif
+}
+
 static void TopLevel(void *userData, const char *origDir, const char *fname)
 {
 #ifdef HAVE_PHYSFS
@@ -2759,7 +2809,7 @@ int W_CheckNumForName3(const char *name)
 
 	for (i = 0; name[i]; i++)
 	{
-		buf[i] = toupper(name[i]);
+		buf[i] = tolower(name[i]);
 	}
 	buf[i] = 0;
 
@@ -2829,18 +2879,44 @@ int W_GetNumForName2(const char *name)
 //
 // Ignore 8 character limit and retrieve lump from path to use that instead.
 // 
-//
 //==========================================================================
 
-int W_FindLumpFromPath(const std::string &path)
+int W_FindLumpFromPath(const std::string& path)
 {
 	for (int i = 0; i < numlumps; i++)
 	{
 		if (lumpinfo[i].path == path)
-			I_Printf("FindLumpFromPath: returned '%s'", path);
 			return i;
 	}
 	return -1;
+}
+
+int W_FindNameFromPath(const char *name)
+{
+	std::string fn;
+
+	for (int i = 0; i < numlumps; i++)
+	{
+		if (lumpinfo[i].fullname == name)
+			return i;
+	}
+	return -1;
+}
+
+
+//
+// W_GetNumForName
+//
+// Calls W_FindLumpFromPath, but bombs out if not found.
+//
+int W_GetLumpFromPath2(const std::string &path)
+{
+	int i;
+
+	if ((i = W_FindLumpFromPath(path)) == -1)
+		I_Error("W_FindLumpFromPath: \'%s\' not found!", path);
+
+	return i;
 }
 
 
@@ -3227,7 +3303,6 @@ void *W_LoadLumpName(const char *name)
 {
 	return W_LoadLumpNum(W_GetNumForName2(name));
 }
-
 //
 // W_GetLumpName
 //
