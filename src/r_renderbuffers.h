@@ -2,6 +2,7 @@
 #pragma once
 
 #include "system/i_defs_gl.h"
+#include "m_misc.h"
 #include "r_lensdistortion.h"
 #include "r_bloom.h"
 #include "r_fxaa.h"

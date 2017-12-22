@@ -331,8 +331,8 @@ void FBloomExtractShader::Bind()
 {
 	if (!mShader)
 	{
-		mShader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 330);
-		mShader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/bloomextract.fp", RGL_BloomExtractFragmentCode(), "", 330);
+		mShader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", "", "", 330);//RGL_ScreenQuadVertexCode(), "", 330);
+		mShader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/bloomextract.fp", "", "", 330);//RGL_BloomExtractFragmentCode(), "", 330);
 		mShader.SetFragDataLocation(0, "FragColor");
 		mShader.Link("pack0/shaders/glsl/bloomextract");
 		mShader.SetAttribLocation(0, "PositionInProjection");
@@ -349,8 +349,8 @@ void FBloomCombineShader::Bind()
 {
 	if (!mShader)
 	{
-		mShader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 330);
-		mShader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/bloomcombine.fp", RGL_BloomCombineFragmentCode(), "", 330);
+		mShader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", "", "", 330);//RGL_ScreenQuadVertexCode(), "", 330);
+		mShader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/bloomcombine.fp", "", "", 330);//RGL_BloomCombineFragmentCode(), "", 330);
 		mShader.SetFragDataLocation(0, "FragColor");
 		mShader.Link("pack0/shaders/glsl/bloomcombine");
 		mShader.SetAttribLocation(0, "PositionInProjection");
@@ -364,8 +364,8 @@ void FExposureExtractShader::Bind()
 {
 	if (!mShader)
 	{
-		mShader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 330);
-		mShader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/exposureextract.fp", RGL_ExposureExtractFragmentCode(), "", 330);
+		mShader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", "", "", 330);//RGL_ScreenQuadVertexCode(), "", 330);
+		mShader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/exposureextract.fp", "", "", 330);//RGL_ExposureExtractFragmentCode(), "", 330);
 		mShader.SetFragDataLocation(0, "FragColor");
 		mShader.Link("pack0/shaders/glsl/exposureextract");
 		mShader.SetAttribLocation(0, "PositionInProjection");
@@ -381,8 +381,8 @@ void FExposureAverageShader::Bind()
 {
 	if (!mShader)
 	{
-		mShader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 400);
-		mShader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/exposureaverage.fp", RGL_ExposureAverageFragmentCode(), "", 400);
+		mShader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", "", 330);//RGL_ScreenQuadVertexCode(), "", 400);
+		mShader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/exposureaverage.fp", "", 330);//RGL_ExposureAverageFragmentCode(), "", 400);
 		mShader.SetFragDataLocation(0, "FragColor");
 		mShader.Link("pack0/shaders/glsl/exposureaverage");
 		mShader.SetAttribLocation(0, "PositionInProjection");
@@ -396,8 +396,8 @@ void FExposureCombineShader::Bind()
 {
 	if (!mShader)
 	{
-		mShader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 330);
-		mShader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/exposurecombine.fp", RGL_ExposureCombineFragmentCode(), "", 330);
+		mShader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", "", 330);//RGL_ScreenQuadVertexCode(), "", 330);
+		mShader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/exposurecombine.fp", "", 330);//RGL_ExposureCombineFragmentCode(), "", 330);
 		mShader.SetFragDataLocation(0, "FragColor");
 		mShader.Link("pack0/shaders/glsl/exposurecombine");
 		mShader.SetAttribLocation(0, "PositionInProjection");
