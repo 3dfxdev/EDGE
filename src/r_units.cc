@@ -393,12 +393,15 @@ static inline void RGL_SendRawVector(const local_gl_vert_t *V)
 	// vertex must be last
 	glVertex3f(V->pos.x, V->pos.y, V->pos.z);
 }
+
 //also sends tangent
+
 static inline void RGL_SendRawVector2(const local_gl_vert_t *V)
 {
-	/*
+
 #ifndef DREAMCAST
-	if (r_colormaterial.d || ! r_colorlighting.d) {
+	if (r_colormaterial.d || ! r_colorlighting.d) 
+	{
 		glColor4fv(V->rgba);
 	}
 	else
@@ -409,9 +412,9 @@ static inline void RGL_SendRawVector2(const local_gl_vert_t *V)
 #else
 	glColor4fv(V->rgba);
 #endif
-*/
+
 	myMultiTexCoord2f(GL_TEXTURE0, V->texc[0].x, V->texc[0].y);
-//	myMultiTexCoord2f(GL_TEXTURE1, V->texc[1].x, V->texc[1].y);
+	myMultiTexCoord2f(GL_TEXTURE1, V->texc[1].x, V->texc[1].y);
 
 	glNormal3f(V->normal.x, V->normal.y, V->normal.z);
 #ifndef NO_EDGEFLAG
@@ -424,7 +427,8 @@ static inline void RGL_SendRawVector2(const local_gl_vert_t *V)
 	glVertex3f(V->pos.x, V->pos.y, V->pos.z);
 }
 
-void calc_tan(local_gl_vert_t* v1,local_gl_vert_t* v2,local_gl_vert_t* v3) {
+void calc_tan(local_gl_vert_t* v1,local_gl_vert_t* v2,local_gl_vert_t* v3) 
+{
 	vec2_t d_uv1;
 	vec2_t d_uv2;
 	vec3_t d_pos1;
@@ -653,7 +657,9 @@ void RGL_DrawUnits(void)
 
 
 		//disable if unit has multiple textures (level geometry lightmap for instance)
-		if(RGL_GL3Enabled() && unit->tex[1]==0) {
+		if(RGL_GL3Enabled() && unit->tex[1]==0) 
+		{
+
 			RGL_BatchShape(0);
 
 			//use normal and specular map
@@ -668,8 +674,10 @@ void RGL_DrawUnits(void)
 
 			//calc tangents, works for GL_TRIANGLE_STRIP
 			//TODO: don't re-calc every frame
-			if(unit->shape==GL_TRIANGLE_STRIP) {
-				for(int v_idx=0;v_idx<unit->count-2;v_idx+=3) {
+			if(unit->shape==GL_TRIANGLE_STRIP) 
+			{
+				for(int v_idx=0;v_idx<unit->count-2;v_idx+=3) 
+				{
 					local_gl_vert_t* v=local_verts+unit->first+v_idx;
 					calc_tan(v+0,v+1,v+2);
 					calc_tan(v+1,v+2,v+0);
@@ -678,22 +686,27 @@ void RGL_DrawUnits(void)
 			}
 
 			glBegin(unit->shape);
-			if(bmap_shader.attr_tan!=-1) {
+
+			if(bmap_shader.attr_tan!=-1)
+			{
 				for (int v_idx=0; v_idx < unit->count; v_idx++)
 				{
 					RGL_SendRawVector2(local_verts + unit->first + v_idx);
 				}
 			}
-			else {
+			else
+			{
 				for (int v_idx=0; v_idx < unit->count; v_idx++)
 				{
 					RGL_SendRawVector(local_verts + unit->first + v_idx);
 				}
 			}
-			glEnd();
-			bmap_shader.unbind();
-			//bmap_shader.debugDrawLights();
 
+			glEnd();
+
+			bmap_shader.unbind();
+
+			//bmap_shader.debugDrawLights();
 
 			//XXX normals and tangent debug
 			/*
@@ -715,7 +728,8 @@ void RGL_DrawUnits(void)
 			*/
 
 		}
-		else {
+		else 
+		{
 			// Simplify things into triangles as that allows us to keep a single glBegin open for longer
 			if (unit->shape == GL_POLYGON || unit->shape == GL_TRIANGLE_FAN)
 			{

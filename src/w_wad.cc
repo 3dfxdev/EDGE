@@ -959,7 +959,9 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 	lump_p->kind = LMKIND_Normal;
 
 	Z_StrNCpy(lump_p->name, name, 8);
+
 	strupr(lump_p->name);
+
 	// strip any extension
 	for (j = 7; j >= 0; j--)
 		if (lump_p->name[j] == '.')
@@ -2766,6 +2768,27 @@ static inline int QuickFindLumpMap(char *buf)
 
 	// jump to first matching name
 	while (i > 0 && LUMP_MAP_CMP(i - 1) == 0)
+		i--;
+
+	return i;
+}
+
+static inline int QuickFindShaderMap(char *buf)
+{
+	int i;
+
+#define CMP(a)  (SHADER_MAP_CMP(a) < 0)
+	BSEARCH(numlumps, i);
+#undef CMP
+
+	if (i < 0 || i >= numlumps || SHADER_MAP_CMP(i) != 0)
+	{
+		// not found (nothing has that name)
+		return -1;
+	}
+
+	// jump to first matching name
+	while (i > 0 && SHADER_MAP_CMP(i - 1) == 0)
 		i--;
 
 	return i;

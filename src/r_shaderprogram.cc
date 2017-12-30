@@ -45,6 +45,8 @@ FShaderProgram::FShaderProgram()
 		mShaders[i] = 0;
 }
 
+//#define I_FatalError I_Error
+
 //==========================================================================
 //
 // Free shader program resources
@@ -90,14 +92,20 @@ void FShaderProgram::CreateShader(ShaderType type)
 
 void FShaderProgram::Compile(ShaderType type, const char *lumpname, const char *defines, int maxGlslVersion)
 {
+
 	int lump = W_FindLumpFromPath(lumpname);
 
-	if (lump == -1) 
-		I_Error("Unable to load '%s'", lumpname);
+	//if (lump < 0)
+		//return false;
 
-	I_Printf("Compiling GLSL shader: '%s'", lumpname);
+	if (lump < 0)
+		I_Error("Unable to load '%s'", lumpname);
+	else
+		I_Printf("Compiling GLSL shader: '%s'", lumpname);
 
 	//std::vector<char> buffer(W_LumpLength(lump) + 1);
+	//W_ReadLump(lump, buffer.data());
+	//buffer.back() = 0;
 
 	int length = 0;
 
@@ -108,12 +116,12 @@ void FShaderProgram::Compile(ShaderType type, const char *lumpname, const char *
 	//Free it!
 	delete[] code;
 
+
 }
 
 void FShaderProgram::Compile(ShaderType type, const char *name, const std::string &code, const char *defines, int maxGlslVersion)
 {
 	CreateShader(type);
-	//I_Printf("GLSL: Creating Shader %s\n", type);
 
 	const auto &handle = mShaders[type];
 
@@ -130,13 +138,12 @@ void FShaderProgram::Compile(ShaderType type, const char *name, const std::strin
 	glGetShaderiv(handle, GL_COMPILE_STATUS, &status);
 	if (status == GL_FALSE)
 	{
-		I_FatalError("Compile Shader '%s':\n%s\n", name, GetShaderInfoLog(handle).c_str());
+		I_Error("Compile Shader '%s':\n%s\n", name, GetShaderInfoLog(handle).c_str());
 	}
 	else
 	{
 		if (mProgram == 0)
 			mProgram = glCreateProgram();
-		//I_Printf("Compile Shader '%s':\n%s\n", name);
 		glAttachShader(mProgram, handle);
 	}
 }
@@ -168,7 +175,7 @@ void FShaderProgram::Link(const char *name)
 	glGetProgramiv(mProgram, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE)
 	{
-		I_FatalError("Link Shader '%s':\n%s\n", name, GetProgramInfoLog(mProgram).c_str());
+		I_Error("Link Shader '%s':\n%s\n", name, GetProgramInfoLog(mProgram).c_str());
 	}
 }
 

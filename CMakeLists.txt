@@ -42,6 +42,19 @@ add_custom_target(revision_check ALL
    DEPENDS updaterevision 
 )
 
+
+# Produce a warning if XP support will be missing.
+if( MSVC )
+	list( APPEND WINXP_TOOLSETS v140_xp v141_xp)
+	list( FIND WINXP_TOOLSETS "${CMAKE_GENERATOR_TOOLSET}" HAVE_WINXP_SUPPORT)
+
+	if( HAVE_WINXP_SUPPORT EQUAL -1 )
+		string( REPLACE ";" " or " WINXP_TOOLSETS_STR "${WINXP_TOOLSETS}" )
+		message( WARNING "This project supports Windows XP but you must set the optional toolset to ${WINXP_TOOLSETS_STR} manually to have it in your build!\n"
+			"Assign toolset's name to CMAKE_GENERATOR_TOOLSET variable or use -T <toolset> from the command prompt." )
+	endif()
+endif()
+
 # See /VSLibs/lib_versions.txt
 # Download VSLibs for MSVC - http://tdgmods.net/VSLibs.7z (up to date as of listing below)
 
@@ -126,6 +139,11 @@ include_directories(${PNG_INCLUDE_DIR})
 # jpeg
 #find_package(JPEG REQUIRED)
 include_directories(${JPEG_INCLUDE_DIR})
+
+# acsvm
+#find_package(ACSVM REQUIRED)
+#include_directories(acsvm)
+
 
 # 3DGE
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -417,9 +435,11 @@ add_executable(3DGE
 )
 
 add_dependencies( 3DGE revision_check )
-if(MSVC)
-	add_dependencies( 3DGE eecrashreport )
-endif()
+
+
+IF (WIN32 AND MSVC)
+        add_dependencies( 3DGE eecrashreport )
+ENDIF (WIN32 AND MSVC)
 
 target_link_libraries(3DGE
 	${SDL2MAIN_LIBRARY}
