@@ -114,8 +114,8 @@ void FFXAALumaShader::Bind()
 {
 	if (!mShader)
 	{
-		mShader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", "", "", 330);
-		mShader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/fxaa.fp", "", "#define FXAA_LUMA_PASS\n", 330);
+		mShader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 330);
+		mShader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/fxaa.fp", RGL_FXAAFragmentCode(), "#define FXAA_LUMA_PASS\n", 330);
 		mShader.SetFragDataLocation(0, "FragColor");
 		mShader.Link("pack0/shaders/glsl/fxaa");
 		mShader.SetAttribLocation(0, "PositionInProjection");
@@ -177,8 +177,8 @@ void FFXAAShader::Bind()
 		const epi::strent_c defines = GetDefines();
 		const int maxVersion = GetMaxVersion();
 
-		shader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", "", "", 330);
-		shader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/fxaa.fp", "", "", 330);  //TODO: SAVE THESE FOR LATER, FOR NOW RENDER THE FXAA AS-IS GetDefines(), maxVersion);
+		shader.Compile(FShaderProgram::Vertex, "pack0/shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 330);
+		shader.Compile(FShaderProgram::Fragment, "pack0/shaders/glsl/fxaa.fp", RGL_FXAAFragmentCode(), "", 330);  //TODO: SAVE THESE FOR LATER, FOR NOW RENDER THE FXAA AS-IS GetDefines(), maxVersion);
 		shader.SetFragDataLocation(0, "FragColor");
 		shader.Link("pack0/shaders/glsl/fxaa");
 		shader.SetAttribLocation(0, "PositionInProjection");
