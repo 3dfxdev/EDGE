@@ -259,6 +259,7 @@ typedef struct
 #ifdef HAVE_PHYSFS
 	// pathname for PHYSFS file - wasteful, but no biggy on a PC
 	char path[256];
+	std::string fullname;
 	
 #endif
 }
