@@ -93,9 +93,9 @@ void FShaderProgram::Compile(ShaderType type, const char *lumpname, const char *
 	int lump = W_FindLumpFromPath(lumpname);
 
 	if (lump == -1) 
-		I_Error("Unable to load '%s'", lumpname);
+		I_Error("Unable to load '%s'", lumpname, type);
 
-	I_Printf("Compiling GLSL shader: '%s'", lumpname);
+	I_Printf("Compiling GLSL shader: '%s'\n", lumpname, type);
 
 	//std::vector<char> buffer(W_LumpLength(lump) + 1);
 

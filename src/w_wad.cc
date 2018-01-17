@@ -956,7 +956,9 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 	lump_p->kind = LMKIND_Normal;
 
 	Z_StrNCpy(lump_p->name, name, 8);
+
 	strupr(lump_p->name);
+
 	// strip any extension
 	for (j = 7; j >= 0; j--)
 		if (lump_p->name[j] == '.')
@@ -2843,6 +2845,39 @@ int W_FindLumpFromPath(const std::string &path)
 	return -1;
 }
 
+//==========================================================================
+//
+// W_FindNameFromPath
+//
+// Ignore 8 character limit and retrieve lump from its full name to use that instead.
+//
+//==========================================================================
+int W_FindNameFromPath(const char *name)
+{
+
+	for (int i = 0; i < numlumps; i++)
+	{
+		if (!lumpinfo[i].fullname.compare(0, strlen(name), name))
+			return i;
+	}
+	return -1;
+}
+
+
+//
+// W_GetNumForName
+//
+// Calls W_FindLumpFromPath, but bombs out if not found.
+//
+int W_GetLumpFromPath2(const std::string &path)
+{
+	int i;
+
+	if ((i = W_FindLumpFromPath(path)) == -1)
+		I_Error("W_FindLumpFromPath: \'%s\' not found!", path);
+
+	return i;
+}
 
 //
 // W_CheckNumForTexPatch

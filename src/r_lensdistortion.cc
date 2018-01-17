@@ -161,8 +161,8 @@ void FLensShader::Bind()
 {
 	if (!mShader)
 	{
-		mShader.Compile(FShaderProgram::Vertex, "/pack0/shaders/glsl/screenquad.vp", RGL_ScreenQuadVertexCode(), "", 330);
-		mShader.Compile(FShaderProgram::Fragment, "/pack0/shaders/glsl/lensdistortion.fp", RGL_LensDistortionFragmentCode(), "", 330);
+		mShader.Compile(FShaderProgram::Vertex, "/pack0/shaders/glsl/screenquad.vp", "", 330);
+		mShader.Compile(FShaderProgram::Fragment, "/pack0/shaders/glsl/lensdistortion.fp", "", 330);
 		mShader.SetFragDataLocation(0, "FragColor");
 		mShader.Link("pack0/shaders/glsl/lensdistortion");
 		mShader.SetAttribLocation(0, "PositionInProjection");
