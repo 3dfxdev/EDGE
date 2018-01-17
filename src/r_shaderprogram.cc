@@ -90,12 +90,12 @@ void FShaderProgram::CreateShader(ShaderType type)
 
 void FShaderProgram::Compile(ShaderType type, const char *lumpname, const char *defines, int maxGlslVersion)
 {
-	int lump = W_FindLumpFromPath(lumpname);
+	int lump = W_FindNameFromPath(lumpname);
 
 	if (lump == -1) 
-		I_Error("Unable to load '%s'", lumpname, type);
+		I_Error("Unable to load '%s'\n", lumpname);
 
-	I_Printf("Compiling GLSL shader: '%s'\n", lumpname, type);
+	I_Printf("Compiling GLSL shader: '%s'\n", lumpname);
 
 	//std::vector<char> buffer(W_LumpLength(lump) + 1);
 
