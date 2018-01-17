@@ -123,6 +123,7 @@ int W_GetNumForName2(const char *name);
 int W_GetNumForName3(const char *name);
 int W_CheckNumForName3(const char *name);
 int W_CheckNumForTexPatch(const char *name);
+int W_FindNameFromPath(const char *name);
 int W_FindLumpFromPath(const std::string &path);
 
 int W_LumpLength(int lump);

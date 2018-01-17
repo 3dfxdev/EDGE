@@ -241,6 +241,7 @@ lump_kind_e;
 typedef struct
 {
 	char name[10];
+	std::string fullname;
 	int position;
 	int size;
 
@@ -259,7 +260,7 @@ typedef struct
 #ifdef HAVE_PHYSFS
 	// pathname for PHYSFS file - wasteful, but no biggy on a PC
 	char path[256];
-	std::string fullname;
+	
 	
 #endif
 }
@@ -2855,10 +2856,10 @@ int W_FindLumpFromPath(const std::string &path)
 //==========================================================================
 int W_FindNameFromPath(const char *name)
 {
-
 	for (int i = 0; i < numlumps; i++)
 	{
 		if (!lumpinfo[i].fullname.compare(0, strlen(name), name))
+			I_Printf("FindNameFromPath: returned '%s'", name);
 			return i;
 	}
 	return -1;
