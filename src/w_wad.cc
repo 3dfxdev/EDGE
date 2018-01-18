@@ -141,6 +141,7 @@ public:
 	epi::u32array_c colmap_lumps;
 	epi::u32array_c tx_lumps;
 	epi::u32array_c hires_lumps;
+	epi::u32array_c shader_lumps;
 
 	// level markers and skin markers
 	epi::u32array_c level_markers;
@@ -261,7 +262,6 @@ typedef struct
 	// pathname for PHYSFS file - wasteful, but no biggy on a PC
 	char path[256];
 	
-	
 #endif
 }
 lumpinfo_t;
@@ -278,6 +278,7 @@ static int *lumpmap = NULL;
 int numlumps;
 
 #define LUMP_MAP_CMP(a) (strncmp(lumpinfo[lumpmap[a]].name, buf, 8))
+//#define SHADER_MAP_CMP(a) (strncmp(lumpinfo[lumpmap[a]].fullname, buf, 8))
 
 typedef struct lumpheader_s
 {
@@ -950,12 +951,14 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 {
 	int j;
 	lumpinfo_t *lump_p = lumpinfo + lump;
+	std::string fullname;
 
 	lump_p->position = pos;
 	lump_p->size = size;
 	lump_p->file = file;
 	lump_p->sort_index = sort_index;
 	lump_p->kind = LMKIND_Normal;
+	lump_p->fullname = fullname;
 
 	Z_StrNCpy(lump_p->name, name, 8);
 
@@ -970,9 +973,10 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		}
 
 	Z_StrNCpy(lump_p->path, path, 255);
+	//Z_StrNCpy(lump_p->fullname, fullname, 255);
 
 //#if 0
-	I_Debugf("AddLumpEx: %p, %d, %d, %d, %d, %d, %s, %d, %s\n",
+	I_Debugf("AddLumpEx: %p, %d, %d, %d, %d, %d, %s, %d, %s, %s\n",
 		df, lump, pos, size, file, sort_index, lump_p->name, allow_ddf, lump_p->path);
 //#endif
 
@@ -1449,7 +1453,6 @@ static void LumpNamespace(void *userData, const char *origDir, const char *fname
 		}
 	}
 	else
-
 		// add lump
 		I_Debugf("    opening lump %s\n", fname);
 	PHYSFS_File *file = PHYSFS_openRead(path);
@@ -2841,7 +2844,7 @@ int W_FindLumpFromPath(const std::string &path)
 	for (int i = 0; i < numlumps; i++)
 	{
 		if (lumpinfo[i].path == path)
-			I_Printf("FindLumpFromPath: returned '%s'", path);
+			//I_Printf("FindLumpFromPath: returned '%s'", i);
 			return i;
 	}
 	return -1;
@@ -2856,10 +2859,11 @@ int W_FindLumpFromPath(const std::string &path)
 //==========================================================================
 int W_FindNameFromPath(const char *name)
 {
+	std::string fn;
+
 	for (int i = 0; i < numlumps; i++)
 	{
 		if (!lumpinfo[i].fullname.compare(0, strlen(name), name))
-			I_Printf("FindNameFromPath: returned '%s'", name);
 			return i;
 	}
 	return -1;
@@ -2877,6 +2881,22 @@ int W_GetLumpFromPath2(const std::string &path)
 
 	if ((i = W_FindLumpFromPath(path)) == -1)
 		I_Error("W_FindLumpFromPath: \'%s\' not found!", path);
+
+	return i;
+}
+
+
+//
+// W_GetNumForName
+//
+// Calls W_CheckNumForName, but bombs out if not found.
+//
+int W_GetNumForFullName2(const char *name)
+{
+	int i;
+
+	if ((i = W_FindNameFromPath(name)) == -1)
+		I_Error("W_GetNumForName: '%s' not found!", name);
 
 	return i;
 }
@@ -3082,6 +3102,7 @@ byte *W_ReadLumpAlloc(int lump, int *length)
 	byte *data = new byte[*length + 1];
 
 	W_ReadLump(lump, data);
+	//I_Printf("W_ReadLump: '%s'", lump);
 
 	data[*length] = 0;
 
@@ -3273,7 +3294,6 @@ const char *W_GetLumpName(int lump)
 	return lumpinfo[lump].name;
 }
 
-
 void W_ProcessTX_HI(void)
 {
 	// Add the textures that occur in between TX_START/TX_END markers
@@ -3309,7 +3329,7 @@ static const char *FileKind_Strings[] =
 {
 	"iwad", "pwad", "EDGE2", "gwa", "hwa",
 	"lump", "ddf",  "demo", "rts", "deh",
-	"pak",  "wl6",  "rtl",  "???"
+	"pak",  "wl6",  "rtl",  "fp", "vp"
 };
 
 static const char *LumpKind_Strings[] =
@@ -3320,7 +3340,7 @@ static const char *LumpKind_Strings[] =
 	"ddf",    "???", "???", "???",
 
 	"tx", "colmap", "flat", "sprite", "patch",
-	"???", "???", "???", "???"
+	"vp", "fp", "???", "???"
 };
 
 void W_ShowLumps(int for_file, const char *match)
