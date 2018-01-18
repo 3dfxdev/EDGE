@@ -3029,6 +3029,7 @@ void M_Drawer(void)
 		menu_skull[0] = W_ImageLookup("M_SKULL1");
 		menu_skull[1] = W_ImageLookup("M_SKULL2");
 
+		if (rott_mode)
 		rott_skull = W_ImageLookup("CURSOR01");
 
 		//	if (W_CheckNumForName("M_NEWG") >= 0)
