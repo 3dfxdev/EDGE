@@ -139,6 +139,7 @@ void *W_LoadLumpNum(int lump);
 void *W_LoadLumpName(const char *name);
 bool W_VerifyLumpName(int lump, const char *name);
 const char *W_GetLumpName(int lump);
+const char *W_GetLumpFullName(int lump);
 int W_CacheInfo(int level);
 byte *W_ReadLumpAlloc(int lump, int *length);
 
@@ -191,6 +192,7 @@ static void *W_CacheLumpName3(const char *name, const char *file, int line)
 
 #define W_CheckNumForName(x) W_CheckNumForName3(x, __FILE__, __LINE__)
 #define W_GetNumForName(x) W_GetNumForName3(x, __FILE__, __LINE__)
+#define W_GetNumForFullName(x) W_GetNumForFullName2(x, __FILE__, __LINE__)
 #define W_CacheLumpNum(x) W_CacheLumpNum3(x, __FILE__, __LINE__)
 #define W_CacheLumpName(x) W_CacheLumpName3(x, __FILE__, __LINE__)
 

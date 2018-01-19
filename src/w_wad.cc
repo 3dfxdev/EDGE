@@ -951,14 +951,12 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 {
 	int j;
 	lumpinfo_t *lump_p = lumpinfo + lump;
-	std::string fullname;
 
 	lump_p->position = pos;
 	lump_p->size = size;
 	lump_p->file = file;
 	lump_p->sort_index = sort_index;
 	lump_p->kind = LMKIND_Normal;
-	lump_p->fullname = fullname;
 
 	Z_StrNCpy(lump_p->name, name, 8);
 
@@ -975,10 +973,10 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 	Z_StrNCpy(lump_p->path, path, 255);
 	//Z_StrNCpy(lump_p->fullname, fullname, 255);
 
-//#if 0
-	I_Debugf("AddLumpEx: %p, %d, %d, %d, %d, %d, %s, %d, %s, %s\n",
+#if 0
+	I_Debugf("AddLumpEx: %p, %d, %d, %d, %d, %d, %s, %d, %s\n",
 		df, lump, pos, size, file, sort_index, lump_p->name, allow_ddf, lump_p->path);
-//#endif
+#endif
 
 	// -- handle special names --
 
@@ -2636,7 +2634,7 @@ I_Debugf("W_OpenLump: %d(%s)\n", lump, l->name);
 
 epi::file_c *W_OpenLump(const char *name)
 {
-#if _DEBUG
+#ifdef _DEBUG
 	I_Printf("W_OpenLump: %s\n", name);
 #endif
 	return W_OpenLump(W_GetNumForName(name));
@@ -2745,6 +2743,7 @@ int W_CheckNumForName2(const char *name)
 		if (i > 8)
 		{
 			I_Warning("W_CheckNumForName: Name '%s' longer than 8 chars!\n", name);
+			I_Warning("Attempting to load: Name '%s', must use a ZIP to do this!\n", name);
 			return -1;
 		}
 		buf[i] = toupper(name[i]);
@@ -2844,7 +2843,6 @@ int W_FindLumpFromPath(const std::string &path)
 	for (int i = 0; i < numlumps; i++)
 	{
 		if (lumpinfo[i].path == path)
-			//I_Printf("FindLumpFromPath: returned '%s'", i);
 			return i;
 	}
 	return -1;
@@ -3292,6 +3290,11 @@ void *W_LoadLumpName(const char *name)
 const char *W_GetLumpName(int lump)
 {
 	return lumpinfo[lump].name;
+}
+
+const char *W_GetLumpFullName(int lump)
+{
+	return lumpinfo[lump].fullname.c_str();  //.compare(0, strlen(lump), name)
 }
 
 void W_ProcessTX_HI(void)
