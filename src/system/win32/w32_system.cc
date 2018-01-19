@@ -48,6 +48,7 @@ extern int __cdecl I_W32ExceptionHandler(PEXCEPTION_POINTERS ep);
 
 extern FILE* debugfile;
 extern FILE* logfile;
+extern FILE* openglfile;
 
 bool ff_shake[MAXPLAYERS];
 int ff_frequency[MAXPLAYERS];
@@ -56,7 +57,9 @@ int ff_timeout[MAXPLAYERS];
 
 // output string buffer
 #define MSGBUFSIZE 4096
+#define GLMSGBUFSIZE 8096
 static char msgbuf[MSGBUFSIZE];
+static char glbuf[GLMSGBUFSIZE];
 
 // ================ INTERNALS =================
 
@@ -199,6 +202,11 @@ void I_Error(const char *error,...)
 		fprintf(debugfile, "ERROR: %s\n", msgbuf);
 		fflush(debugfile);
 	}
+	if (openglfile)
+	{
+		fprintf(openglfile, "ERROR: %s\n", glbuf);
+		fflush(openglfile);
+	}
 
 	I_SystemShutdown();
 
@@ -245,6 +253,47 @@ void I_Printf(const char *message,...)
 
 	// Send the message to the console.
 	CON_Printf("%s", printbuf);
+
+	va_end(argptr);
+}
+
+//
+// I_Printf
+//
+void I_PrintGL(const char *message, ...)
+{
+	va_list argptr;
+	char *glstring;
+	//char printbuf[MSGBUFSIZE];
+	char printglbuf[GLMSGBUFSIZE];
+
+	// clear the buffer
+	memset(printglbuf, 0, GLMSGBUFSIZE);
+	//memset(printbuf, 0, MSGBUFSIZE);
+
+	glstring = printglbuf;
+
+	va_start(argptr, message);
+
+	// Print the message into a text string
+	vsnprintf(printglbuf, 8096, message, argptr);
+
+	L_WriteOpenGL("%s", printglbuf);
+
+	// Clean up \n\r combinations
+	while (*glstring)
+	{
+		if (*glstring == '\n')
+		{
+			memmove(glstring + 2, glstring + 1, strlen(glstring));
+			glstring[1] = '\r';
+			glstring++;
+		}
+		glstring++;
+	}
+
+	// Send the message to the console.
+	//CON_Printf("%s", printbuf);
 
 	va_end(argptr);
 }
