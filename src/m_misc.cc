@@ -729,7 +729,6 @@ void I_Debugf(const char *message,...)
 	fflush(debugfile);
 }
 
-
 extern FILE *logfile; // FIXME: make file_c and unify with debugfile
 
 void I_Logf(const char *message,...)
@@ -753,6 +752,31 @@ void I_Logf(const char *message,...)
 
 	fprintf(logfile, "%s", message_buf);
 	fflush(logfile);
+}
+
+extern FILE *openglfile;
+
+void I_GLf(const char *message, ...)
+{
+	if (!openglfile)
+		return;
+
+	char message_buf[8096];
+
+	message_buf[8095] = 0;
+
+	// Print the message into a text string
+	va_list argptr;
+
+	va_start(argptr, message);
+	vsprintf(message_buf, message, argptr);
+	va_end(argptr);
+
+	// I hope nobody is printing strings longer than 4096 chars...
+	SYS_ASSERT(message_buf[8095] == 0);
+
+	fprintf(openglfile, "%s", message_buf);
+	fflush(openglfile);
 }
 
 
