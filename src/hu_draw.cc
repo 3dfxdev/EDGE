@@ -659,7 +659,7 @@ void HUD_DrawText(float x, float y, const char *str)
 extern bool no_render_buffers;
 bool RGL_GL3Enabled();
 
-#pragma optimize("", off) //FIXME: Hack to fix stuff, just trying this out!
+//#pragma optimize("", off) //FIXME: Hack to fix stuff, just trying this out!
 
 void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera)
 {
@@ -697,7 +697,7 @@ void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera)
 		RGL_UpdateCameraExposure();
 		RGL_BloomScene();
 		RGL_LensDistortScene();
-		RGL_ApplyFXAA();
+		//RGL_ApplyFXAA();
 
 		// Copy result back to back buffer
 		renderbuffers->BindCurrentFB();
