@@ -221,7 +221,7 @@ void RGL_CheckExtensions(void)
 	GLenum err = glewInit();
 
 	if (err != GLEW_OK)
-		I_Error("Unable to initialise GLEW: %s\n",
+		I_Error("Unable to initialize GLEW: %s\n",
 			glewGetErrorString(err));
 
 	// -ACB- 2004/08/11 Made local: these are not yet used elsewhere
@@ -255,7 +255,7 @@ void RGL_CheckExtensions(void)
 	{ /* OK */
 	}
 	else
-		I_Error("OpenGL driver does not support Multitexturing.\n");
+		I_Error("OpenGL driver does not support Multi-texturing.\n");
 
 	if (GLEW_VERSION_1_3 || GLEW_EXT_texture_filter_anisotropic)
 	{
@@ -265,8 +265,8 @@ void RGL_CheckExtensions(void)
 	else
 		I_Printf("OpenGL: Does not support anisotropy!\n");
 
-	if (GLEW_ARB_vertex_shader && GLEW_ARB_fragment_shader)
-		I_Printf("OpenGL: GLSL Initialised.\n");
+if (GLEW_ARB_vertex_shader || GLEW_ARB_fragment_shader)
+		I_Printf("OpenGL: GLSL Initialized.\n");
 	else {
 		I_Warning("OpenGL: GLSL not supported on this GPU! :( \n");
 		r_bloom = 0;
