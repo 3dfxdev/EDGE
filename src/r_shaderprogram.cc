@@ -22,12 +22,15 @@
 //
 
 #include "../epi/str_format.h"
-#include "../epi/filesystem.h"
+
 #include "system/i_defs.h"
 #include "system/i_defs_gl.h"
 #include "system/i_sdlinc.h"
 #include "r_shaderprogram.h"
 #include "w_wad.h"
+#include "z_zone.h"
+
+//#define DEBUG_GLSHADER_TEXTDUMP
 
 namespace
 {
@@ -87,9 +90,10 @@ void FShaderProgram::CreateShader(ShaderType type)
 // (special thanks to dpJudas for adding a new function to load these) <3
 //
 //==========================================================================
-
 void FShaderProgram::Compile(ShaderType type, const char *lumpname, const char *defines, int maxGlslVersion)
 {
+	//std::string path = epi::PATH_GetFilename(lumpname.c_str());
+
 	int lump = W_FindLumpFromPath(lumpname);
 
 	int length = 0;
@@ -97,17 +101,13 @@ void FShaderProgram::Compile(ShaderType type, const char *lumpname, const char *
 
 	Compile(type, lumpname, (const char *)code, defines, maxGlslVersion);
 
-	I_Printf("Compiling GLSL shader: '%s'\n", lumpname);
-
 	//Free it!
 	delete[] code;
-
 }
 
 void FShaderProgram::Compile(ShaderType type, const char *name, const std::string &code, const char *defines, int maxGlslVersion)
 {
 	CreateShader(type);
-	//I_Printf("GLSL: Creating Shader %s\n", type);
 
 	const auto &handle = mShaders[type];
 
@@ -121,12 +121,18 @@ void FShaderProgram::Compile(ShaderType type, const char *name, const std::strin
 	glCompileShader(handle);
 
 	GLint status = 0;
+
 	glGetShaderiv(handle, GL_COMPILE_STATUS, &status);
+
 	if (status == GL_FALSE)
 	{
-		sprintf("Compile Shader '%s':\n%s\n", name, GetShaderInfoLog(handle).c_str());
+		I_Error("Compile Shader '%s':\n%s\n", name, GetShaderInfoLog(handle).c_str());
 	}
+
 	else
+#ifdef DEBUG_GLSHADER_TEXTDUMP
+		I_GLf("Compiled Shader '%s':\n%s\n", name, patchedCode.c_str());
+#endif
 	{
 		if (mProgram == 0)
 			mProgram = glCreateProgram();
@@ -162,7 +168,7 @@ void FShaderProgram::Link(const char *name)
 	glGetProgramiv(mProgram, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE)
 	{
-		sprintf("Link Shader '%s':\n%s\n", name, GetProgramInfoLog(mProgram).c_str());
+		I_Error("Link Shader '%s':\n%s\n", name, GetProgramInfoLog(mProgram).c_str());
 	}
 }
 
@@ -217,7 +223,6 @@ std::string FShaderProgram::GetProgramInfoLog(GLuint handle)
 	glGetProgramInfoLog(handle, 10000, &length, buffer);
 	return std::string(buffer);
 }
-
 //==========================================================================
 //
 // Patches a shader to be compatible with the version of OpenGL in use

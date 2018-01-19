@@ -85,6 +85,7 @@ void RGL_RenderScreenQuad()
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+
 }
 
 std::string RGL_ScreenQuadVertexCode()
@@ -282,7 +283,7 @@ bool FGLRenderBuffers::Setup(int width, int height, int sceneWidth, int sceneHei
 		return false;
 		
 	if (width <= 0 || height <= 0)
-		I_FatalError("Requested invalid render buffer sizes: screen = %dx%d", width, height);
+		I_Error("Requested invalid render buffer sizes: screen = %dx%d", width, height);
 
 	int samples = clamp((int)gl_multisample, 0, mMaxSamples);
 	bool needsSceneTextures = (gl_ssao != 0);
@@ -414,7 +415,7 @@ void FGLRenderBuffers::CreateBloom(int width, int height)
 	
 	// No scene, no bloom!
 	if (width <= 0 || height <= 0)
-		return;
+		return I_Error("No scene, no bloom!");
 
 	int bloomWidth = (width + 1) / 2;
 	int bloomHeight = (height + 1) / 2;
