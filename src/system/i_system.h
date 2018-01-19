@@ -320,8 +320,11 @@ void I_SetGamma(float gamma);
 
 void I_Logf(const char *message,...) GCCATTR((format(printf, 1, 2)));
 
+void I_GLf(const char *message, ...) GCCATTR((format(printf, 1, 2)));
+
 #define L_WriteDebug  I_Debugf
 #define L_WriteLog    I_Logf
+#define L_WriteOpenGL I_GLf
 
 
 #endif /*__I_SYSTEM_H__*/
