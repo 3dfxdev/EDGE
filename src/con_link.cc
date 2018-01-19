@@ -81,7 +81,7 @@ extern cvar_c r_gl3_path;
 extern cvar_c r_renderprecise;
 extern cvar_c r_oldblend;
 
-extern cvar_c r_bloom, r_bloom_amount, r_exposure_scale, r_exposure_min, r_exposure_base, r_exposure_speed, r_bloom_kernal_size;
+extern cvar_c r_bloom, r_bloom_amount;//, r_exposure_scale, r_exposure_min, r_exposure_base, r_exposure_speed, r_bloom_kernal_size;
 extern cvar_c r_lens;
 extern cvar_c r_fxaa;
 
@@ -150,7 +150,7 @@ cvar_link_t  all_cvars[] =
 
 	{ "soundpitch",      &sound_pitch,         "c",    "1" },
 
-	{ "r_oldblend",      &r_oldblend,           "c",    "0"},
+	{ "r_oldblend",      &r_oldblend,           "c",    "1"},
 
 	// If palette incorrectly remaps palette, this can be set.
 	{ "r_transfix",      &r_transfix,           "c",    "0" },
@@ -231,17 +231,20 @@ cvar_link_t  all_cvars[] =
 	{ "debug_lerp",       &debug_testlerp,   "c", "0"},
 
 	{ "r_md5scale",        &r_md5scale,        "c", "0" },
-	{ "r_lerp",        &r_lerp,        "c", "1" },
-	{ "r_maxfps",        &r_maxfps,        "c", "0" }, //experimental. . .
-	{ "r_vsync",           &r_vsync,        "c", "0" },
+	{ "r_lerp",			   &r_lerp,        "c", "1" },
+	{ "r_maxfps",          &r_maxfps,        "c", "0" }, //experimental. . .
+	{ "r_vsync",           &r_vsync,        "c", "1" },
 
 
-	{ "r_bloom",           &r_bloom,        "c", "1" },
-	{ "r_bloom_amount",    &r_bloom_amount, "c", "1.0" },
+	{ "r_bloom",           &r_bloom,        "c", "1" }, 
+	{ "r_bloom_amount",    &r_bloom_amount, "c", "1.5" },
+#if 0
 	{ "r_exposure_scale",  &r_exposure_scale, "c", "2.0" },
 	{ "r_exposure_min",    &r_exposure_min, "c", "0.1" },
 	{ "r_exposure_base",   &r_exposure_base, "c", "0.1" },
 	{ "r_exposure_speed",  &r_exposure_speed, "c", "0.05" },
+#endif // 0
+
 
 
 	{ "r_lens",		       &r_lens,			"c", "1" },
