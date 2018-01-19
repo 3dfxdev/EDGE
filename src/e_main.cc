@@ -128,6 +128,7 @@ bool need_save_screenshot = false;
 
 FILE *logfile = NULL;
 FILE *debugfile = NULL;
+FILE *openglfile = NULL;
 
 cvar_c i_skipsplash;
 
@@ -1538,9 +1539,11 @@ static void SetupLogAndDebugFiles(void)
 
 	std::string log_fn(epi::PATH_Join(home_dir.c_str(), EDGELOGFILE));
 	std::string debug_fn(epi::PATH_Join(home_dir.c_str(), "debug.txt"));
+	std::string gl_fn(epi::PATH_Join(home_dir.c_str(), "edgegl.txt"));
 
 	logfile = NULL;
 	debugfile = NULL;
+	openglfile = NULL;
 
 	if (!M_CheckParm("-nolog"))
 	{
@@ -1565,8 +1568,13 @@ static void SetupLogAndDebugFiles(void)
 	{
 		debugfile = fopen(debug_fn.c_str(), "w");
 
+		openglfile = fopen(gl_fn.c_str(), "w");
+
 		if (!debugfile)
 			I_Error("[E_Startup] Unable to create debugfile");
+
+		if (!openglfile)
+			I_Error("[E_Startup] Unable to create openglfile");
 	}
 }
 
