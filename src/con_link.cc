@@ -281,7 +281,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_width",        &r_width,        "c",   "640"   },
 	{ "r_height",       &r_height,       "c",   "480"   },
     { "r_depth",        &r_depth,        "c",   "32"    },
-    { "r_fullscreen",   &r_fullscreen,   "c",   "1"     },
+    { "r_fullscreen",   &r_fullscreen,   "c",   "0"     },
 												
 	{ "r_gamma",        &r_gamma,        "c",   "1"  },
 
