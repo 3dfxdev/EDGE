@@ -140,6 +140,19 @@ fflush(stdout);
 		I_Error(0, "Exception caught in main: see CRASHLOG.TXT for info\n");
 	}
 #endif
+
+#ifdef LINUX
+	try 
+	{
+		E_Main(argc, (const char **) argv);
+		//common_main(argc, argv);
+	}
+	catch (int e) 
+	{
+		I_Error(0, "Exception caught in main: see CRASHLOG.TXT for info\n");
+	}
+#endif
+
 	return 0;
 
 }
