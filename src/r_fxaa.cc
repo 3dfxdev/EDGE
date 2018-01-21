@@ -31,10 +31,10 @@
 #include "r_misc.h"
 #include "r_modes.h"
 
-
+RenderContext gl;
 cvar_c r_fxaa;
 #define gl_fxaa (bool)(r_fxaa.d != 0)
-#define gl_fxaa_quality (float)(r_fxaa_quality.d != 0)
+//#define gl_fxaa_quality (float)(r_fxaa_quality.d != 0)
 
 //-----------------------------------------------------------------------------
 //
@@ -118,7 +118,7 @@ static inline const char *SafeStr(const void *s)
 
 static int GetMaxVersion()
 {
-
+	return gl.glslversion >= 4.f ? 400 : 330;
 }
 
 
@@ -136,15 +136,14 @@ static std::string GetDefines()
 	}
 
 
-	const int gatherAlpha = 0;// = GetMaxVersion() >= 400 ? 1 : 0;
+	const int gatherAlpha = GetMaxVersion() >= 400 ? 1 : 0;
 
 	// TODO: enable FXAA_GATHER4_ALPHA on OpenGL earlier than 4.0
 	// when GL_ARB_gpu_shader5/GL_NV_gpu_shader5 extensions are supported
-	std::string result = R"(
-		/*
+	std::string result = epi::STR_FormatCStr(
 		"#define FXAA_QUALITY__PRESET %i\n"
 		"#define FXAA_GATHER4_ALPHA %i\n",
-		quality, gatherAlpha)";
+		quality, gatherAlpha);
 
 	return result;
 
@@ -160,10 +159,10 @@ void FFXAAShader::Bind()
 	{
 
 		const std::string defines = GetDefines();
-		//const int maxVersion = GetMaxVersion();
+		const int maxVersion = GetMaxVersion();
 
 		shader.Compile(FShaderProgram::Vertex, "/pack0/shaders/glsl/screenquad.vp", "", 330);
-		shader.Compile(FShaderProgram::Fragment, "/pack0/shaders/glsl/fxaa.fp", defines.c_str(), 330);
+		shader.Compile(FShaderProgram::Fragment, "/pack0/shaders/glsl/fxaa.fp", defines.c_str(), maxVersion);
 		shader.SetFragDataLocation(0, "FragColor");
 		shader.Link("/pack0/shaders/glsl/fxaa");
 		shader.SetAttribLocation(0, "PositionInProjection");

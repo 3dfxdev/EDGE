@@ -28,7 +28,7 @@
 
 #include "r_shaderprogram.h"
 #include <memory>
-
+extern RenderContext gl;
 void RGL_ApplyFXAA();
 
 class FFXAALumaShader
