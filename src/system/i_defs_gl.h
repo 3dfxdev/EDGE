@@ -53,6 +53,52 @@
 
 #define USING_GL_TYPES 1
 
+enum GLCompat
+{
+	CMPT_GL2,
+	CMPT_GL2_SHADER,
+	CMPT_GL3,
+	CMPT_GL4
+};
+
+enum RenderFlags
+{
+	// [BB] Added texture compression flags.
+	RFL_TEXTURE_COMPRESSION = 1,
+	RFL_TEXTURE_COMPRESSION_S3TC = 2,
+
+	RFL_SHADER_STORAGE_BUFFER = 4,
+	RFL_BUFFER_STORAGE = 8,
+	RFL_SAMPLER_OBJECTS = 16,
+
+	RFL_NO_CLIP_PLANES = 32,
+
+	RFL_INVALIDATE_BUFFER = 64,
+	RFL_DEBUG = 128
+};
+
+struct RenderContext
+{
+	unsigned int flags;
+	unsigned int maxuniforms;
+	unsigned int maxuniformblock;
+	unsigned int uniformblockalignment;
+	int lightmethod;
+	int buffermethod;
+	float glslversion;
+	int max_texturesize;
+	char * vendorstring;
+	bool legacyMode;
+	bool es;
+
+	int MaxLights() const
+	{
+		return maxuniforms >= 2048 ? 128 : 64;
+	}
+};
+
+extern RenderContext gl;
+
 #endif /* __SYSTEM_SPECIFIC_DEFS_OPENGL__ */
 
 
