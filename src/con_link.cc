@@ -248,7 +248,7 @@ cvar_link_t  all_cvars[] =
 
 
 	{ "r_lens",		       &r_lens,			"c", "1" },
-	{ "r_fxaa",            &r_fxaa,         "c", "1" },
+	{ "r_fxaa",            &r_fxaa,         "c", "0" },
 
 	{ "i_skipsplash",	&i_skipsplash,	"c", "0" },
 

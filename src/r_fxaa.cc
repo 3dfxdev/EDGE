@@ -34,12 +34,23 @@
 
 cvar_c r_fxaa;
 #define gl_fxaa (bool)(r_fxaa.d != 0)
+#define gl_fxaa_quality (float)(r_fxaa_quality.d != 0)
 
 //-----------------------------------------------------------------------------
 //
 // Apply FXAA and place the result in the HUD/2D texture
 //
 //-----------------------------------------------------------------------------
+
+
+// configure fxaa
+#define FXAA_PC 1
+#define FXAA_GLSL_130 1
+#define FXAA_QUALITY__PRESET 29
+
+#define FXAA_GATHER4_ALPHA 0
+
+
 
 void RGL_ApplyFXAA()
 {
@@ -68,45 +79,19 @@ void RGL_ApplyFXAA()
 	RGL_RenderScreenQuad();
 	mBuffers->NextTexture();
 
-#if 0
 	mBuffers->BindNextFB();
 	mBuffers->BindCurrentTexture(0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	mBuffers->FXAALumaShader.Bind();
-	mBuffers->FXAALumaShader.InputTexture.Set(0);
-	mBuffers->FXAALumaShader.ReciprocalResolution.Set(rpcRes);
+	mBuffers->FXAAShader.Bind();
+	mBuffers->FXAAShader.InputTexture.Set(0);
+	mBuffers->FXAAShader.ReciprocalResolution.Set(rpcRes);
 	RGL_RenderScreenQuad();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	mBuffers->NextTexture();
-#endif // 0
-
 
 	//FGLDebug::PopGroup();
-}
-
-std::string RGL_FXAAFragmentCode()
-{
-	return R"(
-
-in vec2 TexCoord;
-out vec4 FragColor;
-
-uniform sampler2D InputTexture;
-
-#ifdef FXAA_LUMA_PASS
-
-void main()
-{
-	vec3 tex = texture(InputTexture, TexCoord).rgb;
-	vec3 luma = vec3(0.299, 0.587, 0.114);
-	FragColor = vec4(tex, dot(tex, luma));
-}
-
-
-#endif // FXAA_LUMA_PASS
-)";
 }
 
 
@@ -133,15 +118,11 @@ static inline const char *SafeStr(const void *s)
 
 static int GetMaxVersion()
 {
-	//const char *glslversion = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
-	//std::string glstr_glsl(SafeStr(
-	const char *glslversion = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
-	return *glslversion >= 4.f ? 400 : 330;
+
 }
- // 0
 
 
-static epi::strent_c GetDefines()
+static std::string GetDefines()
 {
 	int quality;
 
@@ -154,17 +135,20 @@ static epi::strent_c GetDefines()
 	case FFXAAShader::Extreme: quality = 39; break;
 	}
 
-	const int gatherAlpha = GetMaxVersion() >= 400 ? 1 : 0;
+
+	const int gatherAlpha = 0;// = GetMaxVersion() >= 400 ? 1 : 0;
 
 	// TODO: enable FXAA_GATHER4_ALPHA on OpenGL earlier than 4.0
 	// when GL_ARB_gpu_shader5/GL_NV_gpu_shader5 extensions are supported
-	epi::strent_c result;
-	epi::STR_Format(
+	std::string result = R"(
+		/*
 		"#define FXAA_QUALITY__PRESET %i\n"
 		"#define FXAA_GATHER4_ALPHA %i\n",
-		quality, gatherAlpha);
+		quality, gatherAlpha)";
 
 	return result;
+
+
 }
 
 void FFXAAShader::Bind()
@@ -174,10 +158,12 @@ void FFXAAShader::Bind()
 
 	if (!shader)
 	{
-		const epi::strent_c defines = GetDefines();
-		const int maxVersion = GetMaxVersion();
+
+		const std::string defines = GetDefines();
+		//const int maxVersion = GetMaxVersion();
+
 		shader.Compile(FShaderProgram::Vertex, "/pack0/shaders/glsl/screenquad.vp", "", 330);
-		shader.Compile(FShaderProgram::Fragment, "/pack0/shaders/glsl/fxaa.fp", "", 330);  //TODO: SAVE THESE FOR LATER, FOR NOW RENDER THE FXAA AS-IS GetDefines(), maxVersion);
+		shader.Compile(FShaderProgram::Fragment, "/pack0/shaders/glsl/fxaa.fp", defines.c_str(), 330);
 		shader.SetFragDataLocation(0, "FragColor");
 		shader.Link("/pack0/shaders/glsl/fxaa");
 		shader.SetAttribLocation(0, "PositionInProjection");
