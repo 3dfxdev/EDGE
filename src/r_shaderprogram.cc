@@ -38,7 +38,7 @@ namespace
 
 	int GLShaderVersion()
 	{
-		return 330; // return (int)round(gl.glslversion * 10) * 10;
+		return (int)round(gl.glslversion * 10) * 10;
 	}
 }
 
@@ -92,8 +92,6 @@ void FShaderProgram::CreateShader(ShaderType type)
 //==========================================================================
 void FShaderProgram::Compile(ShaderType type, const char *lumpname, const char *defines, int maxGlslVersion)
 {
-	//std::string path = epi::PATH_GetFilename(lumpname.c_str());
-
 	int lump = W_FindLumpFromPath(lumpname);
 
 	int length = 0;
@@ -130,7 +128,7 @@ void FShaderProgram::Compile(ShaderType type, const char *name, const std::strin
 	}
 
 	else
-#ifdef DEBUG_GLSHADER_TEXTDUMP
+#ifdef DEBUG_GLSHADER_TEXTDUMP 1
 		I_GLf("Compiled Shader '%s':\n%s\n", name, patchedCode.c_str());
 #endif
 	{
@@ -170,6 +168,8 @@ void FShaderProgram::Link(const char *name)
 	{
 		I_Error("Link Shader '%s':\n%s\n", name, GetProgramInfoLog(mProgram).c_str());
 	}
+	else
+		I_PrintGLSL("Linking GLSL Shader '%s'\n", name, GetProgramInfoLog(mProgram).c_str());
 }
 
 //==========================================================================
