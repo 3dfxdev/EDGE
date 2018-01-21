@@ -779,6 +779,31 @@ void I_GLf(const char *message, ...)
 	fflush(openglfile);
 }
 
+extern FILE *shadercompilefile;
+
+void I_PrintGLSL(const char *message, ...)
+{
+	if (!shadercompilefile)
+		return;
+
+	char message_buf[8096];
+
+	message_buf[8095] = 0;
+
+	// Print the message into a text string
+	va_list argptr;
+
+	va_start(argptr, message);
+	vsprintf(message_buf, message, argptr);
+	va_end(argptr);
+
+	// I hope nobody is printing strings longer than 4096 chars...
+	SYS_ASSERT(message_buf[8095] == 0);
+
+	fprintf(shadercompilefile, "%s", message_buf);
+	fflush(shadercompilefile);
+}
+
 
 //
 // Just like L_CompareTimeStamps above, but give the filenames.
