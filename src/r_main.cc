@@ -19,6 +19,8 @@
 #include "system/i_defs.h"
 #include "system/i_defs_gl.h"
 
+#include "..\epi\str_format.h"
+
 #include "g_game.h"
 #include "r_misc.h"
 #include "r_gldefs.h"
@@ -29,11 +31,17 @@
 #include "r_image.h"
 #include "r_renderbuffers.h"
 
+//fixme: Remove "tarray" and use epi::array_c
+#include "tarray.h"
+
+#include "m_argv.h"
 #define DEBUG  0
 
 #define GL_EXT_texture_filter_anisotropic_Init() \
-	has_GL_EXT_texture_filter_anisotropic = RGL_CheckExtensions("GL_EXT_texture_filter_anisotropic");
+	has_GL_EXT_texture_filter_anisotropic = RGL_RGL_CheckExtensions("GL_EXT_texture_filter_anisotropic");
 
+//fixme: Remove "tarray" and use epi::array_c
+static TArray<std::string>  m_Extensions;
 
 // implementation limits
 
@@ -63,6 +71,9 @@ typedef enum
 	PFT_MULTI_TEX = (1 << 3),
 }
 problematic_feature_e;
+
+
+
 
 typedef struct
 {
@@ -210,12 +221,277 @@ static inline const char *SafeStr(const void *s)
 	return s ? (const char *)s : "";
 }
 
+#define FUDGE_FUNC(name, ext) 	if (_GLEW_GET_FUN_##name == NULL) _ptrc_##name = _ptrc_##name##ext;
+
+
+static void RGL_CollectExtensions()
+{
+	const char *extension;
+
+	int max = 0;
+	glGetIntegerv(GL_NUM_EXTENSIONS, &max);
+
+	if (0 == max)
+	{
+		// Try old method to collect extensions
+		const char *supported = (char *)glGetString(GL_EXTENSIONS);
+
+		if (nullptr != supported)
+		{
+			char *extensions = new char[strlen(supported) + 1];
+			strcpy(extensions, supported);
+
+			char *extension = strtok(extensions, " ");
+
+			while (extension)
+			{
+				m_Extensions.Push(std::string(extension));
+				extension = strtok(nullptr, " ");
+			}
+
+			delete[] extensions;
+		}
+	}
+	else
+	{
+		// Use modern method to collect extensions
+		for (int i = 0; i < max; i++)
+		{
+			extension = (const char*)glGetStringi(GL_EXTENSIONS, i);
+			m_Extensions.Push(std::string(extension));
+		}
+	}
+}
+
+static bool RGL_CheckExtension(const char *ext)
+{
+	for (unsigned int i = 0; i < m_Extensions.Size(); ++i)
+	{
+		if (m_Extensions[i].compare(ext) == 0) return true;
+	}
+
+	return false;
+}
+
+//#define name GLEW_GET_FUN
+
+//#define FUDGE_FUNC(name, ext) 	if (_ptrc_##name == NULL) _ptrc_##name = _ptrc_##name##ext;
+
+// forward declaration to detect outdated opengl
+extern bool no_render_buffers;
+void RGL_LoadExtensions()
+{
+	//FIXME: REMOVE GLEW!!!
+	GLenum err = glewInit();
+
+	if (err != GLEW_OK)
+		I_Error("Unable to initialize GLEW: %s\n",
+			glewGetErrorString(err));
+
+	RGL_CollectExtensions();
+
+	const char *glversion = (const char*)glGetString(GL_VERSION);
+	gl.es = false;
+
+	if (glversion && strlen(glversion) > 10 && memcmp(glversion, "OpenGL ES ", 10) == 0)
+	{
+		glversion += 10;
+		gl.es = true;
+	}
+
+	const char *version = M_GetParm("-glversion");
+
+	if (version == NULL)
+	{
+		version = glversion;
+	}
+	else
+	{
+		double v1 = strtod(version, NULL);
+		double v2 = strtod(glversion, NULL);
+		if (v2 < v1) version = glversion;
+		else 
+			I_Printf("Emulating OpenGL v %s\n", version);
+	}
+
+	float gl_version = (float)strtod(version, NULL) + 0.01f;
+
+
+	if (gl.es)
+	{
+		if (gl_version < 2.0f)
+		{
+			I_Error("Unsupported OpenGL ES version.\nAt least OpenGL ES 2.0 is required to run EDGE.\n");
+		}
+
+		const char *glslversion = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+		if (glslversion && strlen(glslversion) > 18 && memcmp(glslversion, "OpenGL ES GLSL ES ", 10) == 0)
+		{
+			glslversion += 18;
+		}
+
+		// add 0.01 to account for roundoff errors making the number a tad smaller than the actual version
+		gl.glslversion = strtod(glslversion, NULL) + 0.01f;
+		gl.vendorstring = (char*)glGetString(GL_VENDOR);
+
+		// Use the slowest/oldest modern path for now
+		gl.legacyMode = false;
+		//gl.lightmethod = LM_DEFERRED;
+		//gl.buffermethod = BM_DEFERRED;
+	}
+	else
+	{
+
+		// Don't even start if it's lower than 2.0 or no framebuffers are available (The framebuffer extension is needed for glGenerateMipmapsEXT!)
+		if ((gl_version < 2.0f || !RGL_CheckExtension("GL_EXT_framebuffer_object")) && gl_version < 3.0f)
+		{
+			I_Error("Unsupported OpenGL version!\nAt least OpenGL 2.0 with framebuffer support is required to run EDGE.\nRestart EDGE with -oldGLchecks for OpenGL 1.1!");
+		}
+
+		gl.es = false;
+
+		// add 0.01 to account for roundoff errors making the number a tad smaller than the actual version
+		gl.glslversion = strtod((char*)glGetString(GL_SHADING_LANGUAGE_VERSION), NULL) + 0.01f;
+
+		gl.vendorstring = (char*)glGetString(GL_VENDOR);
+
+		// first test for optional features
+		if (RGL_CheckExtension("GL_ARB_texture_compression")) gl.flags |= RFL_TEXTURE_COMPRESSION;
+		if (
+			RGL_CheckExtension("GL_EXT_texture_compression_s3tc")) gl.flags |= RFL_TEXTURE_COMPRESSION_S3TC;
+
+		if ((gl_version >= 3.3f || RGL_CheckExtension("GL_ARB_sampler_objects")) && !M_CheckParm("-nosampler"))
+		{
+			gl.flags |= RFL_SAMPLER_OBJECTS;
+		}
+
+		// The minimum requirement for the modern render path are GL 3.0 + uniform buffers. 
+		// Also exclude the Linux Mesa driver at GL 3.0 because it errors out on shader compilation.
+		if (gl_version < 3.0f || (gl_version < 3.1f && (!RGL_CheckExtension("GL_ARB_uniform_buffer_object") || strstr(gl.vendorstring, "X.Org") != nullptr)))
+		{
+			gl.legacyMode = true;
+			//gl.lightmethod = LM_LEGACY;
+			//gl.buffermethod = BM_LEGACY;
+			gl.glslversion = 0;
+			gl.flags |= RFL_NO_CLIP_PLANES;
+		}
+		else
+		{
+			gl.legacyMode = false;
+			//gl.lightmethod = LM_DEFERRED;
+			//gl.buffermethod = BM_DEFERRED;
+			if (gl_version < 4.f)
+			{
+#ifdef _WIN32
+				if (strstr(gl.vendorstring, "ATI Tech"))
+				{
+					gl.flags |= RFL_NO_CLIP_PLANES;	// gl_ClipDistance is horribly broken on ATI GL3 drivers for Windows.
+				}
+#endif
+			}
+			else if (gl_version < 4.5f)
+			{
+				// don't use GL 4.x features when running a GL 3.x context.
+				if (RGL_CheckExtension("GL_ARB_buffer_storage"))
+				{
+					// work around a problem with older AMD drivers: Their implementation of shader storage buffer objects is piss-poor and does not match uniform buffers even closely.
+					// Recent drivers, GL 4.4 don't have this problem, these can easily be recognized by also supporting the GL_ARB_buffer_storage extension.
+					if (RGL_CheckExtension("GL_ARB_shader_storage_buffer_object"))
+					{
+						// Intel's GLSL compiler is a bit broken with extensions, so unlock the feature only if not on Intel or having GL 4.3.
+						if (strstr(gl.vendorstring, "Intel") == NULL || gl_version >= 4.3f)
+						{
+							gl.flags |= RFL_SHADER_STORAGE_BUFFER;
+						}
+					}
+					gl.flags |= RFL_BUFFER_STORAGE;
+					//gl.lightmethod = LM_DIRECT;
+					//gl.buffermethod = BM_PERSISTENT;
+				}
+			}
+			else
+			{
+				// Assume that everything works without problems on GL 4.5 drivers where these things are core features.
+				gl.flags |= RFL_SHADER_STORAGE_BUFFER | RFL_BUFFER_STORAGE;
+				//gl.lightmethod = LM_DIRECT;
+				//gl.buffermethod = BM_PERSISTENT;
+			}
+
+			if (gl_version >= 4.3f || RGL_CheckExtension("GL_ARB_invalidate_subdata")) gl.flags |= RFL_INVALIDATE_BUFFER;
+			if (gl_version >= 4.3f || RGL_CheckExtension("GL_KHR_debug")) gl.flags |= RFL_DEBUG;
+
+			//const char *lm = Args->CheckValue("-lightmethod");
+			//if (lm != NULL)
+			//{
+			//	if (!stricmp(lm, "deferred") && gl.lightmethod == LM_DIRECT) 
+			//		gl.lightmethod = LM_DEFERRED;
+			//}
+
+			//lm = Args->CheckValue("-buffermethod");
+			//if (lm != NULL)
+			//{
+			//	if (!stricmp(lm, "deferred") && gl.buffermethod == BM_PERSISTENT) gl.buffermethod = BM_DEFERRED;
+			//}
+		}
+	}
+
+	int v;
+
+	if (!gl.legacyMode && !(gl.flags & RFL_SHADER_STORAGE_BUFFER))
+	{
+		glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &v);
+		gl.maxuniforms = v;
+		glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &v);
+		gl.maxuniformblock = v;
+		glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &v);
+		gl.uniformblockalignment = v;
+	}
+	else
+	{
+		gl.maxuniforms = 0;
+		gl.maxuniformblock = 0;
+		gl.uniformblockalignment = 0;
+	}
+
+
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &gl.max_texturesize);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	if (gl.legacyMode)
+	{
+		// fudge a bit with the framebuffer stuff to avoid redundancies in the main code. 
+		// Some of the older cards do not have the ARB stuff but the calls are nearly identical.
+#if 0
+		FUDGE_FUNC(glGenerateMipmap, EXT);
+		FUDGE_FUNC(glGenFramebuffers, EXT);
+		FUDGE_FUNC(glBindFramebuffer, EXT);
+		FUDGE_FUNC(glDeleteFramebuffers, EXT);
+		FUDGE_FUNC(glFramebufferTexture2D, EXT);
+		FUDGE_FUNC(glGenerateMipmap, EXT);
+		FUDGE_FUNC(glGenFramebuffers, EXT);
+		FUDGE_FUNC(glBindFramebuffer, EXT);
+		FUDGE_FUNC(glDeleteFramebuffers, EXT);
+		FUDGE_FUNC(glFramebufferTexture2D, EXT);
+		FUDGE_FUNC(glFramebufferRenderbuffer, EXT);
+		FUDGE_FUNC(glGenRenderbuffers, EXT);
+		FUDGE_FUNC(glDeleteRenderbuffers, EXT);
+		FUDGE_FUNC(glRenderbufferStorage, EXT);
+		FUDGE_FUNC(glBindRenderbuffer, EXT);
+		FUDGE_FUNC(glCheckFramebufferStatus, EXT);
+#endif // 0
+
+		//gl_PatchMenu();
+	}
+}
+
+
 //
 // RGL_CheckExtensions
 //
 // Based on code by Bruce Lewis.
 //
-void RGL_CheckExtensions(void)
+void RGL_CheckExtensions_Old(void)
 {
 #ifndef DREAMCAST
 	GLenum err = glewInit();
@@ -265,10 +541,11 @@ void RGL_CheckExtensions(void)
 	else
 		I_Printf("OpenGL: Does not support anisotropy!\n");
 
-if (GLEW_ARB_vertex_shader || GLEW_ARB_fragment_shader)
-		I_Printf("OpenGL: GLSL Initialized.\n");
-	else {
-		I_Warning("OpenGL: GLSL not supported on this GPU! :( \n");
+	if		(GLEW_ARB_vertex_shader || GLEW_ARB_fragment_shader)
+		I_Printf("OpenGL: GLSLv%s Initialized\n", glstr_glsl.c_str());
+	else if (!GLEW_VERSION_2_1) 
+	{
+		I_Warning("OpenGL: GLSLv%s is less than 2.1! Disabling GLSL\n", glstr_glsl.c_str());
 		r_bloom = 0;
 		r_fxaa = 0;
 		r_lens = 0;
@@ -388,9 +665,38 @@ void RGL_SoftInit(void)
 void RGL_Init(void)
 {
 	I_Printf("==============================================================================\n");
-	I_Printf("OpenGL: Initialising...\n");
+	I_Printf("OpenGL Subsystem: Initialising...\n");
 
-	RGL_CheckExtensions();
+	if (M_CheckParm("-oldGLchecks"))
+	{
+		RGL_CheckExtensions_Old();
+	}
+	else
+		//CA -1.21.2018- ~ New, smarter GL extension checker!
+		RGL_LoadExtensions();
+
+	int v = 0;
+	if (!gl.legacyMode) glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &v);
+
+	I_Printf("GL_VENDOR: %s\n", glGetString(GL_VENDOR));
+	I_Printf("GL_RENDERER: %s\n", glGetString(GL_RENDERER));
+	I_Printf("GL_VERSION: %s (%s profile)\n", glGetString(GL_VERSION), (v & GL_CONTEXT_CORE_PROFILE_BIT) ? "Core" : "Compatibility");
+	I_Printf("GLEW_VERSION: %s\n", glewGetString(GLEW_VERSION));
+	I_Printf("GL_SHADING_LANGUAGE_VERSION: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+	I_GLf("GL_EXTENSIONS:");
+	for (unsigned i = 0; i < m_Extensions.Size(); i++)
+	{
+		I_GLf(" %s", m_Extensions[i].c_str());
+	}
+
+	I_Printf("OpenGL: Implementation limits:\n");
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &v);
+	I_Printf("-Maximum texture size: %d\n", v);
+	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &v);
+	I_Printf("-Maximum texture units: %d\n", v);
+	glGetIntegerv(GL_MAX_VARYING_FLOATS, &v);
+	I_Printf("-Maximum varying: %d\n", v);
 
 	// read implementation limits
 	{
@@ -417,8 +723,8 @@ void RGL_Init(void)
 		glmax_tex_units = 2;
 #endif
 	}
-
-	I_Printf("OpenGL: Lights: %d  Clips: %d  Tex: %d  Units: %d\n",
+	I_Printf("==============\n");
+	I_Printf("Legacy OpenGL: Lights: %d  Clip Planes: %d  Tex: %d  Units: %d\n",
 		glmax_lights, glmax_clip_planes, glmax_tex_size, glmax_tex_units);
 	I_Printf("==============================================================================\n");
 
@@ -439,7 +745,7 @@ void RGL_Init(void)
 	RGL_InitRenderBuffers();
 }
 
-void print_stack(int);
+//void print_stack(int);
 
 #if 0
 void RGL_Error(int errCode)
