@@ -126,7 +126,7 @@ void FShaderProgram::Compile(ShaderType type, const char *name, const std::strin
 
 	if (status == GL_FALSE)
 	{
-		I_Error("Compile Shader '%s':\n%s\n", name, GetShaderInfoLog(handle).c_str());
+		I_Error("Error Compiling Shader '%s':\n%s\n", name, GetShaderInfoLog(handle).c_str());
 	}
 
 	else
