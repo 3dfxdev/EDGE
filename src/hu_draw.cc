@@ -697,7 +697,7 @@ void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera)
 		RGL_UpdateCameraExposure();
 		RGL_BloomScene();
 		RGL_LensDistortScene();
-		//RGL_ApplyFXAA();
+		RGL_ApplyFXAA();
 
 		// Copy result back to back buffer
 		renderbuffers->BindCurrentFB();
