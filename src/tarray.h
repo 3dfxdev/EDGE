@@ -95,7 +95,7 @@ public:
 	{
 		Most = max;
 		Count = 0;
-		Array = (T *)Z_New(sizeof(T)*max);
+		Array = (T *)Z_Malloc(sizeof(T)*max);
 	}
 	TArray (const TArray<T> &other)
 	{
@@ -298,7 +298,7 @@ private:
 		Most = Count = other.Count;
 		if (Count != 0)
 		{
-			Array = (T *)Z_New(sizeof(T)*Most);
+			Array = (T *)Z_Malloc(sizeof(T)*Most);
 			for (unsigned int i = 0; i < Count; ++i)
 			{
 				::new(&Array[i]) T(other.Array[i]);
@@ -631,7 +631,7 @@ protected:
 		// Round size up to nearest power of 2
 		for (Size = 1; Size < size; Size <<= 1)
 		{ }
-		Nodes = (Node *)Z_New(Size * sizeof(Node));
+		Nodes = (Node *)Z_Malloc(Size * sizeof(Node));
 		LastFree = &Nodes[Size];	/* all positions are free */
 		for (hash_t i = 0; i < Size; ++i)
 		{
