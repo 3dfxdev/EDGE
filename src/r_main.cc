@@ -19,7 +19,7 @@
 #include "system/i_defs.h"
 #include "system/i_defs_gl.h"
 
-#include "..\epi\str_format.h"
+#include "../epi/str_format.h"
 
 #include "g_game.h"
 #include "r_misc.h"
