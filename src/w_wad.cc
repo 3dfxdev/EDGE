@@ -2873,6 +2873,8 @@ int W_FindNameFromPath(const char *name)
 //
 // Calls W_FindLumpFromPath, but bombs out if not found.
 //
+// CA: So far, unused, disabled for Linux as GCC bombs out for some reason. .
+#if 0
 int W_GetLumpFromPath2(const std::string &path)
 {
 	int i;
@@ -2882,6 +2884,8 @@ int W_GetLumpFromPath2(const std::string &path)
 
 	return i;
 }
+#endif // 0
+
 
 
 //
