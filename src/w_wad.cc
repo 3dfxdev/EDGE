@@ -3063,7 +3063,9 @@ static void W_ReadLump(int lump, void *dest)
 		I_Error("W_ReadLump: %i >= numlumps", lump);
 
 	lumpinfo_t *L = lumpinfo + lump;
+#ifdef _DEBUG
 	I_Debugf("W_ReadLump: %d (%s)\n", lump, L->name);
+#endif
 
 	data_file_c *df = data_files[L->file];
 
@@ -3104,7 +3106,6 @@ byte *W_ReadLumpAlloc(int lump, int *length)
 	byte *data = new byte[*length + 1];
 
 	W_ReadLump(lump, data);
-	//I_Printf("W_ReadLump: '%s'", lump);
 
 	data[*length] = 0;
 
