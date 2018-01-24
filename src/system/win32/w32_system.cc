@@ -298,6 +298,44 @@ void I_PrintGL(const char *message, ...)
 	va_end(argptr);
 }
 
+void I_GLSL(const char *message, ...)
+{
+	va_list argptr;
+	char *glslstring;
+	//char printbuf[MSGBUFSIZE];
+	char printglbuf[GLMSGBUFSIZE];
+
+	// clear the buffer
+	memset(printglbuf, 0, GLMSGBUFSIZE);
+	//memset(printbuf, 0, MSGBUFSIZE);
+
+	glslstring = printglbuf;
+
+	va_start(argptr, message);
+
+	// Print the message into a text string
+	vsnprintf(printglbuf, 8096, message, argptr);
+
+	L_WriteOpenGL("%s", printglbuf);
+
+	// Clean up \n\r combinations
+	while (*glslstring)
+	{
+		if (*glslstring == '\n')
+		{
+			memmove(glslstring + 2, glslstring + 1, strlen(glslstring));
+			glslstring[1] = '\r';
+			glslstring++;
+		}
+		glslstring++;
+	}
+
+	// Send the message to the console.
+	//CON_Printf("%s", printbuf);
+
+	va_end(argptr);
+}
+
 
 void I_MessageBox(const char *message, const char *title)
 {
