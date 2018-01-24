@@ -52,7 +52,8 @@ namespace
 
 void RGL_InitRenderBuffers()
 {
-	I_Printf("RGL_InitRenderBuffers..\n");
+	I_Printf("OpenGL: Initializing Render Buffers (GLSL)...\n");
+	I_Printf("==============================================================================\n");
 	renderbuffers.reset();
 	renderbuffers.reset(new FGLRenderBuffers());
 }

@@ -128,7 +128,7 @@ void FShaderProgram::Compile(ShaderType type, const char *name, const std::strin
 	}
 
 	else
-#ifdef DEBUG_GLSHADER_TEXTDUMP 1
+#ifdef DEBUG_GLSHADER_TEXTDUMP
 		I_GLf("Compiled Shader '%s':\n%s\n", name, patchedCode.c_str());
 #endif
 	{
