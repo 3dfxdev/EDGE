@@ -54,6 +54,7 @@ extern float max_anisotropic = 0;
 extern cvar_c r_bloom;
 extern cvar_c r_lens;
 extern cvar_c r_fxaa;
+extern cvar_c r_fxaa_quality;
 extern cvar_c r_gl3_path;
 extern cvar_c r_anisotropy;
 cvar_c r_aspect;
@@ -226,6 +227,7 @@ static inline const char *SafeStr(const void *s)
 
 static void RGL_CollectExtensions()
 {
+	I_Printf("OpenGL: Collecting Extensions...\n");
 	const char *extension;
 
 	int max = 0;
@@ -346,7 +348,7 @@ void RGL_LoadExtensions()
 		// Don't even start if it's lower than 2.0 or no framebuffers are available (The framebuffer extension is needed for glGenerateMipmapsEXT!)
 		if ((gl_version < 2.0f || !RGL_CheckExtension("GL_EXT_framebuffer_object")) && gl_version < 3.0f)
 		{
-			I_Error("Unsupported OpenGL version!\nAt least OpenGL 2.0 with framebuffer support is required to run EDGE.\nRestart EDGE with -oldGLchecks for OpenGL 1.1!");
+			I_Error("Unsupported OpenGL version!\nAt least OpenGL 2.0 with framebuffer support is required to run EDGE.\nRestart EDGE with -norenderbuffers for OpenGL 1.1!");
 		}
 
 		gl.es = false;
@@ -370,6 +372,7 @@ void RGL_LoadExtensions()
 		// Also exclude the Linux Mesa driver at GL 3.0 because it errors out on shader compilation.
 		if (gl_version < 3.0f || (gl_version < 3.1f && (!RGL_CheckExtension("GL_ARB_uniform_buffer_object") || strstr(gl.vendorstring, "X.Org") != nullptr)))
 		{
+			no_render_buffers = true;
 			gl.legacyMode = true;
 			//gl.lightmethod = LM_LEGACY;
 			//gl.buffermethod = BM_LEGACY;
@@ -379,6 +382,7 @@ void RGL_LoadExtensions()
 		else
 		{
 			gl.legacyMode = false;
+			no_render_buffers = false;
 			//gl.lightmethod = LM_DEFERRED;
 			//gl.buffermethod = BM_DEFERRED;
 			if (gl_version < 4.f)
@@ -449,6 +453,7 @@ void RGL_LoadExtensions()
 	}
 	else
 	{
+		//no_render_buffers = true;
 		gl.maxuniforms = 0;
 		gl.maxuniformblock = 0;
 		gl.uniformblockalignment = 0;
@@ -500,6 +505,8 @@ void RGL_CheckExtensions_Old(void)
 		I_Error("Unable to initialize GLEW: %s\n",
 			glewGetErrorString(err));
 
+	I_Printf("OpenGL: Collecting Extensions (-oldglchecks is set)...\n");
+
 	// -ACB- 2004/08/11 Made local: these are not yet used elsewhere
 	std::string glstr_version(SafeStr(glGetString(GL_VERSION)));
 	std::string glstr_renderer(SafeStr(glGetString(GL_RENDERER)));
@@ -546,10 +553,11 @@ void RGL_CheckExtensions_Old(void)
 	else if (!GLEW_VERSION_2_1) 
 	{
 		I_Warning("OpenGL: GLSLv%s is less than 2.1! Disabling GLSL\n", glstr_glsl.c_str());
-		r_bloom = 0;
-		r_fxaa = 0;
-		r_lens = 0;
-		r_gl3_path = 0;
+		no_render_buffers = true;
+		r_bloom.d = 0;
+		r_fxaa.d = 0;
+		r_lens.d = 0;
+		r_gl3_path.d = 0;
 	}
 
 	if (GLEW_VERSION_1_3 ||
@@ -671,62 +679,64 @@ void RGL_Init(void)
 	{
 		RGL_CheckExtensions_Old();
 	}
-	else
+	else if (!M_CheckParm("-oldGLchecks"))
 		//CA -1.21.2018- ~ New, smarter GL extension checker!
+	{
 		RGL_LoadExtensions();
-
-	int v = 0;
-	if (!gl.legacyMode) glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &v);
-
-	I_Printf("GL_VENDOR: %s\n", glGetString(GL_VENDOR));
-	I_Printf("GL_RENDERER: %s\n", glGetString(GL_RENDERER));
-	I_Printf("GL_VERSION: %s (%s profile)\n", glGetString(GL_VERSION), (v & GL_CONTEXT_CORE_PROFILE_BIT) ? "Core" : "Compatibility");
-	I_Printf("GLEW_VERSION: %s\n", glewGetString(GLEW_VERSION));
-	I_Printf("GL_SHADING_LANGUAGE_VERSION: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-
-	I_GLf("GL_EXTENSIONS:");
-	for (unsigned i = 0; i < m_Extensions.Size(); i++)
-	{
-		I_GLf(" %s", m_Extensions[i].c_str());
 	}
+		int v = 0;
+		if (!gl.legacyMode)
+			glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &v);
 
-	I_Printf("OpenGL: Implementation limits:\n");
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &v);
-	I_Printf("-Maximum texture size: %d\n", v);
-	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &v);
-	I_Printf("-Maximum texture units: %d\n", v);
-	glGetIntegerv(GL_MAX_VARYING_FLOATS, &v);
-	I_Printf("-Maximum varying: %d\n", v);
+		I_Printf("GL_VENDOR: %s\n", glGetString(GL_VENDOR));
+		I_Printf("GL_RENDERER: %s\n", glGetString(GL_RENDERER));
+		I_Printf("GL_VERSION: %s (%s profile)\n", glGetString(GL_VERSION), (v & GL_CONTEXT_CORE_PROFILE_BIT) ? "Core" : "Compatibility");
+		I_Printf("GLEW_VERSION: %s\n", glewGetString(GLEW_VERSION));
+		I_Printf("GL_SHADING_LANGUAGE_VERSION: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-	// read implementation limits
-	{
-		GLint max_tex_size;
+		I_GLf("GL_EXTENSIONS:");
+		for (unsigned i = 0; i < m_Extensions.Size(); i++)
+		{
+			I_GLf(" %s", m_Extensions[i].c_str());
+		}
 
-		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size);
-		glmax_tex_size = max_tex_size;
+		I_Printf("OpenGL: Implementation limits:\n");
+		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &v);
+		I_Printf("-Maximum texture size: %d\n", v);
+		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &v);
+		I_Printf("-Maximum texture units: %d\n", v);
+		glGetIntegerv(GL_MAX_VARYING_FLOATS, &v);
+		I_Printf("-Maximum varying: %d\n", v);
+		glGetIntegerv(GL_MAX_CLIP_PLANES, &v);
+		I_Printf("-MAximum clip planes: %d\n", v);
+
+		// read implementation limits
+		{
+			GLint max_tex_size;
+
+			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size);
+			glmax_tex_size = max_tex_size;
 
 #ifndef DREAMCAST
-		GLint max_lights;
-		GLint max_clip_planes;
-		GLint max_tex_units;
+			GLint max_lights;
+			GLint max_clip_planes;
+			GLint max_tex_units;
 
-		glGetIntegerv(GL_MAX_LIGHTS, &max_lights);
-		glGetIntegerv(GL_MAX_CLIP_PLANES, &max_clip_planes);
-		glGetIntegerv(GL_MAX_TEXTURE_UNITS, &max_tex_units);
+			glGetIntegerv(GL_MAX_LIGHTS, &max_lights);
+			glGetIntegerv(GL_MAX_CLIP_PLANES, &max_clip_planes);
+			glGetIntegerv(GL_MAX_TEXTURE_UNITS, &max_tex_units);
 
-		glmax_lights = max_lights;
-		glmax_clip_planes = max_clip_planes;
-		glmax_tex_units = max_tex_units;
+			glmax_lights = max_lights;
+			glmax_clip_planes = max_clip_planes;
+			glmax_tex_units = max_tex_units;
 #else
-		glmax_lights = 1;
-		glmax_clip_planes = 0;
-		glmax_tex_units = 2;
+			glmax_lights = 1;
+			glmax_clip_planes = 0;
+			glmax_tex_units = 2;
+			I_Printf("Legacy OpenGL: Lights: %d  Clip Planes: %d  Tex: %d  Units: %d\n",
+					glmax_lights, glmax_clip_planes, glmax_tex_size, glmax_tex_units);
 #endif
-	}
-	I_Printf("==============\n");
-	I_Printf("Legacy OpenGL: Lights: %d  Clip Planes: %d  Tex: %d  Units: %d\n",
-		glmax_lights, glmax_clip_planes, glmax_tex_size, glmax_tex_units);
-	I_Printf("==============================================================================\n");
+		}
 
 	GLfloat max_anisotropic;
 
@@ -742,7 +752,19 @@ void RGL_Init(void)
 
 	RGL_SetupMatrices2D();
 
-	RGL_InitRenderBuffers();
+	if ((M_CheckParm("-norenderbuffers")))
+	{
+		no_render_buffers = true;
+		r_bloom.d = 0;
+		r_fxaa.d = 0;
+		r_fxaa_quality.d = 0;
+		r_lens.d = 0;
+		r_gl3_path.d = 0;
+		I_Printf("OpenGL: RenderBuffers/GLSL disabled...\n");
+		I_Printf("==============================================================================\n");
+	}
+	else if ((!M_CheckParm("-norenderbuffers")))
+		RGL_InitRenderBuffers();
 }
 
 //void print_stack(int);

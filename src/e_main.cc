@@ -1540,8 +1540,8 @@ static void SetupLogAndDebugFiles(void)
 
 	std::string log_fn(epi::PATH_Join(home_dir.c_str(), EDGELOGFILE));
 	std::string debug_fn(epi::PATH_Join(home_dir.c_str(), "debug.txt"));
-	std::string gl_fn(epi::PATH_Join(home_dir.c_str(), "glsl.log"));
-	std::string glsl_fn(epi::PATH_Join(home_dir.c_str(), "glext.log"));
+	std::string gl_fn(epi::PATH_Join(home_dir.c_str(), "glext.log"));
+	std::string glsl_fn(epi::PATH_Join(home_dir.c_str(), "glsl.log"));
 
 	logfile = NULL;
 	debugfile = NULL;
