@@ -361,17 +361,17 @@ void I_FinishFrame(void)
 		}
 		else
 #endif
-			// Disabled thru SDL
 			SDL_GL_SetSwapInterval(-1);
-		SDL_GL_SwapWindow(my_vis);
-
-		if (r_vsync.d > 0)
-			glFinish();
-
-		if (in_grab.CheckModified())
-			I_GrabCursor(grab_state);
-
 	}
+	else
+		SDL_GL_SetSwapInterval(-1);
+
+	SDL_GL_SwapWindow(my_vis);
+	if (r_vsync.d > 0)
+		glFinish();
+
+	if (in_grab.CheckModified())
+		I_GrabCursor(grab_state);
 }
 
 void I_PutTitle(const char *title)
