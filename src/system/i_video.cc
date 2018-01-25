@@ -344,34 +344,27 @@ void I_FinishFrame(void)
 	it, this function will fail and return -1. In such a case,
 	you should probably retry the call with 1 for the interval. */
 
-	if (r_swapinterval.d == 1)
+#ifdef _WIN32
+	if (WGLEW_EXT_swap_control)
 	{
-		// SDL-based standard
-		SDL_GL_SetSwapInterval(1);
-	}
-
-	else if (r_swapinterval.d == 2)
-	{
-#ifdef WIN32
-		if (WGLEW_EXT_swap_control)
-		{
-			// Adaptive GL
+		if (r_vsync.d == 1 && r_swapinterval.d == 0)
+			wglSwapIntervalEXT(1);
+		else if (r_vsync.d == 1 && r_swapinterval.d == 1)
 			wglSwapIntervalEXT(-1);
-			SDL_GL_SetSwapInterval(-1);
-		}
-		else
-#endif
-			// Disabled thru SDL
-			SDL_GL_SetSwapInterval(-1);
-		SDL_GL_SwapWindow(my_vis);
-
-		if (r_vsync.d > 0)
-			glFinish();
-
-		if (in_grab.CheckModified())
-			I_GrabCursor(grab_state);
-
 	}
+#endif
+	if (r_vsync.d == 1 && r_swapinterval.d == 0)
+		SDL_GL_SetSwapInterval(1);		// SDL-based standard
+	else if (r_vsync.d == 1 && r_swapinterval.d == 1)
+		SDL_GL_SetSwapInterval(-1);
+
+	SDL_GL_SwapWindow(my_vis);
+
+	if (r_vsync.d > 0)
+		glFinish();
+
+	if (in_grab.CheckModified())
+		I_GrabCursor(grab_state);
 }
 
 void I_PutTitle(const char *title)
