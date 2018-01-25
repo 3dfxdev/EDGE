@@ -84,6 +84,7 @@ extern cvar_c r_oldblend;
 extern cvar_c r_bloom, r_bloom_amount;//, r_exposure_scale, r_exposure_min, r_exposure_base, r_exposure_speed, r_bloom_kernal_size;
 extern cvar_c r_lens;
 extern cvar_c r_fxaa;
+extern cvar_c r_fxaa_quality;
 
 extern cvar_c r_stretchworld;
 extern cvar_c r_fixspritescale;
@@ -249,6 +250,7 @@ cvar_link_t  all_cvars[] =
 
 	{ "r_lens",		       &r_lens,			"c", "1" },
 	{ "r_fxaa",            &r_fxaa,         "c", "0" },
+	{ "r_fxaa_quality",    &r_fxaa_quality,         "c", "0" },
 
 	{ "i_skipsplash",	&i_skipsplash,	"c", "0" },
 
