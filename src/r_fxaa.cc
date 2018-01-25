@@ -33,8 +33,9 @@
 
 RenderContext gl;
 cvar_c r_fxaa;
+cvar_c r_fxaa_quality;
 #define gl_fxaa (bool)(r_fxaa.d != 0)
-//#define gl_fxaa_quality (float)(r_fxaa_quality.d != 0)
+#define gl_fxaa_quality (int)(r_fxaa_quality.d != 0)
 
 //-----------------------------------------------------------------------------
 //
@@ -126,7 +127,7 @@ static std::string GetDefines()
 {
 	int quality;
 
-	switch (gl_fxaa)
+	switch (gl_fxaa_quality)
 	{
 	default:
 	case FFXAAShader::Low:     quality = 10; break;
@@ -152,8 +153,8 @@ static std::string GetDefines()
 
 void FFXAAShader::Bind()
 {
-	SYS_ASSERT(gl_fxaa > 0 && gl_fxaa < Count);
-	FShaderProgram &shader = mShaders[gl_fxaa];
+	SYS_ASSERT(gl_fxaa_quality > 0 && gl_fxaa_quality < Count);
+	FShaderProgram &shader = mShaders[gl_fxaa_quality];
 
 	if (!shader)
 	{
