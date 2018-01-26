@@ -1,6 +1,57 @@
 cmake_minimum_required(VERSION 3.2.2)
 project(3DGE)
 
+if( COMMAND cmake_policy )
+	if( POLICY CMP0011 )
+		cmake_policy( SET CMP0011 NEW )
+	endif()
+	if( POLICY CMP0054 )
+		cmake_policy( SET CMP0054 NEW )
+	endif()
+endif()
+
+list( APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
+include( FindPackageHandleStandardArgs )
+
+macro( make_release_only )
+	set( CMAKE_C_FLAGS_MINSIZEREL ${CMAKE_C_FLAGS_RELEASE} )
+	set( CMAKE_C_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELEASE} )
+	string( REPLACE "/MT " "/MTd " CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_RELEASE} )
+	set( CMAKE_CXX_FLAGS_MINSIZEREL ${CMAKE_CXX_FLAGS_RELEASE} )
+	set( CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELEASE} )
+	string( REPLACE "/MT " "/MTd " CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_RELEASE} )
+endmacro()
+
+set( LZMA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lzma/C" )
+option(FORCE_INTERNAL_ZLIB "Use internal zlib")
+option(FORCE_INTERNAL_BZIP2 "Use internal bzip2")
+
+find_package( ZLIB )
+find_package( BZip2 )
+
+if( ZLIB_FOUND AND NOT FORCE_INTERNAL_ZLIB )
+	message( STATUS "Using system zlib, includes found at ${ZLIB_INCLUDE_DIR}" )
+else()
+	message( STATUS "Using internal zlib" )
+	set( SKIP_INSTALL_ALL TRUE ) # Avoid installing zlib alongside 3dge
+	add_subdirectory( zlib )
+	set( ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/zlib )
+	set( ZLIB_LIBRARIES z )
+	set( ZLIB_LIBRARY z )
+endif()
+
+if( BZIP2_FOUND AND NOT FORCE_INTERNAL_BZIP2 )
+	message( STATUS "Using system bzip2 library, includes found at ${BZIP2_INCLUDE_DIR}" )
+else()
+	message( STATUS "Using internal bzip2 library" )
+	add_subdirectory( bzip2 )
+	set( BZIP2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bzip2" )
+	set( BZIP2_LIBRARIES bz2 )
+	set( BZIP2_LIBRARY bz2 )
+endif()
+
+add_subdirectory( lzma )
+
 # MSVC
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
@@ -34,6 +85,8 @@ endif()
 SET(CMAKE_MODULE_PATH ${CMAKE_ROOT}/Modules  "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 
 #message(${CMAKE_MODULE_PATH})
+
+add_subdirectory( tools/zipdir )
 
 # Gitinfo Puller thingy
 add_custom_target(revision_check ALL
