@@ -81,6 +81,7 @@ function( add_pk3 PK3_NAME PK3_DIR )
 
 	add_custom_command( OUTPUT ${CMAKE_BINARY_DIR}/${PK3_NAME}
 		COMMAND zipdir -udf ${CMAKE_BINARY_DIR}/${PK3_NAME} ${PK3_DIR}
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/${PK3_NAME} $<TARGET_FILE_DIR:3DGE>/${PK3_NAME}
 		DEPENDS zipdir )
 	# Create a list of source files for this PK3, for use in the IDE
 	# Phase 1: Create a list of all source files for this PK3 archive, except 
