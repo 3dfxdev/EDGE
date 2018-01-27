@@ -37,11 +37,11 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
-#if defined LINUX || defined MACOSX
-#include <libcpuid/libcpuid.h>
-#else
-#include <libcpuid.h>
-#endif
+//#if defined LINUX || defined MACOSX
+//#include <libcpuid/libcpuid.h>
+//#else
+//#include <libcpuid.h>
+//#endif
 #ifdef HAVE_PHYSFS
 #include <physfs.h>
 #endif
@@ -97,6 +97,7 @@
 #include "vm_coal.h"
 #include "z_zone.h"
 
+#include "x86.cpp"
 
 
 #define E_TITLE  "EDGE2 v" EDGEVERSTR
@@ -1483,53 +1484,11 @@ static void ShowDateAndVersion(void)
 	M_DebugDumpArgs();
 }
 
-// ~CA~ 5.6.2016: Implemented CPU detection.
-// linked via libcpuID ->> <libcpuid.h>
 static void E_ShowCPU(void)
 {
-	if (!cpuid_present())
-	{
-		I_Printf("3DGE cannot detect your Processor Type!\n");
-		//return -1;
-	}
-
-	struct cpu_raw_data_t raw;  // contains only raw data
-	struct cpu_id_t data;      // contains recognized CPU features data
-
-	if (cpuid_get_raw_data(&raw) < 0)
-	{   // obtain the raw CPUID data
-		I_Printf("Sorry, cannot get the CPUID raw data.\n");
-		I_Printf("Error: %s\n", cpuid_error());                          // cpuid_error() gives the last error description
-																		 //return -2;
-	}
-
-	if (cpu_identify(&raw, &data) < 0)
-	{   // identify the CPU, using the given raw data.
-		I_Printf("Sorrry, CPU identification failed.\n");
-		I_Printf("Error: %s\n", cpuid_error());
-		//return -3;
-	}
 	I_Printf("==============================================================================\n");
-
-	I_Printf("E_ShowCPU: detected %s CPU\n", data.vendor_str); // print out the vendor string (e.g. `GenuineIntel')
-															   /* 	I_Printf("I_ShowCPU:`%s'\n", data.cpu_codename); // print out the CPU code name (e.g. `Pentium 4 (Northwood)') */
-	I_Printf("E_ShowCPU: `%s'\n", data.brand_str);             // print out the CPU brand string
-	I_Printf("E_ShowCPU: clocked at %d MHz (according to your OS)\n",
-		cpu_clock_by_os());  // print out the CPU clock, according to the OS
-
-							 // Debugfile will output more information
-	I_Debugf("E_ShowCPU: The processor has %dK L1 cache and %dK L2 cache\n",
-		data.l1_data_cache, data.l2_cache);                            // print out cache size information
-	I_Debugf("E_ShowCPU: The processor has %d cores and %d logical processors\n",
-		data.num_cores, data.num_logical_cpus);                        // print out CPU cores information
-
-	I_Debugf("E_ShowCPU: Supported multimedia instruction sets:\n");
-	I_Debugf("  MMX         : %s\n", data.flags[CPU_FEATURE_MMX] ? "present" : "absent");
-	I_Debugf("  MMX-extended: %s\n", data.flags[CPU_FEATURE_MMXEXT] ? "present" : "absent");
-	I_Debugf("  SSE         : %s\n", data.flags[CPU_FEATURE_SSE] ? "present" : "absent");
-	I_Debugf("  SSE2        : %s\n", data.flags[CPU_FEATURE_SSE2] ? "present" : "absent");
-	I_Debugf("  3DNow!      : %s\n", data.flags[CPU_FEATURE_3DNOW] ? "present" : "absent");
-
+	CheckCPUID(&CPU);
+	DumpCPUInfo(&CPU);
 	I_Printf("==============================================================================\n");
 }
 

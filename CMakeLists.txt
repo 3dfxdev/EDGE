@@ -170,8 +170,6 @@ add_custom_target(revision_check ALL
 # Download VSLibs for MSVC - http://tdgmods.net/VSLibs.7z (up to date as of listing below)
 
 if(MSVC)
-	set( CPUID_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libcpuid/include" )
-	set( CPUID_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libcpuid/lib/libcpuid.lib" )
 	set( GLEW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.1.0/include" )
 	set( GLEW_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.1.0/lib/Release/Win32/glew32s.lib" )
 	set( GLEW_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.1.0/lib/Release/Win32/glew32s.lib" )
@@ -238,10 +236,6 @@ include_directories(
 # zlib
 #find_package(ZLIB REQUIRED)
 include_directories(${ZLIB_INCLUDE_DIR})
-
-# libcpuid
-#find_package(cpuid REQUIRED)
-include_directories(${CPUID_INCLUDE_DIR})
 
 # png
 #find_package(PNG REQUIRED)
