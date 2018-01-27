@@ -146,10 +146,16 @@ if(APPLE)
 		-DHAVE_STDINT_H
 	)
 elseif(UNIX)
-	add_definitions(
-		-DLINUX
-		-DHAVE_STDINT_H
-	)
+	if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+		add_definitions(
+			-DLINUX
+			-DHAVE_STDINT_H
+		)
+		add_definitions(
+			-DBSD
+			-DHAVE_STDINT_H
+		)
+		endif()
 endif()
 
 # Module Paths
