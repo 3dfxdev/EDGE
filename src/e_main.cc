@@ -1466,11 +1466,13 @@ static void ShowDateAndVersion(void)
 	I_Debugf("[Debug file created at %s]\n\n", timebuf);
 
 	// 23-6-98 KM Changed to hex to allow versions such as 0.65a etc
-	I_Printf("3DGE v" EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
-	I_Printf("hyper3DGE homepage is at http://edge2.sourceforge.net/\n");
-	I_Printf("hyper3DGE wiki is at http://3dfxdev.net/edgewiki/\n");
-	I_Printf("hyper3DGE is based on id Tech by id Software http://www.idsoftware.com/\n");
-	I_Printf("hyper3DGE problems should be reported at http://tdgmods.net/smf\n");
+	I_Printf("EDGE v" EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
+	I_Printf("EDGE homepage is at http://edge2.sourceforge.net/\n");
+	I_Printf("EDGE Wiki is at http://3dfxdev.net/edgewiki/\n");
+	I_Printf("EDGE forums are located at http://tdgmods.net/smf\n");
+	I_Printf("EDGE problems should be reported via https://github.com/3dfxdev/hyper3DGE/issues\n");
+	I_Printf("EDGE is based on id Tech by id Software http://www.idsoftware.com/\n");
+	
 
 #ifdef WIN32
 	I_Printf("Executable path: '%s'\n", win32_exe_path);
