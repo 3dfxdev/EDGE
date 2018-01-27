@@ -61,7 +61,11 @@
 
 #define PREMULTIPLY 1
  
+#ifdef __arm__
+#include "SSE2NEON.h"
+#else
 #include <xmmintrin.h>
+#endif
 
 // TODO: Fatal Crash using MD5 models & SSE2 code:: ERROR CODE IS HERE, IN SSE2 CODE!  Line 76.
 __m128 m4x4v_colSSE(const __m128 cols[4], const __m128 v) 
