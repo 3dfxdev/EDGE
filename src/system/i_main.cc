@@ -36,6 +36,9 @@ const char *win32_exe_path = ".";
 
 #define HYPERTENSION 1
 
+static int		dcargc;
+static char*	dcargv[64];
+
 
 #ifdef _MSC_VER
 // (C) James Haley (From Eternity Engine)
@@ -92,6 +95,11 @@ int main(int argc, char *argv[])
 		"-nosound",
 #endif
 	};
+
+#ifdef DEBUG_DREAMEDGE
+	I_Printf("GDB_INIT:\n");
+	gdb_init();
+#endif
 	
 printf("DREAMCAST STARTUP\n");
 fflush(stdout);
@@ -107,7 +115,7 @@ fflush(stdout);
 #endif  
 #endif // 0
 
-
+	fflush(stdout);
 
 #if defined(_DEBUG) && defined(_MSC_VER)
 	// Uncomment this line to make the Visual C++ CRT check the heap before
@@ -130,11 +138,42 @@ fflush(stdout);
 	// Run EDGE2. it never returns
 	_try
 	{
-		I_TweakConsole();
-		E_Main(argc, (const char **) argv);
-		//common_main(argc, argv);
-	}
+		//I_TweakConsole();
 
+		FILE *dcph;
+		int ix;
+
+		printf("Attempting to load settings from edge.preset...\n");
+
+		dcph = fopen("edge.preset", "r");
+
+		if (dcph == NULL)
+		{
+			printf("Error! Couldn't open preset. Using default args.\n\n");
+			fflush(stdout);
+			E_Main(argc, (const char **)argv);
+			//common_main(argc, argv);
+		}
+		else
+		printf("Found Preset:");
+		for (ix = 0; ix < 64; ix++)
+		{
+			char temp[256];
+			temp[0] = 0;
+			fgets(temp, 255, dcph);
+			if ((temp[0] == 0) || feof(dcph))
+				break;
+			temp[strlen(temp) - 1] = 0;
+			dcargv[ix] = strdup(temp);
+			I_Printf(" %s", dcargv[ix]);
+		}
+		fclose(dcph);
+		dcargc = ix;
+		I_Printf("\n");
+		fflush(stdout);
+
+	E_Main(dcargc, (const char **)dcargv);
+	}
 	__except (I_W32ExceptionHandler(GetExceptionInformation()))
 	{
 		I_Error(0, "Exception caught in main: see CRASHLOG.TXT for info\n");
@@ -144,7 +183,39 @@ fflush(stdout);
 #ifdef LINUX
 	try 
 	{
-		E_Main(argc, (const char **) argv);
+		FILE *dcph;
+		int ix;
+
+		printf("Attempting to load settings from edge.preset...\n");
+
+		dcph = fopen("edge.preset", "r");
+
+		if (dcph == NULL)
+		{
+			printf("Error! Couldn't open preset. Using default args.\n\n");
+			fflush(stdout);
+			E_Main(argc, (const char **)argv);
+			//common_main(argc, argv);
+		}
+		else
+			printf("Found Preset:");
+		for (ix = 0; ix < 64; ix++)
+		{
+			char temp[256];
+			temp[0] = 0;
+			fgets(temp, 255, dcph);
+			if ((temp[0] == 0) || feof(dcph))
+				break;
+			temp[strlen(temp) - 1] = 0;
+			dcargv[ix] = strdup(temp);
+			I_Printf(" %s", dcargv[ix]);
+		}
+		fclose(dcph);
+		dcargc = ix;
+		I_Printf("\n");
+		fflush(stdout);
+
+		E_Main(dcargc, (const char **)dcargv);
 		//common_main(argc, argv);
 	}
 	catch (int e) 
