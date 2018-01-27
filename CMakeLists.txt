@@ -128,7 +128,11 @@ if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
 	set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT ${CMAKE_CXX_FLAGS} /arch:SSE2" )
 else()
-	set ( CMAKE_CXX_FLAGS "-std=gnu++11 -msse2 ${CMAKE_CXX_FLAGS}" )
+	if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
+		set ( CMAKE_CXX_FLAGS "-std=gnu++11 -mfpu=neon-vfpv4 -mtune=cortex-a7 -mhard-float ${CMAKE_CXX_FLAGS}" )
+	else ()
+		set ( CMAKE_CXX_FLAGS "-std=gnu++11 -msse2 ${CMAKE_CXX_FLAGS}" )
+	endif()
 endif()
 
 add_definitions(
