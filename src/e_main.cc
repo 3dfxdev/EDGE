@@ -37,11 +37,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
-//#if defined LINUX || defined MACOSX
-//#include <libcpuid/libcpuid.h>
-//#else
-//#include <libcpuid.h>
-//#endif
 #ifdef HAVE_PHYSFS
 #include <physfs.h>
 #endif
