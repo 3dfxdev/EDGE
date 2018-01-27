@@ -92,10 +92,10 @@
 #include "vm_coal.h"
 #include "z_zone.h"
 
-#include "x86.cpp"
+#include "system/i_x86.h"
 
 
-#define E_TITLE  "EDGE2 v" EDGEVERSTR
+#define E_TITLE  "EDGE v" EDGEVERSTR
 
 // Application active?
 int app_state = APP_STATE_ACTIVE;
@@ -1482,6 +1482,7 @@ static void ShowDateAndVersion(void)
 static void E_ShowCPU(void)
 {
 	I_Printf("==============================================================================\n");
+	I_Printf("E_ShowCPU: Getting CPU information...\n");
 	CheckCPUID(&CPU);
 	DumpCPUInfo(&CPU);
 	I_Printf("==============================================================================\n");
