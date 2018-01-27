@@ -112,6 +112,7 @@
 #define CFGDEF_WIPE_REVERSE     (0)
 #define CFGDEF_USE_VSYNC        (0)
 #define CFGDEF_INTERPOLATION    (1)
+#define CFGDEF_SCREENSHAKE      (1)
 
 // Gameplay Options
 #define CFGDEF_AUTOAIM          (1)
