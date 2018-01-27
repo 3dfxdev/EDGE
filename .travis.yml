@@ -74,14 +74,6 @@ before_install:
   - if [ -n "$CLANG_VERSION" ]; then export CC="clang-${CLANG_VERSION}" CXX="clang++-${CLANG_VERSION}"; fi
   - $CC --version
   - $CXX --version
-  - git clone https://github.com/anrieff/libcpuid
-  - cd libcpuid
-  - libtoolize
-  - autoreconf --install
-  - ./configure
-  - make
-  - sudo make install
-  - cd ..
 
 script:
   - echo ${TRAVIS_BUILD_DIR}

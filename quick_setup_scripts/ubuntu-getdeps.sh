@@ -19,13 +19,5 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 then
 	apt-get install -y libsdl2-dev libphysfs-dev libsdl2-net-dev libglew-dev libpng++-dev libogg-dev libvorbis-dev libghc-zlib-dev libjpeg-turbo8-dev autoconf automake libtool \
 		cmake cmake-gui libgl1-mesa-dev g++ make git zlib1g-dev
-	git clone https://github.com/anrieff/libcpuid
-	cd libcpuid
-	libtoolize
-	autoreconf --install
-	./configure
-	make
-	make install
-	cd ..
 fi
 
