@@ -208,7 +208,6 @@ else(MSVC)
 	find_package(OGG REQUIRED)
 	find_package(Vorbis REQUIRED)
 	find_package(ZLIB REQUIRED)
-	find_package(Cpuid REQUIRED)
 	find_package(PNG REQUIRED)
 	find_package(JPEG REQUIRED)
 endif(MSVC)
@@ -551,7 +550,6 @@ target_link_libraries(3DGE
 	${OGG_RELEASE_LIBRARY}
 	${VORBIS_RELEASE_LIBRARY}
 	${VORBISFILE_RELEASE_LIBRARY}
-	${CPUID_LIBRARY}
 	${ZLIB_LIBRARY_RELEASE}
 	${GLEW_LIBRARY_RELEASE}
 	${PNG_LIBRARY_RELEASE}
