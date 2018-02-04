@@ -33,6 +33,7 @@ This build uses CMakeLists.txt, CMake-GUI, and Visual Studio to compile for Win3
 3)  Click *Generate* and CMake-GUI will open a new window for configuration options.
 
     *3a)* If you have Visual Studio Community 15, the generator would be *Visual Studio 14 2015*.
+    
     *3b)* If you have Visual Studio Community 17, the generator would be *Visual Studio 15 2017*.
     
     *3c)* Use the [-T] parameter *v140_xp* if you want to compile with Windows XP support. If you are using Visual Studio 2017, the [-T] parameter would instead be *v141_xp* for Visual Studio Community 2017. If you do not care about running the project with Windows XP, you should skip this parameter altogether. 
