@@ -10,9 +10,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../src/i_system.h"
+#include "../../../epi/epi.h"
+#include "../../../epi/endianess.h"
+#include "../../../epi/file.h"
+#include "../../../epi/file_sub.h"
+
+#include "../../system/i_system.h"
+#include "../../system/i_defs.h"
+#include "../../system/i_defs_gl.h"
+
 
 #include "roq.h"
+#define FMV_DEBUG
 
 static int width;
 static int height;
@@ -23,8 +32,8 @@ static int mb_count;
 static int current_frame;
 static int stride;
 
-static unsigned short __attribute__((aligned(16))) cb2x2[ROQ_CODEBOOK_SIZE][4];
-static unsigned short __attribute__((aligned(16))) cb4x4[ROQ_CODEBOOK_SIZE][16];
+static unsigned short __declspec(align(16)) cb2x2[ROQ_CODEBOOK_SIZE][4];
+static unsigned short __declspec(align(16)) cb4x4[ROQ_CODEBOOK_SIZE][16];
 
 // allocated buffers from avi.cc
 extern unsigned short *frame[2];
@@ -339,7 +348,7 @@ static int roq_unpack_vq(unsigned char *buf, int size, unsigned int arg)
     return status < 0 ? status : which;
 }
 
-int decode_RoQ(FILE *in, int size)
+int decode_RoQ(epi::file_c *in, int size)
 {
     int chunk_id;
     unsigned int chunk_size;
@@ -350,9 +359,9 @@ int decode_RoQ(FILE *in, int size)
 	{
 		in->Read(read_buffer, CHUNK_HEADER_SIZE);
         size -= CHUNK_HEADER_SIZE;
-        chunk_id   = LE_16(read_buffer[0]);
-        chunk_size = LE_32(read_buffer[2]);
-        chunk_arg  = LE_16(read_buffer[6]);
+        chunk_id   = EPI_LE_U16(read_buffer[0]);
+        chunk_size = EPI_LE_U32(read_buffer[2]);
+        chunk_arg  = EPI_LE_U16(read_buffer[6]);
 
         if (chunk_size > MAX_BUF_SIZE)
         {
@@ -364,8 +373,8 @@ int decode_RoQ(FILE *in, int size)
         switch(chunk_id)
         {
         case RoQ_INFO:
-            width = LE_16(read_buffer[0]);
-            height = LE_16(read_buffer[2]);
+            width = EPI_LE_U16(read_buffer[0]);
+            height = EPI_LE_U16(read_buffer[2]);
 
             /* width and height each need to be divisible by 16 */
             if ((width & 0xF) || (height & 0xF))

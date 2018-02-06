@@ -24,12 +24,14 @@ static unsigned int _fmv_long;
 
 #define read_chars(F, buf, len) F->Read(buf, len)
 
+#define f_getc(F)  F->GetCharacters()
+
 #ifdef __LITTLE_ENDIAN__
 #define read_word(F) (F->Read(&_fmv_word, 2), _fmv_word)
 #define read_long(F) (F->Read(&_fmv_long, 4), _fmv_long)
 #else
-#define read_word(F) (F->Read(&_fmv_word, 2), ((_fmv_word >> 8) | (_fmv_word << 8))
-#define read_long(F) (F->Read(&_fmv_long, 4), ((_fmv_long >> 24) | ((_fmv_long & 0xFF0000) >> 8) | ((_fmv_long & 0xFF00) << 8) | (_fmv_long << 24))
+#define read_word(F) (F->Read(&_fmv_word, 2), ((_fmv_word >> 8) | (_fmv_word << 8)))
+#define read_long(F) (F->Read(&_fmv_long, 4), ((_fmv_long >> 24) | ((_fmv_long & 0xFF0000) >> 8) | ((_fmv_long & 0xFF00) << 8) | (_fmv_long << 24)))
 #endif
 
 
@@ -71,7 +73,8 @@ typedef int (*input_callback)();
  */
 typedef int (*sync_callback)(GLuint tex, short *audblk);
 
-typedef struct callbacks_t {
+typedef struct callbacks_t 
+{
 	setup_callback setup;
 	input_callback input;
 	sync_callback  sync;
@@ -97,7 +100,7 @@ typedef struct callbacks_t {
  *
  * Return: error code
  */
-int fmv_play(char *filename, int loop, callbacks_t *cbs);
+//int fmv_play(char *filename);
 
 
 #endif

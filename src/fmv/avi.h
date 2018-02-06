@@ -17,25 +17,26 @@
 #define NUM_AUD_BUFFERS 4
 
 
-struct avi_header_t
+typedef struct
 {
-	int TimeBetweenFrames;
-	int MaximumDataRate;
-	int PaddingGranularity;
-	int Flags;
-	int TotalNumberOfFrames;
-	int NumberOfInitialFrames;
-	int NumberOfStreams;
-	int SuggestedBufferSize;
-	int Width;
-	int Height;
-	int TimeScale;
-	int DataRate;
-	int StartTime;
-	int DataLength;
-};
+	s32_t TimeBetweenFrames;
+	s32_t MaximumDataRate;
+	s32_t PaddingGranularity;
+	s32_t Flags;
+	s32_t TotalNumberOfFrames;
+	s32_t NumberOfInitialFrames;
+	s32_t NumberOfStreams;
+	s32_t SuggestedBufferSize;
+	s32_t Width;
+	s32_t Height;
+	s32_t TimeScale;
+	s32_t DataRate;
+	s32_t StartTime;
+	s32_t DataLength;
+}
+avi_header_t;
 
-struct stream_header_t
+typedef struct 
 {
 	char DataType[5];
 	char DataHandler[5];
@@ -49,9 +50,10 @@ struct stream_header_t
 	int SuggestedBufferSize;
 	int Quality;
 	int SampleSize;
-};
+}
+stream_header_t;
 
-struct stream_format_t
+typedef struct 
 {
 	int header_size;
 	int image_width;
@@ -65,7 +67,8 @@ struct stream_format_t
 	int colors_used;
 	int colors_important;
 	int *palette;
-};
+}
+stream_format_t;
 
 struct stream_format_auds_t
 {
@@ -79,16 +82,17 @@ struct stream_format_auds_t
 	int extended_size;
 };
 
-struct index_entry_t
+typedef struct 
 {
 	char ckid[5];
 	int dwFlags;
 	int dwChunkOffset;
 	int dwChunkLength;
-};
+}
+index_entry_t;
 
-int parse_movi(FILE *in, int *length, bool retv, GLuint *tex, bool reta, short *buf, int samples, float ascale);
-int parse_idx1(FILE *in, int frame);
+int parse_movi(epi::file_c *in, int *length, bool retv, GLuint *tex, bool reta, short *buf, int samples, float ascale);
+int parse_idx1(epi::file_c *in, int frame);
 int parse_avi(epi::file_c *in);
 
 #endif

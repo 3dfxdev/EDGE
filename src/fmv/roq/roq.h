@@ -50,6 +50,6 @@
 #define RGB565_BLUE_SHIFT  3 // right shift
 
 
-int decode_RoQ(FILE *in, int size);
+int decode_RoQ(epi::file_c *in, int size);
 
 #endif

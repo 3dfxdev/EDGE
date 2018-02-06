@@ -12,8 +12,9 @@
 
 #include "../fmv.h"
 #include "../avi.h"
+#include "pcm.h"
 
-#include "../src/i_system.h"
+#include "../../system/i_system.h"
 
 
 extern stream_format_auds_t astream_format;
@@ -53,7 +54,7 @@ static const int yamaha_difflookup[16] = {
 };
 
 
-int decode_PCM(FILE *in, int chunk_size)
+int decode_PCM(epi::file_c *in, int chunk_size)
 {
 	in->Read(read_buffer, chunk_size);
 
@@ -84,7 +85,7 @@ int decode_PCM(FILE *in, int chunk_size)
 	return PCM_SUCCESS;
 }
 
-int decode_ADPCM_IMA(FILE *in, int chunk_size)
+int decode_ADPCM_IMA(epi::file_c *in, int chunk_size)
 {
 	lpred = read_word(in);
 	lstep = read_word(in);
@@ -105,7 +106,7 @@ int decode_ADPCM_IMA(FILE *in, int chunk_size)
 		// four bytes for left/mono
 		for (int j=0; j<4; j++)
 		{
-			int v = buf[i++];
+			int v = read_buffer[i++];
 			// decode two adpcm values
 			int step = ima_step_table[lstep];
 			lstep += ima_index_table[v & 0x0F];
@@ -126,7 +127,7 @@ int decode_ADPCM_IMA(FILE *in, int chunk_size)
 			// four bytes for right
 			for (int j=0; j<4; j++)
 			{
-				int v = buf[i++];
+				int v = read_buffer[i++];
 				// decode two adpcm values
 				int step = ima_step_table[rstep];
 				rstep += ima_index_table[v & 0x0F];
@@ -163,7 +164,7 @@ int decode_ADPCM_IMA(FILE *in, int chunk_size)
 	return PCM_SUCCESS;
 }
 
-int decode_ADPCM_Yamaha(FILE *in, int chunk_size)
+int decode_ADPCM_Yamaha(epi::file_c *in, int chunk_size)
 {
     lpred = rpred = 0;
     lstep = rstep = 127;
