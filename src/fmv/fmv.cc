@@ -12,8 +12,11 @@
 
 #include "fmv.h"
 #include "avi.h"
+#include "roq/roq.h"
 
 #include "../system/i_system.h"
+
+static int movie_init = 0;
 
 extern avi_header_t avi_header;
 extern stream_header_t stream_header;
@@ -30,17 +33,38 @@ extern int texture_width, texture_height;
 extern float scale_width, scale_height;
 
 
-int fmv_play(char *fname, int loop, callbacks_t *cbs)
+void I_StartupFMVMovie(void)
+{
+	//memset(pcm_buffer, 0, fname);
+
+	movie_init = 1;
+	I_Printf("I_StartupMovie: initialisation OK\n");
+}
+
+void I_ShutdownFMVMovie(void)
+{
+	if (!movie_init)
+		return;
+
+	movie_init = 0;
+	I_Printf("I_ShutdownMovie: shut down OK\n");
+}
+
+
+int I_PlayFMVMovie(char *fname)
 {
 	int ret;
+	int loop = 0;
 	GLuint texture;
 	short *chunk;
 	int chunk_samples;
 	float chunk_scale;
 	bool paused = false;
+	callbacks_t *cbs;
 
 	epi::file_c *F = epi::FS_Open(fname, epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
-	if (!F)
+
+	if ((!F) && (!movie_init))
 	{
 #ifdef FMV_DEBUG
 		I_Printf("FMV_PLAY: Couldn't open %s\n", fname);
@@ -50,6 +74,9 @@ int fmv_play(char *fname, int loop, callbacks_t *cbs)
 
 	// get avi info
 	ret = parse_avi(F);
+
+	I_Printf("\nI_PlayMovie: [%s]\n", fname);
+
 	if (ret < FMV_ERR_NONE)
 	{
 		delete F; // close file
@@ -168,7 +195,7 @@ int fmv_play(char *fname, int loop, callbacks_t *cbs)
 	if (frame[1])
 		delete frame[1];
 	if (frame[0])
-		delete frame[0]
+		delete frame[0];
 
 	// close file
 	delete F;
