@@ -31,8 +31,7 @@
 #include "r_image.h"
 #include "r_renderbuffers.h"
 
-//fixme: Remove "tarray" and use epi::array_c
-#include "tarray.h"
+#include "../epi/tarray.h"
 
 #include "m_argv.h"
 #define DEBUG  0
@@ -41,7 +40,7 @@
 	has_GL_EXT_texture_filter_anisotropic = RGL_RGL_CheckExtensions("GL_EXT_texture_filter_anisotropic");
 
 //fixme: Remove "tarray" and use epi::array_c
-static TArray<std::string>  m_Extensions;
+static epi::TArray<std::string>  m_Extensions;
 
 // implementation limits
 

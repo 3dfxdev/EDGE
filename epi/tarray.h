@@ -49,6 +49,8 @@
 
 #include "z_zone.h"
 
+namespace epi
+{
 template<typename T> class TIterator : public std::iterator<std::random_access_iterator_tag, T>
 {
 public:
@@ -1222,3 +1224,4 @@ protected:
 	const MapType &Map;
 	hash_t Position;
 };
+} //end epi::tarray namespace!
