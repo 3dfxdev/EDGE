@@ -94,8 +94,10 @@
 
 #include "system/i_x86.h"
 
-
 #define E_TITLE  "EDGE v" EDGEVERSTR
+
+// uncomment line below to enable ROQ playback, which is in testing phases.
+//#define ROQMOVIETEST
 
 // Application active?
 int app_state = APP_STATE_ACTIVE;
@@ -198,6 +200,8 @@ cvar_c ddf_quiet;
 cvar_c r_gpuswitch;
 
 static void E_TitleDrawer(void);
+
+extern void E_PlayMovie(const char *name, int flags);
 
 
 class startup_progress_c
@@ -2007,6 +2011,12 @@ void E_Main(int argc, const char **argv)
 	try
 	{
 		E_Startup();
+
+		//I_StartupMovie();
+#ifdef ROQMOVIETEST
+		E_PlayMovie("intro.roq", 1);
+#endif
+		//I_ShutdownMovie();
 
 		E_InitialState();
 
