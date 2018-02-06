@@ -46,6 +46,17 @@ inline u32_t str_hash(const char *str)
 	return hash;
 }
 
+inline u8_t ClampByte(int value)
+{
+	if (value < 0)
+		return 0;
+
+	if (value > 255)
+		return 255;
+
+	return value;
+}
+
 } // namespace epi
 
 #endif /* __MATH_ODDITY_H__ */
