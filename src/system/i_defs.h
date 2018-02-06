@@ -36,10 +36,36 @@
 #define strncasecmp _strnicmp
 #define strcasecmp _stricmp
 #define uint unsigned int
+#define ALIGN_8(x)							__declspec(align(8)) x
+#define ALIGN_16(x)							__declspec(align(16)) x
+#define ALIGN_32(x)							__declspec(align(32)) x
 #pragma warning( disable : 4099)
 #elif defined MACOSX
 typedef unsigned int uint;
 #endif
+// Template for LINUX like MSVC 
+#elif define LINUX 
+define ALIGN_STRUCT(x)    __attribute__((aligned(x)))
+#endif
+
+// Uncomment the line below to enable SIMD_X64 intricies for ROQ playback via i_cinematic.cc (disabled by default!)
+//#define SIMD_X64
+#ifdef SIMD_X64
+
+#include <xmmintrin.h>
+#include <emmintrin.h>
+
+#define _mm_muladd_ss(A, B, C)				_mm_add_ss(_mm_mul_ss((A), (B)), (C))
+#define _mm_muladd_ps(A, B, C)				_mm_add_ps(_mm_mul_ps((A), (B)), (C))
+
+#define _mm_mulsub_ss(A, B, C)				_mm_sub_ss((C), _mm_mul_ss((A), (B)))
+#define _mm_mulsub_ps(A, B, C)				_mm_sub_ps((C), _mm_mul_ps((A), (B)))
+
+#define _mm_clamp_ss(A, B, C)				_mm_min_ss(_mm_max_ss((A), (B)), (C))
+#define _mm_clamp_ps(A, B, C)				_mm_min_ps(_mm_max_ps((A), (B)), (C))
+
+#define _mm_splat_ps(A, I)					_mm_shuffle_ps((A), (A), _MM_SHUFFLE(I, I, I, I))
+#define _mm_splat_epi32(A, I)				_mm_shuffle_epi32((A), _MM_SHUFFLE(I, I, I, I))
 
 
 #endif /*__SYSTEM_SPECIFIC_DEFS__*/
