@@ -92,9 +92,9 @@ static short cin_sqrTable[256];
 
 // TODO: Check if the GCC-based attribute/aligned is correctly written for Linux users!
 #if !defined(_MSC_VER)
-static unsigned short __attribute__((aligned(16))) cin_quadVQ2[ROQ_CODEBOOK_SIZE][256 << 2];
-static unsigned short __attribute__((aligned(16))) cin_quadVQ4[ROQ_CODEBOOK_SIZE][256 << 4];
-static unsigned short __attribute__((aligned(16))) cin_quadVQ8[ROQ_CODEBOOK_SIZE][256 << 6];
+static u32_t __attribute__((aligned(16))) cin_quadVQ2[256 << 2];
+static u32_t __attribute__((aligned(16))) cin_quadVQ4[256 << 4];
+static u32_t __attribute__((aligned(16))) cin_quadVQ8[256 << 6];
 #else
 // CA: New template (ALIGN_x, resides in i_defs.h [for MSVC users]
 ALIGN_16(static u32_t)	cin_quadVQ2[256 << 2];
