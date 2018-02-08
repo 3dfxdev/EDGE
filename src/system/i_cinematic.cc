@@ -503,7 +503,7 @@ static void CIN_DecodeQuadInfo (cinematic_t *cin, const byte *data){
 	cin->frameHeight = data[2] | (data[3] << 8);
 
 	if ((cin->frameWidth & 15) || (cin->frameHeight & 15))
-		I_Error(false, "CIN_DecodeQuadInfo: video dimensions not divisible by 16");
+		I_Error("CIN_DecodeQuadInfo: video dimensions not divisible by 16");
 
 	cin->frameBuffer[0] = (byte *)Z_Malloc(cin->frameWidth * cin->frameHeight * 4);// , TAG_COMMON);
 	cin->frameBuffer[1] = (byte *)Z_Malloc(cin->frameWidth * cin->frameHeight * 4);// , TAG_COMMON);
@@ -765,7 +765,7 @@ static void CIN_DecodeQuadVQ (cinematic_t *cin, const byte *data){
 	int		i;
 
 	if (!cin->frameBuffer[0] || !cin->frameBuffer[1])
-		I_Error(false, "CIN_DecodeQuadVQ: video buffers not allocated");
+		I_Error("CIN_DecodeQuadVQ: video buffers not allocated");
 
 	codeBits = 0;
 	codeWord = 0;
@@ -858,13 +858,13 @@ static void CIN_DecodeQuadVQ (cinematic_t *cin, const byte *data){
 
 							break;
 						default:
-							I_Error(false, "CIN_DecodeQuadVQ: bad code (%i)", code);
+							I_Error("CIN_DecodeQuadVQ: bad code (%i)", code);
 						}
 					}
 
 					break;
 				default:
-					I_Error(false, "CIN_DecodeQuadVQ: bad code (%i)", code);
+					I_Error("CIN_DecodeQuadVQ: bad code (%i)", code);
 				}
 			}
 		}
@@ -1060,7 +1060,7 @@ static bool CIN_DecodeChunk (cinematic_t *cin)
 		CIN_DecodeSoundStereo48(cin, data);
 		break;
 	default:
-		I_Error(false, "CIN_DecodeChunk: bad chunk id (%u)", cin->chunkHeader.id);
+		I_Error("CIN_DecodeChunk: bad chunk id (%u)", cin->chunkHeader.id);
 	}
 
 	// Decode the next chunk header if needed
@@ -1100,7 +1100,7 @@ static cinematic_t *CIN_HandleForCinematic (cinHandle_t *handle)
 	}
 
 	if (i == MAX_CINEMATICS)
-		I_Error(false, "CIN_HandleForCinematic: none free");
+		I_Error("CIN_HandleForCinematic: none free");
 
 	*handle = i + 1;
 
@@ -1120,12 +1120,12 @@ static cinematic_t *CIN_GetCinematicByHandle (cinHandle_t handle)
 	cinematic_t	*cin;
 
 	if (handle <= 0 || handle > MAX_CINEMATICS)
-		I_Error(false, "CIN_GetCinematicByHandle: handle out of range");
+		I_Error("CIN_GetCinematicByHandle: handle out of range");
 
 	cin = &cin_cinematics[handle - 1];
 
 	if (!cin->playing)
-		I_Error(false, "CIN_GetCinematicByHandle: invalid handle");
+		I_Error("CIN_GetCinematicByHandle: invalid handle");
 
 	return cin;
 }

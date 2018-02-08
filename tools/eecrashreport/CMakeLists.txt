@@ -32,7 +32,11 @@ INCLUDE_DIRECTORIES (.)
 ######################### Set Build Targets   ##################################
 ADD_EXECUTABLE (eecrashreport WIN32 ${EECRASHREPORT_SOURCES})
 TARGET_LINK_LIBRARIES (eecrashreport)
-#INSTALL (TARGETS eecrashreport
-#        RUNTIME DESTINATION ${BIN_DIR}
-#        LIBRARY DESTINATION ${LIB_DIR}
-#        ARCHIVE DESTINATION ${LIB_DIR})
+INSTALL (TARGETS eecrashreport
+        RUNTIME DESTINATION $<TARGET_FILE_DIR:3DGE>
+        LIBRARY DESTINATION $<TARGET_FILE_DIR:3DGE>
+        ARCHIVE DESTINATION $<TARGET_FILE_DIR:3DGE>)
+
+add_custom_command( OUTPUT ${CMAKE_BINARY_DIR}/eecrashreport.exe
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/eecrashreport.exe $<TARGET_FILE_DIR:3DGE>/eecrashreport.exe
+	DEPENDS eecrashreport)
