@@ -1019,9 +1019,10 @@ static bool CIN_DecodeChunk (cinematic_t *cin)
 	{
 		cin->offset += f->Read(cin_chunkData, ROQ_CHUNK_HEADER_SIZE);
 
-		cin->chunkHeader.id = data[0] | (data[1] << 8);
-		cin->chunkHeader.size = data[2] | (data[3] << 8) | (data[4] << 16) | (data[5] << 24);
-		cin->chunkHeader.args = data[6] | (data[7] << 8);
+		cin->chunkHeader.id = EPI_LE_U16(data[0] | (data[1] << 8));
+                cin->chunkHeader.size = EPI_LE_U32(data[2] | (data[3] << 8) | (data[4] << 16) | (data[5] << 24));
+                cin->chunkHeader.args = EPI_LE_U16(data[6] (data[7] << 8));
+		
 	}
 
 	// Read the chunk data and the next chunk header
