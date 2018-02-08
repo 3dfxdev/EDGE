@@ -32,6 +32,7 @@
 #include "../../epi/file.h"
 #include "../../epi/filesystem.h"
 #include "../../epi/math_oddity.h"
+#include "../../epi/endianess.h"
 #include "i_defs.h"
 #include "i_defs_gl.h"
 #include "i_sdlinc.h"
@@ -64,7 +65,7 @@ typedef struct
 {
 	bool				playing;
 
-	char				name[MAX_PATH];
+	char				name[254];
 	int					flags;
 
 	epi::file_c			*file;
@@ -1021,7 +1022,7 @@ static bool CIN_DecodeChunk (cinematic_t *cin)
 
 		cin->chunkHeader.id = EPI_LE_U16(data[0] | (data[1] << 8));
                 cin->chunkHeader.size = EPI_LE_U32(data[2] | (data[3] << 8) | (data[4] << 16) | (data[5] << 24));
-                cin->chunkHeader.args = EPI_LE_U16(data[6] (data[7] << 8));
+                cin->chunkHeader.args = EPI_LE_U16(data[6] | (data[7] << 8));
 		
 	}
 

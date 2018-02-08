@@ -44,8 +44,8 @@
 typedef unsigned int uint;
 #endif
 // Template for LINUX like MSVC 
-#elif define LINUX 
-define ALIGN_STRUCT(x)    __attribute__((aligned(x)))
+#elif defined LINUX 
+#define ALIGN_STRUCT(x)    __attribute__((aligned(x)))
 #endif
 
 // Uncomment the line below to enable SIMD_X64 intricies for ROQ playback via i_cinematic.cc (disabled by default!)
