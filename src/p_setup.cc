@@ -1667,7 +1667,7 @@ static void LoadZNodes(int lumpnum)
 
 	I_Debugf("LoadZNodes: Read number vertexes\n");
 	// after signature, 1st u32 is number of original vertexes - should be <= numvertexes
-	int oVerts = EPI_LE_U32(*(uint *)td);
+	int oVerts = EPI_LE_U32(*(uint32_t*)td);
 	td += 4;
 	if (oVerts > numvertexes)
 	{
@@ -1676,7 +1676,7 @@ static void LoadZNodes(int lumpnum)
 	}
 
 	// 2nd u32 is the number of extra vertexes added by zdbsp
-	int nVerts = EPI_LE_U32(*(uint *)td);
+	int nVerts = EPI_LE_U32(*(uint32_t*)td);
 	td += 4;
 	I_Debugf("LoadZNodes: Orig Verts = %d, New Verts = %d, Map Verts = %d\n", oVerts, nVerts, numvertexes);
 
@@ -1742,9 +1742,9 @@ static void LoadZNodes(int lumpnum)
 
 		if (ztype == 1)
 		{
-			v1num = EPI_LE_U32(*(uint*)td);
+			v1num = EPI_LE_U32(*(uint32_t*)td);
 			td += 4;
-			partner = EPI_LE_S32(*(int*)td);
+			partner = EPI_LE_S32(*(int32_t*)td);
 			td += 4;
 			linedef = EPI_LE_S16(*(int16_t*)td);
 			td += 2;
@@ -1753,18 +1753,18 @@ static void LoadZNodes(int lumpnum)
 		}
 		else
 		{
-			v1num = EPI_LE_U32(*(uint*)td);
+			v1num = EPI_LE_U32(*(uint32_t*)td);
 			td += 4;
-			partner = EPI_LE_S32(*(int*)td);
+			partner = EPI_LE_S32(*(int32_t*)td);
 			td += 4;
-			linedef = EPI_LE_S32(*(int*)td);
+			linedef = EPI_LE_S32(*(int32_t*)td);
 			td += 4;
 			side = (int)(*td);
 			td += 1;
 		}
 		I_Debugf("  seg %d: v1 = %d, part = %d, line = %d, side = %d\n", i, v1num, partner, linedef, side);
 
-		if (v1num < (uint)numvertexes)
+		if (v1num < (uint32_t)numvertexes)
 			seg->v1 = &vertexes[v1num];
 		else
 			seg->v1 = &gl_vertexes[v1num - numvertexes];
@@ -1881,7 +1881,7 @@ static void LoadZNodes(int lumpnum)
 
 	I_Debugf("LoadZNodes: Read GL nodes\n");
 	// finally, read the nodes
-	numnodes = EPI_LE_U32(*(uint*)td);
+	numnodes = EPI_LE_U32(*(uint32_t*)td);
 	td += 4;
 	if (numnodes == 0)
 	{
@@ -1934,7 +1934,7 @@ static void LoadZNodes(int lumpnum)
 
 		for (int j=0; j<2; j++)
 		{
-			nd->children[j] = EPI_LE_U32(*(uint*)td);
+			nd->children[j] = EPI_LE_U32(*(uint32_t*)td);
 			td += 4;
 
 			// update bbox pointers in subsector

@@ -129,9 +129,14 @@ if(MSVC)
 	set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT ${CMAKE_CXX_FLAGS} /arch:SSE2" )
 else()
 	if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
-		set ( CMAKE_CXX_FLAGS "-std=gnu++11 -mfpu=neon-vfpv4 -mtune=cortex-a7 -mhard-float ${CMAKE_CXX_FLAGS}" )
+		set ( CMAKE_CXX_FLAGS "-mfpu=neon-vfpv4 -mtune=cortex-a7 -mhard-float ${CMAKE_CXX_FLAGS}" )
 	else ()
-		set ( CMAKE_CXX_FLAGS "-std=gnu++11 -msse2 ${CMAKE_CXX_FLAGS}" )
+		set ( CMAKE_CXX_FLAGS "-msse2 ${CMAKE_CXX_FLAGS}" )
+	endif()
+	if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
+		set ( CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}" )
+	else ()
+		set ( CMAKE_CXX_FLAGS "-std=gnu++11 ${CMAKE_CXX_FLAGS}" )
 	endif()
 endif()
 
@@ -146,10 +151,17 @@ if(APPLE)
 		-DHAVE_STDINT_H
 	)
 elseif(UNIX)
-	add_definitions(
-		-DLINUX
-		-DHAVE_STDINT_H
-	)
+	if(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
+		add_definitions(
+			-DBSD
+			-DHAVE_STDINT_H
+		)
+	else()
+		add_definitions(
+			-DLINUX
+			-DHAVE_STDINT_H
+		)
+	endif()
 endif()
 
 # Module Paths
