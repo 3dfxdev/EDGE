@@ -26,6 +26,8 @@
 #ifndef __SYSTEM_SPECIFIC_DEFS_OPENGL__
 #define __SYSTEM_SPECIFIC_DEFS_OPENGL__
 
+#include "GL/gl_load.h"
+
 #if defined(LINUX) || defined(BSD)
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -34,7 +36,7 @@
 
 ///TODO: change this to #ifdef WIN32_GLEW and add a new
 ///      define, like WIN32_GLAD, for GLEWs successor..
-#ifdef WIN32
+#ifdef GLEWISDEAD
 #define GLEW_STATIC  1
 #include "GL\glew.h"
 #include "GL\gl.h"

@@ -174,9 +174,9 @@ add_custom_target(revision_check ALL
 # Download VSLibs for MSVC - http://tdgmods.net/VSLibs.7z (up to date as of listing below)
 
 if(MSVC)
-	set( GLEW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.1.0/include" )
-	set( GLEW_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.1.0/lib/Release/Win32/glew32s.lib" )
-	set( GLEW_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.1.0/lib/Release/Win32/glew32s.lib" )
+	#set( GLEW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.1.0/include" )
+	#set( GLEW_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.1.0/lib/Release/Win32/glew32s.lib" )
+	#set( GLEW_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/glew-2.1.0/lib/Release/Win32/glew32s.lib" )
 	set( JPEG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libjpeg-turbo/include" )
 	set( JPEG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libjpeg-turbo/lib/turbojpeg-static.lib" )
 	set( OGG_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg-1.3.2/lib/libogg_static.lib" )
@@ -204,7 +204,7 @@ else(MSVC)
 	find_package(PhysFS REQUIRED)
 	find_package(SDL2 REQUIRED)
 	find_package(SDL2_net REQUIRED)
-	find_package(GLEW REQUIRED)
+	#find_package(GLEW REQUIRED)
 	find_package(OGG REQUIRED)
 	find_package(Vorbis REQUIRED)
 	find_package(ZLIB REQUIRED)
@@ -226,7 +226,7 @@ include_directories(${SDL_INCLUDE_DIR})
 
 # GLEW
 #find_package(GLEW REQUIRED)
-include_directories(${GLEW_INCLUDE_DIR})
+#include_directories(${GLEW_INCLUDE_DIR})
 
 # libvorbis/libogg
 #find_package(OGG REQUIRED)
@@ -302,6 +302,7 @@ set(3DGE_SOURCES
 	src/system/i_net.cc
 	src/system/i_x86.cc
 	src/system/i_cinematic.cc
+	src/system/GL/gl_load.c
 
 	src/am_map.cc
 	src/con_con.cc
@@ -553,7 +554,7 @@ target_link_libraries(3DGE
 	${VORBIS_RELEASE_LIBRARY}
 	${VORBISFILE_RELEASE_LIBRARY}
 	${ZLIB_LIBRARY_RELEASE}
-	${GLEW_LIBRARY_RELEASE}
+	#${GLEW_LIBRARY_RELEASE}
 	${PNG_LIBRARY_RELEASE}
 	${JPEG_LIBRARY}
 	${PHYSFS_LIBRARY}
@@ -569,5 +570,5 @@ if (WIN32)
 elseif(APPLE)
 	set_target_properties(3DGE PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa")
 else()
-	target_link_libraries(3DGE GLEW GL)
+	target_link_libraries(3DGE GL)
 endif()

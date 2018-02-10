@@ -276,18 +276,29 @@ static bool RGL_CheckExtension(const char *ext)
 
 //#define name GLEW_GET_FUN
 
-//#define FUDGE_FUNC(name, ext) 	if (_ptrc_##name == NULL) _ptrc_##name = _ptrc_##name##ext;
+#define FUDGE_FUNC(name, ext) 	if (_ptrc_##name == NULL) _ptrc_##name = _ptrc_##name##ext;
 
 // forward declaration to detect outdated opengl
 extern bool no_render_buffers;
 void RGL_LoadExtensions()
 {
+#ifdef GLEWISDEAD
 	//FIXME: REMOVE GLEW!!!
 	GLenum err = glewInit();
 
 	if (err != GLEW_OK)
 		I_Error("Unable to initialize GLEW: %s\n",
 			glewGetErrorString(err));
+#endif
+	static bool first = true;
+
+	if (first)
+	{
+		if (ogl_LoadFunctions() == ogl_LOAD_FAILED)
+		{
+			I_Error("Failed to load OpenGL functions.");
+		}
+	}
 
 	RGL_CollectExtensions();
 
@@ -466,7 +477,6 @@ void RGL_LoadExtensions()
 	{
 		// fudge a bit with the framebuffer stuff to avoid redundancies in the main code. 
 		// Some of the older cards do not have the ARB stuff but the calls are nearly identical.
-#if 0
 		FUDGE_FUNC(glGenerateMipmap, EXT);
 		FUDGE_FUNC(glGenFramebuffers, EXT);
 		FUDGE_FUNC(glBindFramebuffer, EXT);
@@ -483,8 +493,6 @@ void RGL_LoadExtensions()
 		FUDGE_FUNC(glRenderbufferStorage, EXT);
 		FUDGE_FUNC(glBindRenderbuffer, EXT);
 		FUDGE_FUNC(glCheckFramebufferStatus, EXT);
-#endif // 0
-
 		//gl_PatchMenu();
 	}
 }
@@ -495,6 +503,7 @@ void RGL_LoadExtensions()
 //
 // Based on code by Bruce Lewis.
 //
+#if 0
 void RGL_CheckExtensions_Old(void)
 {
 #ifndef DREAMCAST
@@ -547,9 +556,9 @@ void RGL_CheckExtensions_Old(void)
 	else
 		I_Printf("OpenGL: Does not support anisotropy!\n");
 
-	if		(GLEW_ARB_vertex_shader || GLEW_ARB_fragment_shader)
+	if (GLEW_ARB_vertex_shader || GLEW_ARB_fragment_shader)
 		I_Printf("OpenGL: GLSLv%s Initialized\n", glstr_glsl.c_str());
-	else if (!GLEW_VERSION_2_1) 
+	else if (!GLEW_VERSION_2_1)
 	{
 		I_Warning("OpenGL: GLSLv%s is less than 2.1! Disabling GLSL\n", glstr_glsl.c_str());
 		no_render_buffers = true;
@@ -625,7 +634,9 @@ void RGL_CheckExtensions_Old(void)
 	r_dumbsky = 1;
 	r_dumbmulti = 1;
 #endif
-}
+	}
+#endif // 0
+
 
 //
 // RGL_SoftInit
@@ -674,15 +685,15 @@ void RGL_Init(void)
 	I_Printf("==============================================================================\n");
 	I_Printf("OpenGL Subsystem: Initialising...\n");
 
-	if (M_CheckParm("-oldGLchecks"))
-	{
-		RGL_CheckExtensions_Old();
-	}
-	else if (!M_CheckParm("-oldGLchecks"))
+	//if (M_CheckParm("-oldGLchecks"))
+	//{
+	//	RGL_CheckExtensions_Old();
+	//}
+	//if (!M_CheckParm("-oldGLchecks"))
 		//CA -1.21.2018- ~ New, smarter GL extension checker!
-	{
+	//{
 		RGL_LoadExtensions();
-	}
+	//}
 		int v = 0;
 		if (!gl.legacyMode)
 			glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &v);
@@ -690,7 +701,7 @@ void RGL_Init(void)
 		I_Printf("GL_VENDOR: %s\n", glGetString(GL_VENDOR));
 		I_Printf("GL_RENDERER: %s\n", glGetString(GL_RENDERER));
 		I_Printf("GL_VERSION: %s (%s profile)\n", glGetString(GL_VERSION), (v & GL_CONTEXT_CORE_PROFILE_BIT) ? "Core" : "Compatibility");
-		I_Printf("GLEW_VERSION: %s\n", glewGetString(GLEW_VERSION));
+		//I_Printf("GLEW_VERSION: %s\n", glewGetString(GLEW_VERSION));
 		I_Printf("GL_SHADING_LANGUAGE_VERSION: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
 		I_GLf("GL_EXTENSIONS:");
