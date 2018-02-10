@@ -20,7 +20,10 @@
 #include "i_defs_gl.h"
 
 #ifdef WIN32
-#include <GL/wglew.h>
+#include "win32/wglext.h"
+#define WGL_WGLEXT_PROTOTYPES 1
+PFNWGLSWAPINTERVALEXTPROC myWglSwapIntervalExtProc;
+
 
 #else
 #include <GL/glew.h>
@@ -325,12 +328,12 @@ void I_FinishFrame(void)
 	//FIXME: WIN32 relies on WGLEW, so when we go to GLAD, make sure to generate a WGL_GLAD header to compensate.
 	//       I wonder if SDL_GL_SwapWindow will work under Win32 without WGLEW extensions. hmmm.
 #ifdef WIN32
-	if (WGLEW_EXT_swap_control)
+	if (WGL_EXT_swap_control)
 	{
 		if (r_vsync.d > 0)
 			glFinish();
 
-		wglSwapIntervalEXT(r_vsync.d != 0);
+		myWglSwapIntervalExtProc(r_vsync.d != 0);
 	}
 #endif
 
@@ -345,12 +348,12 @@ void I_FinishFrame(void)
 	you should probably retry the call with 1 for the interval. */
 
 #ifdef _WIN32
-	if (WGLEW_EXT_swap_control)
+	if (WGL_EXT_swap_control)
 	{
 		if (r_vsync.d == 1 && r_swapinterval.d == 0)
-			wglSwapIntervalEXT(1);
+			myWglSwapIntervalExtProc(1);
 		else if (r_vsync.d == 1 && r_swapinterval.d == 1)
-			wglSwapIntervalEXT(-1);
+			myWglSwapIntervalExtProc(-1);
 	}
 #endif
 	if (r_vsync.d == 1 && r_swapinterval.d == 0)
