@@ -280,8 +280,11 @@ static bool RGL_CheckExtension(const char *ext)
 
 // forward declaration to detect outdated opengl
 extern bool no_render_buffers;
+
 void RGL_LoadExtensions()
 {
+	I_Printf("RGL_LoadContextExtensions...\n");
+	GLenum err = ogl_LoadFunctions();
 #ifdef GLEWISDEAD
 	//FIXME: REMOVE GLEW!!!
 	GLenum err = glewInit();
@@ -290,16 +293,6 @@ void RGL_LoadExtensions()
 		I_Error("Unable to initialize GLEW: %s\n",
 			glewGetErrorString(err));
 #endif
-	static bool first = true;
-
-	if (first)
-	{
-		if (ogl_LoadFunctions() == ogl_LOAD_FAILED)
-		{
-			I_Error("Failed to load OpenGL functions.");
-		}
-	}
-
 	RGL_CollectExtensions();
 
 	const char *glversion = (const char*)glGetString(GL_VERSION);
@@ -682,6 +675,8 @@ void RGL_SoftInit(void)
 //
 void RGL_Init(void)
 {
+	//ogl_LoadFunctions();
+
 	I_Printf("==============================================================================\n");
 	I_Printf("OpenGL Subsystem: Initialising...\n");
 
@@ -692,7 +687,7 @@ void RGL_Init(void)
 	//if (!M_CheckParm("-oldGLchecks"))
 		//CA -1.21.2018- ~ New, smarter GL extension checker!
 	//{
-		RGL_LoadExtensions();
+	RGL_LoadExtensions();
 	//}
 		int v = 0;
 		if (!gl.legacyMode)

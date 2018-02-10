@@ -20,8 +20,9 @@
 #include "i_defs_gl.h"
 
 #ifdef WIN32
-#include "win32/wglext.h"
-#define WGL_WGLEXT_PROTOTYPES 1
+//#include "GL/gl_load.h";//win32/wglext.h"
+#include "opengl/gledge_wgl.h"
+//#define WGL_WGLEXT_PROTOTYPES 1
 PFNWGLSWAPINTERVALEXTPROC myWglSwapIntervalExtProc;
 
 
@@ -194,6 +195,17 @@ void I_StartupGraphics(void)
         return;
     }
 
+	static bool first = true;
+
+	if (first)
+	{
+		if (ogl_LoadFunctions() == ogl_LOAD_FAILED)
+		{
+			I_Error("Failed to load OpenGL functions.");
+			return;
+		}
+	}
+
 
 	// add fullscreen modes
 	int nummodes = SDL_GetNumDisplayModes(0); // for now just assume display #0
@@ -328,13 +340,12 @@ void I_FinishFrame(void)
 	//FIXME: WIN32 relies on WGLEW, so when we go to GLAD, make sure to generate a WGL_GLAD header to compensate.
 	//       I wonder if SDL_GL_SwapWindow will work under Win32 without WGLEW extensions. hmmm.
 #ifdef WIN32
-	if (WGL_EXT_swap_control)
-	{
+
 		if (r_vsync.d > 0)
 			glFinish();
 
 		myWglSwapIntervalExtProc(r_vsync.d != 0);
-	}
+	
 #endif
 
 	/* 	Some systems allow specifying -1 for the interval,
