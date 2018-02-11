@@ -9,8 +9,8 @@
 #include <vector>
 #include <string>
 
-#ifndef nullptr
-#define nullptr NULL
+#ifndef NULL
+#define NULL 0
 #endif
 
 void RGL_InitRenderBuffers();
