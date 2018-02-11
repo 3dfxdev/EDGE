@@ -998,7 +998,7 @@ void InitDirectories(void)
 // Adding HERETIC.WAD to string 2.24.2013
 // Kept freedoom.wad for backward compatibility
 // 2016/02/07: Added Darkwar.wad for ROTT
-const char *wadname[] = { "doom2", "doom","hyper", "plutonia", "tnt", "hacx", "heretic", "freedoom", "freedm", "chex", "freedoom1", "freedoom2", "darkwar", "slave", NULL };
+const char *wadname[] = { "doom2", "doom","hyper", "plutonia", "tnt", "hacx", "heretic", "freedoom", "freedm", "chex", "freedoom1", "freedoom2", "darkwar", "slave", "doom1", NULL };
 
 static void IdentifyVersion(void)
 {
