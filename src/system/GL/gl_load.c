@@ -2,7 +2,9 @@
 #include <string.h>
 #include <stddef.h>
 #include "gl_load.h"
+#ifdef WIN32
 #include "../opengl/gledge_wgl.h"
+#endif
 
 #if defined(__APPLE__)
 #include <dlfcn.h>
