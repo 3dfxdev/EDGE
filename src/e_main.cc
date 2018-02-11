@@ -520,20 +520,22 @@ static void DoSystemStartup(void)
 	I_Debugf("- System startup begun.\n");
 
 	// [SP] Set up Optimus to use desired GPU by setting environment variable before init.
+#ifdef WIN32
 	if (r_gpuswitch.d == 1)
 	{
 		I_Debugf("* Setting Optimus High-Performance GPU.\n");
-		putenv("SHIM_MCCOMPAT=0x800000001");
+		_putenv("SHIM_MCCOMPAT=0x800000001");
 	}
 	else if (r_gpuswitch.d == 2)
 	{
 		I_Debugf("* Setting Optimus Power-Saving GPU.\n");
-		putenv("SHIM_MCCOMPAT=0x800000000");
+		_putenv("SHIM_MCCOMPAT=0x800000000");
 	}
 	else
 	{
 		I_Debugf("* Optimus GPU setting not set.\n");
 	}
+#endif
 
 	I_SystemStartup();
 
