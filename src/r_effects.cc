@@ -185,8 +185,8 @@ void RGL_PaletteEffect(player_t *player)
 		if (var_invul_fx != INVULFX_Complex)
 			return;
 #ifndef DREAMCAST
-		if (GLEW_ARB_imaging || GLEW_SGI_color_matrix)
-		{
+		//if (GLUE_ARB_imaging || GLUE_SGI_color_matrix)
+		//{
 			glFlush();
 
 			glMatrixMode(GL_COLOR);
@@ -210,7 +210,7 @@ void RGL_PaletteEffect(player_t *player)
 			glCopyPixels(x, y, viewwindow_w, viewwindow_h, GL_COLOR);
 
 			glLoadIdentity();
-		}
+		//}
 #else
 	//TODO DREAMCAST
 #endif

@@ -1,10 +1,13 @@
-EPI Library V2.0
+EPI Library V3.0
 
-This is a general purpose library written in C++, but with no
-reliance on templates and other advanced C++ features. The
-intention is a lightweight lib biases towards use in game engines.
+This is a general purpose library written in C++. The
+intention is a lightweight lib biased towards use in 
+game engines. V1 and V2 did not rely on advancements
+such as templates, but V3 does indeed include support
+for dynamic array templates.
 
-This version of EPI is much improved over the previous EPI V1.0,
-which was included in the original EDGE. 
+This version of EPI is much improved over the previous EPI V2,
+which was included with versions of EDGE after 2.0. EPI V1.0
+was conceived and developed by the original EDGE team (in 2004).
 
 Please refer to INSTALL for installation instructions.
