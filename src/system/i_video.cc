@@ -344,7 +344,8 @@ void I_FinishFrame(void)
 		if (r_vsync.d > 0)
 			glFinish();
 
-		myWglSwapIntervalExtProc(r_vsync.d != 0);
+		if (myWglSwapIntervalExtProc)
+			myWglSwapIntervalExtProc(r_vsync.d != 0);
 	
 #endif
 
@@ -361,10 +362,11 @@ void I_FinishFrame(void)
 #ifdef _WIN32
 	if (WGL_EXT_swap_control)
 	{
-		if (r_vsync.d == 1 && r_swapinterval.d == 0)
-			myWglSwapIntervalExtProc(1);
-		else if (r_vsync.d == 1 && r_swapinterval.d == 1)
-			myWglSwapIntervalExtProc(-1);
+		if (myWglSwapIntervalExtProc)
+			if (r_vsync.d == 1 && r_swapinterval.d == 0)
+				myWglSwapIntervalExtProc(1);
+			else if (r_vsync.d == 1 && r_swapinterval.d == 1)
+				myWglSwapIntervalExtProc(-1);
 	}
 #endif
 	if (r_vsync.d == 1 && r_swapinterval.d == 0)
