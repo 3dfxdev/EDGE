@@ -1,0 +1,3 @@
+[submodule "libs/OGG-Vorbis-CMAKE"]
+	path = OGG-Vorbis-CMAKE
+	url = https://github.com/Iunusov/OGG-Vorbis-CMAKE
