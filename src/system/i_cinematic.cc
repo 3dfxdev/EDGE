@@ -29,6 +29,7 @@
 // SIMD_X64: SSE2 intricies, go into i_system.h to undefine and/or disable for no SSE2 (Should the flag be changed???)
 
 #include "../../epi/epi.h"
+#include "../../epi/bytearray.h"
 #include "../../epi/file.h"
 #include "../../epi/filesystem.h"
 #include "../../epi/math_oddity.h"
@@ -69,7 +70,7 @@ typedef struct
 	int					flags;
 
 	epi::file_c			*file;
-	u32_t				size;
+	int					size;
 	int					offset;
 
 	int					startTime;
@@ -105,7 +106,7 @@ ALIGN_16(static u32_t)	cin_quadVQ8[256 << 6];
 
 static short cin_soundSamples[ROQ_CHUNK_MAX_DATA_SIZE >> 2];
 
-static byte cin_chunkData[ROQ_CHUNK_HEADER_SIZE + ROQ_CHUNK_MAX_DATA_SIZE];
+static u8_t cin_chunkData[ROQ_CHUNK_HEADER_SIZE + ROQ_CHUNK_MAX_DATA_SIZE];
 
 static cinematic_t cin_cinematics[MAX_CINEMATICS];
 
@@ -1007,7 +1008,8 @@ static void CIN_DecodeSoundStereo48 (cinematic_t *cin, const byte *data){
 */
 static bool CIN_DecodeChunk (cinematic_t *cin)
 {
-	epi::file_c *f = cin->file;
+	I_Printf("CIN_DecodeChunk!!\n");
+	//epi::file_c *f = cin->file;
 	byte	*data;
 
 	if (cin->offset >= cin->size)
@@ -1018,22 +1020,24 @@ static bool CIN_DecodeChunk (cinematic_t *cin)
 	// Read and decode the first chunk header if needed
 	if (cin->offset == ROQ_CHUNK_HEADER_SIZE)
 	{
-		cin->offset += f->Read(cin_chunkData, ROQ_CHUNK_HEADER_SIZE);
+		cin->offset += cin->file->Read(cin_chunkData, ROQ_CHUNK_HEADER_SIZE);
 
 		cin->chunkHeader.id = EPI_LE_U16(data[0] | (data[1] << 8));
-                cin->chunkHeader.size = EPI_LE_U32(data[2] | (data[3] << 8) | (data[4] << 16) | (data[5] << 24));
-                cin->chunkHeader.args = EPI_LE_U16(data[6] | (data[7] << 8));
+
+		cin->chunkHeader.size = EPI_LE_U32(data[2] | (data[3] << 8) | (data[4] << 16) | (data[5] << 24));
+
+		cin->chunkHeader.args = EPI_LE_U16(data[6] | (data[7] << 8));
 		
 	}
 
 	// Read the chunk data and the next chunk header
 	if (cin->chunkHeader.size > ROQ_CHUNK_MAX_DATA_SIZE)
-		I_Error("CIN_DecodeChunk: bad chunk size (%u)", cin->chunkHeader.size);//(false, "CIN_DecodeChunk: bad chunk size (%u)", cin->chunkHeader.size);
+		I_Error("CIN_DecodeChunk: bad chunk size (%u)", cin->chunkHeader.size);
 
 	if (cin->offset + cin->chunkHeader.size >= cin->size)
-		cin->offset += f->Read(cin_chunkData, cin->chunkHeader.size);
+		cin->offset += cin->file->Read(cin_chunkData, cin->chunkHeader.size);
 	else
-		cin->offset += f->Read(cin_chunkData, cin->chunkHeader.size + ROQ_CHUNK_HEADER_SIZE);
+		cin->offset += cin->file->Read(cin_chunkData, cin->chunkHeader.size + ROQ_CHUNK_HEADER_SIZE);
 
 	// Decode the chunk data
 	switch (cin->chunkHeader.id)
@@ -1346,11 +1350,11 @@ void E_PlayMovie(const char *name, int flags)
 */
 cinData_t CIN_UpdateCinematic (cinHandle_t handle, int time)
 {
-
+	I_Printf("CIN_UpdateCinematic!\n");
 	cinematic_t	*cin;
 	cinData_t	data;
 	int			frame;
-	epi::file_c *f = cin->file;
+	//epi::file_c *f = cin->file;
 
 	cin = CIN_GetCinematicByHandle(handle);
 
@@ -1363,7 +1367,8 @@ cinData_t CIN_UpdateCinematic (cinHandle_t handle, int time)
 	if (frame < 1)
 		frame = 1;
 
-	if (frame <= cin->frameCount){
+	if (frame <= cin->frameCount)
+	{
 		data.image = cin->frameBuffer[1];
 		data.dirty = false;
 
@@ -1407,7 +1412,7 @@ cinData_t CIN_UpdateCinematic (cinHandle_t handle, int time)
 		}
 
 		// Reset the cinematic
-		f->Seek(ROQ_CHUNK_HEADER_SIZE, epi::file_c::SEEKPOINT_START);
+		cin->file->Seek(ROQ_CHUNK_HEADER_SIZE, epi::file_c::SEEKPOINT_START);
 		//F->Seek(cin->file, ROQ_CHUNK_HEADER_SIZE, SEEKPOINT_START);
 
 		cin->offset = ROQ_CHUNK_HEADER_SIZE;
@@ -1436,12 +1441,12 @@ void CIN_ResetCinematic (cinHandle_t handle)
 {
 
 	cinematic_t	*cin;
-	epi::file_c *f = cin->file;
+	//epi::file_c *f = cin->file;
 
 	cin = CIN_GetCinematicByHandle(handle);
 
 	// Reset the cinematic
-	f->Seek(ROQ_CHUNK_HEADER_SIZE, epi::file_c::SEEKPOINT_START);
+	cin->file->Seek(ROQ_CHUNK_HEADER_SIZE, epi::file_c::SEEKPOINT_START);
 	//FS_Seek(cin->file, ROQ_CHUNK_HEADER_SIZE, FS_SEEK_SET);
 
 	cin->offset = ROQ_CHUNK_HEADER_SIZE;
@@ -1458,7 +1463,7 @@ void CIN_StopCinematic (cinHandle_t handle)
 {
 
 	cinematic_t	*cin;
-	epi::file_c *f = cin->file;
+	//epi::file_c *f = cin->file;
 
 	cin = CIN_GetCinematicByHandle(handle);
 
@@ -1571,7 +1576,7 @@ static void CIN_ListCinematics_f(void)
 */
 void CIN_Init (void)
 {
-
+	I_Printf("I_Cinematic: Starting up...\n");
 	float	f;
 	short	s;
 	int		i;
