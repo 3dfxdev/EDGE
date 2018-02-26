@@ -277,7 +277,7 @@ typedef enum
 	MT_STEALTHHEAD,   MT_STEALTHCHAINGUY, MT_STEALTHSERGEANT,
 	MT_STEALTHKNIGHT, MT_STEALTHIMP,      MT_STEALTHFATSO,
 	MT_STEALTHUNDEAD, MT_STEALTHSHOTGUY,  MT_STEALTHZOMBIE,
-                                                                                            
+
 	NUMMOBJTYPES_BEX
 }
 mobjtype_t;

@@ -19,6 +19,8 @@
 #ifndef __VM_COAL_H__
 #define __VM_COAL_H__
 
+#include "con_main.h"
+
 void VM_InitCoal();
 void VM_QuitCoal();
 

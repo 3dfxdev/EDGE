@@ -1,0 +1,49 @@
+3DGE 2.1.0
+======================
+SUPPORT
+======================
+As mentioned in the Readme, contained is a helpful
+guide on some of the most common troubleshooting
+questions. If this does not solve your problem
+after reading all of the technical documents, please
+report these issues at http://edge2.sf.net
+
+======================
+
+Troubleshooting:
+  - If EDGE crashes, or otherwise misbehaves, please help us by
+    reporting the problem.  To do this check out the EDGE website at
+    http://edge2.sourceforge.net.  We appreciate input because if you
+    don't tell us about a bug, we can't deal with it.
+
+  - Post the EDGE2.LOG file which EDGE creates along with your bug
+    report, as this contains lots of useful information to help us
+    track down the problem.
+
+  - Mods designed for EDGE 1.35 and lower will no longer run out-of-box
+    since their version directive is too low - use the command line args
+    -v135 or -v129 for those. We will not help getting older mods running
+    in 3DGE 2.1+, so you run these at your own risk.
+
+  For Windows:
+    - For EDGE to "work", you need a 3D card *plus* OpenGL drivers for
+      it installed on your computer.  A really low framerate (1 FPS)
+      usually means that the *software* OpenGL driver is being used (not
+      what we want).  Go to the website of your card's
+      manufacturer and look for a recent 3D driver.  Another place to
+      look is on Microsoft's site.  Basically, if Quake 3 (or some
+      other OpenGL game) works, then EDGE should work too.
+
+    - GLSL is now supported in 3DGE, but if you notice really low framerates,
+      look at 3DGE-CVARS.txt and disable the shader features. A command-line
+      switch is being implemented to disable the system before the engine is
+      started for users who want to force that. If your hardware does not support
+      GLSL, it will be disabled automatically. GLSL shaders can be used with
+      both OpenGL 1.1 and OpenGL 3 modes.
+
+  For Linux:
+
+    - You can check whether hardware 3D rendering is available by
+      running the 'glxinfo' program in an terminal, and look for the
+      line which says "direct rendering: Yes".
+

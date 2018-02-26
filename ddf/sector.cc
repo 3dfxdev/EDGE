@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition File Code (Sectors)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -98,7 +98,7 @@ static void SectorStartEntry(const char *name, bool extend)
 
 	if (extend)
 	{
-		if (! dynamic_sector)
+		if (!dynamic_sector)
 			DDF_Error("Unknown sectortype to extend: %s\n", name);
 		return;
 	}
@@ -117,7 +117,6 @@ static void SectorStartEntry(const char *name, bool extend)
 	sectortypes.Insert(dynamic_sector);
 }
 
-
 static void SectorDoTemplate(const char *contents)
 {
 	int number = MAX(0, atoi(contents));
@@ -132,14 +131,13 @@ static void SectorDoTemplate(const char *contents)
 	dynamic_sector->CopyDetail(*other);
 }
 
-
 //
 // SectorParseField
 //
 static void SectorParseField(const char *field, const char *contents,
-							 int index, bool is_last)
+	int index, bool is_last)
 {
-#if (DEBUG_DDF)  
+#if (DEBUG_DDF)
 	I_Debugf("SECTOR_PARSE: %s = %s;\n", field, contents);
 #endif
 
@@ -151,7 +149,7 @@ static void SectorParseField(const char *field, const char *contents,
 
 	// backwards compatibility...
 	if (DDF_CompareName(field, "CRUSH") == 0 ||
-	    DDF_CompareName(field, "CRUSH_DAMAGE") == 0)
+		DDF_CompareName(field, "CRUSH_DAMAGE") == 0)
 	{
 		DDF_SectMakeCrush(contents);
 		return;
@@ -205,10 +203,10 @@ bool DDF_ReadSectors(void *data, int size)
 		sects.lumpname = NULL;
 	}
 
-	sects.start_entry  = SectorStartEntry;
-	sects.parse_field  = SectorParseField;
+	sects.start_entry = SectorStartEntry;
+	sects.parse_field = SectorParseField;
 	sects.finish_entry = SectorFinishEntry;
-	sects.clear_all    = SectorClearAll;
+	sects.clear_all = SectorClearAll;
 
 	return DDF_MainReadFile(&sects);
 }
@@ -219,7 +217,7 @@ bool DDF_ReadSectors(void *data, int size)
 void DDF_SectorInit(void)
 {
 	sectortypes.Reset();
-	
+
 	default_sector = new sectortype_c;
 	default_sector->number = 0;
 }
@@ -258,22 +256,22 @@ void DDF_SectGetSpecialFlags(const char *info, void *storage)
 
 	switch (DDF_MainCheckSpecialFlag(info, sector_specials, &flag_value, true, false))
 	{
-		case CHKF_Positive:
-			*special = 
-				(sector_flag_e)(*special | flag_value);
-			
-			break;
+	case CHKF_Positive:
+		*special =
+			(sector_flag_e)(*special | flag_value);
 
-		case CHKF_Negative:
-			*special = 
-				(sector_flag_e)(*special & ~flag_value);
-			
-			break;
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("Unknown sector special: %s", info);
-			break;
+	case CHKF_Negative:
+		*special =
+			(sector_flag_e)(*special & ~flag_value);
+
+		break;
+
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("Unknown sector special: %s", info);
+		break;
 	}
 }
 
@@ -301,15 +299,15 @@ void DDF_SectGetExit(const char *info, void *storage)
 	switch (DDF_MainCheckSpecialFlag(info, exit_types, &flag_value,
 		false, false))
 	{
-		case CHKF_Positive:
-		case CHKF_Negative:
-			(*dest) = flag_value;
-			break;
+	case CHKF_Positive:
+	case CHKF_Negative:
+		(*dest) = flag_value;
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("Unknown Exit type: %s\n", info);
-			break;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("Unknown Exit type: %s\n", info);
+		break;
 	}
 }
 
@@ -338,15 +336,15 @@ void DDF_SectGetLighttype(const char *info, void *storage)
 	switch (DDF_MainCheckSpecialFlag(info, light_types, &flag_value,
 		false, false))
 	{
-		case CHKF_Positive:
-		case CHKF_Negative:
-			(*dest) = flag_value;
-			break;
+	case CHKF_Positive:
+	case CHKF_Negative:
+		(*dest) = flag_value;
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("Unknown light type: %s\n", info);
-			break;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("Unknown light type: %s\n", info);
+		break;
 	}
 }
 
@@ -376,15 +374,15 @@ void DDF_SectGetMType(const char *info, void *storage)
 	switch (DDF_MainCheckSpecialFlag(info, movement_types, &flag_value,
 		false, false))
 	{
-		case CHKF_Positive:
-		case CHKF_Negative:
-			(*dest) = flag_value;
-			break;
+	case CHKF_Positive:
+	case CHKF_Negative:
+		(*dest) = flag_value;
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("Unknown Movement type: %s\n", info);
-			break;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("Unknown Movement type: %s\n", info);
+		break;
 	}
 }
 
@@ -400,7 +398,7 @@ static specflags_t reference_types[] =
 
 	// Note that LOSURROUNDINGFLOOR has the REF_INCLUDE flag, but the
 	// others do not.  It's there to maintain backwards compatibility.
-	// 
+	//
 	{"LOSURROUNDINGCEILING", REF_Surrounding + REF_CEILING, false},
 	{"HISURROUNDINGCEILING", REF_Surrounding + REF_CEILING + REF_HIGHEST, false},
 	{"LOSURROUNDINGFLOOR", REF_Surrounding + REF_INCLUDE, false},
@@ -410,7 +408,7 @@ static specflags_t reference_types[] =
 	// vice versa, which may seem strange.  It's because the next
 	// lowest sector is actually the highest of all adjacent sectors
 	// that are lower than the current sector.
-	// 
+	//
 	{"NEXTLOWESTFLOOR", REF_Surrounding + REF_NEXT + REF_HIGHEST, false},
 	{"NEXTHIGHESTFLOOR", REF_Surrounding + REF_NEXT, false},
 	{"NEXTLOWESTCEILING", REF_Surrounding + REF_NEXT + REF_CEILING + REF_HIGHEST, false},
@@ -444,15 +442,15 @@ void DDF_SectGetDestRef(const char *info, void *storage)
 	switch (DDF_MainCheckSpecialFlag(info, reference_types, &flag_value,
 		false, false))
 	{
-		case CHKF_Positive:
-		case CHKF_Negative:
-			(*dest) = flag_value;
-			break;
+	case CHKF_Positive:
+	case CHKF_Negative:
+		(*dest) = flag_value;
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("Unknown Reference Point: %s\n", info);
-			break;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("Unknown Reference Point: %s\n", info);
+		break;
 	}
 }
 
@@ -462,9 +460,7 @@ static void DDF_SectMakeCrush(const char *info)
 	dynamic_sector->c.crush_damage = 10;
 }
 
-
 //----------------------------------------------------------------------------
-
 
 // --> Sector type definition class
 
@@ -482,7 +478,6 @@ sectortype_c::sectortype_c() : number(0)
 sectortype_c::~sectortype_c()
 {
 }
-
 
 //
 // sectortype_c::CopyDetail()
@@ -502,12 +497,12 @@ void sectortype_c::CopyDetail(sectortype_c &src)
 	l = src.l;
 
 	damage = src.damage;
-	
+
 	special_flags = src.special_flags;
 	e_exit = src.e_exit;
-	
+
 	use_colourmap = src.use_colourmap;
-	
+
 	ambient_sfx = src.ambient_sfx;
 	splash_sfx = src.splash_sfx;
 
@@ -530,14 +525,14 @@ void sectortype_c::Default()
 	friction = FRICTION;
 	viscosity = VISCOSITY;
 	drag = DRAG;
-	
+
 	f.Default(movplanedef_c::DEFAULT_FloorSect);
 	c.Default(movplanedef_c::DEFAULT_CeilingSect);
 
 	l.Default();
 
 	damage.Default(damage_c::DEFAULT_Sector);
-	
+
 	special_flags = SECSP_None;
 	e_exit = EXIT_None;
 	use_colourmap = NULL;
@@ -552,13 +547,12 @@ void sectortype_c::Default()
 	push_angle = 0;
 }
 
-
 // --> Sector definition type container class
 
 //
 // sectortype_container_c Constructor
 //
-sectortype_container_c::sectortype_container_c() : 
+sectortype_container_c::sectortype_container_c() :
 	epi::array_c(sizeof(sectortype_c*))
 {
 	Reset();
@@ -600,7 +594,7 @@ sectortype_c *sectortype_container_c::Lookup(const int id)
 		lookup_cache[slot]->number == id)
 	{
 		return lookup_cache[slot];
-	}	
+	}
 
 	epi::array_iterator_c it;
 

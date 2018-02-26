@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Global State Variables
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -54,7 +54,7 @@ extern gameflags_t level_flags;
 
 
 
-// Selected by user. 
+// Selected by user.
 extern skill_t gameskill;
 
 // Flag: true only if started as net deathmatch.
@@ -150,6 +150,8 @@ extern int quickSaveSlot;
 extern bool singletics;
 
 extern bool splitscreen_mode;
+extern bool wolf3d_mode;
+extern bool rott_mode;
 
 extern bool heretic_mode;
 

@@ -757,6 +757,8 @@ def_t * real_vm_c::FindLiteral()
 			if (G_FLOAT(cn->ofs)   == comp.literal_value[0] &&
 				G_FLOAT(cn->ofs+1) == comp.literal_value[1] &&
 				G_FLOAT(cn->ofs+2) == comp.literal_value[2])
+				///G_FLOAT(cn->ofs+sizeof(double)) == comp.literal_value[1] &&
+				///G_FLOAT(cn->ofs+sizeof(double)*2) == comp.literal_value[2])
 			{
 				return cn;
 			}

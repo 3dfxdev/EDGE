@@ -16,7 +16,7 @@
 //
 //------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../coal/coal.h"
 
@@ -286,7 +286,6 @@ static void PL_is_action4(coal::vm_c *vm, int argc)
 {
 	vm->ReturnFloat(ui_player_who->actiondown[3] ? 1 : 0);
 }
-
 
 // player.move_speed()
 //
@@ -747,8 +746,6 @@ void VM_RegisterPlaysim()
     ui_vm->AddNativeFunction("player.is_using",        PL_is_using);
     ui_vm->AddNativeFunction("player.is_action1",      PL_is_action1);
     ui_vm->AddNativeFunction("player.is_action2",      PL_is_action2);
-	ui_vm->AddNativeFunction("player.is_action3",      PL_is_action3);
-    ui_vm->AddNativeFunction("player.is_action4",      PL_is_action4);
     ui_vm->AddNativeFunction("player.is_attacking",    PL_is_attacking);
     ui_vm->AddNativeFunction("player.is_rampaging",    PL_is_rampaging);
     ui_vm->AddNativeFunction("player.is_grinning",     PL_is_grinning);

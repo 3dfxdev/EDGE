@@ -30,6 +30,7 @@
 #include "r_defs.h"
 
 extern int showMessages;
+extern bool message_on;
 
 //
 // Globally visible constants.
@@ -39,7 +40,7 @@ extern int showMessages;
 
 #define HU_MSGX		0
 #define HU_MSGY		0
-#define HU_MSGWIDTH	64  // in characters
+#define HU_MSGWIDTH	32  // in characters
 #define HU_MSGHEIGHT	1  // in lines
 
 #define HU_MSGTIMEOUT	(4*TICRATE)
@@ -54,6 +55,8 @@ extern bool chat_on;
 
 void HU_Init(void);
 void HU_Start(void);
+
+void HUD_SetScale(float scale);
 
 bool HU_Responder(event_t * ev);
 

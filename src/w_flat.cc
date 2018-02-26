@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Rendering Data Handling Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -27,7 +27,7 @@
 // -KM- 1998/09/27 Colourmaps can be dynamically changed.
 // -ES- 2000/02/12 Moved most of this module to w_texture.c.
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "e_search.h"
 #include "dm_state.h"
@@ -44,11 +44,9 @@
 #include "w_texture.h"
 #include "z_zone.h"
 
-
 cvar_c r_precache_tex;
 cvar_c r_precache_sprite;
 cvar_c r_precache_model;
-
 
 //
 // R_AddFlatAnim
@@ -69,13 +67,13 @@ cvar_c r_precache_model;
 //    the sequence.
 //
 // -AJA- 2001/01/28: reworked flat animations.
-// 
+//
 void R_AddFlatAnim(animdef_c *anim)
 {
 	if (anim->pics.GetSize() == 0)  // old way
 	{
 		int start = W_CheckNumForName(anim->startname);
-		int end   = W_CheckNumForName(anim->endname);
+		int end = W_CheckNumForName(anim->endname);
 
 		int file;
 		int s_offset, e_offset;
@@ -88,13 +86,13 @@ void R_AddFlatAnim(animdef_c *anim)
 			return;
 		}
 
-		file = W_FindFlatSequence(anim->startname, anim->endname, 
-				&s_offset, &e_offset);
+		file = W_FindFlatSequence(anim->startname, anim->endname,
+			&s_offset, &e_offset);
 
 		if (file < 0)
 		{
 			I_Warning("Missing flat animation: %s-%s not in any wad.\n",
-					(const char*)anim->startname, (const char*)anim->endname);
+				(const char*)anim->startname, (const char*)anim->endname);
 			return;
 		}
 
@@ -107,10 +105,10 @@ void R_AddFlatAnim(animdef_c *anim)
 		// determine animation sequence
 		total = e_offset - s_offset + 1;
 
-		const image_c **flats = new const image_c* [total];
+		const image_c **flats = new const image_c*[total];
 
 		// lookup each flat
-		for (i=0; i < total; i++)
+		for (i = 0; i < total; i++)
 		{
 			const char *name = W_GetLumpName(lumps[s_offset + i]);
 
@@ -119,7 +117,7 @@ void R_AddFlatAnim(animdef_c *anim)
 			// that -- the lump list does NOT take overriding flats (in newer
 			// pwads) into account.
 
-			flats[i] = W_ImageLookup(name, INS_Flat, ILF_Null|ILF_Exact|ILF_NoNew);
+			flats[i] = W_ImageLookup(name, INS_Flat, ILF_Null | ILF_Exact | ILF_NoNew);
 		}
 
 		W_AnimateImageSet(flats, total, anim->speed);
@@ -133,11 +131,11 @@ void R_AddFlatAnim(animdef_c *anim)
 	if (total == 1)
 		return;
 
-	const image_c **flats = new const image_c* [total];
+	const image_c **flats = new const image_c*[total];
 
 	for (int i = 0; i < total; i++)
 	{
-		flats[i] = W_ImageLookup(anim->pics[i], INS_Flat, ILF_Null|ILF_Exact);
+		flats[i] = W_ImageLookup(anim->pics[i], INS_Flat, ILF_Null | ILF_Exact);
 	}
 
 	W_AnimateImageSet(flats, total, anim->speed);
@@ -153,7 +151,7 @@ void R_AddFlatAnim(animdef_c *anim)
 //    meaning.  Some wads have the TEXTURE1/2 lump(s) but lack a
 //    PNAMES lump -- in this case the next oldest PNAMES lump is used
 //    (e.g. the one in the IWAD).
-// 
+//
 // 2. When two textures in different wads have the same name, the
 //    texture in the _later_ wad overrides the one in the earlier wad,
 //    as is usual.  For general use of textures (e.g. in levels),
@@ -165,9 +163,9 @@ void R_AddFlatAnim(animdef_c *anim)
 //    sequence (the list of texture names).  These names are then
 //    looked up normally, so textures in newer wads can get used if
 //    their name matches one in the sequence.
-// 
+//
 // -AJA- 2001/06/17: reworked texture animations.
-// 
+//
 void R_AddTextureAnim(animdef_c *anim)
 {
 	if (anim->pics.GetSize() == 0)  // old way
@@ -175,7 +173,7 @@ void R_AddTextureAnim(animdef_c *anim)
 		int set, s_offset, e_offset;
 
 		set = W_FindTextureSequence(anim->startname, anim->endname,
-				&s_offset, &e_offset);
+			&s_offset, &e_offset);
 
 		if (set < 0)
 		{
@@ -186,13 +184,13 @@ void R_AddTextureAnim(animdef_c *anim)
 		SYS_ASSERT(s_offset <= e_offset);
 
 		int total = e_offset - s_offset + 1;
-		const image_c **texs = new const image_c* [total];
+		const image_c **texs = new const image_c*[total];
 
 		// lookup each texture
 		for (int i = 0; i < total; i++)
 		{
 			const char *name = W_TextureNameInSet(set, s_offset + i);
-			texs[i] = W_ImageLookup(name, INS_Texture, ILF_Null|ILF_Exact|ILF_NoNew);
+			texs[i] = W_ImageLookup(name, INS_Texture, ILF_Null | ILF_Exact | ILF_NoNew);
 		}
 
 		W_AnimateImageSet(texs, total, anim->speed);
@@ -208,11 +206,11 @@ void R_AddTextureAnim(animdef_c *anim)
 	if (total == 1)
 		return;
 
-	const image_c **texs = new const image_c* [total];
+	const image_c **texs = new const image_c*[total];
 
 	for (int i = 0; i < total; i++)
 	{
-		texs[i] = W_ImageLookup(anim->pics[i], INS_Texture, ILF_Null|ILF_Exact);
+		texs[i] = W_ImageLookup(anim->pics[i], INS_Texture, ILF_Null | ILF_Exact);
 	}
 
 	W_AnimateImageSet(texs, total, anim->speed);
@@ -221,7 +219,7 @@ void R_AddTextureAnim(animdef_c *anim)
 
 //
 // R_AddGraphicAnim
-// 
+//
 void R_AddGraphicAnim(animdef_c *anim)
 {
 	int total = anim->pics.GetSize();
@@ -231,11 +229,11 @@ void R_AddGraphicAnim(animdef_c *anim)
 	if (total == 1)
 		return;
 
-	const image_c **users = new const image_c* [total];
+	const image_c **users = new const image_c*[total];
 
 	for (int i = 0; i < total; i++)
 	{
-		users[i] = W_ImageLookup(anim->pics[i], INS_Graphic, ILF_Null|ILF_Exact);
+		users[i] = W_ImageLookup(anim->pics[i], INS_Graphic, ILF_Null | ILF_Exact);
 	}
 
 	W_AnimateImageSet(users, total, anim->speed);
@@ -244,9 +242,12 @@ void R_AddGraphicAnim(animdef_c *anim)
 
 //
 // W_InitFlats
-// 
+//
 void W_InitFlats(void)
 {
+	if (wolf3d_mode)
+		return;
+
 	int max_file = W_GetNumFiles();
 	int j, file;
 
@@ -257,7 +258,7 @@ void W_InitFlats(void)
 
 	// iterate over each file, creating our big array of flats
 
-	for (file=0; file < max_file; file++)
+	for (file = 0; file < max_file; file++)
 	{
 		epi::u32array_c& lumps = W_GetListLumps(file, LMPLST_Flats);
 		int lumpnum = lumps.GetSize();
@@ -267,7 +268,7 @@ void W_InitFlats(void)
 
 		Z_Resize(F_lumps, int, numflats + lumpnum);
 
-		for (j=0; j < lumpnum; j++, numflats++)
+		for (j = 0; j < lumpnum; j++, numflats++)
 			F_lumps[numflats] = lumps[j];
 	}
 
@@ -280,7 +281,7 @@ void W_InitFlats(void)
 #define CMP(a, b)  \
 	(strcmp(W_GetLumpName(a), W_GetLumpName(b)) < 0 || \
 	 (strcmp(W_GetLumpName(a), W_GetLumpName(b)) == 0 && a < b))
-		QSORT(int, F_lumps, numflats, CUTOFF);
+	QSORT(int, F_lumps, numflats, CUTOFF);
 #undef CMP
 
 	// remove duplicate names.  We rely on the fact that newer lumps
@@ -288,7 +289,7 @@ void W_InitFlats(void)
 	// newness into account, only the last entry in a run of identically
 	// named flats needs to be kept.
 
-	for (j=1; j < numflats; j++)
+	for (j = 1; j < numflats; j++)
 	{
 		int a = F_lumps[j - 1];
 		int b = F_lumps[j];
@@ -297,15 +298,19 @@ void W_InitFlats(void)
 			F_lumps[j - 1] = -1;
 	}
 
-#if 0  // DEBUGGING
-	for (j=0; j < numflats; j++)
+#if 0
+	if (rott_mode)
 	{
-		L_WriteDebug("FLAT #%d:  lump=%d  name=[%s]\n", j,
+		for (j = 0; j < numflats; j++)
+		{
+			I_Printf("FLAT #%d:  lump=%d  name=[%s]\n", j,
 				F_lumps[j], W_GetLumpName(F_lumps[j]));
+		}
 	}
-#endif
+#endif // 0
 
-	W_ImageCreateFlats(F_lumps, numflats); 
+
+	W_ImageCreateFlats(F_lumps, numflats);
 	Z_Free(F_lumps);
 }
 
@@ -327,21 +332,20 @@ void W_InitPicAnims(void)
 
 		switch (A->type)
 		{
-			case animdef_c::A_Texture:
-				R_AddTextureAnim(A);
-				break;
+		case animdef_c::A_Texture:
+			R_AddTextureAnim(A);
+			break;
 
-			case animdef_c::A_Flat:
-				R_AddFlatAnim(A);
-				break;
+		case animdef_c::A_Flat:
+			R_AddFlatAnim(A);
+			break;
 
-			case animdef_c::A_Graphic:
-				R_AddGraphicAnim(A);
-				break;
+		case animdef_c::A_Graphic:
+			R_AddGraphicAnim(A);
+			break;
 		}
 	}
 }
-
 
 void W_PrecacheTextures(void)
 {
@@ -351,13 +355,13 @@ void W_PrecacheTextures(void)
 	int max_image = 1 + 3 * numsides + 2 * numsectors;
 	int count = 0;
 
-	const image_c ** images = new const image_c* [max_image];
+	const image_c ** images = new const image_c*[max_image];
 
 	// Sky texture is always present.
 	images[count++] = sky_image;
 
 	// add in sidedefs
-	for (i=0; i < numsides; i++)
+	for (i = 0; i < numsides; i++)
 	{
 		if (sides[i].top.image)
 			images[count++] = sides[i].top.image;
@@ -372,7 +376,7 @@ void W_PrecacheTextures(void)
 	SYS_ASSERT(count <= max_image);
 
 	// add in planes
-	for (i=0; i < numsectors; i++)
+	for (i = 0; i < numsectors; i++)
 	{
 		if (sectors[i].floor.image)
 			images[count++] = sectors[i].floor.image;
@@ -389,11 +393,11 @@ void W_PrecacheTextures(void)
 	QSORT(const image_c *, images, count, CUTOFF);
 #undef CMP
 
-	for (i=0; i < count; i++)
+	for (i = 0; i < count; i++)
 	{
 		SYS_ASSERT(images[i]);
 
-		if (i+1 < count && images[i] == images[i + 1])
+		if (i + 1 < count && images[i] == images[i + 1])
 			continue;
 
 		if (images[i] == skyflatimage)
@@ -405,14 +409,13 @@ void W_PrecacheTextures(void)
 	delete[] images;
 }
 
-
 //
 // W_PrecacheLevel
 //
 // Preloads all relevant graphics for the level.
 //
 // -AJA- 2001/06/18: Reworked for image system.
-//                   
+//
 void W_PrecacheLevel(void)
 {
 	if (r_precache_sprite.d)

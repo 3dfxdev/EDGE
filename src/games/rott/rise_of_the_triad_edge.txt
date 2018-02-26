@@ -1,0 +1,10 @@
+~CA: 6.2.2016
+
+This library is created to translate ROTT datas in 3DGE, with a few key differences (all actor/line/etc is all DDF now, obviously).
+
+This is in the very early stages and for now, is only skeletal. It is based on 3DGE's Wolf3D interpreter.
+
+Files:
+rott_data: all ROTT Specific data is defined here.
+
+rott_defs: all global defines are located here.

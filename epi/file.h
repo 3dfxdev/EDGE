@@ -21,6 +21,8 @@
 
 #include <limits.h>
 
+/// Began hack on epi_file_class to support directory entries and directories in general.
+
 namespace epi
 {
 
@@ -49,6 +51,7 @@ public:
 protected:
 
 public:
+	// constructor and destructor
 	file_c() {}
 	virtual ~file_c() {}
 

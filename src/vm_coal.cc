@@ -16,7 +16,7 @@
 //
 //------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../coal/coal.h"
 
@@ -286,7 +286,164 @@ static void STRINGS_tonumber(coal::vm_c *vm, int argc)
 	vm->ReturnFloat(atof(s));
 }
 
+//------------------------------------------------------------------------
+// CAMERA-MAN MODULE
+//------------------------------------------------------------------------
 
+// cameraman.reset()
+// NOT USED
+static void CAM_Reset(coal::vm_c *vm, int argc)
+{
+	cameraman::Reset();
+}
+
+// cameraman.load()
+static void CAM_Load(coal::vm_c *vm, int argc)
+{
+	cameraman::Serialize(1);
+}
+
+// cameraman.activate(1|0)
+static void CAM_Activate(coal::vm_c *vm, int argc)
+{
+	int activate = (int)*vm->AccessParam(0);
+	cameraman::Activate(activate);
+}
+
+// cameraman.add(pos.x, pos.y, pos.z, viewvertangle, viewangle, fov)
+// NOT USED
+static void CAM_Add(coal::vm_c *vm, int argc)
+{
+	int id = -1;
+	if (argc == 6)
+	{
+		float x = (float)*vm->AccessParam(0);
+		float y = (float)*vm->AccessParam(1);
+		float z = (float)*vm->AccessParam(2);
+		float ax = (float)*vm->AccessParam(3);
+		float ay = (float)*vm->AccessParam(4);
+		float fov = (float)*vm->AccessParam(5);
+		id = cameraman::Add(x, y, z, ax, ay, fov);
+	}
+	vm->ReturnFloat(id);
+}
+
+// cameraman.remove(id)
+// NOT USED
+static void CAM_Remove(coal::vm_c *vm, int argc)
+{
+	int done = -1;
+	if (argc == 1)
+	{
+		int id = (int)*vm->AccessParam(0);
+		done = cameraman::Remove(id);
+	}
+	vm->ReturnFloat(done);
+}
+
+// cameraman.set_position(id, pos.x, pos.y, pos.z)
+static void CAM_SetPosition(coal::vm_c *vm, int argc)
+{
+	int done = -1;
+	if (argc == 4)
+	{
+		int id = (int)*vm->AccessParam(0);
+		float x = (float)*vm->AccessParam(1);
+		float y = (float)*vm->AccessParam(2);
+		float z = (float)*vm->AccessParam(3);
+		done = cameraman::SetPosition(id, x, y, z);
+	}
+	vm->ReturnFloat(done);
+}
+
+// cameraman.set_angles(id, viewvertangle, viewangle)
+static void CAM_SetAngles(coal::vm_c *vm, int argc)
+{
+	int done = -1;
+	if (argc == 3)
+	{
+		int id = (int)*vm->AccessParam(0);
+		float ax = (float)*vm->AccessParam(1);
+		float ay = (float)*vm->AccessParam(2);
+		done = cameraman::SetAngles(id, ax, ay);
+	}
+	vm->ReturnFloat(done);
+}
+
+// cameraman.set_fov(id, fov)
+static void CAM_SetFov(coal::vm_c *vm, int argc)
+{
+	int done = -1;
+	if (argc == 2)
+	{
+		int id = (int)*vm->AccessParam(0);
+		float fov = (float)*vm->AccessParam(1);
+		done = cameraman::SetFov(id, fov);
+	}
+	vm->ReturnFloat(done);
+}
+
+// cameraman.is_active()
+static void CAM_IsActive(coal::vm_c *vm, int argc)
+{
+	int active = cameraman::IsActive();
+	vm->ReturnFloat(active);
+}
+
+// cameraman.get_start_id()
+static void CAM_GetStartId(coal::vm_c *vm, int argc)
+{
+	int id = cameraman::GetStartId();
+	vm->ReturnFloat(id);
+}
+
+// cameraman.get_end_id()
+static void CAM_GetEndId(coal::vm_c *vm, int argc)
+{
+	int id = cameraman::GetEndId();
+	vm->ReturnFloat(id);
+}
+
+// cameraman.set_start_id(id)
+static void CAM_SetStartId(coal::vm_c *vm, int argc)
+{
+	if (argc == 1)
+	{
+		int id = (int)*vm->AccessParam(0);
+		cameraman::SetStartId(id);
+	}
+}
+
+// cameraman.set_end_id(id)
+static void CAM_SetEndId(coal::vm_c *vm, int argc)
+{
+	if (argc == 1)
+	{
+		int id = (int)*vm->AccessParam(0);
+		cameraman::SetEndId(id);
+	}
+}
+
+// cameraman.set_step(time_step)
+static void CAM_SetStep(coal::vm_c *vm, int argc)
+{
+	if (argc == 1)
+	{
+		float step = (float)*vm->AccessParam(0);
+		cameraman::SetStep(step);
+	}
+}
+
+// cameraman.switch_to(id)
+static void CAM_SwitchTo(coal::vm_c *vm, int argc)
+{
+	if (argc == 1)
+	{
+		int id = (int)*vm->AccessParam(0);
+		cameraman::SetStartId(id);
+		cameraman::SetEndId(id);
+	}
+}
 //------------------------------------------------------------------------
 
 void VM_RegisterBASE(coal::vm_c *vm)
@@ -318,6 +475,24 @@ void VM_RegisterBASE(coal::vm_c *vm)
     vm->AddNativeFunction("strings.tonumber", STRINGS_tonumber);
 }
 
+void VM_RegisterCameraMan()
+{
+//	ui_vm->AddNativeFunction("cameraman.reset", CAM_Reset);
+	ui_vm->AddNativeFunction("cameraman.load", CAM_Load);
+	ui_vm->AddNativeFunction("cameraman.activate", CAM_Activate);
+//	ui_vm->AddNativeFunction("cameraman.add", CAM_Add);
+//	ui_vm->AddNativeFunction("cameraman.remove", CAM_Remove);
+	ui_vm->AddNativeFunction("cameraman.set_position", CAM_SetPosition);
+	ui_vm->AddNativeFunction("cameraman.set_angles", CAM_SetAngles);
+	ui_vm->AddNativeFunction("cameraman.set_fov", CAM_SetFov);
+	ui_vm->AddNativeFunction("cameraman.is_active", CAM_IsActive);
+	ui_vm->AddNativeFunction("cameraman.get_start_id", CAM_GetStartId);
+	ui_vm->AddNativeFunction("cameraman.get_end_id", CAM_GetEndId);
+	ui_vm->AddNativeFunction("cameraman.set_start_id", CAM_SetStartId);
+	ui_vm->AddNativeFunction("cameraman.set_end_id", CAM_SetEndId);
+	ui_vm->AddNativeFunction("cameraman.set_step", CAM_SetStep);
+	ui_vm->AddNativeFunction("cameraman.switch_to", CAM_SwitchTo);
+}
 
 void VM_InitCoal()
 {
@@ -328,6 +503,7 @@ void VM_InitCoal()
 	VM_RegisterBASE(ui_vm);
 	VM_RegisterHUD();
 	VM_RegisterPlaysim();
+	VM_RegisterCameraMan();
 }
 
 void VM_QuitCoal()
@@ -345,7 +521,10 @@ void VM_LoadCoalFire(const char *filename)
 	epi::file_c *F = epi::FS_Open(filename, epi::file_c::ACCESS_READ | epi::file_c::ACCESS_BINARY);
 
 	if (! F)
-		I_Error("Could not open coal script: %s\n", filename);
+	{
+		//I_Warning("Could not open coal script: %s\n", filename);
+		return;
+	}
 
 	I_Printf("Compiling COAL script: %s\n", filename);
 
@@ -376,17 +555,21 @@ void VM_LoadLumpOfCoal(int lump)
 
 void VM_LoadScripts()
 {
-	std::string script_dir = epi::PATH_Join(game_dir.c_str(), "doom_ddf");
+	//We should be using ddf_dir.c_str()...
+
+	// Script_Dir will be useful for OTHER, non-3DGE scripts. For now, use the god damn ddf_dir string!!
+
+	//std::string script_dir = epi::PATH_Join(ddf_dir.c_str(), "doom_ddf");
 	std::string fn;
 
-	fn = epi::PATH_Join(script_dir.c_str(), "coal_api.ec");
+	fn = epi::PATH_Join(ddf_dir.c_str(), "coal_api.ec");
 	VM_LoadCoalFire(fn.c_str());
 
-	fn = epi::PATH_Join(script_dir.c_str(), "coal_hud.ec");
+	fn = epi::PATH_Join(ddf_dir.c_str(), "coal_hud.ec");
 	VM_LoadCoalFire(fn.c_str());
 
 	fn.clear();
-	script_dir.clear();
+	ddf_dir.clear(); //used to be script_dir...
 
 	W_ReadCoalLumps();
 }

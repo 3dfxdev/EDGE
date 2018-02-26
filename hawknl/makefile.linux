@@ -1,8 +1,0 @@
-all:
-	cd src;\
-	make -f makefile.linux
-
-install:
-
-	cd src;\
-	make -f makefile.linux install

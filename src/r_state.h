@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Refresh internal state variables
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -36,6 +36,7 @@
 //
 extern int numvertexes;
 extern vec2_t *vertexes;
+extern vec2_t *zvertexes;
 
 extern int num_gl_vertexes;
 extern vec2_t *gl_vertexes;
@@ -51,7 +52,7 @@ extern subsector_t *subsectors;
 
 extern int numextrafloors;
 extern extrafloor_t *extrafloors;
-     
+
 extern int numnodes;
 extern node_t *nodes;
 

@@ -32,7 +32,7 @@
 
 // Forward declarations
 class sfxdef_c;
-class position_c;
+struct position_c; ///not class.
 
 
 // We use a 22.10 fixed point for sound offsets.  It's a reasonable
@@ -65,6 +65,8 @@ public:
 
 	int volume_L;  // mixing volume
 	int volume_R;
+
+	int pitch;
 
 	bool loop;  // will loop *one* more time
 	bool boss;

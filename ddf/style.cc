@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition File Code (Styles)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 2004-2005  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -43,34 +43,45 @@ static const commandlist_t background_commands[] =
 {
 	DF("COLOUR", colour, DDF_MainGetRGB),
 	DF("TRANSLUCENCY", translucency, DDF_MainGetPercent),
-    DF("IMAGE", image_name, DDF_MainGetString),
-    DF("SCALE",  scale,  DDF_MainGetFloat),
-    DF("ASPECT", aspect, DDF_MainGetFloat),
+	DF("IMAGE", image_name, DDF_MainGetString),
+	DF("SCALE",  scale,  DDF_MainGetFloat),
+	DF("ASPECT", aspect, DDF_MainGetFloat),
 
 	DDF_CMD_END
 };
 
+#undef  DDF_CMD_BASE
+#define DDF_CMD_BASE  dummy_menustyle
+static menustyle_c  dummy_menustyle;
+static const commandlist_t menuimage_commands[] =
+{
+	DF("SELECT_GFX", image_name, DDF_MainGetString),
+
+	DDF_CMD_END
+};
 
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  dummy_textstyle
 static textstyle_c  dummy_textstyle;
 
+//prefixed with TEXT
 static const commandlist_t text_commands[] =
 {
-    DF("COLOURMAP", colmap, DDF_MainGetColourmap),
+	DF("COLOURMAP", colmap, DDF_MainGetColourmap),
 	DF("TRANSLUCENCY", translucency, DDF_MainGetPercent),
-    DF("FONT",   font,   DDF_MainLookupFont),
-    DF("SCALE",  scale,  DDF_MainGetFloat),
-    DF("ASPECT", aspect, DDF_MainGetFloat),
+	DF("IMAGE", image_name, DDF_MainGetString), //adding image control to move this out of "hard-coded" territory
+	DF("FONT",   font,   DDF_MainLookupFont),
+	DF("SCALE",  scale,  DDF_MainGetFloat),
+	DF("ASPECT", aspect, DDF_MainGetFloat),
 
 	DDF_CMD_END
 };
-
 
 #undef  DDF_CMD_BASE
 #define DDF_CMD_BASE  dummy_soundstyle
 static soundstyle_c dummy_soundstyle;
 
+// prefixed with SOUND.
 static const commandlist_t sound_commands[] =
 {
 	DF("BEGIN",  begin,  DDF_MainLookupSound),
@@ -85,6 +96,20 @@ static const commandlist_t sound_commands[] =
 };
 
 
+#if 0
+#undef  DDF_CMD_BASE
+#define DDF_CMD_BASE  dummy_menustyle
+static menustyle_c dummy_menustyle;
+
+static const commandlist_t menu_commands[] =
+{
+	DF("SELECTGFX", image_name, DDF_MainGetString),
+
+	DDF_CMD_END
+};
+#endif // 0
+
+
 static styledef_c* dynamic_style;
 
 #undef  DDF_CMD_BASE
@@ -95,17 +120,18 @@ static const commandlist_t style_commands[] =
 {
 	// sub-commands
 	DDF_SUB_LIST("BACKGROUND", bg, background_commands),
+	DDF_SUB_LIST("MENU",  menuimage, menuimage_commands),
 	DDF_SUB_LIST("TEXT",  text[0], text_commands),
 	DDF_SUB_LIST("ALT",   text[1], text_commands),
 	DDF_SUB_LIST("TITLE", text[2], text_commands),
 	DDF_SUB_LIST("HELP",  text[3], text_commands),
+	DDF_SUB_LIST("IMAGE", text[4], text_commands),
 	DDF_SUB_LIST("SOUND",  sounds, sound_commands),
 
-    DF("SPECIAL", special, DDF_StyleGetSpecials),
+	DF("SPECIAL", special, DDF_StyleGetSpecials),
 
 	DDF_CMD_END
 };
-
 
 //
 //  DDF PARSE ROUTINES
@@ -124,7 +150,7 @@ static void StyleStartEntry(const char *name, bool extend)
 
 	if (extend)
 	{
-		if (! dynamic_style)
+		if (!dynamic_style)
 			DDF_Error("Unknown style to extend: %s\n", name);
 		return;
 	}
@@ -142,11 +168,10 @@ static void StyleStartEntry(const char *name, bool extend)
 	styledefs.Insert(dynamic_style);
 }
 
-
 static void StyleParseField(const char *field, const char *contents,
-							int index, bool is_last)
+	int index, bool is_last)
 {
-#if (DEBUG_DDF)  
+#if (DEBUG_DDF)
 	I_Debugf("STYLE_PARSE: %s = %s;\n", field, contents);
 #endif
 
@@ -156,18 +181,15 @@ static void StyleParseField(const char *field, const char *contents,
 	DDF_WarnError("Unknown styles.ddf command: %s\n", field);
 }
 
-
 static void StyleFinishEntry(void)
 {
 	// TODO: check stuff
 }
 
-
 static void StyleClearAll(void)
 {
 	I_Warning("Ignoring #CLEARALL in styles.ddf\n");
 }
-
 
 bool DDF_ReadStyles(void *data, int size)
 {
@@ -191,42 +213,39 @@ bool DDF_ReadStyles(void *data, int size)
 		styles.lumpname = NULL;
 	}
 
-	styles.start_entry  = StyleStartEntry;
-	styles.parse_field  = StyleParseField;
+	styles.start_entry = StyleStartEntry;
+	styles.parse_field = StyleParseField;
 	styles.finish_entry = StyleFinishEntry;
-	styles.clear_all    = StyleClearAll;
+	styles.clear_all = StyleClearAll;
 
 	return DDF_MainReadFile(&styles);
 }
-
 
 void DDF_StyleInit(void)
 {
 	styledefs.Clear();
 }
 
-
 void DDF_StyleCleanUp(void)
 {
 	if (styledefs.GetSize() == 0)
 		I_Error("There are no styles defined in DDF !\n");
-	
+
 	default_style = styledefs.Lookup("DEFAULT");
 
-	if (! default_style)
+	if (!default_style)
 		I_Error("Styles.ddf is missing the [DEFAULT] style.\n");
-	else if (! default_style->text[0].font)
+	else if (!default_style->text[0].font)
 		I_Warning("The [DEFAULT] style is missing TEXT.FONT\n");
 
 	styledefs.Trim();
 }
 
-
 static specflags_t style_specials[] =
 {
-    {"TILED", SYLSP_Tiled, 0},
-    {"TILED_NOSCALE", SYLSP_TiledNoScale, 0},
-    {NULL, 0, 0}
+	{"TILED", SYLSP_Tiled, 0},
+	{"TILED_NOSCALE", SYLSP_TiledNoScale, 0},
+	{NULL, 0, 0}
 };
 
 void DDF_StyleGetSpecials(const char *info, void *storage)
@@ -236,20 +255,20 @@ void DDF_StyleGetSpecials(const char *info, void *storage)
 	int flag_value;
 
 	switch (DDF_MainCheckSpecialFlag(info, style_specials,
-	 								 &flag_value, true, false))
+		&flag_value, true, false))
 	{
-		case CHKF_Positive:
-			*dest = (style_special_e)(*dest | flag_value);
-			break;
+	case CHKF_Positive:
+		*dest = (style_special_e)(*dest | flag_value);
+		break;
 
-		case CHKF_Negative:
-			*dest = (style_special_e)(*dest & ~flag_value);
-			break;
+	case CHKF_Negative:
+		*dest = (style_special_e)(*dest & ~flag_value);
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("Unknown style special: %s", info);
-			break;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("Unknown style special: %s", info);
+		break;
 	}
 }
 
@@ -286,9 +305,9 @@ void backgroundstyle_c::Default()
 	colour = RGB_NO_VALUE;
 	translucency = PERCENT_MAKE(100);
 
-	image_name.clear();	
+	image_name.clear();
 
-	scale  = 1.0f;
+	scale = 1.0f;
 	aspect = 1.0f;
 }
 
@@ -304,10 +323,68 @@ backgroundstyle_c& backgroundstyle_c::operator= (const backgroundstyle_c &rhs)
 
 		image_name = rhs.image_name;
 
-		scale   = rhs.scale;
-		aspect  = rhs.aspect;
+		scale = rhs.scale;
+		aspect = rhs.aspect;
 	}
-		
+
+	return *this;
+}
+
+// --> menustyle_c definition class
+
+//
+// menustyle_c Constructor
+//
+menustyle_c::menustyle_c()
+{
+	Default();
+}
+
+//
+// menustyle_c Copy constructor
+//
+menustyle_c::menustyle_c(const menustyle_c &rhs)
+{
+	*this = rhs;
+}
+
+//
+// menustyle_c Destructor
+//
+menustyle_c::~menustyle_c()
+{
+}
+
+//
+// menustyle_c::Default()
+//
+void menustyle_c::Default()
+{
+	colour = RGB_NO_VALUE;
+	translucency = PERCENT_MAKE(100);
+
+	image_name.clear();
+
+	scale = 1.0f;
+	aspect = 1.0f;
+}
+
+//
+// menustyle_c assignment operator
+//
+menustyle_c& menustyle_c::operator= (const menustyle_c &rhs)
+{
+	if (&rhs != this)
+	{
+		colour = rhs.colour;
+		translucency = rhs.translucency;
+
+		image_name = rhs.image_name;
+
+		scale = rhs.scale;
+		aspect = rhs.aspect;
+	}
+
 	return *this;
 }
 
@@ -344,8 +421,10 @@ void textstyle_c::Default()
 	colmap = NULL;
 	translucency = PERCENT_MAKE(100);
 
-	font   = NULL;
-	scale  = 1.0f;
+	image_name.clear();
+
+	font = NULL;
+	scale = 1.0f;
 	aspect = 1.0f;
 }
 
@@ -358,12 +437,13 @@ textstyle_c& textstyle_c::operator= (const textstyle_c &rhs)
 	{
 		colmap = rhs.colmap;
 		translucency = rhs.translucency;
+		image_name = rhs.image_name;
 
-		font   = rhs.font;
-		scale  = rhs.scale;
+		font = rhs.font;
+		scale = rhs.scale;
 		aspect = rhs.aspect;
 	}
-		
+
 	return *this;
 }
 
@@ -397,12 +477,12 @@ soundstyle_c::~soundstyle_c()
 //
 void soundstyle_c::Default()
 {
-	begin  = NULL;
-	end    = NULL;
+	begin = NULL;
+	end = NULL;
 	select = NULL;
-	back   = NULL;
-	error  = NULL;
-	move   = NULL;
+	back = NULL;
+	error = NULL;
+	move = NULL;
 	slider = NULL;
 }
 
@@ -413,12 +493,12 @@ soundstyle_c& soundstyle_c::operator= (const soundstyle_c &rhs)
 {
 	if (&rhs != this)
 	{
-		begin  = rhs.begin;
-		end    = rhs.end;
+		begin = rhs.begin;
+		end = rhs.end;
 		select = rhs.select;
-		back   = rhs.back;
-		error  = rhs.error;
-		move   = rhs.move;
+		back = rhs.back;
+		error = rhs.error;
+		move = rhs.move;
 		slider = rhs.slider;
 	}
 
@@ -441,7 +521,6 @@ styledef_c::styledef_c() : name()
 styledef_c::~styledef_c()
 {
 }
-
 
 //
 // styledef_c::CopyDetail()
@@ -470,9 +549,8 @@ void styledef_c::Default()
 
 	sounds.Default();
 
-	special = (style_special_e) 0;
+	special = (style_special_e)0;
 }
-
 
 // --> map definition container class
 

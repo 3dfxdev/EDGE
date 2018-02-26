@@ -25,7 +25,7 @@
 //  FIXME: doesn't handle HARDWARE devices properly (don't need OpenAL).
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 #include "i_defs_al.h"
 
 #include "../epi/endianess.h"

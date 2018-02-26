@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition File Code (Images)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -65,9 +65,9 @@ static image_namespace_e GetImageNamespace(const char *prefix)
 
 	if (DDF_CompareName(prefix, "spr") == 0)
 		return INS_Sprite;
-	
+
 	DDF_Error("Invalid image prefix '%s' (use: gfx,tex,flat,spr)\n", prefix);
-	return INS_Flat; /* NOT REACHED */ 
+	return INS_Flat; /* NOT REACHED */
 }
 
 //
@@ -79,13 +79,13 @@ static void ImageStartEntry(const char *name, bool extend)
 	if (!name || !name[0])
 		DDF_Error("New image entry is missing a name!\n");
 
-//	I_Debugf("ImageStartEntry [%s]\n", name);
+	//	I_Debugf("ImageStartEntry [%s]\n", name);
 
 	image_namespace_e belong = INS_Graphic;
 
 	const char *pos = strchr(name, ':');
 
-	if (! pos)
+	if (!pos)
 		DDF_Error("Missing image prefix.\n");
 
 	if (pos)
@@ -99,7 +99,7 @@ static void ImageStartEntry(const char *name, bool extend)
 
 		name = pos + 1;
 
-		if (! name[0])
+		if (!name[0])
 			DDF_Error("Missing image name.\n");
 	}
 
@@ -111,7 +111,7 @@ static void ImageStartEntry(const char *name, bool extend)
 
 	if (extend)
 	{
-		if (! dynamic_image)
+		if (!dynamic_image)
 			DDF_Error("Unknown image to extend: %s\n", name);
 		return;
 	}
@@ -126,16 +126,15 @@ static void ImageStartEntry(const char *name, bool extend)
 	// not found, create a new one
 	dynamic_image = new imagedef_c;
 
-	dynamic_image->name   = name;
+	dynamic_image->name = name;
 	dynamic_image->belong = belong;
 
 	imagedefs.Insert(dynamic_image);
 }
 
-
 static void ImageParseField(const char *field, const char *contents, int index, bool is_last)
 {
-#if (DEBUG_DDF)  
+#if (DEBUG_DDF)
 	I_Debugf("IMAGE_PARSE: %s = %s;\n", field, contents);
 #endif
 
@@ -145,23 +144,24 @@ static void ImageParseField(const char *field, const char *contents, int index, 
 	DDF_Error("Unknown images.ddf command: %s\n", field);
 }
 
-
 static void ImageFinishEntry(void)
 {
 	if (dynamic_image->type == IMGDT_File)
 	{
-        const char *filename = dynamic_image->info.c_str();
+		const char *filename = dynamic_image->info.c_str();
 
 		// determine format
-        std::string ext(epi::PATH_GetExtension(filename));
+		std::string ext(epi::PATH_GetExtension(filename));
 
 		if (DDF_CompareName(ext.c_str(), "png") == 0)
 			dynamic_image->format = LIF_PNG;
-		else if (DDF_CompareName(ext.c_str(), "jpg")  == 0 ||
-				 DDF_CompareName(ext.c_str(), "jpeg") == 0)
+		else if (DDF_CompareName(ext.c_str(), "jpg") == 0 ||
+			DDF_CompareName(ext.c_str(), "jpeg") == 0)
 			dynamic_image->format = LIF_JPEG;
 		else if (DDF_CompareName(ext.c_str(), "tga") == 0)
 			dynamic_image->format = LIF_TGA;
+		else if (DDF_CompareName(ext.c_str(), "lmp") == 0)
+			dynamic_image->format = LIF_RIM;
 		else
 			DDF_Error("Unknown image extension for '%s'\n", filename);
 	}
@@ -169,12 +169,10 @@ static void ImageFinishEntry(void)
 	// TODO: check more stuff...
 }
 
-
 static void ImageClearAll(void)
 {
 	I_Warning("Ignoring #CLEARALL in images.ddf\n");
 }
-
 
 bool DDF_ReadImages(void *data, int size)
 {
@@ -198,20 +196,18 @@ bool DDF_ReadImages(void *data, int size)
 		images.lumpname = NULL;
 	}
 
-	images.start_entry  = ImageStartEntry;
-	images.parse_field  = ImageParseField;
+	images.start_entry = ImageStartEntry;
+	images.parse_field = ImageParseField;
 	images.finish_entry = ImageFinishEntry;
-	images.clear_all    = ImageClearAll;
+	images.clear_all = ImageClearAll;
 
 	return DDF_MainReadFile(&images);
 }
-
 
 void DDF_ImageInit(void)
 {
 	imagedefs.Clear();
 }
-
 
 static void AddEssentialImages(void)
 {
@@ -220,69 +216,66 @@ static void AddEssentialImages(void)
 	//       standalone DDF and in that case these essential images
 	//       would never get loaded.
 
-	if (! imagedefs.Lookup("DLIGHT_EXP", INS_Graphic))
+	if (!imagedefs.Lookup("DLIGHT_EXP", INS_Graphic))
 	{
 		imagedef_c *def = new imagedef_c;
 
-		def->name   = "DLIGHT_EXP";
+		def->name = "DLIGHT_EXP";
 		def->belong = INS_Graphic;
 
 		def->info.Set("DLITEXPN");
 
-		def->type    = IMGDT_Lump;
-		def->format  = LIF_PNG;
-		def->special = (image_special_e) (IMGSP_Clamp | IMGSP_Smooth | IMGSP_NoMip);
+		def->type = IMGDT_Lump;
+		def->format = LIF_PNG;
+		def->special = (image_special_e)(IMGSP_Clamp | IMGSP_Smooth | IMGSP_NoMip);
 
 		imagedefs.Insert(def);
 	}
 
-	if (! imagedefs.Lookup("FUZZ_MAP", INS_Texture))
+	if (!imagedefs.Lookup("FUZZ_MAP", INS_Texture))
 	{
 		imagedef_c *def = new imagedef_c;
 
-		def->name   = "FUZZ_MAP";
+		def->name = "FUZZ_MAP";
 		def->belong = INS_Texture;
 
 		def->info.Set("FUZZMAP8");
 
-		def->type    = IMGDT_Lump;
-		def->format  = LIF_PNG;
-		def->special = (image_special_e) (IMGSP_NoSmooth | IMGSP_NoMip);
+		def->type = IMGDT_Lump;
+		def->format = LIF_PNG;
+		def->special = (image_special_e)(IMGSP_NoSmooth | IMGSP_NoMip);
 
 		imagedefs.Insert(def);
 	}
 
-	if (! imagedefs.Lookup("CON_FONT_2", INS_Graphic))
+	if (!imagedefs.Lookup("CON_FONT_2", INS_Graphic))
 	{
 		imagedef_c *def = new imagedef_c;
 
-		def->name   = "CON_FONT_2";
+		def->name = "CON_FONT_2";
 		def->belong = INS_Graphic;
 
 		def->info.Set("CONFONT2");
 
-		def->type    = IMGDT_Lump;
-		def->format  = LIF_PNG;
-		def->special = (image_special_e) (IMGSP_Clamp | IMGSP_Smooth | IMGSP_NoMip);
+		def->type = IMGDT_Lump;
+		def->format = LIF_PNG;
+		def->special = (image_special_e)(IMGSP_Clamp | IMGSP_Smooth | IMGSP_NoMip);
 
 		imagedefs.Insert(def);
 	}
 }
 
-
 void DDF_ImageCleanUp(void)
 {
- 	AddEssentialImages();
+	AddEssentialImages();
 
 	imagedefs.Trim();		// <-- Reduce to allocated size
 }
-
 
 static void ImageParseColour(const char *value)
 {
 	DDF_MainGetRGB(value, &dynamic_image->colour);
 }
-
 
 static void ImageParseBuiltin(const char *value)
 {
@@ -296,19 +289,17 @@ static void ImageParseBuiltin(const char *value)
 		DDF_Error("Unknown image BUILTIN kind: %s\n", value);
 }
 
-
 static void ImageParseInfo(const char *value)
 {
 	// ouch, hard work here...
 	dynamic_image->info = value;
 }
 
-
 static void ImageParseLump(const char *spec)
 {
 	const char *colon = DDF_MainDecodeList(spec, ':', true);
 
-	if (! colon || colon == spec || (colon - spec) >= 16 || colon[1] == 0)
+	if (!colon || colon == spec || (colon - spec) >= 16 || colon[1] == 0)
 		DDF_Error("Malformed image lump spec: 'LUMP:%s'\n", spec);
 
 	char keyword[20];
@@ -324,7 +315,7 @@ static void ImageParseLump(const char *spec)
 		dynamic_image->format = LIF_PNG;
 	}
 	else if (DDF_CompareName(keyword, "JPG") == 0 ||
-	         DDF_CompareName(keyword, "JPEG") == 0)
+		DDF_CompareName(keyword, "JPEG") == 0)
 	{
 		dynamic_image->format = LIF_JPEG;
 	}
@@ -332,16 +323,19 @@ static void ImageParseLump(const char *spec)
 	{
 		dynamic_image->format = LIF_TGA;
 	}
+	else if (DDF_CompareName(keyword, "RIM") == 0)
+	{
+		dynamic_image->format = LIF_RIM;
+	}
 	else
-		DDF_Error("Unknown image format: %s (use PNG or JPEG)\n", keyword);
+		DDF_Error("Unknown image format: %s (use PNG, TGA, JPEG, or RIM)\n", keyword);
 }
-
 
 static void DDF_ImageGetType(const char *info, void *storage)
 {
 	const char *colon = DDF_MainDecodeList(info, ':', true);
 
-	if (! colon || colon == info || (colon - info) >= 16 || colon[1] == 0)
+	if (!colon || colon == info || (colon - info) >= 16 || colon[1] == 0)
 		DDF_Error("Malformed image type spec: %s\n", info);
 
 	char keyword[20];
@@ -375,16 +369,15 @@ static void DDF_ImageGetType(const char *info, void *storage)
 
 static specflags_t image_specials[] =
 {
-    {"NOALPHA",       IMGSP_NoAlpha,   0},
-    {"FORCE_MIP",     IMGSP_Mip,       0},
-    {"FORCE_NOMIP",   IMGSP_NoMip,     0},
-    {"FORCE_CLAMP",   IMGSP_Clamp,     0},
-    {"FORCE_SMOOTH",  IMGSP_Smooth,    0},
-    {"FORCE_NOSMOOTH",IMGSP_NoSmooth,  0},
-    {"CROSSHAIR",     IMGSP_Crosshair, 0},
-    {NULL, 0, 0}
+	{"NOALPHA",       IMGSP_NoAlpha,   0},
+	{"FORCE_MIP",     IMGSP_Mip,       0},
+	{"FORCE_NOMIP",   IMGSP_NoMip,     0},
+	{"FORCE_CLAMP",   IMGSP_Clamp,     0},
+	{"FORCE_SMOOTH",  IMGSP_Smooth,    0},
+	{"FORCE_NOSMOOTH",IMGSP_NoSmooth,  0},
+	{"CROSSHAIR",     IMGSP_Crosshair, 0},
+	{NULL, 0, 0}
 };
-
 
 static void DDF_ImageGetSpecial(const char *info, void *storage)
 {
@@ -393,23 +386,22 @@ static void DDF_ImageGetSpecial(const char *info, void *storage)
 	int flag_value;
 
 	switch (DDF_MainCheckSpecialFlag(info, image_specials,
-			&flag_value, false /* allow_prefixes */, false))
+		&flag_value, false /* allow_prefixes */, false))
 	{
-		case CHKF_Positive:
-			*dest = (image_special_e)(*dest | flag_value);
-			break;
+	case CHKF_Positive:
+		*dest = (image_special_e)(*dest | flag_value);
+		break;
 
-		case CHKF_Negative:
-			*dest = (image_special_e)(*dest & ~flag_value);
-			break;
+	case CHKF_Negative:
+		*dest = (image_special_e)(*dest & ~flag_value);
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("Unknown image special: %s\n", info);
-			break;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("Unknown image special: %s\n", info);
+		break;
 	}
 }
-
 
 static void DDF_ImageGetFixTrans(const char *info, void *storage)
 {
@@ -427,7 +419,6 @@ static void DDF_ImageGetFixTrans(const char *info, void *storage)
 		DDF_Error("Unknown FIX_TRANS type: %s\n", info);
 }
 
-
 // ---> imagedef_c class
 
 imagedef_c::imagedef_c() : name(), belong(INS_Graphic), info()
@@ -440,37 +431,36 @@ imagedef_c::imagedef_c() : name(), belong(INS_Graphic), info()
 //
 void imagedef_c::CopyDetail(const imagedef_c &src)
 {
-	type    = src.type;
-	colour  = src.colour;
+	type = src.type;
+	colour = src.colour;
 	builtin = src.builtin;
-	info    = src.info;
-	format  = src.format;
+	info = src.info;
+	format = src.format;
 
-	special  = src.special;
+	special = src.special;
 	x_offset = src.x_offset;
 	y_offset = src.y_offset;
-	scale    = src.scale;
-	aspect   = src.aspect;
+	scale = src.scale;
+	aspect = src.aspect;
 	fix_trans = src.fix_trans;
 }
 
 void imagedef_c::Default()
 {
-	type    = IMGDT_Colour;
-	colour  = 0x000000;  // black
+	type = IMGDT_Colour;
+	colour = 0x000000;  // black
 	builtin = BLTIM_Quadratic;
-	format  = LIF_PNG;
+	format = LIF_PNG;
 
 	info.clear();
 
-	special  = IMGSP_None;
+	special = IMGSP_None;
 	x_offset = y_offset = 0;
 
-	scale  = 1.0f;
+	scale = 1.0f;
 	aspect = 1.0f;
 	fix_trans = FIXTRN_None;
 }
-
 
 // ---> imagedef_container_c class
 
@@ -480,7 +470,6 @@ void imagedef_container_c::CleanupObject(void *obj)
 
 	if (a) delete a;
 }
-
 
 imagedef_c * imagedef_container_c::Lookup(const char *refname, image_namespace_e belong)
 {
@@ -499,7 +488,6 @@ imagedef_c * imagedef_container_c::Lookup(const char *refname, image_namespace_e
 
 	return NULL;
 }
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

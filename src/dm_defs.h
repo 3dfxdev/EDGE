@@ -74,8 +74,6 @@ gamestate_e;
 #define MTF_EXFLOOR_SHIFT   10
 
 //HEXEN/LEGACY STUFF
-#define	FRACBITS		16
-#define	FRACUNIT		(1<<FRACBITS)
 
 typedef enum
 {
@@ -151,86 +149,90 @@ gameflags_t;
 #define KEYD_TILDE      ('`')
 #define KEYD_EQUALS     ('=')
 #define KEYD_MINUS      ('-')
-#define KEYD_RIGHTARROW (0x80+0x2e)
-#define KEYD_LEFTARROW  (0x80+0x2c)
-#define KEYD_UPARROW    (0x80+0x2d)
-#define KEYD_DOWNARROW  (0x80+0x2f)
+#define KEYD_RIGHTARROW	174
+#define KEYD_LEFTARROW	172
+#define KEYD_UPARROW	173
+#define KEYD_DOWNARROW	175
 
-#define KEYD_RCTRL      (0x80+0x1d)
-#define KEYD_RSHIFT     (0x80+0x36)
-#define KEYD_RALT       (0x80+0x38)
-#define KEYD_LALT       KEYD_RALT
-#define KEYD_HOME       (0x80+0x47)
-#define KEYD_PGUP       (0x80+0x49)
-#define KEYD_END        (0x80+0x4f)
-#define KEYD_PGDN       (0x80+0x51)
-#define KEYD_INSERT     (0x80+0x52)
-#define KEYD_DELETE     (0x80+0x53)
+#define KEYD_SHIFT		182
+#define KEYD_RCTRL		157
+#define KEYD_RSHIFT		182
+#define KEYD_RALT		184
+#define KEYD_LALT		184
+#define KEYD_HOME		199
+#define KEYD_PGUP		201
+#define KEYD_END		207
+#define KEYD_PGDN		209
+#define KEYD_INSERT		210
+#define KEYD_DELETE		211
 
-#define KEYD_F1         (0x80+0x3b)
-#define KEYD_F2         (0x80+0x3c)
-#define KEYD_F3         (0x80+0x3d)
-#define KEYD_F4         (0x80+0x3e)
-#define KEYD_F5         (0x80+0x3f)
-#define KEYD_F6         (0x80+0x40)
-#define KEYD_F7         (0x80+0x41)
-#define KEYD_F8         (0x80+0x42)
-#define KEYD_F9         (0x80+0x43)
-#define KEYD_F10        (0x80+0x44)
-#define KEYD_F11        (0x80+0x57)
-#define KEYD_F12        (0x80+0x58)
+#define KEYD_F1			187
+#define KEYD_F2			188
+#define KEYD_F3			189
+#define KEYD_F4			190
+#define KEYD_F5			191
+#define KEYD_F6			192
+#define KEYD_F7			193
+#define KEYD_F8			194
+#define KEYD_F9			195
+#define KEYD_F10		196
+#define KEYD_F11		215
+#define KEYD_F12		216
 
-#define KEYD_KP0        (0x80+0x60)
-#define KEYD_KP1        (0x80+0x61)
-#define KEYD_KP2        (0x80+0x62)
-#define KEYD_KP3        (0x80+0x63)
-#define KEYD_KP4        (0x80+0x64)
-#define KEYD_KP5        (0x80+0x65)
-#define KEYD_KP6        (0x80+0x66)
-#define KEYD_KP7        (0x80+0x67)
-#define KEYD_KP8        (0x80+0x68)
-#define KEYD_KP9        (0x80+0x69)
-#define KEYD_KP_DOT     (0x80+0x6a)
-#define KEYD_KP_PLUS    (0x80+0x6b)
-#define KEYD_KP_MINUS   (0x80+0x6c)
-#define KEYD_KP_STAR    (0x80+0x6d)
-#define KEYD_KP_SLASH   (0x80+0x6e)
-#define KEYD_KP_EQUAL   (0x80+0x6f)
-#define KEYD_KP_ENTER   (0x80+0x70)
+#define KEYD_KP0		224
+#define KEYD_KP1		225
+#define KEYD_KP2		226
+#define KEYD_KP3		227
+#define KEYD_KP4		228
+#define KEYD_KP5		229
+#define KEYD_KP6		230
+#define KEYD_KP7		231
+#define KEYD_KP8		232
+#define KEYD_KP9		233
+#define KEYD_KP_DOT		234
+#define KEYD_KP_PLUS	235
+#define KEYD_KP_MINUS	236
+#define KEYD_KP_STAR	237
+#define KEYD_KP_SLASH	238
+#define KEYD_KP_EQUAL	239
+#define KEYD_KP_ENTER	240
 
-#define KEYD_PRTSCR     (0x80+0x54)
-#define KEYD_NUMLOCK    (0x80+0x45)
-#define KEYD_SCRLOCK    (0x80+0x46)
-#define KEYD_CAPSLOCK   (0x80+0x7e)
-#define KEYD_PAUSE      (0x80+0x7f)
+#define KEYD_PRTSCR		212
+#define KEYD_NUMLOCK	197
+#define KEYD_SCRLOCK	198
+#define KEYD_CAPSLOCK	254
+#define KEYD_PAUSE		255
 
 // Values from here on aren't actually keyboard keys, but buttons
 // on joystick or mice.
 
-#define KEYD_MOUSE1     (0x100)
-#define KEYD_MOUSE2     (0x101)
-#define KEYD_MOUSE3     (0x102)
-#define KEYD_MOUSE4     (0x103)
-#define KEYD_MOUSE5     (0x104)
-#define KEYD_MOUSE6     (0x105)
-#define KEYD_WHEEL_UP   (0x10e)
-#define KEYD_WHEEL_DN   (0x10f)
+#define KEYD_MOUSE1		256
+#define KEYD_MOUSE2		257
+#define KEYD_MOUSE3		258
+#define KEYD_MOUSE4		259
+#define KEYD_MOUSE5		260
+#define KEYD_MOUSE6		261
+#define KEYD_WHEEL_UP	270
+#define KEYD_WHEEL_DN	271
 
-#define KEYD_JOY1       (0x110+1)
-#define KEYD_JOY2       (0x110+2)
-#define KEYD_JOY3       (0x110+3)
-#define KEYD_JOY4       (0x110+4)
-#define KEYD_JOY5       (0x110+5)
-#define KEYD_JOY6       (0x110+6)
-#define KEYD_JOY7       (0x110+7)
-#define KEYD_JOY8       (0x110+8)
-#define KEYD_JOY9       (0x110+9)
-#define KEYD_JOY10      (0x110+10)
-#define KEYD_JOY11      (0x110+11)
-#define KEYD_JOY12      (0x110+12)
-#define KEYD_JOY13      (0x110+13)
-#define KEYD_JOY14      (0x110+14)
-#define KEYD_JOY15      (0x110+15)
+//#define KEYD_MWHEELUP       235
+//#define KEYD_MWHEELDOWN     236
+
+#define KEYD_JOY1		273
+#define KEYD_JOY2		274
+#define KEYD_JOY3		275
+#define KEYD_JOY4		276
+#define KEYD_JOY5		277
+#define KEYD_JOY6		278
+#define KEYD_JOY7		279
+#define KEYD_JOY8		280
+#define KEYD_JOY9		281
+#define KEYD_JOY10		282
+#define KEYD_JOY11		283
+#define KEYD_JOY12		284
+#define KEYD_JOY13		285
+#define KEYD_JOY14		286
+#define KEYD_JOY15		287
 
 // -KM- 1998/09/27 Analogue binding, added a fly axis
 #define AXIS_DISABLE     0

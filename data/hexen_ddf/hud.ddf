@@ -1,0 +1,128 @@
+
+//
+//  here is just some IDEAS for hud definitions
+//
+//  have a variable name before '=', and method of display it after '='.
+//  (except for some real settings, like BOTTOM.SIZE)
+//
+//  after the display method, extra modifiers can be given, e.g. SCALE(0.5)
+//
+//  coordinate system is based on (320,200) screen, fractional allowed.
+//  items are drawn in order given (later ones can sit over earlier ones).
+//
+
+<HUDS>
+
+[DOOM]
+
+USAGE = PLAYER_VIEW;  // also AUTOMAP and RTS.
+
+// Allow different huds in different netmodes
+SPECIALISE(dm) = DOOM_DM;
+SPECIALISE(coop) = DOOM_COOP;
+
+BASE_STYLE = HUD;  // styles are defined in styles.ddf.
+                   // the style's image/colour is drawn as background.
+				   // (with optimisation for HUD images).
+
+// four possible regions: TOP, LEFT, RIGHT, BOTTOM
+// when both LEFT and BOTTOM (for example), vertical one includes corner.
+
+BOTTOM.SIZE = 32;
+
+TRUE = IMAGE(STBAR,0,168);  // ,TILE or TILE_NOSCALE
+
+YOU.READY_AMMO   = PERCENT(BIG_DIGIT,44,171,3), COLOUR(#FFFF00);
+YOU.HEALTH       = PERCENT(BIG_DIGIT,90,171,3);
+YOU.TOTAL_ARMOUR = PERCENT(BIG_DIGIT,221,171,3);
+
+// can specify constant components:
+
+TRUE = IMAGE(STFB0,143,169); 
+
+"Hello World" = STR(DOOM,90,123);
+
+YOU.FACE = FACE(143,168);  // ,SCALE(0.5), ASPECT(2), TRANS(50%)
+
+CONST(2) = IMAGE(STARMS,104,168);
+
+// off/on image selection.  use "NULL" for no image.
+// when plain IMAGE(...) method is used with booleans, only shown if true.
+
+YOU.WEAPON(2).OWNED = OFF_ON(STGNUM2,STYSNUM2,111,172);
+YOU.WEAPON(3).OWNED = OFF_ON(STGNUM3,STYSNUM3,111,182);
+YOU.WEAPON(4).OWNED = OFF_ON(STGNUM4,STYSNUM4,111,192);
+YOU.WEAPON(5).OWNED = OFF_ON(STGNUM5,STYSNUM5,123,172);
+YOU.WEAPON(6).OWNED = OFF_ON(STGNUM6,STYSNUM6,123,182);
+YOU.WEAPON(7).OWNED = OFF_ON(STGNUM7,STYSNUM7,123,192);
+ 
+// YOU.FRAGS = NUMBER(BIG_DIGIT,128,178,2);
+
+// keys need to be special: a pair will override any singles
+
+YOU.KEY(BLUE_CARD+BLUE_SKULL)  = IMAGE(STKEYS6,239,171);
+YOU.KEY(BLUE_CARD)             = IMAGE(STKEYS0,239,171);
+YOU.KEY(BLUE_SKULL)            = IMAGE(STKEYS3,239,171);
+YOU.KEY(YELLOW_CARD+YELLOW_SKULL) = IMAGE(STKEYS7,239,181);
+YOU.KEY(YELLOW_CARD)           = IMAGE(STKEYS1,239,181);
+YOU.KEY(YELLOW_SKULL)          = IMAGE(STKEYS4,239,181);
+YOU.KEY(RED_CARD+RED_SKULL)    = IMAGE(STKEYS8,239,191);
+YOU.KEY(RED_CARD)              = IMAGE(STKEYS2,239,191);
+YOU.KEY(RED_SKULL)             = IMAGE(STKEYS5,239,191);
+
+YOU.AMMO(BULLETS).NUM = NUMBER(YELLOW_DIGIT,288,173,3);
+YOU.AMMO(BULLETS).MAX = NUMBER(YELLOW_DIGIT,314,173,3);
+YOU.AMMO(SHELLS).NUM  = NUMBER(YELLOW_DIGIT,288,179,3);
+YOU.AMMO(SHELLS).MAX  = NUMBER(YELLOW_DIGIT,314,179,3);
+YOU.AMMO(ROCKETS).NUM = NUMBER(YELLOW_DIGIT,288,185,3);
+YOU.AMMO(ROCKETS).MAX = NUMBER(YELLOW_DIGIT,314,185,3);
+YOU.AMMO(CELLS).NUM   = NUMBER(YELLOW_DIGIT,288,191,3);
+YOU.AMMO(CELLS).MAX   = NUMBER(YELLOW_DIGIT,314,191,3);
+
+// range of images based on percentage of variable
+// using ZERO_HIDE means it's gone when zero.
+
+YOU.AIR = IMAGE_RANGE(AIRBAR01, AIRBAR20, 0, 0), ZERO_HIDE;
+
+//
+// besides YOU, can also have PLAYER(0), PLAYER(1) etc...
+//
+// also possible:
+//    YOU.READY_CLIP, CLIP_MAX
+//    YOU.KILL_COUNT, TOTAL_KILLS, ITEM_COUNT, TOTAL_ITEM, SECRET...
+// 
+//    STATS.FPS, STATS.MSPF, etc...
+//
+//    strings: LEVEL.NAME = STRING(100,123,10), STYLE(NAME_XYZ);
+//
+//             CONST("FOO")    = STRING(X,Y,W), STYLE(BLAH);
+//             CONST("FooBar") = LDF_STR(X,Y,W);
+//
+//    bars: YOU.HEALTH = BAR(200,150,80,12), COLOUR(#00FF00);
+//    (automatically vertical if width < height).
+// 
+
+
+[DOOM_DM]
+// etc....  deathmatch version
+
+
+[PLAIN]
+WIDTH = 0;
+HEIGHT = 0;
+
+[OVERLAY]
+WIDTH = 200;
+HEIGHT = 32;
+// etc...
+
+
+[AUTOMAP]        // have ones for the automap (when you press TAB).
+USAGE = AUTOMAP; // can have multiple of them as well (+/- toggles).
+...              // omit it to disable Tabbing.
+
+
+[RTS_1]       // maybe have "rts" ones: only usable by RTS scripts.
+USAGE = RTS;  // These huds would be _additional_ to current one.
+...           // E.g. ENABLE_HUD RTS_1
+

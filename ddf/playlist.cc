@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition File Code (Music Playlist Handling)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -35,13 +35,13 @@ static void DDF_MusicParseInfo(const char *info)
 	static const char *const musinftype[] = { "UNKNOWN", "TRACK", "LUMP", "FILE", NULL };
 
 	char charbuff[256];
-	int pos,i;
+	int pos, i;
 
 	// Get the music type
-	i=0;
-	pos=0;
+	i = 0;
+	pos = 0;
 
-	while (info[pos] != ':' && i<255)
+	while (info[pos] != ':' && i < 255)
 	{
 		if (info[i] == '\0')
 			DDF_Error("DDF_MusicParseInfo: Premature end of music info\n");
@@ -52,25 +52,25 @@ static void DDF_MusicParseInfo(const char *info)
 		pos++;
 	}
 
-	if (i==255)
+	if (i == 255)
 		DDF_Error("DDF_MusicParseInfo: Music info too big\n");
 
 	// -AJA- terminate charbuff with trailing \0.
 	charbuff[i] = 0;
 
-	i=MUS_UNKNOWN;
-	while (i!=ENDOFMUSTYPES && stricmp(charbuff, musstrtype[i]) != 0)
+	i = MUS_UNKNOWN;
+	while (i != ENDOFMUSTYPES && stricmp(charbuff, musstrtype[i]) != 0)
 		i++;
 
-	if (i==ENDOFMUSTYPES)
+	if (i == ENDOFMUSTYPES)
 		DDF_Error("DDF_MusicParseInfo: Unknown music type: '%s'\n", charbuff);
 	else
 		dynamic_plentry->type = (musictype_t)i;
 
 	// Data Type
-	i=0;
+	i = 0;
 	pos++;
-	while (info[pos] != ':' && i<255)
+	while (info[pos] != ':' && i < 255)
 	{
 		if (info[pos] == '\0')
 			DDF_Error("DDF_MusicParseInfo: Premature end of music info\n");
@@ -81,17 +81,17 @@ static void DDF_MusicParseInfo(const char *info)
 		i++;
 	}
 
-	if (i==255)
+	if (i == 255)
 		DDF_Error("DDF_MusicParseInfo: Music info too big\n");
 
 	// -AJA- terminate charbuff with trailing \0.
 	charbuff[i] = 0;
 
-	i=MUSINF_UNKNOWN;
+	i = MUSINF_UNKNOWN;
 	while (musinftype[i] != NULL && stricmp(charbuff, musinftype[i]) != 0)
 		i++;
 
-	if (i==ENDOFMUSINFTYPES)
+	if (i == ENDOFMUSINFTYPES)
 		DDF_Error("DDF_MusicParseInfo: Unknown music info: '%s'\n", charbuff);
 	else
 		dynamic_plentry->infotype = (musicinftype_e)i; // technically speaking this is proper
@@ -103,13 +103,12 @@ static void DDF_MusicParseInfo(const char *info)
 	return;
 }
 
-
 //
 //  DDF PARSE ROUTINES
 //
 
 static void PlaylistStartEntry(const char *name, bool extend)
-{	
+{
 	int number = MAX(0, atoi(name));
 
 	if (number == 0)
@@ -119,7 +118,7 @@ static void PlaylistStartEntry(const char *name, bool extend)
 
 	if (extend)
 	{
-		if (! dynamic_plentry)
+		if (!dynamic_plentry)
 			DDF_Error("Unknown playlist to extend: %s\n", name);
 		return;
 	}
@@ -139,11 +138,10 @@ static void PlaylistStartEntry(const char *name, bool extend)
 	playlist.Insert(dynamic_plentry);
 }
 
-
 static void PlaylistParseField(const char *field, const char *contents,
-		int index, bool is_last)
+	int index, bool is_last)
 {
-#if (DEBUG_DDF)  
+#if (DEBUG_DDF)
 	I_Debugf("PLAYLIST_PARSE: %s = %s;\n", field, contents);
 #endif
 
@@ -156,19 +154,16 @@ static void PlaylistParseField(const char *field, const char *contents,
 	DDF_WarnError("Unknown playlist.ddf command: %s\n", field);
 }
 
-
 static void PlaylistFinishEntry(void)
 {
 	// nothing needed
 }
-
 
 static void PlaylistClearAll(void)
 {
 	// 100% safe to just remove all entries
 	playlist.Clear();
 }
-
 
 //
 // DDF_ReadMusicPlaylist
@@ -184,21 +179,21 @@ bool DDF_ReadMusicPlaylist(void *data, int size)
 
 	if (playlistinfo.memfile)
 	{
-		playlistinfo.message  = NULL;
+		playlistinfo.message = NULL;
 		playlistinfo.filename = NULL;
 		playlistinfo.lumpname = "DDFPLAY";
 	}
 	else
 	{
-		playlistinfo.message  = "DDF_InitMusicPlaylist";
+		playlistinfo.message = "DDF_InitMusicPlaylist";
 		playlistinfo.filename = "playlist.ddf";
 		playlistinfo.lumpname = NULL;
 	}
 
-	playlistinfo.start_entry  = PlaylistStartEntry;
-	playlistinfo.parse_field  = PlaylistParseField;
+	playlistinfo.start_entry = PlaylistStartEntry;
+	playlistinfo.parse_field = PlaylistParseField;
 	playlistinfo.finish_entry = PlaylistFinishEntry;
-	playlistinfo.clear_all    = PlaylistClearAll;
+	playlistinfo.clear_all = PlaylistClearAll;
 
 	return DDF_MainReadFile(&playlistinfo);
 }
@@ -208,7 +203,7 @@ bool DDF_ReadMusicPlaylist(void *data, int size)
 //
 void DDF_MusicPlaylistInit(void)
 {
-	// -ACB- 2004/05/04 Use container 
+	// -ACB- 2004/05/04 Use container
 	playlist.Clear();
 }
 
@@ -238,7 +233,6 @@ pl_entry_c::~pl_entry_c()
 {
 }
 
-
 //
 // pl_entry_c::CopyDetail()
 //
@@ -253,14 +247,13 @@ void pl_entry_c::CopyDetail(pl_entry_c &src)
 
 //
 // pl_entry_c::Default()
-// 
+//
 void pl_entry_c::Default()
 {
-	type = MUS_UNKNOWN;     
+	type = MUS_UNKNOWN;
 	infotype = MUSINF_UNKNOWN;
-	info.clear();             
+	info.clear();
 }
-
 
 // --> pl_entry_containter_c class
 

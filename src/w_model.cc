@@ -16,12 +16,14 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include "e_main.h"
 #include "r_image.h"
 #include "r_md2.h"
+//#include "r_md3.h"
+#include "md5_conv/md5.h"
 #include "r_things.h"
 #include "w_model.h"
 #include "w_wad.h"
@@ -37,9 +39,10 @@ static int nummodels = 0;
 modeldef_c::modeldef_c(const char *_prefix) : model(NULL)
 {
 	strcpy(name, _prefix);
+	modeltype = MODEL_MD2;
 
 	for (int i=0; i < MAX_MODEL_SKINS; i++)
-		skins[i] = NULL;
+		skins[i]=skindef_c();
 }
 
 modeldef_c::~modeldef_c()
@@ -98,35 +101,80 @@ modeldef_c *LoadModelFromLump(int model_num)
 	modeldef_c *def = new modeldef_c(basename);
 
 	char lumpname[16];
-	char skinname[16];
+	char skinname[32];
 
 	epi::file_c *f;
 
-	// try MD3 first, then MD2
+	// try MD3 first, then MD2, then MD5
 	sprintf(lumpname, "%sMD3", basename);
 
-	if (W_CheckNumForName(lumpname) >= 0)
+	if (W_CheckNumForName(lumpname) >= 0) 
 	{
-		I_Debugf("Loading model from lump : %s\n", lumpname);
+		I_Debugf("Loading MD3 model from lump : %s\n", lumpname);
 
 		f = W_OpenLump(lumpname);
+		if (! f)
+				I_Error("Missing model lump?: %s\n", lumpname);
 		SYS_ASSERT(f);
 
 		def->model = MD3_LoadModel(f);
-	}
-	else
+		//def->modeltype = MODEL_MD3_UNIFIED;
+		def->modeltype = MODEL_MD2;
+	} 
+	else 
 	{
 		sprintf(lumpname, "%sMD2", basename);
-		I_Debugf("Loading model from lump : %s\n", lumpname);
 
-//	epi::file_c *f = W_OpenLump(lumpname);
-//	if (! f)
-//		I_Error("Missing model lump: %s\n", lumpname);
-		f = W_OpenLump(lumpname);
-		if (! f)
-			I_Error("Missing model lump: %s\n", lumpname);
+		if (W_CheckNumForName(lumpname) >= 0) 
+		{
+			I_Debugf("Loading MD2 model from lump : %s\n", lumpname);
 
-		def->model = MD2_LoadModel(f);
+			f = W_OpenLump(lumpname);
+			if (! f)
+				I_Error("Missing model lump: %s\n", lumpname);
+
+			def->model = MD2_LoadModel(f);
+			def->modeltype = MODEL_MD2;
+		} 
+		else 
+		{
+			sprintf(lumpname, "%sMD5", basename);
+
+			I_Debugf("Loading MD5 model from lump : %s\n", lumpname);
+
+			f = W_OpenLump(lumpname);
+			SYS_ASSERT(f);
+			byte *modeltext = f->LoadIntoMemory();
+			SYS_ASSERT(modeltext);
+
+			MD5model *md5 = md5_load((char*)modeltext);
+			def->modeltype = MODEL_MD5_UNIFIED;
+			def->md5u = md5_normalize_model(md5);
+			
+			md5_free(md5);
+			delete[] modeltext;
+			
+			delete f;
+			
+			for (int i=0; i < def->md5u->model.meshcnt; i++) 
+			{
+				char* file_normal=new char[strlen(def->md5u->model.meshes[i].shader)+strlen("_l")+1];
+				char* file_specular=new char[strlen(def->md5u->model.meshes[i].shader)+strlen("_s")+1];
+
+				sprintf(file_normal,"%s%s",def->md5u->model.meshes[i].shader,"_l");
+				sprintf(file_specular,"%s%s",def->md5u->model.meshes[i].shader,"_s");
+
+				//I_Printf("md5 shader: %s, %s, %s\n",def->md5u->model.meshes[i].shader,file_normal,file_specular);
+				def->md5u->model.meshes[i].tex = W_ImageLookup(def->md5u->model.meshes[i].shader, INS_Sprite, ILF_Null);
+				//def->md5u->model.meshes[i].tex_normal = W_ImageLookup(file_normal, INS_Sprite, ILF_Null);
+				//def->md5u->model.meshes[i].tex_specular = W_ImageLookup(file_specular, INS_Sprite, ILF_Null);
+
+				delete[] file_normal;
+				delete[] file_specular;
+			}
+			
+			return def;
+		}
 	}
 
 	SYS_ASSERT(def->model);
@@ -134,15 +182,18 @@ modeldef_c *LoadModelFromLump(int model_num)
 	// close the lump
 	delete f;
 
-	for (int i=0; i < 10; i++)
+	for (int i=0; i < MAX_MODEL_SKINS; i++)
 	{
 		sprintf(skinname, "%sSKN%d", basename, i);
-
-		def->skins[i] = W_ImageLookup(skinname, INS_Sprite, ILF_Null);
+		def->skins[i].img = W_ImageLookup(skinname, INS_Sprite, ILF_Null);
+		sprintf(skinname,"%sNRM%d",basename,i);
+		def->skins[i].norm = W_ImageLookup(skinname, INS_Sprite, ILF_Null);
+		sprintf(skinname,"%sSPC%d",basename,i);
+		def->skins[i].spec= W_ImageLookup(skinname, INS_Sprite, ILF_Null);
 	}
 
 	// need at least one skin
-	if (! def->skins[1])
+	if (! def->skins[1].img)
 		I_Error("Missing model skin: %sSKN1\n", basename);
 
 	FindModelFrameNames(def->model, model_num);
@@ -226,10 +277,14 @@ void W_PrecacheModels(void)
 			modeldef_c *def = W_GetModel(i);
 
 			// precache skins too
-			for (int n = 0 ; n < 10 ; n++)
+			if (def)
 			{
-				if (def && def->skins[n])
-					W_ImagePreCache(def->skins[n]);
+				for (int n = 0 ; n < 10 ; n++)
+				{
+					if(def->skins[n].img) W_ImagePreCache(def->skins[n].img);
+					if(def->skins[n].norm) W_ImagePreCache(def->skins[n].norm);
+					if(def->skins[n].spec) W_ImagePreCache(def->skins[n].spec);
+				}
 			}
 		}
 	}

@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Sound System
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_sdlinc.h"
+#include "system/i_defs.h"
+#include "system/i_sdlinc.h"
 
 #include "dm_state.h"
 #include "m_argv.h"
@@ -38,6 +38,7 @@ extern float listen_x;
 extern float listen_y;
 extern float listen_z;
 
+cvar_c sound_pitch;
 
 /* See m_option.cc for corresponding menu items */
 const int channel_counts[5] = { 8, 16, 32, 64, 96 };
@@ -225,7 +226,7 @@ static int FindChannelToKill(int kill_cat, int real_cat, int new_score)
 
 		if (chan->category != kill_cat)
 			continue;
-		
+
 		int score = ChannelScore(chan->def, chan->category,
 								 chan->pos, chan->boss);
 //I_Printf("> [%d] '%s' = %d\n", j, chan->def->name.c_str(), score);
@@ -286,11 +287,11 @@ void S_Shutdown(void)
 }
 
 // Not-rejigged-yet stuff..
-sfxdef_c * LookupEffectDef(const sfx_t *s) 
-{ 
+sfxdef_c * LookupEffectDef(const sfx_t *s)
+{
 	SYS_ASSERT(s->num >= 1);
 
-	// need to use M_Random here to prevent demos and net games 
+	// need to use M_Random here to prevent demos and net games
 	// getting out of sync.
 
 	int num;
@@ -342,7 +343,18 @@ static void S_PlaySound(int idx, sfxdef_c *def, int category, position_c *pos, i
 			chan->split = 1;
 		else if (pos == players[consoleplayer2]->mo)
 			chan->split = 2;
-I_Printf("%s : split %d  cat %d\n", def->name.c_str(), chan->split, category);
+///I_Printf("%s : split %d  cat %d\n", def->name.c_str(), chan->split, category);
+	}
+	// nukeyt added random pitch (like Doom 1.2)
+	// CA: Added CVAR for sound pitching as requested by CeeJay
+	if (sound_pitch.d > 0)
+	{
+		chan->pitch = 128 + 16 - (M_Random() & 31);
+	}
+	else
+	{
+		/* Just continue onwards and ignore random sound pitching */
+		chan->pitch = 128; //
 	}
 
 	chan->ComputeDelta();
@@ -398,7 +410,7 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 
 		// decide which category to kill a sound in.
 		int kill_cat = category;
-			
+
 		if (cat_counts[category] < cat_limits[category])
 		{
 			// we haven't reached our quota yet, hence kill a hog.

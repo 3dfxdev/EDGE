@@ -49,7 +49,7 @@ namespace Deh_Edge
 #elif defined(WIN32)
 
 #define STRICT
-#define _WINDOWS
+
 #define WIN32_LEAN_AND_MEAN
 
 namespace Deh_Edge
@@ -77,6 +77,21 @@ namespace Deh_Edge
 
 // MacOS X
 #elif defined (MACOSX)
+
+namespace Deh_Edge
+{
+	typedef long long Int64;
+}
+
+// BSD
+#elif defined(BSD)
+namespace Deh_Edge
+{
+	typedef long long Int64;
+}
+
+// Dreamcast
+#elif defined (DREAMCAST)
 
 namespace Deh_Edge
 {

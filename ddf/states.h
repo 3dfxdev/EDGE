@@ -45,8 +45,14 @@ typedef struct state_s
 	// sprite ref
 	short sprite;
 
-    // frame ref (begins at 0)
+    // frame ref (begins at 0.0)
 	short frame;
+	
+	//number of frames for md5 (0 for individual frame)
+	short framerange;
+	
+	//index into animation file array for md5
+	short animfile;
  
 	// brightness (0 to 255)
 	short bright;

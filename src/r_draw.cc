@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 2D DRAWING STUFF
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include "g_game.h"
 #include "r_misc.h"
@@ -43,7 +43,7 @@ void RGL_NewScreenSize(int width, int height, int bits)
 }
 
 
-void RGL_DrawImage(float x, float y, float w, float h, const image_c *image, 
+void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 				   float tx1, float ty1, float tx2, float ty2,
 				   const colourmap_c *textmap, float alpha,
 				   const colourmap_c *palremap)
@@ -63,7 +63,7 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex_id);
- 
+
 	if (alpha >= 0.99f && image->opacity == OPAC_Solid)
 		glDisable(GL_ALPHA_TEST);
 	else
@@ -74,7 +74,7 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 			glAlphaFunc(GL_GREATER, alpha * 0.66f);
 	}
 
-	if (image->opacity == OPAC_Complex || alpha < 0.99f)
+	if (image->opacity != OPAC_Solid || alpha < 0.99f)
 		glEnable(GL_BLEND);
 
 	if (textmap)
@@ -89,19 +89,19 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 	glColor4f(r, g, b, alpha);
 
 	glBegin(GL_QUADS);
-  
+
 	glTexCoord2f(tx1, ty1);
 	glVertex2i(x1, y1);
 
-	glTexCoord2f(tx2, ty1); 
+	glTexCoord2f(tx2, ty1);
 	glVertex2i(x2, y1);
-  
+
 	glTexCoord2f(tx2, ty2);
 	glVertex2i(x2, y2);
-  
+
 	glTexCoord2f(tx1, ty2);
 	glVertex2i(x1, y2);
-  
+
 	glEnd();
 
 
@@ -115,6 +115,7 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 
 void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer)
 {
+#ifndef DREAMCAST
 	glFlush();
 
 	glPixelZoom(1.0f, 1.0f);
@@ -126,6 +127,7 @@ void RGL_ReadScreen(int x, int y, int w, int h, byte *rgb_buffer)
 
 		rgb_buffer += w * 3;
 	}
+#endif
 }
 
 
@@ -135,7 +137,7 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 	int *y, int perc, float alpha)
 {
 	float zoom = 1.0f;
-
+#ifndef DREAMCAST
 	(*y) -= (int)(lh * zoom);
 
 	glRasterPos2i(20, *y);
@@ -147,7 +149,7 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 	glRasterPos2i(20, *y);
 	glPixelZoom(1.0f, 1.0f);
 	glDrawPixels(tw, th, GL_LUMINANCE, GL_UNSIGNED_BYTE, text_lum);
-
+#endif
 	int px = 20;
 	int pw = SCREENWIDTH - 80;
 	int ph = 30;
@@ -181,13 +183,13 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 void RGL_DrawProgress(int perc, int glbsp_perc)
 {
 	/* show EDGE2 logo and a progress indicator */
-
+printf("Drawing progress %i %i\n",perc,glbsp_perc);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glEnable(GL_BLEND);
 
 	int y = SCREENHEIGHT - 20;
-	
+
 	const byte *logo_lum; int lw, lh;
 	const byte *text_lum; int tw, th;
 

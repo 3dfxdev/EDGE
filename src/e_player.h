@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Player Definition
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -164,6 +164,9 @@ typedef struct player_s
 	// Focal origin above r.z
 	// will be FLO_UNUSED until the first think.
 	float viewz;
+	// Used for head bob interpolation. It's the viewz value from the
+	// previous gametic
+	float lastviewz;
 
 	// Base height above floor for viewz.  Tracks `std_viewheight' but
 	// is different when squatting (i.e. after a fall).
@@ -181,8 +184,11 @@ typedef struct player_s
 	// Kick offset for vertangle (in mobj_t)
 	float kick_offset;
 
-	// when > 0, the player has activated zoom 
+	// when > 0, the player has activated zoom
 	int zoom_fov;
+
+	// teleport fov zoom
+	int telept_fov;
 
 	// This is only used between levels,
 	// mo->health is used during levels.
@@ -222,7 +228,7 @@ typedef struct player_s
 	// True if button down last tic.
 	bool attackdown[2];
 	bool usedown;
-	bool actiondown[2];
+	bool actiondown[4];
 
 	// Bit flags, for cheats and debug.
 	// See cheat_t, above.
@@ -244,6 +250,9 @@ typedef struct player_s
 	// For screen flashing (red or bright).
 	int damagecount;
 	int bonuscount;
+
+	// For no screen flashing or sounds (silent pickup for scripts/mods)
+	int silentbonuscount;
 
 	// Who did damage (NULL for floors/ceilings).
 	mobj_t *attacker;

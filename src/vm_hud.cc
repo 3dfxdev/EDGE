@@ -16,7 +16,7 @@
 //
 //------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../coal/coal.h"
 
@@ -32,6 +32,7 @@
 #include "e_player.h"
 #include "hu_font.h"
 #include "hu_draw.h"
+#include "hu_stuff.h" //added
 #include "r_modes.h"
 #include "am_map.h"     // AM_Drawer
 #include "r_colormap.h"
@@ -49,6 +50,9 @@ player_t *ui_hud_who = NULL;
 extern player_t *ui_player_who;
 
 extern std::string w_map_title;
+extern std::string w_message; //CA: New addition to allow user-configurable text_scale/etc.
+
+bool message_on;
 
 static int ui_hud_automap_flags[2];  // 0 = disabled, 1 = enabled
 static float ui_hud_automap_zoom;
@@ -134,6 +138,14 @@ static void HD_map_title(coal::vm_c *vm, int argc)
 	vm->ReturnString(w_map_title.c_str());
 }
 
+//CA: New, hud.message_ticker() to set properties of text via DDFLANG
+// hud.message_ticker()
+//
+static void HD_message_ticker(coal::vm_c *vm, int argc)
+{
+	vm->ReturnString(w_message.c_str());
+}
+
 
 // hud.which_hud()
 //
@@ -184,6 +196,24 @@ static void HD_text_color(coal::vm_c *vm, int argc)
 	rgbcol_t color = VM_VectorToColor(v);
 
 	HUD_SetTextColor(color);
+}
+
+// CA: New Function that can globally control the HU_text via COAL.
+// TODO: add function that can change position of text (with vector access, x.,y.,z for total control of w_message.c_str() ^__^
+// hud.text_scale(value)
+//
+static void HD_text_scale(coal::vm_c *vm, int argc)
+{
+	///HUD_SetScale(); // Must be cleared first for changes to take affect.
+	//vm->ReturnFloat((double)message_on); //Need to first return if the global bool 'message_on' is declared in HU_Drawer. If not, this won't do anything!
+	vm->ReturnString(w_message.c_str()); // String of message returned for heads-up text.
+
+	float scale = *vm->AccessParam(0);
+
+	if (scale <= 0)
+		I_Error("hud.set_scale: Bad scale value: %1.3f\n", scale);
+
+	HUD_SetScale(scale);
 }
 
 
@@ -336,6 +366,7 @@ static void HD_tile_image(coal::vm_c *vm, int argc)
 }
 
 
+// CA: Or expand this to ONE function, hud.draw_text(x, y, str, scale), just an idea to set scale of messages directly.
 // hud.draw_text(x, y, str)
 //
 static void HD_draw_text(coal::vm_c *vm, int argc)
@@ -352,6 +383,52 @@ static void HD_draw_text(coal::vm_c *vm, int argc)
 // hud.draw_num2(x, y, len, num)
 //
 static void HD_draw_num2(coal::vm_c *vm, int argc)
+{
+	float x = *vm->AccessParam(0);
+	float y = *vm->AccessParam(1);
+
+	int len = (int) *vm->AccessParam(2);
+	int num = (int) *vm->AccessParam(3);
+
+	if (len < 1 || len > 20)
+		I_Error("hud.draw_number: bad field length: %d\n", len);
+
+	bool is_neg = false;
+
+	if (num < 0 && len > 1)
+	{
+		is_neg = true; len--;
+	}
+
+	// build the integer backwards
+
+	char buffer[200];
+	char *pos = &buffer[sizeof(buffer)-4];
+
+	*--pos = 0;
+
+	if (num == 0)
+	{
+		*--pos = '0';
+	}
+	else
+	{
+		for (; num > 0 && len > 0; num /= 10, len--)
+			*--pos = '0' + (num % 10);
+
+		if (is_neg)
+			*--pos = '-';
+	}
+
+	HUD_SetAlignment(+1, -1);
+	HUD_DrawText(x, y, pos);
+	HUD_SetAlignment();
+}
+
+
+// hud.draw_num(x, y, len, num)
+//
+static void HD_draw_num(coal::vm_c *vm, int argc)
 {
 	float x = *vm->AccessParam(0);
 	float y = *vm->AccessParam(1);
@@ -541,6 +618,7 @@ void VM_RegisterHUD()
     ui_vm->AddNativeFunction("hud.game_name",       HD_game_name);
     ui_vm->AddNativeFunction("hud.map_name",  	    HD_map_name);
     ui_vm->AddNativeFunction("hud.map_title",  	    HD_map_title);
+	//ui_vm->AddNativeFunction("hud.message_ticker",  HD_message_ticker); //CORBIN NEW!
 
     ui_vm->AddNativeFunction("hud.which_hud",  	    HD_which_hud);
     ui_vm->AddNativeFunction("hud.check_automap",  	HD_check_automap);
@@ -551,6 +629,7 @@ void VM_RegisterHUD()
 
     ui_vm->AddNativeFunction("hud.text_font",       HD_text_font);
     ui_vm->AddNativeFunction("hud.text_color",      HD_text_color);
+	//ui_vm->AddNativeFunction("hud.text_scale",		HD_text_scale); // CORBIN NEW!
     ui_vm->AddNativeFunction("hud.set_scale",       HD_set_scale);
     ui_vm->AddNativeFunction("hud.set_alpha",       HD_set_alpha);
 
@@ -570,6 +649,7 @@ void VM_RegisterHUD()
     ui_vm->AddNativeFunction("hud.tile_image",      HD_tile_image);
     ui_vm->AddNativeFunction("hud.draw_text",       HD_draw_text);
     ui_vm->AddNativeFunction("hud.draw_num2",       HD_draw_num2);
+	ui_vm->AddNativeFunction("hud.draw_num",       HD_draw_num);
 
     ui_vm->AddNativeFunction("hud.render_world",    HD_render_world);
     ui_vm->AddNativeFunction("hud.render_automap",  HD_render_automap);
@@ -594,7 +674,11 @@ void VM_RunHud(int split)
 	ui_hud_automap_flags[1] = 0;
 	ui_hud_automap_zoom = -1;
 
-	VM_CallFunction(ui_vm, "draw_all");
+	//VM_CallFunction(ui_vm, "draw_all");
+	if (split > 0)
+		VM_CallFunction(ui_vm, "draw_split");
+	else
+		VM_CallFunction(ui_vm, "draw_all");
 
 	if (split > 0)
 		HUD_FrameSetup(0);

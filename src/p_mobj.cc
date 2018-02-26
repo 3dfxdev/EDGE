@@ -1,11 +1,11 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Moving Object Handling Code
 //----------------------------------------------------------------------------
-// (C) EDGE2 Team, 2011. 
-//  
-//  
+// (C) EDGE2 Team, 2011.
+//
+//
 //  Mainfile Copyright (c) 1999-2009  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -24,12 +24,12 @@
 //    Copyright (C) 1993-1996 by id Software, Inc.
 //
 //
-//  Some code based on the Hexen source, adapted by the EDGE2 Team. 
+//  Some code based on the Hexen source, adapted by the EDGE2 Team.
 //
-//   Copyright (C) 2008 Activison, Inc. 
+//   Copyright (C) 2008 Activison, Inc.
 //
 //
-//  Some code adapted from Doom Legacy, 
+//  Some code adapted from Doom Legacy,
 //   Copyright (C) Doom Legacy Team, 1998-2010.
 //----------------------------------------------------------------------------
 //
@@ -58,8 +58,8 @@
 // -AJA- 1999/09/15: Removed P_SpawnMobj itself :-).
 //
 
-#include "i_defs.h"
-#include "i_defs_gl.h"  // we need r_shader.h
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"  // we need r_shader.h
 #include "p_mobj.h"
 
 #include "con_main.h"
@@ -71,6 +71,8 @@
 #include "m_argv.h"
 #include "m_random.h"
 #include "p_local.h"
+#include "p_pobj.h"
+#include "r_image.h" //W_ImageGetName
 #include "r_misc.h"
 #include "r_shader.h"
 #include "s_sound.h"
@@ -198,17 +200,17 @@ static void BounceOffWall(mobj_t * mo, line_t * wall)
 		// random angle to bounce away.  And don't attenuate the speed (so
 		// we can get far enough away).
 
-		angle = P_Random() << (ANGLEBITS - 8);
+		//angle = P_Random() << (ANGLEBITS - 8);
+		mo->speed = 0; // -CW- Almost certainly stuck in wall. Kill motion.
 	}
 	else
 	{
 		angle += diff << 1;
 	}
 
-	// calculate new momentum
-
 	mo->speed *= mo->info->bounce_speed;
 
+	// calculate new momentum
 	mo->mom.x = M_Cos(angle) * mo->speed;
 	mo->mom.y = M_Sin(angle) * mo->speed;
 	mo->angle = angle;
@@ -321,7 +323,7 @@ static void TeleportRespawn(mobj_t * mobj)
 		new_mo->flags |= MF_AMBUSH;
 
 	new_mo->reactiontime = RESPAWN_DELAY;
-
+	new_mo->UpdateLastTicRender();
 	// remove the old monster.
 	P_RemoveMobj(mobj);
 }
@@ -401,7 +403,103 @@ static void ResurrectRespawn(mobj_t * mobj)
 		mobj->flags |= MF_AMBUSH;
 
 	mobj->reactiontime = RESPAWN_DELAY;
+	mobj->UpdateLastTicRender();
 	return;
+}
+
+extern float N_GetInterpolater(void);
+epi::vec3_c mobj_t::GetInterpolatedPosition(void)
+{
+
+	float interp = N_GetInterpolater();
+	epi::vec3_c lastpos(lastticrender.x,lastticrender.y,lastticrender.z);
+	epi::vec3_c curpos(x,y,z);
+
+	if (lerp_num > 0) {
+		//using interpolated position
+		float along = lerp_pos / (float)lerp_num;
+		curpos.x = lerp_from.x + (x - lerp_from.x) * along;
+		curpos.y = lerp_from.y + (y - lerp_from.y) * along;
+		curpos.z = lerp_from.z + (z - lerp_from.z) * along;
+	}
+
+	if (interp != 1) {
+		return lastpos.Lerp(curpos, interp);
+	} else {
+		return curpos;
+	}
+}
+
+#define _fma(a,b,c) ((a)*(b)+(c))
+#define _fnms(a,b,c) ((c) - (a)*(b))
+#define _lerp(a,b,t) _fma((t), (b), _fnms(t, a, a))
+
+static float CircularLerp(float start , float end, float value)
+{
+	float min = 0.0f;
+	float max = ANG360;
+	float half = ANG360 / 2;
+	float retval = 0.0f;
+	float diff = 0.0f;
+
+	if((end - start) < (half * -1)) {
+		diff = ((max - start)+end)*value;
+		retval =  start+diff;
+	} else if((end - start) > half) {
+		diff = ((max - end)+start)*value*-1;
+		retval = start+diff;
+	} else {
+		retval = start+(end-start)*value;
+	}
+
+	return retval;
+}
+
+float G_CircularLerp(float start, float end, float value)
+{
+	return CircularLerp(start, end, value);
+}
+
+float mobj_t::GetInterpolatedAngle(void)
+{
+	float interp = N_GetInterpolater();
+	//XXX
+	/// Coraline - reverted this as it made player movement more jerky
+	//return angle;
+	return CircularLerp(lastticrender.angle, angle, interp);
+}
+
+float mobj_t::GetInterpolatedVertAngle(void)
+{
+	float interp = N_GetInterpolater();
+	//XXX
+	//return vertangle;
+	return CircularLerp(lastticrender.vertangle, vertangle, interp);
+}
+
+#undef _fma
+#undef _fnms
+#undef _lerp
+
+void mobj_t::UpdateLastTicRender(void)
+{
+	if (lerp_num <= 0) {
+		//using absolute position
+		lastticrender.x = x;
+		lastticrender.y = y;
+		lastticrender.z = z;
+	} else {
+		//using interpolated position
+		float along = lerp_pos / (float)lerp_num;
+		lastticrender.x = lerp_from.x + (x - lerp_from.x) * along;
+		lastticrender.y = lerp_from.y + (y - lerp_from.y) * along;
+		lastticrender.z = lerp_from.z + (z - lerp_from.z) * along;
+	}
+	lastticrender.angle = angle;
+	lastticrender.vertangle = vertangle;
+	lastticrender.model_skin = model_skin;
+	lastticrender.model_last_frame = model_last_frame;
+	lastticrender.model_animfile = state->animfile;
 }
 
 void mobj_t::ClearStaleRefs()
@@ -421,7 +519,7 @@ void mobj_t::ClearStaleRefs()
 static void DeleteMobj(mobj_t * mo)
 {
 #if (DEBUG_MOBJ > 0)
-	L_WriteDebug("tics=%05d  DELETE %p [%s]\n", leveltime, mo, 
+	L_WriteDebug("tics=%05d  DELETE %p [%s]\n", leveltime, mo,
 		mo->info ? mo->info->name.c_str() : "???");
 #endif
 
@@ -503,6 +601,7 @@ bool P_SetMobjState(mobj_t * mobj, statenum_t state)
 		(st->sprite == mobj->state->sprite) && st->tics > 1)
 	{
 		mobj->model_last_frame = mobj->state->frame;
+		mobj->model_last_animfile = mobj->state->animfile;
 	}
 	else
 		mobj->model_last_frame = -1;
@@ -608,7 +707,7 @@ void P_SetMobjDirAndSpeed(mobj_t * mo, angle_t angle, float slope, float speed)
 }
 
 //
-// P_MobjExplodeMissile  
+// P_MobjExplodeMissile
 //
 // -AJA- 1999/09/12: Now uses P_SetMobjStateDeferred, since this
 //       routine can be called by TryMove/PIT_CheckRelThing.
@@ -629,7 +728,7 @@ void P_MobjExplodeMissile(mobj_t * mo)
 
 
 static inline void AddRegionProperties(const mobj_t *mo,
-									   float bz, float tz, region_properties_t *new_p, 
+									   float bz, float tz, region_properties_t *new_p,
 									   float f_h, float c_h, const region_properties_t *p)
 {
 	int flags = p->special ? p->special->special_flags : SECSP_PushConstant;
@@ -740,7 +839,7 @@ void P_CalcFullProperties(const mobj_t *mo, region_properties_t *new_p)
 }
 
 //
-// P_XYMovement  
+// P_XYMovement
 //
 static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 {
@@ -858,41 +957,55 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 
 		// unable to complete desired move ?
 		if (!did_move)
-		{ 
+		{
 			// check for missiles hitting shootable lines
 			// NOTE: this is for solid lines.  The "pass over" case is
 			// handled in P_TryMove().
 
-			if ((mo->flags & MF_MISSILE) && 
+			if ((mo->flags & MF_MISSILE) &&
 				(! mo->currentattack ||
 				! (mo->currentattack->flags & AF_NoTriggerLines)))
 			{
 				//
-				// -AJA- Seems this is called to handle this situation: 
-				// P_TryMove is called, but fails because missile would hit 
-				// solid line.  BUT missile did pass over some special lines.  
-				// These special lines were not activated in P_TryMove since it 
+				// -AJA- Seems this is called to handle this situation:
+				// P_TryMove is called, but fails because missile would hit
+				// solid line.  BUT missile did pass over some special lines.
+				// These special lines were not activated in P_TryMove since it
 				// failed.  Ugh !
 				//
 				if (spechit.GetSize() > 0)
 				{
 					epi::array_iterator_c it;
 					line_t* ld;
-					
+
 					for (it=spechit.GetTailIterator(); it.IsValid(); it--)
 					{
 						ld = ITERATOR_TO_TYPE(it, line_t*);
-						
-						P_ShootSpecialLine(ld, PointOnLineSide(mo->x, mo->y, ld), 
+
+						P_ShootSpecialLine(ld, PointOnLineSide(mo->x, mo->y, ld),
 											mo->source);
-					}	
+					}
 				}
-				
+
 				if (blockline && blockline->special)
 				{
-					P_ShootSpecialLine(blockline, 
+					P_ShootSpecialLine(blockline,
 						PointOnLineSide(mo->x, mo->y, blockline), mo->source);
+
+					// CA 8.7.17: 
+					//reflect momentum away from wall (try to fix sticky walls physics?)
+					// Seems to work in making things less "sticky".
+					mo->mom.x = mo->x * 2 - mo->mom.x;
+					mo->mom.y = mo->y * 2 - mo->mom.y;
+
+					if (!P_TryMove(mo, ptryx, ptryy))
+					{
+						// // CA 9.21.17:  Can't move, clear momentum
+						xmove = ymove = 0;
+						mo->mom.x = mo->mom.y = 0;
+					}
 				}
+
 			}
 
 			// -AJA- 2008/01/20: Jumping out of Water
@@ -905,7 +1018,7 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 				float ground_h;
 
 				int i = P_FindThingGap(blockline->gaps, blockline->gap_num,
-				                       mo->z + mo->height, mo->z + 2 * mo->height); 
+				                       mo->z + mo->height, mo->z + 2 * mo->height);
 				if (i >= 0)
 				{
 					ground_h = blockline->gaps[i].f;
@@ -927,7 +1040,12 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 
 			if (mo->info->flags & MF_SLIDE)
 			{
-				P_SlideMove(mo, ptryx, ptryy);
+				if (! P_SlideMove(mo, ptryx, ptryy))
+				{
+					// -CW- 2017/01/12 Can't slide, clear momentum
+					xmove = ymove = 0;
+					mo->mom.x = mo->mom.y = 0;
+				}
 			}
 			else if (mo->extendedflags & EF_BOUNCE)
 			{
@@ -965,7 +1083,7 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 	}
 	while (xmove || ymove);
 
-	if ((mo->extendedflags & EF_NOFRICTION) || (mo->flags & MF_SKULLFLY))
+	if ((mo->extendedflags & EF_NOFRICTION && !(mo->flags & MF_CORPSE)) || (mo->flags & MF_SKULLFLY))
 		return;
 
 	if (mo->flags & MF_CORPSE)
@@ -1006,15 +1124,43 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 		mo->player->actual_speed =
 			(mo->player->actual_speed * 0.8 + speed * 0.2);
 
-// I_Debugf("Actual speed = %1.4f\n", mo->player->actual_speed);
+		// I_Debugf("Actual speed = %1.4f\n", mo->player->actual_speed);
 
 		if (fabs(mo->mom.x) < STOPSPEED && fabs(mo->mom.y) < STOPSPEED &&
-			mo->player->cmd.forwardmove == 0 && 
+			mo->player->cmd.forwardmove == 0 &&
 			mo->player->cmd.sidemove == 0)
 		{
 			mo->mom.x = mo->mom.y = 0;
 		}
 	}
+
+#if 0
+	if (r_motionblur && mo->player /*== &players[displayplayer]*/)
+	{
+		float dx = (float)(oldx - mo->mom.x) / 65536.0f;
+		float dy = (float)(oldy - mo->mom.y) / 65536.0f;
+		motion_blur.curr_speed_pow2 = dx * dx + dy * dy;
+	}
+#endif // 0
+
+}
+
+/// ~CA 5.13.2016
+/// This is a prototype for gathering flat names, so when the player hits
+/// the floor, the appropriate sound (was testing with DSGLOOP) will play.
+/// I actually got this code to *work*, but there was no timer so the sound
+/// looped forever. This is a TODO, as I want this to mature and eventually
+/// become TERRAIN.DDF...
+bool image_array_contains(const char **names, const char *image)
+{
+ for(int i=0;names[i];i++)
+ {
+  if(strcmp(names[i],image)==0)
+  {
+   return true;
+  }
+ }
+ return false;
 }
 
 //
@@ -1026,10 +1172,46 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	float dist;
 	float delta;
 	float zmove;
-	
-	// -KM- 1998/11/25 Gravity is now not precalculated so that
-	//  menu changes affect instantly.
-	float gravity = props->gravity / 8.0f * 
+	static bool splash = false;
+
+	//This code below stores known flats in a container (see image_array_contains)
+	const char *image = W_ImageGetName(mo->subsector->sector->floor.image);
+	const char *names[]={
+	"FWATER1",
+	"FWATER2",
+	"FWATER3",
+	"FWATER4",
+	"SWATER1",
+	"SWATER2",
+	"SWATER3",
+	"SWATER4",
+	"NUKAGE1",
+	"NUKAGE2",
+	"NUKAGE3",
+	"BLOOD1",
+	"BLOOD2",
+	"BLOOD3",
+	"SLIME01",
+	"SLIME02",
+	"SLIME03",
+	"SLIME04",
+	"SLIME05",
+	"SLIME06",
+	"SLIME07",
+	"SLIME08",
+	"SLIME09",
+	"SLIME10",
+	"SLIME11",
+	"SLIME12",
+	0
+	};
+	//Eventually Nukage and LAVA will have their own stuff. And this will become Terrain.DDF
+
+	/// DEBUG CURRENT FLOOR: CON_Message("Image is: '%s'\n",image);
+
+	//int img_num;
+
+	float gravity = props->gravity / 8.0f *
 		(float)level_flags.menu_grav / (float)MENU_GRAV_NORMAL;
 
 	// check for smooth step up
@@ -1037,7 +1219,8 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	{
 		mo->player->viewheight -= (mo->floorz - mo->z);
 		mo->player->viewz      -= (mo->floorz - mo->z);
-		mo->player->deltaviewheight = (mo->player->std_viewheight - 
+
+		mo->player->deltaviewheight = (mo->player->std_viewheight -
 			mo->player->viewheight) / 8.0f;
 	}
 
@@ -1061,18 +1244,13 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 		}
 	}
 
-	//
-	//  HIT FLOOR ?
-	//
 	if (mo->flags & MF_SKULLFLY)
 			mo->mom.z = -mo->mom.z;
-	
+
 	//TeleportRespawn(mobj);
 
 
 	if (mo->z <= mo->floorz)
-//	    P_HitFloor(mo);
-//		mo->z <= mo->floorz;
 	{
 		if (mo->flags & MF_SKULLFLY)
 			mo->mom.z = -mo->mom.z;
@@ -1080,7 +1258,6 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 		if (mo->mom.z < 0)
 		{
 			float hurt_momz = gravity * mo->info->maxfall;
-			//const char *img_name = W_ImageGetName(images[L]);
 			bool fly_or_swim = mo->player && (mo->player->swimming ||
 				mo->player->powers[PW_Jetpack] > 0 || mo->on_ladder >= 0);
 
@@ -1088,11 +1265,21 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 			{
 				// Squat down. Decrease viewheight for a moment after hitting the
 				// ground (hard), and utter appropriate sound.
-				mo->player->deltaviewheight = zmove / 8.0f;
-				S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
-			
+				if (image_array_contains(names, image))
+				{
+					if (!splash)
+					{
+						//I_Printf("z: %f, fz: %f, sz: %d\n", mo->z, mo->floorz, mo->subsector->sector->f_h);
+						mo->player->deltaviewheight = zmove / 8.0f;
+						S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
+						splash = true;
+					}
+				}
+				else
+					splash = false;
 			}
-		
+
+
 			// -KM- 1998/12/16 If bigger than max fall, take damage.
 
 			if (mo->info->maxfall > 0 && gravity > 0 && -mo->mom.z > hurt_momz &&
@@ -1100,73 +1287,6 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 			{
 				P_DamageMobj(mo, NULL, NULL, (-mo->mom.z - hurt_momz), NULL);
 			}
-			const char *W_ImageGetName(const image_c *image)
-
-{
-
-	const image_c *rim;
-
-
-
-	rim = (const image_c *) image;
-
-
-
-	return rim->name;
-
-}
-
-
-
-#if 0  // DEBUGGING
-
-	L_WriteDebug("W_ImageGetUserSprites(count = %d)\n", *count);
-
-	L_WriteDebug("{\n");
-
-
-
-	for (pos = 0; pos < *count; pos++)
-
-		L_WriteDebug("   %p = [%s] %dx%d\n", array[pos], W_ImageGetName(array[pos]),
-
-			array[pos]->actual_w, array[pos]->actual_h);
-
-		
-
-	L_WriteDebug("}\n");
-
-#endif
-
-
-
-		return array;
-
-}
-
-
-
-if (new_image)
-
-            {
-
-            sec->floor.image = new_image;
-
-			
-
-		    if (new_image == FWATER1)
-
-			S_StartFX(mo->info->splash_sound, P_MobjGetSfxCategory(mo), mo);
-
-			} 
-
-			     
-
-		    #define CMP(a, b)  (strcmp(W_ImageGetName(a), W_ImageGetName(b)) < 0)
-
-	QSORT(const image_c *, array, (*count), CUTOFF);
-
-#undef CMP
 
 			// -KM- 1999/01/31 Bouncy bouncy...
 			if (mo->extendedflags & EF_BOUNCE)
@@ -1180,17 +1300,34 @@ if (new_image)
 					mo->mom.x = mo->mom.y = mo->mom.z = 0;
 				}
 			}
-			else
-				mo->mom.z = 0;
-				
 
+			if (mo->player && gravity > 0 && -zmove > ! OOF_SPEED && ! fly_or_swim)
+			{
+
+				if (image_array_contains(names, image) && (mo->z <= mo->subsector->sector->f_h))
+				{
+					//DEBUG:
+					//CON_Message("Detected FWATER FLAT!");
+					if (!splash)
+					{
+						//I_Printf("z: %f, fz: %f, sz: %f\n", mo->z, mo->floorz, mo->subsector->sector->f_h);
+						mo->player->deltaviewheight = zmove / 8.0f;
+						// [SP] This seems to crash, disabling for now.
+						S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo);
+						splash = true;
+						//CA: Need to set a cooldown, and not have zmove go so far downward over time (or at all!)
+					}
+				}
+				else
+					splash = false;
+			}
+			//else
+				//mo->mom.z = 0;
 		}
+		mo->mom.z = 0;
 
 		mo->z = mo->floorz;
-			//img_name is actually floor.image in W_ImageGetName
-	//const char *img_name = W_ImageGetName(mo->subsector->sector->floor.image);
 
-		
 		if ((mo->flags & MF_MISSILE) && !(mo->flags & MF_NOCLIP))
 		{
 			// -AJA- 2003/10/09: handle missiles that hit a monster on
@@ -1221,18 +1358,24 @@ if (new_image)
 			return;
 		}
 	}
-	else if (gravity > 0.0f)
+	else
 	{
-		// thing is above the ground, therefore apply gravity
+		// jumped/flew up out of water, splash when come down
+		splash = false;
 
-		// -MH- 1998/08/18 - Disable gravity while player has jetpack
-		//                   (nearly forgot this one:-)
-
-		if (!(mo->flags & MF_NOGRAVITY) &&
-			!(mo->player && mo->player->powers[PW_Jetpack] > 0) &&
-			!(mo->on_ladder >= 0))
+		if (gravity > 0.0f)
 		{
-			mo->mom.z -= gravity;
+			// thing is above the ground, therefore apply gravity
+
+			// -MH- 1998/08/18 - Disable gravity while player has jetpack
+			//                   (nearly forgot this one:-)
+
+			if (!(mo->flags & MF_NOGRAVITY) &&
+				!(mo->player && mo->player->powers[PW_Jetpack] > 0) &&
+				!(mo->on_ladder >= 0))
+			{
+				mo->mom.z -= gravity;
+			}
 		}
 	}
 
@@ -1358,6 +1501,13 @@ static void P_MobjThinker(mobj_t * mobj)
 
 	SYS_ASSERT_MSG(mobj->next != (mobj_t *)-1,
 		("P_MobjThinker INTERNAL ERROR: mobj has been Z_Freed"));
+
+	if ((mobj->typenum & ~3) == 9300)
+	{
+		//I_Printf("P_MobjThinker: handling PO %d\n", mobj->po_ix);
+		P_UpdatePolyObj(mobj);
+		return;
+	}
 
 	SYS_ASSERT(mobj->state);
 	SYS_ASSERT(mobj->refcount >= 0);
@@ -1554,6 +1704,32 @@ void P_ClearAllStaleRefs(void)
 	}
 }
 
+void P_UpdateInterpolationHistory(void)
+{
+	//Update object interpolation
+	for (mobj_t * mo = mobjlisthead; mo; mo = mo->next)
+	{
+		mo->UpdateLastTicRender();
+	}
+
+	//update floor/ceiling interpolation
+	sector_t *sect = sectors;
+	int i = numsectors;
+	while(i--) {
+		sect->lf_h = sect->f_h;
+		sect->lc_h = sect->c_h;
+		sect++;
+	}
+
+	extrafloor_t *exfloor = extrafloors;
+	i = numextrafloors;
+	while(i--) {
+		exfloor->last_top_h = exfloor->top_h;
+		exfloor->last_bottom_h = exfloor->bottom_h;
+		exfloor++;
+	}
+}
+
 
 //
 // P_RemoveQueuedMobjs
@@ -1575,7 +1751,7 @@ void P_RemoveQueuedMobjs(bool force_all)
 		mo->fuse--;
 
 		if (!force_all && mo->fuse == 1 && mo->refcount != 0)
-			I_Warning("Bad ref count for %s = %d.\n", 
+			I_Warning("Bad ref count for %s = %d.\n",
 						mo->info->name.c_str(), mo->refcount);
 
 		if (force_all || (mo->fuse <= 0 && mo->refcount == 0))
@@ -1607,7 +1783,7 @@ static void AddMobjToList(mobj_t *mo)
 	mobjlisthead = mo;
 
 #if (DEBUG_MOBJ > 0)
-	L_WriteDebug("tics=%05d  ADD %p [%s]\n", leveltime, mo, 
+	L_WriteDebug("tics=%05d  ADD %p [%s]\n", leveltime, mo,
 		mo->info ? mo->info->name.c_str() : "???");
 #endif
 }
@@ -1647,7 +1823,7 @@ static void RemoveMobjFromList(mobj_t *mo)
 void P_RemoveMobj(mobj_t *mo)
 {
 #if (DEBUG_MOBJ > 0)
-	L_WriteDebug("tics=%05d  REMOVE %p [%s]\n", leveltime, mo, 
+	L_WriteDebug("tics=%05d  REMOVE %p [%s]\n", leveltime, mo,
 		mo->info ? mo->info->name.c_str() : "???");
 #endif
 
@@ -1658,7 +1834,7 @@ void P_RemoveMobj(mobj_t *mo)
 		return;
 	}
 
-	if ((mo->info->flags & MF_SPECIAL) && 
+	if ((mo->info->flags & MF_SPECIAL) &&
 	    ! (mo->flags & MF_MISSILE) &&
 		(deathmatch >= 2 || level_flags.itemrespawn) &&
 		!(mo->extendedflags & EF_NORESPAWN) &&
@@ -1745,40 +1921,6 @@ void P_RemoveItemsInQue(void)
 // GAME SPAWN FUNCTIONS
 //
 
-
-// SPAWNS A SPLASH WHEN PLAYER HITS GROUND IN WATER (but not deep water!)
-
-// FIXME!!!
-
-#if 0
-//~~CA, 6/8/2011 - adapted Water Splash code from Legacy/Hexen
-void P_SpawnSplash(float z, const mobjtype_c * puff)// mobj_t * mo)
-{
-    mobj_t *th;
-    //fixed_t     z;
-
-    // need to touch the surface because the splashes only appear at surface
-    if (mo->z > z || mo->z + mo->height < z)
-        return;
-
-//As noted above, P_SpawnMobj was replaced entirely with P_MobjCreateObject, so we will change it here.
-		
-    // note pos +1 +1 so it doesn't eat the sound of the player..
-	
-    th = P_MobjCreateObject(z, puff); //replace MT_SPLASH with just "splash"?, this is the "object we need to create", needs to be registered
-	                                                             //WILL THIS BE IN DDF?
-    
-    S_StartFX(th, sfx_gloop); //declare this FIRST!
-    //else
-    //    S_StartSound (th,sfx_splash);
-    th->tics -= P_Random() & 3;
-
-    if (th->tics < 1)
-        th->tics = 1;
-}	
-#endif
-
-
 //
 // P_SpawnPuff
 //
@@ -1817,7 +1959,7 @@ void P_SpawnBlood(float x, float y, float z, float damage,
 
 	angle += ANG180;
 
-	num = (int) (!level_flags.more_blood ? 1.0f : (M_Random() % 7) + 
+	num = (int) (!level_flags.more_blood ? 1.0f : (M_Random() % 7) +
 		(float)((MAX(damage / 4.0f, 7.0f))));
 
 	while (num--)
@@ -1828,7 +1970,7 @@ void P_SpawnBlood(float x, float y, float z, float damage,
 
 		th = P_MobjCreateObject(x, y, z, blood);
 
-		P_SetMobjDirAndSpeed(th, angle, ((float)num + 12.0f) / 6.0f, 
+		P_SetMobjDirAndSpeed(th, angle, ((float)num + 12.0f) / 6.0f,
 			(float)num / 4.0f);
 
 		th->tics -= P_Random() & 3;
@@ -1963,7 +2105,7 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 	Z_Clear(mobj, mobj_t, 1);
 
 #if (DEBUG_MOBJ > 0)
-	L_WriteDebug("tics=%05d  CREATE %p [%s]  AT %1.0f,%1.0f,%1.0f\n", 
+	L_WriteDebug("tics=%05d  CREATE %p [%s]  AT %1.0f,%1.0f,%1.0f\n",
 		leveltime, mobj, info->name.c_str(), x, y, z);
 #endif
 
@@ -2072,6 +2214,8 @@ mobj_t *P_MobjCreateObject(float x, float y, float z, const mobjtype_c *info)
 	//
 	AddMobjToList(mobj);
 
+	mobj->UpdateLastTicRender();
+
 	return mobj;
 }
 
@@ -2089,12 +2233,12 @@ int P_MobjGetSfxCategory(const mobj_t *mo)
 
         if (mo->player == players[displayplayer])
             return SNCAT_Player;
-        
+
 		return SNCAT_Opponent;
     }
     else
     {
-        if (mo->extendedflags & EF_MONSTER) 
+        if (mo->extendedflags & EF_MONSTER)
             return SNCAT_Monster;
 
 		return SNCAT_Object;

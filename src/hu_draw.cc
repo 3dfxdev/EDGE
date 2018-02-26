@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 2D DRAWING STUFF
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include "../ddf/font.h"
 
@@ -31,6 +31,7 @@
 #include "r_modes.h"
 #include "r_image.h"
 #include "r_misc.h"     //  R_Render
+#include "r_renderbuffers.h"
 
 
 #define DUMMY_WIDTH(font)  (4)
@@ -89,6 +90,12 @@ void HUD_SetTextColor(rgbcol_t color)
 void HUD_SetAlpha(float alpha)
 {
 	cur_alpha = alpha;
+}
+
+void HUD_FadeAlpha(float alpha)
+{
+	cur_alpha = alpha;
+	alpha-=TICRATE*0.01;
 }
 
 void HUD_SetAlignment(int xa, int ya)
@@ -154,6 +161,8 @@ void HUD_FrameSetup(int split)
 	margin_X = (SCREENWIDTH  - margin_W) / 2.0;
 	margin_Y = (SCREENHEIGHT + margin_H) / 2.0;
 
+	//TODO: make this a menu option - to split the screen vertically or horizontally for two player!
+	/// split 1 means viewport 1, split 2 means viewport 2
 	if (split == 2)
 		margin_X += margin_W / 2;
 
@@ -269,7 +278,7 @@ bool HUD_ScissorTest(float x1, float y1, float x2, float y2)
 //----------------------------------------------------------------------------
 
 void HUD_RawImage(float hx1, float hy1, float hx2, float hy2,
-                  const image_c *image, 
+                  const image_c *image,
 				  float tx1, float ty1, float tx2, float ty2,
 				  float alpha, rgbcol_t text_col,
 				  const colourmap_c *palremap)
@@ -281,7 +290,7 @@ void HUD_RawImage(float hx1, float hy1, float hx2, float hy2,
 
 	if (x1 >= x2 || y1 >= y2)
 		return;
-	
+
 	if (x2 < 0 || x1 > SCREENWIDTH ||
 		y2 < 0 || y1 > SCREENHEIGHT)
 		return;
@@ -301,7 +310,7 @@ void HUD_RawImage(float hx1, float hy1, float hx2, float hy2,
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex_id);
- 
+
 	if (alpha >= 0.99f && image->opacity == OPAC_Solid)
 		glDisable(GL_ALPHA_TEST);
 	else
@@ -312,25 +321,25 @@ void HUD_RawImage(float hx1, float hy1, float hx2, float hy2,
 			glAlphaFunc(GL_GREATER, alpha * 0.66f);
 	}
 
-	if (image->opacity == OPAC_Complex || alpha < 0.99f)
+	if (image->opacity != OPAC_Solid || alpha < 0.99f)
 		glEnable(GL_BLEND);
 
 	glColor4f(r, g, b, alpha);
 
 	glBegin(GL_QUADS);
-  
+
 	glTexCoord2f(tx1, ty1);
 	glVertex2i(x1, y1);
 
-	glTexCoord2f(tx2, ty1); 
+	glTexCoord2f(tx2, ty1);
 	glVertex2i(x2, y1);
-  
+
 	glTexCoord2f(tx2, ty2);
 	glVertex2i(x2, y2);
-  
+
 	glTexCoord2f(tx1, ty2);
 	glVertex2i(x1, y2);
-  
+
 	glEnd();
 
 
@@ -420,16 +429,16 @@ void HUD_SolidBox(float x1, float y1, float x2, float y2, rgbcol_t col)
 
 	if (cur_alpha < 0.99f)
 		glEnable(GL_BLEND);
-  
+
 	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, cur_alpha);
-  
+
 	glBegin(GL_QUADS);
 
 	glVertex2f(x1, y1);
 	glVertex2f(x1, y2);
 	glVertex2f(x2, y2);
 	glVertex2f(x2, y1);
-  
+
 	glEnd();
 	glDisable(GL_BLEND);
 }
@@ -446,24 +455,26 @@ void HUD_SolidLine(float x1, float y1, float x2, float y2, rgbcol_t col,
 
 	if (thick)
 		glLineWidth(1.5f);
-
+#ifndef NO_LINE_SMOOTH
 	if (smooth)
 		glEnable(GL_LINE_SMOOTH);
-
+#endif
 	if (smooth || cur_alpha < 0.99f)
 		glEnable(GL_BLEND);
-  
+
 	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, cur_alpha);
-  
+
 	glBegin(GL_LINES);
 
 	glVertex2i((int)x1 + (int)dx, (int)y1 + (int)dy);
 	glVertex2i((int)x2 + (int)dx, (int)y2 + (int)dy);
-  
+
 	glEnd();
 
 	glDisable(GL_BLEND);
+#ifndef NO_LINE_SMOOTH
 	glDisable(GL_LINE_SMOOTH);
+#endif
 	glLineWidth(1.0f);
 }
 
@@ -477,9 +488,9 @@ void HUD_ThinBox(float x1, float y1, float x2, float y2, rgbcol_t col)
 
 	if (cur_alpha < 0.99f)
 		glEnable(GL_BLEND);
-  
+
 	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, cur_alpha);
-  
+
 	glBegin(GL_QUADS);
 	glVertex2f(x1,   y1); glVertex2f(x1,   y2);
 	glVertex2f(x1+2, y2); glVertex2f(x1+2, y1);
@@ -513,7 +524,7 @@ void HUD_GradientBox(float x1, float y1, float x2, float y2, rgbcol_t *cols)
 
 	if (cur_alpha < 0.99f)
 		glEnable(GL_BLEND);
-  
+
 	glBegin(GL_QUADS);
 
 	glColor4f(RGB_RED(cols[1])/255.0, RGB_GRN(cols[1])/255.0,
@@ -531,7 +542,7 @@ void HUD_GradientBox(float x1, float y1, float x2, float y2, rgbcol_t *cols)
 	glColor4f(RGB_RED(cols[3])/255.0, RGB_GRN(cols[3])/255.0,
 	          RGB_BLU(cols[3])/255.0, cur_alpha);
 	glVertex2f(x2, y1);
-  
+
 	glEnd();
 	glDisable(GL_BLEND);
 }
@@ -620,7 +631,7 @@ void HUD_DrawText(float x, float y, const char *str)
 		{
 			if (cur_x_align == 0)
 				total_w /= 2.0f;
-			
+
 			cx -= total_w;
 		}
 
@@ -644,6 +655,11 @@ void HUD_DrawText(float x, float y, const char *str)
 	}
 }
 
+// forward declaration to detect outdated opengl
+extern bool no_render_buffers;
+bool RGL_GL3Enabled();
+
+//#pragma optimize("", off) //FIXME: Hack to fix stuff, just trying this out!
 
 void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera)
 {
@@ -656,8 +672,44 @@ void HUD_RenderWorld(float x1, float y1, float x2, float y2, mobj_t *camera)
 	float width = COORD_X(x2) - COORD_X(x1);
 	float expand_w = (xy[2] - xy[0]) / width;
 
-	R_Render(xy[0], xy[1], xy[2]-xy[0], xy[3]-xy[1],
-	         camera, full_height, expand_w);
+	int sceneX = xy[0];
+	int sceneY = xy[1];
+	int sceneWidth = xy[2] - xy[0];
+	int sceneHeight = xy[3] - xy[1];
+
+	FGLRenderBuffers* renderbuffers = FGLRenderBuffers::Instance();
+
+	if (!no_render_buffers /*&& RGL_GL3Enabled()*/ && !splitscreen_mode && renderbuffers->Setup(SCREENWIDTH, SCREENHEIGHT, sceneWidth, sceneHeight))
+	{
+		GLint oldViewport[4];
+		glGetIntegerv(GL_VIEWPORT, oldViewport);
+
+		// Render scene into the scene renderbuffer
+		renderbuffers->BindSceneFB(false);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		R_Render(sceneX, sceneY, sceneWidth, sceneHeight, camera, full_height, expand_w);
+
+		// Copy scene rendering to the first post processing texture
+		renderbuffers->BlitSceneToTexture();
+
+		// Apply post processing effects
+		RGL_UpdateCameraExposure();
+		RGL_BloomScene();
+		RGL_LensDistortScene();
+		RGL_ApplyFXAA();
+
+		// Copy result back to back buffer
+		renderbuffers->BindCurrentFB();
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glBlitFramebuffer(sceneX, sceneY, sceneWidth, sceneHeight, sceneX, sceneY, sceneWidth, sceneHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+		glViewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
+	}
+	else
+	{
+		R_Render(sceneX, sceneY, sceneWidth, sceneHeight, camera, full_height, expand_w);
+	}
 
 	HUD_PopScissor();
 }

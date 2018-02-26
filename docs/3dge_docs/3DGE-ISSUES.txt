@@ -1,0 +1,73 @@
+3DGE 2.1.0 Test3
+======================
+KNOWN ISSUES
+======================
+As mentioned in the Readme, contained is a list of 
+all of the known issues in 3DGE. Make sure to check
+here before posting in the support forums.
+
+======================
+
+Known Issues:
+  - OpenGL 3 mode does not pass sprites through the renderer yet.
+
+  - Shader support is still a work in progress. If you hardware does not
+    support it, or you notice slugglishness, restart 3DGE with the command-
+    line switch, "-norenderbuffers". This will disable the post-processing
+    available in OpenGL2 and up (it will work even if you are set to 'OpenGL1
+    mode' - most hardware supports it by default).
+
+  - HERETIC support is heavily in WIP:
+	- Cheats do not work
+	- Inventory is not possible - pickups behave like DOOM.
+	- HUD is not finished/
+
+  - Splitscreen multiplayer is a bit buggy and the control input
+    is hacked up - this will be fixed in future releases. As of the latest
+    test, Splitscreen is non-functional due to the introduction of shaders.
+
+  - Wolfenstein 3D, while working, does not actually let you do anything
+    in-game yet. ROTT support will load the IWAD but will not let you do
+    anything (yet).
+
+  - Multiplayer (true networking) does not work.  The type of networking
+    that DOOM used back in 1994 is obsolete today, and 3DGE doesn't
+    have a suitable replacement yet.
+
+  - Drag-and-drop does not work in Linux.
+
+  - Linux + certain older ATI models will not render the post-processing
+    effects correctly - this is a known bug with AMD's Linux drivers.
+
+  - Mods MUST upgrade their version directive in DDF to 2.10.
+
+  - Some sprites are designed to look sunk into the floor, typically
+    corpses, and can look like they are "floating" in 3DGE.  This is a
+    limitation of using OpenGL rendering (if the sprites are lowered,
+    they get clipped and this looks a lot worse).
+
+    Certain other DOOM tricks, e.g. flat-flooding, sometimes don't
+    work properly with 3DGE's renderer.
+
+  - CAMERA-MAN SYSTEM:
+   - Different types of interpolation (maybe splines as well),
+   - Debug view mode (gizmos for camera-man objects),
+   - Free camera mode (no inertia in movement, for better editing),
+   - Disable HUD when camera-man is in use,
+   - Disable camera movement on player's input when camera-man is in use.
+
+
+=============================
+ERRORS, AND HOW TO SOLVE THEM:
+=============================
+
+    Q: 3DGE doesn't start! It's crap!!
+
+    >A) Make sure the IWAD you want to load is in the same folder as the executable, or your DOOMWADDIR and DOOMWADPATH
+        are defined. Just follow the same way its done with normal DOOM and you will be fine. We are working on an
+        automatic IWAD selector, but in the meantime -- keep it oldschool. ;-)
+      
+
+    Q:  The procedure entry point ucrtbase.terminate could not be located in the dynamic liabrary api-ms-win-crt-              runtime-l1-1-0.dll. What do I do??
+
+    >A) You need to (re)install the Visual C++ Redistributable for Visual Studio 2015, either via Windows Update or        download and directly install the Visual C++ Redistributable. See https://sourceforge.net/p/edge2/bugs/28/.

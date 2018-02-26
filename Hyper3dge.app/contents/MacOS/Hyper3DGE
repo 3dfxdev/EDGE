@@ -1,0 +1,2 @@
+#! /bin/sh
+exec "${0%/*}/edge.macosx" #command-line arguments go here

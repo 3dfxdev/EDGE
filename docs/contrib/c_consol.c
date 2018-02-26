@@ -1,5 +1,5 @@
 /* Console for ZDoom
-   Copyright (C) 1998 Randy Heit
+   Copyright (C) 1998 Marissa Heit
 
 This file is part of ZDoom.
 

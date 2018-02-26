@@ -1,7 +1,8 @@
 //----------------------------------------------------------------------------
-//  Tiny Nodes Builder
+//  Wolfenstein 3D Nodes Builder
 //----------------------------------------------------------------------------
 //
+//  Copyright (C) 2011-2016 Isotope SoftWorks
 //  Copyright (c) 1999-2009  Andrew Apted
 //
 //  This program is free software; you can redistribute it and/or
@@ -15,14 +16,26 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
+//
+//
 
-#include "i_defs.h"
+/* We debated for a long time about this, whether to use glBSP and hack it up to
+generate Wolfenstein/ROTT maps, or use the very old WLF_BSP builder. As it turns
+out, TinyBSP was directly based on WLF_BSP, so what I did, instead of patching up
+the old Wolf file, was adapt TinyBSP specifically for Wolf/ROTT map building, and if
+e_main detects a Wolfenstein game, it *should* disable glBSP for nodebuilding, and instead
+use TinyBSP, which was tailored ;) I knew we would find a use for this wonderful file,
+Andrew! =) */
+
+#include "system/i_defs.h"
 
 #include "r_defs.h"
 #include "r_state.h"
 #include "m_bbox.h"
 #include "p_local.h"
-#include "dm_struct.h"
+#include "dm_structs.h"
+#include "games/wolf3d/wlf_local.h"
+#include "games/wolf3d/wlf_rawdef.h"
 
 #include <algorithm>
 
@@ -38,6 +51,10 @@
 static int max_segs;
 static int max_subsecs;
 static int max_glvert;
+
+extern short *wlf_seg_matrix;
+
+#define MP1_INDEX(x,y)  ((y) * (WLFMAP_H + 1) + (x))
 
 static void Poly_Setup(void)
 {
@@ -66,7 +83,7 @@ static void Poly_Setup(void)
 static seg_t *NewSeg(void)
 {
 	if (numsegs >= max_segs)
-		I_Error("R_PolygonizeMap: ran out of segs !\n");
+		I_Error("R_PolygonizeWolfMap: ran out of segs !\n");
 
 	seg_t *seg = segs + numsegs;
 
@@ -94,7 +111,7 @@ static subsector_t *NewSubsector(void)
 static vertex_t *NewVertex(float x, float y)
 {
 	if (num_gl_vertexes >= max_glvert)
-		I_Error("R_PolygonizeMap: ran out of vertices !\n");
+		I_Error("R_PolygonizeWolfMap: ran out of vertices !\n");
 
 	vertex_t *vert = gl_vertexes + num_gl_vertexes;
 
@@ -110,7 +127,7 @@ static vertex_t *NewVertex(float x, float y)
 static node_t *NewNode(void)
 {
 	if (numnodes >= max_subsecs)
-		I_Error("R_PolygonizeMap: ran out of nodes !\n");
+		I_Error("R_PolygonizeWolfMap: ran out of nodes !\n");
 
 	node_t *node = nodes + numnodes;
 
@@ -180,6 +197,7 @@ static node_t *CreateNode(divline_t *party)
 	return nd;
 }
 
+// Used to be called FindLimits!
 static void AddSeg(subsector_t *sub, seg_t *seg)
 {
 	// add seg to subsector
@@ -197,6 +215,7 @@ static seg_t * CreateOneSeg(line_t *ld, sector_t *sec, int side,
 {
 	seg_t *g = NewSeg();
 
+	//Below, we need to translate g->v1/v2 -> WF_GetVertex stuff. . .look in WLF_Setup.cc. . .
 	g->v1 = v1;
 	g->v2 = v2;
 	g->angle = R_PointToAngle(v1->x, v1->y, v2->x, v2->y);
@@ -417,7 +436,7 @@ static void ClockwiseOrder(subsector_t *sub)
 		array[i] = cur;
 
 	if (i != total)
-		I_Error("ClockwiseOrder miscounted.");
+		I_Error("TinyBSP: ClockwiseOrder miscounted.");
 
 	// sort segs by angle (from the middle point to the start vertex).
 	// The desired order (clockwise) means descending angles.
@@ -677,21 +696,48 @@ static float NiceMidwayPoint(float low, float extent)
 	return mid;
 }
 
+//
+// CoversOneTile
+//
+// 
+static bool CoversOneTile(seg_t *seg)
+{
+	float bbox[4];
 
+	////AddSeg(bbox, seg);
+
+	if (bbox[BOXRIGHT] - bbox[BOXLEFT] > 64 * (1))
+		return false;
+
+	if (bbox[BOXTOP] - bbox[BOXBOTTOM] > 64 * (1))
+		return false;
+
+	return true;
+}
+
+//Wolfenstein:
+//
+// Find the best partition seg to use, or NULL if the seg list is
+// already convex.
+//
 static bool ChoosePartition(subsector_t *sub, divline_t *div)
 {
+	//bool single_tile = CoversOneTile(seglist);
+	seg_t *seg_list;
+	
 	int total = 0;
 	for (seg_t *Z = sub->segs; Z; Z=Z->sub_next)
 		total++;
 
 	if (total <= 3)
 		return false;
-
+	
+	//bool single_tile = CoversOneTile(seg_list);
 
 	// try a pure binary split
 	if (sub->seg_count >= MIN_BINARY_SEG)
 	{
-		float w = sub->bbox[BOXRIGHT] - sub->bbox[BOXLEFT];
+		float w = sub->bbox[BOXRIGHT] - sub->bbox[BOXLEFT] > 64*(1);
 		float h = sub->bbox[BOXTOP]   - sub->bbox[BOXBOTTOM];
 
 		// IDEA: evaluate both options and pick best
@@ -816,7 +862,8 @@ static void AddMinisegs(divline_t& party,
 	}
 }
 
-
+// Wolfenstein:
+// Builds the ROOT NODE
 static unsigned int Poly_Split(subsector_t *right)
 {
 	divline_t party;
@@ -959,15 +1006,29 @@ static void Poly_FinishSegs(void)
 
 void TinyBSP(void)
 {
-	I_Printf("Building nodes with TinyBSP...\n");
+	I_Printf("Building nodes with WolfBSP...\n");
 
 	Poly_Setup();
 
 	subsector_t *base_sub = CreateSubsector();
 
 	Poly_CreateSegs(base_sub);
+	
+	// now build the root node
+
+#if 0
+	bbox[BOXLEFT] = 64 * (0);
+	bbox[BOXBOTTOM] = 64 * (0);
+	bbox[BOXRIGHT] = 64 * (WLFMAP_W);
+	bbox[BOXTOP] = 64 * (WLFMAP_H);
+#endif // 0
 
 	root_node = Poly_Split(base_sub);
+	
+	I_Printf("WOLF: Seg count: %d\n", numsegs);
+	I_Printf("WOLF: Subsector count: %d\n", numsubsectors);
+	I_Printf("WOLF: Node count: %d\n", numnodes);
+	I_Printf("WOLF: Root Node: %d\n", root_node);
 
 	Poly_AssignSectors();
 	Poly_FinishSegs();

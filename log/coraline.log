@@ -1,0 +1,656 @@
+﻿CORALINE'S LOGFILE
+https://github.com/corbachu
+##############################
+------ // start entry seperator
+x.xx.20xx // DATE
+------ // end entry seperator
+TODO  // notes to self
+~~~~  // TODO seperator & ees
+##############################
+
+----------------
+8.1.2017
+----------------
+So, in my attempt to unify everyone under CMAKELISTS instead of having to
+maintain /Makefiles, I have re-arranged 3DGE's source code to make it easier
+to find system-specific code files. I don't always remember to carry my changes
+through to /Makefiles from CMAKELISTS, so this way everyone can use CMAKELISTS,
+and if they can't, fix them up at least and submit to the repo so we can all be
+unified under one system. I eventually want to retire the /Makefiles system.
+
+So, let's start with the changes:
+
+------ //
+---
+SYSTEM SUBFOLDER:
+---
+Added new /system/ subfolder in /src, that will hold all of the i_* files,
+and subfolders for each system. Win32 resides there now, so that way if we
+ever add Win64 support, we can add a subfolder in /system for that.
+
+Since MacOSX, Linux, and openBSD share common code and includes, I have moved
+all of this code into one folder, /src/system/unx. The extra mac stuff has its
+own sub-folder there, /src/system/unx/mac. That way, people can add system-
+specific headers and other code there if they so choose. But the majority of
+the Linux-based code uses the unx folder, so it made sense to just move them
+there.
+
+This way we can better manage system defines by isolating them into their own
+folders, not mucking up the /src directory.
+
+---
+GAMES SUBFOLDER:
+---
+Added /games folder, which where the Wolf3D/etc code will reside. Doom's base code
+remains in /src, since EDGE does mean "Enhanced DOOM gaming engine". ;-)
+
+---
+MD5_CONV SUBFOLDER:
+---
+Moved the MD5 rendering code there, cleaned it up, and all of the kmq2 code has been
+moved into epi/kmq2.
+
+---
+OPLLIB SUBFOLDER:
+---
+Moved the OplLib folder into /src to clean up root EDGE directory.
+
+---
+FMV SUBFOLDER:
+---
+Moved /FMV out of root and into /src/fmv. Eventually the FMV code should be absorbed int
+/src directly since its all tied to the engine, no reason to have it in its own sub-folder,
+we will reserve that for ffmpeg if we end up using that later.
+
+---
+ZDBSP FOLDER:
+---
+Added ZDBSP alongside glBSP, whether we use this folder or keep it contained in p_setup.cc, it
+will be there to reference. If we don't use this library later and keep it internalized, we can
+remove it. But if we do, it'll already be available to replace glBSP entirely.
+
+------ //
+
+See? Nice and tidy now. Eventually we can continue this system and have everything organized, but for
+now this system isn't so convoluted that it will disrupt normal EDGE developers who use different
+systems to build to/from.
+
+I added 'eecrashreport' program from Eternity Engine, which will come in handy producing a more robust
+crash handler. This resides in /tools/eecrashreport. Affected files in system/win32, but this has not
+been tested properly yet. Special thanks to James Haley for this, by the way.
+
+-----------------
+7.12.2016
+-----------------
+
+At the 3DGE forums, I finally unlocked the Bug Reports sub-forum, in the sense that
+our registered users should be able to locally create a bug report, while users who
+are not registered should instead follow the SourceForge link and do it there.
+^ Speaking of, the old Bug Reports link redirect had: Total redirects: 5407
+^^ Holy cow! Not sure whether to be flattered or destroyed after that number...;)
+
+Removed "dirent.h" from epi/file.h.
+
+-----------------
+7.11.2016
+-----------------
+
+*Experimented with adding an FNTYP_Image type to fonts.ddf, to actually load a font
+graphic (INS_GRAPHIC) rather than individual patch sets. Added the appropriate stuff,
+and in Fonts.ddf, you can use TYPE=IMAGE; now, rather than TYPE=PATCH;, _BUT_ IMAGE
+does not work as of yet, I still need to do lots of debugging. Thankfully, the console
+font draws exactly the same way, so there is a lot to look upon for that.
+
+*Temporarily fixed the "unable to set resolution in-game" issue that transpired
+when we did the switch to SDL2. What I did ended up being really hackey. As of Test2,
+users can once again switch their resolution, but there is no information gathering
+via SDL of a display mode - it simply grabs every display mode and populates the list.
+So, for instance, a user in the Change Resolution might see strange ones, like
+320x200 -- changing to it will cramp the screen to that value, and the rest will be
+invalidated. This is not so much a bug with the video resolution handling, but a result
+of our incompleted SDL InActive processor. Like we've said, SDL2 really changed a lot,
+but it requires a steep learning curve. At least now, users can change their full-screen
+resolution.
+
+^ Unfortunately, Windowed Mode is still completely broken, and as soon as I can come back
+to the code, I will try and fix it up.
+
+*Fixed the WIPE_EnumStr bug, that was returning an "INVALID" wipe, it was 
+me forgetting to remove the experimental wipe from r_wipe.h - the result
+was that the OPTIONS code found an extra wipe that it was not aware of.
+(reported by: marscaleb)
+
+*Created new functions to detect and load the appropriate episode graphics
+for M_EPI6/M_EPI7 when TNT or Plutonia are used (even if they are used
+with the original DOOM as a PWAD). Special thanks to Julian for providing
+the graphics. I also implemented them throughout Doom's menu structure.
+
+*Looking into having a string-based menu graphic system (generated with fonts,
+at least for HERETIC), but it will only be used for Heretic. I don't know
+WTF I was thinking when I thought FONTA and FONTB were packed into a lump sheet.
+I think I got mixed-up when looking at Zdoom's FONTDEFS and...yeah. I even think
+I confused Marisa when I hit her up about it. Ah, the joys of ADHD. It happens to
+me all the time. . . =(
+
+*Did more work on the Dreamcast port, still ongoing. Chilly is really kicking ass
+on it, and I'm thinking I can take its improvements (like its vastly improved
+sound system) over to the main branch.
+
+*Picked up Simbey's MAP2WAD program again, this time we are both working together
+to load as a DLL for an easy conversion of Wolfenstein mapdatas, that glBSP can then
+take and process WITHOUT having to resort to TinyBSP. Since glBSP has a proven
+track record, we will just do this and cut out Tiny again.
+
+*Experimented a bit with GL_VIS...interesting results, got 3DGE to read them and...
+yeah, it *really* makes a noticable difference. The only issue here is that it is
+kind of a moot point, for two reasons:
+
+1) GL_VIS can take a long time to generate a potentially-visible set (most of the time,
+if a map isn't Dues Vault-level of complex, it does this quick, and 3DGE indeed does
+less work, but how many of my port users are going to use it? There is *no* way I will
+include GL_PVS as a run-time library.
+
+2) Skip the BS and do it directly in RGL_WalkBSP(), eliminating the needless walking of
+every subsector, and do it how Graf does - check against segs. Despite my hesitation,
+Graf was indeed correct. Andrew gave me a vague response when I asked him about it, and I
+don't think he wrote the original with speed in mind -- as this is indeed how most OpenGL
+ports do it. Wouldn't it be nice to use libtess for tesselation breakup of a map, rather than
+rely on other tricks?
+
+-----------------
+7.5.2016
+-----------------
+
+Removed dependence on starting Heretic with a batch file and with an
+external "fix" WAD (herfix.wad). All menu graphics were hacked to be
+replaced from M_ to H_, and changed in source accordingly. Also, offsets
+that are wrong can be changed in IMAGES.DDF (just don't use IMAGE_DATA=),
+using *RIM images (real-images). As long as Heretic is the sole IWAD in
+the folder, it will choose this one -- otherwise, it will default to DOOM
+or whatever else is found first. 
+
+Eventually, I am going to implement a launcher, similar to Eternity, that
+will allow users to easily select the IWAD they want to load (or maybe, like
+Zdoom).
+
+Other fixes were made to Wolf3D and Rise of the Triad - 3DGE is almost finished
+with decoding ROTT's patch format (using *RIM), so that's good.
+
+-----------------
+7.2.2016
+-----------------
+
+Instead of trying to do the Wolf3d/ROTT conversion from scratch, I was
+generiously donated the source code to MapToWad, which I will now use
+as a plugin, much like glBSP, to handle and build Wolfenstein3D maps. Some
+modification needs to go into it to get it working with 3DGE, but this is
+a godsend, and a very special thanks to David Gould (simbey) for allowing
+us to use the code!
+
+Now we need to set the doom_ddf variable (ddf_dir) to use Wolf_ddf, but
+for now I will create a batchfile since testing at this point is much more
+important.
+
+-----------------
+7.1.2016
+-----------------
+
+Implemented ACS as a virtual machine, much like COAL, into 3DGE, though
+this is not linked through the playsim yet, ACS does in fact exist in
+some form through 3DGE.
+
+Worked more on the internal node builder for Wolfenstein and Rise of the Triad
+maps, and started merging the wolf3D code into 3DGE directly. I have also
+majorly hacked up TinyBSP to instead focus on generating Wolfenstein and ROTT
+bsp's, so when 3DGE detects a ROTT or Wolf map, it will defer to TinyBSP and
+ignore glBSP completely.
+
+Renamed wlf_graph.cc to r_graph.cc (since it is used for image routines, no need
+to name it wlf_*).
+
+Renamed wlf_colors.cc to r_playpal.cc (since this is used for PLAYPAL generation
+based on what kind of datas are loaded first, and not specific to Wolfenstein
+anymore). TODO: Pop in Rise of the Triad Palette here!
+
+More work on multiplayer over LAN today, so far, so good! =) 
+-----------------
+7.1.2016
+-----------------
+
+After a small break from 3DGE, I came back and did some neat stuff.
+
+Instead of starting a Splitscreen game via the Command Line, you can
+start it up in the all-new Multiplayer menu. This also meant removing
+all of that related stuff from the Options Menu. It was a PITA that it
+took so long. Also, I wrote most of this stuff in the existing Netgame
+responder/menu, so in the future I will need to create a new menu file
+specifically for Splitscreen, because I pretty much hacked the shit out
+of the network menu to get it working. Also, if you do happen to start
+a splitscreen game from the command line, make sure the number of bots is
+'2' or higher -- ugly, quick hack that is. Need to mark it as a TODO.
+
+Fixed another bug with the screen wipes (so dumb), that caused them all to +1
+then invalid the end. Not sure when that happened...
+
+Half-way to re-implementing resolution changing in SDL2, and speaking of,
+networking via SDL2 is very close to being finished. This means, while I'm sure
+we will have a long road ahead of us as far as stuff staying in sync, we will finally
+have true networking.
+
+ZIP detection is now working.
+
+Worked a bit more on loading Quake 3 BSP's, specifically, bringing back 3DGE's old
+lightmap code for those directly, but we still have a long ways to go.
+
+Fixed a bug in coal_compile that was never freed, and now it is, so that's one
+memory leak fixed.
+
+Added additional controls for a Dreamcast controller, started working on second
+player input for local splitscreen.
+
+-----------------
+6.22.2016
+-----------------
+
+Fixed a nasty bug that prevented users from re-assigning the 'USE' key. Moved it into
+another menu and renamed accordingly - tested and verified to now be working 100% - no
+more rebinding problems (thanks Eruanna!)
+
+
+-----------------
+6.19.2016
+-----------------
+
+Hellish work week over, daughter's 3rd birthday was a huge smash (aside from me
+dropping the cake on the ground before getting into the pizza parlor...grrr, and
+she got everything she wanted!)...so that out of the way now, I commenced to open
+3DGE back up!
+
+I've been working on the KOS port of 3DGE, and one thing I am getting rid of is
+the StartFrame/FinishFrame stuff, since on Dreamcast this is only called in E_Display,
+so replacing those with direct calls to clear the screen and swap buffers should also
+eliminate all the extra BS.
+
+<<<<<<< HEAD
+=======
+
+>>>>>>> e7cebe88379c7e54942988be60a7cb2f43d4a1ce
+-----------------
+6.16.2016
+-----------------
+
+Whew, took a few days off. Fixed a few leaks here and there, but nothing major
+so far. 
+
+My focus as of late is getting 3DGE running on KOS, but I think either GCC or
+KOS is breaking 3DGE as we aren't getting I_FinishFrame() to update the screen,
+even though calls to KallistiOs's glswapbuffers() are happening in the background.
+
+Ugh.
+
+-----------------
+6.10.2016
+-----------------
+
+Pushed the new OPL (Adlib-alike) player to the source - major thanks to NukeyT for
+soldiering on with it ;)
+
+Pushed more Heretic updates and fixes from Plums today, guy rocks!!! =)
+
+Found more memory leaks in the code (boy, there is a lot more than I thought), but
+the good news is that this will help fix the DC port once and for all ;)
+
+
+-----------------
+6.7.2016
+-----------------
+
+Fixed the strange screen melting issue. As it turns out, Visual Studio does a
+giant set of optimizations by default when compiling. This is great, but for
+some reason enabling it causes the screen wipe to melt almost a single coloumn
+of pixels, leaving the rest of the screen intact before it vanishes. So, the
+UpdateMelt() code in r_wipe is being affected somehow. Will mark it as a TODO.
+^ Disabling compiler optimizations altogether restores the wipe melt code. This
+will be marked as a TODO, because this implies that the code can be written
+better. However, other things like better inlining optimization is OK.
+
+
+Took the first dive into Splines, the custom camera library that
+3DGE will use to explcitly control camera movement. This library
+was heavily modified from my earlier Scourge/KMQ2 engine (which is
+why you might find some kmq2 code in 3DGE already).
+^ 1) Linked in Splines project into Cmakelists.txt...let's see how it goes.
+^ 2) Instead of linking in the static LIB, I'm going to link the entire
+	 Splines project into 3DGE. This will take some heavy refactoring. I
+	 wanted to just merely plug the lib and define everything in an external
+	 linker, but this wasn't going to happen unfortunately. It never works out
+	 like that ;)
+	 
+-----------------
+6.6.2016
+-----------------
+
+Got PAK files to load properly. Next up on our agenda - PK3 files for
+our wonderful modders. ;)
+
+Still having a problem scanning in "directories" in PAK files - 3DGE
+will scan and load everything top-level no problem - add a directory
+inside the PAK and it will ignore it. So, we need to come up with a way
+to scan the _entire_ length of the PAK, going into subfolders and loading
+lumps that way. Otherwise - what's the point? ;)
+^ NOTE: maybe use epi::PATH_JOIN?
+
+-----------------
+6.5.2016
+-----------------
+
+Took all of yesterday setting up CMake and Visual Studio (bye-bye MinGW)
+
++ Finally moved over to Visual Studio - holy christ, what have I been
+missing??? =)
+
+Updated entire documentation as a result in the Github (new directory, build_guide),
+with more markdown-readme for platforms, and cleaned up the main directory. This cleanup
+will happen in a major way later down the line -- more on that later.
+
+Implemented new filetypes in EPI:
+/file_pak: PAK decoding (now I can remove the decode stuff out of /src and use epi::)
+/file_grp: GRP decoding (from Duke Nukem 3D)
+/file_zip: ZIP decoding (pk3/pk4, zip!!!)
+With their raw counterparts (rawdef_x).
+* Removed PACKEDATTR until we can get it working with both G++ and VS (probably we don't need it...)
+
+Added defines in i_defs.h for Visual Studio to silence POSIX-style warnings (which is
+pretty stupid since MSVC seems to contain many POSIX-complaint stuff and DOESNT
+COMPLAIN ABOUT THEM...ugh). Anyways, for /source, they can be locally stored there ^_^
+^ Also added in util.h (deh_edge) and ddf_main.h. Probably a much better way of going
+about this...maybe a global header than can do this shit for us...
+^^ I am literally about to rip. Seriously -- we need some sort of management header for this!!
+
+DDF/IMAGE.cc -> In AddEssentialImages():
+Andrew described it as a hack -- which it totally is. For the proper 2.1.0 release, I will remove this
+function and define all of those images in IMAGES.DDF. Doing that will also allow the modder to realize
+that they can change that and that it isn't such a "hardcoded" thing after all. But this is on my
+TODO, as I slowly want to replace these "hacks". But the bad thing is that all existing mods will need this
+added to their DDF's, if they are internalized. Hmmm...
+
+
+
+-----------------
+6.3.2016
+-----------------
+
+Checked in extremely early (and super unfinished) ROTT code, so 3DGE
+can interpret ROTT maps and datas (basically, a non-shitty RottGL)
+
+-----------------
+5.29.2016
+-----------------
+
+Took a small break to research a ton of stuff for the engine.
+
+Released 2.1.0 (TEST-1) today, let's see what kind of awful feedback
+we can get about the state of our SDL2 port. ;)
+
+Upgraded glBSP to the version in Andrew's Eureka codebase, and now the
+library is true C++ (no ugly extern "C" hacks).
+
+Integrated polyobjects, then abruptly removed them. I had merged a working
+copy from a year or two ago when I had mostly working Polyobject code, before
+I realised that it always crashed on maps that contained them. My knowledge
+of the engine has increased two-fold, so I will be slowly working on adding
+proper (done the right way) support as time goes on.
+
+Checked in Wolfenstein-3D code! =)
+
+
+-----------------
+5.15.2016
+-----------------
+
+Added a new source file (m_shift.cc), which handles a shift table 
+(for when the 'shift' key is being pressed down in the Console). 
+Added support code in CON_HandleKey() that calls the shift table code
+- and WHALA - we have shift+X key presses!
+
+ As a result, the new code 
+*does* make the key presses/handling work, _BUT_, pressing the 'shift' 
+key also prints a 'S' everytime it is pressed (in the console).
+
+
+
+Oh well, Brendan will probably handle this in no time and put me to 
+shame over it.
+
+-----------------
+5.14.2016
+-----------------
+
+Updated Win32 Makefile with the -mstackrealign flag (otherwise, SSE2 will 
+crash 3DGE for anyone who uses an Intel CPU). This flag *must* be passed 
+through GCC if any SSE2 code is present, so I have made it permanent. Added
+-DSSE2 compiler flag (as per Brendan).
+
+Added the -mincoming-stack-boundary= explanation, which IS NEEDED for glBSP 
+to build GLnodes, since -mstackrealign causes glBSP, when outputting GWA nodes 
+for new maps, to misalign the stack, that was re-aligned when GCC starts compiling. 
+So, we *must* define that in glBSP's cflags first!
+
+Checked in additional code from Brendan that fixes some fudgy interpolation calcs.
+
+-----------------
+5.13.2016
+-----------------
+
+Added doom_ddf and heretic_ddf, along with edge2.wad, to /data.
+
+Merged in Working Copy again, now the game should run a-ok =) I also got around
+to commenting and explaining new/cryptic code that was introduced without any
+explanation from myself :S
+
+(!!!) Found a giant flaw with the SSE2 code GCC implements - on my new machine,
+which has an Intel I5, passing -sse2(et al) and using the MD5 SSE2 code make
+3DGE refuse to start up. This was not an issue on my previous AMD machine, so I
+think this might be something on Intel's side. I have explicitly disabled this for
+right now.
+
+Merged in AK's modified math code (ddf/types) and his improvements to Brendan's
+new implementation code (simplifying R_PointToAngle & R_PointToDist). 
+^  Yay for replacing kludgy, bloated math!! ;)
+
+Merged in my working copy again to get good compiles for all systems.
+
+Removed lots of Bot debugging stuff, so now games with bots aren't as choppy
+as they previously were (inflating debug text files and slowing down engine
+as a result - jeeze).
+
+Removed all of my previous GLEW OpenGL replacement code (GLAD), stashed it to
+revisit in the near future. However, I added it into the /src directory for those
+who are curious and want to take a stab at it. Will come back to it.
+
+Made r_spriteflipped "0", since there are still a few issues left to resolve with
+that code. Will keep it undocumented for public releases until it is cleaned up,
+since it causes sprite "flickering". Obviously this method would be better called
+with DDF.
+
+Re-implemented PAK (flkind_pak) since it is working now. There is still the issue
+of getting directory contents, but there needs to be more support code for it,
+since EPI can read from directories, which PAK basically is, via filesystem_dir_c.
+At the moment, it is in the engine and works fine as long as you don't try adding
+a PAKfile yet. Needs to be immediately addressed IMO.
+
+-----------------
+5.12.2016
+-----------------
+Merged in Brendan's math code (r_misc.cc), now R_PointToAngle goes "all the way"
+and uses atan2 (extremely simplified). Also, R_PointToDist is now simplified
+with the pythagorean distance formula. First steps into making 3DGE's math and
+rendering calls much less archaic (as suggested by Graf). 
+
+-----------------
+5.11.2016
+-----------------
+More GLAD stuff, but for right now I have switched us back to GLEW since I do not
+have time to reliably test the new extension handler. Created IFDEFS in the Makefile
+and source files (ifdef RGL_GLEW and ifdef NO_GLEW), and restored the hard link to
+OpenGL/GLEW in the makefile
+
+-----------------
+5.10.2016:
+
+Pretty fucking fed up with GLEW, so today I decided to take this a step further,
+and implemented GLAD + SDL_OpenGL. GLAD is a one file/header linkage to OpenGL,
+which is must faster than including *everything* in a huge library (GLEW).
+
+Under Win32 (et al), OpenGL is no longer required to be linked statically in the exe,
+nor is GLEW, under any means. For those who still want to compile with GLEW, I left the
+old code from Bruce in, as RGL_CheckExtensions(), since mine is named differently.
+
+I have added GLAD_GetExtensions() into r_main, which replaces the old code written
+by Bruce Lewis (RGL_CheckExtensions). This new codeblock initializes SDL_GL from
+GLAD, eliminating reliance on a statically-linked library. Now, we only have 
+compatibility with OpenGL v1--v2.1 -- we don't even need to link to a static lib
+now, since it is all contained in headers, and a much smaller .cc file. Overall,
+this will save us space, time, and future headaches.
+
+-----------------
+5.9.2016:
+
+Finally merged the SDL2_Migration branch -> "master", as everything seems good
+to go with that.
+
+------------------
+5.8.2016:
+
+PAK file support is finished and integrated into W_Wad.cc. Now, I'm going to test
+it with the most basic WADFile - edge2.wad (converted to edge2.pak). I mirrored
+most of the raw_wad_x loading code through EPI, so this should be fairly straight-
+forward. I will download GFCScape to create a new PAKfile for 3DGE to attempt to
+load. Also found out PAK files are not compressed - no big deal! 
+
+^^ Bombed due to the inclusion of Quake's pak0.pak. When I loaded a newly made
+packfile (edge.pak), it accepted, computed hash, and continued loading! Now, I am
+going to try replacing the specialwadverify -> specialpakverify ^_^
+
+Added E_SpecialPAKVerify to verify that EDGEVER is correct in the PAKfile.
+
+In InitDirectories, added EDGE2.PAK file detection, new M_GetParm ("-epak"), so,
+let's see how this goes.
+
+^ System startup automatically finds edge2.pak, but bombs right after:
+'Adding .\EDGE2.pak', which is the same problem I was running into while trying to
+add custom PAK files. I think because there are single lumps that arent' being handled,
+so I will need to add more utility code.
+
+^^ Solved again, but still need some extra stuff to cache the PAK file (hmm, I wonder
+if it's smart caching PAKs or leaving them as-is, since technically it's just a "dir"
+lookup...)
+
+Added a new cvar, r_spriteflipped, that will flip all [A0] sprites horizontally,
+as a consumer feature (i.e., not DDF). 
+
+Eventually, I will DDF-itize this, 
+for modders who can find it useful: STATES(DEATH)=TROO:A:1:NORMAL:FLIPPED, 
+(flipped could be the marker that passes the *flip bool in R2_GetThingSprite2).
+
+Okay, just DDF-itized this as a hyperflag, HF_MIRRORED, in ddf/things.cc. That way,
+it can affect the entire sprite (which means that randomizers are now possible for this
+behavior in DDF). I should probably squash this down some more...
+
+Again, okay, in DDF, just added the MAKEMIRRORED thing_special in actioncode_t, that
+will make the object mirrored! Gotta actually write P_ActMakeMirrored now. . .
+
+------------------------------------
+
+5.7.2016:
+More work on PAK today, defined raw pak headers and structures into dm_structs.h
+Added basic detection to w_wad.cc (FLKIND_PAK), routed from <- e_main.cc
+
+The thing here is to add PAK file/directory support into the engine, and once it
+is finalized, edge2.wad will become edge.pak. That way, people cannot
+muck about with the official wadfile anymore. PAKs also offers better
+compression and readtimes over WAD, especially for low-mem systems, mainly
+Dreamcast read/write/cache/flush, etc. 
+
+^^(Will also solve the 8-character lumpname limit currently existing with WAD. 
+Users always had to hack this by, for instance, declaring the 8 char limit in 
+IMAGES.ddf, but we worked around that by having the  "entry name", defined 
+in the first [brackets], to be however long neccesary, and used that as a lookup.)
+
+Added basic pk3 detection in e_main, will warn the user if it detects a PK3 being
+loaded. Will most likely start on pk3 after PAK is declared finished, and then the
+WAD2/WAD3 formats (remember those Andrew??)
+
+I_ShowCPU simplified for logfile, complex for debugfile. Anyways, people send their
+debugs over their standard logs, which begs the question - should I do away with the
+standard LOG? Maybe make DEBUG.txt -> debug.edge, and be done with two kinds... something
+to think about... The only thing EDGE2.LOG offers over debug.txt is simplicity and less crap
+mucking about if I am searching for something quick...yeeaahh...take a vote maybe?
+
+More SDL2 improvements: SDL_StartTextInput() solved the "no shift+char" in console!
+
+Implemented "Multiplayer" menu selection into our main menu drawer, but selecting it does nothing (yet),
+this was a change over how Legacy does it (implemented it into Single Player) - this way mirrors the
+way Quake does it(™)
+
+Started a new "Working Directory" for 3DGE in SourceTree (which is what I use to manage Github/etc).
+
+~~~~~~~~~~~~~~~~~~
+TODO:
+More Heretic detection stuff (adding skulls around logo in menu, setting global bool for heretic_mode)
+
+Rip out (completely this time...) HawkNL. Suitable and doable replacements for 3DGE NETWORKING:
+*OpenTNL (once popular, used in Doom Legacy 2, seen more recent update than HawkNL, decent track record)
+[https://github.com/kocubinski/opentnl]
+*Raknet (formerly HawkNL) // Will this conflict with our completely open-source policy..?
+[https://github.com/OculusVR/RakNet] 
+*SDL_Net (no brainer. . .and this would be the easiest I think)
+~~~~~~~~~~~~~~~~~~
+-----------------------------------
+
+-----------------------------------
+5.6.2016:
+Started PAK file struct for PAKfile support, added PAK file error-detection in e_main (it finds it juuust fine)!
+Ripped out old OPL header to make room for custom (thanks nukeyT)
+------------------------------------
+
+-----------------------------------
+5.5.2016:
+Implemented E_ShowCPU for CPU ID support, called right after ShowDateAndVersion().
+
+SDL2 improvements - SDL_GL_SetSwapInterval(-1), see notes there for why it needs to be -1 and not 1.
+
+i_video: Fixed r_Vsync needing to be set for every map (that was a very dumb oversight on my part) :-(
+-----------------------------------
+
+-----------------------------------
+5.4.2016:
+WOOOWWW, it's been way too long since I have kept a logfile. Well, rest of programmers are
+demanding it to track my ADHD-ified work, so here goes. Also, Brendan sort of made it fun
+again - I mean, who doesn't want to see Batman cry??
+
+Wrote a doxygen file for a generated Doxygen HTML. Will upload to server sometime soon.
+-----------------------------------
+
+-----------------------------------
+6/7/2011:
+DDF: Got scream sound finalized with screamwait in source (with Ajapted's guidance).
+
+r_render: Started basic shadow support in source. 
+-----------------------------------
+
+-----------------------------------
+6/6/2011:
+r_render: Got basic Fog working in 3DGE (with screenshot)
+
+Did some more stuff with s_roqplay.cc in /src. Looks like I'll have to bind
+SDL some other way. 
+
+Also, GLFog works but nothing else will, so I have to take this command
+and make it sector-based. It's not true fog, but it works just fine. ;)
+-----------------------------------
+
+-----------------------------------
+LOG 6/5/2011: 
+DDF/THINGS.DDF: added scream_Sound for falling screams from Hexen source
+-----------------------------------

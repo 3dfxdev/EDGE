@@ -176,6 +176,33 @@ mat4_c& mat4_c::Transpose()
 	return *this;
 }
 
+mat4_c& mat4_c::SetOrigin(const vec3_c& rhs)
+{
+	m[12] = rhs.x;
+	m[13] = rhs.y;
+	m[14] = rhs.z;
+
+	return *this;
+}
+
+mat4_c& mat4_c::SetOrigin(const vec3_c& rhs, float w)
+{
+	SetOrigin(rhs);
+	m[15] = w;
+
+	return *this;
+}
+
+mat4_c& mat4_c::SetOrigin(const vec4_c& rhs)
+{
+	m[12] = rhs.x;
+	m[13] = rhs.y;
+	m[14] = rhs.z;
+	m[15] = rhs.w;
+
+	return *this;
+}
+
 mat4_c& mat4_c::operator= (const mat4_c& rhs)
 {
 	CHECK_SELF_ASSIGN(rhs);
@@ -217,6 +244,25 @@ mat4_c& mat4_c::operator*= (const mat4_c& rhs)
 	memcpy(m, tmp, sizeof(m));
 
 	return *this;
+}
+
+mat4_c mat4_c::operator* (const mat4_c& rhs) const
+{
+	float tmp[16];
+
+	for (int x = 0; x < 4; x++)
+	for (int y = 0; y < 4; y++)
+	{
+		tmp[x*4+y] = m[    y] * rhs.m[x*4  ] +
+		             m[1*4+y] * rhs.m[x*4+1] +
+		             m[2*4+y] * rhs.m[x*4+2] +
+					 m[3*4+y] * rhs.m[x*4+3];
+	}
+	
+	mat4_c newmat;
+	memcpy(newmat.m, tmp, sizeof(m));
+
+	return newmat;
 }
 
 mat4_c& mat4_c::operator*= (float scale)

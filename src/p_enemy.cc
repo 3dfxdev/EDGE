@@ -29,7 +29,7 @@
 //       and removed some X_Random()-X_Random() things.
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "dm_data.h"
 #include "dm_state.h"
@@ -528,7 +528,7 @@ void P_FreeShootSpots(void)
 	if (brain_spots.number < 0)
 		return;
 
-	if (brain_spots.targets > 0)
+	if (brain_spots.targets != NULL)
 	{
 		SYS_ASSERT(brain_spots.targets);
 

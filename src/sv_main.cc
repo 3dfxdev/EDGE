@@ -20,7 +20,7 @@
 // new savegame system.
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../epi/path.h"
 #include "../epi/str_format.h"
@@ -489,7 +489,7 @@ void SV_ClearSlot(const char *slot_name)
 
 	if (! FS_ReadDir(&fsd, full_dir.c_str(), "*.esg"))
 	{
-		I_Warning("Failed to read directory: %s\n", full_dir.c_str());
+		I_Debugf("Failed to read directory: %s\n", full_dir.c_str());
 		return;
 	}
 

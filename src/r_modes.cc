@@ -23,8 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include <limits.h>
 
@@ -104,7 +104,7 @@ void R_AddResolution(scrmode_c *mode)
 		{
 			// depth is different but equivalent.  Update current
 			// member in list, giving preference to power-of-two.
-			if (mode->depth == 16 or mode->depth == 32)
+			if (mode->depth == 16 || mode->depth == 32)
 				exist->depth = mode->depth;
 		}
 
@@ -288,7 +288,7 @@ struct Compare_Res_pred
 
 void R_InitialResolution(void)
 {
-	L_WriteDebug("R_InitialResolution...\n");
+	L_WriteDebug("R_InitialResolution setting up...\n");
 
 	scrmode_c mode;
 

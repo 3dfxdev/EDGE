@@ -253,6 +253,7 @@ void DDF_MainGetString (const char *info, void *storage);
 void DDF_MainGetLumpName (const char *info, void *storage);
 void DDF_MainGetTime (const char *info, void *storage);
 void DDF_MainGetColourmap (const char *info, void *storage);
+void DDF_SectorGetFog ();
 void DDF_MainGetRGB (const char *info, void *storage);
 void DDF_MainGetWhenAppear (const char *info, void *storage);
 void DDF_MainGetBitSet (const char *info, void *storage);

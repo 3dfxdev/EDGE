@@ -293,6 +293,11 @@ typedef enum
 
 	// -AJA- 2010/12/23: force models to tilt by viewangle
 	HF_TILT = (1 << 15),
+	
+	HF_MIRRORED = (1 << 16),
+
+	// -CA- 2017/09/27: force items to be picked up silently
+	HF_SILENTPICKUP = (1 << 17),
 }
 mobjhyperflag_t;
 
@@ -511,8 +516,6 @@ typedef enum
 	// player must be pressing an Action key
 	COND_Action1,
 	COND_Action2,
-	COND_Action3,
-	COND_Action4,
 
 	// player must be walking
 	COND_Walking
@@ -734,6 +737,7 @@ public:
 	int spawn_state;
 	int idle_state;
 	int chase_state;
+	//int swim_state;
 	int pain_state;
 	int missile_state;
 	int melee_state;
@@ -806,6 +810,7 @@ public:
 	struct sfx_s *attacksound;
 	struct sfx_s *painsound;
 	struct sfx_s *deathsound;
+	struct sfx_s *secretsound;
 	struct sfx_s *overkill_sound;
 	struct sfx_s *activesound;
 	struct sfx_s *walksound;
@@ -814,6 +819,7 @@ public:
 	struct sfx_s *noway_sound;
 	struct sfx_s *oof_sound;
 	struct sfx_s *gasp_sound;
+	struct sfx_s *gloopsound;
 
 	int fuse;
 	int reload_shots;

@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Data
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -55,9 +55,11 @@ enum
    ML_SSECTORS,  // SubSectors, list of LineSegs
    ML_NODES,     // BSP nodes
    ML_SECTORS,   // Sectors, from editing
-   ML_REJECT,    // LUT, sector-sector visibility 
+   ML_REJECT,    // LUT, sector-sector visibility
    ML_BLOCKMAP,  // LUT, motion clipping, walls/grid element
-   ML_BEHAVIOR   // Hexen scripting stuff
+   ML_BEHAVIOR,   // Hexen scripting stuff
+
+   ML_PORTALCONNECT = 0x80000000	// for internal use only: This line connects to a sector with a linked portal (used to speed up sight checks.)
 };
 
 // -AJA- 1999/12/20: Lump order from "GL-Friendly Nodes" specs.
@@ -148,19 +150,74 @@ sectorflag_e;
 //
 typedef struct patch_s
 {
-	// bounding box size 
+	// bounding box size
 	short width;
 	short height;
 
-	// pixels to the left of origin 
+	// pixels to the left of origin
 	short leftoffset;
 
-	// pixels below the origin 
+	// pixels below the origin
 	short topoffset;
 
 	int columnofs[1];  // only [width] used
 }
 patch_t;
+
+typedef struct rottpatch_s
+{
+	short origsize;		// the orig size of "grabbed" gfx
+
+	short width;		// bounding box size
+	short height;
+
+	short leftoffset;		// pixels to the left of origin
+
+	short topoffset;		// pixels above the origin
+
+	unsigned short columnofs[320];	// only [width] used, the [0] is &collumnofs[width]. CA - Renamed from collumnofs to columnofs!
+}
+rottpatch_t;
+
+// ROTT RAW PICS (only used a few times in the WAD)
+typedef struct lpic_s
+{
+	short width, height;
+	short orgx, orgy;
+	byte data;
+}
+lpic_t;
+
+// ROTT LBM PICTURE FORMAT
+typedef struct lbm_s
+{
+	short width;
+	short height;
+	byte palette[768];
+	byte data;
+} 
+lbm_t;
+
+// ROTT Translucent Patch format
+typedef struct transpatch_s
+{
+	short origsize;		// the orig size of "grabbed" gfx
+	short width;		// bounding box size
+	short height;
+	short leftoffset;		// pixels to the left of origin
+	short topoffset;		// pixels above the origin
+	short translevel;
+	short columnofs[320];	// only [width] used, the [0] is &collumnofs[width]
+}
+transpatch_t;
+
+// ROTT Picture Format
+typedef struct pic_s
+{
+	byte width, height;
+	byte data;
+} 
+pic_t;
 
 
 #endif // __DOOMDATA__

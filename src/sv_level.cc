@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 New SaveGame Handling (Level Data)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -27,9 +27,9 @@
 //    region_properties_t  [RPRP]
 //    extrafloor_t         [EXFL]
 //    sector_t             [SECT]
-// 
+//
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -731,7 +731,7 @@ bool SR_LevelGetSurfPtr(void *storage, int index, void *extra)
 // Format of the string:
 //
 //    <floor/ceil>  `:'  <sector num>
-// 
+//
 // The first character is `F' for the floor surface of the sector,
 // otherwise `C' for its ceiling.
 //
@@ -870,7 +870,9 @@ bool SR_LineGetSpecial(void *storage, int index, void *extra)
 	if (str[0] != ':')
 		I_Error("SR_LineGetSpecial: invalid special `%s'\n", str);
 
-	(*dest) = P_LookupLineType(strtol(str+1, NULL, 0));
+	// custom special
+	if (strtol(str+1, NULL, 0) != -1)
+		(*dest) = P_LookupLineType(strtol(str+1, NULL, 0));
 
 	SV_FreeString(str);
 	return true;

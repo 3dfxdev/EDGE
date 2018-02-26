@@ -1,8 +1,9 @@
 //------------------------------------------------------------------------
-// STRUCT : Doom structures, raw on-disk layout
+// STRUCT : 3DGE Structures, raw-on-disk layout
 //------------------------------------------------------------------------
 //
 //  Copyright (c) 2007-2009  The EDGE2 Team.
+//            (c) Isotope SoftWorks, 2016.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -19,6 +20,27 @@
 #ifndef __DM_STRUCTS_H__
 #define __DM_STRUCTS_H__
 
+//
+// The packed attribute forces structures to be packed into the minimum 
+// space necessary.  If this is not done, the compiler may align structure
+// fields differently to optimize memory access, inflating the overall
+// structure size.  It is important to use the packed attribute on certain
+// structures where alignment is important, particularly data read/written
+// to disk.
+//
+// Implemented this for Quake/Quake II PAK files. 
+
+#ifdef __GNUC__
+
+#if defined(_WIN32) && !defined(__clang__)
+#define PACKEDATTR __attribute__((packed,gcc_struct))
+#else
+#define PACKEDATTR __attribute__((packed))
+#endif
+
+#else
+#define PACKEDATTR
+#endif
 
 /* ----- The wad structures ---------------------- */
 
@@ -28,7 +50,7 @@ typedef struct raw_wad_header_s
 	char identification[4];
 
 	u32_t num_entries;
-	u32_t dir_start;
+	u32_t dir_start; ///offset to wad directory...
 }
 raw_wad_header_t;
 
@@ -36,13 +58,37 @@ raw_wad_header_t;
 // directory entry
 typedef struct raw_wad_entry_s
 {
-	u32_t pos;
-	u32_t size;
+	u32_t pos;///< file offset for the item
+	u32_t size;///< item size
 
-	char name[8];
+	char name[8]; ///< item name, NUL-padded
 }
 raw_wad_entry_t;
 
+/* ----- PAK structures ---------------------- */
+
+typedef struct raw_pak_header_s
+{
+	char magic[4];
+
+	u32_t dir_start; ///offset to wad directory...
+	u32_t entry_num;
+
+}raw_pak_header_t;
+
+#define PAK_MAGIC  "PACK"
+
+typedef struct raw_pak_entry_s
+{
+	char name[56];
+
+	u32_t offset;// file offset for the item
+	u32_t length;// item size
+
+}raw_pak_entry_t;
+
+
+/* ----- blockmap struct! ---------------------- */
 
 // blockmap
 typedef struct raw_blockmap_header_s
@@ -276,6 +322,7 @@ typedef struct
 	raw_patchdef_t patches[1];
 }
 raw_texture_t;
+
 
 #endif /* __DM_STRUCTS_H__ */
 

@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Player Handling
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -23,7 +23,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include <time.h>
 #include <limits.h>
@@ -39,7 +39,7 @@
 #include "e_main.h"
 #include "f_finale.h"
 #include "g_game.h"
-#include "m_cheat.h"
+#include "m_cheatcodes.h"
 #include "m_menu.h"
 #include "m_random.h"
 #include "n_network.h"
@@ -61,6 +61,10 @@
 #include "vm_coal.h"
 #include "z_zone.h"
 
+#include "games/wolf3d/wlf_local.h"
+#include "games/wolf3d/wlf_rawdef.h"
+
+extern void WF_SetupLevel();
 
 gamestate_e gamestate = GS_NOTHING;
 
@@ -70,11 +74,11 @@ bool paused = false;
 
 int key_pause;
 
-// for comparative timing purposes 
+// for comparative timing purposes
 bool nodrawers;
 bool noblit;
 
-// if true, load all graphics at start 
+// if true, load all graphics at start
 bool precache = true;
 
 int starttime;
@@ -240,12 +244,15 @@ void LoadLevel_Bits(void)
 
 	// Initial height of PointOfView will be set by player think.
 	players[consoleplayer1]->viewz = FLO_UNUSED;
-    
+
 	if (consoleplayer2 >= 0)
 		players[consoleplayer2]->viewz = FLO_UNUSED;
 
 	leveltime = 0;
-
+	
+	if (wolf3d_mode)
+		WF_SetupLevel();
+	else
 	P_SetupLevel();
 
 	RAD_SpawnTriggers(currmap->name.c_str());
@@ -262,6 +269,7 @@ void LoadLevel_Bits(void)
 	gamestate = GS_LEVEL;
 
 	CON_SetVisible(vs_notvisible);
+	paused = false;
 
 	// clear cmd building stuff
 	E_ClearInput();
@@ -316,10 +324,10 @@ void G_DoLoadLevel(void)
 
 
 //
-// G_Responder  
+// G_Responder
 //
 // Get info needed to make ticcmd_ts for the players.
-// 
+//
 bool G_Responder(event_t * ev)
 {
 	// any other key pops up menu if in demos
@@ -335,7 +343,7 @@ bool G_Responder(event_t * ev)
 		return false;
 	}
 
-	if (ev->type == ev_keydown && ev->value.key.sym == KEYD_F12)
+	if (ev->type == ev_keydown && ev->data1 == KEYD_F12)
 	{
 		// 25-6-98 KM Allow spy mode for demos even in deathmatch
 		if (gamestate == GS_LEVEL) //!!!! && !DEATHMATCH())
@@ -345,18 +353,20 @@ bool G_Responder(event_t * ev)
 		}
 	}
 
-	if (!netgame && ev->type == ev_keydown && E_MatchesKey(key_pause, ev->value.key.sym))
+	if (!netgame && ev->type == ev_keydown && E_MatchesKey(key_pause, ev->data1))
 	{
 		paused = !paused;
 
 		if (paused)
 		{
+			I_Printf("PAUSED\n");
 			S_PauseMusic();
 			S_PauseSound();
 			I_GrabCursor(false);
 		}
 		else
 		{
+			I_Printf("RESUMED\n");
 			S_ResumeMusic();
 			S_ResumeSound();
 			I_GrabCursor(true);
@@ -373,7 +383,7 @@ bool G_Responder(event_t * ev)
 			return true;  // RTS system ate it
 
 		if (AM_Responder(ev))
-			return true;  // automap ate it 
+			return true;  // automap ate it
 
 		if (HU_Responder(ev))
 			return true;  // chat ate the event
@@ -385,7 +395,7 @@ bool G_Responder(event_t * ev)
 	if (gamestate == GS_FINALE)
 	{
 		if (F_Responder(ev))
-			return true;  // finale ate the event 
+			return true;  // finale ate the event
 	}
 
 	return INP_Responder(ev);
@@ -527,10 +537,10 @@ static void RespawnPlayer(player_t *p)
 	// first disassociate the corpse (if any)
 	if (p->mo)
 		p->mo->player = NULL;
-	
+
 	p->mo = NULL;
 
-	// spawn at random spot if in death match 
+	// spawn at random spot if in death match
 	if (DEATHMATCH())
 		G_DeathMatchSpawnPlayer(p);
 	else if (curr_hub_tag > 0)
@@ -628,7 +638,7 @@ void G_ExitToHub(int map_number, int tag)
 	G_ExitToHub(name_buf, tag);
 }
 
-// 
+//
 // REQUIRED STATE:
 //   (a) currmap, nextmap
 //   (b) players[]
@@ -636,7 +646,7 @@ void G_ExitToHub(int map_number, int tag)
 //   (d) exit_skipall
 //   (d) exit_hub_tag
 //   (e) wi_stats.kills (etc)
-// 
+//
 static void G_DoCompleted(void)
 {
 	SYS_ASSERT(currmap);
@@ -663,6 +673,11 @@ static void G_DoCompleted(void)
 		RAD_FinishMenu(0);
 
 	BOT_EndLevel();
+
+	// -CW- Interferes with HUBs.
+	//P_ShutdownLevel();
+	S_StopLevelFX();
+	S_StopMusic();
 
 	automapactive = false;
 
@@ -695,7 +710,7 @@ static void G_DoCompleted(void)
 
 			currmap = nextmap;
 			curr_hub_tag = exit_hub_tag;
-			
+
 			gameaction = ga_loadlevel;
 		}
 		else
@@ -717,7 +732,7 @@ static void G_DoCompleted(void)
 
 void G_DeferredLoadGame(int slot)
 {
-	// Can be called by the startup code or the menu task. 
+	// Can be called by the startup code or the menu task.
 
 	defer_load_slot = slot;
 	gameaction = ga_loadgame;
@@ -731,7 +746,7 @@ static bool G_LoadGameFromFile(const char *filename, bool is_hub)
 		I_Printf("LOAD-GAME: cannot open %s\n", filename);
 		return false;
 	}
-	
+
 	int version;
 
 	if (! SV_VerifyHeader(&version) || ! SV_VerifyContents())
@@ -780,7 +795,7 @@ static bool G_LoadGameFromFile(const char *filename, bool is_hub)
 		params.SinglePlayer(0);
 
 		params.CopyFlags(&globs->flags);
-		
+
 		InitNew(params);
 
 		curr_hub_tag = globs->hub_tag;
@@ -824,7 +839,7 @@ static bool G_LoadGameFromFile(const char *filename, bool is_hub)
 
 	if (SV_LoadEverything() && SV_GetError() == 0)
 	{
-		/* all went well */ 
+		/* all went well */
 	}
 	else
 	{
@@ -874,7 +889,7 @@ static void G_DoLoadGame(void)
 // G_DeferredSaveGame
 //
 // Called by the menu task.
-// Description is a 24 byte text string 
+// Description is a 24 byte text string
 //
 void G_DeferredSaveGame(int slot, const char *description)
 {
@@ -947,6 +962,8 @@ static bool G_SaveGameToFile(const char *filename, const char *description)
 
 	SV_FinishSave();
 	SV_CloseWriteFile();
+	I_Printf("Game successfully saved: %s\n", filename);
+	CON_Message("Game Saved!");
 
 	return true; //OK
 }
@@ -1036,6 +1053,7 @@ void newgame_params_c::SinglePlayer(int num_bots)
 
 void newgame_params_c::Splitscreen()
 {
+	bool splitscreen_mode = true; // removed bool netgame = true; for now. .
 	total_players = 2;
 
 	players[0] = PFL_Console;
@@ -1154,9 +1172,10 @@ static void InitNew(newgame_params_c& params)
 
 	if (paused)
 	{
+		I_Printf("RESUMED\n");
 		paused = false;
 		S_ResumeMusic(); // -ACB- 1999/10/07 New Music API
-		S_ResumeSound();  
+		S_ResumeSound();
 	}
 
 	currmap = params.map;
@@ -1199,10 +1218,10 @@ void G_DeferredEndGame(void)
 	}
 }
 
-// 
+//
 // REQUIRED STATE:
 //    ?? nothing ??
-// 
+//
 static void G_DoEndGame(void)
 {
 	E_ForceWipe();
@@ -1215,7 +1234,11 @@ static void G_DoEndGame(void)
 	{
 		BOT_EndLevel();
 
-		// FIXME: P_ShutdownLevel()
+		// -CW- You would normally shut down the level here, which would stop
+		// SFX, but this causes problems with HUBs.
+		//P_ShutdownLevel();
+		S_StopLevelFX();
+		S_StopMusic();
 	}
 
 	gamestate = GS_NOTHING;

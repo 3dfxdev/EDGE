@@ -25,7 +25,7 @@
 //    iteminque_t   [ITMQ]
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "p_setup.h"
 #include "sv_chunk.h"

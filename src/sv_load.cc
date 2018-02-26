@@ -20,7 +20,7 @@
 // new savegame system.
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "dm_state.h"
 #include "e_main.h"

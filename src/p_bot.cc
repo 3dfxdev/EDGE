@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE2: DeathBots
+//  3DGE: DeathBots
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 1999-2009  The EDGE2 Team.
@@ -23,7 +23,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include <limits.h>
 
@@ -43,7 +43,8 @@
 #include "z_zone.h"
 
 #define DEBUG  0
-
+// disabled DEBUGS for Deathbot rewrite (this time based on the Cujo Bot from QUAKE)
+// need to see active targets, etc
 
 int bot_skill = 1;  // range is 0 to 2
 

@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition File Code (Colourmaps)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -18,6 +18,7 @@
 //
 // Colourmap handling.
 //
+#include <cstring>
 
 #include "local.h"
 
@@ -43,7 +44,6 @@ static const commandlist_t colmap_commands[] =
 	DDF_CMD_END
 };
 
-
 //
 //  DDF PARSE ROUTINES
 //
@@ -60,7 +60,7 @@ static void ColmapStartEntry(const char *name, bool extend)
 
 	if (extend)
 	{
-		if (! dynamic_colmap)
+		if (!dynamic_colmap)
 			DDF_Error("Unknown colormap to extend: %s\n", name);
 		return;
 	}
@@ -88,11 +88,10 @@ static void ColmapStartEntry(const char *name, bool extend)
 	colourmaps.Insert(dynamic_colmap);
 }
 
-
 static void ColmapParseField(const char *field, const char *contents,
-    int index, bool is_last)
+	int index, bool is_last)
 {
-#if (DEBUG_DDF)  
+#if (DEBUG_DDF)
 	I_Debugf("COLMAP_PARSE: %s = %s;\n", field, contents);
 #endif
 
@@ -106,7 +105,6 @@ static void ColmapParseField(const char *field, const char *contents,
 	DDF_WarnError("Unknown colmap.ddf command: %s\n", field);
 }
 
-
 static void ColmapFinishEntry(void)
 {
 	if (dynamic_colmap->start < 0)
@@ -116,7 +114,7 @@ static void ColmapFinishEntry(void)
 	}
 
 	// don't need a length when using GL_COLOUR
-	if (! dynamic_colmap->lump_name.empty() && dynamic_colmap->length <= 0)
+	if (!dynamic_colmap->lump_name.empty() && dynamic_colmap->length <= 0)
 	{
 		DDF_WarnError("Bad LENGTH value for colmap: %d\n", dynamic_colmap->length);
 		dynamic_colmap->length = 1;
@@ -126,12 +124,10 @@ static void ColmapFinishEntry(void)
 		DDF_Error("Colourmap entry missing LUMP or GL_COLOUR.\n");
 }
 
-
 static void ColmapClearAll(void)
 {
 	I_Warning("Ignoring #CLEARALL in colormap.ddf\n");
 }
-
 
 bool DDF_ReadColourMaps(void *data, int size)
 {
@@ -155,26 +151,23 @@ bool DDF_ReadColourMaps(void *data, int size)
 		colm_r.lumpname = NULL;
 	}
 
-	colm_r.start_entry  = ColmapStartEntry;
-	colm_r.parse_field  = ColmapParseField;
+	colm_r.start_entry = ColmapStartEntry;
+	colm_r.parse_field = ColmapParseField;
 	colm_r.finish_entry = ColmapFinishEntry;
-	colm_r.clear_all    = ColmapClearAll;
+	colm_r.clear_all = ColmapClearAll;
 
 	return DDF_MainReadFile(&colm_r);
 }
-
 
 void DDF_ColmapInit(void)
 {
 	colourmaps.Clear();
 }
 
-
 void DDF_ColmapCleanUp(void)
 {
 	colourmaps.Trim();
 }
-
 
 specflags_t colmap_specials[] =
 {
@@ -186,7 +179,6 @@ specflags_t colmap_specials[] =
 
 	{NULL, 0, 0}
 };
-
 
 //
 // DDF_ColmapGetSpecial
@@ -200,25 +192,24 @@ void DDF_ColmapGetSpecial(const char *info, void *storage)
 	int flag_value;
 
 	switch (DDF_MainCheckSpecialFlag(info, colmap_specials, &flag_value,
-				true, false))
+		true, false))
 	{
-		case CHKF_Positive:
-			*spec = (colourspecial_e)(*spec | flag_value);
-			break;
+	case CHKF_Positive:
+		*spec = (colourspecial_e)(*spec | flag_value);
+		break;
 
-		case CHKF_Negative:
-			*spec = (colourspecial_e)(*spec & ~flag_value);
-			break;
+	case CHKF_Negative:
+		*spec = (colourspecial_e)(*spec & ~flag_value);
+		break;
 
-		case CHKF_User:
-		case CHKF_Unknown:
-			DDF_WarnError("DDF_ColmapGetSpecial: Unknown Special: %s", info);
-			break;
+	case CHKF_User:
+	case CHKF_Unknown:
+		DDF_WarnError("DDF_ColmapGetSpecial: Unknown Special: %s", info);
+		break;
 	}
 }
 
-
-// 
+//
 // This is used to make entries for lumps between C_START and C_END
 // markers in a (BOOM) WAD file.
 //
@@ -233,7 +224,7 @@ void DDF_ColourmapAddRaw(const char *lump_name, int size)
 	colourmap_c *def = colourmaps.Lookup(lump_name);
 
 	// not found, create a new one
-	if (! def)
+	if (!def)
 	{
 		def = new colourmap_c;
 
@@ -246,13 +237,12 @@ void DDF_ColourmapAddRaw(const char *lump_name, int size)
 
 	def->lump_name.Set(lump_name);
 
-	def->start  = 0;
+	def->start = 0;
 	def->length = MIN(32, size / 256);
 
 	I_Debugf("- Added RAW colourmap '%s' start=%d length=%d\n",
 		lump_name, def->start, def->length);
 }
-
 
 // --> Colourmap Class
 
@@ -278,11 +268,11 @@ void colourmap_c::CopyDetail(colourmap_c &src)
 {
 	lump_name = src.lump_name;
 
-	start   = src.start;
-	length  = src.length;
+	start = src.start;
+	length = src.length;
 	special = src.special;
 
-	gl_colour   = src.gl_colour;
+	gl_colour = src.gl_colour;
 	font_colour = src.font_colour;
 
 	// FIXME!!! Cache struct to class
@@ -297,18 +287,17 @@ void colourmap_c::Default()
 {
 	lump_name.clear();
 
-	start   = 0;
-	length  = 0;
+	start = 0;
+	length = 0;
 	special = COLSP_None;
-	
-	gl_colour   = RGB_NO_VALUE;
+
+	gl_colour = RGB_NO_VALUE;
 	font_colour = RGB_NO_VALUE;
 
 	// FIXME!!! Cache struct to class
 	cache.data = NULL;
 	analysis = NULL;
 }
-
 
 // --> colourmap_container_c class
 

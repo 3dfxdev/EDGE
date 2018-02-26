@@ -16,7 +16,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../epi/filesystem.h"
 #include "../epi/math_crc.h"
@@ -36,6 +36,14 @@
 #include "version.h"
 #include "z_zone.h"
 
+// [SP] Headers for cheat codes (need access to player and mobjs)
+#include "p_local.h"
+#include "p_mobj.h"
+#include "p_bot.h"
+#include "dm_state.h"
+#include "p_cheats.h"
+// [SP] Externals
+extern cvar_c debug_fps, debug_pos;
 
 #define MAX_CON_ARGS  64
 
@@ -55,7 +63,6 @@ extern const con_cmd_t builtin_commands[];
 extern void M_ChangeLevelCheat(const char *string);
 extern void I_ShowJoysticks(void);
 extern void M_QuitFinally(void);
-
 
 int CMD_Exec(char **argv, int argc)
 {
@@ -412,6 +419,311 @@ int CMD_Map(char **argv, int argc)
 	return 0;
 }
 
+int CMD_ActivateCameraManSystem(char **argv, int argc)
+{
+	if (argc == 2)
+	{
+		int flag = atoi(argv[1]);
+		cameraman::Activate(flag > 0 ? 1 : 0);
+	}
+	else
+	{
+		I_Printf("Usage: %s 1|0\n\tActivates/deactivates the camera-man system. By default it is deactivated.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_ResetCameraManSystem(char **argv, int argc)
+{
+	cameraman::Reset();
+	I_Printf("Reset camera-man system to default values...\n");
+	return 0;
+}
+
+int CMD_AddCameraMan(char **argv, int argc)
+{
+	if (argc == 2)
+	{		
+		if (player_t *hero = players[0])
+		{
+			float x = hero->mo->x;
+			float y = hero->mo->y;
+			float z = hero->mo->z + hero->viewz;
+			float ax = hero->mo->GetInterpolatedVertAngle();
+			float ay = hero->mo->GetInterpolatedAngle();
+			float fov = atof(argv[1]);
+
+			int id = cameraman::Add(x, y, z, ax, ay, fov);
+			if (id > -1)
+				I_Printf("Successfully added camera-man of ID: %d...\n", id);
+			return id;
+		}
+		else
+		{
+			I_Printf("NO PLAYER!\n");
+		}
+	}
+	else
+	{
+		I_Printf("Usage: %s FOV\n\tAdds a camera-man of the given FOV for the current player position and view angles.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_RemoveCameraMan(char **argv, int argc)
+{
+	if (argc == 2)
+	{
+		int id = atoi(argv[1]);
+		int state = cameraman::Remove(id);
+		if (state > -1)
+			CON_Printf("Successfully removed camera-man of ID: %d...\n", id);
+		return state;
+	}
+	else
+	{
+		I_Printf("Usage: %s ID\n\tRemoves camera-man of the given ID.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_SwitchToCameraMan(char **argv, int argc)
+{
+	if (argc == 2)
+	{
+		int id = atoi(argv[1]);
+		cameraman::SetStartId(id);
+		cameraman::SetEndId(id);
+	}
+	else
+	{
+		I_Printf("Usage: %s ID\n\tSwitches current view to the one given by the camera-man of ID. To switch back to normal view give -1 as ID.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_SetStartCameraMan(char **argv, int argc)
+{
+	if (argc == 2)
+	{
+		int id = atoi(argv[1]);
+		cameraman::SetStartId(id);
+	}
+	else
+	{
+		I_Printf("Usage: %s ID\n\tSets given camera-man ID as a ID of a camera-man start point for camera interpolation.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_SetEndCameraMan(char **argv, int argc)
+{
+	if (argc == 2)
+	{
+		int id = atoi(argv[1]);
+		cameraman::SetEndId(id);
+	}
+	else
+	{
+		I_Printf("Usage: %s ID\n\tSets given camera-man ID as an ID of a camera-man end point for camera interpolation.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_SetCameraManPosition(char **argv, int argc)
+{
+	if (argc == 2)
+	{
+		if (player_t *hero = players[0])
+		{
+			int id = atoi(argv[1]);
+			float x = hero->mo->x;
+			float y = hero->mo->y;
+			float z = hero->mo->z;
+			return cameraman::SetPosition(id, x, y, z);
+		}
+	}
+	else
+	{
+		I_Printf("Usage: %s ID\n\tMoves camera-man of the given ID to current player position.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_SetCameraManAngles(char **argv, int argc)
+{
+	if (argc == 2)
+	{
+		if (player_t *hero = players[0])
+		{
+			int id = atoi(argv[1]);
+			float ax = hero->mo->GetInterpolatedVertAngle();
+			float ay = hero->mo->GetInterpolatedAngle();
+			return cameraman::SetAngles(id, ax, ay);
+		}
+	}
+	else
+	{
+		I_Printf("Usage: %s ID\n\tChanges camera-man of the given ID view angles to the ones of the current player.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_SetCameraManFov(char **argv, int argc)
+{
+	if (argc == 3)
+	{
+		int id = atoi(argv[1]);
+		float fov = atof(argv[2]);
+		return cameraman::SetFov(id, fov);
+	}
+	else
+	{
+		I_Printf("Usage: %s ID\n\tChanges camera-man of the given ID view angles to the ones of the current player.\n", argv[0]);
+	}
+	return 0;
+}
+
+int CMD_SaveCameraManSystem(char **argv, int argc)
+{
+	cameraman::Serialize(0);
+	return 0;
+}
+
+int CMD_LoadCameraManSystem(char **argv, int argc)
+{
+	cameraman::Serialize(1);
+	return 0;
+}
+
+int CMD_PrintCameraManSystem(char **argv, int argc)
+{
+	cameraman::Print();
+	return 0;
+}
+
+// [SP] --- BEGIN CHEAT CODES ---
+
+int CMD_CheatGod(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_ToggleGodMode();
+
+	return 0;
+}
+
+int CMD_CheatNoClip(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_NoClip();
+
+	return 0;
+}
+
+int CMD_CheatAmmoNoKey(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_IDFA();
+
+	return 0;
+}
+
+int CMD_CheatVeryHappyAmmo(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_IDKFA();
+
+	return 0;
+}
+
+int CMD_CheatChainSaw(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_Choppers();
+
+	return 0;
+}
+
+int CMD_CheatUnlockDoors(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_Unlock();
+
+	return 0;
+}
+
+int CMD_CheatShowHOM(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_HOM();
+
+	return 0;
+}
+
+int CMD_CheatShowPos(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_ShowPos();
+
+	return 0;
+}
+
+int CMD_CheatKillAll(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_KillAll();
+
+	return 0;
+}
+
+int CMD_CheatSuicide(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_Suicide();
+
+	return 0;
+}
+
+int CMD_CheatInfo(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_Info();
+
+	return 0;
+}
+
+int CMD_CheatLoaded(char **argv, int argc)
+{
+	if (!CheckCheats())
+		return 0;
+
+	Cheat_Loaded();
+
+	return 0;
+}
+
 
 //----------------------------------------------------------------------------
 
@@ -503,6 +815,39 @@ const con_cmd_t builtin_commands[] =
 	{ "version",        CMD_Version },
 	{ "quit",           CMD_QuitEDGE },
 	{ "exit",           CMD_QuitEDGE },
+
+	// Camera-man system
+	{ "actcam",   CMD_ActivateCameraManSystem },
+	{ "rstcam",   CMD_ResetCameraManSystem },
+	{ "addcam",   CMD_AddCameraMan },
+	{ "remcam",   CMD_RemoveCameraMan },
+	{ "swtcam",   CMD_SwitchToCameraMan },
+	{ "strcam",   CMD_SetStartCameraMan },
+	{ "endcam",   CMD_SetEndCameraMan },
+	{ "poscam",   CMD_SetCameraManPosition },
+	{ "angcam",   CMD_SetCameraManAngles },
+	{ "fovcam",   CMD_SetCameraManFov },
+	{ "savcam",   CMD_SaveCameraManSystem },
+	{ "lddcam",	  CMD_LoadCameraManSystem },
+	{ "prtcam",	  CMD_PrintCameraManSystem },
+
+#ifndef NOCHEATS
+	// [SP] Cheats
+	{ "god",            CMD_CheatGod },
+	{ "noclip",         CMD_CheatNoClip },
+	{ "idfa",           CMD_CheatAmmoNoKey },
+	{ "idkfa",          CMD_CheatVeryHappyAmmo },
+	{ "idchoppers",     CMD_CheatChainSaw },
+	{ "idunlock",       CMD_CheatUnlockDoors },
+	{ "showhom",        CMD_CheatShowHOM },
+	{ "showpos",        CMD_CheatShowPos },
+	{ "killall",        CMD_CheatKillAll },
+	{ "massacre",       CMD_CheatKillAll },
+	{ "kill",           CMD_CheatSuicide },
+	{ "suicide",        CMD_CheatSuicide },
+	{ "info",           CMD_CheatInfo },
+	{ "loaded",         CMD_CheatLoaded },
+#endif
 
 	// end of list
 	{ NULL, NULL }

@@ -29,7 +29,7 @@
 //
 // -ES- 2000/02/14: Removed thinker system.
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 #include "p_tick.h"
 
 #include "dm_state.h"
@@ -51,6 +51,8 @@ void P_Ticker(void)
 	if (paused)
 		return;
 
+	N_SetInterpolater();
+
 	// pause if in menu and at least one tic has been run
 	if (!netgame && (menuactive || rts_menuactive) &&
 		players[consoleplayer1]->viewz != FLO_UNUSED)
@@ -58,6 +60,10 @@ void P_Ticker(void)
 		return;
 	}
 
+	// interpolation: save current sector heights
+    ///P_SaveSectorPositions();
+	P_UpdateInterpolationHistory();
+	
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 		if (players[pnum])
 			P_PlayerThink(players[pnum]);

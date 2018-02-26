@@ -77,22 +77,23 @@
 // Sound and Music
 #define CFGDEF_SOUND_VOLUME     (8)
 #define CFGDEF_MUSIC_VOLUME     (8)
-#define CFGDEF_SAMPLE_RATE      (1)  // 22050Hz
+#define CFGDEF_SAMPLE_RATE      (4)  // 22050Hz
 #define CFGDEF_SOUND_BITS       (1)  // 16-bit
 #define CFGDEF_SOUND_STEREO     (1)  // Stereo
-#define CFGDEF_MIX_CHANNELS     (2)  // 32 channels
+#define CFGDEF_MIX_CHANNELS     (3)  // 32 channels
 #define CFGDEF_QUIET_FACTOR     (1)
+#define CFGDEF_OPL_OPL3MODE     (0)
 
 #ifdef LINUX
 #define CFGDEF_MUSIC_DEVICE     (1)  // Timidity
 #else
-#define CFGDEF_MUSIC_DEVICE     (0)  // System
+#define CFGDEF_MUSIC_DEVICE     (2)  // System
 #endif
 
 // Video Options
 #define CFGDEF_CURRENT_GAMMA    (2)
 #define CFGDEF_USE_SMOOTHING    (0)
-#define CFGDEF_USE_DLIGHTS      (0)
+#define CFGDEF_USE_DLIGHTS      (1)
 #define CFGDEF_DOOM_FADING      (1)
 #define CFGDEF_DETAIL_LEVEL     (1)
 #define CFGDEF_USE_MIPMAPPING   (0)
@@ -106,9 +107,12 @@
 #define CFGDEF_TELEPT_FLASH     (1)
 #define CFGDEF_WIPE_METHOD      (1)
 #define CFGDEF_PNG_SCRSHOTS     (1)
-#define CFGDEF_TELEPT_EFFECT    (0)
+#define CFGDEF_TELEPT_EFFECT    (2)
 #define CFGDEF_TELEPT_REVERSE   (0)
 #define CFGDEF_WIPE_REVERSE     (0)
+#define CFGDEF_USE_VSYNC        (0)
+#define CFGDEF_INTERPOLATION    (1)
+#define CFGDEF_SCREENSHAKE      (1)
 
 // Gameplay Options
 #define CFGDEF_AUTOAIM          (1)

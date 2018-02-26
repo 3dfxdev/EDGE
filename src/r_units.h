@@ -35,6 +35,7 @@ typedef struct local_gl_vert_s
 	vec3_t pos;
 	vec2_t texc[2];
 	vec3_t normal;
+	vec3_t tangent;		//needed for bump mapping
 	GLboolean EDGE2;
 }
 local_gl_vert_t;
@@ -45,6 +46,42 @@ void RGL_SoftInitUnits(void);
 void RGL_StartUnits(bool sort_em);
 void RGL_FinishUnits(void);
 void RGL_DrawUnits(void);
+
+//dynamic shading and bump mapping (GL3 path)
+bool RGL_GL3Enabled();
+void RGL_SetAmbientLight(short r,short g,short b);	//rgb 0-255
+void RGL_ClearLights();
+void RGL_AddLight(mobj_t *mo);
+void RGL_CaptureCameraMatrix();
+
+
+//shadows
+typedef struct shadow_params_s
+{
+  int enable;
+  int loaded;
+
+  GLuint tex_id;
+  int width;
+  int height;
+
+  int max_radius;
+  int max_dist;
+  float factor;
+  float bias;
+} simple_shadow_params_t;
+
+typedef struct
+{
+  float x, y, z;
+  float radius;
+  float light;
+} GLShadow;
+
+
+
+extern int gl_shadows_maxdist;
+extern int gl_shadows_factor;
 
 typedef enum
 {
@@ -84,64 +121,9 @@ local_gl_vert_t *RGL_BeginUnit(GLuint shape, int max_vert,
 		                       GLuint env1, GLuint tex1,
 							   GLuint env2, GLuint tex2,
 							   int pass, int blending);
+void RGL_SetUnitMaps(GLuint tex_normal,GLuint tex_specular);
 void RGL_EndUnit(int actual_vert);
 
-
 #endif /* __R_UNITS_H__ */
-//beginunit is renderpolyquad
-
-#ifdef POLYQUADS
-//polyquads??
-// RAW STUFF
-
-typedef struct raw_polyquad_s
-{
-	// Quad ?  When true, the number of vertices must be even, and the
-	// order must be the same as for glBegin(GL_QUADSTRIP).
-	// 
-	bool quad;
-
-	vec3_t *verts;
-	int num_verts;
-	int max_verts;
-
-	// When a polyquad is split, the other pieces are linked from the
-	// original through this pointer.
-	//
-	struct raw_polyquad_s *sisters;
-
-	// 3D bounding box
-	vec3_t min, max;
-}
-raw_polyquad_t;
-
-#define PQ_ADD_VERT(P,X,Y,Z)  do {  \
-	(P)->verts[(P)->num_verts].x = (X);  \
-	(P)->verts[(P)->num_verts].y = (Y);  \
-	(P)->verts[(P)->num_verts].z = (Z);  \
-	(P)->num_verts++; } while(0)
-
-raw_polyquad_t *RGL_NewPolyQuad(int maxvert, bool quad);
-void RGL_FreePolyQuad(raw_polyquad_t *poly);
-void RGL_BoundPolyQuad(raw_polyquad_t *poly);
-
-void RGL_SplitPolyQuad(raw_polyquad_t *poly, int division, 
-					   bool separate);
-void RGL_SplitPolyQuadLOD(raw_polyquad_t *poly, int max_lod, int base_div);
-
-void RGL_RenderPolyQuad(raw_polyquad_t *poly, void *data,
-						void (* CoordFunc)(vec3_t *src, local_gl_vert_t *vert, void *data),
-						GLuint tex_id, GLuint tex2_id, int pass, int blending);
-
-
-
-
-
-
-
-
-
-
-#endif //__R_UNITS_H__ 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

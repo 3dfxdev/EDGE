@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Player User Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -23,7 +23,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include <float.h>
 
@@ -39,8 +39,10 @@
 #include "s_sound.h"
 #include "z_zone.h"
 
-#define	FRACBITS		16
-#define	FRACUNIT		(1<<FRACBITS)
+extern float fade_gdelta;
+extern float fade_gamma;
+extern int fade_starttic;
+extern bool fade_active;
 
 static void P_UpdatePowerups(player_t *player);
 
@@ -54,10 +56,52 @@ static sfx_t * sfx_jprise;
 static sfx_t * sfx_jpdown;
 static sfx_t * sfx_jpflow;
 
+#if 0
+float xxxSlope_GetHeight(slope_plane_t *slope, float x, float y/*,bool floorz_hack*/) {
+	// FIXME: precompute (store in slope_plane_t)
+	float dx = slope->x2 - slope->x1;
+	float dy = slope->y2 - slope->y1;
+
+	float d_len = dx*dx + dy*dy;
+
+	float along = ((x - slope->x1) * dx + (y - slope->y1) * dy) / d_len;
+/*
+	printf("x %f z1 %f z2 %f p %f x1 %f x2 %f\n",x,slope->dz1,slope->dz2,
+			along,slope->x1,slope->x2);
+			*/
+	/*
+	if(floorz_hack) {
+		along+=1.0;
+	}
+	*/
+
+	return slope->dz1 + along * (slope->dz2 - slope->dz1);
+}
+#endif
+
 static void CalcHeight(player_t * player)
 {
+	player->lastviewz = player->viewz;
+
 	bool onground = player->mo->z <= player->mo->floorz;
-	bool still = false;
+#if 0
+	bool onslope=(player->mo->z<=player->mo->floorz+23.0 && player->mo->subsector->sector->c_slope);
+
+	float slope_offset=0;
+	float slope_total=0;
+	if(onslope) {
+		slope_offset=xxxSlope_GetHeight(player->mo->subsector->sector->c_slope,player->mo->x,player->mo->y);
+		slope_total=slope_offset+player->mo->subsector->sector->f_h;//player->mo->floorz;
+		/*
+		printf("floorz %f sector floorz %f slope %f TOTAL\t%f\n",player->mo->floorz,
+				player->mo->subsector->sector->f_h,
+				slope_offset,
+				player->mo->floorz+slope_offset);
+		*/
+	}
+
+	//bool still = false;
+#endif
 
 	if (player->mo->height < (player->mo->info->height + player->mo->info->crouchheight) / 2.0f)
 		player->mo->extendedflags |= EF_CROUCHING;
@@ -70,19 +114,27 @@ static void CalcHeight(player_t * player)
 
 	float bob_z = 0;
 
-	// Regular movement bobbing 
-	// (needs to be calculated for gun swing even if not on ground).  
+	// Regular movement bobbing
+	// (needs to be calculated for gun swing even if not on ground).
 	// -AJA- Moved up here, to prevent weapon jumps when running down
 	// stairs.
 
-	player->bob = (player->mo->mom.x * player->mo->mom.x
-		+ player->mo->mom.y * player->mo->mom.y) / 8;
-	
-	if (bob_z == 0)
-		{
-			still = true;
-		}
-		else
+	if (! disable_bob)
+	{
+		player->bob = (player->mo->mom.x * player->mo->mom.x
+			+ player->mo->mom.y * player->mo->mom.y) / 8;
+	}
+	else
+	{
+		player->bob = 0;
+		disable_bob = false;
+	}
+
+	//if (bob_z == 0)
+	//	{
+	//		still = true;
+	//	}
+	//	else
 
 	if (player->bob > MAXBOB)
 		player->bob = MAXBOB;
@@ -93,9 +145,8 @@ static void CalcHeight(player_t * player)
 		angle_t angle = ANG90 / 5 * leveltime;
 
 		bob_z = player->bob / 2 * player->mo->info->bobbing * M_Sin(angle);
-		
-		
 	}
+
 
 	// ----CALCULATE VIEWHEIGHT----
 	if (player->playerstate == PST_LIVE)
@@ -122,12 +173,13 @@ static void CalcHeight(player_t * player)
 			player->deltaviewheight += 0.24162f;
 		}
 	}
-	
+
+
 	//----CALCULATE FREEFALL EFFECT, WITH SOUND EFFECTS (code based on HEXEN)
 	//  CORBIN, on:
 	//  6/6/2011 - Fix this so RTS does NOT interfere with fracunits (it does in Hypertension's E1M1 starting script)!
     //  6/7/2011 - Ajaped said to remove FRACUNIT...seeya oldness.
-    
+
 	if ((player->mo->mom.z <= -35.0)&&(player->mo->mom.z >= -40.0))
 	if (player->mo->info->falling_sound)
 	{
@@ -137,12 +189,11 @@ static void CalcHeight(player_t * player)
 			sfx_cat = SNCAT_Player;
 		else
 			sfx_cat = SNCAT_Opponent;
-                             //		player->mo->mom.z >= -40*FRACUNIT;
+
 			{
 					S_StartFX(player->mo->info->falling_sound, sfx_cat, player->mo);
 			}
 	}
-//#endif 
 	// don't apply bobbing when jumping, but have a smooth
 	// transition at the end of the jump.
 	if (player->jumpwait > 0)
@@ -153,7 +204,17 @@ static void CalcHeight(player_t * player)
 			bob_z *= (6 - player->jumpwait) / 6.0;
 	}
 
+#if 0
+	if(onslope) {
+		//printf("VIEWZ %f Z %f TOTAL %f\n",player->viewz,player->mo->z,player->mo->floorz+slope_offset);
+		player->viewz=slope_total-player->mo->z+bob_z+player->std_viewheight;
+	}
+	else {
+		player->viewz = player->viewheight + bob_z;
+	}
+#else
 	player->viewz = player->viewheight + bob_z;
+#endif
 
 #if 0  // DEBUG
 I_Debugf("Jump:%d bob_z:%1.2f  z:%1.2f  height:%1.2f delta:%1.2f --> viewz:%1.3f\n",
@@ -374,7 +435,7 @@ static void MovePlayer(player_t * player)
 			mo->height = MAX(mo->height - 2.0f, mo->info->crouchheight);
 
 			// update any things near the player
-			P_ChangeThingSize(mo);
+			//P_ChangeThingSize(mo);
 
 			mo->player->deltaviewheight = -1.0f;
 		}
@@ -389,7 +450,7 @@ static void MovePlayer(player_t * player)
 				mo->height = MIN(mo->height + 2, mo->info->height);
 
 				// update any things near the player
-				P_ChangeThingSize(mo);
+				//P_ChangeThingSize(mo);
 
 				mo->player->deltaviewheight = 1.0f;
 			}
@@ -447,7 +508,7 @@ static void DeathThink(player_t * player)
 	{
 		dx = player->attacker->x - player->mo->x;
 		dy = player->attacker->y - player->mo->y;
-		dz = (player->attacker->z + player->attacker->height/2) - 
+		dz = (player->attacker->z + player->attacker->height/2) -
 			(player->mo->z + player->viewheight);
 
 		angle = R_PointToAngle(0, 0, dx, dy);
@@ -467,13 +528,13 @@ static void DeathThink(player_t * player)
 			if (player->damagecount > 0)
 				player->damagecount--;
 		}
-		else 
+		else
 		{
 			if (delta < ANG180)
 				delta /= 5;
 			else
 				delta = (angle_t)(0 - (angle_t)(0 - delta) / 5);
-			
+
 			if (delta > ANG5 && delta < (angle_t)(0 - ANG5))
 				delta = (delta < ANG180) ? ANG5 : (angle_t)(0 - ANG5);
 
@@ -481,7 +542,7 @@ static void DeathThink(player_t * player)
 				delta_s /= 5;
 			else
 				delta_s = (angle_t)(0 - (angle_t)(0 - delta_s) / 5);
-			
+
 			if (delta_s > (ANG5/2) && delta_s < (angle_t)(0 - ANG5/2))
 				delta_s = (delta_s < ANG180) ? (ANG5/2) : (angle_t)(0 - ANG5/2);
 
@@ -498,6 +559,9 @@ static void DeathThink(player_t * player)
 	// -AJA- 1999/08/07: Fade out armor points too.
 	if (player->bonuscount)
 		player->bonuscount--;
+
+	if (player->silentbonuscount)
+		player->silentbonuscount--;
 
 	P_UpdatePowerups(player);
 
@@ -584,7 +648,7 @@ void P_ConsolePlayerBuilder(const player_t *pl, void *data, ticcmd_t *dest)
 {
 	dest->player_idx = pl->pnum;
 
-	E_BuildTiccmd(dest);
+	E_BuildTiccmd(dest, pl->pnum);//E_BuildTiccmd(dest, pl->pnum);
 }
 
 static u16_t MakeConsistency(const player_t *pl)
@@ -635,7 +699,7 @@ void P_PlayerThink(player_t * player)
 	ticcmd_t *cmd;
 
 	SYS_ASSERT(player->mo);
-	
+
 
 #if 0  // DEBUG ONLY
 	{
@@ -690,9 +754,32 @@ void P_PlayerThink(player_t * player)
 	// bit after a teleport.
 
 	if (player->mo->reactiontime)
+	{
 		player->mo->reactiontime--;
+		player->telept_fov = player->telept_fov >= 5 ? player->telept_fov - 5 : 0;
+	}
 	else
+	{
 		MovePlayer(player);
+	}
+
+	if (fade_active)
+	{
+		if (fade_starttic <= leveltime)
+		{
+			fade_gamma += fade_gdelta;
+			if (fade_gdelta < 0)
+			{
+				if (fade_gamma <= 0.0f)
+					fade_active = false;
+			}
+			else
+			{
+				if (fade_gamma >= 1.0f)
+					fade_active = false;
+			}
+		}
+	}
 
 	CalcHeight(player);
 
@@ -763,6 +850,9 @@ void P_PlayerThink(player_t * player)
 
 	if (player->bonuscount > 0)
 		player->bonuscount--;
+
+	if (player->silentbonuscount > 0)
+		player->silentbonuscount--;
 
 	if (player->grin_count > 0)
 		player->grin_count--;
@@ -1059,7 +1149,7 @@ void P_GiveInitialBenefits(player_t *p, const mobjtype_c *info)
 
 	epi::array_iterator_c it;
 	weapondef_c *w;
-	
+
 	p->ready_wp   = WPSEL_None;
 	p->pending_wp = WPSEL_NoChange;
 

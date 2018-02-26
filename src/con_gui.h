@@ -35,6 +35,9 @@ void CON_Drawer(void);
 
 void CON_ShowFPS(void);
 
+// `CA- Want a setting that will show current time. . .
+void CON_ShowTime(void);
+
 // Initialises the console
 void CON_InitConsole(void);
 

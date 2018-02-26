@@ -1,10 +1,8 @@
 //----------------------------------------------------------------------------
-//  MD2 Models
+//  3DGE MD2/MD3 Model Rendering
 //----------------------------------------------------------------------------
-//  (C) EDGE2 Team, 2001! 
-//  Working on: Supporting more than one mesh
-//  from KMQuake2 ! 
-//  Copyright (c) 2002-2009  The EDGE2 Team.
+//
+// (C) 2015 Isotope SoftWorks
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -23,10 +21,17 @@
 //
 //  Based on MD2 loading and rendering code (C) 2004 David Henry.
 //
+//  Note: Damir has added support for normal, spec, and brightmaps on these models!
+//  Note: Advanced Shader Effects only supported under OpenGL2 mode!!
+//  TODO: Linear Keyframe Interpolation (no more jellies!)
+//
+//
+//  Optimize the hell out of this code (maybe remove MD3 since it's a bottleneck)
+//  Maybe add DMD from Doomsday (for LOD?)
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include "../epi/types.h"
 #include "../epi/endianess.h"
@@ -43,13 +48,15 @@
 #include "r_units.h"
 #include "p_blockmap.h"
 #include "m_math.h"
-
+#include "w_model.h"
 
 cvar_c debug_normals;
 
 extern float P_ApproxDistance(float dx, float dy, float dz);
 
+//static byte mdl_normal_to_md2[128][128];
 static byte md3_normal_to_md2[128][128];
+
 static bool md3_normal_map_built = false;
 
 // #define DEBUG_MD2_LOAD  1
@@ -87,29 +94,29 @@ typedef struct
 	s32_t ofs_st;
 	s32_t ofs_tris;
 	s32_t ofs_frames;
-	s32_t ofs_glcmds;  
+	s32_t ofs_glcmds;
 	s32_t ofs_end;
-} 
+}
 raw_md2_header_t;
 
 typedef struct
 {
 	u16_t s, t;
-} 
+}
 raw_md2_texcoord_t;
 
-typedef struct 
+typedef struct
 {
 	u16_t index_xyz[3];
 	u16_t index_st[3];
-} 
+}
 raw_md2_triangle_t;
 
 typedef struct
 {
 	u8_t x, y, z;
 	u8_t light_normal;
-} 
+}
 raw_md2_vertex_t;
 
 typedef struct
@@ -127,7 +134,7 @@ typedef struct
 	char name[16];
 
 //	raw_md2_vertex_t verts[1];  /* variable sized */
-} 
+}
 raw_md2_frame_t;
 
 typedef struct
@@ -304,7 +311,7 @@ static vec3_t md2_normals[MD2_NUM_NORMALS] =
 	{ -0.425325f,  0.688191f, -0.587785f },
 	{ -0.425325f, -0.688191f, -0.587785f },
 	{ -0.587785f, -0.425325f, -0.688191f },
-	{ -0.688191f, -0.587785f, -0.425325f }  
+	{ -0.688191f, -0.587785f, -0.425325f }
 };
 
 //
@@ -374,14 +381,14 @@ typedef struct
 	s32_t ofs_tags;
 	s32_t ofs_meshes;
 	s32_t ofs_end;
-} 
+}
 raw_md3_header_t;
 
 typedef struct
 {
 	char ident[4];
 	char name[64];
-	
+
 	u32_t flags;
 
 	s32_t num_frames;
@@ -400,13 +407,13 @@ raw_md3_mesh_t;
 typedef struct
 {
 	f32_t s, t;
-} 
+}
 raw_md3_texcoord_t;
 
-typedef struct 
+typedef struct
 {
 	u32_t index_xyz[3];
-} 
+}
 raw_md3_triangle_t;
 
 typedef struct
@@ -414,7 +421,7 @@ typedef struct
 	s16_t x, y, z;
 
 	u8_t pitch, yaw;
-} 
+}
 raw_md3_vertex_t;
 
 typedef struct
@@ -425,7 +432,7 @@ typedef struct
 	f32_t radius;
 
 	char name[16];
-} 
+}
 raw_md3_frame_t;
 
 
@@ -520,7 +527,7 @@ static short *CreateNormalList(byte *which_normals)
 {
 	int count = 0;
 	int i;
-	
+
 	for (i=0; i < MD2_NUM_NORMALS; i++)
 		if (which_normals[i])
 			count++;
@@ -534,7 +541,7 @@ static short *CreateNormalList(byte *which_normals)
 			n_list[count++] = i;
 
 	n_list[count] = -1;
-	
+
 	return n_list;
 }
 
@@ -550,7 +557,7 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 	int version = EPI_LE_S32(header.version);
 
-	I_Debugf("MODEL IDENT: [%c%c%c%c] VERSION: %d",
+	I_Debugf("MODEL IDENT: [%c%c%c%c] VERSION: %d\n",
 			 header.ident[0], header.ident[1],
 			 header.ident[2], header.ident[3], version);
 
@@ -559,7 +566,7 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 		I_Error("MD2_LoadModel: lump is not an MD2 model!");
 		return NULL; /* NOT REACHED */
 	}
-			
+
 	if (version != MD2_VERSION)
 	{
 		I_Error("MD2_LoadModel: strange version!");
@@ -741,19 +748,6 @@ short MD2_FindFrame(md2_model_c *md, const char *name)
 }
 
 
-/*============== MD3 LOADING CODE ====================*/
-//static const char *CopyFrameName(raw_md3_frame_t *frm)
-//{
-//	char *str = new char[20];
-//
-//	memcpy(str, frm->name, 16);
-//
-	// ensure it is NUL terminated
-//	str[16] = 0;
-//
-//	return str;
-//}
-
 
 static byte MD2_FindNormal(float x, float y, float z)
 {
@@ -846,7 +840,7 @@ md2_model_c *MD3_LoadModel(epi::file_c *f)
 		I_Error("MD3_LoadModel: lump is not an MD3 model!");
 		return NULL; /* NOT REACHED */
 	}
-			
+
 	if (version != MD3_VERSION)
 	{
 		I_Error("MD3_LoadModel: strange version!");
@@ -858,7 +852,7 @@ md2_model_c *MD3_LoadModel(epi::file_c *f)
 
 
 	/* LOAD MESH #1 */
-	
+
 	int mesh_base = EPI_LE_S32(header.ofs_meshes);
 
 	f->Seek(mesh_base, epi::file_c::SEEKPOINT_START);
@@ -1121,6 +1115,16 @@ static void DLIT_Model(mobj_t *mo, void *dataptr)
 	ShadeNormals(mo->dlight.shader, data);
 }
 
+static void DLIT_CollectLights(mobj_t *mo, void *dataptr)
+{
+	model_coord_data_t *data = (model_coord_data_t *)dataptr;
+	// dynamic lights do not light themselves up!
+	if (mo == data->mo)
+		return;
+
+	RGL_AddLight(mo);
+}
+
 static int MD2_MulticolMaxRGB(model_coord_data_t *data, bool additive)
 {
 	int result = 0;
@@ -1180,7 +1184,7 @@ SYS_ASSERT(point->vert_idx < md->verts_per_frame);
 	const mod_vertex_c *vert1 = &frame1->vertices[point->vert_idx];
 	const mod_vertex_c *vert2 = &frame2->vertices[point->vert_idx];
 
-	
+
 	float x1 = LerpIt(vert1->x, vert2->x, data->lerp);
 	float y1 = LerpIt(vert1->y, vert2->y, data->lerp);
 	float z1 = LerpIt(vert1->z, vert2->z, data->lerp) + data->bias;
@@ -1225,7 +1229,7 @@ SYS_ASSERT(point->vert_idx < md->verts_per_frame);
 }
 
 
-void MD2_RenderModel(md2_model_c *md, const image_c *skin_img, bool is_weapon,
+void MD2_RenderModel(md2_model_c *md, const skindef_c *skin,bool is_weapon,
 		             int frame1, int frame2, float lerp,
 		             float x, float y, float z, mobj_t *mo,
 					 region_properties_t *props,
@@ -1234,12 +1238,12 @@ void MD2_RenderModel(md2_model_c *md, const image_c *skin_img, bool is_weapon,
 	// check if frames are valid
 	if (frame1 < 0 || frame1 >= md->num_frames)
 	{
-I_Debugf("Render model: bad frame %d\n", frame1);
+		I_Debugf("Render model: bad frame %d\n", frame1);
 		return;
 	}
 	if (frame2 < 0 || frame2 >= md->num_frames)
 	{
-I_Debugf("Render model: bad frame %d\n", frame1);
+		I_Debugf("Render model: bad frame %d\n", frame1);
 		return;
 	}
 
@@ -1256,14 +1260,14 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 	int blending;
 
-	if (trans >= 0.99f && skin_img->opacity == OPAC_Solid)
+	if (trans >= 0.99f && skin->img->opacity == OPAC_Solid)
 		blending = BL_NONE;
-	else if (trans < 0.11f || skin_img->opacity == OPAC_Complex)
+	else if (trans < 0.11f || skin->img->opacity == OPAC_Complex)
 		blending = BL_Masked;
 	else
 		blending = BL_Less;
 
-	if (trans < 0.99f || skin_img->opacity == OPAC_Complex)
+	if (trans < 0.99f || skin->img->opacity != OPAC_Solid)
 		blending |= BL_Alpha;
 
 	if (mo->hyperflags & HF_NOZBUFFER)
@@ -1272,7 +1276,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	if (MIR_Reflective())
 		blending |= BL_CullFront;
 	else
-		blending |= BL_CullBack;
+		blending |= BL_Masked;
 
 
 	data.mo = mo;
@@ -1295,10 +1299,12 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 	bool tilt = is_weapon || (mo->flags & MF_MISSILE) || (mo->hyperflags & HF_TILT);
 
-	M_Angle2Matrix(tilt ? ~mo->vertangle : 0, &data.kx_mat, &data.kz_mat);
+	//M_Angle2Matrix(tilt ? ~mo->vertangle : 0, &data.kx_mat, &data.kz_mat);
+	M_Angle2Matrix(tilt ? ~(angle_t)mo->GetInterpolatedVertAngle() : 0, &data.kx_mat, &data.kz_mat);
 
-	
-	angle_t ang = mo->angle;
+
+	//angle_t ang = mo->angle;
+	angle_t ang = mo->GetInterpolatedAngle();
 
 	MIR_Angle(ang);
 
@@ -1311,6 +1317,8 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 
 	GLuint skin_tex = 0;
+	GLuint skin_tex_norm = (skin->norm ? W_ImageCache(skin->norm, false, NULL) : 0);
+	GLuint skin_tex_spec = (skin->spec ? W_ImageCache(skin->spec, false, NULL) : 0);
 
 	if (data.is_fuzzy)
 	{
@@ -1338,30 +1346,42 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 	}
 	else /* (! data.is_fuzzy) */
 	{
-		skin_tex = W_ImageCache(skin_img, false,
+		skin_tex = W_ImageCache(skin->img, false,
 			ren_fx_colmap ? ren_fx_colmap :
 			is_weapon ? NULL : mo->info->palremap);
 
-		data.im_right = IM_RIGHT(skin_img);
-		data.im_top   = IM_TOP(skin_img);
+		data.im_right = IM_RIGHT(skin->img);
+		data.im_top   = IM_TOP(skin->img);
 
+		bool use_gl3_shader=RGL_GL3Enabled();
 
-		abstract_shader_c *shader = R_GetColormapShader(props, mo->state->bright);
-
-		ShadeNormals(shader, &data);
+		if(!use_gl3_shader) {
+			abstract_shader_c *shader = R_GetColormapShader(props, mo->state->bright);
+			ShadeNormals(shader, &data);
+		}
 
 		if (use_dlights && ren_extralight < 250)
 		{
 			float r = mo->radius;
-			
-			P_DynamicLightIterator(mo->x - r, mo->y - r, mo->z,
-					               mo->x + r, mo->y + r, mo->z + mo->height,
-								   DLIT_Model, &data);
 
-			P_SectorGlowIterator(mo->subsector->sector,
-					             mo->x - r, mo->y - r, mo->z,
-					             mo->x + r, mo->y + r, mo->z + mo->height,
-								 DLIT_Model, &data);
+			if(use_gl3_shader) {
+				short l=CLAMP(0,props->lightlevel+mo->state->bright,255);
+				RGL_SetAmbientLight(l,l,l);
+				RGL_ClearLights();
+				P_DynamicLightIterator(mo->x - r, mo->y - r, mo->z,
+									   mo->x + r, mo->y + r, mo->z + mo->height,
+									   DLIT_CollectLights, &data);
+			}
+			else {
+				P_DynamicLightIterator(mo->x - r, mo->y - r, mo->z,
+						               mo->x + r, mo->y + r, mo->z + mo->height,
+									   DLIT_Model, &data);
+
+				P_SectorGlowIterator(mo->subsector->sector,
+						             mo->x - r, mo->y - r, mo->z,
+						             mo->x + r, mo->y + r, mo->z + mo->height,
+									 DLIT_Model, &data);
+			}
 		}
 	}
 
@@ -1403,6 +1423,9 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 					 data.is_additive ? ENV_SKIP_RGB : GL_MODULATE, skin_tex,
 					 ENV_NONE, 0, pass, blending);
 
+			RGL_SetUnitMaps(skin_tex_norm,skin_tex_spec);
+
+
 			for (int v_idx=0; v_idx < md->strips[i].count; v_idx++)
 			{
 				local_gl_vert_t *dest = glvert + v_idx;
@@ -1426,6 +1449,7 @@ I_Debugf("Render model: bad frame %d\n", frame1);
 
 			RGL_EndUnit(md->strips[i].count);
 		}
+
 	}
 }
 
@@ -1448,7 +1472,7 @@ void MD2_RenderModel_2D(md2_model_c *md, const image_c *skin_img, int frame,
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, skin_tex);
- 
+
 	glEnable(GL_BLEND);
 	glEnable(GL_CULL_FACE);
 

@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include "dm_state.h"
 #include "e_player.h"
@@ -184,9 +184,9 @@ void RGL_PaletteEffect(player_t *player)
 	{
 		if (var_invul_fx != INVULFX_Complex)
 			return;
-
-		if (GLEW_ARB_imaging || GLEW_SGI_color_matrix)
-		{
+#ifndef DREAMCAST
+		//if (GLUE_ARB_imaging || GLUE_SGI_color_matrix)
+		//{
 			glFlush();
 
 			glMatrixMode(GL_COLOR);
@@ -210,7 +210,10 @@ void RGL_PaletteEffect(player_t *player)
 			glCopyPixels(x, y, viewwindow_w, viewwindow_h, GL_COLOR);
 
 			glLoadIdentity();
-		}
+		//}
+#else
+	//TODO DREAMCAST
+#endif
 		return;
 	}
 	else if (s > 0 && player->powers[PW_NightVision] > 0 &&

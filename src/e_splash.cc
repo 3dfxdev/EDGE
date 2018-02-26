@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include "g_game.h"
 #include "r_misc.h"
@@ -28,7 +28,7 @@
 
 
 extern unsigned char rndtable[256];
-
+#include <ctime>
 
 static int color;  // 0 to 7
 
@@ -595,6 +595,8 @@ bool E_DrawSplash(int millies)
 	int max_time = 2700;
 
 	millies = millies - 400;
+	
+	I_StartFrame();
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -616,7 +618,7 @@ bool E_DrawSplash(int millies)
 	glDisable(GL_BLEND);
 
 	I_FinishFrame();
-	I_StartFrame();
+	
 
 	return (millies >= max_time);  // finished
 }
@@ -624,8 +626,8 @@ bool E_DrawSplash(int millies)
 
 void E_SplashScreen(void)
 {
-	//srand(time(NULL));
-	srand(I_PureRandom());
+	//srand(I_PureRandom());
+	srand(time(NULL));
 
 	color = rand() & 7;
 

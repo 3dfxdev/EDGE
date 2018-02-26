@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Console Interface code.
 //----------------------------------------------------------------------------
-// 
+//  Copyright (c) 2011-2016  Isotope SoftWorks
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-//  Copyright (c) 1998       Randy Heit
+//  Copyright (c) 1998       Marisa Heit
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -17,28 +17,28 @@
 //
 //----------------------------------------------------------------------------
 //
-// Originally based on the ZDoom console code, by Randy Heit
-// (rheit@iastate.edu).  Randy Heit has given his permission to
-// release this code under the GPL, for which the EDGE2 Team is very
-// grateful.  The original GPL'd version `c_consol.c' can be found
-// in the contrib/ directory.
-//
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
+#include "system/i_sdlinc.h"
 
 #include "../ddf/language.h"
 
+#include "dm_state.h"
 #include "con_main.h"
 #include "e_input.h"
 #include "e_player.h"
 #include "hu_stuff.h"
 #include "hu_style.h"
 #include "m_argv.h"
+#include "m_shift.h"
 #include "r_draw.h"
 #include "r_image.h"
 #include "r_modes.h"
 #include "r_wipe.h"
+
+
+#include "system/i_sdlinc.h"
 
 
 #define CON_WIPE_TICS  12
@@ -46,6 +46,7 @@
 
 cvar_c debug_fps;
 cvar_c debug_pos;
+cvar_c debug_ticrate;
 
 static visible_t con_visible;
 
@@ -198,6 +199,8 @@ static void CON_ClearInputLine(void)
 
 void CON_SetVisible(visible_t v)
 {
+	paused = true;
+
 	if (v == vs_toggle)
 	{
 		v = (con_visible == vs_notvisible) ? vs_maximal : vs_notvisible;
@@ -263,12 +266,15 @@ static void SplitIntoLines(char *src)
 		}
 
 		// strip non-printing characters (including backspace)
-		if (! isprint(*src))
+
+		if (!isprint(*src))
 		{
 			src++; continue;
 		}
 
+
 		*dest++ = *src++;
+
 	}
 
 	*dest++ = 0;
@@ -478,7 +484,7 @@ void CON_Drawer(void)
 
 	if (con_visible == vs_notvisible && !conwipeactive)
 		return;
-
+	
 	// -- background --
 
 	int CON_GFX_HT = (SCREENHEIGHT * 3 / 5) / YMUL;
@@ -501,6 +507,7 @@ void CON_Drawer(void)
 
 	if (bottomrow == -1)
 	{
+
 		DrawText(0, y, ">", T_PURPLE);
 
 		if (cmd_hist_pos >= 0)
@@ -511,10 +518,12 @@ void CON_Drawer(void)
 		}
 		else
 		{
+
 			DrawText(XMUL, y, input_line, T_PURPLE);
 		}
 
 		if (con_cursor < 16)
+
 			DrawText((input_pos+1) * XMUL, y - 2, "_", T_PURPLE);
 
 		y += YMUL;
@@ -771,16 +780,12 @@ static void TabComplete(void)
 
 void CON_HandleKey(int key, bool shift, bool ctrl)
 {
-	switch (key)
-	{
+	switch (key) {
 	case KEYD_RALT:
 	case KEYD_RCTRL:
-		// Do nothing
-		break;
-	
 	case KEYD_RSHIFT:
-		// SHIFT was pressed
-		KeysShifted = true;
+		// Do nothing
+		// BD: nothing to do for *just* shift key being pressed.
 		break;
 	
 	case KEYD_PGUP:
@@ -942,6 +947,7 @@ void CON_HandleKey(int key, bool shift, bool ctrl)
 		TabbedLast = false;
 	
 		CON_SetVisible(vs_notvisible);
+		paused = false;
 		break;
 	
 	default:
@@ -950,87 +956,88 @@ void CON_HandleKey(int key, bool shift, bool ctrl)
 			// ignore non-printable characters
 			break;
 		}
-
+		if(shift) {
+			key = shiftxform[key]; //BD: only try to transform printable characters.
+		}
 		EditHistory();
 
 		if (input_pos >= MAX_CON_INPUT-1)
 			break;
-
 		InsertChar(key);
-		
 		TabbedLast = false;
 		con_cursor = 0;
 		break;
 	}
 }
 
-static int GetKeycode(event_t *ev)
-{
-    int sym = ev->value.key.sym;
-
-	switch (sym)
-	{
-		case KEYD_TAB:
-		case KEYD_PGUP:
-		case KEYD_PGDN:
-		case KEYD_HOME:
-		case KEYD_END:
-		case KEYD_LEFTARROW:
-		case KEYD_RIGHTARROW:
-		case KEYD_BACKSPACE:
-		case KEYD_DELETE:
-		case KEYD_UPARROW:
-		case KEYD_DOWNARROW:
-		case KEYD_WHEEL_UP:
-		case KEYD_WHEEL_DN:
-		case KEYD_ENTER:
-		case KEYD_ESCAPE:
-		case KEYD_RSHIFT:
-			return sym;
-
-		default:
-			break;
-    }
-
-    int unicode = ev->value.key.unicode;
-    if (HU_IS_PRINTABLE(unicode))
-        return unicode;
-
-    if (HU_IS_PRINTABLE(sym))
-        return sym;
-
-    return -1;
-}
+static bool keyheld = false;
+static bool lastevent = 0;
+static int lastkey = 0;
+static int ticpressed = 0;
 
 bool CON_Responder(event_t * ev)
 {
-	if (ev->type != ev_keyup && ev->type != ev_keydown)
-		return false;
+	int c;
+    bool clearheld = true;
 
-	if (ev->type == ev_keydown && E_MatchesKey(key_console, ev->value.key.sym))
+    if(ev->type != ev_keyup && ev->type != ev_keydown) 
+	{
+        return false;
+    }
+	
+	c = ev->data1;
+    lastkey = c;
+    lastevent = ev->type;
+
+    if(ev->type == ev_keydown && !keyheld) 
+	{
+        keyheld = true;
+        ticpressed = CON_WIPE_TICS;
+    }
+    else 
+	{
+        keyheld = false;
+        ticpressed = 0;
+    }
+
+      if(c == KEYD_SHIFT)
+	{
+         if(ev->type == ev_keydown) 
+		{
+			KeysShifted = true;
+        }
+        else if(ev->type == ev_keyup) 
+		{
+            KeysShifted = false;
+        } 
+    }
+
+	/// Pulling console down.
+	int theKey = (KeysShifted) ? shiftxform[ev->data1] : ev->data1; //allows shifted keys to (not) toggle the console (eg. so you can type a "~")
+	if (ev->type == ev_keydown && theKey == key_console)
 	{
 		CON_SetVisible(vs_toggle);
+		paused = true;
 		return true;
 	}
 
 	if (con_visible == vs_notvisible)
+	{   
 		return false;
-
-	int key = GetKeycode(ev);
-	if (key < 0)
-		return true;
-
+	}
+	
 	if (ev->type == ev_keyup)
 	{
-		if (key == repeat_key)
+		if (c == repeat_key)
 			repeat_countdown = 0;
 
-		switch (key)
+		switch (c)
 		{
 			case KEYD_PGUP:
 			case KEYD_PGDN:
 				scroll_dir = 0;
 				break;
+		//	case KEYD_SHIFT:	
 			case KEYD_RSHIFT:
 				KeysShifted = false;
 				break;
@@ -1041,7 +1048,7 @@ bool CON_Responder(event_t * ev)
 	else
 	{
 		// Okay, fine. Most keys don't repeat
-		switch (key)
+		switch (c)
 		{
 			case KEYD_RIGHTARROW:
 			case KEYD_LEFTARROW:
@@ -1057,9 +1064,9 @@ bool CON_Responder(event_t * ev)
 				break;
 		}
 
-		repeat_key = key;
+		repeat_key = c;
 
-		CON_HandleKey(key, KeysShifted, false);
+		CON_HandleKey(c, KeysShifted, false); //TODO: pass KeysShifted=true if CAPSLOCK is active.
 	}
 
 	return true;  // eat all keyboard events
@@ -1106,12 +1113,14 @@ void CON_Ticker(void)
 			conwipepos--;
 			if (conwipepos <= 0)
 				conwipeactive = false;
+				paused = false;
 		}
 		else
 		{
 			conwipepos++;
 			if (conwipepos >= CON_WIPE_TICS)
 				conwipeactive = false;
+				paused = true;
 		}
 	}
 }

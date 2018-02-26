@@ -21,9 +21,10 @@
 #ifndef __OGGPLAYER_H__
 #define __OGGPLAYER_H__
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
-#include <C:\hyperedge\edge2\lib_win32\libvorbis-1.3.2\include\vorbis\vorbisfile.h>
+#include <vorbis/vorbisfile.h>
+
 
 #include "../epi/sound_data.h"
 

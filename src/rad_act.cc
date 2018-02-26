@@ -19,7 +19,7 @@
 // -AJA- 1999/10/24: Split these off from the rad_trig.c file.
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include <limits.h>
 

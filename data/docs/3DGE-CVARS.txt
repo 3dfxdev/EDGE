@@ -1,0 +1,207 @@
+3DGE 2.1.0
+======================
+CONSOLE CVAR AND COMMAND LINE LISTING
+======================
+** If you are here for HERETIC commands, the majority
+   of them are not yet implemented. 
+
+** As mentioned in the Readme, contained is a list of 
+   (most) of the command-line switch and CVARs in
+   3DGE.
+
+======================
+Command line options:
+  * Note that "(no)" here means that the option switch can optionally
+    be prefixed with the word "no", e.g. -monsters OR -nomonsters.  The
+    plain option enables the feature, the one with "no" disables it.
+
+  -version             Show version of EDGE and exit.
+  
+  -splitscreen         Starts the engine/mod with splitscreen support.
+  
+  -nosplash            Eschew the pretty 3DGE logo splashscreen.
+
+  -ffshake             Starts with force feedback (enabled for Win32 by default)
+
+  -width  <wd>         Select video mode's width.
+  -height <ht>         Select video mode's height.
+  -res  <wd> <ht>      Select video mode (width AND height).
+  -bpp  <depth>        Video depth: 1 for 16-bit, 2 for 32-bit. (8-bit not supported!)
+  -lang  <language>    Language for game messages. Default is ENGLISH.
+
+  -iwad  <file>        Select IWAD file (e.g. DOOM.WAD or TNT.WAD)
+  -file  <file> ...    Select PWAD (add-on) wad file(s) to play.
+  -home  <dir>         Home dir, can hold IWAD and EDGE.WAD.
+  -game  <dir>         Game dir, for PARMS, DDF, RTS, WADs, etc.
+  -ddf   <dir>         Load external DDF files from the directory.
+  -script  <file>      Load external RTS script from the file.
+  -deh     <file> ...  Load external DeHackEd/BEX patch file(s).
+  -config  <file>      Config file (normally EDGE.CFG).
+  -debug               Enable debug output to file (DEBUG.TXT).
+  -nolog               Disable creating the log file (EDGE.LOG).
+
+  -warp  <map>         Warp to map (use full name e.g. E1M1 or MAP01).
+  -loadgame  <slot>    Warp, loading game from slot.
+  -skill  <num>        Skill level for warp (1 to 5).
+  -screenshot  <rate>  Movie mode! Takes regular screenshots.
+  -turbo  <num>        Running speed, 100 is normal.
+
+  -players  <num>      Number of real players.
+  -bots  <num>         Number of bots.
+  -deathmatch          Deathmatch game (otherwise COOP).
+  -altdeath            Alternate deathmatch mode.
+  -timer  <mins>       Time limited games, and specifies how long.
+  -avg                 Andy Virtual Gaming (same as -timer 20).
+  -respawn             Monster respawning.
+  -newnmrespawn        Monsters respawn as if resurrected.
+  -(no)itemrespawn     Item respawning.
+
+  -videodriver <name>  Specify what SDL video driver to use.
+  -directx             shortcut for "-videodriver directx"
+  -gdi                 shortcut for "-videodriver gdi" (default)
+  -windowed            Run inside a window.
+  -fullscreen          Run fullscreen.
+
+  -audiodriver <name>  Specify what SDL audio driver to use.
+  -waveout             shortcut for "-audiodriver waveout"
+  -dsound              shortcut for "-audiodriver dsound" (default)
+  -sound16             Use 16-bit sound output.
+  -sound8              Use 8-bit sound output.
+
+  -(no)sound           Enable/disable sound effects.
+  -(no)music           Enable/disable music output.
+
+  -strict              Errors: be as strict as possible.
+  -lax                 Errors: be as forgiving as possible.
+  -(no)warn            Enable/disable all warning messages.
+
+  -(no)smoothing       Smoothing for graphic images (mainly GL).
+  -(no)mipmap          Mipmapping enable/disable.
+  -(no)dlights         Dynamic lighting enable/disable.
+  -(no)jumping         Whether player jumping is allowed.
+  -(no)crouching       Whether player crouching is allowed.
+  -(no)mlook           Whether Mouse-look up/down is allowed.
+  -(no)blood           More blood which lasts longer.
+  -(no)kick            Weapon kick effect.
+
+  -(no)monsters        Enable/disable monsters within the game.
+  -(no)fast            Fast monsters.
+  -(no)cheats          Cheat codes enabled or disabled.
+  -(no)rotatemap       Automap rotation.
+  -(no)showstats       Shows on-screen statistics/info.
+  -(no)hom             HOM (Hall Of Mirrors) detection.
+
+  -(no)extras          Extra items (e.g. rain) appearing in levels.
+  -(no)true3d          Objects can pass above/below other objects.
+
+  -trilinear           Trilinear mipmapping.
+  -blockmap            Force 3DGE to generate its own blockmap.
+  -nograb              Don't grab the mouse cursor.
+
+  -wolf3d              Start the game with Wolf3D support (not working yet)
+  -rott_mode           Start the game with ROTT support (not working yet)
+
+  -modpalette          Force 3DGE to select the last loaded PLAYPAL lump rather
+                       than mixing the global IWAD and PWAD palettes together.
+
+  -v135                Used to force compatibility (EDGE 1.35)
+
+  -v129                Used to force compatibility (EDGE 1.29)
+
+
+Console commands:
+   args  ...              Just prints the arguments (for testing)
+   crc   <lump>           Computes the CRC value of a wad lump
+   dir  [<path> <mask>]   Display contents of a directory     
+   exec  <filename>       Executes console commands from a file
+   help                   Prints a summary of console usage
+   map   <mapname>        Jump to a new map (like IDCLEV cheat)
+   playsound  <sound>     Plays the sound
+   resetvars              Reset all cvars and settings
+   showcmds               Show all console commands
+   showvars  [-l]         Show all console variables              
+   showjoysticks          Show all available joysticks
+   showfiles              Show all loaded files
+   showlumps  <file-idx>  Show all lumps in a wad file
+   type  <filename>       Displays the contents of a text file
+   version                Show the 3DGE version
+   quit                   Quit 3DGE (pops up a query message)
+
+   <varname>              Show value of a console variable
+   <varname>  <value>     Set the value of a console variable
+
+
+Console variables:
+   language               Current language setting
+
+   aggression             monster aggression (EDGE feature)
+   goobers                flatten out levels (EDGE feature)
+ 
+   ddf_strict             Errors: be as strict as possible
+   ddf_lax                Errors: be as forgiving as possible
+   ddf_quiet              Disables all warning messages
+ 
+   in_grab                Grab the mouse cursor
+   in_keypad              Enables the numeric keypad
+   in_stageturn           Two-stage turning (keyboard & joystick)
+   in_warpmouse           Warp the cursor to get relative motion
+ 
+   joy_dead               Joystick dead zone  (0.0 - 0.8)
+   joy_peak               Joystick peak point (0.4 - 1.0)
+   joy_tuning             Joystick fine tune  (0.2 - 5.0, normally 1)
+ 
+   m_diskicon             Enables the flashing disk icon
+   m_busywait             Smoother gameplay vs less CPU utilisation
+ 
+   am_smoothing           Enables smoother lines on the automap
+   r_fadepower            Powerup effects smoothly fade out
+ 
+   r_crosshair            Crosshair to draw (1-9, 0 for none)
+   r_crosscolor           Crosshair color (0-7)
+   r_crosssize            Crosshair size (16 is normal)
+   r_crossbright          Crosshair brightness (0.1 - 1.0)
+
+   r_nearclip             OpenGL near distance (default 4)
+   r_farclip              OpenGL far distance  (default 64000)
+
+   r_vsync		  Sets VSYNC Value (default 0). Use a number OTHER THAN '1' for optimal results!
+   r_lerp		  Sets Interpolation (default On)
+   r_maxfps               Set max frames to render according to screen refresh (default is 0)
+   r_md5scale             Sets global MD5 scale (for debugging MD5 models only!!)
+   r_spriteflip           Flips all sprites along the X axis
+   r_gl3_path             Forces OpenGL 3.0 mode
+   r_stretchworld         Forces a 1:1 square viewpoint akin to the original DOOM (default is 1)
+   r_fixspritescale       Forces pixel-accurate sprite depictions (default is 1)
+   r_bloom                Turns on Bloom Post Processing
+   r_lens                 Turns on Lens Distortion Post Processing
+   r_fxaa                 Enabled FXAA post processing (disabled for now, not working correctly)
+
+   r_textscale            Heads-Up Text scaling (default 0.7)
+   r_text_xpos            Sets the position of Heads-Up Text in X (default 160)
+   r_text_ypos            Sets the position of Heads-Up Text in Y (default 3)
+ 
+   debug_fullbright       Debugging: draw everything full-bright
+   debug_hom              Debugging: show missing textures
+   debug_joyaxis          Debugging: print joystick axis events
+   debug_mouse            Debugging: print mouse events
+   debug_pos              Debugging: show player's location
+   debug_fps              Debugging: show frames-per-second
+
+======================
+Console variables (Camera-Man System):
+
+   * See parameters' description in console for more information!
+
+   actcam                 Activates the Camera-Man System
+   rstcam                 Resets the system to default values
+   addcam                 Adds new camera-man camera
+   remcam                 Removes camera-man camera
+   swtcam                 Switches to given camera-man
+   strcam                 Sets the given camera-man as a start of interpolation,
+   endcam                 Sets the given camera-man as a end of interpolation,
+   poscam                 Moves the given camera-man to the current position of the player,
+   angcam                 Changes the given camera-man view angles to the ones of the player,
+   fovcam                 Sets the given camera-man FOV
+   savcam                 Saves current state of the camera-man system to the file (name of the file is given by the map level name).
+   lddcam                 Loads current state of the camera-man system from the file (name of the file is given by the map level name).
+   prtcam                 Prints current state of the camera-man system to console.

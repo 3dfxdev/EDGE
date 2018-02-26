@@ -23,12 +23,14 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "hu_stuff.h"
 #include "hu_style.h"
 #include "hu_draw.h"
 
+
+#include "con_var.h"
 #include "con_main.h"
 #include "con_gui.h"
 #include "dm_state.h"
@@ -42,7 +44,13 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+extern cvar_c m_centerem;
 
+cvar_c r_textscale;
+cvar_c r_text_x;
+cvar_c r_text_y;
+cvar_c r_text_alpha;
+//extern cvar_c r_textscale;
 //
 // Locally used constants, shortcuts.
 //
@@ -52,7 +60,7 @@
 #define HU_TITLEX	0
 #define HU_TITLEY	(200 - 32 - 10) 
 
-#define HU_INPUTX	HU_MSGX
+#define HU_INPUTX	(HU_MSGX)
 #define HU_INPUTY	(HU_MSGY + HU_MSGHEIGHT * 8)
 #define HU_INPUTWIDTH	64
 #define HU_INPUTHEIGHT	1
@@ -61,15 +69,16 @@ bool chat_on;
 
 std::string w_map_title;
 
-static bool message_on;
+extern bool message_on; //switched static for extern . . .
+static bool message_center;
 static bool message_no_overwrite;
 
-static std::string w_message;
+std::string w_message;
 static int message_counter;
 
 style_c *automap_style;
 
-
+float fade_time;
 //
 // Heads-up Init
 //
@@ -94,6 +103,7 @@ void HU_Start(void)
 	automap_style = hu_styles.Lookup(map_styledef);
 
 	message_on = false;
+	message_center = false;
 	message_no_overwrite = false;
 
 	// -ACB- 1998/08/09 Use currmap settings
@@ -115,13 +125,22 @@ void HU_Start(void)
 
 void HU_Drawer(void)
 {
+	//cvar_c m_centerem;
+
+	
 	CON_ShowFPS();
+
 
 	if (message_on)
 	{
-		HUD_SetScale(0.8f);
-		HUD_DrawText(HU_MSGX, HU_MSGY, w_message.c_str());
+		HUD_SetAlpha(1.0f); //r_textalpha, defaults to "1.0f";
+		HUD_SetScale(r_textscale.f);	 //TODO: Should make this user-definable in the Options Menu.
+		HUD_SetAlignment(0, 0); //use this to set alignment?
+		//OLD. NON CENTERED. HUD_DrawText(HU_MSGX, HU_MSGY, w_message.c_str());
+		HUD_DrawText(r_text_x.d, r_text_y.d, w_message.c_str()); //r_text_x = 160 - 3/ 2 (keep this 160 int), r_text_y = 3;
 		HUD_SetScale();
+		HUD_SetAlignment();
+		HUD_SetAlpha();
 	}
 
 // TODO: chat messages
@@ -129,7 +148,8 @@ void HU_Drawer(void)
 
 
 void HU_Erase(void)
-{ }
+{
+}
 
 
 // Starts displaying the message.
@@ -139,11 +159,11 @@ void HU_StartMessage(const char *msg)
 	if (! message_no_overwrite)
 	{
 		w_message = std::string(msg);
-
 		message_on = true;
 		message_counter = HU_MSGTIMEOUT;
 		message_no_overwrite = false;
 	}
+	
 }
 
 
@@ -155,7 +175,14 @@ void HU_Ticker(void)
 		message_on = false;
 		message_no_overwrite = false;
 	}
+	
+	//TODO: HUD Message Fading
+/* 	if(message_counter >= HU_MSGFADESTART) 
+	{
+       alpha = MAX((alpha -= HU_MSGFADETIME), 0);
+    } */
 
+	
 	// check for incoming chat characters
 	if (! netgame)
 		return;
@@ -197,7 +224,7 @@ bool HU_Responder(event_t * ev)
 	if (ev->type != ev_keyup && ev->type != ev_keydown)
 		return false;
 
-	int c = ev->value.key.sym;
+	int c = ev->data1;
 
 	if (ev->type != ev_keydown)
 		return false;

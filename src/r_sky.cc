@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include <math.h>
 
@@ -296,12 +296,21 @@ void RGL_BeginSky(void)
 	glDisable(GL_TEXTURE_2D);
 
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+#ifndef NO_EDGEFLAG
 	glEdgeFlag(GL_TRUE);
+#endif
+
+	// Draw the entire sky using only one glBegin/glEnd clause.
+	// glEnd is called in RGL_FinishSky and this code assumes that only
+	// RGL_DrawSkyWall and RGL_DrawSkyPlane is doing OpenGL calls in between.
+	glBegin(GL_TRIANGLES);
 }
 
 
 void RGL_FinishSky(void)
 {
+	glEnd(); // End glBegin(GL_TRIANGLES) from RGL_BeginSky
+
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 	if (! need_to_draw_sky)
@@ -366,6 +375,7 @@ void RGL_DrawSkyBox(void)
 	col[2] = LT_BLU(255);
 	col[3] = 1.0f;
 
+#ifndef DREAMCAST
 	if (r_colormaterial.d || ! r_colorlighting.d)
 		glColor4fv(col);
 	else
@@ -373,6 +383,9 @@ void RGL_DrawSkyBox(void)
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, col);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, col);
 	}
+#else
+	glColor4fv(col);
+#endif
 
 	// top
 	glBindTexture(GL_TEXTURE_2D, fake_box[SK].tex[WSKY_Top]);
@@ -451,7 +464,7 @@ void RGL_DrawSkyOriginal(void)
 	RGL_SetupSkyMatrices2D();
 
 	float white[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-
+#ifndef DREAMCAST
 	if (r_colormaterial.d || ! r_colorlighting.d)
 		glColor4fv(white);
 	else
@@ -459,7 +472,9 @@ void RGL_DrawSkyOriginal(void)
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, white);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, white);
 	}
-
+#else
+	glColor4fv(white);
+#endif
 	GLuint tex_id = W_ImageCache(sky_image, false, ren_fx_colmap);
 
 	glEnable(GL_TEXTURE_2D);
@@ -524,19 +539,38 @@ void RGL_DrawSkyPlane(subsector_t *sub, float h)
 
 	glNormal3f(0, 0, (viewz > h) ? 1.0f : -1.0f);
 
-	glBegin(GL_POLYGON);
+	seg_t *seg = sub->segs;
+	if (!seg)
+		return;
 
-	for (seg_t *seg=sub->segs; seg; seg=seg->sub_next)
+	float x0 = seg->v1->x;
+	float y0 = seg->v1->y;
+	MIR_Coordinate(x0, y0);
+	seg = seg->sub_next;
+	if (!seg)
+		return;
+
+	float x1 = seg->v1->x;
+	float y1 = seg->v1->y;
+	MIR_Coordinate(x1, y1);
+	seg = seg->sub_next;
+	if (!seg)
+		return;
+
+	while (seg)
 	{
-		float x = seg->v1->x;
-		float y = seg->v1->y;
+		float x2 = seg->v1->x;
+		float y2 = seg->v1->y;
+		MIR_Coordinate(x2, y2);
 
-		MIR_Coordinate(x, y);
+		glVertex3f(x0, y0, h);
+		glVertex3f(x1, y1, h);
+		glVertex3f(x2, y2, h);
 
-		glVertex3f(x, y, h);
+		x1 = x2;
+		y1 = y2;
+		seg = seg->sub_next;
 	}
-
-	glEnd();
 }
 
 
@@ -560,14 +594,13 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 
 	glNormal3f(y2 - y1, x1 - x2, 0);
 
-	glBegin(GL_QUADS);
-
 	glVertex3f(x1, y1, h1);
 	glVertex3f(x1, y1, h2);
 	glVertex3f(x2, y2, h2);
-	glVertex3f(x2, y2, h1);
 
-	glEnd();
+	glVertex3f(x2, y2, h1);
+	glVertex3f(x2, y2, h2);
+	glVertex3f(x1, y1, h1);
 }
 
 

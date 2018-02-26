@@ -32,7 +32,7 @@
 // -AJA- 2000/01/04: Split off parsing code into rad_pars.c.
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../epi/file.h"
 #include "../epi/filesystem.h"
@@ -1056,7 +1056,7 @@ bool RAD_Responder(event_t * ev)
 		
 	SYS_ASSERT(rts_curr_menu);
 
-	int check = rts_curr_menu->CheckKey(ev->value.key.sym);
+	int check = rts_curr_menu->CheckKey(ev->data1);
 
 	if (check >= 0)
 	{

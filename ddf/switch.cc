@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition File Codes (Switch textures)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -44,7 +44,6 @@ static const commandlist_t switch_commands[] =
 	DDF_CMD_END
 };
 
-
 //
 //  DDF PARSE ROUTINES
 //
@@ -61,11 +60,11 @@ static void SwitchStartEntry(const char *name, bool extend)
 
 	if (extend)
 	{
-		if (! dynamic_switchdef)
+		if (!dynamic_switchdef)
 			DDF_Error("Unknown switch to extend: %s\n", name);
 		return;
 	}
-	
+
 	// replaces an existing entry
 	if (dynamic_switchdef)
 	{
@@ -75,17 +74,16 @@ static void SwitchStartEntry(const char *name, bool extend)
 
 	// not found, create a new one
 	dynamic_switchdef = new switchdef_c;
-	
+
 	dynamic_switchdef->name = name;
 
 	switchdefs.Insert(dynamic_switchdef);
 }
 
-
 static void SwitchParseField(const char *field, const char *contents,
-		int index, bool is_last)
+	int index, bool is_last)
 {
-#if (DEBUG_DDF)  
+#if (DEBUG_DDF)
 	I_Debugf("SWITCH_PARSE: %s = %s;\n", field, contents);
 #endif
 
@@ -94,7 +92,6 @@ static void SwitchParseField(const char *field, const char *contents,
 
 	DDF_WarnError("Unknown switch.ddf command: %s\n", field);
 }
-
 
 static void SwitchFinishEntry(void)
 {
@@ -108,13 +105,11 @@ static void SwitchFinishEntry(void)
 		DDF_Error("Bad time value for switch: %d\n", dynamic_switchdef->time);
 }
 
-
 static void SwitchClearAll(void)
 {
 	// 100% safe to delete all switchdefs
 	switchdefs.Clear();
 }
-
 
 bool DDF_ReadSwitch(void *data, int size)
 {
@@ -143,25 +138,28 @@ bool DDF_ReadSwitch(void *data, int size)
 		switches.lumpname = NULL;
 	}
 
-	switches.start_entry  = SwitchStartEntry;
-	switches.parse_field  = SwitchParseField;
+	switches.start_entry = SwitchStartEntry;
+	switches.parse_field = SwitchParseField;
 	switches.finish_entry = SwitchFinishEntry;
-	switches.clear_all    = SwitchClearAll;
+	switches.clear_all = SwitchClearAll;
 
-	if (! DDF_MainReadFile(&switches))
+	if (!DDF_MainReadFile(&switches))
 		return false;
 
+#if 0
 #if (DEBUG_DDF)
 	I_Debugf("DDF_ReadSW: Switch List:\n");
 
 	for (it = switchdefs.GetBaseIterator(); it.IsValid(); it++)
 	{
 		sw = ITERATOR_TO_TYPE(it, switchdef_c*);
-		
-		I_Debugf("  Num: %d  ON: '%s'  OFF: '%s'\n", 
-						i, sw->on_name, sw->off_name);
+
+		I_Debugf("  Num: %d  ON: '%s'  OFF: '%s'\n",
+			it, sw->on_name, sw->off_name);
 	}
-#endif
+#endif  
+#endif // 0
+
 
 	return true;
 }
@@ -193,11 +191,11 @@ void DDF_ParseSWITCHES(const byte *data, int size)
 		char off_name[10];
 
 		// make sure names are NUL-terminated
-		memcpy( on_name, data+9, 9);  on_name[8] = 0;
-		memcpy(off_name, data+0, 9); off_name[8] = 0;
+		memcpy(on_name, data + 9, 9);  on_name[8] = 0;
+		memcpy(off_name, data + 0, 9); off_name[8] = 0;
 
 		I_Debugf("- SWITCHES LUMP: off '%s' : on '%s'\n", off_name, on_name);
-				
+
 		// ignore zero-length names
 		if (!off_name[0] || !on_name[0])
 			continue;
@@ -207,14 +205,13 @@ void DDF_ParseSWITCHES(const byte *data, int size)
 		def->name = "BOOM_SWITCH";
 
 		def->Default();
-		
-		def->on_name.Set( on_name);
+
+		def->on_name.Set(on_name);
 		def->off_name.Set(off_name);
 
 		switchdefs.Insert(def);
 	}
 }
-
 
 // ---> switchdef_c class
 
@@ -226,7 +223,6 @@ switchdef_c::switchdef_c() : name()
 	Default();
 }
 
-
 //
 // switchdef_c::CopyDetail()
 //
@@ -234,10 +230,10 @@ switchdef_c::switchdef_c() : name()
 //
 void switchdef_c::CopyDetail(switchdef_c &src)
 {
-	 on_name = src.on_name;
+	on_name = src.on_name;
 	off_name = src.off_name;
 
-	 on_sfx = src.on_sfx;
+	on_sfx = src.on_sfx;
 	off_sfx = src.off_sfx;
 
 	time = src.time;
@@ -248,15 +244,14 @@ void switchdef_c::CopyDetail(switchdef_c &src)
 //
 void switchdef_c::Default()
 {
-	 on_name.clear();
+	on_name.clear();
 	off_name.clear();
 
-	 on_sfx = sfx_None;
+	on_sfx = sfx_None;
 	off_sfx = sfx_None;
 
 	time = BUTTONTIME;
 }
-
 
 // --> switchdef_container_c Class
 

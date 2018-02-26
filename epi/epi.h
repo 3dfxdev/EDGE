@@ -36,6 +36,14 @@
 #include "epi_macosx.h"
 #endif
 
+#ifdef BSD
+#include "epi_macosx.h"
+#endif
+
+#ifdef DREAMCAST
+#include "epi_dreamcast.h"
+#endif
+
 namespace epi
 {
 	// Base Functions

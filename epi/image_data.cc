@@ -1,9 +1,9 @@
 //------------------------------------------------------------------------
 //  Basic image storage
 //------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 2003-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -20,13 +20,17 @@
 
 #include "image_data.h"
 
-
 namespace epi
 {
 
+// hack?
+#ifdef __OpenBSD__
+#define nullptr NULL
+#endif
+
 image_data_c::image_data_c(int _w, int _h, int _bpp) :
     width(_w), height(_h), bpp(_bpp), flags(IDF_NONE),
-    used_w(_w), used_h(_h)
+    used_w(_w), used_h(_h), grAb(nullptr)
 {
 	pixels = new u8_t[width * height * bpp];
 }
@@ -34,6 +38,7 @@ image_data_c::image_data_c(int _w, int _h, int _bpp) :
 image_data_c::~image_data_c()
 {
 	delete[] pixels;
+    delete[] grAb;
 
 	pixels = NULL;
 	width = height = 0;
@@ -59,7 +64,7 @@ void image_data_c::Whiten()
 
 		ity = (ity * 128 + src[0] * 38 + src[1] * 64 + src[2] * 26) >> 8;
 
-		src[0] = src[1] = src[2] = ity; 
+		src[0] = src[1] = src[2] = ity;
 	}
 }
 
@@ -320,11 +325,12 @@ void image_data_c::FourWaySymmetry()
 
 void image_data_c::EightWaySymmetry()
 {
-	SYS_ASSERT(width == height);
+	//SYS_ASSERT(width == height);
 
 	int hw = (width + 1) / 2;
+	int hh = (height + 1) / 2;
 
-	for (int y = 0;   y < hw; y++)
+	for (int y = 0;   y < hh; y++)
 	for (int x = y+1; x < hw; x++)
 	{
 		CopyPixel(x, y, y, x);

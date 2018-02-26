@@ -41,6 +41,7 @@ typedef enum
 	IMGDT_Builtin,      // built-in pre-fab DYI kit
 	IMGDT_File,         // load from an image file
 	IMGDT_Lump,         // load from lump in a WAD
+	IMGDT_WadSprite,    // load from sprite in WAD //!!!
 
 	// future:
 	// IMGDT_WadFlat
@@ -87,7 +88,8 @@ typedef enum
 {
 	LIF_PNG = 0,
 	LIF_JPEG,
-	LIF_TGA
+	LIF_TGA,
+	LIF_RIM //for real-image graphics (image_data_c *rim)
 }
 L_image_format_e;
 

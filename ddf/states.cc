@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition File Code (States)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -22,16 +22,17 @@
 
 #include "../src/p_action.h"
 #include "../src/z_zone.h"
-
+#include "../src/r_md5.h"
 
 // FIXME: unwanted link to engine code (switch to epi::angle_c)
 extern float M_Tan(angle_t ang)  GCCATTR((const));
-
 
 static const state_t template_state =
 {
 	0,          // sprite ref
 	0,          // frame ref
+	0,          // frame range
+	-1,          // anim file
 	0,          // bright
 	0,          // flags
 	-1,         // tics
@@ -52,7 +53,6 @@ int num_states;
 std::vector<std::string> ddf_sprite_names;
 std::vector<std::string> ddf_model_names;
 
-
 // Until the DDF_StateFinishState() routine is called, the `nextstate'
 // field of each state contains a special value.  0 for normal (no
 // redirector).  -1 for the #REMOVE redirector.  Otherwise the top 16
@@ -69,18 +69,16 @@ epi::strlist_c redirs;
 
 static std::string stateinfo[NUM_SPLIT + 1];
 
-
 // a little caching makes a big difference here
 // (because DDF entries are usually limited to a single sprite)
 static int last_sprite = -1;
-static int last_model  = -1;
-
+static int last_model = -1;
 
 static int AddSpriteName(const char *name)
 {
 	if (stricmp(name, "NULL") == 0)
 		return SPR_NULL;
-	
+
 	if (last_sprite >= 0 &&
 		stricmp(ddf_sprite_names[last_sprite].c_str(), name) == 0)
 		return last_sprite;
@@ -120,7 +118,6 @@ static int AddModelName(const char *name)
 	return last_model;
 }
 
-
 void DDF_StateInit(void)
 {
 	// setup the 'S_NULL' state
@@ -133,7 +130,7 @@ void DDF_StateInit(void)
 	//  without subtracting 1)
 #if 1
 	AddSpriteName("!NULL!");
-	AddModelName ("!NULL!");
+	AddModelName("!NULL!");
 #endif
 }
 
@@ -141,7 +138,6 @@ void DDF_StateCleanUp(void)
 {
 	/* nothing to do */
 }
-
 
 //
 // DDF_MainSplitIntoState
@@ -159,20 +155,20 @@ static int DDF_MainSplitIntoState(const char *info)
 	char *first;
 
 	int cur;
-	int brackets=0;
-	bool done=false;
+	int brackets = 0;
+	bool done = false;
 
 	// use a buffer, since we modify the string
 	char infobuf[512];
 
 	strcpy(infobuf, info);
 
-	for (cur=0; cur < NUM_SPLIT+1; cur++)
+	for (cur = 0; cur < NUM_SPLIT + 1; cur++)
 		stateinfo[cur] = std::string();
 
 	first = temp = infobuf;
 
-	for (cur=0; !done && cur < NUM_SPLIT; temp++)
+	for (cur = 0; !done && cur < NUM_SPLIT; temp++)
 	{
 		if (*temp == '(')
 		{
@@ -207,7 +203,7 @@ static int DDF_MainSplitIntoState(const char *info)
 			stateinfo[1] = std::string();
 			stateinfo[2] = std::string();
 
-			if (! done)
+			if (!done)
 				stateinfo[1] = std::string(temp + 1);
 
 			return -1;
@@ -223,7 +219,6 @@ static int DDF_MainSplitIntoState(const char *info)
 
 	return cur;
 }
-
 
 //
 // DDF_MainSplitActionArg
@@ -262,29 +257,29 @@ static int StateGetRedirector(const char *redir)
 {
 	epi::array_iterator_c it;
 	const char *s;
-	
-	for (it=redirs.GetBaseIterator(); it.IsValid(); it++)
+
+	for (it = redirs.GetBaseIterator(); it.IsValid(); it++)
 	{
 		s = ITERATOR_TO_TYPE(it, const char*);
 		if (DDF_CompareName(s, redir) == 0)
 			return it.GetPos();
 	}
-	
+
 	redirs.Insert(redir);
-	return redirs.GetSize()-1;
+	return redirs.GetSize() - 1;
 }
 
 //
 // DDF_StateFindLabel
 //
 statenum_t DDF_StateFindLabel(const state_group_t& group,
-                              const char *label, bool quiet)
+	const char *label, bool quiet)
 {
-	for (int g = (int)group.size()-1; g >= 0; g--)
+	for (int g = (int)group.size() - 1; g >= 0; g--)
 	{
 		for (statenum_t i = group[g].last; i >= group[g].first; i--)
 		{
-			if (! states[i].label)
+			if (!states[i].label)
 				continue;
 
 			if (DDF_CompareName(states[i].label, label) == 0)
@@ -298,7 +293,7 @@ statenum_t DDF_StateFindLabel(const state_group_t& group,
 		return DDF_StateFindLabel(group, "SPAWN");
 	}
 
-	if (! quiet)
+	if (!quiet)
 		DDF_Error("Unknown label '%s' (object has no such frames).\n", label);
 
 	return S_NULL;
@@ -308,9 +303,9 @@ statenum_t DDF_StateFindLabel(const state_group_t& group,
 // DDF_StateReadState
 //
 void DDF_StateReadState(const char *info, const char *label,
-						state_group_t& group, int *state_num, int index,
-						const char *redir, const actioncode_t *action_list,
-						bool is_weapon)
+	state_group_t& group, int *state_num, int index,
+	const char *redir, const actioncode_t *action_list,
+	bool is_weapon)
 {
 	SYS_ASSERT(group.size() > 0);
 
@@ -346,22 +341,22 @@ void DDF_StateReadState(const char *info, const char *label,
 
 	if (stateinfo[2].empty())
 	{
-		if (! range.first)
+		if (!range.first)
 			DDF_Error("Redirector used without any states (`%s')\n", info);
 
 		cur = &states[range.last];
 
-		SYS_ASSERT(! stateinfo[0].empty());
+		SYS_ASSERT(!stateinfo[0].empty());
 
 		if (DDF_CompareName(stateinfo[0].c_str(), "REMOVE") == 0)
 		{
 			cur->nextstate = -1;
 			return;
-		}  
+		}
 
 		cur->nextstate = (StateGetRedirector(stateinfo[0].c_str()) + 1) << 16;
 
-		if (! stateinfo[1].empty())
+		if (!stateinfo[1].empty())
 			cur->nextstate += MAX(0, atoi(stateinfo[1].c_str()) - 1);
 
 		return;
@@ -373,25 +368,25 @@ void DDF_StateReadState(const char *info, const char *label,
 
 	Z_Resize(states, state_t, ++num_states);
 
-	cur = &states[num_states-1];
+	cur = &states[num_states - 1];
 
 	// initialise with defaults
 	cur[0] = template_state;
-  
+
 	if (range.first == 0)
 	{
 		// very first state for thing/weapon
-		range.first = num_states-1;
+		range.first = num_states - 1;
 	}
 
-	range.last = num_states-1;
-  
+	range.last = num_states - 1;
+
 	if (index == 0)
 	{
 		// first state in this set of states
 		if (state_num)
-			state_num[0] = num_states-1;
-    
+			state_num[0] = num_states - 1;
+
 		// ...therefore copy the label
 		cur->label = strdup(label);
 	}
@@ -410,10 +405,10 @@ void DDF_StateReadState(const char *info, const char *label,
 
 	if (stateinfo[1].empty() || stateinfo[2].empty() || stateinfo[3].empty())
 		DDF_Error("Bad state frame, missing fields: %s\n", info);
-  
+
 	if (strlen(stateinfo[0].c_str()) != 4)
 		DDF_Error("DDF_MainLoadStates: Sprite names must be 4 "
-				  "characters long '%s'.\n", stateinfo[0].c_str());
+			"characters long '%s'.\n", stateinfo[0].c_str());
 
 	//--------------------------------------------------
 	//--------------SPRITE INDEX HANDLING---------------
@@ -426,6 +421,8 @@ void DDF_StateReadState(const char *info, const char *label,
 
 	j = sprite_x[0];
 
+	cur->framerange = 0;
+	cur->animfile = -1;
 	if ('A' <= j && j <= ']')
 	{
 		cur->frame = j - (int)'A';
@@ -439,17 +436,52 @@ void DDF_StateReadState(const char *info, const char *label,
 		if (isdigit(first_ch))
 		{
 			cur->flags = SFF_Model;
-			cur->frame = atol(sprite_x+1) - 1;
+			cur->frame = atol(sprite_x + 1) - 1;
 		}
 		else if (isalpha(first_ch) || (first_ch == '_'))
 		{
 			cur->flags = SFF_Model | SFF_Unmapped;
 			cur->frame = 0;
-			cur->model_frame = strdup(sprite_x+1);
+			cur->model_frame = strdup(sprite_x + 1);
 		}
 
+		char animfilename[12];
+		strcat(strcpy(animfilename, stateinfo[0].c_str()), "MDA");
+		cur->animfile = R_LoadMD5AnimationName(animfilename);
+
 		if (cur->frame < 0)
-			DDF_Error("DDF_MainLoadStates: Illegal model frame: %s\n", sprite_x);
+			DDF_Error("DDF_MainLoadStates: Illegal model frame: %s (%i)\n", sprite_x, cur->frame);
+	}
+	else if (j == '%')
+	{
+		const char seperator = '%';
+		//MD5 animation
+		//format: %ANIMNAME,firstframe,lastframe
+		cur->flags = SFF_Model;
+
+		size_t firstseperator = stateinfo[1].find_first_of(seperator, 1);
+		if (firstseperator == std::string::npos)
+			DDF_Error("DDF_MainLoadStates: no comma found in %c frame\n", seperator);
+
+		std::string animname = stateinfo[1].substr(1, firstseperator - 1);
+		size_t secondseperator = stateinfo[1].find_first_of(seperator, firstseperator + 1);
+
+		cur->animfile = R_LoadMD5AnimationName(animname.c_str());
+		cur->frame = atol(stateinfo[1].c_str() + firstseperator + 1) - 1;
+
+		//DDF_Error("%i\n",cur->frame);
+		//DDF_Error("%i %i '%s' F: %i\n",firstseperator,secondseperator,animname.c_str(), cur->animfile);
+		int endframe = cur->frame;
+		if (secondseperator != std::string::npos) {
+			endframe = atol(stateinfo[1].c_str() + secondseperator + 1) - 1;
+		}
+		cur->framerange = endframe - cur->frame;
+		//DDF_Error("%i %i %s\n",cur->framerange,endframe,stateinfo[1].c_str());
+
+		if (cur->frame < 0)
+			DDF_Error("DDF_MainLoadStates: Illegal model frame: %s (%i)\n", sprite_x, cur->frame);
+		if (cur->framerange < 0)
+			DDF_Error("DDF_MainLoadStates: Illegal model end frame (%i), must be greater than start frame (%i)\n %s\n", endframe, cur->frame, sprite_x);
 	}
 	else
 		DDF_Error("DDF_MainLoadStates: Illegal sprite frame: %s\n", sprite_x);
@@ -478,7 +510,7 @@ void DDF_StateReadState(const char *info, const char *label,
 		cur->bright = 255;
 	else if (strncmp(stateinfo[3].c_str(), "LIT", 3) == 0)
 	{
-		cur->bright = strtol(stateinfo[3].c_str()+3, NULL, 10);
+		cur->bright = strtol(stateinfo[3].c_str() + 3, NULL, 10);
 		cur->bright = CLAMP(0, cur->bright * 255 / 99, 255);
 	}
 	else
@@ -488,7 +520,7 @@ void DDF_StateReadState(const char *info, const char *label,
 	//------------STATE ACTION CODE HANDLING------------
 	//--------------------------------------------------
 
-	if (! stateinfo[4].empty())
+	if (!stateinfo[4].empty())
 	{
 		// Get Action Code Ref (Using remainder of the string).
 		// Go through all the actions, end if terminator or action found
@@ -497,13 +529,13 @@ void DDF_StateReadState(const char *info, const char *label,
 
 		DDF_MainSplitActionArg(stateinfo[4].c_str(), action_name, action_arg);
 
-		for (i=0; action_list[i].actionname; i++)
+		for (i = 0; action_list[i].actionname; i++)
 		{
 			const char *current = action_list[i].actionname;
 
 			if (current[0] == '!')
 				current++;
-    
+
 			if (DDF_CompareName(current, action_name) == 0)
 				break;
 		}
@@ -518,17 +550,16 @@ void DDF_StateReadState(const char *info, const char *label,
 			cur->action_par = NULL;
 
 			if (action_list[i].handle_arg)
-				(* action_list[i].handle_arg)(action_arg, cur);
+				(*action_list[i].handle_arg)(action_arg, cur);
 		}
 	}
 }
 
-
 bool DDF_MainParseState(byte *object, state_group_t& group,
-						const char *field, const char *contents,
-						int index, bool is_last, bool is_weapon,
-						const state_starter_t *starters,
-						const actioncode_t *actions)
+	const char *field, const char *contents,
+	int index, bool is_last, bool is_weapon,
+	const state_starter_t *starters,
+	const actioncode_t *actions)
 {
 	if (strnicmp(field, "STATES(", 7) != 0)
 		return false;
@@ -545,7 +576,7 @@ bool DDF_MainParseState(byte *object, state_group_t& group,
 
 	// check for the "standard" states
 	int i;
-	for (i=0; starters[i].label; i++)
+	for (i = 0; starters[i].label; i++)
 		if (DDF_CompareName(starters[i].label, labname.c_str()) == 0)
 			break;
 
@@ -562,21 +593,19 @@ bool DDF_MainParseState(byte *object, state_group_t& group,
 		redir = starter ? starter->last_redir : (is_weapon ? "READY" : "IDLE");
 
 	DDF_StateReadState(contents, labname.c_str(), group, var, index,
-					   redir, actions, is_weapon);
+		redir, actions, is_weapon);
 	return true;
 }
-
 
 void DDF_StateBeginRange(state_group_t& group)
 {
 	state_range_t range;
 
 	range.first = S_NULL;
-	range.last  = S_NULL;
+	range.last = S_NULL;
 
 	group.push_back(range);
 }
-
 
 //
 // DDF_StateFinishRange
@@ -586,7 +615,7 @@ void DDF_StateBeginRange(state_group_t& group)
 //
 void DDF_StateFinishRange(state_group_t& group)
 {
-	SYS_ASSERT(! group.empty());
+	SYS_ASSERT(!group.empty());
 
 	state_range_t& range = group.back();
 
@@ -608,12 +637,12 @@ void DDF_StateFinishRange(state_group_t& group)
 		}
 		else if ((states[i].nextstate >> 16) == 0)
 		{
-			states[i].nextstate = (i == range.last) ? S_NULL : i+1;
+			states[i].nextstate = (i == range.last) ? S_NULL : i + 1;
 		}
 		else
 		{
 			states[i].nextstate = DDF_StateFindLabel(group,
-												redirs[(states[i].nextstate >> 16) - 1]) +
+				redirs[(states[i].nextstate >> 16) - 1]) +
 				(states[i].nextstate & 0xFFFF);
 		}
 
@@ -624,19 +653,18 @@ void DDF_StateFinishRange(state_group_t& group)
 		}
 		else if ((states[i].jumpstate >> 16) == 0)
 		{
-			states[i].jumpstate = (i == range.last) ? S_NULL : i+1;
+			states[i].jumpstate = (i == range.last) ? S_NULL : i + 1;
 		}
 		else
 		{
 			states[i].jumpstate = DDF_StateFindLabel(group,
-												 redirs[(states[i].jumpstate >> 16) - 1]) +
+				redirs[(states[i].jumpstate >> 16) - 1]) +
 				(states[i].jumpstate & 0xFFFF);
 		}
 	}
-  
+
 	redirs.Clear();
 }
-
 
 bool DDF_StateGroupHasState(const state_group_t& group, statenum_t st)
 {
@@ -650,7 +678,6 @@ bool DDF_StateGroupHasState(const state_group_t& group, statenum_t st)
 
 	return false;
 }
-
 
 //----------------------------------------------------------------------------
 
@@ -671,7 +698,6 @@ void DDF_StateGetAttack(const char *arg, state_t * cur_state)
 		DDF_WarnError("Unknown Attack (States): %s\n", arg);
 }
 
-
 void DDF_StateGetMobj(const char *arg, state_t * cur_state)
 {
 	if (!arg || !arg[0])
@@ -680,7 +706,6 @@ void DDF_StateGetMobj(const char *arg, state_t * cur_state)
 	cur_state->action_par = new mobj_strref_c(arg);
 }
 
-
 void DDF_StateGetSound(const char *arg, state_t * cur_state)
 {
 	if (!arg || !arg[0])
@@ -688,7 +713,6 @@ void DDF_StateGetSound(const char *arg, state_t * cur_state)
 
 	cur_state->action_par = (void *)sfxdefs.GetEffect(arg);
 }
-
 
 void DDF_StateGetInteger(const char *arg, state_t * cur_state)
 {
@@ -702,7 +726,6 @@ void DDF_StateGetInteger(const char *arg, state_t * cur_state)
 
 	cur_state->action_par = val_ptr;
 }
-
 
 void DDF_StateGetIntPair(const char *arg, state_t * cur_state)
 {
@@ -721,7 +744,6 @@ void DDF_StateGetIntPair(const char *arg, state_t * cur_state)
 	cur_state->action_par = values;
 }
 
-
 void DDF_StateGetFloat(const char *arg, state_t * cur_state)
 {
 	if (!arg || !arg[0])
@@ -735,7 +757,6 @@ void DDF_StateGetFloat(const char *arg, state_t * cur_state)
 	cur_state->action_par = val_ptr;
 }
 
-
 void DDF_StateGetPercent(const char *arg, state_t * cur_state)
 {
 	if (!arg || !arg[0])
@@ -746,11 +767,10 @@ void DDF_StateGetPercent(const char *arg, state_t * cur_state)
 	if (sscanf(arg, " %f%% ", val_ptr) != 1 || (*val_ptr) < 0)
 		DDF_Error("DDF_StateGetPercent: Bad percentage: %s\n", arg);
 
-	(* val_ptr) /= 100.0f;
+	(*val_ptr) /= 100.0f;
 
 	cur_state->action_par = val_ptr;
 }
-
 
 act_jump_info_s::act_jump_info_s() :
 	chance(PERCENT_MAKE(100)) // -ACB- 2001/02/04 tis a precent_t
@@ -763,7 +783,7 @@ void DDF_StateGetJump(const char *arg, state_t * cur_state)
 {
 	// JUMP(label)
 	// JUMP(label,chance)
-  
+
 	if (!arg || !arg[0])
 		return;
 
@@ -774,15 +794,15 @@ void DDF_StateGetJump(const char *arg, state_t * cur_state)
 
 	const char *s = strchr(arg, ',');
 
-	if (! s)
+	if (!s)
 	{
 		len = strlen(arg);
 	}
 	else
 	{
 		// convert chance value
-		DDF_MainGetPercent(s+1, &jump->chance);
-    
+		DDF_MainGetPercent(s + 1, &jump->chance);
+
 		len = s - arg;
 	}
 
@@ -795,26 +815,25 @@ void DDF_StateGetJump(const char *arg, state_t * cur_state)
 	// copy label name
 	char buffer[80];
 
-	for (len=0; *arg && (*arg != ':') && (*arg != ','); len++, arg++)
+	for (len = 0; *arg && (*arg != ':') && (*arg != ','); len++, arg++)
 		buffer[len] = *arg;
 
 	buffer[len] = 0;
 
 	if (*arg == ':')
-		offset = MAX(0, atoi(arg+1) - 1);
+		offset = MAX(0, atoi(arg + 1) - 1);
 
-	// set the jump state   
+	// set the jump state
 	cur_state->jumpstate = ((StateGetRedirector(buffer) + 1) << 16) + offset;
 	cur_state->action_par = jump;
 }
-
 
 void DDF_StateGetFrame(const char *arg, state_t * cur_state)
 {
 	// Sets the jump_state, like DDF_StateGetJump above.
 	//
 	// ACTION(label)
-  
+
 	if (!arg || !arg[0])
 		return;
 
@@ -830,12 +849,11 @@ void DDF_StateGetFrame(const char *arg, state_t * cur_state)
 	buffer[len] = 0;
 
 	if (*arg == ':')
-		offset = MAX(0, atoi(arg+1) - 1);
+		offset = MAX(0, atoi(arg + 1) - 1);
 
-	// set the jump state   
+	// set the jump state
 	cur_state->jumpstate = ((StateGetRedirector(buffer) + 1) << 16) + offset;
 }
-
 
 act_become_info_s::act_become_info_s() :
 	info(NULL), info_ref(), start()
@@ -848,7 +866,7 @@ void DDF_StateGetBecome(const char *arg, state_t * cur_state)
 {
 	// BECOME(typename)
 	// BECOME(typename,label)
-  
+
 	if (!arg || !arg[0])
 		return;
 
@@ -869,14 +887,13 @@ void DDF_StateGetBecome(const char *arg, state_t * cur_state)
 	if (len > 75)
 		DDF_Error("DDF_StateGetBecome: type name too long!\n");
 
-	for (len=0; *arg && (*arg != ':') && (*arg != ','); len++, arg++)
+	for (len = 0; *arg && (*arg != ':') && (*arg != ','); len++, arg++)
 		buffer[len] = *arg;
 
 	buffer[len] = 0;
 
 	become->info_ref.Set(buffer);
 
-	
 	// get start label (if present)
 	if (s)
 	{
@@ -890,7 +907,7 @@ void DDF_StateGetBecome(const char *arg, state_t * cur_state)
 		if (len > 75)
 			DDF_Error("DDF_StateGetBecome: label too long!\n");
 
-		for (len=0; *s && (*s != ':') && (*s != ','); len++, s++)
+		for (len = 0; *s && (*s != ':') && (*s != ','); len++, s++)
 			buffer[len] = *s;
 
 		buffer[len] = 0;
@@ -898,13 +915,11 @@ void DDF_StateGetBecome(const char *arg, state_t * cur_state)
 		become->start.label.Set(buffer);
 
 		if (*s == ':')
-			become->start.offset = MAX(0, atoi(s+1) - 1);
-
+			become->start.offset = MAX(0, atoi(s + 1) - 1);
 	}
 
 	cur_state->action_par = become;
 }
-
 
 void DDF_StateGetAngle(const char *arg, state_t * cur_state)
 {
@@ -923,7 +938,6 @@ void DDF_StateGetAngle(const char *arg, state_t * cur_state)
 
 	cur_state->action_par = value;
 }
-
 
 void DDF_StateGetSlope(const char *arg, state_t * cur_state)
 {
@@ -947,7 +961,6 @@ void DDF_StateGetSlope(const char *arg, state_t * cur_state)
 	cur_state->action_par = value;
 }
 
-
 void DDF_StateGetRGB(const char *arg, state_t * cur_state)
 {
 	if (!arg || !arg[0])
@@ -957,7 +970,6 @@ void DDF_StateGetRGB(const char *arg, state_t * cur_state)
 
 	DDF_MainGetRGB(arg, cur_state->action_par);
 }
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

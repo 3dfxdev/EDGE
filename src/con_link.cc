@@ -16,7 +16,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "con_var.h"
 
@@ -35,12 +35,16 @@ extern cvar_c g_moreblood, g_noextra;
 extern cvar_c g_fastmon, g_passmissile;
 extern cvar_c g_weaponkick, g_weaponswitch;
 
+extern cvar_c debug_testlerp; //for testing ticrate lerp code.
+
 extern cvar_c am_rotate, am_smoothing;
 extern cvar_c am_gridsize;
 
 extern cvar_c m_language;
 extern cvar_c m_diskicon, m_busywait, m_screenhud;
+extern cvar_c m_tactile; //screen shake
 extern cvar_c m_messages, m_obituaries;
+extern cvar_c m_centerem;
 extern cvar_c m_goobers;
 
 extern cvar_c sys_directx, sys_waveout;
@@ -55,12 +59,16 @@ extern cvar_c mouse_accel,  mouse_filter;
 
 extern cvar_c joy_dead, joy_peak, joy_tuning;
 
+extern cvar_c r_spriteflip;
+
+extern cvar_c r_textscale, r_text_x, r_text_y, r_text_alpha;
+
 extern cvar_c r_width, r_height, r_depth, r_fullscreen;
 extern cvar_c r_colormaterial, r_colorlighting;
 extern cvar_c r_dumbsky, r_dumbmulti, r_dumbcombine, r_dumbclamp;
 extern cvar_c r_nearclip, r_farclip, r_fadepower;
 extern cvar_c r_fov, r_zoomfov, r_aspect;
-extern cvar_c r_mipmapping, r_smoothing;
+extern cvar_c r_mipmapping, r_smoothing, r_anisotropy;// , r_anisotropyval;
 extern cvar_c r_dithering, r_hq2x;
 extern cvar_c r_dynlight, r_invultex;
 extern cvar_c r_gamma, r_detaillevel;
@@ -69,6 +77,21 @@ extern cvar_c r_teleportflash;
 extern cvar_c r_crosshair, r_crosscolor;
 extern cvar_c r_crosssize, r_crossbright;
 extern cvar_c r_precache_tex, r_precache_sprite, r_precache_model;
+extern cvar_c r_gl3_path;
+extern cvar_c r_renderprecise;
+extern cvar_c r_oldblend;
+
+extern cvar_c r_bloom, r_bloom_amount;//, r_exposure_scale, r_exposure_min, r_exposure_base, r_exposure_speed, r_bloom_kernal_size;
+extern cvar_c r_lens;
+extern cvar_c r_fxaa;
+extern cvar_c r_fxaa_quality;
+
+extern cvar_c r_stretchworld;
+extern cvar_c r_fixspritescale;
+
+extern cvar_c r_gpuswitch;
+
+extern cvar_c r_transfix;
 
 extern cvar_c s_volume, s_mixchan, s_quietfactor;
 extern cvar_c s_rate, s_bits, s_stereo;
@@ -79,7 +102,17 @@ extern cvar_c debug_fullbright, debug_hom;
 extern cvar_c debug_mouse,      debug_joyaxis;
 extern cvar_c debug_fps,        debug_pos;
 
+extern cvar_c r_lerp, r_maxfps, r_vsync, r_swapinterval;
+extern cvar_c r_shadows;
+extern cvar_c r_md5scale;
+
 extern cvar_c debug_nomonsters, debug_subsector;
+extern cvar_c camera_subdir;
+
+extern cvar_c sound_pitch;
+
+extern cvar_c i_skipsplash;
+
 
 
 #ifndef LINUX
@@ -102,17 +135,30 @@ cvar_link_t  all_cvars[] =
 {
 	/* General Stuff */
 
-    { "language",       &m_language,     "c",   "ENGLISH" },
+	{ "language",       &m_language,     "c",   "ENGLISH" },
 
-    { "ddf_strict",     &ddf_strict,     "c",   "0"  },
-    { "ddf_lax",        &ddf_lax,        "c",   "0"  },
-    { "ddf_quiet",      &ddf_quiet,      "c",   "0"  },
+	{ "ddf_strict",     &ddf_strict,     "c",   "0"  },
+	{ "ddf_lax",        &ddf_lax,        "c",   "0"  },
+	{ "ddf_quiet",      &ddf_quiet,      "c",   "0"  },
 
-    { "aggression",     &g_aggression,   "c",   "0"  },
+	{ "aggression",     &g_aggression,   "c",   "0"  },
+
+	{ "spriteflip",      &r_spriteflip,       "c",   "0"  },
+
+	{ "screen_shake",    &m_tactile,       "c",   "1" },
+
+	{ "shadows",         &r_shadows,          "c",   "1" },
+
+	{ "soundpitch",      &sound_pitch,         "c",    "1" },
+
+	{ "r_oldblend",      &r_oldblend,           "c",    "1"},
+
+	// If palette incorrectly remaps palette, this can be set.
+	{ "r_transfix",      &r_transfix,           "c",    "0" },
 
 	/* Input Stuff */
 
-    { "in_grab",        &in_grab,        "c",   "1"  },
+	{ "in_grab",        &in_grab,        "c",   "1"  },
 	{ "in_keypad",      &in_keypad,      "c",   "1"  },
 	{ "in_running",     &in_running,     "c",   "0"  },
 	{ "in_stageturn",   &in_stageturn,   "c",   "1"  },
@@ -122,11 +168,17 @@ cvar_link_t  all_cvars[] =
 	{ "joy_peak",       &joy_peak,       "c",   "0.95" },
 	{ "joy_tuning",     &joy_peak,       "c",   "1.0"  },
 
-  	{ "mouse_filter",   &mouse_filter,   "c",   "0"  },
+	{ "mouse_filter",   &mouse_filter,   "c",   "0"  },
 
 	{ "goobers",        &m_goobers,      "",    "0" },
-	{ "m_diskicon",     &m_diskicon,     "c",   "1"  },
+	{ "m_diskicon",     &m_diskicon,     "c",   "0"  },
 	{ "m_busywait",     &m_busywait,     "c",   "1"  },
+	{ "camera_subdir",  &camera_subdir,  "c",   "doom_ddf/cameras" },
+
+	/* Experimental Text Scaling Stuff*/
+	{ "r_textscale",    &r_textscale,   "c",   "0.7" }, //0.7f is the default for HUD_SetScale(). Sets HUD Text Scale. Dupliate for RTS tips.
+	{ "r_text_xpos",    &r_text_x,      "c",   "160" }, // THESE TWO VALUES, XPOS AND YPOS, ACTUALLY CENTER THE TEXT BY DEFAULT.
+	{ "r_text_ypos",    &r_text_y,      "c",   "3" }, // THESE TWO VALUES, XPOS AND YPOS, ACTUALLY CENTER THE TEXT BY DEFAULT.
 
 	/* Rendering Stuff */
 
@@ -147,12 +199,22 @@ cvar_link_t  all_cvars[] =
 	{ "r_precache_sprite", &r_precache_sprite, "c", "1" },
 	{ "r_precache_model",  &r_precache_model,  "c", "1" },
 
+	{ "r_anisotropy",	&r_anisotropy,			"c",   "0" },
+	//{ "r_anisotropyval",	&r_anisotropyval,			"c",   "0.0" },
 	{ "r_colormaterial",&r_colormaterial, "",   "1"  },
 	{ "r_colorlighting",&r_colorlighting, "",   "1"  },
 	{ "r_dumbsky",      &r_dumbsky,       "",   "0"  },
 	{ "r_dumbmulti",    &r_dumbmulti,     "",   "0"  },
 	{ "r_dumbcombine",  &r_dumbcombine,   "",   "0"  },
 	{ "r_dumbclamp",    &r_dumbclamp,     "",   "0"  },
+	{ "r_gl3_path",     &r_gl3_path,      "c",   "0"  },
+	{ "r_swapinterval", &r_swapinterval,  "c",   "1" },
+
+	{ "r_gpuswitch",    &r_gpuswitch,     "c",   "0"  }, // notebook optimus gpu selector
+
+	{ "r_stretchworld", &r_stretchworld, "c",   "1"  },
+	{ "r_fixspritescale", &r_fixspritescale, "c", "1" },
+	{ "r_renderprecise", &r_renderprecise, "c", "0" },
 
 	{ "am_smoothing",   &am_smoothing,   "c",   "1"  },
 	{ "am_gridsize",    &am_gridsize,    "c",   "128" },
@@ -167,6 +229,30 @@ cvar_link_t  all_cvars[] =
 	{ "debug_mouse",      &debug_mouse,      "",  "0" },
 	{ "debug_pos",        &debug_pos,        "h", "0" },
 	{ "debug_fps",        &debug_fps,        "c", "0" },
+	{ "debug_lerp",       &debug_testlerp,   "c", "0"},
+
+	{ "r_md5scale",        &r_md5scale,        "c", "0" },
+	{ "r_lerp",			   &r_lerp,        "c", "1" },
+	{ "r_maxfps",          &r_maxfps,        "c", "0" }, //experimental. . .
+	{ "r_vsync",           &r_vsync,        "c", "1" },
+
+
+	{ "r_bloom",           &r_bloom,        "c", "1" }, 
+	{ "r_bloom_amount",    &r_bloom_amount, "c", "1.5" },
+#if 0
+	{ "r_exposure_scale",  &r_exposure_scale, "c", "2.0" },
+	{ "r_exposure_min",    &r_exposure_min, "c", "0.1" },
+	{ "r_exposure_base",   &r_exposure_base, "c", "0.1" },
+	{ "r_exposure_speed",  &r_exposure_speed, "c", "0.05" },
+#endif // 0
+
+
+
+	{ "r_lens",		       &r_lens,			"c", "1" },
+	{ "r_fxaa",            &r_fxaa,         "c", "0" },
+	{ "r_fxaa_quality",    &r_fxaa_quality,         "c", "0" },
+
+	{ "i_skipsplash",	&i_skipsplash,	"c", "0" },
 
 #if 0 // FIXME
     { "edge_compat",    &edge_compat,    "",    "0"  },
@@ -197,7 +283,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_width",        &r_width,        "c",   "640"   },
 	{ "r_height",       &r_height,       "c",   "480"   },
     { "r_depth",        &r_depth,        "c",   "32"    },
-    { "r_fullscreen",   &r_fullscreen,   "c",   "1"     },
+    { "r_fullscreen",   &r_fullscreen,   "c",   "0"     },
 												
 	{ "r_gamma",        &r_gamma,        "c",   "1"  },
 

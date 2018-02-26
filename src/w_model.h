@@ -19,6 +19,7 @@
 #ifndef __W_MODEL_H__
 #define __W_MODEL_H__
 
+#include "md5_conv/md5.h"
 #include "r_defs.h"
 
 class md2_model_c;
@@ -26,15 +27,41 @@ class md2_model_c;
 
 #define MAX_MODEL_SKINS  10
 
+#define MODEL_MD2 0
+#define MODEL_MD3_UNIFIED 1
+#define MODEL_MD5_UNIFIED 2
+//#define MODEL_DM5 2
+
+class skindef_c
+{
+public:
+
+	const image_c *img;
+	const image_c *norm;
+	const image_c *spec;
+
+	skindef_c() {
+		img=0;
+		norm=0;
+		spec=0;
+	}
+};
+
 class modeldef_c
 {
 public:
 	// four letter model name (e.g. "TROO").
 	char name[6];
+	char modeltype;
+	
+	union {
+		md2_model_c *model;
+		//md3_model_c *md3;
+		MD5model *md5;
+		MD5umodel *md5u;
+	};
 
-	md2_model_c *model;
-
-	const image_c *skins[MAX_MODEL_SKINS];
+	skindef_c skins[MAX_MODEL_SKINS];
 
 public:
 	 modeldef_c(const char *_prefix);

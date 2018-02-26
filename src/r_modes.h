@@ -29,13 +29,21 @@
 #ifndef __VIDEORES_H__
 #define __VIDEORES_H__
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../epi/arrays.h"
 
 // Macros
 #define FROM_320(x)  ((x) * SCREENWIDTH  / 320)
 #define FROM_200(y)  ((y) * SCREENHEIGHT / 200)
+
+extern int          video_width;
+extern int          video_height;
+extern float        video_ratio;
+extern int          window_focused;
+
+extern  bool    InWindow;
+extern  bool    setWindow;
 
 // Screen mode information
 class scrmode_c

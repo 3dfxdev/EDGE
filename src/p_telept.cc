@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Teleport Code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -23,7 +23,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "z_zone.h"
 #include "dm_defs.h"
@@ -36,6 +36,20 @@
 
 
 #define TELE_FUDGE  0.1f
+
+
+static sector_t *FindTeleportSec(int tag)
+{
+    for (int i = 0; i < numsectors; i++)
+    {
+        if (sectors[i].tag != tag)
+            continue;
+
+		return sectors + i;
+    }
+
+    return NULL;  // not found
+}
 
 static mobj_t *FindTeleportMan(int tag, const mobjtype_c *info)
 {
@@ -160,18 +174,43 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
     else  /* thing-based teleport */
     {
         if (! def->outspawnobj)
-            return false;
+        {
+			// no teleport dest object
+			I_Debugf("EV_Teleport: No destination object specified. Using center of sector.\n");
+			sector_t *sec = FindTeleportSec(tag);
+			if (!sec)
+				return false;
 
-        currmobj = FindTeleportMan(tag, def->outspawnobj);
+			new_x = sec->sfx_origin.x;
+			new_y = sec->sfx_origin.y;
+			new_z = sec->f_h;
+		}
+		else
+		{
 
-        if (! currmobj)
-            return false;
+			currmobj = FindTeleportMan(tag, def->outspawnobj);
 
-        new_x = currmobj->x;
-        new_y = currmobj->y;
-        new_z = currmobj->z;
+			if (! currmobj)
+			{
+				// couldn't find teleport dest in sector
+				I_Debugf("EV_Teleport: No destination object found. Using center of sector.\n");
+				sector_t *sec = FindTeleportSec(tag);
+				if (!sec)
+					return false;
 
-        dest_ang = currmobj->angle;
+				new_x = sec->sfx_origin.x;
+				new_y = sec->sfx_origin.y;
+				new_z = sec->f_h;
+			}
+			else
+			{
+				new_x = currmobj->x;
+				new_y = currmobj->y;
+				new_z = currmobj->z;
+
+				dest_ang = currmobj->angle;
+			}
+		}
     }
 
     /* --- Angle handling --- */
@@ -249,7 +288,7 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
 
     if (!P_TeleportMove(thing, new_x, new_y, new_z))
         return false;
-    
+
     if (player)
 	{
 		player->viewheight = player->std_viewheight;
@@ -282,14 +321,22 @@ bool EV_Teleport(line_t* line, int tag, mobj_t* thing,
     {
         // don't move for a bit
         thing->reactiontime = def->delay;
+        //I_Printf("Delay = %d\n", def->delay);
 
-        // -ES- 1998/10/29 Start the fading
-        if (telept_effect && player == players[displayplayer])
-            R_StartFading(0, (def->delay * 5) / 2);
+		if (def->delay)
+		{
+			// -ES- 1998/10/29 Start the fading
+			if (telept_effect == 1 && player == players[displayplayer])
+				R_StartFading(0, def->delay);
 
-        thing->mom.x = thing->mom.y = thing->mom.z = 0;
+			// -CW- 2017/01/27 Start the FOV warp
+			if (telept_effect == 2 && player == players[displayplayer])
+				player->telept_fov = def->delay * 5;
 
-		player->actual_speed = 0;
+			thing->mom.x = thing->mom.y = thing->mom.z = 0;
+
+			player->actual_speed = 0;
+		}
     }
 
     thing->angle = new_ang;

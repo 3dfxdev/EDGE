@@ -22,9 +22,9 @@
 // -AJA- 2000/07/13: Wrote this file.
 //
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
-#include "C:/hyperedge/edge2/lib_win32/zlib-1.2.3/zlib.h"
+#include <zlib.h>
 
 #include "../epi/math_crc.h"
 

@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Heads-up-display Font code
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 2004-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -16,7 +16,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../ddf/main.h"
 #include "../ddf/font.h"
@@ -32,15 +32,13 @@
 
 #define DUMMY_WIDTH  4
 
-
 // all the fonts that's fit to print
 font_container_c hu_fonts;
-
 
 font_c::font_c(fontdef_c *_def) : def(_def)
 {
 	p_cache.first = 0;
-	p_cache.last  = -1;
+	p_cache.last = -1;
 
 	p_cache.images = NULL;
 	p_cache.missing = NULL;
@@ -63,7 +61,7 @@ void font_c::BumpPatchName(char *name)
 	for (char *s = name + strlen(name) - 1; s >= name; s--)
 	{
 		// only handle digits and letters
-		if (! isalnum(*s))
+		if (!isalnum(*s))
 			break;
 
 		if (*s == '9') { *s = '0'; continue; }
@@ -77,7 +75,7 @@ void font_c::BumpPatchName(char *name)
 void font_c::LoadPatches()
 {
 	p_cache.first = 9999;
-	p_cache.last  = 0;
+	p_cache.last = 0;
 
 	const fontpatch_c *pat;
 
@@ -109,18 +107,18 @@ void font_c::LoadPatches()
 
 		for (int ch = pat->char1; ch <= pat->char2; ch++, BumpPatchName(pname))
 		{
-#if 0  // DEBUG
-			L_WriteDebug("- LoadFont [%s] : char %d = %s\n", def->name.c_str(), ch, pname);
-#endif
+//#if 0  // DEBUG
+			//L_WriteDebug("- LoadFont [%s] : char %d = %s\n", def->name.c_str(), ch, pname);
+//#endif
 			int idx = ch - p_cache.first;
 			SYS_ASSERT(0 <= idx && idx < total);
 
-			p_cache.images[idx] = W_ImageLookup(pname, INS_Graphic, ILF_Font|ILF_Null);
+			p_cache.images[idx] = W_ImageLookup(pname, INS_Graphic, ILF_Font | ILF_Null);
 		}
 	}
 
 	p_cache.missing = def->missing_patch ?
-		W_ImageLookup(def->missing_patch, INS_Graphic, ILF_Font|ILF_Null) : NULL;
+		W_ImageLookup(def->missing_patch, INS_Graphic, ILF_Font | ILF_Null) : NULL;
 
 	const image_c *Nom = NULL;
 
@@ -141,42 +139,40 @@ void font_c::LoadPatches()
 			}
 	}
 
-	if (! Nom)
+	if (!Nom)
 	{
 		I_Warning("Font [%s] has no loaded patches !\n", def->name.c_str());
 		p_cache.width = p_cache.height = 7;
 		return;
 	}
 
-	p_cache.width  = I_ROUND(IM_WIDTH(Nom));  // XXX: make fields float???
+	p_cache.width = I_ROUND(IM_WIDTH(Nom));  // XXX: make fields float???
 	p_cache.height = I_ROUND(IM_HEIGHT(Nom));
 }
 
 void font_c::LoadImageDiv()
 {
 	// TODO
-	I_Error("LoadImageDiv called??\n");
+	I_Printf("LoadImageDiv called??\n");
 }
-
 
 void font_c::Load()
 {
 	switch (def->type)
 	{
-		case FNTYP_Patch:
-			LoadPatches();
-			break;
+	case FNTYP_Patch:
+		LoadPatches();
+		break;
 
-		case FNTYP_Image:
-			LoadImageDiv();
-			break;
+	case FNTYP_Image:
+		LoadImageDiv();
+		break;
 
-		default:
-			I_Error("Coding error, unknown font type %d\n", def->type);
-			break; /* NOT REACHED */
+	default:
+		I_Error("Coding error, unknown font type %d\n", def->type);
+		break; /* NOT REACHED */
 	}
 }
-
 
 int font_c::NominalWidth() const
 {
@@ -202,25 +198,23 @@ int font_c::NominalHeight() const
 	return 1; /* NOT REACHED */
 }
 
-
 bool font_c::HasChar(char ch) const
 {
 	SYS_ASSERT(def->type == FNTYP_Patch);
 
 	int idx = int(ch) & 0x00FF;
 
-	if (! (p_cache.first <= idx && idx <= p_cache.last))
+	if (!(p_cache.first <= idx && idx <= p_cache.last))
 		return false;
-	
+
 	return (p_cache.images[idx - p_cache.first] != NULL);
 }
-
 
 const image_c *font_c::CharImage(char ch) const
 {
 	SYS_ASSERT(def->type == FNTYP_Patch);
 
-	if (! HasChar(ch))
+	if (!HasChar(ch))
 	{
 		if ('a' <= ch && ch <= 'z' && HasChar(toupper(ch)))
 			ch = toupper(ch);
@@ -233,10 +227,9 @@ const image_c *font_c::CharImage(char ch) const
 	int idx = int(ch) & 0x00FF;
 
 	SYS_ASSERT(p_cache.first <= idx && idx <= p_cache.last);
-	
+
 	return p_cache.images[idx - p_cache.first];
 }
-
 
 //
 // Returns the width of the IBM cp437 char in the font.
@@ -245,7 +238,7 @@ int font_c::CharWidth(char ch) const  // XXX: return float ???
 {
 	if (def->type == FNTYP_Image)
 		return im_div.total_w / 16;
-			
+
 	SYS_ASSERT(def->type == FNTYP_Patch);
 
 	if (ch == ' ')
@@ -253,12 +246,11 @@ int font_c::CharWidth(char ch) const  // XXX: return float ???
 
 	const image_c *im = CharImage(ch);
 
-	if (! im)
+	if (!im)
 		return DUMMY_WIDTH;
 
 	return I_ROUND(IM_WIDTH(im));
 }
-
 
 //
 // Returns the maximum number of characters which can fit within pixel_w
@@ -292,7 +284,6 @@ int font_c::MaxFit(int pixel_w, const char *str) const
 	return s - str;
 }
 
-
 //
 // Find string width from hu_font chars.  The string may not contain
 // any newline characters.
@@ -306,7 +297,6 @@ int font_c::StringWidth(const char *str) const
 
 	return w;
 }
-
 
 //
 // Find number of lines in string.
@@ -322,24 +312,25 @@ int font_c::StringLines(const char *str) const
 	return lines;
 }
 
-
 void font_c::DrawChar320(float x, float y, char ch, float scale, float aspect,
-    const colourmap_c *colmap, float alpha) const
+	const colourmap_c *colmap, float alpha) const
 {
 	SYS_ASSERT(def->type != FNTYP_Image);
+	//if (x + FNSZ < 0)
+		//return;
 
 	const image_c *image = CharImage(ch);
 
-	if (! image)
+	if (!image)
 		return;
-	
+
 	float sc_x = scale * aspect;
 	float sc_y = scale;
 
-	y = 200-y;
+	y = 200 - y;
 
 	RGL_DrawImage(
-	    FROM_320(x - IM_OFFSETX(image) * sc_x),
+		FROM_320(x - IM_OFFSETX(image) * sc_x),
 		FROM_200(y + (IM_OFFSETY(image) - IM_HEIGHT(image)) * sc_y),
 		FROM_320(IM_WIDTH(image))  * sc_x,
 		FROM_200(IM_HEIGHT(image)) * sc_y,
@@ -348,11 +339,9 @@ void font_c::DrawChar320(float x, float y, char ch, float scale, float aspect,
 		colmap, alpha);
 }
 
-
 //----------------------------------------------------------------------------
 //  font_container_c class
 //----------------------------------------------------------------------------
-
 
 void font_container_c::CleanupObject(void *obj)
 {
@@ -360,7 +349,6 @@ void font_container_c::CleanupObject(void *obj)
 
 	if (a) delete a;
 }
-
 
 // Never returns NULL.
 //
@@ -383,7 +371,6 @@ font_c* font_container_c::Lookup(fontdef_c *def)
 
 	return new_f;
 }
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

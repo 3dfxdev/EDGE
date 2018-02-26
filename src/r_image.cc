@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Generalised Image Handling
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -31,8 +31,8 @@
 //   -  do some optimisation
 //
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include <limits.h>
 #include <list>
@@ -65,7 +65,12 @@
 #include "w_texture.h"
 #include "w_wad.h"
 #include "z_zone.h"
+#include "games/wolf3d/wlf_rawdef.h"
 
+// hack?
+#ifdef __OpenBSD__
+#define nullptr NULL
+#endif
 
 // LIGHTING DEBUGGING
 // #define MAKE_TEXTURES_WHITE  1
@@ -80,10 +85,8 @@ extern void CloseUserFileOrLump(imagedef_c *def, epi::file_c *f);
 #define DUMMY_X  16
 #define DUMMY_Y  16
 
-
 extern void DeleteSkyTextures(void);
 extern void DeleteColourmapTextures(void);
-
 
 //
 // This structure is for "cached" images (i.e. ready to be used for
@@ -97,7 +100,7 @@ typedef struct cached_image_s
 {
 	// parent image
 	image_c *parent;
-  
+
 	// colormap used for translated image, normally NULL
 	const colourmap_c *trans_map;
 
@@ -109,13 +112,11 @@ typedef struct cached_image_s
 }
 cached_image_t;
 
-
 typedef std::list<image_c *> real_image_container_c;
 
-
 static image_c *do_Lookup(real_image_container_c& bucket, const char *name,
-                          int source_type = -1
-						  /* use -2 to prevent USER override */)
+	int source_type = -1
+/* use -2 to prevent USER override */)
 {
 	// for a normal lookup, we want USER images to override
 	if (source_type == -1)
@@ -131,7 +132,11 @@ static image_c *do_Lookup(real_image_container_c& bucket, const char *name,
 	for (it = bucket.rbegin(); it != bucket.rend(); it++)
 	{
 		image_c *rim = *it;
-	
+		/*
+				if(stricmp(name,"TMP_NORMAL")==0) {
+					I_Printf("FOO '%s'\n",rim->name);
+				}
+		*/
 		if (source_type >= 0 && source_type != (int)rim->source_type)
 			continue;
 
@@ -159,13 +164,13 @@ static void do_Animate(real_image_container_c& bucket)
 
 		if (rim->anim.count == 0 && rim->anim.cur->anim.next)
 		{
-			rim->anim.cur   = rim->anim.cur->anim.next;
+			rim->anim.cur = rim->anim.cur->anim.next;
 			rim->anim.count = rim->anim.speed;
 		}
 	}
 }
 
-#if 0
+//#if 0
 static void do_DebugDump(real_image_container_c& bucket)
 {
 	L_WriteDebug("{\n");
@@ -175,7 +180,7 @@ static void do_DebugDump(real_image_container_c& bucket)
 	for (it = bucket.begin(); it != bucket.end(); it++)
 	{
 		image_c *rim = *it;
-	
+
 		L_WriteDebug("   [%s] type %d: %dx%d < %dx%d\n",
 			rim->name, rim->source_type,
 			rim->actual_w, rim->actual_h,
@@ -184,18 +189,19 @@ static void do_DebugDump(real_image_container_c& bucket)
 
 	L_WriteDebug("}\n");
 }
-#endif
+//#endif
 
 // mipmapping enabled ?
 // 0 off, 1 bilinear, 2 trilinear
 int var_mipmapping = 1;
 
-int var_smoothing  = 1;
+int var_smoothing = 1;
+
+int var_anisotropic = 1;
 
 bool var_dithering = false;
 
 int hq2x_scaling = 1;
-
 
 // total set of images
 static real_image_container_c real_graphics;
@@ -203,17 +209,14 @@ static real_image_container_c real_textures;
 static real_image_container_c real_flats;
 static real_image_container_c real_sprites;
 
-
 const image_c *skyflatimage;
 
 static const image_c *dummy_sprite;
 static const image_c *dummy_skin;
 static const image_c *dummy_hom[2];
 
-
 // image cache (actually a ring structure)
 static std::list<cached_image_t *> image_cache;
-
 
 // tiny ring helpers
 static inline void InsertAtTail(cached_image_t *rc)
@@ -223,7 +226,7 @@ static inline void InsertAtTail(cached_image_t *rc)
 #if 0  // OLD WAY
 	SYS_ASSERT(rc != &imagecachehead);
 
-	rc->prev =  imagecachehead.prev;
+	rc->prev = imagecachehead.prev;
 	rc->next = &imagecachehead;
 
 	rc->prev->next = rc;
@@ -241,29 +244,26 @@ static inline void Unlink(cached_image_t *rc)
 #endif
 }
 
-
-
 //----------------------------------------------------------------------------
 //
 //  IMAGE CREATION
 //
 
 image_c::image_c() : actual_w(0), actual_h(0), total_w(0), total_h(0),
-					 source_type(IMSRC_Dummy),
-					 source_palette(-1),
-					 cache()
+source_type(IMSRC_Dummy),
+source_palette(-1),
+cache()
 {
 	strcpy(name, "_UNINIT_");
 
 	memset(&source, 0, sizeof(source));
-	memset(&anim,   0, sizeof(anim));
+	memset(&anim, 0, sizeof(anim));
 }
 
 image_c::~image_c()
 {
-  /* TODO: image_c destructor */
+	/* TODO: image_c destructor */
 }
-
 
 static image_c *NewImage(int width, int height, int opacity = OPAC_Unknown)
 {
@@ -271,11 +271,11 @@ static image_c *NewImage(int width, int height, int opacity = OPAC_Unknown)
 
 	rim->actual_w = width;
 	rim->actual_h = height;
-	rim->total_w  = W_MakeValidSize(width);
-	rim->total_h  = W_MakeValidSize(height);
+	rim->total_w = W_MakeValidSize(width);
+	rim->total_h = W_MakeValidSize(height);
 	rim->offset_x = rim->offset_y = 0;
-	rim->scale_x  = rim->scale_y = 1.0f;
-	rim->opacity  = opacity;
+	rim->scale_x = rim->scale_y = 1.0f;
+	rim->opacity = opacity;
 
 	// set initial animation info
 	rim->anim.cur = rim;
@@ -285,14 +285,13 @@ static image_c *NewImage(int width, int height, int opacity = OPAC_Unknown)
 	return rim;
 }
 
-
 static image_c *CreateDummyImage(const char *name, rgbcol_t fg, rgbcol_t bg)
 {
 	image_c *rim;
-  
+
 	rim = NewImage(DUMMY_X, DUMMY_Y, (bg == TRANS_PIXEL) ? OPAC_Masked : OPAC_Solid);
- 
- 	strcpy(rim->name, name);
+
+	strcpy(rim->name, name);
 
 	rim->source_type = IMSRC_Dummy;
 	rim->source_palette = -1;
@@ -303,10 +302,9 @@ static image_c *CreateDummyImage(const char *name, rgbcol_t fg, rgbcol_t bg)
 	return rim;
 }
 
-
 static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
-								real_image_container_c& container,
-								const image_c *replaces = NULL)
+	real_image_container_c& container,
+	const image_c *replaces = NULL)
 {
 	/* also used for Sprites and TX/HI stuff */
 
@@ -322,18 +320,20 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	f->Seek(0, epi::file_c::SEEKPOINT_START);
 
 	// determine info, and whether it is PNG or DOOM_PATCH
-	int width=0, height=0;
-	int offset_x=0, offset_y=0;
+	int width = 0, height = 0;
+	int offset_x = 0, offset_y = 0;
+	int origsize; //ROTT
 
 	bool is_png = false;
-	bool solid  = false;
-  
+	bool solid = false;
+	bool is_rott = false;
+
 	if (epi::PNG_IsDataPNG(buffer, lump_len))
 	{
 		is_png = true;
 
-		if (! PNG_GetInfo(f, &width, &height, &solid) ||
-		    width <= 0 or height <= 0)
+		if (!PNG_GetInfo(f, &width, &height, &solid) ||
+			width <= 0 || height <= 0)
 		{
 			I_Error("Error scanning PNG image in '%s' lump\n", W_GetLumpName(lump));
 		}
@@ -341,26 +341,34 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 		// close it
 		delete f;
 	}
-	else  // DOOM PATCH format
-	{
-		patch_t *pat = (patch_t *) buffer;
+#if 0
 
-		width    = EPI_LE_S16(pat->width);
-		height   = EPI_LE_S16(pat->height);
+	else
+	{
+		is_rott = true;
+		rottpatch_t *pat = (rottpatch_t *)buffer;
+
+		origsize = EPI_LE_S16(pat->origsize);
+		width = EPI_LE_S16(pat->width);
+		height = EPI_LE_S16(pat->height);
 		offset_x = EPI_LE_S16(pat->leftoffset);
 		offset_y = EPI_LE_S16(pat->topoffset);
 
+#if 1
+		L_WriteDebug("ROTT GETINFO [%s] : size %dx%d\n", W_GetLumpName(lump), pat->origsize, pat->width, pat->height);
+#endif
+
 		delete f;
 
-		// do some basic checks
-		// !!! FIXME: identify lump types in wad code.
-		if (width  <= 0 || width > 2048 ||
-		    height <= 0 || height > 512 ||
+		if (origsize > 320 || width <= 0 || width > 320 ||
+			height <= 0 || height > 320 ||
 			ABS(offset_x) > 2048 || ABS(offset_y) > 1024)
 		{
-			// check for Heretic/Hexen images, which are raw 320x200 
-			if (lump_len == 320*200 && type == IMSRC_Graphic)
+			// check for Heretic/Hexen/ROTT images, which are raw 320x200
+			//if (lump_len == pat->origsize, pat->width, pat->height, type == IMSRC_Raw320x200)
+			if (lump_len == 320 * 200 && type == IMSRC_Flat)
 			{
+				I_Printf("ROTT Graphic '%s' seems to be a flat\n", name);
 				image_c *rim = NewImage(320, 200, OPAC_Solid);
 				strcpy(rim->name, name);
 
@@ -370,7 +378,57 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 				return rim;
 			}
 
-			if (lump_len == 64*64 || lump_len == 64*65 || lump_len == 64*128)
+			if (lump_len == 64 * 64 || lump_len == 64 * 65 || lump_len == 64 * 128)
+				I_Warning("Graphic '%s' seems to be a flat.\n", name);
+			else
+				I_Warning("ROTT: Graphic '%s' does not seem to be a graphic.\n", name);
+
+			return NULL;
+		}
+	}
+#endif // 0
+
+
+	else  // DOOM PATCH format
+	{
+		patch_t *pat = (patch_t *)buffer;
+		rottpatch_t *rpat = (rottpatch_t *)buffer;
+
+		origsize = EPI_LE_S16(rpat->origsize); // ROTT (rottpatch_t is in *rpat via the rottpatch_t header)
+		width = EPI_LE_S16(pat->width);
+		height = EPI_LE_S16(pat->height);
+		offset_x = EPI_LE_S16(pat->leftoffset);
+		offset_y = EPI_LE_S16(pat->topoffset);
+
+#if 0
+		L_WriteDebug("DOOM GETINFO [%s] : size %dx%d\n", W_GetLumpName(lump), pat->width, pat->height);
+		if (rott_mode)
+		L_WriteDebug("ROTT GETINFO [%s] : size %dx%d\n", W_GetLumpName(lump), rpat->origsize, pat->width, pat->height);
+#endif
+
+		delete f;
+
+		// do some basic checks
+		// !!! FIXME: identify lump types in wad code.
+		if (width <= 0 || width > 2048 ||
+			height <= 0 || height > 512 ||
+			ABS(offset_x) > 2048 || ABS(offset_y) > 1024)
+		{
+			// check for Heretic/Hexen/ROTT images, which are raw 320x200
+			if (lump_len == 320 * 200 && type == IMSRC_Graphic)
+			{
+				I_Printf("Graphic '%s' seems to be a flat, 320x200 it..\n", name);
+				image_c *rim = NewImage(320, 200, OPAC_Solid);
+				strcpy(rim->name, name);
+
+				rim->source_type = IMSRC_Raw320x200;
+				rim->source.flat.lump = lump;
+				rim->source_palette = W_GetPaletteForLump(lump);
+				return rim;
+			}
+
+
+			if (lump_len == 64 * 64 || lump_len == 64 * 65 || lump_len == 64 * 128)
 				I_Warning("Graphic '%s' seems to be a flat.\n", name);
 			else
 				I_Warning("Graphic '%s' does not seem to be a graphic.\n", name);
@@ -378,14 +436,15 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 			return NULL;
 		}
 	}
- 
+
 	// create new image
 	image_c *rim = NewImage(width, height, solid ? OPAC_Solid : OPAC_Unknown);
- 
+
 	rim->offset_x = offset_x;
 	rim->offset_y = offset_y;
 
 	strcpy(rim->name, name);
+	//I_Printf("IMAGE: Creating new image [%s].\n", rim->name, name);
 
 	rim->source_type = type;
 	rim->source.graphic.lump = lump;
@@ -409,13 +468,12 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	return rim;
 }
 
-
 static image_c *AddImageTexture(const char *name, texturedef_t *tdef)
 {
 	image_c *rim;
- 
+
 	rim = NewImage(tdef->width, tdef->height);
- 
+
 	strcpy(rim->name, name);
 
 	if (tdef->scale_x) rim->scale_x = 8.0 / tdef->scale_x;
@@ -434,32 +492,37 @@ static image_c *AddImageFlat(const char *name, int lump)
 {
 	image_c *rim;
 	int len, size;
-  
+
 	len = W_LumpLength(lump);
-  
+
 	switch (len)
 	{
-		case 64 * 64: size = 64; break;
+	case 64 * 64: size = 64; break;
 
 		// support for odd-size Heretic flats
-		case 64 * 65: size = 64; break;
-  
+	case 64 * 65: size = 64; break;
+
 		// support for odd-size Hexen flats
-		case 64 * 128: size = 64; break;
-  
-		// -- EDGE2 feature: bigger than normal flats --  
-		case 128 * 128: size = 128; break;
-		case 256 * 256: size = 256; break;
-		case 512 * 512: size = 512; break;
-		case 1024 * 1024: size = 1024; break;
-    
-		default:
-			return NULL;
+	case 64 * 128: size = 64; break;
+
+		// -- EDGE2 feature: bigger than normal flats --
+	case 128 * 128: size = 128; break; // ROTT Flats especially.
+	case 256 * 256: size = 256; break;
+	case 512 * 512: size = 512; break;
+	case 1024 * 1024: size = 1024; break;
+
+	default:
+		return NULL;
 	}
-   
+
 	rim = NewImage(size, size, OPAC_Solid);
- 
+
 	strcpy(rim->name, name);
+
+	if (rott_mode)
+	{
+		I_Printf("ROTT Flats: Loading %s\n", name);
+	}
 
 	rim->source_type = IMSRC_Flat;
 	rim->source.flat.lump = lump;
@@ -470,7 +533,6 @@ static image_c *AddImageFlat(const char *name, int lump)
 	return rim;
 }
 
-
 static image_c *AddImageUser(imagedef_c *def)
 {
 	int w, h;
@@ -478,58 +540,62 @@ static image_c *AddImageUser(imagedef_c *def)
 
 	switch (def->type)
 	{
-		case IMGDT_Colour:
-			w = h = 8;
-			solid = true;
-			break;
-
-		case IMGDT_Builtin:
-			//!!!!! (detail_level == 2) ? 512 : 256;
-			w = 256;
-			h = 256;
-			solid = false;
-			break;
-
-		case IMGDT_File:
-		case IMGDT_Lump:
-		{
-			const char *basename = def->info.c_str();
-
-			epi::file_c *f = OpenUserFileOrLump(def);
-
-			if (! f)
-			{
-				I_Warning("Unable to add image %s: %s\n", 
-					(def->type == IMGDT_Lump) ? "lump" : "file", basename);
-				return NULL;
-			}
-
-			bool got_info;
-
-			if (def->format == LIF_JPEG)
-				got_info = epi::JPEG_GetInfo(f, &w, &h, &solid);
-			else if (def->format == LIF_TGA)
-				got_info = epi::TGA_GetInfo(f, &w, &h, &solid);
-			else
-				got_info = epi::PNG_GetInfo(f, &w, &h, &solid);
-
-			if (! got_info)
-				I_Error("Error occurred scanning image: %s\n", basename);
-
-			CloseUserFileOrLump(def, f);
-#if 1
-			L_WriteDebug("GETINFO [%s] : size %dx%d\n", def->name.c_str(), w, h);
-#endif
-		}
+	case IMGDT_Colour:
+		w = h = 8;
+		solid = true;
 		break;
 
-		default:
-			I_Error("AddImageUser: Coding error, unknown type %d\n", def->type);
-			return NULL; /* NOT REACHED */
+	case IMGDT_Builtin:
+		//!!!!! (detail_level == 2) ? 512 : 256;
+		w = 256;
+		h = 256;
+		solid = false;
+		break;
+
+	case IMGDT_File:
+	case IMGDT_Lump:
+	{
+		const char *basename = def->info.c_str();
+
+		epi::file_c *f = OpenUserFileOrLump(def);
+
+		if (!f)
+		{
+			I_Warning("Unable to add image %s: %s\n",
+				(def->type == IMGDT_Lump) ? "lump" : "file", basename);
+			return NULL;
+		}
+
+		bool got_info;
+
+		if (def->format == LIF_JPEG)
+			got_info = epi::JPEG_GetInfo(f, &w, &h, &solid);
+		else if (def->format == LIF_TGA)
+			got_info = epi::TGA_GetInfo(f, &w, &h, &solid);
+		else
+			got_info = epi::PNG_GetInfo(f, &w, &h, &solid);
+
+		if (!got_info)
+		{
+			CloseUserFileOrLump(def, f);
+			I_Warning("Error occurred scanning image: %s\n", basename);
+			return NULL;
+		}
+
+		CloseUserFileOrLump(def, f);
+#if 1
+		L_WriteDebug("GETINFO [%s] : size %dx%d\n", def->name.c_str(), w, h);
+#endif
 	}
- 
+	break;
+
+	default:
+		I_Error("AddImageUser: Coding error, unknown type %d\n", def->type);
+		return NULL; /* NOT REACHED */
+	}
+
 	image_c *rim = NewImage(w, h, solid ? OPAC_Solid : OPAC_Unknown);
- 
+
 	rim->offset_x = def->x_offset;
 	rim->offset_y = def->y_offset;
 
@@ -555,18 +621,17 @@ static image_c *AddImageUser(imagedef_c *def)
 
 	switch (def->belong)
 	{
-		case INS_Graphic: real_graphics.push_back(rim); break;
-		case INS_Texture: real_textures.push_back(rim); break;
-		case INS_Flat:    real_flats.   push_back(rim); break;
-		case INS_Sprite:  real_sprites. push_back(rim); break;
+	case INS_Graphic: real_graphics.push_back(rim); break;
+	case INS_Texture: real_textures.push_back(rim); break;
+	case INS_Flat:    real_flats.push_back(rim); break;
+	case INS_Sprite:  real_sprites.push_back(rim); break;
 
-		default:
-			I_Error("INTERNAL ERROR: Bad belong value: %d\n", def->belong);
+	default:
+		I_Error("INTERNAL ERROR: Bad belong value: %d\n", def->belong);
 	}
 
 	return rim;
 }
-
 
 //
 // Used to fill in the image array with flats from the WAD.  The set
@@ -575,22 +640,21 @@ static image_c *AddImageUser(imagedef_c *def)
 //
 // NOTE: should only be called once, as it assumes none of the flats
 // in the list have names colliding with existing flat images.
-// 
+//
 void W_ImageCreateFlats(int *lumps, int number)
 {
 	int i;
 
 	SYS_ASSERT(lumps);
 
-	for (i=0; i < number; i++)
+	for (i = 0; i < number; i++)
 	{
 		if (lumps[i] < 0)
 			continue;
-    
+
 		AddImageFlat(W_GetLumpName(lumps[i]), lumps[i]);
 	}
 }
-
 
 //
 // Used to fill in the image array with textures from the WAD.  The
@@ -600,56 +664,68 @@ void W_ImageCreateFlats(int *lumps, int number)
 // NOTE: should only be called once, as it assumes none of the
 // textures in the list have names colliding with existing texture
 // images.
-// 
+//
 void W_ImageCreateTextures(struct texturedef_s ** defs, int number)
 {
 	int i;
 
 	SYS_ASSERT(defs);
 
-	for (i=0; i < number; i++)
+	for (i = 0; i < number; i++)
 	{
 		if (defs[i] == NULL)
 			continue;
-    
+
 		AddImageTexture(defs[i]->name, defs[i]);
 	}
 }
 
-
-// 
+//
 // Used to fill in the image array with sprites from the WAD.  The
 // lumps come from those occurring between S_START and S_END markers
 // in each existing wad.
 //
 // NOTE: it is assumed that each new sprite is unique i.e. the name
 // does not collide with any existing sprite image.
-// 
+//
 const image_c *W_ImageCreateSprite(const char *name, int lump, bool is_weapon)
 {
 	SYS_ASSERT(lump >= 0);
 
 	image_c *rim = AddImageGraphic(name, IMSRC_Sprite, lump, real_sprites);
-	if (! rim)
+	if (!rim)
 		return NULL;
 
 	// adjust sprite offsets so that (0,0) is normal
-	if (is_weapon)
+
+	//need to check grAb much earlier for is_weapon. . .
+	//epi::image_data_c *grAb = ReadAsEpiBlock(rim);
+
+#if 0
+	if (is_weapon && grAb->grAb != nullptr)
 	{
-		rim->offset_x += (320 / 2 - rim->actual_w / 2);  // loss of accuracy
-		rim->offset_y += (200 - 32 - rim->actual_h);
+		I_Printf("Checking if (is_weapon && tmp_img->grAb != nullptr)");
+		rim->offset_x += (320 / 2 - grAb->x / 2);
+		rim->offset_y += (200 - 32 - grAb->y);
 	}
 	else
-	{
-		rim->offset_x -= rim->actual_w / 2;   // loss of accuracy
-		rim->offset_y -= rim->actual_h;
-	}
+#endif // 0
+		//TODO: THIS NEEDS TO HONOR THE grAb struct, _nothing more_, and EXCLUDE 3D MODELS!
+		if (is_weapon)
+		{
+			rim->offset_x += (320 / 2 - rim->actual_w / 2);  // loss of accuracy
+			rim->offset_y += (200 - 32 - rim->actual_h);
+		}
+		else
+		{
+			rim->offset_x -= rim->actual_w / 2;   // loss of accuracy
+			rim->offset_y -= rim->actual_h;
+		}
 
 	return rim;
 }
 
-
-// 
+//
 // Add the images defined in IMAGES.DDF.
 //
 void W_ImageCreateUser(void)
@@ -679,7 +755,6 @@ void W_ImageCreateUser(void)
 #endif
 }
 
-
 void W_ImageAddTX(int lump, const char *name, bool hires)
 {
 	if (hires)
@@ -706,7 +781,7 @@ void W_ImageAddTX(int lump, const char *name, bool hires)
 		}
 
 		// we do it this way to force the original graphic to be loaded
-		rim = W_ImageLookup(name, INS_Graphic, ILF_Exact|ILF_Null);
+		rim = W_ImageLookup(name, INS_Graphic, ILF_Exact | ILF_Null);
 
 		if (rim && rim->source_type != IMSRC_User)
 		{
@@ -719,7 +794,6 @@ void W_ImageAddTX(int lump, const char *name, bool hires)
 
 	AddImageGraphic(name, IMSRC_TX_HI, lump, real_textures);
 }
-
 
 //
 // Only used during sprite initialisation.  The returned array of
@@ -754,7 +828,7 @@ const image_c ** W_ImageGetUserSprites(int *count)
 	for (it = real_sprites.begin(); it != real_sprites.end(); it++)
 	{
 		image_c *rim = *it;
-    
+
 		if (rim->source_type == IMSRC_User)
 			array[pos++] = rim;
 	}
@@ -770,13 +844,12 @@ const image_c ** W_ImageGetUserSprites(int *count)
 	for (pos = 0; pos < *count; pos++)
 		L_WriteDebug("   %p = [%s] %dx%d\n", array[pos], W_ImageGetName(array[pos]),
 			array[pos]->actual_w, array[pos]->actual_h);
-		
+
 	L_WriteDebug("}\n");
 #endif
 
 	return array;
 }
-
 
 //----------------------------------------------------------------------------
 //
@@ -788,60 +861,61 @@ static bool IM_ShouldClamp(const image_c *rim)
 {
 	switch (rim->source_type)
 	{
-		case IMSRC_Graphic:
-		case IMSRC_Raw320x200:
-		case IMSRC_Sprite:
+	case IMSRC_Graphic:
+	case IMSRC_ROTTGFX:
+	case IMSRC_Raw320x200:
+	case IMSRC_Sprite:
+		return true;
+
+	case IMSRC_User:
+		switch (rim->source.user.def->belong)
+		{
+		case INS_Graphic:
+		case INS_Sprite:
 			return true;
-
-		case IMSRC_User:
-			switch (rim->source.user.def->belong)
-			{
-				case INS_Graphic:
-				case INS_Sprite:
-					return true;
-
-				default:
-					return false;
-			}
 
 		default:
 			return false;
+		}
+
+	default:
+		return false;
 	}
 }
 
 static bool IM_ShouldMipmap(image_c *rim)
 {
-   	// the "SKY" check here is a hack...
-   	if (strnicmp(rim->name, "SKY", 3) == 0)
+	// the "SKY" check here is a hack...
+	if (strnicmp(rim->name, "SKY", 3) == 0)
 		return false;
 
 	switch (rim->source_type)
 	{
-		case IMSRC_Texture:
-		case IMSRC_Flat:
-		case IMSRC_TX_HI:
-			return true;
-		
-		case IMSRC_User:
-			switch (rim->source.user.def->belong)
-			{
-				case INS_Texture:
-				case INS_Flat:
-					return true;
+	case IMSRC_Texture:
+	case IMSRC_Flat:
+	case IMSRC_TX_HI:
+		return true;
 
-				default:
-					return false;
-			}
+	case IMSRC_User:
+		switch (rim->source.user.def->belong)
+		{
+		case INS_Texture:
+		case INS_Flat:
+			return true;
 
 		default:
 			return false;
+		}
+
+	default:
+		return false;
 	}
 }
 
 static bool IM_ShouldSmooth(image_c *rim)
 {
-   	// the "SKY" check here is a hack...
-   	if (strnicmp(rim->name, "SKY", 3) == 0)
+	// the "SKY" check here is a hack...
+	if (strnicmp(rim->name, "SKY", 3) == 0)
 		return true;
 
 	// TODO: more smooth options
@@ -854,7 +928,7 @@ static bool IM_ShouldHQ2X(image_c *rim)
 	// Note: no need to check IMSRC_User, since those images are
 	//       always PNG or JPEG (etc) and never palettised, hence
 	//       the Hq2x scaling would never apply.
-	
+
 	if (hq2x_scaling == 0)
 		return false;
 
@@ -863,24 +937,24 @@ static bool IM_ShouldHQ2X(image_c *rim)
 
 	switch (rim->source_type)
 	{
-		case IMSRC_Graphic:
-		case IMSRC_Raw320x200:
-			// UI elements
-			return true;
+	case IMSRC_Graphic:
+	case IMSRC_Raw320x200:
+		// UI elements
+		return true;
 #if 0
-		case IMSRC_Texture:
-			// the "SKY" check here is a hack...
-			if (strnicmp(rim->name, "SKY", 3) == 0)
-				return true;
-			break;
+	case IMSRC_Texture:
+		// the "SKY" check here is a hack...
+		if (strnicmp(rim->name, "SKY", 3) == 0)
+			return true;
+		break;
 #endif
-		case IMSRC_Sprite:
-			if (hq2x_scaling >= 2)
-				return true;
-			break;
+	case IMSRC_Sprite:
+		if (hq2x_scaling >= 2)
+			return true;
+		break;
 
-		default:
-			break;
+	default:
+		break;
 	}
 
 	return false;
@@ -894,15 +968,39 @@ static int IM_PixelLimit(image_c *rim)
 	return (1 << 24);
 }
 
-
-static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
+static void CreateUserBuiltinShadow(epi::image_data_c *img)
 {
-	bool clamp  = IM_ShouldClamp(rim);
-	bool mip    = IM_ShouldMipmap(rim);
-	bool smooth = IM_ShouldSmooth(rim);
- 
- 	int max_pix = IM_PixelLimit(rim);
+	SYS_ASSERT(img->bpp == 4);
+	int hw = img->width / 2;
+	int hh = img->height;
+	for (int y = 0; y < img->height; y++)
+		for (int x = 0; x < img->width; x++)
+		{
+			byte *dest = img->pixels + (y * img->width + x) * 4;
+			float dx = 1.0f - abs(x - hw) / float(hw);
+			float dy = (hh - y) / float(hh);
+			float dst = 0.7071 * sqrt(dx * dx + dy * dy);
+			int v = int(dst * 192.0f);
+			*dest++ = 0;
+			*dest++ = 0;
+			*dest++ = 0;
+			*dest = *dest != 0 ? v : 0;
+		}
+}
 
+static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans2)
+{
+	bool clamp = IM_ShouldClamp(rim);
+	bool mip = IM_ShouldMipmap(rim);
+	bool smooth = IM_ShouldSmooth(rim);
+
+	int max_pix = IM_PixelLimit(rim);
+
+	const colourmap_c *trans = trans2 == (const colourmap_c *)-1 ? NULL : trans2;
+
+	
+	//I_Printf("LoadImageOGL: Loading \"%.*s\"\n",16,rim->name);
+	
 	if (rim->source_type == IMSRC_User)
 	{
 		if (rim->source.user.def->special & IMGSP_Clamp)
@@ -919,8 +1017,7 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 			smooth = false;
 	}
 
-
-	const byte *what_palette = (const byte *) &playpal_data[0];
+	const byte *what_palette = (const byte *)&playpal_data[0];
 	bool what_pal_cached = false;
 
 	static byte trans_pal[256 * 3];
@@ -936,12 +1033,18 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	}
 	else if (rim->source_palette >= 0)
 	{
-		what_palette = (const byte *) W_CacheLumpNum(rim->source_palette);
+		what_palette = (const byte *)W_CacheLumpNum(rim->source_palette);
 		what_pal_cached = true;
 	}
 
-
 	epi::image_data_c *tmp_img = ReadAsEpiBlock(rim);
+
+	/* add offsets if they were read from the file */
+	if (tmp_img->grAb != nullptr)
+	{
+		rim->offset_x = tmp_img->grAb->x;
+		rim->offset_y = tmp_img->grAb->y;
+	}
 
 	if (rim->opacity == OPAC_Unknown)
 		rim->opacity = R_DetermineOpacity(tmp_img);
@@ -961,7 +1064,7 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 	else if (tmp_img->bpp == 1)
 	{
 		epi::image_data_c *rgb_img =
-				R_PalettisedToRGB(tmp_img, what_palette, rim->opacity);
+			R_PalettisedToRGB(tmp_img, what_palette, rim->opacity);
 
 		delete tmp_img;
 		tmp_img = rgb_img;
@@ -971,13 +1074,15 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 		if (trans == font_whiten_map)
 			tmp_img->Whiten();
 		else
-			R_PaletteRemapRGBA(tmp_img, what_palette, (const byte *) &playpal_data[0]);
+			R_PaletteRemapRGBA(tmp_img, what_palette, (const byte *)&playpal_data[0]);
 	}
 
+	if (trans2 == (const colourmap_c *)-1)
+		CreateUserBuiltinShadow(tmp_img); // make shadow
 
 	GLuint tex_id = R_UploadTexture(tmp_img,
-		(clamp  ? UPL_Clamp  : 0) |
-		(mip    ? UPL_MipMap : 0) |
+		(clamp ? UPL_Clamp : 0) |
+		(mip ? UPL_MipMap : 0) |
 		(smooth ? UPL_Smooth : 0) |
 		((rim->opacity == OPAC_Masked) ? UPL_Thresh : 0), max_pix);
 
@@ -985,12 +1090,10 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans)
 
 	if (what_pal_cached)
 		W_DoneWithLump(what_palette);
-	
+
+
 	return tex_id;
 }
-
-
-
 
 #if 0
 static
@@ -1009,7 +1112,6 @@ void UnloadImageOGL(cached_image_t *rc, image_c *rim)
 
 	I_Error("INTERNAL ERROR: UnloadImageOGL: no such RC in cache !\n");
 }
-
 
 //
 // UnloadImage
@@ -1034,7 +1136,6 @@ static void UnloadImage(cached_image_t *rc)
 }
 #endif
 
-
 //----------------------------------------------------------------------------
 //  IMAGE LOOKUP
 //----------------------------------------------------------------------------
@@ -1047,7 +1148,7 @@ static const image_c *BackupTexture(const char *tex_name, int flags)
 	const image_c *rim;
 
 	// backup plan: try a flat with the same name
-	if (! (flags & ILF_Exact))
+	if (!(flags & ILF_Exact))
 	{
 		rim = do_Lookup(real_flats, tex_name);
 		if (rim)
@@ -1061,7 +1162,7 @@ static const image_c *BackupTexture(const char *tex_name, int flags)
 
 	image_c *dummy;
 
-   	if (strnicmp(tex_name, "SKY", 3) == 0)
+	if (strnicmp(tex_name, "SKY", 3) == 0)
 		dummy = CreateDummyImage(tex_name, 0x0000AA, 0x55AADD);
 	else
 		dummy = CreateDummyImage(tex_name, 0xAA5511, 0x663300);
@@ -1079,7 +1180,7 @@ static const image_c *BackupFlat(const char *flat_name, int flags)
 	const image_c *rim;
 
 	// backup plan 1: if lump exists and is right size, add it.
-	if (! (flags & ILF_NoNew))
+	if (!(flags & ILF_NoNew))
 	{
 		int i = W_CheckNumForName(flat_name);
 
@@ -1092,7 +1193,7 @@ static const image_c *BackupFlat(const char *flat_name, int flags)
 	}
 
 	// backup plan 2: Texture with the same name ?
-	if (! (flags & ILF_Exact))
+	if (!(flags & ILF_Exact))
 	{
 		rim = do_Lookup(real_textures, flat_name);
 		if (rim)
@@ -1104,11 +1205,11 @@ static const image_c *BackupFlat(const char *flat_name, int flags)
 
 	M_WarnError("Unknown flat found in level: '%s'\n", flat_name);
 
-    image_c *dummy = CreateDummyImage(flat_name, 0x11AA11, 0x115511);
+	image_c *dummy = CreateDummyImage(flat_name, 0x11AA11, 0x115511);
 
-    // keep dummy flat so that future lookups will succeed
-    real_flats.push_back(dummy);
-    return dummy;
+	// keep dummy flat so that future lookups will succeed
+	real_flats.push_back(dummy);
+	return dummy;
 }
 
 //
@@ -1124,14 +1225,18 @@ static const image_c *BackupGraphic(const char *gfx_name, int flags)
 		rim = do_Lookup(real_graphics, gfx_name, IMSRC_Raw320x200);
 		if (rim)
 			return rim;
-  
+
+		rim = do_Lookup(real_graphics, gfx_name, IMSRC_ROTTGFX);
+		if (rim)
+			return rim;
+
 		rim = do_Lookup(real_sprites, gfx_name);
 		if (rim)
 			return rim;
 	}
-  
+
 	// not already loaded ?  Check if lump exists in wad, if so add it.
-	if (! (flags & ILF_NoNew))
+	if (!(flags & ILF_NoNew))
 	{
 		int i = W_CheckNumForName_GFX(gfx_name);
 
@@ -1160,7 +1265,6 @@ static const image_c *BackupGraphic(const char *gfx_name, int flags)
 	return dummy;
 }
 
-
 static const image_c *BackupSprite(const char *spr_name, int flags)
 {
 	if (flags & ILF_Null)
@@ -1168,7 +1272,6 @@ static const image_c *BackupSprite(const char *spr_name, int flags)
 
 	return W_ImageForDummySprite();
 }
-
 
 const image_c *W_ImageLookup(const char *name, image_namespace_e type, int flags)
 {
@@ -1183,21 +1286,21 @@ const image_c *W_ImageLookup(const char *name, image_namespace_e type, int flags
 	// "Sky" marker.
 	if (type == INS_Flat &&
 		(stricmp(name, "F_SKY1") == 0 ||
-		 stricmp(name, "F_SKY")  == 0))
+			stricmp(name, "F_SKY") == 0))
 	{
 		return skyflatimage;
 	}
 
 	// compatibility hack (first texture in IWAD is a dummy)
 	if (type == INS_Texture &&
-		( (stricmp(name, "AASTINKY") == 0) ||
-		  (stricmp(name, "AASHITTY") == 0) ||
-		  (stricmp(name, "BADPATCH") == 0) ||
-		  (stricmp(name, "ABADONE")  == 0)))
+		((stricmp(name, "AASTINKY") == 0) ||
+		(stricmp(name, "AASHITTY") == 0) ||
+			(stricmp(name, "BADPATCH") == 0) ||
+			(stricmp(name, "ABADONE") == 0)))
 	{
-	    return NULL;
+		return NULL;
 	}
-  
+
 	const image_c *rim;
 
 	if (type == INS_Texture)
@@ -1219,9 +1322,11 @@ const image_c *W_ImageLookup(const char *name, image_namespace_e type, int flags
 	/* INS_Graphic */
 
 	rim = do_Lookup(real_graphics, name);
+	
+	//do_DebugDump(real_graphics);
+
 	return rim ? rim : BackupGraphic(name, flags);
 }
-
 
 const image_c *W_ImageForDummySprite(void)
 {
@@ -1238,7 +1343,6 @@ const image_c *W_ImageForHOMDetect(void)
 	return dummy_hom[(framecount & 0x10) ? 1 : 0];
 }
 
-
 const image_c *W_ImageParseSaveString(char type, const char *name)
 {
 	// Used by the savegame code.
@@ -1251,43 +1355,42 @@ const image_c *W_ImageParseSaveString(char type, const char *name)
 
 	switch (type)
 	{
-		case 'K':
-			return skyflatimage;
+	case 'K':
+		return skyflatimage;
 
-		case 'F':
-			return W_ImageLookup(name, INS_Flat);
+	case 'F':
+		return W_ImageLookup(name, INS_Flat);
 
-		case 'P':
-			return W_ImageLookup(name, INS_Graphic);
+	case 'P':
+		return W_ImageLookup(name, INS_Graphic);
 
-		case 'S':
-			return W_ImageLookup(name, INS_Sprite);
+	case 'S':
+		return W_ImageLookup(name, INS_Sprite);
 
-		default:
-			I_Warning("W_ImageParseSaveString: unknown type '%c'\n", type);
-			/* FALL THROUGH */
+	default:
+		I_Warning("W_ImageParseSaveString: unknown type '%c'\n", type);
+		/* FALL THROUGH */
 
-		case 'd': /* dummy */
-		case 'T':
-			return W_ImageLookup(name, INS_Texture);
+	case 'd': /* dummy */
+	case 'T':
+		return W_ImageLookup(name, INS_Texture);
 	}
 
 	return NULL; /* NOT REACHED */
 }
 
-
 void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf)
 {
 	// Used by the savegame code
 
-    if (image == skyflatimage)
+	if (image == skyflatimage)
 	{
 		*type = 'K';
 		strcpy(namebuf, "F_SKY1");
 		return;
 	}
 
-	const image_c *rim = (const image_c *) image;
+	const image_c *rim = (const image_c *)image;
 
 	strcpy(namebuf, rim->name);
 
@@ -1296,46 +1399,44 @@ void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf)
 	{
 		switch (rim->source.user.def->belong)
 		{
-			case INS_Texture: (*type) = 'T'; return;
-			case INS_Flat:    (*type) = 'F'; return;
-			case INS_Sprite:  (*type) = 'S'; return;
+		case INS_Texture: (*type) = 'T'; return;
+		case INS_Flat:    (*type) = 'F'; return;
+		case INS_Sprite:  (*type) = 'S'; return;
 
-			default:  /* INS_Graphic */
-				(*type) = 'P';
-				return;
+		default:  /* INS_Graphic */
+			(*type) = 'P';
+			return;
 		}
 	}
 
 	switch (rim->source_type)
 	{
-		case IMSRC_Raw320x200:
-		case IMSRC_Graphic: (*type) = 'P'; return;
+	case IMSRC_Raw320x200:
+	case IMSRC_Graphic: (*type) = 'P'; return;
 
-		case IMSRC_TX_HI:
-		case IMSRC_Texture: (*type) = 'T'; return;
+	case IMSRC_TX_HI:
+	case IMSRC_Texture: (*type) = 'T'; return;
 
-		case IMSRC_Flat:    (*type) = 'F'; return;
+	case IMSRC_Flat:    (*type) = 'F'; return;
 
-		case IMSRC_Sprite:  (*type) = 'S'; return;
+	case IMSRC_Sprite:  (*type) = 'S'; return;
 
-		case IMSRC_Dummy:   (*type) = 'd'; return;
+	case IMSRC_Dummy:   (*type) = 'd'; return;
 
-		default:
-			I_Error("W_ImageMakeSaveString: bad type %d\n", rim->source_type);
-			break;
+	default:
+		I_Error("W_ImageMakeSaveString: bad type %d\n", rim->source_type);
+		break;
 	}
 }
-
 
 const char *W_ImageGetName(const image_c *image)
 {
 	const image_c *rim;
 
-	rim = (const image_c *) image;
+	rim = (const image_c *)image;
 
 	return rim->name;
 }
-
 
 //----------------------------------------------------------------------------
 //
@@ -1355,7 +1456,7 @@ static cached_image_t *ImageCacheOGL(image_c *rim,
 	{
 		rc = rim->cache[i];
 
-		if (! rc)
+		if (!rc)
 		{
 			free_slot = i;
 			continue;
@@ -1367,7 +1468,7 @@ static cached_image_t *ImageCacheOGL(image_c *rim,
 		rc = NULL;
 	}
 
-	if (! rc)
+	if (!rc)
 	{
 		// add entry into cache
 		rc = new cached_image_t;
@@ -1408,17 +1509,16 @@ static cached_image_t *ImageCacheOGL(image_c *rim,
 	return rc;
 }
 
-
 //
 // The top-level routine for caching in an image.  Mainly just a
 // switch to more specialised routines.
 //
 GLuint W_ImageCache(const image_c *image, bool anim,
-				    const colourmap_c *trans)
+	const colourmap_c *trans)
 {
 	// Intentional Const Override
-	image_c *rim = (image_c *) image;
- 
+	image_c *rim = (image_c *)image;
+
 	// handle animations
 	if (anim)
 		rim = rim->anim.cur;
@@ -1430,14 +1530,13 @@ GLuint W_ImageCache(const image_c *image, bool anim,
 	return rc->tex_id;
 }
 
-
 #if 0
 rgbcol_t W_ImageGetHue(const image_c *img)
 {
 	SYS_ASSERT(c);
 
 	// Intentional Const Override
-	cached_image_t *rc = ((cached_image_t *) c) - 1;
+	cached_image_t *rc = ((cached_image_t *)c) - 1;
 
 	SYS_ASSERT(rc->parent);
 
@@ -1445,18 +1544,17 @@ rgbcol_t W_ImageGetHue(const image_c *img)
 }
 #endif
 
-
 void W_ImagePreCache(const image_c *image)
 {
 	W_ImageCache(image, false);
 
 	// Intentional Const Override
-	image_c *rim = (image_c *) image;
+	image_c *rim = (image_c *)image;
 
 	// pre-cache alternative images for switches too
 	if (strlen(rim->name) >= 4 &&
 		(strnicmp(rim->name, "SW1", 3) == 0 ||
-		 strnicmp(rim->name, "SW2", 3) == 0 ))
+			strnicmp(rim->name, "SW2", 3) == 0))
 	{
 		char alt_name[16];
 
@@ -1469,15 +1567,14 @@ void W_ImagePreCache(const image_c *image)
 	}
 }
 
-
 //----------------------------------------------------------------------------
 
 static void W_CreateDummyImages(void)
 {
 	dummy_sprite = CreateDummyImage("DUMMY_SPRITE", 0xFFFF00, TRANS_PIXEL);
-	dummy_skin   = CreateDummyImage("DUMMY_SKIN",   0xFF77FF, 0x993399);
+	dummy_skin = CreateDummyImage("DUMMY_SKIN", 0xFF77FF, 0x993399);
 
-	skyflatimage = CreateDummyImage("DUMMY_SKY",    0x0000AA, 0x55AADD);
+	skyflatimage = CreateDummyImage("DUMMY_SKY", 0x0000AA, 0x55AADD);
 
 	dummy_hom[0] = CreateDummyImage("DUMMY_HOM1", 0xFF3333, 0x000000);
 	dummy_hom[1] = CreateDummyImage("DUMMY_HOM2", 0x000000, 0xFF3333);
@@ -1485,20 +1582,19 @@ static void W_CreateDummyImages(void)
 	// make the dummy sprite easier to see
 	{
 		// Intentional Const Override
-		image_c *dsp = (image_c *) dummy_sprite;
+		image_c *dsp = (image_c *)dummy_sprite;
 
 		dsp->scale_x = 3.0f;
 		dsp->scale_y = 3.0f;
 	}
 }
 
-
 //
 // Initialises the image system.
 //
 bool W_InitImages(void)
 {
-    // check options
+	// check options
 	if (M_CheckParm("-nosmoothing"))
 		var_smoothing = 0;
 	else if (M_CheckParm("-smoothing"))
@@ -1510,14 +1606,15 @@ bool W_InitImages(void)
 		var_mipmapping = 1;
 	else if (M_CheckParm("-trilinear"))
 		var_mipmapping = 2;
+	else if (M_CheckParm("-aafilter"))
+		var_mipmapping = 3;
 
-	M_CheckBooleanParm("dither", &var_dithering, false);
+	//M_CheckBooleanParm("dither", &var_dithering, false);
 
 	W_CreateDummyImages();
 
 	return true;
 }
-
 
 //
 // Animate all the images.
@@ -1528,7 +1625,6 @@ void W_UpdateImageAnims(void)
 	do_Animate(real_textures);
 	do_Animate(real_flats);
 }
-
 
 void W_DeleteAllImages(void)
 {
@@ -1550,7 +1646,6 @@ void W_DeleteAllImages(void)
 	DeleteColourmapTextures();
 }
 
-
 //
 // W_AnimateImageSet
 //
@@ -1558,7 +1653,7 @@ void W_DeleteAllImages(void)
 // allowed to contain NULL entries.
 //
 // NOTE: modifies the input array of images.
-// 
+//
 void W_AnimateImageSet(const image_c ** images, int number, int speed)
 {
 	int i, total;
@@ -1568,12 +1663,12 @@ void W_AnimateImageSet(const image_c ** images, int number, int speed)
 	SYS_ASSERT(speed > 0);
 
 	// ignore images that are already animating
-	for (i=0, total=0; i < number; i++)
+	for (i = 0, total = 0; i < number; i++)
 	{
 		// Intentional Const Override
-		rim = (image_c *) images[i];
+		rim = (image_c *)images[i];
 
-		if (! rim)
+		if (!rim)
 			continue;
 
 		if (rim->anim.speed > 0)
@@ -1586,11 +1681,11 @@ void W_AnimateImageSet(const image_c ** images, int number, int speed)
 	if (total < 2)
 		return;
 
-	for (i=0; i < total; i++)
+	for (i = 0; i < total; i++)
 	{
 		// Intentional Const Override
-		rim   = (image_c *) images[i];
-		other = (image_c *) images[(i+1) % total];
+		rim = (image_c *)images[i];
+		other = (image_c *)images[(i + 1) % total];
 
 		rim->anim.next = other;
 		rim->anim.speed = rim->anim.count = speed;

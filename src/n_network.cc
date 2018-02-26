@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_net.h"
+#include "system/i_defs.h"
+#include "system/i_net.h"
 
 #include <limits.h>
 #include <stdlib.h>
@@ -37,7 +37,7 @@
 #include "m_argv.h"
 #include "m_random.h"
 
-#define DEBUG_TICS 1
+#define DEBUG_TICS 0
 
 // only true if packets are exchanged with a server
 bool netgame = false;
@@ -96,9 +96,8 @@ static void GetPackets(bool do_delay)
 	if (! netgame)
 	{
 		// -AJA- This can make everything a bit "jerky" :-(
-		if (do_delay && ! m_busywait.d)
-			I_Sleep(10 /* millis */);
-
+		//if (do_delay && ! m_busywait.d)
+		//	I_Sleep(10 /* millis */);
 		return;
 	}
 
@@ -118,7 +117,6 @@ static void GetPackets(bool do_delay)
 	L_WriteDebug("- GOT PACKET [%c%c] len = %d\n", pk.hd().type[0], pk.hd().type[1],
 		pk.hd().data_len);
 
-#if 0
 	if (! pk.CheckType("Tg"))
 		return;
 
@@ -164,8 +162,6 @@ static void GetPackets(bool do_delay)
 	}
 
 	SYS_ASSERT((raw_cmd - tg.tic_cmds) == (1 + bots_each));
-
-#endif
 
 #endif  // USE_HAWKNL
 }
@@ -235,7 +231,7 @@ bool N_BuildTiccmds(void)
 		return false;  // can't hold any more
 	}
 
-	// build ticcmds
+	// build ticcmds (reworked here for possibly better performance).
 	for (int pnum = 0; pnum < MAXPLAYERS; pnum++)
 	{
 		player_t *p = players[pnum];
@@ -243,18 +239,20 @@ bool N_BuildTiccmds(void)
 
 		if (p->builder)
 		{
-			ticcmd_t *cmd;
 
-     L_WriteDebug("N_BuildTiccmds: pnum %d netgame %c\n", pnum, netgame ? 'Y' : 'n');
+			ticcmd_t *cmd = &p->in_cmds[maketic % BACKUPTICS];
+			//ticcmd_t *cmd;
 
-			if (false) // FIXME: temp hack!!!  if (netgame)
-				cmd = &p->out_cmds[maketic % (MP_SAVETICS*2)];
-			else
-				cmd = &p->in_cmds[maketic % (MP_SAVETICS*2)];
+ //    L_WriteDebug("N_BuildTiccmds: pnum %d netgame %c\n", pnum, netgame ? 'Y' : 'n');
+
+			//if (false) // FIXME: temp hack!!!  if (netgame)
+			//	cmd = &p->out_cmds[maketic % (MP_SAVETICS*2)];
+			//else
+			//	cmd = &p->in_cmds[maketic % (MP_SAVETICS*2)];
 
 			p->builder(p, p->build_data, cmd);
 			
-			cmd->consistency = p->consistency[maketic % (MP_SAVETICS*2)];
+			//cmd->consistency = p->consistency[maketic % (MP_SAVETICS*2)];
 		}
 	}
 
@@ -287,10 +285,11 @@ int N_NetUpdate(bool do_delay)
 				break;
 		}
 
-		if (t != newtics && numplayers > 0)
-			L_WriteDebug("N_NetUpdate: lost tics: %d\n", newtics - t);
+//		if (t != newtics && numplayers > 0)
+//			L_WriteDebug("N_NetUpdate: lost tics: %d\n", newtics - t);
 	}
 
+	// If no true Network Mode, why do we still need to GetPackets?
 	GetPackets(do_delay);
 
 	return nowtime;
@@ -321,6 +320,58 @@ int DetermineLowTic(void)
 	return lowtic;
 }
 
+cvar_c r_lerp;
+cvar_c r_maxfps;
+cvar_c r_vsync;
+static bool forwardinterpolate = false;
+static float interpolate_point = 1;
+
+/*
+	=0.0 last frame
+	=0.5 halfway between last and current frame
+	=1.0 current frame
+	>1.0 forward predict
+*/
+float N_CalculateCurrentSubTickPosition(void)
+{
+	//I wonder if there could be issues here if the game has been running for a long time?
+	return ((float)I_GetMillies() / (1000.0f/35.0f)) - (float)last_update_tic;
+}
+
+float N_Interpolate(float previous, float next)
+{
+	return	next*interpolate_point + (previous - previous*interpolate_point);
+}
+
+float N_GetInterpolater(void)
+{
+	return interpolate_point;
+}
+
+void N_ResetInterpolater(void)
+{
+	interpolate_point = 1;
+}
+
+void N_SetInterpolater(void)
+{
+	if (paused || menuactive)
+		return;
+	
+	if (r_lerp.d)
+	{
+		interpolate_point = N_CalculateCurrentSubTickPosition();
+		if (!forwardinterpolate && interpolate_point > 1)
+			interpolate_point = 1;
+		if (interpolate_point < 0)
+			interpolate_point = 0;
+	}
+	else
+	{
+		N_ResetInterpolater();
+	}
+}
+
 int N_TryRunTics(bool *is_fresh)
 {
 	*is_fresh = true;
@@ -336,10 +387,10 @@ int N_TryRunTics(bool *is_fresh)
 	int realtics = nowtime - last_tryrun_tic;
 	last_tryrun_tic = nowtime;
 
-#ifdef DEBUG_TICS
-L_WriteDebug("N_TryRunTics: now %d last_tryrun %d --> real %d\n",
-nowtime, nowtime - realtics, realtics);
-#endif
+//#ifdef DEBUG_TICS
+//L_WriteDebug("N_TryRunTics: now %d last_tryrun %d --> real %d\n",
+//nowtime, nowtime - realtics, realtics);
+//#endif
 
 	// simpler handling when no game in progress
 	if (numplayers == 0)
@@ -372,10 +423,10 @@ nowtime, nowtime - realtics, realtics);
 	else
 		counts = MIN(realtics, availabletics);
 
-#ifdef DEBUG_TICS
+/* #ifdef DEBUG_TICS
 	L_WriteDebug("=== lowtic %d gametic %d | real %d avail %d raw-counts %d\n",
 		lowtic, gametic, realtics, availabletics, counts);
-#endif
+#endif */
 
 	if (counts < 1)
 		counts = 1;

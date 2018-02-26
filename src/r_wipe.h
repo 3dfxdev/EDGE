@@ -44,6 +44,8 @@ typedef enum
   WIPE_Crossfade,
   // pixel fading
   WIPE_Pixelfade,
+  // black fading
+  //WIPE_FadeBlack,
 
   // new screen simply scrolls in from the given side of the screen
   // (or if reversed, the old one scrolls out to the given side)
@@ -51,6 +53,9 @@ typedef enum
   WIPE_Bottom,
   WIPE_Left,
   WIPE_Right,
+
+  // Rise of the Triad: WIPE_Rotate
+  WIPE_Rotate,
 
   WIPE_Spooky,
 

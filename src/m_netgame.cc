@@ -23,8 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_net.h"
+#include "system/i_defs.h"
+#include "system/i_net.h"
 
 #include "../ddf/main.h"
 
@@ -63,7 +63,9 @@ extern gameflags_t default_gameflags;
 
 
 int netgame_menuon;
+int splitgame_menuon; /// Splitscreen Multiplayer
 bool netgame_we_are_host;
+bool splitscreen_ready;
 
 static style_c *ng_host_style;
 static style_c *ng_join_style;
@@ -71,8 +73,10 @@ static style_c *ng_list_style;
 
 static newgame_params_c *ng_params;
 
+static newgame_params_c *Splitscreen;
 
 static int host_pos;
+static int split_pos;
 
 static int hosting_port;
 
@@ -80,6 +84,7 @@ static int host_want_bots;
 
 #define HOST_OPTIONS  10
 #define JOIN_OPTIONS  4
+#define SPLIT_OPTIONS 8
 
 
 static int join_pos;
@@ -89,6 +94,7 @@ static int joining_port;
 
 static int join_discover_timer;
 static int join_connect_timer;
+
 
 //static void ListAccept(void);
 
@@ -234,7 +240,8 @@ static void DrawKeyword(int index, style_c *style, int y,
 
 	bool is_selected =
 	    (netgame_menuon == 1 && index == host_pos) ||
-	    (netgame_menuon == 2 && index == join_pos);
+	    (netgame_menuon == 2 && index == join_pos) ||
+		(splitgame_menuon == 3 && index == split_pos);
 
 	HL_WriteText(style,(index<0)?3:is_selected?2:0, x - 10 - style->fonts[0]->StringWidth(keyword), y, keyword);
 	HL_WriteText(style,1, x + 10, y, value);
@@ -281,7 +288,7 @@ static const char *GetBotSkillName(int sk)
 	{
 		case 0: return "Low";
 		case 1: return "Medium";
-		case 2: return "High";
+		case 2: return "Nightmare!";
 
 		default: return "????";
 	}
@@ -323,6 +330,31 @@ void M_NetHostBegun(void)
 		ng_params->map = mapdefs[0];
 
 	host_want_bots = 0;
+}
+
+void M_SplitScreenBegun(void)
+{
+	splitscreen_ready = true;
+	splitscreen_mode = true;
+
+	split_pos = 0;
+
+	if (ng_params)
+		delete ng_params;
+
+	ng_params = new newgame_params_c;
+
+	ng_params->CopyFlags(&global_flags);
+
+	ng_params->map = G_LookupMap("1");
+
+	if (!ng_params->map)
+		ng_params->map = mapdefs[0];
+
+	host_want_bots = 0; //CA: 7.1.2016
+						// Gross hack to enable splitscreen, so for now we removed the Bots option from the SplitScreen menu drawer.
+						// The good news? This fucking works now. We can now start Splitscreen from the fucking game itself ;)
+	ng_params->Splitscreen();
 }
 
 
@@ -507,6 +539,73 @@ static void HostChangeOption(int opt, int key)
 	}
 }
 
+
+static void SplitChangeOption(int opt, int key)
+{
+	int dir = (key == KEYD_LEFTARROW) ? -1 : +1;
+
+	switch (opt)
+	{
+	case 0: // Game
+		ChangeGame(ng_params, dir);
+		break;
+
+	case 1: // Level
+		ChangeLevel(ng_params, dir);
+		break;
+
+	case 2: // Mode
+	{
+		ng_params->deathmatch += dir;
+
+		if (ng_params->deathmatch < 0)
+			ng_params->deathmatch = 2;
+		else if (ng_params->deathmatch > 2)
+			ng_params->deathmatch = 0;
+
+		break;
+	}
+
+	case 3: // Skill
+		ng_params->skill = (skill_t)((int)ng_params->skill + dir);
+		if ((int)ng_params->skill < (int)sk_baby || (int)ng_params->skill > 250)
+			ng_params->skill = sk_nightmare;
+		else if ((int)ng_params->skill > (int)sk_nightmare)
+			ng_params->skill = sk_baby;
+
+		break;
+
+
+	case 4: // Monsters
+		if (ng_params->flags->fastparm)
+		{
+			ng_params->flags->fastparm = false;
+			ng_params->flags->nomonsters = (dir > 0);
+		}
+		else if (ng_params->flags->nomonsters == (dir < 0))
+		{
+			ng_params->flags->fastparm = true;
+			ng_params->flags->nomonsters = false;
+		}
+		else
+			ng_params->flags->nomonsters = (dir < 0);
+
+		break;
+
+	case 5: // Item-Respawn
+		ng_params->flags->itemrespawn = !ng_params->flags->itemrespawn;
+		break;
+
+	case 6: // Team-Damage
+		ng_params->flags->team_damage = !ng_params->flags->team_damage;
+		break;
+
+	default:
+		break;
+	}
+}
+
+
 static void HostAccept(void)
 {
 	// create local player and bots
@@ -519,13 +618,23 @@ static void HostAccept(void)
 //#endif
 }
 
+static void SplitAccept(void)
+{
+	// create local two-player game
+	ng_params->Splitscreen();
+
+	splitgame_menuon = 2; //We use this here to display Player lists in-game.
+}
+
 void M_DrawHostMenu(void)
 {
 	HUD_SetAlpha(0.64f);
 	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
 	HUD_SetAlpha();
 
-	HL_WriteText(ng_host_style,2, 80, 30, "ADVANCED START GAME");
+	static const image_c *menu_multiplayer;
+	menu_multiplayer = W_ImageLookup("M_HOSTNG");
+	HUD_DrawImage(96, 9, menu_multiplayer);
 
 	char buffer[200];
 
@@ -575,6 +684,67 @@ void M_DrawHostMenu(void)
 	HL_WriteText(ng_host_style,(host_pos==idx) ? 2:0, 120,  y, "Start");
 }
 
+void M_DrawSplitMenu(void)
+{
+	HUD_SetAlpha(0.64f);
+	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	HUD_SetAlpha();
+
+	static const image_c *menu_multiplayer;
+	menu_multiplayer = W_ImageLookup("M_2PLAYR");
+
+	HUD_SetAlignment(0, 0);
+	HUD_DrawImage(160 - 3 / 2, 9, menu_multiplayer); ///96, 9,
+	HUD_SetAlignment();
+
+	///char buffer[200];
+
+	int y = 30;
+	int idx = 0;
+
+
+	/* DrawKeyword(-1, ng_host_style, y, "LOCAL ADDRESS", n_local_addr.TempString(false)); */
+  	y += 10;
+
+	/* DrawKeyword(-1, ng_join_style, y, "LOCAL PORT",
+			LocalPrintf(buffer, sizeof(buffer), "%d", hosting_port));*/
+  	y += 18; 
+
+
+	DrawKeyword(idx, ng_host_style, y, "GAME", ng_params->map->episode->name.c_str());
+	y += 10; idx++;
+
+	DrawKeyword(idx, ng_host_style, y, "LEVEL", ng_params->map->name.c_str());
+	y += 18; idx++;
+
+
+	DrawKeyword(idx, ng_host_style, y, "MODE", GetModeName(ng_params->deathmatch));
+	y += 10; idx++;
+
+	DrawKeyword(idx, ng_host_style, y, "SKILL", GetSkillName(ng_params->skill));
+	y += 10; idx++;
+
+#if 0
+	DrawKeyword(idx, ng_host_style, y, "BOTS",
+		LocalPrintf(buffer, sizeof(buffer), "%d", host_want_bots));
+	y += 10; idx++;
+
+	DrawKeyword(idx, ng_host_style, y, "BOT SKILL", GetBotSkillName(bot_skill));
+	y += 18; idx++;
+#endif // 0
+
+	DrawKeyword(idx, ng_host_style, y, "MONSTERS", ng_params->flags->nomonsters ? "OFF" : ng_params->flags->fastparm ? "FAST" : "ON");
+	y += 10; idx++;
+
+	DrawKeyword(idx, ng_host_style, y, "ITEM RESPAWN", ng_params->flags->itemrespawn ? "ON" : "OFF");
+	y += 10; idx++;
+
+	DrawKeyword(idx, ng_host_style, y, "TEAM DAMAGE", ng_params->flags->team_damage ? "ON" : "OFF");
+	y += 22; idx++;
+
+	HL_WriteText(ng_host_style,(split_pos==idx) ? 2:0, 96, y, "Start Game!", 2.0f);
+}
+
 bool M_NetHostResponder(event_t * ev, int ch)
 {
 	if (ch == KEYD_ENTER)
@@ -608,6 +778,39 @@ bool M_NetHostResponder(event_t * ev, int ch)
 	return false;
 }
 
+bool M_SplitHostResponder(event_t * ev, int ch)
+{
+	if (ch == KEYD_ENTER)
+	{
+		if (split_pos == (SPLIT_OPTIONS-1))
+		{
+			SplitAccept();
+			S_StartFX(sfx_network);
+			return true;
+		}
+	}
+
+	if (ch == KEYD_DOWNARROW || ch == KEYD_WHEEL_DN)
+	{
+		split_pos = (split_pos + 1) % SPLIT_OPTIONS;
+		return true;
+	}
+	else if (ch == KEYD_UPARROW || ch == KEYD_WHEEL_UP)
+	{
+		split_pos = (split_pos + SPLIT_OPTIONS - 1) % SPLIT_OPTIONS;
+		return true;
+	}
+
+	if (ch == KEYD_LEFTARROW || ch == KEYD_RIGHTARROW ||
+		ch == KEYD_ENTER)
+	{
+		SplitChangeOption(split_pos, ch);
+		return true;
+	}
+
+	return false;
+}
+
 void M_NetHostTicker(void)
 {
 	// Note: broadcast queries are handled by the general net stuff  [???]
@@ -632,12 +835,12 @@ void M_NetJoinBegun(void)
 	ng_params = new newgame_params_c;
 }
 
-#if 0
+
 static void JoinConnect(void)
 {
 	netgame_menuon = 3;
 }
-#endif
+
 
 static void JoinChangeOption(int opt, int key)
 {
@@ -698,7 +901,9 @@ void M_DrawJoinMenu(void)
 	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
 	HUD_SetAlpha();
 
-	HL_WriteText(ng_join_style,2, 80, 10, "JOIN NET GAME");
+	static const image_c *menu_multiplayer2;
+	menu_multiplayer2 = W_ImageLookup("M_JOINNG");
+	HUD_DrawImage(48, 9, menu_multiplayer2); //96, 9
 
 	char buffer[200];
 
@@ -851,6 +1056,49 @@ void M_DrawPlayerList(void)
 	}
 }
 
+void M_DrawPlayerListSS(void)
+{
+	HUD_SetAlpha(0.64f);
+	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	HUD_SetAlpha();
+
+	HL_WriteText(ng_list_style, 2, 80, 10, "PLAYER LIST");
+
+	char buffer[200];
+
+	int y = 30;
+	int i;
+
+	int humans = 0;
+
+	for (i = 0; i < ng_params->total_players; i++)
+		if (!(ng_params->players[i] & PFL_Bot))
+			humans++;
+
+	for (i = 0; i < ng_params->total_players; i++)
+	{
+		int flags = ng_params->players[i];
+
+		//if (flags & PFL_Bot)
+		//	continue;
+
+		humans++;
+
+		HL_WriteText(ng_list_style, (flags & PFL_Console) ? 0 : 3, 20, y,
+			LocalPrintf(buffer, sizeof(buffer), "PLAYER_%d", humans));
+
+		HL_WriteText(ng_list_style, 1, 100, y,
+			ng_params->nodes[i] ? ng_params->nodes[i]->remote.TempString(false) : "Local");
+
+		y += 10;
+	}
+
+	if (splitscreen_ready)
+	{
+		HL_WriteText(ng_list_style, 2, 40, 140, "Press <ENTER> to Start Game");
+	}
+}
+
 bool M_NetListResponder(event_t * ev, int ch)
 {
     if (ch == KEYD_ENTER && netgame_we_are_host)
@@ -860,6 +1108,22 @@ bool M_NetListResponder(event_t * ev, int ch)
 	M_ClearMenus();
 
 	NetGameStartLevel();
+
+    return false;
+}
+
+
+bool M_SplitListResponder(event_t * ev, int ch)
+{
+	if (ch == KEYD_ENTER && splitscreen_ready)
+		S_StartFX(sfx_swtchn);
+
+	splitgame_menuon = 0;
+	M_ClearMenus();
+
+	NetGameStartLevel();
+
+	return false;
 }
 
 //bool M_NetListResponder(event_t * ev, int ch)
@@ -884,6 +1148,7 @@ void M_NetListTicker(void)
 void M_NetGameInit(void)
 {
 	netgame_menuon = 0;
+	splitgame_menuon = 0;
 
 	host_pos = 0;
 	join_pos = 0;
@@ -919,6 +1184,8 @@ void M_NetGameInit(void)
 	}
 }
 
+//----------------------------------------------------------------------------
+
 void M_NetGameDrawer(void)
 {
 	switch (netgame_menuon)
@@ -929,6 +1196,17 @@ void M_NetGameDrawer(void)
 	}
 
 	I_Error("INTERNAL ERROR: netgame_menuon=%d\n", netgame_menuon);
+}
+
+void M_SplitGameDrawer(void)
+{
+	switch (splitgame_menuon)
+	{
+		case 1: M_DrawSplitMenu(); return;
+		case 2: M_DrawPlayerListSS(); return;
+	}
+
+	I_Error("INTERNAL ERROR: splitgame_menuon=%d\n", splitgame_menuon);
 }
 
 bool M_NetGameResponder(event_t * ev, int ch)
@@ -950,6 +1228,29 @@ bool M_NetGameResponder(event_t * ev, int ch)
 		case 1: return M_NetHostResponder(ev, ch);
 		case 2: return M_NetJoinResponder(ev, ch);
 		case 3: return M_NetListResponder(ev, ch);
+	}
+
+	return false;
+}
+
+bool M_SplitGameResponder(event_t * ev, int ch)
+{
+	switch (ch)
+	{
+		case KEYD_ESCAPE:
+		{
+			splitgame_menuon = 0;
+			M_ClearMenus();
+
+			S_StartFX(sfx_swtchx);
+			return true;
+		}
+	}
+
+	switch (splitgame_menuon)
+	{
+		case 1: return M_SplitHostResponder(ev, ch);
+		case 2: return M_SplitListResponder(ev, ch);
 	}
 
 	return false;

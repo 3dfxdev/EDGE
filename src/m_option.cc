@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Option Menu Modification
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -68,13 +68,12 @@
 //
 // -ACB- 2000/03/12 Menu resolution hack now allow user to cycle both
 //                  ways through the resolution list.
-//                  
+//
 // -AJA- 2001/07/26: Reworked colours, key config, and other code.
 //
-//
-// -CA-  2013/02/12: Reworked again for second player proper.
+// -CA-  2016.2.24: Added more console -> menu customizations
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 #include "../epi/str_format.h"
 
@@ -107,25 +106,51 @@
 
 #include "defaults.h"
 
-
 int option_menuon = 0;
 
 extern cvar_c m_language;
 extern cvar_c r_crosshair;
+extern cvar_c r_crosssize;
+extern cvar_c r_lerp;
+extern cvar_c r_gl3_path;
+extern cvar_c r_md5scale;
+extern cvar_c debug_pos;
+extern cvar_c debug_fps;
+extern cvar_c debug_testlerp;
+extern cvar_c r_vsync;
+extern cvar_c m_goobers;
+extern cvar_c mouse_filter;
+extern cvar_c m_diskicon;
+extern cvar_c debug_mouse;
+extern cvar_c debug_joyaxis;
+extern cvar_c g_aggression;
+extern cvar_c m_busywait;
+extern cvar_c r_shadows;
+extern cvar_c r_bloom;
+extern cvar_c r_lens;
+extern cvar_c sound_pitch;
+extern cvar_c r_stretchworld;
+extern cvar_c r_fixspritescale;
+extern cvar_c m_tactile;
+
+//extern cvar_c r_textscale; //temp hack for HUD text scaling size
 
 static int menu_crosshair;  // temp hack
+static int menu_crosshair2;  /// love haxxx
 extern int monitor_size;
 
 extern int joystick_device;
 
+extern bool heretic_mode;
+
 //submenus
 static void M_KeyboardOptions(int keypressed);
-static void M_KeyboardOptions2(int keypressed);
-//the bad boy above is what multiplayer wants.
 static void M_VideoOptions(int keypressed);
-static void M_GameplayOptions(int keypressed);
+static void M_AdvancedOptions(int keypressed);
+static void M_GameplayOptions(int keypressed); /// Make Gameplay Options page-flip for MORE options...apparently...
 static void M_AnalogueOptions(int keypressed);
 static void M_SoundOptions(int keypressed);
+static void M_DebugMenu(int keypressed); /// New Debugging Sub-menu
 
 static void M_Key2String(int key, char *deststring);
 
@@ -138,6 +163,8 @@ static void M_ChangeFastparm(int keypressed);
 static void M_ChangeRespawn(int keypressed);
 static void M_ChangePassMissile(int keypressed);
 static void M_ChangeCrossHair(int keypressed);
+static void M_ChangeCrossHairSize(int keypressed);
+static void M_ChangeHUDTextScale(int keypressed); // HUD_SetScale() User-Definable scaling stuff.
 
 static void M_ChangeBlood(int keypressed);
 static void M_ChangeMLook(int keypressed);
@@ -145,12 +172,13 @@ static void M_ChangeJumping(int keypressed);
 static void M_ChangeCrouching(int keypressed);
 static void M_ChangeExtra(int keypressed);
 static void M_ChangeGamma(int keypressed);
+static void M_ChangeShadows(int keypressed);
 static void M_ChangeMonitorSize(int keypressed);
 static void M_ChangeKicking(int keypressed);
 static void M_ChangeWeaponSwitch(int keypressed);
 static void M_ChangeMipMap(int keypressed);
 static void M_ChangeDLights(int keypressed);
-static void M_ChangeHalos(int keypressed);
+/* static void M_ChangeHalos(int keypressed); */
 
 // -ES- 1998/08/20 Added resolution options
 // -ACB- 1998/08/29 Moved to top and tried different system
@@ -158,7 +186,7 @@ static void M_ChangeHalos(int keypressed);
 static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int centrex);
 static void M_ResolutionOptions(int keypressed);
 static void M_OptionSetResolution(int keypressed);
-static void M_OptionTestResolution(int keypressed);
+///--static void M_OptionTestResolution(int keypressed);
 ///--  static void M_RestoreResSettings(int keypressed);
 static void M_ChangeResSize(int keypressed);
 static void M_ChangeResDepth(int keypressed);
@@ -170,37 +198,42 @@ static void M_JoinNetGame(int keypressed);
 static void M_LanguageDrawer(int x, int y, int deltay);
 static void M_ChangeLanguage(int keypressed);
 
-static char YesNo[]     = "Off/On";  // basic on/off
-static char CrossH[]    = "None/Dot/Angle/Plus/Spiked/Thin/Cross/Carat/Circle/Double";
-static char Respw[]     = "Teleport/Resurrect";  // monster respawning
-static char Axis[]      = "Off/+Turn/-Turn/+MLook/-MLook/+Forward/-Forward/+Strafe/-Strafe/+Fly/-Fly";
-static char JoyDevs[]   = "None/1/2/3/4/5/6";
-static char DLMode[]    = "Off/On";
-static char JpgPng[]    = "JPEG/PNG";  // basic on/off
-static char AAim[]      = "Off/On/Mlook";
-static char MipMaps[]   = "None/Good/Best";
-static char Details[]   = "Low/Medium/High";
-static char Hq2xMode[]  = "Off/UI Only/UI & Sprites/All";
-static char Invuls[]    = "Simple/Complex/Textured";
-static char MonitSiz[]  = "4:3/16:9/16:10/3:2/24:10";
+static char YesNo[] = "Off/On";  // basic on/off
+static char Lerp[] = "None/1(worst)/2(better)/3(best)";
+static char CrossH[] = "None/Dot/Angle/Plus/Spiked/Thin/Cross/Carat/Circle/Double";
+static char HudT[] = "Values range from 0.1f - 2.0f";
+static char Respw[] = "Teleport/Resurrect";  // monster respawning
+static char Axis[] = "Off/+Turn/-Turn/+MLook/-MLook/+Forward/-Forward/+Strafe/-Strafe/+Fly/-Fly";
+static char JoyDevs[] = "None/1/2/3/4/5/6";
+static char DLMode[] = "Off/On";
+static char JpgPng[] = "JPEG/PNG";  // basic on/off
+static char AAim[] = "Off/On/Mlook";
+static char MipMaps[] = "None/Bilinear/Trilinear/Anisotropic"; ///CA - Renamed for better understanding of what they are changing
+static char Anisotropy[] = "Off/On";
+static char Details[] = "Low/Medium/High";
+static char Hq2xMode[] = "Off/UI Only/UI & Sprites/All";
+static char Invuls[] = "Simple/Complex/Textured";
+static char MonitSiz[] = "4:3/16:9/16:10/3:2/24:10";
+static char GLMode[] = "1/2";
+static char VsyncValue[] = "1/2/3";
+static char Shadows[] = "None/Simple/Sprite"; //TODO: Add in "Complex" Shadows for 3D Models and Dynamic Light Projection!
+static char TeleEff[] = "None/Fade In/Warp In";
+static char StretchWorld[] = "Off/On";
 
 // for CVar enums
 const char WIPE_EnumStr[] = "none/melt/crossfade/pixelfade/top/bottom/left/right/spooky/doors";
 
 static char SampleRates[] = "11025 Hz/16000 Hz/22050 Hz/32000 Hz/44100 Hz";
-static char SoundBits[]   = "8 bit/16 bit";
-static char StereoNess[]  = "Off/On/Swapped";
-static char MixChans[]    = "8/16/32/64/96";
-static char QuietNess[]   = "Loud (scratchy)/Normal/Soft/Very Soft";
-static char MusicDevs[]   = "System/Timidity";
+static char SoundBits[] = "8 bit/16 bit";
+static char StereoNess[] = "Off/On/Swapped";
+static char MixChans[] = "8/16/32/64/96";
+static char QuietNess[] = "Loud (distorted)/Normal/Soft/Very Soft";
+static char MusicDevs[] = "System/Timidity/OPL";
+static char SoundPitching[] = "Off/On";
+static char OPL[] = "OPL 1/OPL 3";
 
 // Screen resolution changes
 static scrmode_c new_scrmode;
-
-
-// -ES- 1998/11/28 Wipe and Faded teleportation options
-//static char FadeT[] = "Off/On, flash/On, no flash";
-
 
 //
 //  OPTION STRUCTURES
@@ -208,12 +241,12 @@ static scrmode_c new_scrmode;
 
 typedef enum
 {
-	OPT_Plain     = 0,  // 0 means plain text,
-	OPT_Switch    = 1,  // 1 is change a switch,
-	OPT_Function  = 2,  // 2 is call a function,
-	OPT_Slider    = 3,  // 3 is a slider,
+	OPT_Plain = 0,  // 0 means plain text,
+	OPT_Switch = 1,  // 1 is change a switch,
+	OPT_Function = 2,  // 2 is call a function,
+	OPT_Slider = 3,  // 3 is a slider,
 	OPT_KeyConfig = 4,  // 4 is a key config,
-	OPT_Boolean   = 5,  // 5 is change a boolean switch
+	OPT_Boolean = 5,  // 5 is change a boolean switch
 	OPT_NumTypes
 }
 opt_type_e;
@@ -224,16 +257,15 @@ typedef struct optmenuitem_s
 
 	char name[48];
 	const char *typenames;
-  
+
 	int numtypes;
 	void *switchvar;
-  
-	void (*routine)(int keypressed);
+
+	void(*routine)(int keypressed);
 
 	const char *help;
 }
 optmenuitem_t;
-
 
 typedef struct menuinfo_s
 {
@@ -271,8 +303,8 @@ static style_c *mouse_style;
 static style_c *gameplay_style;
 static style_c *video_style;
 static style_c *setres_style;
-
-
+static style_c *advanced_style;
+static style_c *debugmenu_style; //debugging menu "style"
 
 static void M_ChangeMusVol(int keypressed)
 {
@@ -294,30 +326,29 @@ static void M_ChangeTimidQuiet(int keypressed)
 	S_ChangeTimidQuiet();
 }
 
-
 static int M_GetCurrentSwitchValue(optmenuitem_t *item)
 {
 	int retval = 0;
 
-	switch(item->type)
+	switch (item->type)
 	{
-		case OPT_Boolean:
-		{
-			retval = *(bool*)item->switchvar ? 1 : 0;
-			break;
-		}
+	case OPT_Boolean:
+	{
+		retval = *(bool*)item->switchvar ? 1 : 0;
+		break;
+	}
 
-		case OPT_Switch:
-		{
-			retval = *(int*)(item->switchvar);
-			break;
-		}
+	case OPT_Switch:
+	{
+		retval = *(int*)(item->switchvar);
+		break;
+	}
 
-		default:
-		{
-			I_Error("M_GetCurrentSwitchValue: Menu item type is not a switch!\n");
-			break;
-		}
+	default:
+	{
+		I_Error("M_GetCurrentSwitchValue: Menu item type is not a switch!\n");
+		break;
+	}
 	}
 
 	return retval;
@@ -326,33 +357,58 @@ static int M_GetCurrentSwitchValue(optmenuitem_t *item)
 //
 //  MAIN MENU
 //
-#define LANGUAGE_POS  8
-#define HOSTNET_POS   11
+#define LANGUAGE_POS  11
+#define HOSTNET_POS   14
 
 static optmenuitem_t mainoptions[] =
 {
-	{OPT_Function, "Keyboard Controls", NULL,  0, NULL, M_KeyboardOptions, "Controls"}, //Is this what we need?
-	{OPT_Function, "Splitplay Controls", NULL, 0, NULL, M_KeyboardOptions2, "PLAYER 2"}, //new define for splitscreen control code
+	{OPT_Function, "Keyboard Controls", NULL,  0, NULL, M_KeyboardOptions, "Controls"},
 	{OPT_Function, "Mouse / Joystick",  NULL,  0, NULL, M_AnalogueOptions, "AnalogueOptions"},
+	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
 	{OPT_Function, "Gameplay Options",  NULL,  0, NULL, M_GameplayOptions, "GameplayOptions"},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
 	{OPT_Function, "Sound Options",     NULL,  0, NULL, M_SoundOptions, "SoundOptions"},
-	{OPT_Function, "Video Options",     NULL,  0, NULL, M_VideoOptions, "VideoOptions"},
+	{OPT_Function, "Screen Options",    NULL,  0, NULL, M_VideoOptions, "VideoOptions"},
+	{OPT_Function, "Video Options",     NULL,  0, NULL, M_AdvancedOptions, "AdvancedOptions"}, //call to LDF
+	{ OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL },
+
 	{OPT_Function, "Set Resolution",    NULL,  0, NULL, M_ResolutionOptions, "ChangeRes"},
 
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
 	{OPT_Function, "Language",          NULL,  0, NULL, M_ChangeLanguage, NULL},
 	{OPT_Switch,   "Messages",          YesNo, 2, &showMessages, NULL, "Messages"},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
-	{OPT_Function, "Advanced Start",    NULL,  0, NULL, M_HostNetGame, NULL},
+	{OPT_Function, "Debug Menu",	    NULL,  0, NULL, M_DebugMenu, "Debugging Options" },
+	{OPT_Function, "Advanced Start",    NULL,  0, NULL, M_HostNetGame, NULL },
+
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
 	{OPT_Function, "Reset to Defaults", NULL,  0, NULL, M_ResetDefaults, NULL}
 };
 
-static menuinfo_t main_optmenu = 
+static menuinfo_t main_optmenu =
 {
-	mainoptions, sizeof(mainoptions) / sizeof(optmenuitem_t), 
-	&opt_def_style, 164, 108, "M_OPTTTL", NULL, 0, ""
+	mainoptions,
+	sizeof(mainoptions) / sizeof(optmenuitem_t),
+	&opt_def_style,
+	164,
+	108,
+	"M_OPTTTL",
+	NULL,
+	0,
+	""
+};
+
+static menuinfo_t hereticmain_optmenu =
+{
+	mainoptions,
+	sizeof(mainoptions) / sizeof(optmenuitem_t),
+	&opt_def_style,
+	164,
+	108,
+	"H_OPTION",
+	NULL,
+	0,
+	""
 };
 
 //
@@ -367,34 +423,98 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 
 	{OPT_Switch,  "Monitor Size",  MonitSiz,  5, &monitor_size, M_ChangeMonitorSize, NULL},
-	{OPT_Switch,  "Smoothing",         YesNo, 2, &var_smoothing, M_ChangeMipMap, NULL},
+	{OPT_Switch,  "Smoothing",     YesNo, 2, &var_smoothing, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "H.Q.2x Scaling", Hq2xMode, 4, &hq2x_scaling, M_ChangeMipMap, NULL},
-	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, NULL},
-	{OPT_Switch,  "Detail Level",   Details,  3, &detail_level, M_ChangeMipMap, NULL},
-	{OPT_Switch,  "Mipmapping",     MipMaps,  3, &var_mipmapping, M_ChangeMipMap, NULL},
-
-	{OPT_Plain,   "",  NULL, 0, NULL, NULL, NULL},
-
+	{OPT_Switch ,  "Detail Level",   Details,  3, &detail_level, M_ChangeMipMap, NULL},
+	{OPT_Switch,  "Texture Filtering",     MipMaps,  4, &var_mipmapping, M_ChangeMipMap, NULL},
+	{OPT_Switch,  "Anisotropy Value",  Anisotropy,  2,  &r_anisotropy, NULL, "Requires restart."},
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Boolean, "Show Disk Icon",  YesNo, 1, &m_diskicon, NULL, NULL},
+	//{OPT_Slider,  "HUD Text Scale",  HudT,  20,  &r_textscale, NULL, "Experimental"},
+	{OPT_Boolean, "Screen Shake",  YesNo, 1, &m_tactile, NULL, NULL },
 	{OPT_Switch,  "Crosshair",       CrossH, 10, &menu_crosshair, M_ChangeCrossHair, NULL},
+	{OPT_Slider, "Crosshair Scale",  NULL, 15, &menu_crosshair2, M_ChangeCrossHairSize, NULL }, /// -- New Crosshair Size Slider (like Global MD5 Scale), define this in LDF!
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Boolean, "Map Rotation",    YesNo,   2, &rotatemap, NULL, NULL},
 	{OPT_Switch,  "Teleport Flash",  YesNo,   2, &telept_flash, NULL, NULL},
-	{OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  &var_invul_fx, NULL, NULL},
+	{OPT_Switch,  "Teleport Effect",  TeleEff,   3, &telept_effect, NULL, NULL},
 	{OPT_Switch,  "Wipe method",     WIPE_EnumStr, WIPE_NUMWIPES, &wipe_method, NULL, NULL},
-	{OPT_Boolean, "Screenshot Format", JpgPng, 2, &png_scrshots, NULL, NULL}
-
-//#if 0  // TEMPORARILY DISABLED (we need an `Advanced Options' menu)
-//	{OPT_Switch,  "Teleportation effect", WIPE_EnumStr, WIPE_NUMWIPES, 
- //                                             &telept_effect, NULL, NULL},
-//
-//    {OPT_Switch,  "Reverse effect", YesNo, 2, &telept_reverse, NULL, NULL},
-//    {OPT_Switch,  "Reversed wipe",  YesNo, 2, &wipe_reverse, NULL, NULL},
-//#endif
 };
 
-static menuinfo_t video_optmenu = 
+static optmenuitem_t advancedoptions[] =
+{
+	{OPT_Switch, "OpenGL 3 Mode",     YesNo, 2, &r_gl3_path, NULL, "OpenGL defaults to 1.x (off)"}, /// Change from GL1 to GL3
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Switch,   "Bloom Processing",  YesNo,  2,  &r_bloom, NULL, "Toggle Bloom Shader On or Off"},
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Switch,   "Lens Distortion",  YesNo,  2,  &r_lens, NULL, "Toggle Lens Distortion Effect"},
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
+	{OPT_Boolean, "Video Sync",   YesNo,   2, &r_vsync, NULL, "Enable VSYNC"},
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Switch,  "Interpolation",    YesNo,   2, &r_lerp, NULL, "Frame Prediction"},
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
+	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Switch,  "Shadows", Shadows, 3,  &r_shadows, NULL, "Simple, Sprite"},
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Switch,  "Stretch World", YesNo, 2,  &r_stretchworld, NULL, "StretchWorld" }, //LDF Lookup
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Switch,  "Fix Sprite Scale", YesNo, 2,  &r_fixspritescale, NULL, "SpriteScale" }, //LDF Lookup
+
+	{OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  &var_invul_fx, NULL, "Set GodMode Rendering"},
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Boolean, "Screenshot Format", JpgPng, 2, &png_scrshots, NULL, NULL }
+};
+
+static optmenuitem_t debuggingoptions[] =
+{
+	{ OPT_Plain,   "<---Debugging--->",  NULL, 0, NULL, NULL, NULL },
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Switch,  "Framerate Info",    YesNo,  2,  &debug_fps, NULL, NULL },
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Switch,  "Show HOM Errors",    YesNo,  2,  &debug_hom, NULL, "showhom" },
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Switch,  "Show Position Coords",    YesNo,  2,  &debug_pos, NULL, NULL },
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Switch,  "Busy/Wait?", YesNo,  2,  &m_busywait, NULL, "BusyWait" }, //Call to LDF.
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Switch,  "Get Psyched!",   YesNo, 2,  &m_goobers, NULL, "Wolf3D Mode: Requires map restart!" },
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Slider,   "Global MD5 Scale",    NULL,  4,  &r_md5scale, NULL, "(debugging)"}
+};
+
+///Screen Options, custom graphic by Julian
+static menuinfo_t video_optmenu =
 {
 	vidoptions, sizeof(vidoptions) / sizeof(optmenuitem_t),
-	&video_style, 150, 77, "M_VIDEO", NULL, 0, ""
+	&video_style, 150, 77, "M_SCROPT", NULL, 0, ""
+};
+static menuinfo_t hereticvideo_optmenu =
+{
+	vidoptions, sizeof(vidoptions) / sizeof(optmenuitem_t),
+	&video_style, 150, 77, "H_SCROPT", NULL, 0, ""
+};
+
+// for advanced video options
+// advancedoptions[], m_ADVANCED
+static menuinfo_t advanced_optmenu =
+{
+	advancedoptions, sizeof(advancedoptions) / sizeof(optmenuitem_t),
+	&advanced_style, 150, 77, "M_VIDEO", NULL, 0, "" //maybe I can replace the stupid hard coded graphic. . .
+};
+
+static menuinfo_t hereticadvanced_optmenu =
+{
+	advancedoptions, sizeof(advancedoptions) / sizeof(optmenuitem_t),
+	&advanced_style, 150, 77, "H_VIDEO", NULL, 0, "" //maybe I can replace the stupid hard coded graphic. . .
+};
+
+// Debug Menu
+static menuinfo_t debug_optmenu =
+{
+	debuggingoptions, sizeof(debuggingoptions) / sizeof(optmenuitem_t),
+	&advanced_style, 150, 77, "M_SETUPM", NULL, 0, "" //TODO: supposed to be &debugmenu_style and M_DEBUG
 };
 
 //
@@ -410,16 +530,22 @@ static optmenuitem_t resoptions[] =
 	{OPT_Function, "New Mode",  NULL, 0, NULL, M_ChangeResFull, NULL},
 	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
 	{OPT_Function, "Set Resolution", NULL, 0, NULL, M_OptionSetResolution, NULL},
-/*	{OPT_Function, "Test Resolution", NULL, 0, NULL, M_OptionTestResolution, NULL}, */
-	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
-	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
-	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL}
+	/*	{OPT_Function, "Test Resolution", NULL, 0, NULL, M_OptionTestResolution, NULL}, */
+		{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
+		{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
+		{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL}
 };
 
-static menuinfo_t res_optmenu = 
+//Custom GFX by Julian
+static menuinfo_t res_optmenu =
 {
 	resoptions, sizeof(resoptions) / sizeof(optmenuitem_t),
-	&setres_style, 150, 77, "M_VIDEO", NULL, 3, ""
+	&setres_style, 150, 77, "M_SETRES", NULL, 3, ""
+};
+static menuinfo_t hereticres_optmenu =
+{
+	resoptions, sizeof(resoptions) / sizeof(optmenuitem_t),
+	&setres_style, 150, 77, "H_SETRES", NULL, 3, ""
 };
 
 //
@@ -435,27 +561,36 @@ static optmenuitem_t analogueoptions[] =
 	{OPT_Switch,   "Mouse Y Axis",       Axis, 11, &mouse_yaxis, NULL, NULL},
 	{OPT_Slider,   "X Sensitivity",      NULL, 16, &mouse_xsens, NULL, NULL},
 	{OPT_Slider,   "Y Sensitivity",      NULL, 16, &mouse_ysens, NULL, NULL},
-	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
+	//	{OPT_Slider,   "Mouse Acceleration", NULL, 20,  &mouse_accel, NULL, NULL},
+		{OPT_Boolean,  "Mouse Filtering",    YesNo, 0,  &mouse_filter, NULL, NULL},
+		{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
+		{OPT_Switch,   "Joystick Device", JoyDevs, 7,  &joystick_device, NULL, NULL},
+		{OPT_Switch,   "First Axis",         Axis, 11, &joy_axis[0], NULL, NULL},
+		{OPT_Switch,   "Second Axis",        Axis, 11, &joy_axis[1], NULL, NULL},
+		{OPT_Switch,   "Third Axis",         Axis, 11, &joy_axis[2], NULL, NULL},
+		{OPT_Switch,   "Fourth Axis",        Axis, 11, &joy_axis[3], NULL, NULL},
+		{OPT_Switch,   "Fifth Axis",         Axis, 11, &joy_axis[4], NULL, NULL},
+		{OPT_Switch,   "Sixth Axis",         Axis, 11, &joy_axis[5], NULL, NULL},
 
-	{OPT_Switch,   "Joystick Device", JoyDevs, 7,  &joystick_device, NULL, NULL},
-	{OPT_Switch,   "First Axis",         Axis, 11, &joy_axis[0], NULL, NULL},
-	{OPT_Switch,   "Second Axis",        Axis, 11, &joy_axis[1], NULL, NULL},
-	{OPT_Switch,   "Third Axis",         Axis, 11, &joy_axis[2], NULL, NULL},
-	{OPT_Switch,   "Fourth Axis",        Axis, 11, &joy_axis[3], NULL, NULL},
-	{OPT_Switch,   "Fifth Axis",         Axis, 11, &joy_axis[4], NULL, NULL},
-	{OPT_Switch,   "Sixth Axis",         Axis, 11, &joy_axis[5], NULL, NULL},
-
-	{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
-	{OPT_Slider,   "Turning Speed",      NULL, 12, &var_turnspeed,    NULL, NULL},
-	{OPT_Slider,   "MLook Speed",        NULL, 12, &var_mlookspeed,   NULL, NULL},
-	{OPT_Slider,   "Forward Move Speed", NULL, 8,  &var_forwardspeed, NULL, NULL},
-	{OPT_Slider,   "Side Move Speed",    NULL, 8,  &var_sidespeed,    NULL, NULL}
+		{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
+		{OPT_Slider,   "Turning Speed",      NULL, 12, &var_turnspeed,    NULL, NULL},
+		{OPT_Slider,   "MLook Speed",        NULL, 12, &var_mlookspeed,   NULL, NULL},
+		{OPT_Slider,   "Forward Move Speed", NULL, 8,  &var_forwardspeed, NULL, NULL},
+		{OPT_Slider,   "Side Move Speed",    NULL, 8,  &var_sidespeed,    NULL, NULL},
+		{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
+		{OPT_Boolean,  "Debug Joystick Axis",    YesNo, 0,  &debug_joyaxis, NULL, NULL},
+		{OPT_Boolean,  "Debug Mouse ",    YesNo, 0,  &debug_mouse, NULL, NULL}
 };
 
-static menuinfo_t analogue_optmenu = 
+static menuinfo_t analogue_optmenu =
 {
 	analogueoptions, sizeof(analogueoptions) / sizeof(optmenuitem_t),
 	&mouse_style, 150, 75, "M_MSETTL", NULL, 0, ""
+};
+static menuinfo_t hereticanalogue_optmenu =
+{
+	analogueoptions, sizeof(analogueoptions) / sizeof(optmenuitem_t),
+	&mouse_style, 150, 75, "H_MSETTL", NULL, 0, ""
 };
 
 //
@@ -471,19 +606,28 @@ static optmenuitem_t soundoptions[] =
 	{OPT_Switch,  "Sample Rate",  SampleRates, 5, &var_sample_rate,  NULL, "NeedRestart"},
 	{OPT_Switch,  "Sample Size",  SoundBits, 2,   &var_sound_bits,   NULL, "NeedRestart"},
 	{OPT_Switch,  "Stereo",       StereoNess, 3,  &var_sound_stereo, NULL, "NeedRestart"},
+	{ OPT_Switch,  "Music Device",    MusicDevs, 3, &var_music_dev, NULL, "Win32: SYSTEM will not work with Vista or higher!" },
+
+	{ OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL },
+	{OPT_Boolean, "Sound Pitching",  SoundPitching, 2,  &sound_pitch, NULL, "Emulate Doom 1.2 Random SFX Pitching"},
+	{OPT_Switch,  "Mix Channels",    MixChans,  4, &var_mix_channels, M_ChangeMixChan, NULL},
+	{OPT_Switch,  "SFX: Quiet Factor",    QuietNess, 3, &var_quiet_factor, NULL, "How normalized do you want the sound?"},
 
 	{OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL},
-	{OPT_Switch,  "Mix Channels",    MixChans,  4, &var_mix_channels, M_ChangeMixChan, NULL},
-	{OPT_Switch,  "Quiet Factor",    QuietNess, 3, &var_quiet_factor, NULL, NULL},
-	{OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL},
-	{OPT_Switch,  "Music Device",    MusicDevs, 2, &var_music_dev, NULL, NULL},
-	{OPT_Switch,  "Timidity Factor", QuietNess, 3, &var_timid_factor, M_ChangeTimidQuiet, NULL},
+
+	{OPT_Boolean, "OPL Emulation Mode",       OPL,     2, &var_opl_opl3mode, NULL, "OPL1 or OPL3 mode emulation"},
+	{ OPT_Switch, "Timidity Factor", QuietNess, 3, &var_timid_factor, M_ChangeTimidQuiet, NULL },
 };
 
-static menuinfo_t sound_optmenu = 
+static menuinfo_t sound_optmenu =
 {
 	soundoptions, sizeof(soundoptions) / sizeof(optmenuitem_t),
 	&mouse_style, 150, 75, "M_SFXOPT", NULL, 0, ""
+};
+static menuinfo_t hereticsound_optmenu =
+{
+	soundoptions, sizeof(soundoptions) / sizeof(optmenuitem_t),
+	&mouse_style, 150, 75, "H_SFXOPT", NULL, 0, ""
 };
 
 //
@@ -494,63 +638,69 @@ static menuinfo_t sound_optmenu =
 //
 static optmenuitem_t playoptions[] =
 {
-	{OPT_Boolean, "Mouse Look",         YesNo, 2, 
-     &global_flags.mlook, M_ChangeMLook, NULL},
+	{OPT_Boolean, "Mouse Look",         YesNo, 2,
+	 &global_flags.mlook, M_ChangeMLook, NULL},
 
-	{OPT_Switch,  "AutoAiming",         AAim, 3, 
-     &global_flags.autoaim, M_ChangeAutoAim, NULL},
+	{OPT_Switch,  "AutoAiming",         AAim, 3,
+	 &global_flags.autoaim, M_ChangeAutoAim, NULL},
 
-	{OPT_Boolean, "Jumping",            YesNo, 2, 
-     &global_flags.jump, M_ChangeJumping, NULL},
+	{OPT_Boolean, "Jumping",            YesNo, 2,
+	 &global_flags.jump, M_ChangeJumping, NULL},
 
-	{OPT_Boolean, "Crouching",          YesNo, 2, 
-     &global_flags.crouch, M_ChangeCrouching, NULL},
+	{OPT_Boolean, "Crouching",          YesNo, 2,
+	 &global_flags.crouch, M_ChangeCrouching, NULL},
 
-	{OPT_Boolean, "Weapon Kick",        YesNo, 2, 
-     &global_flags.kicking, M_ChangeKicking, NULL},
+	{OPT_Boolean, "Weapon Kick",        YesNo, 2,
+	 &global_flags.kicking, M_ChangeKicking, NULL},
 
-	{OPT_Boolean, "Weapon Auto-Switch", YesNo, 2, 
-     &global_flags.weapon_switch, M_ChangeWeaponSwitch, NULL},
+	{OPT_Boolean, "Weapon Auto-Switch", YesNo, 2,
+	 &global_flags.weapon_switch, M_ChangeWeaponSwitch, NULL},
 
-	{OPT_Boolean, "Obituary Messages",  YesNo, 2, 
-     &var_obituaries, NULL, NULL},
+	{OPT_Boolean, "Obituary Messages",  YesNo, 2,
+	 &var_obituaries, NULL, NULL},
 
-	{OPT_Boolean, "More Blood",         YesNo, 2, 
-     &global_flags.more_blood, M_ChangeBlood, "Blood"},
+	{OPT_Boolean, "More Blood",         YesNo, 2,
+	 &global_flags.more_blood, M_ChangeBlood, "Blood"},
 
-	{OPT_Boolean, "Extras",             YesNo, 2, 
-     &global_flags.have_extra, M_ChangeExtra, NULL},
+	{OPT_Boolean, "Extras",             YesNo, 2,
+	 &global_flags.have_extra, M_ChangeExtra, NULL},
 
-	{OPT_Boolean, "True 3D Gameplay",   YesNo, 2, 
-     &global_flags.true3dgameplay, M_ChangeTrue3d, "True3d"},
+	{OPT_Boolean, "True 3D Gameplay",   YesNo, 2,
+	 &global_flags.true3dgameplay, M_ChangeTrue3d, "True3d"},
 
-	{OPT_Boolean, "Shoot-thru Scenery",   YesNo, 2, 
-     &global_flags.pass_missile, M_ChangePassMissile, NULL},
+	{OPT_Boolean, "Shoot-Through Scenery",   YesNo, 2,
+	 &global_flags.pass_missile, M_ChangePassMissile, NULL},
+
+	{OPT_Plain,   "Monster Aggression", YesNo, 2,
+	&g_aggression, NULL, "Aggressive Monsters (EDGE feature)!"},
+
+	{OPT_Slider,  "Gravity",            NULL, 20,
+	 &global_flags.menu_grav, NULL, "Gravity"},
 
 	{OPT_Plain,   "", NULL, 0, NULL, NULL, NULL},
 
-	{OPT_Slider,  "Gravity",            NULL, 20, 
-     &global_flags.menu_grav, NULL, "Gravity"},
+	{OPT_Boolean, "Enemy Respawn Mode", Respw, 2,
+	 &global_flags.res_respawn, M_ChangeMonsterRespawn, NULL},
 
-	{OPT_Plain,   "", NULL, 0, NULL, NULL, NULL},
+	{OPT_Boolean, "Item Respawn",       YesNo, 2,
+	 &global_flags.itemrespawn, M_ChangeItemRespawn, NULL},
 
-	{OPT_Boolean, "Enemy Respawn Mode", Respw, 2, 
-     &global_flags.res_respawn, M_ChangeMonsterRespawn, NULL},
+	{OPT_Boolean, "Fast Monsters",      YesNo, 2,
+	 &global_flags.fastparm, M_ChangeFastparm, NULL},
 
-	{OPT_Boolean, "Item Respawn",       YesNo, 2, 
-     &global_flags.itemrespawn, M_ChangeItemRespawn, NULL},
-	
-    {OPT_Boolean, "Fast Monsters",      YesNo, 2, 
-     &global_flags.fastparm, M_ChangeFastparm, NULL},
-	
-    {OPT_Boolean, "Respawn",            YesNo, 2, 
-     &global_flags.respawn, M_ChangeRespawn, NULL}
+	{OPT_Boolean, "Respawn",            YesNo, 2,
+	 &global_flags.respawn, M_ChangeRespawn, NULL}
 };
 
-static menuinfo_t gameplay_optmenu = 
+static menuinfo_t gameplay_optmenu =
 {
 	playoptions, sizeof(playoptions) / sizeof(optmenuitem_t),
 	&gameplay_style, 160, 46, "M_GAMEPL", NULL, 0, ""
+};
+static menuinfo_t hereticgameplay_optmenu =
+{
+	playoptions, sizeof(playoptions) / sizeof(optmenuitem_t),
+	&gameplay_style, 160, 46, "H_GAMEPL", NULL, 0, ""
 };
 
 //
@@ -574,38 +724,18 @@ static optmenuitem_t move_keyconfig[] =
 	{OPT_KeyConfig, "Down / Crouch",  NULL, 0, &key_flydown, NULL, NULL},
 };
 
-static menuinfo_t movement_optmenu = 
+static menuinfo_t movement_optmenu =
 {
 	move_keyconfig, sizeof(move_keyconfig) / sizeof(optmenuitem_t),
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Movement"
 };
-
-// DUPLICATED FOR PLAYER 2
-
-//is this referenced in the load pages for key_x2? Hope so, pay attention to the move_keyconfig (might need to rename this), RUN A QUICK SEARCH
-//COME BACK HERE GOOBERS
-/* static optmenuitem_t move_keyconfig2[] =
+static menuinfo_t hereticmovement_optmenu =
 {
-	{OPT_KeyConfig, "Walk Forward",   NULL, 0, &key_up2, NULL, NULL},
-	{OPT_KeyConfig, "Walk Backwards", NULL, 0, &key_down2, NULL, NULL},
-	{OPT_Plain,      "",              NULL, 0, NULL, NULL, NULL},
-	{OPT_KeyConfig, "Strafe Left",    NULL, 0, &key_strafeleft2, NULL, NULL},
-	{OPT_KeyConfig, "Strafe Right",   NULL, 0, &key_straferight2, NULL, NULL},
-	{OPT_Plain,      "",              NULL, 0, NULL, NULL, NULL},
-	{OPT_KeyConfig, "Turn Left",      NULL, 0, &key_left2, NULL, NULL},
-	{OPT_KeyConfig, "Turn Right",     NULL, 0, &key_right2, NULL, NULL},
-	{OPT_Plain,      "",              NULL, 0, NULL, NULL, NULL},
-	{OPT_KeyConfig, "Up / Jump",      NULL, 0, &key_flyup2, NULL, NULL},
-	{OPT_KeyConfig, "Down / Crouch",  NULL, 0, &key_flydown2, NULL, NULL},
-};
-
-static menuinfo_t movement2_optmenu = 
-{
-	move_keyconfig2, sizeof(move_keyconfig2) / sizeof(optmenuitem_t),
-	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
+	move_keyconfig, sizeof(move_keyconfig) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "H_CONTRL", NULL, 0,
 	"Movement"
-}; */
+};
 
 //
 //  KEY CONFIG : ATTACK + LOOK
@@ -620,6 +750,8 @@ static optmenuitem_t attack_keyconfig[] =
 	{OPT_KeyConfig, "Next Weapon",      NULL, 0, &key_nextweapon, NULL, NULL},
 	{OPT_KeyConfig, "Previous Weapon",  NULL, 0, &key_prevweapon, NULL, NULL},
 	{OPT_KeyConfig, "Weapon Reload",    NULL, 0, &key_reload, NULL, NULL},
+	{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL },
+	{OPT_KeyConfig, "Use Item",         NULL, 0, &key_use, NULL, NULL },
 	{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL},
 	{OPT_KeyConfig, "Look Up",          NULL, 0, &key_lookup, NULL, NULL},
 	{OPT_KeyConfig, "Look Down",        NULL, 0, &key_lookdown, NULL, NULL},
@@ -628,41 +760,25 @@ static optmenuitem_t attack_keyconfig[] =
 	{OPT_KeyConfig, "Zoom in/out",      NULL, 0, &key_zoom, NULL, NULL},
 };
 
-static menuinfo_t attack_optmenu = 
+static menuinfo_t attack_optmenu =
 {
 	attack_keyconfig, sizeof(attack_keyconfig) / sizeof(optmenuitem_t),
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Attack / Look"
 };
-/* 
-static optmenuitem_t attack_keyconfig2[] =
+static menuinfo_t hereticattack_optmenu =
 {
-	{OPT_KeyConfig, "Primary Attack",   NULL, 0, &key_fire2, NULL, NULL},
-	{OPT_KeyConfig, "Secondary Attack", NULL, 0, &key_secondatk2, NULL, NULL},
-	{OPT_KeyConfig, "Next Weapon",      NULL, 0, &key_nextweapon2, NULL, NULL},
-	{OPT_KeyConfig, "Previous Weapon",  NULL, 0, &key_prevweapon2, NULL, NULL},
-	{OPT_KeyConfig, "Weapon Reload",    NULL, 0, &key_reload2, NULL, NULL},
-	{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL},
-	{OPT_KeyConfig, "Look Up",          NULL, 0, &key_lookup2, NULL, NULL},
-	{OPT_KeyConfig, "Look Down",        NULL, 0, &key_lookdown2, NULL, NULL},
-	{OPT_KeyConfig, "Center View",      NULL, 0, &key_lookcenter2, NULL, NULL},
-	{OPT_KeyConfig, "Mouse Look",       NULL, 0, &key_mlook2, NULL, NULL},
-	{OPT_KeyConfig, "Zoom in/out",      NULL, 0, &key_zoom2, NULL, NULL},
-}; */
-/* 
-static menuinfo_t attack2_optmenu = 
-{
-	attack_keyconfig2, sizeof(attack_keyconfig2) / sizeof(optmenuitem_t),
-	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
+	attack_keyconfig, sizeof(attack_keyconfig) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "H_CONTRL", NULL, 0,
 	"Attack / Look"
-}; */
+};
 
 //
 //  KEY CONFIG : OTHER STUFF
 //
 static optmenuitem_t other_keyconfig[] =
 {
-	{OPT_KeyConfig, "Use Item",         NULL, 0, &key_use, NULL, NULL},
+	{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL },
 	{OPT_KeyConfig, "Strafe",           NULL, 0, &key_strafe, NULL, NULL},
 	{OPT_KeyConfig, "Run",              NULL, 0, &key_speed, NULL, NULL},
 	{OPT_KeyConfig, "Toggle Autorun",   NULL, 0, &key_autorun, NULL, NULL},
@@ -673,42 +789,22 @@ static optmenuitem_t other_keyconfig[] =
 	{OPT_KeyConfig, "Pause",            NULL, 0, &key_pause, NULL, NULL},
 	{OPT_KeyConfig, "Action 1",         NULL, 0, &key_action1, NULL, NULL},
 	{OPT_KeyConfig, "Action 2",         NULL, 0, &key_action2, NULL, NULL},
-	{OPT_KeyConfig, "Action 3",         NULL, 0, &key_action3, NULL, NULL},
-	{OPT_KeyConfig, "Action 4",         NULL, 0, &key_action4, NULL, NULL},
 
-	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
+	///	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
 };
 
-static menuinfo_t otherkey_optmenu = 
+static menuinfo_t otherkey_optmenu =
 {
 	other_keyconfig, sizeof(other_keyconfig) / sizeof(optmenuitem_t),
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Other Keys"
 };
-/* 
-static optmenuitem_t other_keyconfig2[] =
+static menuinfo_t hereticotherkey_optmenu =
 {
-	{OPT_KeyConfig, "Use Item",         NULL, 0, &key_use2, NULL, NULL},
-	{OPT_KeyConfig, "Strafe",           NULL, 0, &key_strafe2, NULL, NULL},
-	{OPT_KeyConfig, "Run",              NULL, 0, &key_speed2, NULL, NULL},
-	{OPT_KeyConfig, "Toggle Autorun",   NULL, 0, &key_autorun2, NULL, NULL},
-	{OPT_KeyConfig, "180 degree turn",  NULL, 0, &key_1802, NULL, NULL},
-	{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL},
-	{OPT_KeyConfig, "Map Toggle",       NULL, 0, &key_map2, NULL, NULL},
-	{OPT_KeyConfig, "Console",          NULL, 0, &key_console2, NULL, NULL},
-//	{OPT_KeyConfig, "Pause",            NULL, 0, &key_pause2, NULL, NULL},
-	{OPT_KeyConfig, "Action 1",         NULL, 0, &key_action12, NULL, NULL},
-	{OPT_KeyConfig, "Action 2",         NULL, 0, &key_action22, NULL, NULL},
-
-	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
-}; */
-/* 
-static menuinfo_t otherkey2_optmenu = 
-{
-	other_keyconfig2, sizeof(other_keyconfig2) / sizeof(optmenuitem_t),
-	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
+	other_keyconfig, sizeof(other_keyconfig) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "H_CONTRL", NULL, 0,
 	"Other Keys"
-}; */
+};
 
 //
 //  KEY CONFIG : WEAPONS
@@ -728,35 +824,18 @@ static optmenuitem_t weapon_keyconfig[] =
 	{OPT_KeyConfig, "Weapon 0",  NULL, 0, &key_weapons[0], NULL, NULL},
 };
 
-static menuinfo_t weapon_optmenu = 
+static menuinfo_t weapon_optmenu =
 {
 	weapon_keyconfig, sizeof(weapon_keyconfig) / sizeof(optmenuitem_t),
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
 	"Weapon Keys"
 };
-
-//weapon_keyconfig is not defined yet (neither are the key_weapons2 stuff...might cause problems)f/* 
-/* static optmenuitem_t weapon_keyconfig2[] =
+static menuinfo_t hereticweapon_optmenu =
 {
-	{OPT_KeyConfig, "Weapon 1",  NULL, 0, &key_weapons2[1], NULL, NULL},
-	{OPT_KeyConfig, "Weapon 2",  NULL, 0, &key_weapons2[2], NULL, NULL},
-	{OPT_KeyConfig, "Weapon 3",  NULL, 0, &key_weapons2[3], NULL, NULL},
-	{OPT_KeyConfig, "Weapon 4",  NULL, 0, &key_weapons2[4], NULL, NULL},
-	{OPT_KeyConfig, "Weapon 5",  NULL, 0, &key_weapons2[5], NULL, NULL},
-	{OPT_Plain,     "",          NULL, 0, NULL, NULL, NULL},
-	{OPT_KeyConfig, "Weapon 6",  NULL, 0, &key_weapons2[6], NULL, NULL},
-	{OPT_KeyConfig, "Weapon 7",  NULL, 0, &key_weapons2[7], NULL, NULL},
-	{OPT_KeyConfig, "Weapon 8",  NULL, 0, &key_weapons2[8], NULL, NULL},
-	{OPT_KeyConfig, "Weapon 9",  NULL, 0, &key_weapons2[9], NULL, NULL},
-	{OPT_KeyConfig, "Weapon 0",  NULL, 0, &key_weapons2[0], NULL, NULL},
-};
-
-static menuinfo_t weapon2_optmenu = 
-{
-	weapon_keyconfig2, sizeof(weapon_keyconfig2) / sizeof(optmenuitem_t),
-	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
+	weapon_keyconfig, sizeof(weapon_keyconfig) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "H_CONTRL", NULL, 0,
 	"Weapon Keys"
-}; */ 
+};
 
 //
 //  KEY CONFIG : AUTOMAP
@@ -776,40 +855,41 @@ static optmenuitem_t automap_keyconfig[] =
 	{OPT_KeyConfig, "Clear Marks",   NULL, 0, &key_am_clear, NULL, NULL},
 };
 
-static menuinfo_t automap_optmenu = 
+static menuinfo_t automap_optmenu =
 {
 	automap_keyconfig, sizeof(automap_keyconfig) / sizeof(optmenuitem_t),
 	&keyboard_style, 140, 98, "M_CONTRL", NULL, 0,
+	"Automap Keys"
+};
+static menuinfo_t hereticautomap_optmenu =
+{
+	automap_keyconfig, sizeof(automap_keyconfig) / sizeof(optmenuitem_t),
+	&keyboard_style, 140, 98, "H_CONTRL", NULL, 0,
 	"Automap Keys"
 };
 
 /*
  * ALL KEYBOARD MENUS
  */
-#define NUM_KEY_MENUS  9
-// 5, as in 5 pages? Testing now. . .
-// yes, so this will need to be duplicated for the entirely new keyboard menu we will be writing.
-// This will be easier than just creating 10 pages and confusing everyone.
+#define NUM_KEY_MENUS  5
 
-//Well, that's what we'll do. We'll create two methods - one, a seperate menu, and if that
-//fails, we can go the easier route and add 5 more to NUM_KEY_MENUS
-
-// Is optmenu here what calls the menu pages for key definitions? -CA
 static menuinfo_t * all_key_menus[NUM_KEY_MENUS] =
 {
 	&movement_optmenu,
 	&attack_optmenu,
 	&otherkey_optmenu,
 	&weapon_optmenu,
-	&automap_optmenu,
+	&automap_optmenu
+};
+static menuinfo_t * heretic_key_menus[NUM_KEY_MENUS] =
+{
+	&hereticmovement_optmenu,
+	&hereticattack_optmenu,
+	&hereticotherkey_optmenu,
+	&hereticweapon_optmenu,
+	&hereticautomap_optmenu
 };
 
-// static menuinfo_t * all_key2_menus[NUM_KEY2_MENUS] =	
-	// &movement2_optmenu,
-	// &attack2_optmenu,
-	// &otherkey2_optmenu,
-	// &weapon2_optmenu,
-// };
 static char keystring1[] = "Enter to change, Backspace to Clear";
 static char keystring2[] = "Press a key for this action";
 
@@ -823,25 +903,25 @@ void M_OptCheckNetgame(void)
 {
 	if (gamestate >= GS_LEVEL)
 	{
-		strcpy(mainoptions[HOSTNET_POS+0].name, "Leave Game");
-		mainoptions[HOSTNET_POS+0].routine = &M_EndGame;
-		mainoptions[HOSTNET_POS+0].help = NULL;
+		strcpy(mainoptions[HOSTNET_POS + 0].name, "Leave Game");
+		mainoptions[HOSTNET_POS + 0].routine = &M_EndGame;
+		mainoptions[HOSTNET_POS + 0].help = NULL;
 
-		strcpy(mainoptions[HOSTNET_POS+1].name, "SplitScreen Game");
-		mainoptions[HOSTNET_POS+1].type = OPT_Plain;
-		mainoptions[HOSTNET_POS+1].routine = NULL;
-		mainoptions[HOSTNET_POS+1].help = NULL;
+		//		strcpy(mainoptions[HOSTNET_POS+1].name, "");
+		//		mainoptions[HOSTNET_POS+1].type = OPT_Plain;
+		//		mainoptions[HOSTNET_POS+1].routine = NULL;
+		//		mainoptions[HOSTNET_POS+1].help = NULL;
 	}
 	else
 	{
-		strcpy(mainoptions[HOSTNET_POS+0].name, "Host Net Game");
-		mainoptions[HOSTNET_POS+0].routine = &M_HostNetGame;
-		mainoptions[HOSTNET_POS+0].help = NULL;
+		strcpy(mainoptions[HOSTNET_POS + 0].name, "Host Net Game");
+		mainoptions[HOSTNET_POS + 0].routine = &M_HostNetGame;
+		mainoptions[HOSTNET_POS + 0].help = NULL;
 
-		strcpy(mainoptions[HOSTNET_POS+1].name, "Join Net Game");
-		mainoptions[HOSTNET_POS+1].type = OPT_Function;
-		mainoptions[HOSTNET_POS+1].routine = &M_JoinNetGame;
-		mainoptions[HOSTNET_POS+1].help = NULL;
+		strcpy(mainoptions[HOSTNET_POS + 1].name, "Join Net Game");
+		mainoptions[HOSTNET_POS + 1].type = OPT_Function;
+		mainoptions[HOSTNET_POS + 1].routine = &M_JoinNetGame;
+		mainoptions[HOSTNET_POS + 1].help = NULL;
 	}
 }
 
@@ -851,7 +931,16 @@ void M_OptCheckNetgame(void)
 void M_OptMenuInit()
 {
 	option_menuon = 0;
-	curr_menu = &main_optmenu;
+
+	if (heretic_mode)
+	{
+		curr_menu = &hereticmain_optmenu;
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = &main_optmenu;
+	}
+
 	curr_item = curr_menu->items + curr_menu->pos;
 	curr_key_menu = 0;
 	keyscan = 0;
@@ -860,7 +949,7 @@ void M_OptMenuInit()
 	styledef_c *def;
 
 	def = styledefs.Lookup("OPTIONS");
-	if (! def) def = default_style;
+	/* 	if (! def) def = default_style; */
 	opt_def_style = hu_styles.Lookup(def);
 
 	def = styledefs.Lookup("KEYBOARD CONTROLS");
@@ -878,6 +967,9 @@ void M_OptMenuInit()
 	def = styledefs.Lookup("SET RESOLUTION");
 	setres_style = def ? hu_styles.Lookup(def) : opt_def_style;
 
+	def = styledefs.Lookup("ADVANCED");
+	advanced_style = def ? hu_styles.Lookup(def) : opt_def_style;
+
 	// Restore the config setting.
 	M_ChangeBlood(-1);
 }
@@ -889,15 +981,15 @@ void M_OptMenuInit()
 //
 void M_OptTicker(void)
 {
-///--  	if (testticker > 0)
-///--  	{
-///--  		testticker--;
-///--  	}
-///--  	else if (!testticker)
-///--  	{
-///--  		testticker--;
-///--  		M_RestoreResSettings(-1);
-///--  	}
+	///--  	if (testticker > 0)
+	///--  	{
+	///--  		testticker--;
+	///--  	}
+	///--  	else if (!testticker)
+	///--  	{
+	///--  		testticker--;
+	///--  		M_RestoreResSettings(-1);
+	///--  	}
 }
 
 //
@@ -905,6 +997,7 @@ void M_OptTicker(void)
 //
 // Text menu drawer
 //
+
 void M_OptDrawer()
 {
 	char tempstring[80];
@@ -919,7 +1012,7 @@ void M_OptDrawer()
 	style_c *style = curr_menu->style_var[0];
 	SYS_ASSERT(style);
 
-	if (! style->fonts[0])
+	if (!style->fonts[0])
 		return;
 
 	int font_h = style->fonts[0]->NominalHeight();
@@ -930,16 +1023,14 @@ void M_OptDrawer()
 	if (curr_menu->key_page[0])
 		menutop = 9 * font_h / 2;
 
+	const image_c *image;
 
-		const image_c *image;
+	if (!curr_menu->title_image)
+		curr_menu->title_image = W_ImageLookup(curr_menu->title_name);
 
-		if (! curr_menu->title_image)
-			curr_menu->title_image = W_ImageLookup(curr_menu->title_name);
+	image = curr_menu->title_image;
 
-		image = curr_menu->title_image;
-
-		HUD_DrawImage(curr_menu->title_x, menutop, image);
-
+	HUD_DrawImage(curr_menu->title_x, menutop, image);
 
 	//now, draw all the menuitems
 	deltay = 1 + font_h;
@@ -949,29 +1040,33 @@ void M_OptDrawer()
 	if (curr_menu->key_page[0])
 	{
 		if (curr_key_menu > 0)
-			HL_WriteText(style,2, 60, 200-deltay*4, "< PREV");
+			HL_WriteText(style, 2, 60, 200 - deltay * 4, "< PREV");
 
-		if (curr_key_menu < NUM_KEY_MENUS-1)
-			HL_WriteText(style,2, 260 - style->fonts[2]->StringWidth("NEXT >"), 200-deltay*4, 
-							  "NEXT >");
+		if (curr_key_menu < NUM_KEY_MENUS - 1)
+			HL_WriteText(style, 2, 260 - style->fonts[2]->StringWidth("NEXT >"), 200 - deltay * 4,
+				"NEXT >");
 
-		HL_WriteText(style,3, 160 - style->fonts[2]->StringWidth(curr_menu->key_page)/2, 
-					 curry, curr_menu->key_page);
-		curry += font_h*2;
+		HL_WriteText(style, 3, 160 - style->fonts[2]->StringWidth(curr_menu->key_page) / 2,
+			curry, curr_menu->key_page);
+		curry += font_h * 2;
 
 		if (keyscan)
-			HL_WriteText(style,3, 160 - (style->fonts[3]->StringWidth(keystring2) / 2), 
-							  200-deltay*2, keystring2);
+			HL_WriteText(style, 3, 160 - (style->fonts[3]->StringWidth(keystring2) / 2),
+				200 - deltay * 2, keystring2);
 		else
-			HL_WriteText(style,3, 160 - (style->fonts[3]->StringWidth(keystring1) / 2), 
-							  200-deltay*2, keystring1);
+			HL_WriteText(style, 3, 160 - (style->fonts[3]->StringWidth(keystring1) / 2),
+				200 - deltay * 2, keystring1);
 	}
 	else if (curr_menu == &res_optmenu)
 	{
-		M_ResOptDrawer(style, curry, curry + (deltay * (res_optmenu.item_num - 2)), 
-					   deltay, curr_menu->menu_center);
+		M_ResOptDrawer(style, curry, curry + (deltay * (res_optmenu.item_num - 2)),
+			deltay, curr_menu->menu_center);
 	}
 	else if (curr_menu == &main_optmenu)
+	{
+		M_LanguageDrawer(curr_menu->menu_center, curry, deltay);
+	}
+	else if (curr_menu == &hereticmain_optmenu)
 	{
 		M_LanguageDrawer(curr_menu->menu_center, curry, deltay);
 	}
@@ -981,76 +1076,76 @@ void M_OptDrawer()
 		bool is_selected = (i == curr_menu->pos);
 
 		HL_WriteText(style, is_selected ? 2 : 0,
-		             (curr_menu->menu_center) - style->fonts[0]->StringWidth(curr_menu->items[i].name),
-					 curry, curr_menu->items[i].name);
+			(curr_menu->menu_center) - style->fonts[0]->StringWidth(curr_menu->items[i].name),
+			curry, curr_menu->items[i].name);
 
 		// -ACB- 1998/07/15 Menu Cursor is colour indexed.
 		if (is_selected)
 		{
-			HL_WriteText(style,2, (curr_menu->menu_center + 4), curry, "*");
+			HL_WriteText(style, 2, (curr_menu->menu_center + 4), curry, ">");
 
 			if (curr_menu->items[i].help)
 			{
 				const char *help = language[curr_menu->items[i].help];
 
-				HL_WriteText(style,3, 160 - (style->fonts[3]->StringWidth(help) / 2), 200 - deltay*2, 
-								  help);
+				HL_WriteText(style, 3, 160 - (style->fonts[3]->StringWidth(help) / 2), 200 - deltay * 2,
+					help);
 			}
 		}
 
 		switch (curr_menu->items[i].type)
 		{
-			case OPT_Boolean:
-			case OPT_Switch:
+		case OPT_Boolean:
+		case OPT_Switch:
+		{
+			k = 0;
+			for (j = 0; j < M_GetCurrentSwitchValue(&curr_menu->items[i]); j++)
 			{
-				k = 0;
-				for (j = 0; j < M_GetCurrentSwitchValue(&curr_menu->items[i]); j++)
-				{
-					while ((curr_menu->items[i].typenames[k] != '/') && (k < strlen(curr_menu->items[i].typenames)))
-						k++;
+				while ((curr_menu->items[i].typenames[k] != '/') && (k < strlen(curr_menu->items[i].typenames)))
+					k++;
 
+				k++;
+			}
+
+			if (k < strlen(curr_menu->items[i].typenames))
+			{
+				j = 0;
+				while ((curr_menu->items[i].typenames[k] != '/') && (k < strlen(curr_menu->items[i].typenames)))
+				{
+					tempstring[j] = curr_menu->items[i].typenames[k];
+					j++;
 					k++;
 				}
-
-				if (k < strlen(curr_menu->items[i].typenames))
-				{
-					j = 0;
-					while ((curr_menu->items[i].typenames[k] != '/') && (k < strlen(curr_menu->items[i].typenames)))
-					{
-						tempstring[j] = curr_menu->items[i].typenames[k];
-						j++;
-						k++;
-					}
-					tempstring[j] = 0;
-				}
-				else
-				{
-					sprintf(tempstring, "Invalid");
-				}
-
-				HL_WriteText(style,1, (curr_menu->menu_center) + 15, curry, tempstring);
-				break;
+				tempstring[j] = 0;
 			}
-
-			case OPT_Slider:
+			else
 			{
-				M_DrawThermo(curr_menu->menu_center + 15, curry,
-							 curr_menu->items[i].numtypes,
-							  *(int*)(curr_menu->items[i].switchvar), 2);
-              
-				break;
+				sprintf(tempstring, "Invalid");
 			}
 
-			case OPT_KeyConfig:
-			{
-				k = *(int*)(curr_menu->items[i].switchvar);
-				M_Key2String(k, tempstring);
-				HL_WriteText(style,1, (curr_menu->menu_center + 15), curry, tempstring);
-				break;
-			}
+			HL_WriteText(style, 1, (curr_menu->menu_center) + 15, curry, tempstring);
+			break;
+		}
 
-			default:
-				break;
+		case OPT_Slider:
+		{
+			M_DrawThermo(curr_menu->menu_center + 15, curry,
+				curr_menu->items[i].numtypes,
+				*(int*)(curr_menu->items[i].switchvar), 2);
+
+			break;
+		}
+
+		case OPT_KeyConfig:
+		{
+			k = *(int*)(curr_menu->items[i].switchvar);
+			M_Key2String(k, tempstring);
+			HL_WriteText(style, 1, (curr_menu->menu_center + 15), curry, tempstring);
+			break;
+		}
+
+		default:
+			break;
 		}
 		curry += deltay;
 	}
@@ -1074,33 +1169,33 @@ static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int ce
 	y += dy;
 
 	// Draw resolution selection option
-	y += (dy*2);
+	y += (dy * 2);
 	sprintf(tempstring, "%dx%d", new_scrmode.width, new_scrmode.height);
-	HL_WriteText(style,1, centrex+15, y, tempstring);
+	HL_WriteText(style, 1, centrex + 15, y, tempstring);
 
 	// Draw depth selection option
 	y += dy;
-	sprintf(tempstring, "%d bit", (new_scrmode.depth < 20) ? 16:32);
-	HL_WriteText(style,1, centrex+15, y, tempstring);
+	sprintf(tempstring, "%d bit", (new_scrmode.depth < 20) ? 16 : 32);
+	HL_WriteText(style, 1, centrex + 15, y, tempstring);
 
 	y += dy;
 	sprintf(tempstring, "%s", new_scrmode.full ? "Fullscreen" : "Windowed");
-	HL_WriteText(style,1, centrex+15, y, tempstring);
+	HL_WriteText(style, 1, centrex + 15, y, tempstring);
 
 	// Draw selected resolution and mode:
 	y = bottomy;
-	y += (dy/2);
+	y += (dy / 2);
 
 	sprintf(tempstring, "Current Resolution:");
-	HL_WriteText(style,3, 160 - (style->fonts[0]->StringWidth(tempstring) / 2), y, tempstring);
+	HL_WriteText(style, 3, 160 - (style->fonts[0]->StringWidth(tempstring) / 2), y, tempstring);
 
 	y += dy;
 
 	sprintf(tempstring, "%d x %d at %d-bit %s",
-			SCREENWIDTH, SCREENHEIGHT, (SCREENBITS < 20) ? 16 : 32,
-			FULLSCREEN ? "Fullscreen" : "Windowed");
+		SCREENWIDTH, SCREENHEIGHT, (SCREENBITS < 20) ? 16 : 32,
+		FULLSCREEN ? "Fullscreen" : "Windowed");
 
-	HL_WriteText(style,1, 160 - (style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
+	HL_WriteText(style, 1, 160 - (style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
 }
 
 //
@@ -1113,15 +1208,14 @@ static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int ce
 
 static void M_LanguageDrawer(int x, int y, int deltay)
 {
-	HL_WriteText(opt_def_style,1, x+15, y + deltay * LANGUAGE_POS, language.GetName());
+	HL_WriteText(opt_def_style, 1, x + 15, y + deltay * LANGUAGE_POS, language.GetName());
 }
-
 
 static void KeyMenu_Next()
 {
-	if (curr_key_menu >= NUM_KEY_MENUS-1)
+	if (curr_key_menu >= NUM_KEY_MENUS - 1)
 		return;
-	
+
 	curr_key_menu++;
 
 	curr_menu = all_key_menus[curr_key_menu];
@@ -1133,7 +1227,7 @@ static void KeyMenu_Prev()
 {
 	if (curr_key_menu <= 0)
 		return;
-	
+
 	curr_key_menu--;
 
 	curr_menu = all_key_menus[curr_key_menu];
@@ -1146,23 +1240,23 @@ static void KeyMenu_Prev()
 //
 bool M_OptResponder(event_t * ev, int ch)
 {
-///--  	if (testticker != -1)
-///--  		return true;
+	///--  	if (testticker != -1)
+	///--  		return true;
 
-	// Scan for keycodes
+		// Scan for keycodes
 	if (keyscan)
 	{
 		int *blah;
 
 		if (ev->type != ev_keydown)
 			return false;
-		int key = ev->value.key.sym;
+		int key = ev->data1;
 
 		keyscan = 0;
 
 		if (ch == KEYD_ESCAPE)
 			return true;
-     
+
 		blah = (int*)(curr_item->switchvar);
 		if (((*blah) >> 16) == key)
 		{
@@ -1189,210 +1283,225 @@ bool M_OptResponder(event_t * ev, int ch)
 
 	switch (ch)
 	{
-		case KEYD_BACKSPACE:
+	case KEYD_BACKSPACE:
+	case KEYD_DELETE:
+	{
+		if (curr_item->type == OPT_KeyConfig)
+			*(int*)(curr_item->switchvar) = 0;
+		return true;
+	}
+
+	case KEYD_DOWNARROW:
+	case KEYD_WHEEL_DN:
+	{
+		do
 		{
-			if (curr_item->type == OPT_KeyConfig)
-				*(int*)(curr_item->switchvar) = 0;
+			curr_menu->pos++;
+			if (curr_menu->pos >= curr_menu->item_num)
+				curr_menu->pos = 0;
+			curr_item = curr_menu->items + curr_menu->pos;
+		} while (curr_item->type == 0);
+
+		S_StartFX(sfx_pstop);
+		return true;
+	}
+
+	case KEYD_UPARROW:
+	case KEYD_WHEEL_UP:
+	{
+		do
+		{
+			curr_menu->pos--;
+			if (curr_menu->pos < 0)
+				curr_menu->pos = curr_menu->item_num - 1;
+			curr_item = curr_menu->items + curr_menu->pos;
+		} while (curr_item->type == 0);
+
+		S_StartFX(sfx_pstop);
+		return true;
+	}
+
+	case KEYD_LEFTARROW:
+	{
+		if (curr_menu->key_page[0])
+		{
+			KeyMenu_Prev();
 			return true;
 		}
 
-		case KEYD_DOWNARROW:
-		case KEYD_WHEEL_DN:
+		switch (curr_item->type)
 		{
-			do
+		case OPT_Plain:
+		{
+			return false;
+		}
+
+		case OPT_Boolean:
+		{
+			bool *boolptr = (bool*)curr_item->switchvar;
+
+			*boolptr = !(*boolptr);
+
+			S_StartFX(sfx_pistol);
+
+			if (curr_item->routine != NULL)
+				curr_item->routine(ch);
+
+			return true;
+		}
+
+		case OPT_Switch:
+		{
+			int *val_ptr = (int*)curr_item->switchvar;
+
+			*val_ptr -= 1;
+
+			if (*val_ptr < 0)
+				*val_ptr = curr_item->numtypes - 1;
+
+			S_StartFX(sfx_pistol);
+
+			if (curr_item->routine != NULL)
+				curr_item->routine(ch);
+
+			return true;
+		}
+
+		case OPT_Function:
+		{
+			if (curr_item->routine != NULL)
+				curr_item->routine(ch);
+
+			S_StartFX(sfx_pistol);
+			return true;
+		}
+
+		case OPT_Slider:
+		{
+			int *val_ptr = (int*)curr_item->switchvar;
+
+			if (*val_ptr > 0)
 			{
-				curr_menu->pos++;
-				if (curr_menu->pos >= curr_menu->item_num)
-					curr_menu->pos = 0;
+				*val_ptr -= 1;
+
+				S_StartFX(sfx_stnmov);
+			}
+
+			if (curr_item->routine != NULL)
+				curr_item->routine(ch);
+
+			return true;
+		}
+
+		default:
+			break;
+		}
+	}
+
+	case KEYD_RIGHTARROW:
+		if (curr_menu->key_page[0])
+		{
+			KeyMenu_Next();
+			return true;
+		}
+
+		/* FALL THROUGH... */
+
+	case KEYD_ENTER:
+	case KEYD_MOUSE1:
+	{
+		switch (curr_item->type)
+		{
+		case OPT_Plain:
+			return false;
+
+		case OPT_Boolean:
+		{
+			bool *boolptr = (bool*)curr_item->switchvar;
+
+			*boolptr = !(*boolptr);
+
+			S_StartFX(sfx_pistol);
+
+			if (curr_item->routine != NULL)
+				curr_item->routine(ch);
+
+			return true;
+		}
+
+		case OPT_Switch:
+		{
+			int *val_ptr = (int*)curr_item->switchvar;
+
+			*val_ptr += 1;
+
+			if (*val_ptr >= curr_item->numtypes)
+				*val_ptr = 0;
+
+			S_StartFX(sfx_pistol);
+
+			if (curr_item->routine != NULL)
+				curr_item->routine(ch);
+
+			return true;
+		}
+
+		case OPT_Function:
+		{
+			if (curr_item->routine != NULL)
+				curr_item->routine(ch);
+
+			S_StartFX(sfx_pistol);
+			return true;
+		}
+
+		case OPT_Slider:
+		{
+			int *val_ptr = (int*)curr_item->switchvar;
+
+			if (*val_ptr < (curr_item->numtypes - 1))
+			{
+				*val_ptr += 1;
+
+				S_StartFX(sfx_stnmov);
+			}
+
+			if (curr_item->routine != NULL)
+				curr_item->routine(ch);
+
+			return true;
+		}
+
+		case OPT_KeyConfig:
+		{
+			keyscan = 1;
+			return true;
+		}
+
+		default:
+			break;
+		}
+		I_Error("Invalid menu type!");
+	}
+	case KEYD_ESCAPE:
+	case KEYD_MOUSE2:
+	case KEYD_MOUSE3:
+	{
+		if (heretic_mode)
+		{
+			if (curr_menu == &hereticmain_optmenu)
+			{
+				option_menuon = 0;
+			}
+			else
+			{
+				curr_menu = &hereticmain_optmenu;
 				curr_item = curr_menu->items + curr_menu->pos;
 			}
-			while (curr_item->type == 0);
-
-			S_StartFX(sfx_pstop);
+			S_StartFX(sfx_swtchx);
 			return true;
 		}
-
-		case KEYD_UPARROW:
-		case KEYD_WHEEL_UP:
-		{
-			do
-			{
-				curr_menu->pos--;
-				if (curr_menu->pos < 0)
-					curr_menu->pos = curr_menu->item_num - 1;
-				curr_item = curr_menu->items + curr_menu->pos;
-			}
-			while (curr_item->type == 0);
-
-			S_StartFX(sfx_pstop);
-			return true;
-		}
-
-		case KEYD_LEFTARROW:
-		{
-			if (curr_menu->key_page[0])
-			{
-				KeyMenu_Prev();
-				return true;
-			}
-       
-			switch (curr_item->type)
-			{
-				case OPT_Plain:
-				{
-					return false;
-				}
-
-				case OPT_Boolean:
-				{
-					bool *boolptr = (bool*)curr_item->switchvar;
-
-					*boolptr = !(*boolptr);
-
-					S_StartFX(sfx_pistol);
-
-					if (curr_item->routine != NULL)
-						curr_item->routine(ch);
-
-					return true;
-				}
-
-				case OPT_Switch:
-				{
-					int *val_ptr = (int*)curr_item->switchvar;
-
-					*val_ptr -= 1;
-
-					if (*val_ptr < 0)
-						*val_ptr = curr_item->numtypes - 1;
-
-					S_StartFX(sfx_pistol);
-
-					if (curr_item->routine != NULL)
-						curr_item->routine(ch);
-
-					return true;
-				}
-
-				case OPT_Function:
-				{
-					if (curr_item->routine != NULL)
-						curr_item->routine(ch);
-
-					S_StartFX(sfx_pistol);
-					return true;
-				}
-
-				case OPT_Slider:
-				{
-					int *val_ptr = (int*)curr_item->switchvar;
-
-					if (*val_ptr > 0)
-					{
-						*val_ptr -= 1;
-
-						S_StartFX(sfx_stnmov);
-					}
-
-					if (curr_item->routine != NULL)
-						curr_item->routine(ch);
-
-					return true;
-				}
-
-				default:
-					break;
-			}
-		}
-
-		case KEYD_RIGHTARROW:
-			if (curr_menu->key_page[0])
-			{
-				KeyMenu_Next();
-				return true;
-			}
-
-      /* FALL THROUGH... */
-     
-		case KEYD_ENTER:
-		case KEYD_MOUSE1:
-		{
-			switch (curr_item->type)
-			{
-				case OPT_Plain:
-					return false;
-
-				case OPT_Boolean:
-				{
-					bool *boolptr = (bool*)curr_item->switchvar;
-
-					*boolptr = !(*boolptr);
-
-					S_StartFX(sfx_pistol);
-
-					if (curr_item->routine != NULL)
-						curr_item->routine(ch);
-
-					return true;
-				}
-
-				case OPT_Switch:
-				{
-					int *val_ptr = (int*)curr_item->switchvar;
-
-					*val_ptr += 1;
-
-					if (*val_ptr >= curr_item->numtypes)
-						*val_ptr = 0;
-
-					S_StartFX(sfx_pistol);
-
-					if (curr_item->routine != NULL)
-						curr_item->routine(ch);
-
-					return true;
-				}
-
-				case OPT_Function:
-				{
-					if (curr_item->routine != NULL)
-						curr_item->routine(ch);
-
-					S_StartFX(sfx_pistol);
-					return true;
-				}
-
-				case OPT_Slider:
-				{
-					int *val_ptr = (int*)curr_item->switchvar;
-
-					if (*val_ptr < (curr_item->numtypes - 1))
-					{
-						*val_ptr += 1;
-
-						S_StartFX(sfx_stnmov);
-					}
-
-					if (curr_item->routine != NULL)
-						curr_item->routine(ch);
-
-					return true;
-				}
-
-				case OPT_KeyConfig:
-				{
-					keyscan = 1;
-					return true;
-				}
-
-				default:
-					break;
-			}
-			I_Error("Invalid menu type!");
-		}
-		case KEYD_ESCAPE:
-		case KEYD_MOUSE2:
-		case KEYD_MOUSE3:
+		else if (!heretic_mode)
 		{
 			if (curr_menu == &main_optmenu)
 			{
@@ -1407,6 +1516,7 @@ bool M_OptResponder(event_t * ev, int ch)
 			return true;
 		}
 	}
+	}
 	return false;
 }
 
@@ -1417,7 +1527,42 @@ bool M_OptResponder(event_t * ev, int ch)
 //
 static void M_VideoOptions(int keypressed)
 {
-	curr_menu = &video_optmenu;
+	if (heretic_mode)
+	{
+		curr_menu = &hereticvideo_optmenu;
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = &video_optmenu;
+	}
+
+	curr_item = curr_menu->items + curr_menu->pos;
+}
+
+static void M_AdvancedOptions(int keypressed)
+{
+	if (heretic_mode)
+	{
+		curr_menu = &hereticadvanced_optmenu;
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = &advanced_optmenu;
+	}
+	curr_item = curr_menu->items + curr_menu->pos;
+}
+
+static void M_DebugMenu(int keypressed)
+{
+	if (heretic_mode)
+	{
+		curr_menu = &debug_optmenu;
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = &debug_optmenu;
+	}
+
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
@@ -1432,12 +1577,19 @@ static void M_VideoOptions(int keypressed)
 //
 static void M_ResolutionOptions(int keypressed)
 {
-	new_scrmode.width  = SCREENWIDTH;
+	new_scrmode.width = SCREENWIDTH;
 	new_scrmode.height = SCREENHEIGHT;
-	new_scrmode.depth  = SCREENBITS;
-	new_scrmode.full   = FULLSCREEN;
+	new_scrmode.depth = SCREENBITS;
+	new_scrmode.full = FULLSCREEN;
 
-	curr_menu = &res_optmenu;
+	if (heretic_mode)
+	{
+		curr_menu = &hereticres_optmenu;
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = &res_optmenu;
+	}
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
@@ -1446,7 +1598,14 @@ static void M_ResolutionOptions(int keypressed)
 //
 static void M_AnalogueOptions(int keypressed)
 {
-	curr_menu = &analogue_optmenu;
+	if (heretic_mode)
+	{
+		curr_menu = &hereticanalogue_optmenu;
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = &analogue_optmenu;
+	}
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
@@ -1455,7 +1614,15 @@ static void M_AnalogueOptions(int keypressed)
 //
 static void M_SoundOptions(int keypressed)
 {
-	curr_menu = &sound_optmenu;
+	if (heretic_mode)
+	{
+		curr_menu = &hereticsound_optmenu;
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = &sound_optmenu;
+	}
+
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
@@ -1469,24 +1636,31 @@ static void M_GameplayOptions(int keypressed)
 	if (netgame)
 		return;
 
-	curr_menu = &gameplay_optmenu;
+	if (heretic_mode)
+	{
+		curr_menu = &hereticgameplay_optmenu;
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = &gameplay_optmenu;
+	}
+
 	curr_item = curr_menu->items + curr_menu->pos;
 }
 
 //
 // M_KeyboardOptions
-// do we need this for second player I wonder
+//
 static void M_KeyboardOptions(int keypressed)
 {
-	curr_menu = all_key_menus[curr_key_menu];
-
-	curr_item = curr_menu->items + curr_menu->pos;
-}
-
-//for the second player responder
-static void M_KeyboardOptions2(int keypressed)
-{
-	curr_menu = all_key_menus[curr_key_menu];
+	if (heretic_mode)
+	{
+		curr_menu = heretic_key_menus[curr_key_menu];
+	}
+	else if (!heretic_mode)
+	{
+		curr_menu = all_key_menus[curr_key_menu];
+	}
 
 	curr_item = curr_menu->items + curr_menu->pos;
 }
@@ -1516,7 +1690,6 @@ static void M_Key2String(int key, char *deststring)
 	}
 }
 
-
 //
 // M_ChangeGamma
 //
@@ -1524,9 +1697,8 @@ static void M_Key2String(int key, char *deststring)
 //
 static void M_ChangeGamma(int keypressed)
 {
-  /* nothing to do */
+	/* nothing to do */
 }
-
 
 static void M_ChangeMonitorSize(int key)
 {
@@ -1539,7 +1711,6 @@ static void M_ChangeMonitorSize(int key)
 
 	r_aspect = aspect_ratios[monitor_size];
 }
-
 
 //
 // M_ChangeBlood
@@ -1657,7 +1828,6 @@ static void M_ChangeMipMap(int keypressed)
 	W_DeleteAllImages();
 }
 
-//#if 0
 static void M_ChangeShadows(int keypressed)
 {
 	if (currmap && ((currmap->force_on | currmap->force_off) & MPF_Shadows))
@@ -1666,6 +1836,7 @@ static void M_ChangeShadows(int keypressed)
 	level_flags.shadows = global_flags.shadows;
 }
 
+#if 0
 static void M_ChangeHalos(int keypressed)
 {
 	if (currmap && ((currmap->force_on | currmap->force_off) & MPF_Halos))
@@ -1673,7 +1844,7 @@ static void M_ChangeHalos(int keypressed)
 
 	level_flags.halos = global_flags.halos;
 }
-//#endif
+#endif
 
 static void M_ChangeKicking(int keypressed)
 {
@@ -1701,6 +1872,26 @@ static void M_ChangeCrossHair(int keypressed)
 	r_crosshair = menu_crosshair;
 }
 
+static void M_ChangeCrossHairSize(int keypressed)
+{
+	r_crosssize = menu_crosshair2;
+}
+
+#if 0
+// Trying new user-defined scaling code for Heads-Up Display Text.
+extern void HUD_SetScale(float scale);
+static void M_ChangeHUDTextScale(int keypressed)
+{
+	float scale;
+
+	{
+		scale = CLAMP(0, r_textscale.f, 2); //from 0.1f -> 2.0f
+		HUD_SetScale(scale);
+	}
+
+	HUD_SetScale();
+}
+#endif // 0
 
 //
 // M_ChangeLanguage
@@ -1712,32 +1903,31 @@ static void M_ChangeLanguage(int keypressed)
 	if (keypressed == KEYD_LEFTARROW)
 	{
 		int idx, max;
-		
+
 		idx = language.GetChoice();
 		max = language.GetChoiceCount();
 
 		idx--;
 		if (idx < 0) { idx += max; }
-			
+
 		language.Select(idx);
 	}
 	else if (keypressed == KEYD_RIGHTARROW)
 	{
 		int idx, max;
-		
+
 		idx = language.GetChoice();
 		max = language.GetChoiceCount();
 
 		idx++;
 		if (idx >= max) { idx = 0; }
-			
+
 		language.Select(idx);
 	}
 
 	// update cvar
 	m_language = language.GetName();
 }
-
 
 //
 // M_ChangeResSize
@@ -1802,14 +1992,14 @@ static void M_OptionSetResolution(int keypressed)
 	else
 	{
 		std::string msg(epi::STR_Format(language["ModeSelErr"],
-				new_scrmode.width, new_scrmode.height,
-				(new_scrmode.depth < 20) ? 16 : 32));
+			new_scrmode.width, new_scrmode.height,
+			(new_scrmode.depth < 20) ? 16 : 32));
 
 		M_StartMessage(msg.c_str(), NULL, false);
 
-///--  		testticker = -1;
-		
-///??	selectedscrmode = prevscrmode;
+		///--  		testticker = -1;
+
+		///??	selectedscrmode = prevscrmode;
 	}
 }
 
@@ -1821,7 +2011,7 @@ static void M_OptionSetResolution(int keypressed)
 ///--      R_ChangeResolution(selectedscrmode);
 ///--  	testticker = TICRATE * 3;
 ///--  }
-///--  
+///--
 ///--  //
 ///--  // M_RestoreResSettings
 ///--  //
@@ -1835,7 +2025,7 @@ extern void M_NetJoinBegun(void);
 
 void M_HostNetGame(int keypressed)
 {
-	option_menuon  = 0;
+	option_menuon = 0;
 	netgame_menuon = 1;
 
 	M_NetHostBegun();
@@ -1843,12 +2033,12 @@ void M_HostNetGame(int keypressed)
 
 void M_JoinNetGame(int keypressed)
 {
-//#if 0
-	option_menuon  = 0;
+	//#if 0
+	option_menuon = 0;
 	netgame_menuon = 2;
 
 	M_NetJoinBegun();
-//#endif
+	//#endif
 }
 
 void M_Options(int choice)
@@ -1857,8 +2047,11 @@ void M_Options(int choice)
 
 	// hack
 	menu_crosshair = CLAMP(0, r_crosshair.d, 9);
-}
 
+	menu_crosshair2 = CLAMP(0, r_crosssize.f, 15);
+
+	// continued
+}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

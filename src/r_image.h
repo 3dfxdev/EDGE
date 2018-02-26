@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Generalised Image Handling
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -76,6 +76,7 @@ public:
 	short offset_x;
 	short offset_y;
 
+
     // scale values, where 1.0f is normal.  Higher values stretch the
     // image (on the wall/floor), lower values shrink it.
 	float scale_x;
@@ -91,13 +92,15 @@ public:
 	char name[16];
 
 	int source_type;  // image_source_e
- 
+
 	union
 	{
 		// case IMSRC_Graphic:
+		// case IMSRC_ROTTGFX:
 		// case IMSRC_Sprite:
 		// case IMSRC_TX_HI:
 		struct { int lump; bool is_png; } graphic;
+
 
 		// case IMSRC_Flat:
 		// case IMSRC_Raw320x200:
@@ -162,6 +165,12 @@ public:
 #define IM_OFFSETX(image) ((image)->offset_x * (image)->scale_x)
 #define IM_OFFSETY(image) ((image)->offset_y * (image)->scale_y)
 
+#define IM_FLIPXCOORD(image)   ((float((image)->actual_w/2.0f) + (image)->offset_x) * (image)->scale_x)
+
+/* offset_x = -offset_x;
+
+	offset_x  = (width/2.0f + offset_x) * scale_x; */
+
 // deliberately long, should not be used (except for special cases)
 #define IM_TOTAL_WIDTH(image)  ((image)->total_w * (image)->scale_x)
 #define IM_TOTAL_HEIGHT(image) ((image)->total_h * (image)->scale_y)
@@ -196,6 +205,7 @@ void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf);
 //
 
 extern int  var_mipmapping;
+extern int  var_anisotropic;
 extern int  var_smoothing;
 extern bool var_dithering;
 extern int  hq2x_scaling;
@@ -236,8 +246,20 @@ typedef enum
 	// Source was a graphic name
 	IMSRC_Graphic = 0,
 
+	// Rise of the Triad's patch_t
+	IMSRC_ROTTGFX,
+
+	// Rise of the Triad's maskedpatch_t
+	IMSRC_ROTTMASK,
+
+	// Rise of the Triad RAW
+	IMSRC_ROTTRAW,
+
 	// INTERNAL ONLY: Source was a raw block of 320x200 bytes (Heretic/Hexen)
 	IMSRC_Raw320x200,
+
+	// INTERNAL ONLY: Source was a raw block of 64x64 bytes (Wolfenstein3D)
+	IMSRC_WolfRaw64x64,
 
 	// Source was a sprite name
 	IMSRC_Sprite,

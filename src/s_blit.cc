@@ -23,8 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_sdlinc.h"
+#include "system/i_defs.h"
+#include "system/i_sdlinc.h"
 
 #include <list>
 
@@ -37,6 +37,7 @@
 #include "s_cache.h"
 #include "s_blit.h"
 #include "s_music.h"
+
 
 
 // Sound must be clipped to prevent distortion (clipping is
@@ -96,6 +97,8 @@ float slider_to_gain[SND_SLIDER_NUM] =
 	0.58075, 0.67369, 0.77451, 0.88329, 1.00000
 };
 
+byte freq_pitch[256];
+
 // FIXME: extern == hack
 extern int dev_freq;
 extern int dev_bits;
@@ -124,6 +127,8 @@ void mix_channel_c::ComputeDelta()
 	{
 		delta = (fixed22_t) floor((float)data->freq * 1024.0f / dev_freq);
 	}
+
+	delta = (delta *freq_pitch[pitch]) >> 7;
 }
 
 void mix_channel_c::ComputeVolume()
@@ -618,6 +623,12 @@ void S_InitChannels(int total)
 	// allocate mixer buffer
 	mix_buf_len = dev_frag_pairs * (dev_stereo ? 2 : 1);
 	mix_buffer = new int[mix_buf_len];
+
+	// generate pitch table
+	for (int i = 0; i < 256; i++)
+		{
+		freq_pitch[i] = (byte)floor(pow(2.0, (i - 128) / 128.0)*128.0);
+		}
 }
 
 void S_FreeChannels(void)
@@ -772,6 +783,9 @@ void S_QueueInit(void)
 
 		queue_chan->state = CHAN_Empty;
 		queue_chan->data  = NULL;
+
+
+		queue_chan->pitch = 128;
 
 		queue_chan->ComputeMusicVolume();
 	}

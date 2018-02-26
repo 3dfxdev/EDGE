@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Data Definition File Code (Level Defines)
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -41,16 +41,16 @@ static map_finaledef_c dummy_finale;
 static const commandlist_t finale_commands[] =
 {
 	DF("TEXT", text, DDF_MainGetString),
-    DF("TEXT_GRAPHIC", text_back, DDF_MainGetLumpName),
-    DF("TEXT_FLAT", text_flat, DDF_MainGetLumpName),
-    DF("TEXT_SPEED", text_speed, DDF_MainGetFloat),
-    DF("TEXT_WAIT", text_wait, DDF_MainGetNumeric),
-    DF("COLOURMAP", text_colmap, DDF_MainGetColourmap),
-    DF("GRAPHIC", text, DDF_LevelGetPic),
-    DF("GRAPHIC_WAIT", picwait, DDF_MainGetTime),
-    DF("CAST", docast, DDF_MainGetBoolean),
-    DF("BUNNY", dobunny, DDF_MainGetBoolean),
-    DF("MUSIC", music, DDF_MainGetNumeric),
+	DF("TEXT_GRAPHIC", text_back, DDF_MainGetLumpName),
+	DF("TEXT_FLAT", text_flat, DDF_MainGetLumpName),
+	DF("TEXT_SPEED", text_speed, DDF_MainGetFloat),
+	DF("TEXT_WAIT", text_wait, DDF_MainGetNumeric),
+	DF("COLOURMAP", text_colmap, DDF_MainGetColourmap),
+	DF("GRAPHIC", text, DDF_LevelGetPic),
+	DF("GRAPHIC_WAIT", picwait, DDF_MainGetTime),
+	DF("CAST", docast, DDF_MainGetBoolean),
+	DF("BUNNY", dobunny, DDF_MainGetBoolean),
+	DF("MUSIC", music, DDF_MainGetNumeric),
 
 	DDF_CMD_END
 };
@@ -85,38 +85,36 @@ static const commandlist_t level_commands[] =
 	DDF_CMD_END
 };
 
-
 static specflags_t map_specials[] =
 {
-    {"JUMPING", MPF_Jumping, 0},
-    {"MLOOK", MPF_Mlook, 0},
-    {"FREELOOK", MPF_Mlook, 0},  // -AJA- backwards compat.
-    {"CHEATS", MPF_Cheats, 0},
-    {"ITEM_RESPAWN", MPF_ItemRespawn, 0},
-    {"FAST_MONSTERS", MPF_FastParm, 0},
-    {"RESURRECT_RESPAWN", MPF_ResRespawn, 0},
-    {"TELEPORT_RESPAWN", MPF_ResRespawn, 1},
-    {"STRETCH_SKY", MPF_StretchSky, 0},
-    {"NORMAL_SKY", MPF_StretchSky, 1},
-    {"TRUE3D", MPF_True3D, 0},
-    {"ENEMY_STOMP", MPF_Stomp, 0},
-    {"MORE_BLOOD", MPF_MoreBlood, 0},
-    {"NORMAL_BLOOD", MPF_MoreBlood, 1},
-    {"RESPAWN", MPF_Respawn, 0},
-    {"AUTOAIM", MPF_AutoAim, 0},
-    {"AA_MLOOK", MPF_AutoAimMlook, 0},
-    {"EXTRAS", MPF_Extras, 0},
-    {"RESET_PLAYER", MPF_ResetPlayer, 0},
-    {"LIMIT_ZOOM", MPF_LimitZoom, 0},
-    {"SHADOWS", MPF_Shadows, 0},
-    {"HALOS", MPF_Halos, 0},
-    {"CROUCHING", MPF_Crouching, 0},
-    {"WEAPON_KICK", MPF_Kicking, 0},
-    {"BOOM_COMPAT", MPF_BoomCompat, 0},
+	{"JUMPING", MPF_Jumping, 0},
+	{"MLOOK", MPF_Mlook, 0},
+	{"FREELOOK", MPF_Mlook, 0},  // -AJA- backwards compat.
+	{"CHEATS", MPF_Cheats, 0},
+	{"ITEM_RESPAWN", MPF_ItemRespawn, 0},
+	{"FAST_MONSTERS", MPF_FastParm, 0},
+	{"RESURRECT_RESPAWN", MPF_ResRespawn, 0},
+	{"TELEPORT_RESPAWN", MPF_ResRespawn, 1},
+	{"STRETCH_SKY", MPF_StretchSky, 0},
+	{"NORMAL_SKY", MPF_StretchSky, 1},
+	{"TRUE3D", MPF_True3D, 0},
+	{"ENEMY_STOMP", MPF_Stomp, 0},
+	{"MORE_BLOOD", MPF_MoreBlood, 0},
+	{"NORMAL_BLOOD", MPF_MoreBlood, 1},
+	{"RESPAWN", MPF_Respawn, 0},
+	{"AUTOAIM", MPF_AutoAim, 0},
+	{"AA_MLOOK", MPF_AutoAimMlook, 0},
+	{"EXTRAS", MPF_Extras, 0},
+	{"RESET_PLAYER", MPF_ResetPlayer, 0},
+	{"LIMIT_ZOOM", MPF_LimitZoom, 0},
+	{"SHADOWS", MPF_Shadows, 0},
+	{"HALOS", MPF_Halos, 0},
+	{"CROUCHING", MPF_Crouching, 0},
+	{"WEAPON_KICK", MPF_Kicking, 0},
+	{"BOOM_COMPAT", MPF_BoomCompat, 0},
 
-    {NULL, 0, 0}
+	{NULL, 0, 0}
 };
-
 
 //
 //  DDF PARSE ROUTINES
@@ -138,7 +136,7 @@ static void LevelStartEntry(const char *name, bool extend)
 
 	if (extend)
 	{
-		if (! dynamic_level)
+		if (!dynamic_level)
 			DDF_Error("Unknown level to extend: %s\n", name);
 		return;
 	}
@@ -155,7 +153,6 @@ static void LevelStartEntry(const char *name, bool extend)
 	mapdefs.Insert(dynamic_level);
 }
 
-
 static void LevelDoTemplate(const char *contents)
 {
 	mapdef_c *other = mapdefs.Lookup(contents);
@@ -166,11 +163,10 @@ static void LevelDoTemplate(const char *contents)
 	dynamic_level->CopyDetail(*other);
 }
 
-
 static void LevelParseField(const char *field, const char *contents,
-							int index, bool is_last)
+	int index, bool is_last)
 {
-#if (DEBUG_DDF)  
+#if (DEBUG_DDF)
 	I_Debugf("LEVEL_PARSE: %s = %s;\n", field, contents);
 #endif
 
@@ -197,7 +193,6 @@ static void LevelParseField(const char *field, const char *contents,
 	DDF_WarnError("Unknown levels.ddf command: %s\n", field);
 }
 
-
 static void LevelFinishEntry(void)
 {
 	// check stuff
@@ -207,13 +202,11 @@ static void LevelFinishEntry(void)
 	// TODO: check more stuff here...
 }
 
-
 static void LevelClearAll(void)
 {
 	// 100% safe to delete the level entries -- no refs
 	mapdefs.Clear();
 }
-
 
 bool DDF_ReadLevels(void *data, int size)
 {
@@ -237,20 +230,18 @@ bool DDF_ReadLevels(void *data, int size)
 		levels.lumpname = NULL;
 	}
 
-	levels.start_entry  = LevelStartEntry;
-	levels.parse_field  = LevelParseField;
+	levels.start_entry = LevelStartEntry;
+	levels.parse_field = LevelParseField;
 	levels.finish_entry = LevelFinishEntry;
-	levels.clear_all    = LevelClearAll;
+	levels.clear_all = LevelClearAll;
 
 	return DDF_MainReadFile(&levels);
 }
-
 
 void DDF_LevelInit(void)
 {
 	mapdefs.Clear();
 }
-
 
 void DDF_LevelCleanUp(void)
 {
@@ -266,12 +257,12 @@ void DDF_LevelCleanUp(void)
 	for (it = mapdefs.GetTailIterator(); it.IsValid(); it--)
 	{
 		mapdef_c *m = ITERATOR_TO_TYPE(it, mapdef_c*);
-		
+
 		m->episode = gamedefs.Lookup(m->episode_name.c_str());
 
-		if (! m->episode_name)
+		if (!m->episode_name)
 			I_Printf("WARNING: Cannot find episode '%s' for map entry [%s]\n",
-					 m->episode_name.c_str(), m->name.c_str());
+				m->episode_name.c_str(), m->name.c_str());
 	}
 }
 
@@ -285,44 +276,42 @@ void DDF_LevelGetPic(const char *info, void *storage)
 	f->pics.Insert(info);
 }
 
-
 void DDF_LevelGetSpecials(const char *info)
 {
 	// -AJA- 2000/02/02: reworked this for new system.
 
 	int flag_value;
 
-    // check for depreciated flags...
+	// check for depreciated flags...
 	if (DDF_CompareName(info, "TRANSLUCENCY") == 0)
 	{
 		DDF_Warning("Level special '%s' is deprecated.\n", info);
 		return;
 	}
 
-	switch (DDF_MainCheckSpecialFlag(info, map_specials, 
-                                     &flag_value, true, true))
+	switch (DDF_MainCheckSpecialFlag(info, map_specials,
+		&flag_value, true, true))
 	{
-		case CHKF_Positive:
-			dynamic_level->force_on  |=  flag_value;
-			dynamic_level->force_off &= ~flag_value;
-			break;
+	case CHKF_Positive:
+		dynamic_level->force_on |= flag_value;
+		dynamic_level->force_off &= ~flag_value;
+		break;
 
-		case CHKF_Negative:
-			dynamic_level->force_on  &= ~flag_value;
-			dynamic_level->force_off |= flag_value;
-			break;
+	case CHKF_Negative:
+		dynamic_level->force_on &= ~flag_value;
+		dynamic_level->force_off |= flag_value;
+		break;
 
-		case CHKF_User:
-			dynamic_level->force_on  &= ~flag_value;
-			dynamic_level->force_off &= ~flag_value;
-			break;
+	case CHKF_User:
+		dynamic_level->force_on &= ~flag_value;
+		dynamic_level->force_off &= ~flag_value;
+		break;
 
-		case CHKF_Unknown:
-			DDF_WarnError("DDF_LevelGetSpecials: Unknown level special: %s", info);
-			break;
+	case CHKF_Unknown:
+		DDF_WarnError("DDF_LevelGetSpecials: Unknown level special: %s", info);
+		break;
 	}
 }
-
 
 static specflags_t wistyle_names[] =
 {
@@ -335,7 +324,7 @@ void DDF_LevelGetWistyle(const char *info, void *storage)
 {
 	int flag_value;
 
-	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info, 
+	if (CHKF_Positive != DDF_MainCheckSpecialFlag(info,
 		wistyle_names, &flag_value, false, false))
 	{
 		DDF_WarnError("DDF_LevelGetWistyle: Unknown stats: %s", info);
@@ -372,8 +361,8 @@ void map_finaledef_c::Copy(map_finaledef_c &src)
 	text_speed = src.text_speed;
 	text_wait = src.text_wait;
 	text_colmap = src.text_colmap;
-	
-	pics = src.pics;		
+
+	pics = src.pics;
 	picwait = src.picwait;
 
 	docast = src.docast;
@@ -383,7 +372,7 @@ void map_finaledef_c::Copy(map_finaledef_c &src)
 
 void map_finaledef_c::Default()
 {
-	text.clear();	
+	text.clear();
 	text_back.clear();
 	text_flat.clear();
 	text_speed = 3.0f;
@@ -402,7 +391,7 @@ map_finaledef_c& map_finaledef_c::operator=(map_finaledef_c &rhs)
 {
 	if (&rhs != this)
 		Copy(rhs);
-		
+
 	return *this;
 }
 
@@ -419,19 +408,19 @@ mapdef_c::~mapdef_c()
 
 void mapdef_c::CopyDetail(mapdef_c &src)
 {
-///---	next = src.next;				// FIXME!! Gamestate data
+	///---	next = src.next;				// FIXME!! Gamestate data
 
-	description = src.description;	
-  	namegraphic = src.namegraphic;
-  	lump = src.lump;
-   	sky = src.sky;
-   	surround = src.surround;
-   	
-   	music = src.music;
+	description = src.description;
+	namegraphic = src.namegraphic;
+	lump = src.lump;
+	sky = src.sky;
+	surround = src.surround;
+
+	music = src.music;
 	partime = src.partime;
-	
+
 	episode_name = src.episode_name;
-	
+
 	force_on = src.force_on;
 	force_off = src.force_off;
 
@@ -448,17 +437,17 @@ void mapdef_c::CopyDetail(mapdef_c &src)
 
 void mapdef_c::Default()
 {
-	description.clear();	
-  	namegraphic.clear();
-  	lump.clear();
-   	sky.clear();
-   	surround.clear();
-   	
-   	music = 0;
+	description.clear();
+	namegraphic.clear();
+	lump.clear();
+	sky.clear();
+	surround.clear();
+
+	music = 0;
 	partime = 0;
 
 	episode = NULL;
-	episode_name.clear();	
+	episode_name.clear();
 
 	force_on = MPF_None;
 	force_off = MPF_None;
@@ -473,7 +462,6 @@ void mapdef_c::Default()
 	f_pre.Default();
 	f_end.Default();
 }
-
 
 // --> map definition container class
 
@@ -504,7 +492,7 @@ mapdef_c* mapdef_container_c::Lookup(const char *refname)
 		mapdef_c *m = ITERATOR_TO_TYPE(it, mapdef_c*);
 
 		// ignore maps with unknown episode_name
-		if (! m->episode)
+		if (!m->episode)
 			continue;
 
 		if (DDF_CompareName(m->name.c_str(), refname) == 0)

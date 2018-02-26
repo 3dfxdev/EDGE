@@ -1,9 +1,10 @@
 //----------------------------------------------------------------------------
-//  EDGE2 OpenGL Rendering (Things)
+//  EDGE2 OpenGL Thing Rendering
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//  Copyright (c) 2015 Isotope SoftWorks
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -23,18 +24,21 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include <math.h>
 
 #include "../epi/image_data.h"
 #include "../epi/image_jpeg.h"
+#include "md5_conv/md5_draw.h"
 
+#include "con_main.h"
 #include "dm_data.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "p_local.h"
+#include "m_random.h"
 #include "r_colormap.h"
 #include "r_defs.h"
 #include "r_draw.h"
@@ -49,18 +53,26 @@
 #include "r_units.h"
 #include "w_model.h"
 #include "w_sprite.h"
+#include "r_md5.h"
+#include "n_network.h"
 
 #include "m_misc.h"  // !!!! model test
 
-
+#define SHADOW_PROTOTYPE 1
 #define DEBUG  0
 
+#define SCALE_FIX ((r_fixspritescale.d == 1) ? 1.1 : 1.0)
+
+cvar_c r_spriteflip;
+cvar_c r_shadows;
+cvar_c r_fixspritescale;
 
 cvar_c r_crosshair;    // shape
 cvar_c r_crosscolor;   // 0 .. 7
 cvar_c r_crosssize;    // pixels on a 320x200 screen
 cvar_c r_crossbright;  // 1.0 is normal
 
+cvar_c r_oldblend;
 
 float sprite_skew;
 
@@ -80,6 +92,8 @@ extern float view_expand_w;
 
 static const image_c *crosshair_image;
 static int crosshair_which;
+
+static const image_c *shadow_image = NULL;
 
 
 static float GetHoverDZ(mobj_t *mo)
@@ -123,7 +137,7 @@ static int GetMulticolMaxRGB(multi_color_c *cols, int num, bool additive)
 
 		result = MAX(result, mx);
 	}
-	
+
 	return result;
 }
 
@@ -224,7 +238,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	data.vert[1].Set(x1t, y1t, 0);
 	data.vert[2].Set(x2t, y1t, 0);
 	data.vert[3].Set(x2b, y2b, 0);
-		
+
 	data.texc[0].Set(tex_x1, tex_bot_h);
 	data.texc[1].Set(tex_x1, tex_top_h);
 	data.texc[2].Set(tex_x2, tex_top_h);
@@ -245,8 +259,13 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	if (trans >= 0.11f && image->opacity != OPAC_Complex)
 		blending = BL_Less;
 
-	if (trans < 0.99 || image->opacity == OPAC_Complex)
-		blending |= BL_Alpha;
+	if (r_oldblend.d > 0)
+	{
+		if (trans < 0.99 || image->opacity == OPAC_Complex)
+			blending |= BL_Alpha;
+		else if (trans < 0.99 || image->opacity != OPAC_Solid)
+				blending |= BL_Alpha;
+	}
 
 
 	if (is_fuzzy)
@@ -369,19 +388,19 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	glColor4f(LT_RED(L_r), LT_GRN(L_g), LT_BLU(L_b), trans);
 
 	glBegin(GL_QUADS);
-  
+
 	glTexCoord2f(tex_x1, tex_bot_h);
 	glVertex2f(x1b, y1b);
-  
+
 	glTexCoord2f(tex_x1, tex_top_h);
 	glVertex2f(x1t, y1t);
-  
+
 	glTexCoord2f(tex_x2, tex_top_h);
 	glVertex2f(x2t, y1t);
-  
+
 	glTexCoord2f(tex_x2, tex_bot_h);
 	glVertex2f(x2b, y2b);
-  
+
 	glEnd();
 
 	glDisable(GL_TEXTURE_2D);
@@ -457,12 +476,12 @@ static void DrawStdCrossHair(void)
 	glColor3f(r, g, b);
 
 	glBegin(GL_POLYGON);
-  
+
 	glTexCoord2f(0.0f, 0.0f); glVertex2f(x-w, y-w);
 	glTexCoord2f(0.0f, 1.0f); glVertex2f(x-w, y+w);
 	glTexCoord2f(1.0f, 1.0f); glVertex2f(x+w, y+w);
 	glTexCoord2f(1.0f, 0.0f); glVertex2f(x+w, y-w);
-  
+
 	glEnd();
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -530,6 +549,7 @@ void RGL_DrawCrosshair(player_t * p)
 
 void RGL_DrawWeaponModel(player_t * p)
 {
+
 	if (viewiszoomed)
 		return;
 
@@ -550,17 +570,15 @@ void RGL_DrawWeaponModel(player_t * p)
 
 	int skin_num = p->weapons[p->ready_wp].model_skin;
 
-	const image_c *skin_img = md->skins[skin_num];
-
-	if (! skin_img)  // FIXME: use a dummy image
+	if (! md->skins[p->weapons[p->ready_wp].model_skin].img)  // FIXME: use a dummy image
 	{
-I_Debugf("Render model: no skin %d\n", skin_num);
-		skin_img = W_ImageForDummySkin();
+		md->skins[p->weapons[p->ready_wp].model_skin].img = W_ImageForDummySkin(); //CA - Fixed! 
+		//I_Debugf("Render model: no skin %d\n", skin_num);
 	}
 
 
 // I_Debugf("Rendering weapon model!\n");
-	
+
 	float x = viewx + viewright.x * psp->sx / 8.0;
 	float y = viewy + viewright.y * psp->sx / 8.0;
 	float z = viewz + viewright.z * psp->sx / 8.0;
@@ -587,14 +605,29 @@ I_Debugf("Render model: no skin %d\n", skin_num);
 
 		last_frame = p->weapon_last_frame;
 
-		lerp = (psp->state->tics - psp->tics + 1) / (float)(psp->state->tics);
+		lerp = (psp->state->tics - psp->tics + /* 1 + */ N_GetInterpolater()) / (float)(psp->state->tics);
 		lerp = CLAMP(0, lerp, 1);
 	}
 
-	MD2_RenderModel(md->model, skin_img, true,
-			        last_frame, psp->state->frame, lerp,
-			        x, y, z, p->mo, view_props,
-					1.0f /* scale */, w->model_aspect, w->model_bias);
+	switch(md->modeltype) 
+	{
+	case MODEL_MD2:
+		MD2_RenderModel(md->model, &md->skins[skin_num], true,
+						last_frame, psp->state->frame, lerp,
+						x, y, z, p->mo, view_props,
+						w->model_zaspect /* scale */, w->model_aspect/w->model_zaspect, w->model_bias);
+		break;
+
+	case MODEL_MD5_UNIFIED:
+
+		//TODO: w->model_bias
+		MD5_RenderModel(md,p->mo->model_last_animfile,last_frame,p->mo->state->animfile,psp->state->frame,lerp,
+				epi::vec3_c(x,y,z),
+				epi::vec3_c(w->model_aspect,w->model_aspect,w->model_zaspect),
+				epi::vec3_c(0,0,w->model_bias),
+				p->mo);
+		break;
+	}
 }
 
 
@@ -639,6 +672,14 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 	}
 
 	int rot = 0;
+	// ~CA: 5.7.2016 - 3DGE feature to randomly decide to flip front-facing sprites in-game002
+
+	if (r_spriteflip.d > 0)
+	{
+		srand(M_RandomTest(*flip));	// value below in brackets would technically be "A0"
+		(*flip) = frame->flip[0] += true;
+	}
+
 
 	if (frame->rots >= 8)
 	{
@@ -728,7 +769,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 	if (num_active_mirrors > 0)
 		return;
 
-	// handle never-clip things 
+	// handle never-clip things
 	if (dthing->y_clipping == YCLIP_Never)
 		return;
 
@@ -762,7 +803,7 @@ static void R2_ClipSpriteVertically(drawsub_c *dsub, drawthing_t *dthing)
 	// Two sections here: Downward clipping (for sprite's bottom) and
 	// Upward clipping (for sprite's top).  Both use the exact same
 	// algorithm:
-	//     
+	//
 	//    WHILE (current must be clipped)
 	//    {
 	//       new := COPY OF current
@@ -931,17 +972,9 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	bool is_model = (mo->state->flags & SFF_Model) ? true:false;
 
 	// transform the origin point
-	float mx = mo->x, my = mo->y, mz = mo->z;
-
-	// position interpolation
-	if (mo->lerp_num > 1)
-	{
-		float along = mo->lerp_pos / (float)mo->lerp_num;
-
-		mx = mo->lerp_from.x + (mx - mo->lerp_from.x) * along;
-		my = mo->lerp_from.y + (my - mo->lerp_from.y) * along;
-		mz = mo->lerp_from.z + (mz - mo->lerp_from.z) * along;
-	}
+	//float mx = mo->x, my = mo->y, mz = mo->z;
+	epi::vec3_c mp = mo->GetInterpolatedPosition();
+	float mx = mp.x, my = mp.y, mz = mp.z;
 
 	MIR_Coordinate(mx, my);
 
@@ -982,7 +1015,7 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 			return;
 
 		// calculate edges of the shape
-		float sprite_width  = IM_WIDTH(image);
+		//float sprite_width  = IM_WIDTH(image);
 		float sprite_height = IM_HEIGHT(image);
 		float side_offset   = IM_OFFSETX(image);
 		float top_offset    = IM_OFFSETY(image);
@@ -992,20 +1025,20 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 
 		float xscale = mo->info->scale * mo->info->aspect;
 
-		pos1 = (sprite_width/-2.0f - side_offset) * xscale;
-		pos2 = (sprite_width/+2.0f - side_offset) * xscale;
+		pos1 = ((floorf((image)->actual_w * -0.5f + 0.5f) * (image)->scale_x) - side_offset) * xscale;
+		pos2 = ((floorf((image)->actual_w * +0.5f + 0.5f) * (image)->scale_x) - side_offset) * xscale;
 
 		switch (mo->info->yalign)
 		{
 			case SPYA_TopDown:
-				gzt = mo->z + mo->height + top_offset * mo->info->scale;
-				gzb = gzt - sprite_height * mo->info->scale;
+				gzt = mo->z + mo->height + top_offset * mo->info->scale / SCALE_FIX;
+				gzb = gzt - sprite_height * mo->info->scale / SCALE_FIX;
 				break;
 
 			case SPYA_Middle:
 			{
-				float mz = mo->z + mo->height * 0.5 + top_offset * mo->info->scale;
-				float dz = sprite_height * 0.5 * mo->info->scale;
+				float mz = mo->z + mo->height * 0.5 + top_offset * mo->info->scale / SCALE_FIX;
+				float dz = sprite_height * 0.5 * mo->info->scale / SCALE_FIX;
 
 				gzt = mz + dz;
 				gzb = mz - dz;
@@ -1013,8 +1046,8 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 			}
 
 			case SPYA_BottomUp: default:
-				gzb = mo->z +  top_offset * mo->info->scale;
-				gzt = gzb + sprite_height * mo->info->scale;
+				gzb = mo->z +  top_offset * mo->info->scale / SCALE_FIX;
+				gzt = gzb + sprite_height * mo->info->scale / SCALE_FIX;
 				break;
 		}
 
@@ -1103,19 +1136,16 @@ void RGL_WalkThing(drawsub_c *dsub, mobj_t *mo)
 	R2_ClipSpriteVertically(dsub, dthing);
 }
 
-
 static void RGL_DrawModel(drawthing_t *dthing)
 {
 	mobj_t *mo = dthing->mo;
 
 	modeldef_c *md = W_GetModel(mo->state->sprite);
 
-	const image_c *skin_img = md->skins[mo->model_skin];
 
-	if (! skin_img)
+	if (! md->skins[mo->model_skin].img)
 	{
-I_Debugf("Render model: no skin %d\n", mo->model_skin);
-		skin_img = W_ImageForDummySkin();
+		I_Debugf("Render model: no skin %d\n", mo->model_skin);
 	}
 
 
@@ -1135,15 +1165,28 @@ I_Debugf("Render model: no skin %d\n", mo->model_skin);
 
 		SYS_ASSERT(mo->state->tics > 1);
 
-		lerp = (mo->state->tics - mo->tics + 1) / (float)(mo->state->tics);
+
+		lerp = (mo->state->tics - mo->tics + /* 1 + */ N_GetInterpolater()) / (float)(mo->state->tics);
 		lerp = CLAMP(0, lerp, 1);
 	}
 
-	MD2_RenderModel(md->model, skin_img, false,
-			        last_frame, mo->state->frame, lerp,
-					dthing->mx, dthing->my, z, mo, mo->props,
-					mo->info->model_scale, mo->info->model_aspect,
-					mo->info->model_bias);
+	if (md->modeltype == MODEL_MD2)
+	{
+		MD2_RenderModel(md->model, &md->skins[mo->model_skin], false,
+					last_frame, mo->state->frame, lerp,
+						dthing->mx, dthing->my, z, mo, mo->props,
+						mo->info->model_scale, mo->info->model_aspect,
+						mo->info->model_bias);
+	}
+	else if (md->modeltype == MODEL_MD5_UNIFIED)
+	{
+		//TODO add skin_img support
+		MD5_RenderModel(md,
+			mo->model_last_animfile, last_frame,
+			mo->state->animfile, mo->state->frame, lerp,
+			epi::vec3_c(dthing->mx, dthing->my, z),
+			epi::vec3_c(1.0f,1.0f,1.0f),epi::vec3_c(0,0,0),mo);
+	}
 }
 
 
@@ -1167,7 +1210,7 @@ static void DLIT_Thing(mobj_t *mo, void *dataptr)
 	// dynamic lights do not light themselves up!
 	if (mo == data->mo)
 		return;
-	
+
 	SYS_ASSERT(mo->dlight.shader);
 
 	for (int v = 0; v < 4; v++)
@@ -1197,19 +1240,121 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	if (trans <= 0)
 		return;
 
-
 	const image_c *image = dthing->image;
 
-	GLuint tex_id = W_ImageCache(image, false,
-	                  ren_fx_colmap ? ren_fx_colmap : dthing->mo->info->palremap);
+	thing_coord_data_t data;
+	data.mo = mo;
 
-//	float w = IM_WIDTH(image);
+	float w = IM_WIDTH(image);
 	float h = IM_HEIGHT(image);
 	float right = IM_RIGHT(image);
 	float top   = IM_TOP(image);
 
 	float x1b, y1b, z1b, x1t, y1t, z1t;
 	float x2b, y2b, z2b, x2t, y2t, z2t;
+
+	GLuint tex_id;
+
+#ifdef SHADOW_PROTOTYPE
+	if (r_shadows.d == 1 && !shadow_image)
+	{
+		// get simple shadow image
+		shadow_image = W_ImageLookup("SHADOWST");
+		if (!shadow_image)
+		{
+			I_Printf("Couldn't find SHADOWST image\n");
+			r_shadows.d = 0;
+			goto skip_shadow;
+		}
+	}
+
+	if (r_shadows.d > 0)
+	{
+		float tex_x1, tex_x2, tex_y1, tex_y2;
+
+		if (dthing->mo->info->shadow_trans <= 0 || dthing->mo->floorz >= viewz)
+			goto skip_shadow;
+
+		if (r_shadows.d == 1)
+		{
+			tex_id = W_ImageCache(shadow_image); // simple shadows
+			tex_x1 = 0.001f;
+			tex_x2 = 0.999f;
+			tex_y1 = 0.001f;
+			tex_y2 = 0.999f;
+		}
+		else if (r_shadows.d == 2)
+		{
+			tex_id = W_ImageCache(image, false, (const colourmap_c *)-1); // sprite shadows
+
+			tex_x1 = 0.001f;
+			tex_x2 = right - 0.001f;
+			tex_y1 = dthing->bottom - dthing->orig_bottom;
+			tex_y2 = tex_y1 + (dthing->top - dthing->bottom);
+
+			float yscale = mo->info->scale * MIR_ZScale();
+
+			SYS_ASSERT(h > 0);
+			tex_y1 = top * tex_y1 / (h * yscale);
+			tex_y2 = top * tex_y2 / (h * yscale);
+
+			if (dthing->flip)
+			{
+				float temp = tex_x2;
+				tex_x1 = right - tex_x1;
+				tex_x2 = right - temp;
+			}
+		}
+		else
+			goto skip_shadow;
+
+		float offs = 0.1f;
+		float w1 = r_shadows.d == 1 ? w / 2.0f : w / 3.0f;
+		float h1 = r_shadows.d == 1 ? h / 2.0f : 0;
+		float h2 = r_shadows.d == 1 ? h / 2.0f : h;
+
+		data.vert[0].Set(dthing->mo->x + w1, dthing->mo->y - h1, dthing->mo->floorz + offs);
+		data.vert[1].Set(dthing->mo->x + w1, dthing->mo->y + h2, dthing->mo->floorz + offs);
+		data.vert[2].Set(dthing->mo->x - w1, dthing->mo->y + h2, dthing->mo->floorz + offs);
+		data.vert[3].Set(dthing->mo->x - w1, dthing->mo->y - h1, dthing->mo->floorz + offs);
+
+		data.texc[0].Set(tex_x1, tex_y1);
+		data.texc[1].Set(tex_x1, tex_y2);
+		data.texc[2].Set(tex_x2, tex_y2);
+		data.texc[3].Set(tex_x2, tex_y1);
+
+		data.normal.Set(0, 0, 1);
+
+		data.col[0].Clear();
+		data.col[1].Clear();
+		data.col[2].Clear();
+		data.col[3].Clear();
+
+		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
+			GL_MODULATE, tex_id, ENV_NONE, 0, 0, BL_Alpha);
+
+		for (int v_idx = 0; v_idx < 4; v_idx++)
+		{
+			local_gl_vert_t *dest = glvert + v_idx;
+
+			dest->pos = data.vert[v_idx];
+			dest->texc[0] = data.texc[v_idx];
+			dest->normal = data.normal;
+
+			dest->rgba[0] = 0;
+			dest->rgba[1] = 0;
+			dest->rgba[2] = 0;
+			dest->rgba[3] = dthing->mo->info->shadow_trans;
+		}
+
+		RGL_EndUnit(4);
+	}
+
+skip_shadow:
+#endif
+
+	tex_id = W_ImageCache(image, false,
+		ren_fx_colmap ? ren_fx_colmap : dthing->mo->info->palremap);
 
 	x1b = x1t = dthing->mx + dthing->left_dx;
 	y1b = y1t = dthing->my + dthing->left_dy;
@@ -1228,17 +1373,20 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		if (mo->radius >= 1.0f && h > mo->radius)
 			skew2 = mo->radius;
 
-		float dx = viewcos * sprite_skew * skew2;
-		float dy = viewsin * sprite_skew * skew2;
+		dx = viewcos * sprite_skew * skew2;
+		dy = viewsin * sprite_skew * skew2;
 
 		float top_q    = ((dthing->top - dthing->orig_bottom)  / h) - 0.5f;
 		float bottom_q = ((dthing->orig_top - dthing->bottom)  / h) - 0.5f;
 
-		x1t += top_q * dx; y1t += top_q * dy;
-		x2t += top_q * dx; y2t += top_q * dy;
+		dx *= (top_q - bottom_q);
+		dy *= (top_q - bottom_q);
 
-		x1b -= bottom_q * dx; y1b -= bottom_q * dy;
-		x2b -= bottom_q * dx; y2b -= bottom_q * dy;
+//		x1t += top_q * dx; y1t += top_q * dy;
+//		x2t += top_q * dx; y2t += top_q * dy;
+//
+//		x1b -= bottom_q * dx; y1b -= bottom_q * dy;
+//		x2b -= bottom_q * dx; y2b -= bottom_q * dy;
 	}
 
 	float tex_x1 = 0.001f;
@@ -1247,7 +1395,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	float tex_y1 = dthing->bottom - dthing->orig_bottom;
 	float tex_y2 = tex_y1 + (z1t - z1b);
 
-	float yscale = mo->info->scale * MIR_ZScale();
+	float yscale = mo->info->scale * MIR_ZScale() / SCALE_FIX;
 
 	SYS_ASSERT(h > 0);
 	tex_y1 = top * tex_y1 / (h * yscale);
@@ -1260,15 +1408,10 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		tex_x2 = right - temp;
 	}
 
-
-	thing_coord_data_t data;
-
-	data.mo = mo;
-
-	data.vert[0].Set(x1b+dx, y1b+dy, z1b);
+	data.vert[0].Set(x1b-dx, y1b-dy, z1b);
 	data.vert[1].Set(x1t+dx, y1t+dy, z1t);
 	data.vert[2].Set(x2t+dx, y2t+dy, z2t);
-	data.vert[3].Set(x2b+dx, y2b+dy, z2b);
+	data.vert[3].Set(x2b-dx, y2b-dy, z2b);
 
 	data.texc[0].Set(tex_x1, tex_y1);
 	data.texc[1].Set(tex_x1, tex_y2);
@@ -1277,25 +1420,23 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 	data.normal.Set(-viewcos, -viewsin, 0);
 
-
 	data.col[0].Clear();
 	data.col[1].Clear();
 	data.col[2].Clear();
 	data.col[3].Clear();
-
 
 	int blending = BL_Masked;
 
 	if (trans >= 0.11f && image->opacity != OPAC_Complex)
 		blending = BL_Less;
 
+	
 	if (trans < 0.99 || image->opacity == OPAC_Complex)
 		blending |= BL_Alpha;
 
 	if (mo->hyperflags & HF_NOZBUFFER)
 		blending |= BL_NoZBuf;
 
-	
 	float  fuzz_mul = 0;
 	vec2_t fuzz_add;
 
@@ -1338,7 +1479,6 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 		}
 	}
 
-
 	/* draw the sprite */
 
 	int num_pass = is_fuzzy ? 1 : (3 + detail_level * 2);
@@ -1353,7 +1493,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 		bool is_additive = (pass > 0 && pass == num_pass-1);
 
-		if (pass > 0 && pass < num_pass-1) 
+		if (pass > 0 && pass < num_pass-1)
 		{
 			if (GetMulticolMaxRGB(data.col, 4, false) <= 0)
 				continue;
@@ -1411,37 +1551,38 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 
 		RGL_EndUnit(4);
 	}
+
 }
 
 
 void RGL_DrawSortThings(drawfloor_t *dfloor)
 {
 	//
-	// As part my move to strip out Z_Zone usage and replace 
-	// it with array classes and more standard new and delete 
-	// calls, I've removed the QSORT() here and the array. 
-	// My main reason for doing that is that since I have to 
+	// As part my move to strip out Z_Zone usage and replace
+	// it with array classes and more standard new and delete
+	// calls, I've removed the QSORT() here and the array.
+	// My main reason for doing that is that since I have to
 	// modify the code here anyway, it is prudent to re-evaluate
-	// their usage. 
+	// their usage.
 	//
 	// The QSORT() mechanism used does an
 	// allocation each time it is used and this is called
 	// for each floor drawn in each subsector drawn, it is
 	// reasonable to assume that removing it will give
-	// something of speed improvement. 
+	// something of speed improvement.
 	//
-	// This comes at a cost since optimisation is always 
-	// a balance between speed and size: drawthing_t now has 
-	// to hold 4 additional pointers. Two for the binary tree 
-	// (order building) and two for the the final linked list 
-	// (avoiding recursive function calls that the parsing the 
+	// This comes at a cost since optimisation is always
+	// a balance between speed and size: drawthing_t now has
+	// to hold 4 additional pointers. Two for the binary tree
+	// (order building) and two for the the final linked list
+	// (avoiding recursive function calls that the parsing the
 	// binary tree would require).
 	//
 	// -ACB- 2004/08/17
 	//
-	
+
 	drawthing_t *head_dt;
-	
+
 	// Check we have something to draw
 	head_dt = dfloor->things;
 	if (!head_dt)
@@ -1449,22 +1590,22 @@ void RGL_DrawSortThings(drawfloor_t *dfloor)
 
 	drawthing_t *curr_dt, *dt, *next_dt;
 	float cmp_val;
-		
+
 	head_dt->rd_l = head_dt->rd_r = head_dt->rd_prev = head_dt->rd_next = NULL;
-	
+
 	dt = NULL;	// Warning removal: This will always have been set
-	
+
 	curr_dt = head_dt->next;
 	while(curr_dt)
 	{
 		curr_dt->rd_l = curr_dt->rd_r = NULL;
-		
+
 		// Parse the tree to find our place
 		next_dt = head_dt;
 		do
 		{
 			dt = next_dt;
-			
+
 			cmp_val = dt->tz - curr_dt->tz;
 			if (cmp_val == 0.0f)
 			{
@@ -1472,47 +1613,47 @@ void RGL_DrawSortThings(drawfloor_t *dfloor)
 				int offset = dt->mo - curr_dt->mo;
 				cmp_val = (float)offset;
 			}
-						
+
 			if (cmp_val < 0.0f)
-				next_dt = dt->rd_l;				
+				next_dt = dt->rd_l;
 			else
 				next_dt = dt->rd_r;
 		}
 		while (next_dt);
-		
-		// Update our place 
+
+		// Update our place
 		if (cmp_val < 0.0f)
-		{ 
+		{
 			// Update the binary tree
 			dt->rd_l = curr_dt;
 
 			// Update the linked list (Insert behind node)
-			if (dt->rd_prev) 
-				dt->rd_prev->rd_next = curr_dt; 
-			
-			curr_dt->rd_prev = dt->rd_prev;
-			curr_dt->rd_next = dt; 
+			if (dt->rd_prev)
+				dt->rd_prev->rd_next = curr_dt;
 
-			dt->rd_prev = curr_dt;		
+			curr_dt->rd_prev = dt->rd_prev;
+			curr_dt->rd_next = dt;
+
+			dt->rd_prev = curr_dt;
 		}
 		else
 		{
 			// Update the binary tree
-			dt->rd_r = curr_dt; 
+			dt->rd_r = curr_dt;
 
 			// Update the linked list (Insert infront of node)
-			if (dt->rd_next) 
-				dt->rd_next->rd_prev = curr_dt; 
-			
-			curr_dt->rd_next = dt->rd_next;
-			curr_dt->rd_prev = dt; 
+			if (dt->rd_next)
+				dt->rd_next->rd_prev = curr_dt;
 
-			dt->rd_next = curr_dt;	
+			curr_dt->rd_next = dt->rd_next;
+			curr_dt->rd_prev = dt;
+
+			dt->rd_next = curr_dt;
 		}
-		
+
 		curr_dt = curr_dt->next;
 	}
-	
+
 	// Find the first to draw
 	while(head_dt->rd_prev)
 		head_dt = head_dt->rd_prev;

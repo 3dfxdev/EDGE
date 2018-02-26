@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Texture Upload
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -16,8 +16,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "i_defs.h"
-#include "i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include <limits.h>
 
@@ -37,21 +37,51 @@
 #include "w_texture.h"
 #include "w_wad.h"
 
+extern float max_anisotropic;
+extern cvar_c r_anisotropy;
+//extern cvar_c r_anisotropyval;
+
+#ifndef GL_EXT_texture_filter_anisotropic
+#define GL_TEXTURE_MAX_ANISOTROPY_EXT     0x84FE
+#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
+#endif
+
+static void RGL_SetAnisotropic(GLfloat aniso)
+{
+	//static int supported = 1;
+	//GLfloat aniso;
+	//aniso = 0.0f;
+
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
+
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
+
+		//I_Debugf("OpenGL: Anisotropic filter value set to %d/n", aniso);
+
+		if (glGetError() != GL_NO_ERROR)
+		{
+			//I_Warning("Warning: Anisotropic filtering not supported by driver, using trilinear filtering.\n");
+			return;
+		}
+	//}
+		
+}
+
 
 int W_MakeValidSize(int value)
 {
 	SYS_ASSERT(value > 0);
 
-	if (value <=    1) return    1;
-	if (value <=    2) return    2;
-	if (value <=    4) return    4;
-	if (value <=    8) return    8;
-	if (value <=   16) return   16;
-	if (value <=   32) return   32;
-	if (value <=   64) return   64;
-	if (value <=  128) return  128;
-	if (value <=  256) return  256;
-	if (value <=  512) return  512;
+	if (value <= 1) return    1;
+	if (value <= 2) return    2;
+	if (value <= 4) return    4;
+	if (value <= 8) return    8;
+	if (value <= 16) return   16;
+	if (value <= 32) return   32;
+	if (value <= 64) return   64;
+	if (value <= 128) return  128;
+	if (value <= 256) return  256;
+	if (value <= 512) return  512;
 	if (value <= 1024) return 1024;
 	if (value <= 2048) return 2048;
 	if (value <= 4096) return 4096;
@@ -60,45 +90,43 @@ int W_MakeValidSize(int value)
 	return -1; /* NOT REACHED */
 }
 
-
 epi::image_data_c *R_PalettisedToRGB(epi::image_data_c *src,
-									 const byte *palette, int opacity)
+	const byte *palette, int opacity)
 {
 	int bpp = (opacity == OPAC_Solid) ? 3 : 4;
 
-	epi::image_data_c *dest = new epi::image_data_c(src->width, src->height, bpp);	
+	epi::image_data_c *dest = new epi::image_data_c(src->width, src->height, bpp);
 
 	dest->used_w = src->used_w;
 	dest->used_h = src->used_h;
 
-	for (int y=0; y < src->height; y++)
-	for (int x=0; x < src->width;  x++)
-	{
-		byte src_pix = src->PixelAt(x, y)[0];
-
-		byte *dest_pix = dest->PixelAt(x, y);
-
-		if (src_pix == TRANS_PIXEL)
+	for (int y = 0; y < src->height; y++)
+		for (int x = 0; x < src->width; x++)
 		{
-			dest_pix[0] = dest_pix[1] = dest_pix[2] = 0;
-			
-			if (bpp == 4)
-				dest_pix[3] = 0;
-		}
-		else
-		{
-			dest_pix[0] = palette[src_pix*3 + 0];
-			dest_pix[1] = palette[src_pix*3 + 1];
-			dest_pix[2] = palette[src_pix*3 + 2];
+			byte src_pix = src->PixelAt(x, y)[0];
 
-			if (bpp == 4)
-				dest_pix[3] = 255;
+			byte *dest_pix = dest->PixelAt(x, y);
+
+			if (src_pix == TRANS_PIXEL)
+			{
+				dest_pix[0] = dest_pix[1] = dest_pix[2] = 0;
+
+				if (bpp == 4)
+					dest_pix[3] = 0;
+			}
+			else
+			{
+				dest_pix[0] = palette[src_pix * 3 + 0];
+				dest_pix[1] = palette[src_pix * 3 + 1];
+				dest_pix[2] = palette[src_pix * 3 + 2];
+
+				if (bpp == 4)
+					dest_pix[3] = 255;
+			}
 		}
-	}
 
 	return dest;
 }
-
 
 GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 {
@@ -107,22 +135,27 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 	 */
 
 	SYS_ASSERT(img->bpp == 3 || img->bpp == 4);
+	//DREAMCAST DEBUG
+	//I_Printf("R_UploadTexture: Loading %ix%i %i bpp texture\n", img->width, img->height, img->bpp);
 
-	bool clamp  = (flags & UPL_Clamp)  ? true : false;
-	bool nomip  = (flags & UPL_MipMap) ? false : true;
+	bool clamp = (flags & UPL_Clamp) ? true : false;
+	bool nomip = (flags & UPL_MipMap) ? false : true;
 	bool smooth = (flags & UPL_Smooth) ? true : false;
-	
-  	int total_w = img->width;
+	bool AA = (flags & UPL_AA) ? true : false;
+
+	int total_w = img->width;
 	int total_h = img->height;
 
 	int new_w, new_h;
 
 	// scale down, if necessary, to fix the maximum size
 	for (new_w = total_w; new_w > glmax_tex_size; new_w /= 2)
-	{ /* nothing here */ }
+	{ /* nothing here */
+	}
 
 	for (new_h = total_h; new_h > glmax_tex_size; new_h /= 2)
-	{ /* nothing here */ }
+	{ /* nothing here */
+	}
 
 	while (new_w * new_h > max_pix)
 	{
@@ -149,10 +182,13 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 
 	// magnification mode
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-					smooth ? GL_LINEAR : GL_NEAREST);
+		smooth ? GL_LINEAR : GL_NEAREST);
 
 	// minification mode
-	int mip_level = CLAMP(0, var_mipmapping, 2);
+	int mip_level = CLAMP(0, var_mipmapping, 2);//3);
+
+	// Anisotropy
+
 
 	// special logic for mid-masked textures.  The UPL_Thresh flag
 	// guarantees that each texture level has simple alpha (0 or 255),
@@ -161,35 +197,52 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 	if (flags & UPL_Thresh)
 		mip_level = CLAMP(0, mip_level, 1);
 
-	static GLuint minif_modes[2*3] =
+	static GLuint minif_modes[2 * 3] =//4] =
 	{
 		GL_NEAREST,
 		GL_NEAREST_MIPMAP_NEAREST,
 		GL_NEAREST_MIPMAP_LINEAR,
-	  
+		//GL_NEAREST_MIPMAP_NEAREST + GL_TEXTURE_MAX_ANISOTROPY_EXT,
+
 		GL_LINEAR,
 		GL_LINEAR_MIPMAP_NEAREST,
-		GL_LINEAR_MIPMAP_LINEAR
+		GL_LINEAR_MIPMAP_LINEAR,
+		//GL_LINEAR_MIPMAP_NEAREST + GL_TEXTURE_MAX_ANISOTROPY_EXT,
 	};
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, 
-					minif_modes[(smooth ? 3 : 0) +
-							    (nomip ? 0 : mip_level)]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+		minif_modes[(smooth ? 3 : 0) +
+		(nomip ? 0 : mip_level)]);
 
-	for (int mip=0; ; mip++)
+	for (int mip = 0; ; mip++)
 	{
 		if (img->width != new_w || img->height != new_h)
 		{
 			img->ShrinkMasked(new_w, new_h);
 
 			if (flags & UPL_Thresh)
-				img->ThresholdAlpha((mip&1) ? 96 : 144);
+				img->ThresholdAlpha((mip & 1) ? 96 : 144);
 		}
+#if 0
+
+		if ((r_anisotropy.d > 0) && (!nomip))
+		{
+			//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropic);
+			//RGL_SetAnisotropic(2.0);
+			//I_Printf("OPENGL: Setting Anisotropic filtering!\n");
+		}
+		else if ((r_anisotropy.d == 0) && (nomip))
+		{
+			//RGL_SetAnisotropic(-1);
+			//I_Printf("OPENGL: Anisotropic filtering DISABLED!\n");
+		}
+#endif // 0
+
 
 		glTexImage2D(GL_TEXTURE_2D, mip, (img->bpp == 3) ? GL_RGB : GL_RGBA,
-					 new_w, new_h, 0 /* border */,
-					 (img->bpp == 3) ? GL_RGB : GL_RGBA,
-					 GL_UNSIGNED_BYTE, img->PixelAt(0,0));
+			new_w, new_h, 0 /* border */,
+			(img->bpp == 3) ? GL_RGB : GL_RGBA,
+			GL_UNSIGNED_BYTE, img->PixelAt(0, 0));
 
 		// stop if mipmapping disabled or we have reached the end
 		if (nomip || !var_mipmapping || (new_w == 1 && new_h == 1))
@@ -198,9 +251,10 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 		new_w = MAX(1, new_w / 2);
 		new_h = MAX(1, new_h / 2);
 
+#if !(defined WIN32 || defined DREAMCAST)
 		// -AJA- 2003/12/05: workaround for Radeon 7500 driver bug, which
 		//       incorrectly draws the 1x1 mip texture as black.
-#ifndef WIN32
+		// -CA-  Also used for DREAMCAST.
 		if (new_w == 1 && new_h == 1)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mip);
 #endif
@@ -209,9 +263,7 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 	return id;
 }
 
-
 //----------------------------------------------------------------------------
-
 
 void R_PaletteRemapRGBA(epi::image_data_c *img,
 	const byte *new_pal, const byte *old_pal)
@@ -223,95 +275,95 @@ void R_PaletteRemapRGBA(epi::image_data_c *img,
 	int num_prev = 0;
 
 	for (int y = 0; y < img->height; y++)
-	for (int x = 0; x < img->width;  x++)
-	{
-		u8_t *cur = img->PixelAt(x, y);
-
-		// skip completely transparent pixels
-		if (img->bpp == 4 && cur[3] == 0)
-			continue;
-
-		// optimisation: if colour matches previous one, don't need
-		// to compute the remapping again.
-		int i;
-		for (i = 0; i < num_prev; i++)
+		for (int x = 0; x < img->width; x++)
 		{
-			if (previous[i*6+0] == cur[0] &&
-				previous[i*6+1] == cur[1] &&
-				previous[i*6+2] == cur[2])
+			u8_t *cur = img->PixelAt(x, y);
+
+			// skip completely transparent pixels
+			if (img->bpp == 4 && cur[3] == 0)
+				continue;
+
+			// optimisation: if colour matches previous one, don't need
+			// to compute the remapping again.
+			int i;
+			for (i = 0; i < num_prev; i++)
 			{
-				break;
+				if (previous[i * 6 + 0] == cur[0] &&
+					previous[i * 6 + 1] == cur[1] &&
+					previous[i * 6 + 2] == cur[2])
+				{
+					break;
+				}
 			}
-		}
 
-		if (i < num_prev)
-		{
-			// move to front (Most Recently Used)
+			if (i < num_prev)
+			{
+				// move to front (Most Recently Used)
 #if 1
-			if (i != 0)
-			{
-				u8_t tmp[6];
+				if (i != 0)
+				{
+					u8_t tmp[6];
 
-				memcpy(tmp, previous, 6);
-				memcpy(previous, previous + i*6, 6);
-				memcpy(previous + i*6, tmp, 6);
-			}
+					memcpy(tmp, previous, 6);
+					memcpy(previous, previous + i * 6, 6);
+					memcpy(previous + i * 6, tmp, 6);
+				}
 #endif
-			cur[0] = previous[3];
-			cur[1] = previous[4];
-			cur[2] = previous[5];
+				cur[0] = previous[3];
+				cur[1] = previous[4];
+				cur[2] = previous[5];
 
-			continue;
-		}
-
-		if (num_prev < max_prev)
-		{
-			memmove(previous+6, previous, num_prev*6);
-			num_prev++;
-		}
-
-		// most recent lookup is at the head
-		previous[0] = cur[0];
-		previous[1] = cur[1];
-		previous[2] = cur[2];
-
-		int best = 0;
-		int best_dist = (1 << 30);
-
-		int R = int(cur[0]);
-		int G = int(cur[1]);
-		int B = int(cur[2]);
-
-		for (int p = 0; p < 256; p++)
-		{
-			int dR = int(old_pal[p*3+0]) - R;
-			int dG = int(old_pal[p*3+1]) - G;
-			int dB = int(old_pal[p*3+2]) - B;
-
-			int dist = dR * dR + dG * dG + dB * dB;
-
-			if (dist < best_dist)
-			{
-				best_dist = dist;
-				best = p;
+				continue;
 			}
-		}
 
-		// if this colour is not affected by the colourmap, then
-		// keep the original colour (which has more precision).
-		if (old_pal[best*3+0] != new_pal[best*3+0] ||
-			old_pal[best*3+1] != new_pal[best*3+1] ||
-			old_pal[best*3+2] != new_pal[best*3+2])
-		{
-			cur[0] = new_pal[best*3+0];
-			cur[1] = new_pal[best*3+1];
-			cur[2] = new_pal[best*3+2];
-		}
+			if (num_prev < max_prev)
+			{
+				memmove(previous + 6, previous, num_prev * 6);
+				num_prev++;
+			}
 
-		previous[3] = cur[0];
-		previous[4] = cur[1];
-		previous[5] = cur[2];
-	}
+			// most recent lookup is at the head
+			previous[0] = cur[0];
+			previous[1] = cur[1];
+			previous[2] = cur[2];
+
+			int best = 0;
+			int best_dist = (1 << 30);
+
+			int R = int(cur[0]);
+			int G = int(cur[1]);
+			int B = int(cur[2]);
+
+			for (int p = 0; p < 256; p++)
+			{
+				int dR = int(old_pal[p * 3 + 0]) - R;
+				int dG = int(old_pal[p * 3 + 1]) - G;
+				int dB = int(old_pal[p * 3 + 2]) - B;
+
+				int dist = dR * dR + dG * dG + dB * dB;
+
+				if (dist < best_dist)
+				{
+					best_dist = dist;
+					best = p;
+				}
+			}
+
+			// if this colour is not affected by the colourmap, then
+			// keep the original colour (which has more precision).
+			if (old_pal[best * 3 + 0] != new_pal[best * 3 + 0] ||
+				old_pal[best * 3 + 1] != new_pal[best * 3 + 1] ||
+				old_pal[best * 3 + 2] != new_pal[best * 3 + 2])
+			{
+				cur[0] = new_pal[best * 3 + 0];
+				cur[1] = new_pal[best * 3 + 1];
+				cur[2] = new_pal[best * 3 + 2];
+			}
+
+			previous[3] = cur[0];
+			previous[4] = cur[1];
+			previous[5] = cur[2];
+		}
 }
 
 int R_DetermineOpacity(epi::image_data_c *img)
@@ -321,14 +373,14 @@ int R_DetermineOpacity(epi::image_data_c *img)
 
 	if (img->bpp == 1)
 	{
-		for (int y=0; y < img->used_h; y++)
-		for (int x=0; x < img->used_w; x++)
-		{
-			u8_t pix = img->PixelAt(x, y)[0];
+		for (int y = 0; y < img->used_h; y++)
+			for (int x = 0; x < img->used_w; x++)
+			{
+				u8_t pix = img->PixelAt(x, y)[0];
 
-			if (pix == TRANS_PIXEL)
-				return OPAC_Masked;
-		}
+				if (pix == TRANS_PIXEL)
+					return OPAC_Masked;
+			}
 
 		return OPAC_Solid;
 	}
@@ -338,16 +390,16 @@ int R_DetermineOpacity(epi::image_data_c *img)
 
 		bool is_masked = false;
 
-		for (int y=0; y < img->used_h; y++)
-		for (int x=0; x < img->used_w; x++)
-		{
-			u8_t alpha = img->PixelAt(x, y)[3];
+		for (int y = 0; y < img->used_h; y++)
+			for (int x = 0; x < img->used_w; x++)
+			{
+				u8_t alpha = img->PixelAt(x, y)[3];
 
-			if (alpha == 0)
-				is_masked = true;
-			else if (alpha != 255)
-				return OPAC_Complex;
-		}
+				if (alpha == 0)
+					is_masked = true;
+				else if (alpha != 255)
+					return OPAC_Complex;
+			}
 
 		return is_masked ? OPAC_Masked : OPAC_Solid;
 	}
@@ -385,14 +437,14 @@ void R_BlackenClearAreas(epi::image_data_c *img)
 void R_DumpImage(epi::image_data_c *img)
 {
 	L_WriteDebug("DUMP IMAGE: size=%dx%d [%dx%d] bpp=%d\n",
-			img->used_w, img->used_h,
-			img->width, img->height, img->bpp);
+		img->used_w, img->used_h,
+		img->width, img->height, img->bpp);
 
-	for (int y=img->height-1; y >= 0; y--)
+	for (int y = img->height - 1; y >= 0; y--)
 	{
-		for (int x=0; x < img->width; x++)
+		for (int x = 0; x < img->width; x++)
 		{
-			u8_t pixel = img->PixelAt(x,y)[0];
+			u8_t pixel = img->PixelAt(x, y)[0];
 
 			// L_WriteDebug("%02x", pixel);
 			L_WriteDebug("%c", 'A' + (pixel % 26));
@@ -401,7 +453,6 @@ void R_DumpImage(epi::image_data_c *img)
 		L_WriteDebug("\n");
 	}
 }
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

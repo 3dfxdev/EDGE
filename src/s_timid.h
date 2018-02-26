@@ -19,7 +19,7 @@
 #ifndef __S_TIMID_H__
 #define __S_TIMID_H__
 
-#include "i_defs.h"
+#include "system/i_defs.h"
 
 bool S_StartupTimidity(void);
 void S_ChangeTimidQuiet(void);
