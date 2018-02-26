@@ -1,0 +1,132 @@
+// 
+//    EDGE GAMES.DDF -redefine game/mission information.
+//    For documentation, see http://edge.sourceforge.net/
+//    DDF Version 5.9
+//
+
+<GAMES>
+
+#VERSION 1.31
+
+// Doom II
+
+[HELL_ON_EARTH]
+title_graphic = "TITLEPIC","CREDIT";
+title_time = 10.42;
+title_music = 65;
+intermission_graphic = "INTERPIC";
+intermission_music = 64;
+name_graphic = "M_EPI5";
+percent_sound = "PISTOL";
+done_sound = "BAREXP";
+nextmap_sound = "SGCOCK";
+accel_sound = "SLOP";
+frag_sound = "PLDETH";
+firstmap = MAP01;
+special_music = 31;   // Cast
+
+
+// Doom I
+
+[KNEE_DEEP_IN_THE_DEAD]
+title_graphic = "TITLEPIC","HELP2","CREDIT";
+title_time = 4.85;
+title_music = 62;
+intermission_graphic = "WIMAP0";
+intermission_music = 63;
+splat_graphic = "WISPLAT";
+yah1_graphic = "WIURH0";
+yah2_graphic = "WIURH1";
+name_graphic = "M_EPI1";
+percent_sound = "PISTOL";
+done_sound = "BAREXP";
+endmap_sound = "BAREXP";
+nextmap_sound = "SGCOCK";
+accel_sound = "SLOP";
+frag_sound = "PLDETH";
+firstmap = E1M1;
+
+map = E1M1:185:164, E1M2:148:143, E1M3:69:122,
+      E1M4:209:102, E1M5:116:89,  E1M6:166:55,
+      E1M7:71:56,   E1M8:135:29,  E1M9:71:24;
+
+anim = WIA00000:3:224:104, WIA00001:3:224:104, WIA00002:3:224:104,#END,
+       WIA00100:4:184:160, WIA00101:4:184:160, WIA00102:4:184:160,#END,
+       WIA00200:3:112:136, WIA00201:2:112:136, WIA00202:3:112:136,#END,
+       WIA00300:3:72:112, WIA00301:3:72:112, WIA00302:4:72:112,#END,
+       WIA00400:5:88:96, WIA00401:5:88:96, WIA00402:3:88:96,#END,
+       WIA00500:2:64:48, WIA00501:3:64:48, WIA00502:2:64:48,#END,
+       WIA00600:3:192:40, WIA00601:2:192:40, WIA00602:3:192:40,#END,
+       WIA00700:3:136:16, WIA00701:5:136:16, WIA00702:3:136:16,#END,
+       WIA00800:3:80:16, WIA00801:7:80:16, WIA00802:3:80:16,#END,
+       WIA00900:3:64:24, WIA00901:2:64:24, WIA00902:3:64:24,#END;
+
+
+[THE_SHORES_OF_HELL]
+intermission_graphic = "WIMAP1";
+intermission_music = 63;
+splat_graphic = "WISPLAT";
+yah1_graphic = "WIURH0";
+yah2_graphic = "WIURH1";
+name_graphic = "M_EPI2";
+percent_sound = "PISTOL";
+done_sound = "BAREXP";
+endmap_sound = "BAREXP";
+nextmap_sound = "SGCOCK";
+accel_sound = "SLOP";
+frag_sound = "PLDETH";
+firstmap = E2M1;
+
+map = E2M1:254:25,  E2M2:97:50,   E2M3:188:64,
+      E2M4:128:78,  E2M5:214:92,  E2M6:133:130,
+      E2M7:208:136, E2M8:148:140, E2M9:235:158;
+
+anim = #E2M2:WIA10000:10:128:136,#END,
+       #E2M3:WIA10100:10:128:136,#END,
+       #E2M4:WIA10200:10:128:136,#END,
+       #E2M5:WIA10300:10:128:136,#END,
+       #E2M6:WIA10400:10:128:136,#END,
+       #E2M7:WIA10500:10:128:136,#END,
+       #E2M8:WIA10600:10:128:136,#END,
+       #E2M9:WIA10700:11:192:144, WIA10701:11:192:144, WIA10702:11:192:144, WIA10701:11:192:144,#END,
+       #E2M6:WIA10702:-1:192:144,#END;
+
+
+[INFERNO]
+intermission_graphic = "WIMAP2";
+intermission_music = 63;
+splat_graphic = "WISPLAT";
+yah1_graphic = "WIURH0";
+yah2_graphic = "WIURH1";
+name_graphic = "M_EPI3";
+percent_sound = "PISTOL";
+done_sound = "BAREXP";
+endmap_sound = "BAREXP";
+nextmap_sound = "SGCOCK";
+accel_sound = "SLOP";
+frag_sound = "PLDETH";
+special_music = 67;   // bunny
+firstmap = E3M1;
+
+map = E3M1:156:168, E3M2:48:154, E3M3:174:95,
+      E3M4:265:75,  E3M5:130:48, E3M6:279:23,
+      E3M7:198:48,  E3M8:140:25, E3M9:281:136;
+
+anim = WIA20000:11:104:168, WIA20001:11:104:168, WIA20002:11:104:168,#END,
+       WIA20100:11:40:136, WIA20101:11:40:136, WIA20102:11:40:136,#END,
+       WIA20200:11:160:96, WIA20201:11:160:96, WIA20202:11:160:96,#END,
+       WIA20300:11:104:80, WIA20301:11:104:80, WIA20302:11:104:80,#END,
+       WIA20400:11:120:32, WIA20401:11:120:32, WIA20402:11:120:32,#END,
+       WIA20500:11:40:0, WIA20501:11:40:0, WIA20502:11:40:0,#END;
+
+
+[THY_FLESH_CONSUMED]
+intermission_graphic = "INTERPIC";
+intermission_music = 63;
+name_graphic = "M_EPI4";
+percent_sound = "PISTOL";
+done_sound = "BAREXP";
+accel_sound = "SLOP";
+frag_sound = "PLDETH";
+firstmap = E4M1;
+

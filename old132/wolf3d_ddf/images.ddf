@@ -1,0 +1,109 @@
+// 
+//    EDGE IMAGES.DDF -redefine or add new images.
+//    For documentation, see http://edge.sourceforge.net/
+//    DDF Version 5.0
+//
+
+<IMAGES>
+
+#VERSION 1.29
+
+[gfx:EDGETTL]
+IMAGE_DATA=LUMP:PNG:"EDGTTL_P";
+
+[gfx:CREDIT2]
+IMAGE_DATA=LUMP:PNG:"EDCRED_P";
+
+[flat:CONSOLE]
+IMAGE_DATA=LUMP:PNG:"CONSOL_P";
+SCALE=0.5;
+
+[gfx:SOLID_BLACK]
+IMAGE_DATA=COLOUR:#000000;
+
+[gfx:SOLID_WHITE]
+IMAGE_DATA=COLOUR:#FFFFFF;
+
+[gfx:DLIGHT_LINEAR]
+IMAGE_DATA=BUILTIN:LINEAR;
+SPECIAL=FORCE_CLAMP,FORCE_NOMIP,FORCE_SMOOTH;  // Don't Copy This Line
+
+[gfx:DLIGHT_QUAD]
+IMAGE_DATA=BUILTIN:QUADRATIC;
+SPECIAL=FORCE_CLAMP,FORCE_NOMIP,FORCE_SMOOTH;  // Don't Copy This Line
+
+[gfx:SHADOW_STD]
+IMAGE_DATA=BUILTIN:SHADOW;
+SPECIAL=FORCE_CLAMP,FORCE_NOMIP,FORCE_SMOOTH;  // Don't Copy This Line
+
+
+//------------------------------------------------------------------------
+// Miscellaneous Ideas....
+//------------------------------------------------------------------------
+
+// possible IMAGE_DATA_types:
+//
+//    WAD_FLAT, WAD_TEX, WAD_GFX,
+//    WAD_SPRITE, WAD_PLSKIN, WAD_TEXPATCH,
+//    (GFX is anything not a sprite, player-skin or tex-patch)
+//
+//    EPK:tex/foo.png
+//
+//    COMPOSED:256x256;
+// 
+
+// pixel definitions for WAD images:
+//
+// WAD.PALETTE = YYY;
+// WAD.COLOURMAP = XXX;
+
+// compositing feature ??? (names must also come from images.ddf)
+//
+// COMPOSE.BASE = #0000FF;
+// COMPOSE.IMAGES = FOO:12:64, BAR:30:32:200%, ..., BAZ:144:100:50%;
+
+// colour conversions:
+//
+// processing pipeline:
+//     do HSV mapping, clamp, do RGB mapping, clamp, apply overall gamma.
+//
+// GAMMA = 1.2;
+//
+// CONVERT.R = 0.2+R*0.5+G*0.2+B*0.1+I*0.3,GAMMA(0.2),MIN(0.2),MAX(0.9);
+//   also G, B, and A.
+//   also HSV: Do HSV before RGB mapping, GAMMA last.  Clamp each stage.
+// CONVERT.H = 200 +/- H;  // nothing else allowed
+
+// new specials:
+//    NO_ALPHA (blend with black) 
+
+// GL material definitions (shiny surfaces, etc) ???
+
+
+// ---- following probably doesn't belong here ----
+
+
+// ROTATION = 45; // counter-clockwise, limited to the "tileables" (e.g. not sprites)
+
+// Decals:
+//
+// DECAL.BULLET = XXX;
+// DECAL.EXPLOSION = XXX;
+
+// Sounds:
+//
+// FOOTSTEP_SOUND = FTSTEP3;
+
+// lighting effects (not necessarily dynamic lighting)
+//
+// LIGHT.XXXX = YYYY;
+
+// scrolling effects:
+//
+// SCROLL.XSPEED=0.5;
+// SCROLL.YSPEED=3.1;
+
+// sound effects
+//
+// AMBIENT_SOUND = BLAH;
+

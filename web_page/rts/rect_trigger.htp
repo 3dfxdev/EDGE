@@ -1,0 +1,65 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Maps & Triggers">
+<set RTSreference="triggers">
+
+<block name="content">
+
+<h3 class="page_title">RECT_TRIGGER</h3>
+
+<p>
+<B>Usage:</B><br>
+RECT_TRIGGER &lt;X1&gt; &lt;Y1&gt; &lt;X2&gt; &lt;Y2&gt; [Low Z] [High Z]
+
+<p>
+<B>Description:</B><br>
+This defines a rectangular radius trigger instead of the normal
+square one.  This is most useful to place a thin trigger area in
+front of a door, or some place you need a wide but narrow trigger
+area (since normal radius triggers are square, one that you need
+to cover a wide area covers a lot of unnecessary space).
+
+<p>
+<B>Details:</B><br>
+&lt;X1&gt; &lt;Y1&gt; define the lower left corner of the rectangle.<br>
+&lt;X2&gt; &lt;Y2&gt; define the upper right corner of the rectangle.
+
+<p>
+It's best to use your map editor to determine the exact points for
+the X and Y values you want (most map editors show the grid location
+in real time).
+
+<p>
+The optional [low Z] and [high Z] values are to create a "3D" trigger:
+one that can be walked over or under without being triggered.
+The [low Z] must be a value below [high Z]
+(you cannot invert the low and high Z values).
+If you use Low Z then high Z is also required.
+
+<p>
+NOTE: close a RECT_TRIGGER with 'END_RADIUS_TRIGGER',
+just like a normal radius trigger.
+
+<p>
+<B>Example:</B><br>
+
+Press the USE button somewhere within the starting room of DOOM2
+MAP01 (the room with the two pillars and the V-shaped stairs).
+Pressing USE in other locations should do nothing (remember to
+reload the map, this script will only run once).
+
+<PRE class="rts">
+START_MAP map01
+  RECT_TRIGGER 1280 3200  1920 3648
+    TAGGED_USE
+    TIP "You pressed use!"
+  END_RADIUS_TRIGGER
+END_MAP
+</PRE>
+
+<p>
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

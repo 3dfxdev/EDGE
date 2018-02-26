@@ -1,0 +1,34 @@
+
+MPSERVER TODO
+=============
+
+NETWORKING
+----------
+
+* handle a broken connection (Read or Write --> NL_MESSAGE_END).
+
+- finish updating code for NL_RELIABLE_PACKETS.
+
+- validate packet lengths and contents.
+
+- send acknowledgements.  Also do logging/error packets.
+
+- debugging support: Dump packets.
+
+- improve class access (keep fields private).
+
+
+USER INTERFACE
+--------------
+
++ control screen : 
+  + able to change port (have 9 "standard" ports)
+  - ACTIVATE button.
+  - RESET button (boot all, deactivate).
+
+- exit confirmation if there are clients/games,
+  show a "shutdown" window (4 sec for games, 4 for clients),
+  with a "quit now" button.
+
+- prevent 'ESCAPE' key from exiting.
+

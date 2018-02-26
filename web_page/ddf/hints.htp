@@ -1,0 +1,100 @@
+<file include="../common/common.inc">
+
+<set title="DDF: Hints and Tips">
+
+<block name="content">
+
+<h2 class="page_title"> Hints and Tips </h2>
+
+
+Well, the docs are pretty technical, so I thought I'd include a
+section where I'd just provide some general advice on using and
+abusing DDF. This is just stuff that occured to me while working on
+the docs, or while working on various DDF projects. More specific
+advice can be found on  the <A HREF="errors.htm">errors</A> page. 
+<P>
+When you start fooling about with DDF, you will invariably do
+something that causes EDGE to crash, behave weirdly, or just produce
+some unwanted effect. Hence, it is often a good idea to only change a
+few things at a time, and then run EDGE to check that everything still
+works OK. If you make hundreds of changes, you just make your problem
+difficult to track down. 
+<P>
+You should also make extensive use of comments. As you already know,
+anything following the double slash // will be ignored. This
+enables you to write explanatory notes in your code, to enable either
+yourself or someone else to find out what different bits of code do. 
+<P>
+You can also use these brackets to `debug' bits of code. E.g If you
+made four changes to your DDF files, and find that EDGE is now
+crashing, you could then comment out individual changes until EDGE
+begins working again.
+<P>
+Be careful when commenting out code. I once ended up with some code
+that had all of player 2 commented out. This naturally caused some
+problems when trying to launch a multiplayer game.
+<P>
+Sometimes EDGE will completely fail to load up your DDF files if you
+do something extremely wrong. E.g If you entered MASS=5; into your
+weapons.ddf file, you would get an error message like:
+<P>
+DDF_MainCheckCommand: Unknown Command - MASS
+<P>
+You will also get a similar message if you were to mispell something.
+You may also get error messages if you try to call an attack or frame
+that doesn't exist, call a linetype that isn't recognised or fail to
+put semi-colons at the end of weapon or creature animations. Since
+EDGE shows each DDF file it is loading on screen, it is an easy matter to work out
+which file is providing the problem. It should then be easy to search for and rectify the problem in the relevant ddf file using a text editor. 
+<P>
+Because you don't have to use standard doom animations, this can
+sometimes create problems) (e.g you can create a creature with frames
+MOSSA1, MOSSA2A8, MOSSA3A7, MOSSA4A6, MOSSA5 and so forth) Be aware
+that the first four letters of your creature can be changed, but you
+shouldn't screw around with bits on the end (A4A6, A5 etc) The last
+bit of a sprite's lump name control the rotations (so you can see the
+front, back, side etc of a creature) Weapons and objects such as
+health kits and armour are always six letters long, e.g PISGA0,
+PISGB0, PISGC0. The 0 at the end indicates that the object has only
+one view (e.g can only be seen from one angle - the front) If you fool
+around with these conventions, EDGE will either a) crash b) spit you
+out with an error message. The motto is that you should be careful
+when doing custom lumpnames. 
+<P>
+You should also be careful that you don't end up with multiple frames
+in a wad. When using a program like Wintex, you can end up pasting in
+a couple of sprites with identical names. This will also cause EDGE to
+crash - as it has no way of knowing which sprite should be displayed. 
+<P>
+By now, I'm hoping that you'll have read the complete DDF docs, become
+massively inspired and made the world's most kickass flamethrower.
+(why do people love flamethrowers so much?) Anyway, you are probably
+desperately wondering how to get your new DDF code to work.
+<P>
+You can get your new DDF to work in one of three ways. 
+<P>
+a) Put all your DDF files in the same directory as edge.exe, and run
+the game as normal.
+Your new DDF files will automatically be loaded at runtime<P>
+
+b) include the DDF files as custom lumps, using the lump names
+provided in the docs. This means that you have to create new data
+lumps using a tool like wintex. You'll need to create a new entry
+under the data section, name it appropriately and then load in and
+save your DDF files. If this makes your mind boggle, or you have no
+idea what I'm talking about, then skip straight to option C. Although
+a bit fiddly to set up, DDF files in the wad has the advantage of
+being very neat - but it has been buggy in the past.  However, this
+still might be a particularly good choice for people making mods, TC's
+etc. 
+<P>
+c) use -DDF on the command line (e.g -DDF C:\doom2\ddf) to specify the
+directory where your DDF files can be found. This is another neat
+solution which allows you to keep your favourite DDF files safely
+tucked away in their own individual directory. 
+
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">

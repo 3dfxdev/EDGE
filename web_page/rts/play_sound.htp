@@ -1,0 +1,76 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Sound & Music">
+<set RTSreference="level">
+
+<block name="content">
+
+<h3 class="page_title">PLAY_SOUND</h3>
+
+<p>
+<B>Usage:</B><br>
+PLAY_SOUND &lt;sound name&gt; [X] [Y] [Z]
+
+<p>
+<B>Variants:</B><BR>
+PLAY_SOUND_BOSSMAN &lt;sound name&gt; [X] [Y] [Z]
+
+<p>
+<B>Description:</B>
+Play a sound and (optionally) define the location from where the
+sound will come.  There are two types of PLAY_SOUND command:
+<ul>
+  <li>normal = plays a sound using normal attenuation
+(the farther away you are, the softer the sound is)
+  <li>BOSSMAN = the sound is played at max volume
+  throughout the entire level
+</ul>
+
+<p>
+<B>Details:</B><br>
+&lt;sound&gt; references a sound name from SOUNDS.DDF. 
+
+<p>
+It's best to use your map editor to determine the exact points
+for the [X] and [Y] values you want (most map editors show the
+grid location in real time). 
+
+<p>
+NOTE: if you define [X] then obviously [Y] is required.
+
+<p>
+The optional [Z] value is to create a sound in the air for
+example. If you use [Z] then both [X] and [Y] are required.
+
+<p>
+When the coordinates are omitted, the sound will be played at
+the origin of the trigger.
+
+<p>
+TIP: Combine with TAGGED_REPEATABLE to make a looping sound.
+
+<p>
+<B>Example:</B><br>
+
+<PRE class="rts">
+START_MAP map01
+  RADIUS_TRIGGER 0 0 80
+    TAGGED_IMMEDIATE
+
+    // sound will come from center of the trigger
+    PLAY_SOUND DBOPN 
+    WAIT 2
+
+    // sound will come from specific X/Y location
+    PLAY_SOUND DBOPN 1000 3000
+
+  END_RADIUS_TRIGGER
+END_MAP
+</PRE>
+
+<p>
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

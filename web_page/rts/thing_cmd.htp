@@ -1,0 +1,54 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Thing commands">
+<set RTSreference="thing">
+
+<block name="content">
+
+<h2 class="page_title"> Thing Commands </h2>
+
+Radius trigger scripts can be used to interact with players or
+monsters, by making them enter certain states,
+giving benefits to players, and damaging monsters or players.
+Monsters and items can also be dynamically spawned, which
+can be useful for placing them onto ExtraFloors.
+<p>
+
+<h3>List of commands</h3>
+
+<a class="rts" href="damage_monsters.htm">DAMAGE_MONSTERS</a> <br>
+Take away health from a specific species of monster.
+<p>
+
+<a class="rts" href="damage_player.htm">DAMAGE_PLAYER</a> <br>
+Take away health from the player.
+<p>
+
+<a class="rts" href="heal_player.htm">HEAL_PLAYER</a> <br>
+Give the player health.
+<p>
+
+<a class="rts" href="give_armour.htm">GIVE_ARMOUR</a> <br>
+Give armour to the player.
+<p>
+
+<a class="rts" href="give_benefit.htm">GIVE_BENEFIT</a> <br>
+Give the player ammo, weapons, powerups etc.
+<p>
+
+<a class="rts" href="lose_benefit.htm">LOSE_BENEFIT</a> <br>
+Take away ammo, weapons, powerups etc.
+<p>
+
+<a class="rts" href="spawn_thing.htm">SPAWN_THING</a> <br>
+Spawn a monster or item on the map.
+<p>
+
+<a class="rts" href="thing_event.htm">THING_EVENT</a> <br>
+Force a thing to go into certain states.
+<p>
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

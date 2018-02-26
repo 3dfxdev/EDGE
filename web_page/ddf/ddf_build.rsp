@@ -1,0 +1,29 @@
+;
+; General
+;
+index.htp ../out/ddf_online/index.htm
+format.htp ../out/ddf_online/format.htm
+errors.htp ../out/ddf_online/errors.htm
+hints.htp ../out/ddf_online/hints.htm
+;
+; Tutorials
+;
+new_monster.htp ../out/ddf_online/new_monster.htm
+new_weapon.htp ../out/ddf_online/new_weapon.htm
+;
+; Reference
+;
+anims.htp ../out/ddf_online/anims.htm
+attacks.htp ../out/ddf_online/attacks.htm
+colmap.htp ../out/ddf_online/colmap.htm
+fonts.htp ../out/ddf_online/fonts.htm
+games.htp ../out/ddf_online/games.htm
+images.htp ../out/ddf_online/images.htm
+language.htp ../out/ddf_online/language.htm
+levels.htp ../out/ddf_online/levels.htm
+line_sec.htp ../out/ddf_online/line_sec.htm
+playlist.htp ../out/ddf_online/playlist.htm
+sfx.htp ../out/ddf_online/sfx.htm
+switch.htp ../out/ddf_online/switch.htm
+things.htp ../out/ddf_online/things.htm
+weapons.htp ../out/ddf_online/weapons.htm

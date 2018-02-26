@@ -1,0 +1,884 @@
+<file include="../common/common.inc">
+
+<set title="Editing Guide: Coal HUDs">
+
+<block name="content">
+
+<h2 class="page_title">Coal HUD Manual</h2>
+
+by Andrew Apted. &nbsp; December 2009
+
+
+<h3 class="sub_title">OVERVIEW</h3>
+
+COAL is a new scripting language which is being developed
+especially for EDGE.  It is still quite primitive but good
+enough for the purpose of drawing HUDs.
+Documentation about the language is being worked on, though the
+syntax is quite similar to existing languages like C and Pascal.
+
+<p>
+The standard Coal scripts for drawing the DOOM HUD is
+loaded from this file: <b>doom_ddf/coal_hud.ec</b>
+
+<p>
+Additionally, each pwad may contain a lump called "<b>COALHUDS</b>"
+which is automatically loaded.
+Later scripts are able to replace any definitions (functions etc)
+in earlier scripts.
+
+
+<h3 class="sub_title">FILES CONTENTS</h3>
+
+The contents of each file or lump is simply the text of the COAL code.
+
+<p>
+The engine provides two modules: the "hud" module provides drawing
+functions and general queries, whereas the "player" module provides
+query functions about the current player.  All of their functions
+and variables are described in separate sections below.
+
+<p>
+In order to customise the default HUDs, your COAL code needs to
+redefine one of the existing functions, as follows:
+
+<p>
+<b>doom_status_bar()</b> : replace this function if you only want to
+customise the full status bar (including the one shown in the
+automap screen).
+The size has to be the same (width 320, height 32).
+
+<p>
+<b>overlay_status_bar()</b> : write your own version of this
+function if you only want to change the overlay status bar.
+
+<p>
+<b>doom_automap()</b> : this function draws the automap
+screen (including the status bar at the bottom).  Replacing it
+means you can show other information here instead of
+(or in addition to) the automap.
+
+<p>
+<b>draw_all()</b> : this is the function which EDGE calls
+to draw <em>everything</em>.  The normal version (in EDGE.WAD)
+will call the above functions depending on the user's current HUD
+and whether the automap is active or not.
+Replacing this function gives you total control: you could
+provide more hud configurations (or less) than the usual three,
+ignore the automap mode completely if you wanted,
+or even draw the view from multiple players.
+
+
+<h3 class="sub_title">HUD MODULE</h3>
+
+
+<h3>General Queries</h3>
+
+<p><span class="lua_FUNC">hud.check_automap() : float</span><br>
+This function returns true while the user is viewing the automap
+(by pressing TAB) and false for the normal view.
+
+<p><span class="lua_FUNC">hud.which_hud() : float</span><br>
+This variable returns the current HUD number which the user cycles
+through when pressing '+' and '-' keys.  It ranges from 0 to 119,
+allowing 120 different HUD screens, but in reality you must
+use the modulo operator '%' to convert this number to a smaller
+range.
+
+<p>
+For example, the standard code uses <b>hud.which_hud()&nbsp;%&nbsp;3</b> to
+select between three different huds (none, normal and overlay).
+The following are good modulo numbers:
+2,3,4,5,6,8 and 10 (because they divide into 120).
+
+<p>
+For a HUD which never changes, simply ignore this value.
+
+<p><span class="lua_FUNC">hud.get_time() : float</span><br>
+This function returns the current time, in terms of "tics"
+where there are 35 tics per second.  In other words, after each
+1/35th of a second the value of hud.now_time increases by one.
+It keeps going even during menus or while the game is paused.
+
+<p><span class="lua_VAR">hud.passed_time</span><br>
+This variable is updated by the hud.grab_times() call, and
+contains the number of "tics" that have passed
+since the last time the draw_all() function was called.
+Note that a result of zero is possible.
+
+<p><span class="lua_FUNC">hud.game_mode() : string</span><br>
+This function returns a string for the current game mode:
+<FONT color="#FF3333"><B>"sp"</b></font> (Single Player),
+<FONT color="#FF3333"><B>"coop"</b></font> (Cooperative), or
+<FONT color="#FF3333"><B>"dm"</b></font> (Deathmatch).
+
+<p><span class="lua_FUNC">hud.game_name() : string</span><br>
+This function returns the DDF name of the current game being
+played (the one defined in GAMES.DDF).
+
+<p><span class="lua_FUNC">hud.map_name() : string</span><br>
+This function returns the DDF name of the current map being
+played (the one defined in LEVELS.DDF).
+
+<p><span class="lua_FUNC">hud.map_title() : string</span><br>
+This function returns the title of the map being played,
+mainly to be displayed on the automap.
+
+
+<h3>Drawing Stuff</h3>
+
+<p><span class="lua_FUNC">hud.coord_sys(w, h)</span><br>
+In the original DOOM, the screen size was always 320x200,
+and by default all of the drawing functions here use screen
+coordinates as if that were the case (even when EDGE is running
+in different modes likes 640x480 or 1024x768).
+
+This function allows you to set a different "virtual" resolution,
+for example 640x400, and then all coordinates will be for this
+new system, plus the size of images and text characters will be
+affected as well.
+
+<p><span class="lua_FUNC">hud.text_font(name)</span><br>
+Sets the current text font, where the 'name' parameter refers to an
+entry in FONTS.DDF.
+The default font is "DOOM" and is reset after each frame.
+
+<p><span class="lua_FUNC">hud.text_color(name)</span><br>
+Sets the current text color, which must refer to an entry in
+COLMAPS.DDF, or can be the empty string
+<FONT color="#FF3333">""</FONT> which causes the text to be
+drawn normally (without being colormapped).
+The default is "" and is reset after each frame.
+
+<p><span class="lua_FUNC">hud.set_scale(value)</span><br>
+Sets the scaling for drawing text and for hud.draw_image().
+Larger values make the text/image bigger.
+The default scale is 1.0 and is reset after each frame.
+
+<p><span class="lua_FUNC">hud.set_alpha(value)</span><br>
+Set the alpha value (translucency) for drawing text, lines, boxes and images.
+The 'value' parameter ranges from 0.0 (completely invisible) to 1.0
+(completely solid).
+The default alpha is 1.0 and is reset after each frame.
+
+<p><span class="lua_FUNC">hud.solid_box(x, y, w, h, color)</span><br>
+Draws a solid rectangle consisting of a single color.
+The 'x' and 'y' parameters are the coordinates of the top left
+corner, whereas 'w' and 'h' are the width and height.
+The current alpha value is also applied.
+
+<p>
+The 'color' parameter can take two different forms.  Firstly it may
+be a string with the same notation as DDF and HTML, which begins with a
+"#" character and is followed by 6 hexadecimal digits.
+For example <FONT color="#FF3333">"#FF0000"</font> for red
+and <FONT color="#FF3333">"#0000FF"</font> for blue.
+Secondly it can be a Lua table with fields called 'r', 'g' and 'b'
+(for red, green and blue).  Each of these fields is a number
+from 0 to 255.
+For example: <FONT color="#0000AA">{ r=255, g=170, b=0 }</font> for orange.
+
+<p><span class="lua_FUNC">hud.solid_line(x1, y1, x2, y2, color)</span><br>
+Draws a solid line between the start coordinate (x1,y1) to the
+end coordinate (x2, y2).
+The 'color' parameter is the same as for hud.solid_box(), and
+the current alpha value is also applied.
+
+<p><span class="lua_FUNC">hud.thin_box(x, y, w, h, color)</span><br>
+Similar to hud.solid_box(), but only draws the outline of a rectangle.
+The inside area is not affected.  The sides are always two pixels
+thick, and never go outside the specified area.
+The 'color' parameter is the same as for hud.solid_box(), and
+the current alpha value is also applied.
+
+<p><span class="lua_FUNC">hud.gradient_box(x, y, w, h, TL, BL, TR, BR)</span><br>
+Similar to hud.solid_box(), but the colors for each corner are
+specified individually: 'TL' for top left, 'BL' for bottom left,
+'TR' for top right and 'BR' for bottom right.
+The current alpha value will also be applied.
+
+<p><span class="lua_FUNC">hud.draw_image(x, y, name)</span><br>
+Draws an image at the given coordinates, which specify the top/left
+corner of the image.  The current alpha and scaling factors are
+applied as well.  
+
+<p><span class="lua_FUNC">hud.stretch_image(x, y, w, h, name)</span><br>
+Similar to hud.draw_image(), but the image will be stretched or squashed
+so that it fits exactly into the given rectangle on the screen.
+The current alpha value is also applied.
+
+<p><span class="lua_FUNC">hud.tile_image(x, y, w, h, name, [x_offset, y_offset])</span><br>
+Draws an image (usually a texture or flat) on the screen,
+where the image is tiled (repeated) to fill up the given rectangle.
+The current alpha and scaling factors are also applied.
+The 'x_offset' and 'y_offset' parameters are <em>optional</em>,
+and can be used to offset the texture by a certain number of pixels.
+
+<p><span class="lua_FUNC">hud.draw_text(x, y, str)</span><br>
+Draws some text on the screen using the current text font, color,
+alpha and scaling values.  Newlines (<FONT color="#FF3333">"\n"</font>)
+in the string can be used to draw multi-line text.
+
+<p><span class="lua_FUNC">hud.draw_num2(x, y, len, num)</span><br>
+Draws a number (an integer) on the screen using the current text font, color,
+alpha and scaling.  The number is right-aligned, in other words
+the 'x' parameter specified the right-most pixel, and the 'len'
+parameter gives the maximum number of characters (including the minus
+sign if the number is negative).
+
+<p><span class="lua_FUNC">hud.render_world(x, y, w, h)</span><br>
+Renders the view for the player on the screen, in a
+rectangle with the given coordinates.  The player's weapon is
+also drawn.  The views of different players can be rendered
+by using the hud.set_render_who() function below.
+
+<p><span class="lua_FUNC">hud.render_automap(x, y, w, h, [options])</span><br>
+Renders the automap for the player on the screen, in a
+rectangle with the given coordinates.  Note that no background is
+drawn, hence you can use this function to create an overlay automap
+(drawn over the top of the player's view).  If you need a solid color
+behind it, use the hud.solid_box() function first.
+
+<p>
+The 'options' parameter is optional,
+when present it is a table containing a set of variables which
+modify the way the automap is drawn.  Variables which are not
+present in the table are not affected (stay the same as the
+user's normal automap).  The following list shows all the
+possible variables:
+
+<div style="font-family:monospace; font-size:large">
+<table class="lua_TABLE">
+<tr> <td style="width:8em"><B>Variable</b></td>
+     <td class="lua_LL"><B>&nbsp;Description</b></td>
+
+<tr> <td>zoom  </td><td class="lua_LL">&nbsp;Set a fixed zoom factor,
+where 1.0 shows the whole map, and larger values
+make the map bigger</td>
+
+<tr> <td>grid  </td><td class="lua_LL">&nbsp;force the grid lines on/off</td>
+<tr> <td>rotate</td><td class="lua_LL">&nbsp;force map rotation on/off</td>
+<tr> <td>follow</td><td class="lua_LL">&nbsp;force follow-player mode on/off</td>
+
+<tr> <td>things</td><td class="lua_LL">&nbsp;draw all things</td>
+<tr> <td>walls </td><td class="lua_LL">&nbsp;draw all walls (like IDDT cheat)</td>
+<tr> <td>allmap</td><td class="lua_LL">&nbsp;draw walls like All-Map powerup</td>
+</table>
+</div>
+
+
+<p><span class="lua_FUNC">hud.set_render_who(index)</span><br>
+Sets the current player for rendering the world or the
+automap.  The 'index' parameter is a
+small number: 1 for the "main player" on this computer
+(the person at the keyboard), 2 for the next player in the list, etc...
+upto the number of players in the game. 
+
+
+<p><span class="lua_FUNC">hud.automap_colors(table)</span><br>
+This function can be used to change some or all of the colors used
+when drawing the automap.  The 'table' parameter is a Lua table
+where the names are automap parts and the values are the colors.
+For example: <FONT color="#0000AA">{ grid = "#006666", wall = "#FFFFFF" }</font>.
+Parts that are not present in the table are not affected (stay the same as before).
+Here is a list of all the automap parts that can be changed:
+
+<div style="font-family:monospace; font-size:large">
+<table class="lua_TABLE">
+<tr> <td style="width:8em"><B>Automap Part</b></td>
+     <td class="lua_LL"><B>&nbsp;Description</b></td>
+<tr> <td>grid    </td><td class="lua_LL">&nbsp;Grid lines </td>
+<tr> <td>wall    </td><td class="lua_LL">&nbsp;One sided walls </td>
+<tr> <td>step    </td><td class="lua_LL">&nbsp;Floor height change, climable </td>
+<tr> <td>ledge   </td><td class="lua_LL">&nbsp;Floor drop-off, too high to climb </td>
+<tr> <td>ceil    </td><td class="lua_LL">&nbsp;Ceiling height difference</td>
+<tr> <td>secret  </td><td class="lua_LL">&nbsp;Secret doors </td>
+<tr> <td>allmap  </td><td class="lua_LL">&nbsp;Unseen walls when you have the All-Map</td>
+<tr> <td>player  </td><td class="lua_LL">&nbsp;Player object </td>
+<tr> <td>monster </td><td class="lua_LL">&nbsp;Monsters </td>
+<tr> <td>corpse  </td><td class="lua_LL">&nbsp;Dead monsters </td>
+<tr> <td>item    </td><td class="lua_LL">&nbsp;Pickup items </td>
+<tr> <td>missile </td><td class="lua_LL">&nbsp;Missiles, fireballs, etc </td>
+<tr> <td>scenery </td><td class="lua_LL">&nbsp;Scenery items </td>
+</table>
+</div>
+
+
+<h3>Audio Functions</h3>
+
+<p><span class="lua_FUNC">hud.play_sound(name)</span><br>
+Plays the given sound, which must be an entry in SOUNDS.DDF.
+
+
+<h3 class="sub_title">PLAYER MODULE</h3>
+
+
+<h3>General Queries</h3>
+
+<p><span class="lua_FUNC">player.is_bot()</span><br>
+Returns true if the current player is a bot.
+
+<p><span class="lua_FUNC">player.get_name()</span><br>
+Returns the name of the current player.
+
+<p><span class="lua_FUNC">player.health()</span><br>
+Returns the health of the current player.  The result will normally
+be in the range 0 to 100, regardless of the SPAWNHEALTH setting for
+the player in DDF (in other words, the result is a percentage value
+of the spawn health).  Values higher than 100 are possible when the
+player has bonus health (e.g. from the Soul Sphere pickup)
+
+<p><span class="lua_FUNC">player.armor(type)</span><br>
+For the given armor type, returns the amount the player is
+currently wearing.  The 'type' parameter is a number in the range 1-5,
+but the following names can be used for more readable code:
+
+<div style="font-family:monospace; font-size:large">
+<table class="lua_TABLE">
+<tr> <td>ARMORS.green</td> </tr>
+<tr> <td>ARMORS.blue</td> </tr>
+<tr> <td>ARMORS.purple</td> </tr>
+<tr> <td>ARMORS.yellow</td> </tr>
+<tr> <td>ARMORS.red</td> </tr>
+</table>
+</div>
+
+<p><span class="lua_FUNC">player.total_armor(type)</span><br>
+Returns the total amount of armor the player has.
+
+<p><span class="lua_FUNC">player.frags()</span><br>
+Number of frags the player has (for Deathmatch games).
+
+<p><span class="lua_FUNC">player.move_speed()</span><br>
+Returns a number for how fast the player is currently moving,
+roughly the number of map units per tic (there are 35 tics
+per second).
+
+<p><span class="lua_FUNC">player.air_in_lungs()</span><br>
+Returns amount of air in the player lungs, as a percentage
+value from 0 to 100.
+Only guaranteed to be valid while the player is underwater.
+
+<p><span class="lua_FUNC">player.has_key(key)</span><br>
+Returns true if the player currently has the specified key,
+which is a number from 1 to 16.  For more readable code, the
+following names can be used:
+
+<div style="font-family:monospace; font-size:large">
+<table class="lua_TABLE">
+<tr> <td>KEYS.blue_card</td>   <td class="lua_LL">KEYS.gold_key </td> </tr>
+<tr> <td>KEYS.red_card</td>    <td class="lua_LL">KEYS.brass_key</td> </tr>
+<tr> <td>KEYS.yellow_card</td> <td class="lua_LL">KEYS.steel_key</td> </tr>
+<tr> <td>KEYS.green_card</td>  <td class="lua_LL">KEYS.fire_key </td> </tr>
+
+<tr> <td>KEYS.blue_skull  </td><td class="lua_LL">KEYS.silver_key</td> </tr>
+<tr> <td>KEYS.red_skull   </td><td class="lua_LL">KEYS.copper_key</td> </tr>
+<tr> <td>KEYS.yellow_skull</td><td class="lua_LL">KEYS.wooden_key</td> </tr>
+<tr> <td>KEYS.green_skull </td><td class="lua_LL">KEYS.water_key </td> </tr>
+</table>
+</div>
+
+<p><span class="lua_FUNC">player.has_power(power)</span><br>
+Returns true if the player currently has the specified powerup.
+The 'power' parameter is a number from 1 to 16.
+For more readable code, the following names can be used:
+
+<div style="font-family:monospace; font-size:large">
+<table class="lua_TABLE">
+<tr> <td>POWERS.invuln   </td> </tr>
+<tr> <td>POWERS.berserk  </td> </tr>
+<tr> <td>POWERS.invis    </td> </tr>
+<tr> <td>POWERS.acid_suit</td> </tr>
+
+<tr> <td>POWERS.automap  </td> </tr>
+<tr> <td>POWERS.goggles  </td> </tr>
+<tr> <td>POWERS.jet_pack </td> </tr>
+<tr> <td>POWERS.night_vis</td> </tr>
+<tr> <td>POWERS.scuba    </td> </tr>
+</table>
+</div>
+
+<p><span class="lua_FUNC">player.power_left(power)</span><br>
+Returns the number of seconds remaining for the specified powerup,
+or zero when the player does not have it.
+The berserk powerup only counts down the red-screen effect, and returns -1
+when that is finished.
+The automap powerup returns a large value when active and it never
+counts down.
+The result for invulnerability is not affected by the God-mode cheat.
+
+
+<h3>Weapon Stuff</h3>
+
+<p><span class="lua_FUNC">player.has_weapon(name)</span><br>
+Returns true if the player currently owns the weapon, where 'name'
+is the DDF name of the weapon.
+
+<p><span class="lua_FUNC">player.has_weapon_slot(slot)</span><br>
+Returns true if the player currently owns any weapon which uses
+the given 'slot', which is a number for 0 to 9 (same as the
+BINDKEY command in the DDF).
+
+<p><span class="lua_FUNC">player.cur_weapon()</span><br>
+Returns the DDF name of the weapon the player is currently
+holding, or the special value <FONT color="#FF3333"><B>"none"</b></font>
+when the player is holding no weapon at all, or
+<FONT color="#FF3333"><B>"change"</b></font> while the weapon is
+switching to a new one.
+
+<p><span class="lua_FUNC">player.cur_weapon_slot()</span><br>
+Returns the slot number (i.e. BINDKEY) of the weapon the
+player is currently holding, or -1 when the player is holding no
+weapon at all.
+
+<p><span class="lua_FUNC">player.ammo(type)</span><br>
+Returns the amount of ammo the player is carrying (not including
+any ammo inside the clips of weapons).
+The 'type' parameter is a number in the range 1-16.
+For more readable code, one of the following names can be
+used instead:
+
+<div style="font-family:monospace; font-size:large">
+<table class="lua_TABLE">
+<tr> <td>AMMOS.bullets</td> <td class="lua_LL">AMMOS.pellets </td> </tr>
+<tr> <td>AMMOS.shells </td> <td class="lua_LL">AMMOS.nails   </td> </tr>
+<tr> <td>AMMOS.rockets</td> <td class="lua_LL">AMMOS.grenades</td> </tr>
+<tr> <td>AMMOS.cells  </td> <td class="lua_LL">AMMOS.gas     </td> </tr>
+</table>
+</div>
+
+<p><span class="lua_FUNC">player.ammomax(type)</span><br>
+Returns the maximum amount of ammo the player can carry
+(not including weapon clips).  The 'type' parameter is the
+same as the player.ammo() function.
+
+<p><span class="lua_FUNC">player.main_ammo()</span><br>
+Returns the main ammo quantity for the player's current weapon.
+This is zero for weapons that don't use any ammo (like the FIST).
+If the weapon has a clip and the SHOWCLIP command (in DDF) is
+true, then the amount of ammo inside the clip is returned instead.
+Note that only the primary attack is checked, the secondary attack
+(if present) will be ignored.
+
+<p><span class="lua_FUNC">player.ammo_type(ATK)</span><br>
+Returns the ammo type of the player's current weapon for the
+given attack (primary or secondary).  The result is in the
+range 1-16, or can be 0 for the special case of NOAMMO.
+The 'ATK' parameter is 1 for the primary attack, 2 for the
+secondary attack, and is compulsory.
+
+<p><span class="lua_FUNC">player.ammo_pershot(ATK)</span><br>
+Returns the ammo used up per shot by the current weapon for the
+given attack (primary or secondary).  Same as the AMMOPERSHOT
+commands in WEAPONS.DDF.
+The 'ATK' parameter is 1 for the primary attack, 2 for the
+secondary attack, and is compulsory.
+
+<p><span class="lua_FUNC">player.clip_ammo(ATK)</span><br>
+Returns the current amount of ammo the clip in the player's current
+weapon is holding, or zero if the weapon has no clip.
+The 'ATK' parameter is 1 for the primary attack, 2 for the
+secondary attack, and is compulsory.
+
+<p><span class="lua_FUNC">player.clip_size(ATK)</span><br>
+Returns the maximum amount of ammo the clip in the player's current
+weapon can hold, or zero if the weapon has no clip.
+The 'ATK' parameter is 1 for the primary attack, 2 for the
+secondary attack, and is compulsory.
+
+<p><span class="lua_FUNC">player.clip_is_shared()</span><br> 
+Returns true if the player's current weapon is sharing a single
+clip between primary and secondary attackes (the SHARED_CLIP
+command).
+
+<h3>Conditions</h3>
+
+<p><span class="lua_FUNC">player.on_ground()</span><br>
+Returns true if player is standing on solid ground.
+
+<p><span class="lua_FUNC">player.under_water()</span><br>
+Returns true if player is in AIRLESS water and doesn't have the
+Scuba powerup.
+
+<p><span class="lua_FUNC">player.is_swimming()</span><br>
+Returns true if player is in swimmable water (i.e. the SWIM sector special).
+
+<p><span class="lua_FUNC">player.is_jumping()</span><br>
+Returns true if player is jumping.
+
+<p><span class="lua_FUNC">player.is_crouching()</span><br>
+Returns true if player is crouching.
+
+<p><span class="lua_FUNC">player.is_attacking()</span><br>
+Returns true if player is firing his weapon (either first or second attack).
+
+<p><span class="lua_FUNC">player.is_rampaging()</span><br>
+Returns true if player has been firing his weapon for two seconds or more.
+
+<p><span class="lua_FUNC">player.is_using()</span><br>
+Returns true if player is holding the USE button down.
+
+<p><span class="lua_FUNC">player.is_grinning()</span><br>
+Returns true if player is grinning (after picking up a weapon).
+
+<h3>Miscellaneous</h3>
+
+<p><span class="lua_FUNC">player.num_players()</span><br>
+Returns the total number of players in the game, including bots.
+
+<p><span class="lua_FUNC">player.set_who(index)</span><br>
+Sets who the current player is.  The 'index' parameter is a
+small number: 1 for the "main player" on this computer
+(the person at the keyboard), 2 for the next player in the list, etc...
+upto the number of players in the game. 
+All the player query functions described here return their results
+for the current player.
+
+<p><span class="lua_FUNC">player.hurt_by()</span><br>
+If the player has been hurt in the last few seconds, this
+returns a string describing what did the damage.  Otherwise
+this function returns <FONT color="#0000AA"><B>nil</b></font>.
+The result is usually <B><FONT COLOR="#FF3333">&quot;enemy&quot;</FONT></B>,
+but could be <B><FONT COLOR="#FF3333">&quot;friend&quot;</FONT></B> for
+friendly fire.  If the player hurt himself with his own damn stupidity then the
+result is <B><FONT COLOR="#FF3333">&quot;self&quot;</FONT></B>,
+whereas damaging floors and crushers will return
+<B><FONT COLOR="#FF3333">&quot;other&quot;</FONT></B>.
+
+<p><span class="lua_FUNC">player.hurt_mon()</span><br>
+If the player has been hurt in the last few seconds, this
+returns the name of the monster or other player.  Otherwise
+this function returns <FONT color="#0000AA"><B>nil</b></font>.
+
+<p><span class="lua_FUNC">player.hurt_pain()</span><br>
+If the player was just hurt, this returns the damage amount,
+otherwise this function returns 0.
+
+<p><span class="lua_FUNC">player.hurt_dir()</span><br>
+If the player was just hurt, this returns a direction relative to the
+player where the attacker was: -1 for the left side, +1 for the right
+side, and 0 for all other cases.
+
+<p><span class="lua_FUNC">player.hurt_angle()</span><br>
+Like player.hurt_dir(), except this returns the map angle from the
+player to his attacker.  The result is in degrees (ranging from
+0 to 359), where East is 0 and North is 90.
+
+
+<h3 class="sub_title">STANDARD HUD CODE</h3>
+
+Here is what standard HUD code looks like
+(with syntax highlighting).
+It implements the original DOOM status bar, including all the
+logic for the Doomguy face, and certain other HUD elements
+(e.g. the underwater AIR bar).
+
+<p>
+
+<PRE class="lua_PRE">
+<FONT COLOR="#77BBFF">
+//------------------------------------------
+//  DOOM HUD CODE for EDGE
+//  Copyright (c) 2009 The Edge Team
+//  Copyright (c) 1993-1996 by id Software, Inc.
+//  Under the GNU General Public License
+//------------------------------------------
+</FONT>
+<font color="#33CC33">var</font> face_time  : <font color="#33CC33">float</font>
+<font color="#33CC33">var</font> face_image : <font color="#33CC33">string</font>
+
+
+<font color="#33CC33">function</font> doom_weapon_icon(slot, x, y, off_pic : <font color="#33CC33">string</font>, on_pic : <font color="#33CC33">string</font>) =
+{
+    <font color="#CC9955">if</font> (player.has_weapon_slot(slot))
+        hud.draw_image(x, y, on_pic)
+    <font color="#CC9955">else</font>
+        hud.draw_image(x, y, off_pic)
+}
+
+
+<font color="#33CC33">function</font> doom_key(x, y, card, skull,
+    card_pic : <font color="#33CC33">string</font>, skull_pic : <font color="#33CC33">string</font>, both_pic : <font color="#33CC33">string</font>) =
+{
+    <font color="#33CC33">var</font> has_cd = player.has_key(card)
+    <font color="#33CC33">var</font> has_sk = player.has_key(skull)
+
+    <font color="#CC9955">if</font> (has_cd && has_sk)
+    {
+        hud.draw_image(x, y, both_pic)
+    }
+    <font color="#CC9955">else</font> <font color="#CC9955">if</font> (has_cd)
+    {
+        hud.draw_image(x, y, card_pic)
+    }
+    <font color="#CC9955">else</font> <font color="#CC9955">if</font> (has_sk)
+    {
+        hud.draw_image(x, y, skull_pic)
+    }
+}
+
+
+<font color="#33CC33">function</font> pain_digit() : <font color="#33CC33">string</font> =
+{
+    <font color="#33CC33">var</font> health = player.health()
+    <font color="#CC9955">if</font> (health > 100)
+        health = 100
+
+    <font color="#33CC33">var</font> index = math.floor(4.99 * (100 - health) / 100)
+
+    <font color="#CC9955">assert</font>(index >= 0)
+    <font color="#CC9955">assert</font>(index <= 4)
+
+    <font color="#CC9955">return</font> <font color="#FF3333">""</font> + index
+}
+
+<font color="#33CC33">function</font> turn_digit() : <font color="#33CC33">string</font> =
+{
+    <font color="#33CC33">var</font> r = math.floor(math.random() * 2.99)
+
+    <font color="#CC9955">return</font> <font color="#FF3333">""</font> + r
+}
+
+<font color="#33CC33">function</font> select_new_face() =
+{ <font color="#77BBFF">
+    // This routine handles the face states and their timing.
+    // The precedence of expressions is:
+    //
+    //    dead > evil grin > turned head > straight ahead
+    //
+</font>
+    <font color="#77BBFF">// dead ?</font>
+    <font color="#CC9955">if</font> (player.health() <= 0)
+    {
+        face_image = <font color="#FF3333">"STFDEAD0"</font>
+        face_time  = 10
+        <font color="#CC9955">return</font>
+    }
+
+    <font color="#77BBFF">// evil grin when player just picked up a weapon</font>
+    <font color="#CC9955">if</font> (player.is_grinning())
+    {
+        face_image = <font color="#FF3333">"STFEVL"</font> + pain_digit()
+        face_time  = 7
+        <font color="#CC9955">return</font>
+    }
+
+    <font color="#77BBFF">// being attacked ?</font>
+    <font color="#CC9955">if</font> (player.hurt_by())
+    {
+        <font color="#CC9955">if</font> (player.hurt_pain() > 50)
+        {
+            face_image = <font color="#FF3333">"STFOUCH"</font> + pain_digit()
+            face_time = 26
+            <font color="#CC9955">return</font>
+        }
+
+        <font color="#33CC33">var</font> dir = 0
+
+        <font color="#CC9955">if</font> (player.hurt_by() == <font color="#FF3333">"enemy"</font> ||
+            player.hurt_by() == <font color="#FF3333">"friend"</font>)
+        {
+            dir = player.hurt_dir()
+        }
+
+        <font color="#CC9955">if</font> (dir < 0)
+            face_image = <font color="#FF3333">"STFTL"</font> + pain_digit() + <font color="#FF3333">"0"</font>
+        <font color="#CC9955">else</font> <font color="#CC9955">if</font> (dir > 0)
+            face_image = <font color="#FF3333">"STFTR"</font> + pain_digit() + <font color="#FF3333">"0"</font>
+        <font color="#CC9955">else</font>
+            face_image = <font color="#FF3333">"STFKILL"</font> + pain_digit()
+
+        face_time = 35
+        <font color="#CC9955">return</font>
+    }
+
+    <font color="#77BBFF">// rampaging?</font>
+    <font color="#CC9955">if</font> (player.is_rampaging())
+    {
+        face_image = <font color="#FF3333">"STFKILL"</font> + pain_digit()
+        face_time  = 7
+        <font color="#CC9955">return</font>
+    }
+
+    <font color="#77BBFF">// god mode?</font>
+    <font color="#CC9955">if</font> (player.has_power(player.INVULN))
+    {
+        face_image = <font color="#FF3333">"STFGOD0"</font>
+        face_time  = 7
+        <font color="#CC9955">return</font>
+    }
+
+    <font color="#77BBFF">// default: look about the place...</font>
+    face_image = <font color="#FF3333">"STFST"</font> + pain_digit() + turn_digit()
+    face_time  = 17
+}
+
+<font color="#33CC33">function</font> doomguy_face (x, y) =
+{
+    <font color="#77BBFF">//---| doomguy_face |---</font>
+
+    face_time = face_time - hud.passed_time
+
+    <font color="#CC9955">if</font> (face_time <= 0)
+        select_new_face()
+
+    hud.draw_image(x - 1, y - 1, face_image)
+}
+
+
+<font color="#33CC33">function</font> doom_little_ammo() =
+{
+    hud.text_font(<font color="#FF3333">"YELLOW_DIGIT"</font>)
+    hud.text_color(hud.NO_COLOR)
+
+    hud.draw_num2(288, 173, 3, player.ammo(1))
+    hud.draw_num2(288, 179, 3, player.ammo(2))
+    hud.draw_num2(288, 185, 3, player.ammo(3))
+    hud.draw_num2(288, 191, 3, player.ammo(4))
+
+    hud.draw_num2(314, 173, 3, player.ammomax(1))
+    hud.draw_num2(314, 179, 3, player.ammomax(2))
+    hud.draw_num2(314, 185, 3, player.ammomax(3))
+    hud.draw_num2(314, 191, 3, player.ammomax(4))
+}
+
+
+<font color="#33CC33">function</font> doom_status_bar() =
+{
+    hud.draw_image(  0, 168, <font color="#FF3333">"STBAR"</font>)
+    hud.draw_image( 90, 171, <font color="#FF3333">"STTPRCNT"</font>)
+    hud.draw_image(221, 171, <font color="#FF3333">"STTPRCNT"</font>)
+
+    hud.text_font(<font color="#FF3333">"BIG_DIGIT"</font>)
+
+    hud.draw_num2( 44, 171, 3, player.main_ammo(1) )
+    hud.draw_num2( 90, 171, 3, player.health()     )
+    hud.draw_num2(221, 171, 3, player.total_armor())
+
+    <font color="#CC9955">if</font> (hud.game_mode() == <font color="#FF3333">"dm"</font>)
+    {
+        hud.draw_num2(138, 171, 2, player.frags())
+    }
+    <font color="#CC9955">else</font>
+    {
+        hud.draw_image(104, 168, <font color="#FF3333">"STARMS"</font>)
+
+        doom_weapon_icon(2, 111, 172, <font color="#FF3333">"STGNUM2"</font>, <font color="#FF3333">"STYSNUM2"</font>)
+        doom_weapon_icon(3, 123, 172, <font color="#FF3333">"STGNUM3"</font>, <font color="#FF3333">"STYSNUM3"</font>)
+        doom_weapon_icon(4, 135, 172, <font color="#FF3333">"STGNUM4"</font>, <font color="#FF3333">"STYSNUM4"</font>)
+
+        doom_weapon_icon(5, 111, 182, <font color="#FF3333">"STGNUM5"</font>, <font color="#FF3333">"STYSNUM5"</font>)
+        doom_weapon_icon(6, 123, 182, <font color="#FF3333">"STGNUM6"</font>, <font color="#FF3333">"STYSNUM6"</font>)
+        doom_weapon_icon(7, 135, 182, <font color="#FF3333">"STGNUM7"</font>, <font color="#FF3333">"STYSNUM7"</font>)
+    }
+
+    doomguy_face(144, 169)
+
+    doom_key(239, 171, 1, 5, <font color="#FF3333">"STKEYS0"</font>, <font color="#FF3333">"STKEYS3"</font>, <font color="#FF3333">"STKEYS6"</font>)
+    doom_key(239, 181, 2, 6, <font color="#FF3333">"STKEYS1"</font>, <font color="#FF3333">"STKEYS4"</font>, <font color="#FF3333">"STKEYS7"</font>)
+    doom_key(239, 191, 3, 7, <font color="#FF3333">"STKEYS2"</font>, <font color="#FF3333">"STKEYS5"</font>, <font color="#FF3333">"STKEYS8"</font>)
+
+    doom_little_ammo()
+}
+
+
+<font color="#33CC33">function</font> doom_overlay_status() = 
+{
+    hud.text_font(<font color="#FF3333">"BIG_DIGIT"</font>)
+
+    hud.draw_num2(100, 171, 3, player.health())
+
+    hud.text_color(hud.YELLOW)
+    hud.draw_num2( 44, 171, 3, player.main_ammo(1))
+
+    <font color="#CC9955">if</font> (player.total_armor() > 100)
+        hud.text_color(hud.BLUE)
+    <font color="#CC9955">else</font>
+        hud.text_color(hud.GREEN)
+
+    hud.draw_num2(242, 171, 3, player.total_armor())
+
+    doom_key(256, 171, 1, 5, <font color="#FF3333">"STKEYS0"</font>, <font color="#FF3333">"STKEYS3"</font>, <font color="#FF3333">"STKEYS6"</font>)
+    doom_key(256, 181, 2, 6, <font color="#FF3333">"STKEYS1"</font>, <font color="#FF3333">"STKEYS4"</font>, <font color="#FF3333">"STKEYS7"</font>)
+    doom_key(256, 191, 3, 7, <font color="#FF3333">"STKEYS2"</font>, <font color="#FF3333">"STKEYS5"</font>, <font color="#FF3333">"STKEYS8"</font>)
+
+    doom_little_ammo()
+}
+
+
+<font color="#33CC33">function</font> doom_automap() =
+{<font color="#77BBFF">
+    // Background is already black, only need to use 'solid_box'
+    // when we want a different color.
+    //
+    // hud.solid_box(0, 0, 320, 200 - 32, '80 80 80')
+</font>
+    hud.render_automap(0, 0, 320, 200 - 32)
+
+    doom_status_bar()
+
+    hud.text_font(<font color="#FF3333">"DOOM"</font>)
+    hud.draw_text(0, 200 - 32 - 10, hud.map_title())
+}
+
+
+<font color="#33CC33">function</font> edge_air_bar() =
+{
+    <font color="#CC9955">if</font> (player.health() <= 0)
+        <font color="#CC9955">return</font>
+
+    <font color="#CC9955">if</font> (! player.under_water())
+        <font color="#CC9955">return</font>
+
+    <font color="#33CC33">var</font> air = player.air_in_lungs()
+
+    air = math.floor(1 + 21 * ((100 - air) / 100.1))
+
+    <font color="#33CC33">var</font> barname : <font color="#33CC33">string</font>;
+    
+    <font color="#CC9955">if</font> (air < 10)
+        barname = <font color="#FF3333">"AIRBAR0"</font> + air
+    <font color="#CC9955">else</font>
+        barname = <font color="#FF3333">"AIRBAR"</font> + air
+
+    hud.draw_image(0, 0, barname)
+}
+
+
+<font color="#33CC33">function</font> begin_level() =
+{
+}
+
+<font color="#33CC33">function</font> draw_all() =
+{
+    hud.coord_sys(320, 200)
+    hud.grab_times()
+
+    <font color="#CC9955">if</font> (hud.check_automap())
+    {
+        doom_automap()
+        <font color="#CC9955">return</font>
+    }
+
+    <font color="#77BBFF">// there are three standard HUDs</font>
+    <font color="#33CC33">var</font> which = hud.which_hud() % 3
+
+    <font color="#CC9955">if</font> (which == 0)
+        hud.render_world(0, 0, 320, 200 - 32)
+    <font color="#CC9955">else</font>
+        hud.render_world(0, 0, 320, 200)
+
+    <font color="#CC9955">if</font> (which == 0)
+        doom_status_bar()
+    <font color="#CC9955">else</font> <font color="#CC9955">if</font> (which == 2)
+        doom_overlay_status()
+
+    edge_air_bar()
+}
+
+</PRE>
+
+</block>
+
+<!--- template --->
+<file include="edit_page.tpl">

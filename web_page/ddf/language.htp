@@ -1,0 +1,609 @@
+<file include="../common/common.inc">
+
+<set title="DDF: Language">
+
+<block name="content">
+
+<h2 class="page_title"> Language strings </h2>
+
+<use synopsis file="language.ldf" lump="DDFLANG" tag="LANGUAGES">
+
+
+Language.ldf can be used to modify existing text, or to add custom text associated with new entries in the other ddf files, such as new weapons or pickups. It can also be used to provide translations of the text for different languages. Allowing you to play doom in your own language. 
+<p>
+Each language set is defined by a name, enclosed in square brackets E.g. [FRENCH] or [GERMAN], followed by a series of text entries for that langauge.
+<p>
+The default language for EDGE is English, and the engine will not load if there is no entry in languages.ldf for [ENGLISH]. 
+<p>
+The language.ldf file in the DDF 3.7 package provides support for the following languages: Swedish, French, German, Turkish, Spanish, Dutch and Finnish. (These can be selected from the options menu, or on the command line e.g -lang turkish). If no string exists in a desired language, it will be found under another one, typically in [ENGLISH].
+<p>
+<font size=+1><b>Entries</b></font></A>
+<p>
+
+The language DDF file is different from other files in that there are
+no set commands. Instead, each entry defines a string to be used in the game. E.g.
+<p>
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><td>MAP01Desc="Level 1: entryway"; </td></tr>
+</table>
+
+<br>
+Defines the string "Level 1: entryway" as MAP01Desc.  Then the term
+MAP01Desc can be used in the relevant DDF file (in this case,
+levels.ddf).
+<p>
+You can also create new entries. If you made a
+flamethrower, you could create a new pickup message. E.g. 
+<p>
+<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=2>
+<tr><td>GotFlame="You got the Flamethrower." </td></tr>
+</table>
+
+<p>
+You will usually edit this file to add pickup messages for new items,
+weapons etc, or to change the map descriptions (seen in the left hand
+corner when you are looking at the automap during a game - usually
+after pressing the tab key).
+
+
+
+<p>
+
+<font size=+1><b>Example</b></font></A>
+<p>
+The Following is a an example of an [ENGLISH] language entry for Doom 2, with comments marking all the sections and what they are for. Where an entry is referred to from another ddf file, that file name is indicated in the comment.
+<p>
+<TABLE WIDTH=95% BORDER=1 CELLSPACING=0 CELLPADDING=2 FRAME="box">
+<TR><TD>
+<FONT SIZE=2>
+<p>
+// ------ English Language Definition File ----------
+<p>
+[ENGLISH]
+<p>
+// ************************************************************** General game entries.
+<p>
+DevelopmentMode="Development Mode is enabled.\n";<br>
+<p>
+PressKey="Press A Key";<br>
+PressYorN="Press Y or N";<br>
+PressToQuit="(press y to quit)";<br>
+MessagesOff="Messages OFF";<br>
+MessagesOn="Messages ON";<br>
+<p>
+// ************************************************************** Saving games
+<p>
+QuickSaveOver="quicksave over your game named\n\n'%s'?\n\npress y or n.";<br>
+NoQuickSaveSlot="you haven't picked a quicksave slot yet!\n\npress a key.";<br>
+SaveWhenNotPlaying="you can't save if you aren't playing!\n\npress a key.";<br>
+EmptySlot="Empty Slot";<br>
+GameSaved="game saved.";<br>
+<p>
+// ************************************************************** Loading games
+<p>
+NoLoadInNetGame="you can't load while in a net game!\n\npress a key.";<br>
+NoQLoadInNetGame="you can't quickload during a netgame!\n\npress a key." ;<br>
+QuickLoad="do you want to quickload the game named\n\n'%s'?\n\npress y or n.";<br>
+<p>
+// ************************************************************** starting new games and quiting
+<p>
+NewNetGame="you can't start a new game\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "while in a network game.\n\npress a key.";<br>
+EpisodeNonExist="You don't have this episode!\n\npress a key.";<br>
+NightmareCheck="are you sure? this skill level\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "isn't even remotely fair.\n\npress y or n.";<br>
+EndNetGame="you can't end a netgame!\n\npress a key.";<br>
+EndGameCheck="are you sure you want to end the game?\n\npress y or n.";<br>
+<p>
+// ************************************************************** Gamma correction levels
+<p>
+GammaOff="Gamma correction OFF";<br>
+GammaLevelOne  ="Gamma correction level 1";<br>
+GammaLevelTwo  ="Gamma correction level 2";<br>
+GammaLevelThree="Gamma correction level 3";<br>
+GammaLevelFour ="Gamma correction level 4";<br>
+<p>
+// ************************************************************** Pickups *********** Armour.. see things.ddf
+<p>
+GotArmour="Picked up the armor.";<br>
+GotMegaArmour="Picked up the megaarmor!";<br>
+GotArmourHelmet="Picked up a armour bonus.";<br>
+<p>
+// ************************************************************** Pickups *********** Health.. see things.ddf
+<p>
+GotHealthPotion="Picked up a health bonus.";<br>
+GotStim="Picked up a stimpack.";<br>
+GotMedi="Picked up a medikit.";<br>
+GotSoul="Supercharge!";<br>
+<p>
+// ************************************************************** Pickups *********** Keys.. see things.ddf
+<p>
+GotBlueCard="Picked up a blue keycard.";<br>
+GotYellowCard="Picked up a yellow keycard.";<br>
+GotRedCard="Picked up a red keycard.";<br>
+GotBlueSkull="Picked up a blue skull key.";<br>
+GotYellowSkull="Picked up a yellow skull key.";<br>
+GotRedSkull="Picked up a red skull key.";<br>
+<p>
+// ************************************************************** Pickups *********** Specials.. see things.ddf
+<p>
+GotInvulner="Invulnerability!";<br>
+GotBerserk="Berserk!";<br>
+GotJetPack="JetPack!";<br>
+GotInvis="Partial Invisibility";<br>
+GotSuit="Radiation Shielding Suit";<br>
+GotMap="Computer Area Map";<br>
+GotNight="Nightvision goggles";<br>
+GotVisor="Light Amplification Visor";<br>
+GotMega="MegaSphere!";<br>
+<p>
+// ************************************************************** Pickups *********** Ammo.. see things.ddf
+<p>
+GotClip="Picked up a clip.";<br>
+GotClipBox="Picked up a box of bullets.";<br>
+GotShells="Picked up 4 shotgun shells.";<br>
+GotShellBox="Picked up a box of shotgun shells.";<br>
+GotRocket="Picked up a rocket.";<br>
+GotRocketBox="Picked up a box of rockets.";<br>
+GotCell="Picked up an energy cell.";<br>
+GotCellPack="Picked up an energy cell pack.";<br>
+GotBackpack="Picked up a backpack full of ammo!";<br>
+<p>
+// ************************************************************** Pickups *********** Weapons.. see things.ddf
+<p>
+GotBFG="You got the BFG9000!  Oh, yes.";<br>
+GotChainGun="You got the chaingun!";<br>
+GotChainSaw="A chainsaw!  Find some meat!";<br>
+GotDoubleBarrel="You got the super shotgun!";<br>
+GotRocketLauncher="You got the rocket launcher!";<br>
+GotPlasmaGun="You got the plasma gun!";<br>
+GotShotgun="You got the shotgun!";<br>
+<p>
+// ************************************************************** Keys required for doors and objects.. see lines.ddf
+<p>
+NeedBlueForObject="You need a blue key to activate this object";<br>
+NeedYellowForObject="You need a yellow key to activate this object";<br>
+NeedRedForObject="You need a red key to activate this object";<br>
+NeedBlueForDoor="You need a blue key to open this door";<br>
+NeedYellowForDoor="You need a yellow key to open this door";<br>
+NeedRedForDoor="You need a red key to open this door";<br>
+NeedAnyForDoor="You need at least one key to open this door";<br>
+NeedAllForDoor="You need all keys to open this door";<br>
+<p>
+// ************************************************************** Level names (for map screen).. see levels.ddf
+<p>
+Map01Desc="level 1: entryway";<br>
+Map02Desc="level 2: underhalls";<br>
+Map03Desc="level 3: the gantlet";<br>
+Map04Desc="level 4: the focus";<br>
+Map05Desc="level 5: the waste tunnels";<br>
+Map06Desc="level 6: the crusher";<br>
+Map07Desc="level 7: dead simple";<br>
+Map08Desc="level 8: tricks and traps";<br>
+Map09Desc="level 9: the pit";<br>
+Map10Desc="level 10: refueling base";<br>
+Map11Desc="level 11: 'o' of destruction!";<br>
+Map12Desc="level 12: the factory";<br>
+Map13Desc="level 13: downtown";<br>
+Map14Desc="level 14: the inmost dens";<br>
+Map15Desc="level 15: industrial zone";<br>
+Map16Desc="level 16: suburbs";<br>
+Map17Desc="level 17: tenements";<br>
+Map18Desc="level 18: the courtyard";<br>
+Map19Desc="level 19: the citadel";<br>
+Map20Desc="level 20: gotcha!";<br>
+Map21Desc="level 21: nirvana";<br>
+Map22Desc="level 22: the catacombs";<br>
+Map23Desc="level 23: barrels o' fun";<br>
+Map24Desc="level 24: the chasm";<br>
+Map25Desc="level 25: bloodfalls";<br>
+Map26Desc="level 26: the abandoned mines";<br>
+Map27Desc="level 27: monster condo";<br>
+Map28Desc="level 28: the spirit world";<br>
+Map29Desc="level 29: the living end";<br>
+Map30Desc="level 30: icon of sin";<br>
+Map31Desc="level 31: wolfenstein";<br>
+Map32Desc="level 32: grosse";<br>
+<p>
+// ************************************************************** Multiplayer chat strings etc.
+<p>
+DefaultCHATMACRO1="I'm ready to kick butt!";<br>
+DefaultCHATMACRO2="I'm OK.";<br>
+DefaultCHATMACRO3="I'm not looking too good!";<br>
+DefaultCHATMACRO4="Help!";<br>
+DefaultCHATMACRO5="You suck!";<br>
+DefaultCHATMACRO6="Next time, scumbag...";<br>
+DefaultCHATMACRO7="Come here!";<br>
+DefaultCHATMACRO8="I'll take care of it.";<br>
+DefaultCHATMACRO9="Yes";<br>
+DefaultCHATMACRO0="No";<br>
+<p>
+TALKTOSELF1="You mumble to yourself";<br>
+TALKTOSELF2="Who's there?";<br>
+TALKTOSELF3="You scare yourself";<br>
+TALKTOSELF4="You start to rave";<br>
+TALKTOSELF5="You've lost it...";<br>
+<p>
+UnsentMsg="[Message unsent]";<br>
+Sent="[Message Sent]";<br>
+<p>
+ChatKeys="gibr";<br>
+<p>
+BotSpawn="Death Bot Spawn Detected...";<br>
+<p>
+// ************************************************************** Player names for MP player
+<p>
+Player1Name="Green: ";<br>
+Player2Name="Indigo: ";<br>
+Player3Name="Brown: ";<br>
+Player4Name="Red: ";<br>
+Player5Name="Gold: ";<br>
+Player6Name="Blue: ";<br>
+Player7Name="DkBlue: ";<br>
+Player8Name="Pink: ";<br>
+<p>
+// ************************************************************** Automap feature toggles
+<p>
+AutoMapFollowOn="Follow Mode ON";<br>
+AutoMapFollowOff="Follow Mode OFF";<br>
+AutoMapGridOn="Grid ON";<br>
+AutoMapGridOff="Grid OFF";<br>
+AutoMapMarkedSpot="Marked Spot";<br>
+AutoMapMarksClear="All Marks Cleared";<br>
+<p>
+// ************************************************************** Cheat code messages
+<p>
+GodModeON="Degreelessness Mode On";<br>
+GodModeOFF="Degreelessness Mode Off";<br>
+<p>
+HomDetectOn="HOM Detection ON";<br>
+HomDetectOff="HOM Detection OFF";<br>
+<p>
+VeryHappyAmmo="Very Happy Ammo Added";<br>
+AmmoAdded="Ammo (no keys) Added";<br>
+<p>
+ClipON="No Clipping Mode ON";<br>
+ClipOFF="No Clipping Mode OFF";<br>
+<p>
+BEHOLDNote="inVul, Str, Invis, Rad, mAp, Lite-amp, or Jetpack";<br>
+BEHOLDUsed="Power-up Toggled";<br>
+<p>
+ChoppersNote="... doesn't suck - GM";<br>
+LevelChange="Changing Level...";<br>
+<p>
+SuicideCheat="Loser!";<br>
+StuffRemoval="Stuff removed";<br>
+<p>
+PlayerTargetingOff="Monsters will not target player";<br>
+PlayerTargetingOn="Monsters will target player";<br>
+<p>
+UnlockCheat="Got all the keys!";<br>
+LoadedCheat="Full ammo added!";<br>
+<p>
+MonstersKilled="%d Monsters Killed.";<br>
+<p>
+CDdisabled="CD Audio has not been enabled";<br>
+CDPlayTrack="Now Playing Track %d";<br>
+<p>
+MusChange="Music Change";<br>
+<p>
+ImpossibleChange="IMPOSSIBLE SELECTION";<br>
+<p>
+LevelQ="Level Change!\nEnter Level Name:\n\n";<br>
+MusicQ="Music Change!\nEnter Music Name:\n\n";<br>
+TestQ="Test:\n\n";<br>
+<p>
+// ************************************************************** Level PRE or END text.. see levels.ddf
+<p>
+Level7Text="YOU HAVE ENTERED DEEPLY INTO THE INFESTED\n" <br>
+ &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "STARPORT. BUT SOMETHING IS WRONG. THE\n" <br>
+ &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "MONSTERS HAVE BROUGHT THEIR OWN REALITY\n" <br>
+ &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "WITH THEM, AND THE STARPORT'S TECHNOLOGY\n" <br>
+ &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "IS BEING SUBVERTED BY THEIR PRESENCE.\n" <br>
+ &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "\n"<br>
+ &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "AHEAD, YOU SEE AN OUTPOST OF HELL, A\n" <br>
+ &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "FORTIFIED ZONE. IF YOU CAN GET PAST IT,\n" <br>
+ &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "YOU CAN PENETRATE INTO THE HAUNTED HEART\n" <br>
+ &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "OF THE STARBASE AND FIND THE CONTROLLING\n" <br>
+ &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "SWITCH WHICH HOLDS EARTH'S POPULATION\n" <br>
+ &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "HOSTAGE.";<br>
+<p>
+Level12Text="YOU HAVE WON! YOUR VICTORY HAS ENABLED\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "HUMANKIND TO EVACUATE EARTH AND ESCAPE\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "THE NIGHTMARE.  NOW YOU ARE THE ONLY\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "HUMAN LEFT ON THE FACE OF THE PLANET.\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "CANNIBAL MUTATIONS, CARNIVOROUS ALIENS,\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "AND EVIL SPIRITS ARE YOUR ONLY NEIGHBORS.\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "YOU SIT BACK AND WAIT FOR DEATH, CONTENT\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "THAT YOU HAVE SAVED YOUR SPECIES.\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "BUT THEN, EARTH CONTROL BEAMS DOWN A\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "MESSAGE FROM SPACE: \"SENSORS HAVE LOCATED\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "THE SOURCE OF THE ALIEN INVASION. IF YOU\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "GO THERE, YOU MAY BE ABLE TO BLOCK THEIR\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "ENTRY.  THE ALIEN BASE IS IN THE HEART OF\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "YOUR OWN HOME CITY, NOT FAR FROM THE\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "STARPORT.\" SLOWLY AND PAINFULLY YOU GET\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "UP AND RETURN TO THE FRAY.";<br>
+<p>
+Level21Text="YOU ARE AT THE CORRUPT HEART OF THE CITY,\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "SURROUNDED BY THE CORPSES OF YOUR ENEMIES.\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "YOU SEE NO WAY TO DESTROY THE CREATURES'\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "ENTRYWAY ON THIS SIDE, SO YOU CLENCH YOUR\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "TEETH AND PLUNGE THROUGH IT.\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "THERE MUST BE A WAY TO CLOSE IT ON THE\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "OTHER SIDE. WHAT DO YOU CARE IF YOU'VE\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "GOT TO GO THROUGH HELL TO GET TO IT?";<br>
+<p>
+EndGameText="THE HORRENDOUS VISAGE OF THE BIGGEST\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "DEMON YOU'VE EVER SEEN CRUMBLES BEFORE\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "YOU, AFTER YOU PUMP YOUR ROCKETS INTO\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "HIS EXPOSED BRAIN. THE MONSTER SHRIVELS\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "UP AND DIES, ITS THRASHING LIMBS\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "DEVASTATING UNTOLD MILES OF HELL'S\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "SURFACE.\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "YOU'VE DONE IT. THE INVASION IS OVER.\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "EARTH IS SAVED. HELL IS A WRECK. YOU\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "WONDER WHERE BAD FOLKS WILL GO WHEN THEY\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "DIE, NOW. WIPING THE SWEAT FROM YOUR\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "FOREHEAD YOU BEGIN THE LONG TREK BACK\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "HOME. REBUILDING EARTH OUGHT TO BE A\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "LOT MORE FUN THAN RUINING IT WAS.\n";<br>
+<p>
+Level31Text="CONGRATULATIONS, YOU'VE FOUND THE SECRET\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "LEVEL! LOOKS LIKE IT'S BEEN BUILT BY\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "HUMANS, RATHER THAN DEMONS. YOU WONDER\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "WHO THE INMATES OF THIS CORNER OF HELL\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "WILL BE.";<br>
+
+Level32Text="CONGRATULATIONS, YOU'VE FOUND THE\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "SUPER SECRET LEVEL!  YOU'D BETTER\n"<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp "BLAZE THROUGH THIS ONE!\n";<br>
+<p>
+// ************************************************************** EDGE startup messages
+<p>
+CheckNetGame=    "D_CheckNetGame: Checking network game status.\n";<br>
+HeadsUpInit=     "HU_Init: Setting up heads up display.\n";<br>
+InitMachine=     "I_Init: Setting up machine state.\n";<br>
+ListenNet=       "Listening for network start info...\n";<br>
+DefaultLoad=     "M_LoadDefaults: Loaded system defaults.\n";<br>
+MiscInfo=        "M_Init: Init Miscellaneous Info.\n";<br>
+RefreshDaemon=   "R_Init: Init DOOM refresh daemon - ";<br>
+PlayState=       "\nP_Init: Init Playloop state.\n";<br>
+SoundInit=       "S_Init: Setting up sound.\n";<br>
+STBarInit=       "ST_Init: Init status bar.\n";<br>
+SendNet=         "sending network start info...\n";<br>
+TurboScale=      "turbo scale: %i%%\n";<br>
+IsTurbo=         "%s is turbo!";<br>
+AllocScreens=    "V_Init: allocate screens.\n";<br>
+WadFileInit=     "W_Init: Init WADfiles.\n";<br>
+ZoneMemoryAlloc= "Z_Init: Init Zone Memory Allocation. \n";<br>
+<p>
+Notice= "==============================================================================\n"<br>
+ &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp " This is EDGE: a project that is based upon the Doom Source Code released by  \n"<br>
+ &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp " John Carmack of Id Software in December 1997. The work on this project is    \n"<br>
+ &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp " designed, and implemented by the EDGE Team (http://edge.sourceforge.net/).    \n"<br>
+ &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp "==============================================================================\n";<br>
+
+
+<p>
+// ************************************************************** Joystick configuration messages
+<p>
+JoystickCentre= "CENTRE the joystick\n\npress a key.";<br>
+JoystickTL=     "Push the joystick to the UPPER LEFT corner\n\npress a key.";<br>
+JoystickBR=     "Push the joystick to the BOTTOM RIGHT corner\n\npress a key.";<br>
+JoystickHAT=    "Move the hat to the %s position\n\npress a key.";<br>
+JoyThrottleMAX= "Set the throttle to MAXIMUM\n\npress a key.";<br>
+JoyThrottleMIN= "Set the throttle to MINIMUM\n\npress a key.";<br>
+JoystickCentreT= "CENTRE the joystick and press a key:";<br>
+JoystickTLT=     "Push the joystick to the UPPER LEFT corner and press a key:";<br>
+JoystickBRT=     "Push the joystick to the BOTTOM RIGHT corner and press a key:";<br>
+JoystickHATT=    "Move the hat to the %s position and press a key:";<br>
+JoyThrottleMAXT= "Set the throttle to MAXIMUM and press a key:";<br>
+JoyThrottleMINT= "Set the throttle to MINIMUM and press a key:";<br>
+<p>
+// ************************************************************** Graphic mode errors
+<p>
+ModeSelErrT=      "Unable to Initialise Graphics Mode %d x %d x %dc!";<br>
+ModeSelErr=       "Unable to Initialise\nGraphics Mode %d x %d x %dc!\n\npress a key.";<br>
+
+<p>
+// ************************************************************** Menu option text 
+<p>
+
+OptStandardControls="Standard Controls";<br>
+OptExtendedControls="Extended Controls";<br>
+OptSetResolution="Set Resolution";<br>
+OptVideoOptions="Video Options";<br>
+OptGameplayOptions="Gameplay Options";<br>
+OptAnalogueOptions="Analogue Options";<br>
+OptLanguage="Language";<br>
+OptMessages="Messages";<br>
+OptSwapStereo="Swap Stereo";<br>
+OptSoundVolume="Sound Volume";<br>
+OptMusicVolume="Music Volume";<br>
+OptResetToRecommended="Reset to Recommended";<br>
+OptResetToOriginalDoom="Reset to Original Doom";<br>
+OptBrightness="Brightness";<br>
+OptScreensize="Screensize";<br>
+OptFieldOfView="Field Of View";<br>
+OptZoomedFOV="Zoomed FOV";<br>
+OptTranslucency="Translucency";<br>
+OptMipmapping="Mipmapping";<br>
+OptSmoothing="Smoothing";<br>
+OptShadows="Shadows";<br>
+OptDynamicLighting="Dynamic Lighting";<br>
+OptCrosshair="Crosshair";<br>
+OptMapRotation="Map Rotation";<br>
+OptMapOverlay="Map Overlay";<br>
+OptScreenComposition="Screen Composition";<br>
+OptTeleportationeffect="Teleportation effect";<br>
+OptReverseeffect="Reverse effect";<br>
+OptTeleportFlash="Teleport Flash";<br>
+OptWipemethod="Wipe method";<br>
+OptReversedwipe="Reversed wipe";<br>
+OptStretchSky="Stretch Sky";<br>
+OptCyanRed3dEffect="Cyan/Red 3d effect";<br>
+OptChangeSize="Change Size";<br>
+OptChangeDepth="Change Depth";<br>
+OptSetResolution="Set Resolution";<br>
+OptTestResolution="Test Resolution";<br>
+Optanalogueoptionssize="analogueoptionssize";<br>
+OptInvertMouse="Invert Mouse";<br>
+OptMouseXAxis="Mouse X Axis";<br>
+OptMouseYAxis="Mouse Y Axis";<br>
+OptMouseSpeed="MouseSpeed";<br>
+OptMLookSpeed="MLook Speed";<br>
+OptTwoStageTurning="Two-Stage Turning";<br>
+OptTurningSpeed="Turning Speed";<br>
+OptSideMoveSpeed="Side Move Speed";<br>
+OptForwardMoveSpeed="Forward Move Speed";<br>
+OptJoystickXAxis="Joystick X Axis";<br>
+OptJoystickYAxis="Joystick Y Axis";<br>
+OptCalibrateJoystick="Calibrate Joystick";<br>
+Optplayoptionssize="playoptionssize";<br>
+OptTrue3DGameplay="True 3D Gameplay";<br>
+OptAutoAiming="AutoAiming";<br>
+OptJumping="Jumping";<br>
+OptCrouching="Crouching";<br>
+OptMoreBlood="More Blood";<br>
+OptExtras="Extras";<br>
+OptGravity="Gravity";<br>
+OptEnemyRespawnMode="Enemy Respawn Mode";<br>
+OptItemRespawn="Item Respawn";<br>
+OptFastMonsters="Fast Monsters";<br>
+OptRespawn="Respawn";<br>
+OptPrimaryAttack="Primary Attack";<br>
+OptSecondaryAtk="Secondary Atk";<br>
+OptUseItem="Use Item";<br>
+OptWalkForward="Walk Forward";<br>
+OptWalkBackwards="Walk Backwards";<br>
+OptTurnLeft="Turn Left";<br>
+OptTurnRight="Turn Right";<br>
+OptMoveUp="Move Up";<br>
+OptMoveDown="Move Down";<br>
+OptToggleAutorun="Toggle Autorun";<br>
+OptRun="Run";<br>
+OptStrafeLeft="Strafe Left";<br>
+OptStrafeRight="Strafe Right";<br>
+OptStrafe="Strafe";<br>
+OptLookUp="Look Up";<br>
+OptLookDown="Look Down";<br>
+OptCenterView="Center View";<br>
+OptZoomInOut="Zoom in/out";<br>
+Opt180DegreeTurn="180 degree turn";<br>
+OptJump="Jump";<br>
+OptMouseLook="Mouse Look";<br>
+OptMapToggle="Map Toggle";<br>
+OptMultiplayTalk="Multiplay Talk";<br>
+<p>
+// ************************************************************** Menu screen tips
+<p>
+Controls="Setup Standard Doom Controls";<br>
+Controls2="Setup Extended EDGE Controls";<br>
+VideoOptions="Setup Translucency, Resolutions, etc...";<br>
+GameplayOptions="Setup Respawn, Gravity, 3D Options etc...";<br>
+AnalogueOptions="Setup mouse and joystick options";<br>
+SwapStereo="Swap the left and right sound channels";<br>
+Messages="Show informational messages";<br>
+CDOptions="CD Audio Config: Off/On/Atmosphere";<br>
+ResetEDGE="Resets all configs to EDGE Extended mode";<br>
+ResetDoom="Resets all configs to be like original DOOM";<br>
+Gravity="Changes the global gravity setting";<br>
+Blood="Enables extra gore mode...";<br>
+True3d="Enables jumping over things, flight etc...";<br>
+ChangeRes="Sets Screen resolution, hicolour mode";<br>
+<p>
+// ************************************************************** Messages displayed when quiting
+<p>
+QuitMsg1="please don't leave, there's more\ndemons to toast!";<br>
+QuitMsg2="let's beat it -- this is turning\ninto a bloodbath!";<br>
+QuitMsg3="i wouldn't leave if i were you.\ndos is much worse.";<br>
+QuitMsg4="you're trying to say you like dos\nbetter than me, right?";<br>
+QuitMsg5="don't leave yet -- there's a\ndemon around that corner!";<br>
+QuitMsg6="ya know, next time you come in here\ni'm gonna toast ya.";<br>
+QuitMsg7="go ahead and leave. see if i care.";<br>
+QuitMsg8="you want to quit?\nthen, thou hast lost an eighth!";<br>
+QuitMsg9="don't go now, there's a \ndimensional shambler waiting\nat the dos prompt!";<br>
+QuitMsg10="get outta here and go back\nto your boring programs.";<br>
+QuitMsg11="if i were your boss, i'd \n deathmatch ya in a minute!";<br>
+QuitMsg12="look, bud. you leave now\nand you forfeit your body count!";<br>
+QuitMsg13="just leave. when you come\nback, i'll be waiting with a bat.";<br>
+QuitMsg14="you're lucky i don't smack\nyou for thinking about leaving.";<br>
+QuitMsg15="don't quit now! we're \nstill spending your money!";<br>
+QuitMsg16="THIS IS NO MESSAGE!\nPage intentionally left blank.";<br>
+<p>
+// ************************************************************** Sounds played when quiting
+<p>
+QuitSnd1="pldeth";<br>
+QuitSnd2="dmpain";<br>
+QuitSnd3="popain";<br>
+QuitSnd4="slop";<br>
+QuitSnd5="telept";<br>
+QuitSnd6="posit1";<br>
+QuitSnd7="posit3";<br>
+QuitSnd8="sgtatk";<br>
+QuitSnd9="vilact";<br>
+QuitSnd10="getpow";<br>
+QuitSnd11="boscub";<br>
+QuitSnd12="slop";<br>
+QuitSnd13="skeswg";<br>
+QuitSnd14="kntdth";<br>
+QuitSnd15="bspact";<br>
+QuitSnd16="sgtatk";<br>
+<p>
+// ************************************************************** Cheat codes (change the entries in "" to change these).
+<p>
+iddt="iddt";<br>
+idmus="idmus";<br>
+iddqd="iddqd";<br>
+idkfa="idkfa";<br>
+idfa="idfa";<br>
+idspispopd="idspispopd";<br>
+idclip="idclip";<br>
+idbehold1="idbeholdv";<br>
+idbehold2="idbeholds";<br>
+idbehold3="idbeholdi";<br>
+idbehold4="idbeholdr";<br>
+idbehold5="idbeholda";<br>
+idbehold6="idbeholdl";<br>
+idbehold7="idbeholdj";<br>
+idbehold8="idbeholdn";<br>
+idbehold9="idbehold";<br>
+idchoppers="idchoppers";<br>
+idclev="idclev";<br>
+idmypos="idmypos";<br>
+cdnext="cdnext";<br>
+cdprev="cdprev";<br>
+idkillall="idkillall";<br>
+idinfo="idinfo";<br>
+idsuicide="idsuicide";<br>
+idunlock="idunlock";<br>
+idloaded="idloaded";<br>
+idtakeall="idtakeall";<br>
+idgive0="idgive";<br>
+idgive1="idgive1";<br>
+idgive2="idgive2";<br>
+idgive3="idgive3";<br>
+idgive4="idgive4";<br>
+idgive5="idgive5";<br>
+idgive6="idgive6";<br>
+idgive7="idgive7";<br>
+idgive8="idgive8";<br>
+idgive9="idgive9";<br>
+idgive10="idgive10";<br>
+idbot="idbot";<br>
+idtst="idtst";<br>
+idhom="idhom";<br>
+<p>
+</FONT>
+</TD></TR>
+</TABLE>
+
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">

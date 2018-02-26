@@ -1,0 +1,41 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Level commands">
+<set RTSreference="level">
+
+<block name="content">
+
+<h3 class="page_title">GOTO_MAP</h3>
+
+<p>
+<B>Usage:</B><br>
+GOTO_MAP &lt;Map Name&gt; [options]
+
+<p>
+<B>Description:</B><br>
+This causes the level to end when triggered, but goes to the
+next level entered as &lt;Map Name&gt; instead of the one
+defined in LEVELS.DDF.
+
+<p>
+<B>Details:</B><br>
+&lt;Map Name&gt; is the same as the lump name, for example e#m#
+for DOOM1, and map## for DOOM2.
+
+<p>
+[options] At the moment the only value allowed is SKIP_ALL. If
+used this allows you to HIDE the level's PreText, EndText and
+Intermission screens which you would normally see when you
+finish a level.
+
+<p>
+SKIP_ALL is useful when you are using GOTO_MAP to "punish a player"
+and make him repeat the same map. In this case you don't want to
+see the map's PRETEXT screen again.
+
+<p>
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

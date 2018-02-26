@@ -1,0 +1,77 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Tip commands">
+<set RTSreference="tips">
+
+<block name="content">
+
+<h3 class="page_title">TIP</h3>
+
+<p>
+<B>Usage:</B><br>
+TIP &lt;text&gt; [display time] [audible tip]
+
+<p>
+<B>Variants:</B>
+<br>TIP_LDF &lt;ldf reference&gt; [display time] [audible tip]
+
+<p>
+<B>Description:</B><br>
+Displays an on-screen message. 
+There are two types of TIP commands:
+<ul>
+  <li>normal = the text shown is what you specify inside quotes
+  via the &lt;text&gt; argument.
+  <li>LDF = the text shown comes from an entry in LANGUAGE.LDF
+  which you specify via the &lt;ldf reference&gt; argument.
+</ul>
+
+<p>
+Combine with TAGGED_REPEATABLE for a repeating tip.
+
+<p>
+NOTE: only the player(s) which trigger the script will see the
+message and hear the sound.
+
+<p>
+<B>Details:</B><br>
+&lt;text&gt; or &lt;ldf reference&gt; is the text which will be
+shown to the player. 
+The text is limited to 80 characters across, and 8 lines down.
+Default position is exactly centered on the screen
+(see TIP_SET_POS command to change the position).
+
+<p>
+[display time] a time value indicating how long it stays on
+screen (in either ticks or seconds).  The default time is 3 seconds.
+<ul>
+  <li>0 = no delay
+  <li>0.5 = half a second
+  <li>2 = two seconds
+  <li class="nobullet">&nbsp;
+  <li>1T = one tick (shortest possible time)
+  <li>35T = one second
+</ul>
+
+<p>
+[audible tip] can be set to TRUE or FALSE. If true, the [TINK]
+sound is played.  If you want to use a custom sound, set it to
+false, and add a PLAY_SOUND command.
+
+<p>
+<B>Example:</B> <br>
+
+<PRE class="rts">
+RADIUS_TRIGGER 0 0 -1
+
+  TIP "Hello world!" 5 TRUE
+
+END_RADIUS_TRIGGER
+</PRE>
+
+<p>
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

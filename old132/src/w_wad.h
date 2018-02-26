@@ -1,0 +1,131 @@
+//----------------------------------------------------------------------------
+//  EDGE WAD Support Code
+//----------------------------------------------------------------------------
+// 
+//  Copyright (c) 1999-2008  The EDGE Team.
+// 
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//----------------------------------------------------------------------------
+//
+//  Based on the DOOM source code, released by Id Software under the
+//  following copyright:
+//
+//    Copyright (C) 1993-1996 by id Software, Inc.
+//
+//----------------------------------------------------------------------------
+
+#ifndef __W_WAD__
+#define __W_WAD__
+
+
+#include "epi/file.h"
+#include "epi/utility.h"
+
+typedef enum
+{
+	FLKIND_IWad = 0,  // iwad file
+	FLKIND_PWad,      // normal .wad file
+	FLKIND_EWad,      // EDGE.wad
+	FLKIND_GWad,      // glbsp node wad
+	FLKIND_HWad,      // deHacked wad
+
+	FLKIND_Lump,      // raw lump (no extension)
+
+	FLKIND_DDF,       // .ddf or .ldf file
+	FLKIND_Demo,      // .lmp demo file
+	FLKIND_Script,    // .scr (RTS) script
+	FLKIND_Deh        // .deh or .bex file
+}
+filekind_e;
+
+class wadtex_resource_c
+{
+public:
+	wadtex_resource_c() : palette(-1), pnames(-1), texture1(-1), texture2(-1)
+	{ }
+
+	// lump numbers, or -1 if nonexistent
+	int palette;
+	int pnames;
+	int texture1;
+	int texture2;
+};
+
+typedef enum
+{
+	LMPLST_Sprites,
+	LMPLST_Flats,
+	LMPLST_Patches
+}
+lumplist_e;
+
+extern int numlumps;
+extern int addwadnum;
+
+void W_AddRawFilename(const char *file, int kind);
+void W_InitMultipleFiles(void);
+void W_ReadDDF(void);
+
+int W_CheckNumForName2(const char *name);
+int W_GetNumForName2(const char *name);
+int W_CheckNumForTexPatch(const char *name);
+
+int W_LumpLength(int lump);
+
+void W_DoneWithLump(const void *ptr);
+void *W_LoadLumpNum(int lump, int *length = NULL);
+void *W_LoadLumpName(const char *name, int *length = NULL);
+bool W_VerifyLumpName(int lump, const char *name);
+const char *W_GetLumpName(int lump);
+int W_CacheInfo(int level);
+
+epi::file_c *W_OpenLump(int lump);
+epi::file_c *W_OpenLump(const char *name);
+
+const char *W_GetFileName(int lump);
+const byte *W_GetPaletteData(int file);
+int W_FindFlatSequence(const char *start, const char *end, 
+    int *s_offset, int *e_offset);
+epi::u32array_c& W_GetListLumps(int file, lumplist_e which);
+void W_GetTextureLumps(int file, wadtex_resource_c *res);
+int W_GetNumFiles(void);
+int W_GetFileForLump(int lump);
+void W_ShowLumps(int for_file, const char *match);
+void W_ShowFiles(void);
+
+// Define this only in an emergency.  All these debug printfs quickly
+// add up, and it takes only a few seconds to end up with a 40 meg debug file!
+#ifdef WAD_CHECK
+static int W_CheckNumForName3(const char *x, const char *file, int line)
+{
+	Debug_Printf("Find '%s' @ %s:%d\n", x, file, line);
+	return W_CheckNumForName2(x);
+}
+
+static int W_GetNumForName3(const char *x, const char *file, int line)
+{
+	Debug_Printf("Find '%s' @ %s:%d\n", x, file, line);
+	return W_GetNumForName2(x);
+}
+
+#define W_CheckNumForName(x) W_CheckNumForName3(x, __FILE__, __LINE__)
+#define W_GetNumForName(x) W_GetNumForName3(x, __FILE__, __LINE__)
+
+#else
+#define W_CheckNumForName(x) W_CheckNumForName2(x)
+#define W_GetNumForName(x) W_GetNumForName2(x)
+#endif
+
+#endif // __W_WAD__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

@@ -1,0 +1,230 @@
+#
+# Makefile for EDGE: < Win32 + MinGW >
+#
+# (Note: requires GNU make)
+# 
+
+BIN=gledge32.exe
+RES=gledge32.res
+
+SHELL=bash.exe
+
+CC=mingw32-gcc.exe
+CPP=mingw32-g++.exe
+WINDRES=windres.exe
+
+# External library directories
+AL_DIR=c:/program\ files/OpenAL\ 1.0\ Software\ Development\ Kit
+DX_DIR=c:/program\ files/Microsoft\ DirectX\ 9.0\ SDK
+OGG_DIR=c:/program\ files/oggvorbis-win32sdk-1.0.1
+JPEG_DIR=c:/program\ files/gnuwin32
+PNG_DIR=c:/program\ files/gnuwin32
+SDL_DIR=c:/program\ files/SDL-1.2.9
+ZLIB_DIR=c:/program\ files/gnuwin32
+## HAWK_DIR="hawknl1.68"
+
+# Optimisation level
+#OPTIM=-g3
+OPTIM=-O2 -ffast-math
+
+# Generated library directories
+GENLIB_DIR=..
+DEH_DIR=./deh
+EPI_DIR=$(GENLIB_DIR)/epi
+GLBSP_DIR=$(GENLIB_DIR)/glbsp
+LZO_DIR=./lzo
+
+INCS = -I$(GENLIB_DIR) 
+
+CXXINCS = -I$(GENLIB_DIR) \
+		  -I$(AL_DIR)/include \
+		  -I$(DX_DIR)/include \
+		  -I$(GLBSP_DIR) \
+		  -I$(OGG_DIR)/include \
+		  -I$(JPEG_DIR)/include \
+		  -I$(PNG_DIR)/include \
+		  -I$(SDL_DIR)/include \
+		  -I$(ZLIB_DIR)/include
+
+CXXFLAGS=$(CXXINCS) $(OPTIM) -Wall -DWIN32 -DDEVELOPERS -DHAVE_DIRECT_H -DHAVE_MALLOC_H
+
+# ----- LIBRARIES ------------------------------------------------------
+
+LIBS= \
+	-L$(DX_DIR)/lib \
+	-mwindows \
+	$(AL_DIR)/libs/OpenAL32.lib \
+	$(DEH_DIR)/libdehedge.a \
+	$(EPI_DIR)/libepi.a \
+	$(GLBSP_DIR)/libglbsp.a \
+	$(LZO_DIR)/liblzo.a \
+	$(OGG_DIR)/lib/vorbisfile.lib \
+	$(OGG_DIR)/lib/vorbis.lib \
+	$(OGG_DIR)/lib/ogg.lib \
+	$(JPEG_DIR)/lib/libjpeg.a \
+	$(PNG_DIR)/lib/libpng13.a \
+	$(SDL_DIR)/lib/libSDL.a \
+	$(ZLIB_DIR)/lib/libz.a \
+	-lwsock32 -lopengl32 -lwinmm -lgdi32 \
+	-ldxguid -ldinput 
+	
+# ----- OBJECTS ------------------------------------------------------
+
+OBJS= \
+	$(RES) \
+	oggplayer.o \
+	SDL/i_ctrl.o \
+	SDL/i_loop.o \
+	SDL/i_video.o \
+	am_map.o \
+	con_con.o \
+	con_cvar.o \
+	con_main.o \
+	ddf_anim.o \
+	ddf_atk.o \
+	ddf_boom.o \
+	ddf_colm.o \
+	ddf_font.o \
+	ddf_game.o \
+	ddf_image.o \
+	ddf_lang.o \
+	ddf_levl.o \
+	ddf_line.o \
+	ddf_main.o \
+	ddf_mobj.o \
+	ddf_mus.o \
+	ddf_sect.o \
+	ddf_sfx.o \
+	ddf_stat.o \
+	ddf_style.o \
+	ddf_swth.o \
+	ddf_weap.o \
+	dm_defs.o \
+	dm_state.o \
+	dem_chunk.o \
+	dem_glob.o \
+	e_demo.o \
+	e_input.o \
+	e_main.o \
+	e_player.o \
+	f_finale.o \
+	g_game.o \
+	gui_ctls.o \
+	gui_main.o \
+	hu_font.o \
+	hu_lib.o \
+	hu_stuff.o \
+	hu_style.o \
+	i_asm.o \
+	l_deh.o \
+	l_glbsp.o \
+	lu_gamma.o \
+	m_argv.o \
+	m_bbox.o \
+	m_cheat.o \
+	m_inline.o \
+	m_math.o \
+	m_menu.o \
+	m_misc.o \
+	m_option.o \
+	m_random.o \
+	n_network.o \
+	n_packet.o \
+	n_proto.o \
+	p_action.o \
+	p_bot.o \
+	p_enemy.o \
+	p_inter.o \
+	p_lights.o \
+	p_map.o \
+	p_maputl.o \
+	p_mobj.o \
+	p_plane.o \
+	p_setup.o \
+	p_sight.o \
+	p_spec.o \
+	p_switch.o \
+	p_tick.o \
+	p_user.o \
+	p_weapon.o \
+	r2_util.o \
+	rad_act.o \
+	rad_pars.o \
+	rad_trig.o \
+	r_bsp.o \
+	r_data.o \
+	rgl_bsp.o \
+	rgl_fx.o \
+	rgl_main.o \
+	rgl_occ.o \
+	rgl_sky.o \
+	rgl_tex.o \
+	rgl_thing.o \
+	rgl_unit.o \
+	rgl_wipe.o \
+	r_layers.o \
+	r_main.o \
+	r_sky.o \
+	r_things.o \
+	r_vbinit.o \
+	r_view.o \
+	s_music.o \
+	s_sound.o \
+	st_lib.o \
+	st_stuff.o \
+	sv_chunk.o \
+	sv_dump.o \
+	sv_glob.o \
+	sv_level.o \
+	sv_load.o \
+	sv_main.o \
+	sv_misc.o \
+	sv_mobj.o \
+	sv_play.o \
+	sv_save.o \
+	v_colour.o \
+	v_res.o \
+	w_image.o \
+	win32/i_cd.o \
+	win32/i_compen.o \
+	win32/i_main.o \
+	win32/i_music.o \
+	win32/i_mus.o \
+	win32/i_net.o \
+	win32/i_sound.o \
+	win32/i_system.o \
+	wi_stuff.o \
+	wp_wipe.o \
+	w_textur.o \
+	w_wad.o \
+	z_zone.o
+
+# ----- TARGETS ------------------------------------------------------
+
+SUBDIRS=dehedge glbsp lzo
+
+all: $(SUBDIRS) $(BIN)
+
+clean:
+	rm -f $(OBJS) $(BIN)
+	$(MAKE) -C $(DEH_DIR)   -f Plugin_w32.mak clean
+	$(MAKE) -C $(GLBSP_DIR) -f Plugin_w32.mak clean
+	$(MAKE) -C $(LZO_DIR)   -f Makefile.w32 clean
+
+dehedge: 
+	$(MAKE) -C $(DEH_DIR) -f Plugin_w32.mak
+	
+glbsp: 
+	$(MAKE) -C $(GLBSP_DIR) -f Plugin_w32.mak
+	
+lzo: 
+	$(MAKE) -C $(LZO_DIR) -f Makefile.w32
+	
+$(BIN): $(OBJS)
+	$(CPP) $(OBJS) -o gledge32.exe $(LIBS)
+
+gledge32.res: win32/edge32.rc 
+	$(WINDRES) -i win32/edge32.rc --input-format=rc -o gledge32.res -O coff 
+
+.PHONY: all clean $(SUBDIRS)
+

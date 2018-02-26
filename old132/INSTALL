@@ -1,0 +1,133 @@
+
+EDGE 1.31 COMPILATION NOTES
+===========================
+
+by Andrew Apted, June 2009.
+
+(Mac OS X notes added by Andy Baker, June 2009.)
+
+
+Note 1
+------
+
+If you downloaded the EDGE source code from the SVN (Subversion)
+repository, then you will need to add a copy of the GLBSP source
+code, LUA 5.1 and possibly the other libraries which EDGE uses.
+
+The easiest way to get them is to download the 1.31 source code
+package and move/copy the missing pieces from there.
+
+Note 2
+------
+
+I personally compile the Win32 binaries on Linux using what's
+called a "Cross Compiler".  That means I don't need to reboot
+out of Linux in order to compile Win32 binaries.
+
+If you want to compile EDGE on a Windows system, theoretically
+it should work because the tools (like SCons and MinGW) exist
+for the Win32 platform.  However: YOU ARE ON YOUR OWN!
+The only time I tried it, I was not successful.
+
+
+Build System for EDGE
+---------------------
+
+EDGE uses the _SCons_ build tool to compile binaries.
+
+(There is no autoconf/automake/libtool stuff here, because
+ I tried really hard to get to grips with them but in the
+ end found them extremely complex and frustrating to use.)
+
+Building EDGE on a Linux system:
+
+	There are three basic configurations:
+
+ 	1. Build Linux debugging + shared-lib binary:
+
+    	> scons
+
+ 	2. Build Linux statically-linked binary:
+
+    	> scons release=true
+
+ 	3. Build Win32 statically-linked binary:
+
+    	> scons cross=true release=true
+
+Building EDGE on a Mac OS X:
+
+	Single configuration:
+
+		> scons
+
+	This will build against the system Cocoa, OpenGL and SDL frameworks. The
+	Ogg, Vorbis, GLEW, zlib, jpeg, lua and png can either be installed
+	globally or placed in the macosx_lib directory.
+
+
+Libraries
+---------
+
+For the list of libraries required by EDGE, see the text
+document: docs/tech/libraries.txt
+
+The scons build system not only builds the main engine code
+(i.e. all the stuff in the src/ directory) but also builds
+the EPI, Deh_Edge, and GLBSP libraries.
+
+The following libraries are linked statically in the
+release=true builds and must be built manually before
+running scons: lua, zlib, libpng, jpeglib, libogg, libvorbis
+and libvorbisfile.  Also FLTK for Linux binaries.
+
+
+Lua Notes
+---------
+
+The Lua library needs to be compiled with a C++ compiler
+(g++) instead of a C compiler (gcc).  That is because Lua
+must use C++ exception handling to handle errors properly
+when linked to a C++ program.  For this reason, using a
+system-wide Lua library is NOT supported because it would
+have been compiled with a C compiler.
+
+
+Resource File
+-------------
+
+The file edge32.rc is a Win32 resource file containing
+various strings that the Win32 run-time system can use,
+as well as the EDGE Icon.  This must be built manually
+before running the scons build, like this:
+
+   > i586-mingw32msvc-windres edge32.rc -o edge32_res.o
+
+(The resource file is not essential, so if this step gives
+ you big problems then simply remove the edge32_res.o line
+ from the SConstruct file).
+
+
+EDGE.WAD
+--------
+
+First you need to build the 'wadcc' program, the code
+for which is in the directory of the same name.  Then
+copy the binary into the 'wad' directory.
+
+To create EDGE.WAD, open a terminal, cd into the 'wad'
+directory and run the following command:
+
+   > cat Lumps.txt | xargs wadcc -o edge.wad
+
+(I don't know if this works under Windows, but should
+work fine under Linux and MacOS X).
+
+
+LINKS
+=====
+
+http://www.scons.org     
+
+(see docs/tech/libraries.txt for more links)
+

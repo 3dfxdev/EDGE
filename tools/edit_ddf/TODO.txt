@@ -1,0 +1,14 @@
+
+Munch_DDF TODO
+==============
+
++  remove CR characters (remember "DOS" mode, write them back).
+
+-  validate item names in [ ] (depends on file type).
+
+-  prevent ESCAPE from exiting.
+
+-  open new file, save and SaveAs in menu.
+
+-  sort out patch for FLTK (fl_contrast, 'E' style, knob size).
+

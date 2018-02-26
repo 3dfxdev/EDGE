@@ -1,0 +1,403 @@
+<file include="../common/common.inc">
+
+<set title="DDF: New weapon">
+
+<block name="content">
+
+<h2 class="page_title"> Tutorial #2: New Weapon </h2>
+
+
+This is a weapon making tutorial by Fanatic that describes
+how he made an uzi with DDF. Slightly modified by Ziggy Gnarly to include instructions on creating a weapon icon and pickup message.
+<P>
+There's a lot involved in implementing one item, if you are doing a
+completely new weapon. I'll assume you know how to make sounds, pretty
+weapon pictures and how to use Wintex and make a WAD file.
+
+<p>
+
+Here's what it took to implement the Uzi for DOOM Anomaly.
+
+<p>
+
+<b>1) <u>Create the new sounds for it:</b></u>
+
+<blockquote>
+
+-weapon up sound called UZI1
+<br>
+
+-weapon firing sound called UZI2
+
+</blockquote>
+
+<b>2) <u>Import and name them to a new WAD using Wintex called:</b></u>
+
+<blockquote>
+
+-DSUZI1
+<br>
+
+-DSUZI2
+</blockquote>
+
+All digital sounds MUST be called DS[name]. You can have 6 character names total. Like DSSPINDN for example.
+
+<p>
+
+<b>3) <u>We need to define the sounds, so open EDGE's existing SOUNDS.DDF, PAGE DOWN to the bottom to add new stuff:</b></u>
+
+
+<p>
+
+Anything following // is a comment, ex: // THIS IS A COMMENT. DDF
+doesn't pay attention to upper or lower case, but I use upper cause it
+looks better.
+
+<p>
+
+Add the following:
+<p>
+
+<table BORDER=1 width=95% CELLSPACING=0 CELLPADDING=2 FRAME="box">
+<TR><TD>
+<font size=2>
+<br>
+[UZI1] //  UZI SELECT SOUND 
+<br>
+LUMP_NAME="DSUZI1"; //  THIS IS THE LUMP NAME OF THE SOUND
+<br>
+PRIORITY=90; //  LOW PRIORITY, GETS CUT OFF BY HIGHER PRIORITY SOUNDS 
+<p>
+[UZI2] //  UZI FIRING SOUND 
+<br>
+LUMP_NAME="DSUZI2"; //  THIS IS THE LUMP NAME OF THE SOUND
+<br>
+PRIORITY=90; //  LOW PRIORITY, GETS CUT OFF BY HIGHER PRIORITY SOUNDS 
+<br>
+SINGULAR=1; //  ONLY PLAY UZI2 ONE AT A TIME<br>
+<p>
+</font>
+</td></tr>
+</table>
+
+<br>
+
+The singular bit is useful for fast playing sounds. If you leave this
+out, it will play each occurrance of that sound without stopping. It
+can suck up all the sound channels without it, and generally make it
+sound bad. Because the Uzi fires fast, we want one firing sound to
+play at a time.
+
+<p>
+
+<b>4) <u>We now need to define the attack for the weapon, so open
+EDGE's existing ATTACKS.DDF, PAGE DOWN to the bottom to add new
+stuff.</b></u>
+
+
+<p>
+
+Add the following:
+
+<p>
+<table BORDER=1 width=95% CELLSPACING=0 CELLPADDING=2 FRAME="box">
+<TR><TD>
+<font size=2>
+<br>
+[PLAYER_UZI] //  NAME OF THE ATTACK -SHOULD BE UNIQUE 
+<br>
+ATTACKTYPE=SHOT; //  TYPE OF ATTACK 
+<br>
+SHOTCOUNT=1; //  NUMBER OF ITEMS SHOT 
+<br>
+DAMAGE.VAL=3; //  DAMAGE AMOUNT 
+<br>
+DAMAGE.MAX=15; //  DAMAGE AMOUNT 
+<br>
+ATTACK_HEIGHT=32; //   32 IS ABOUT CHEST HIGH 
+<br>
+ACCURACY_ANGLE=3.0; //  LOW BULLET SPREAD 
+<br>
+ACCURACY_SLOPE=1.5;
+<br>
+ATTACKRANGE=1024; //  PLAYER PROJECTILE ATTACKS SHOULD ALWAYS BE 1024, CHAINSAW IS 63.9, FOR EXAMPLE 
+<br>
+ENGAGED_SOUND=UZI2; //  SOUND TO PLAY WHEN THIS ATTACK IS ACTIVE <br>
+&nbsp
+<p>
+</font>
+</td></tr>
+</table>
+
+<br>
+
+If you set the ACCURACY_ANGLE to 45, it will spread all over the
+place, set it to 0 (zero), it will shoot right on the middle of the
+crosshair every shot.
+
+<!---  br br
+
+The pistol feels much more relialistic with it set to 1.0, cause a
+pistol is generally accurate like that. You can also make a sniper gun
+using this and higher damage, like 100 will cause instant death (like
+Sin's sniper gun or Quake 2's Railgun, without the zoom of course).
+--->
+
+<p>
+
+
+<b>5) <u>We now need to create our weapon sprites, and a null one, 
+plus the weapon icon:</b></u>
+
+
+<blockquote>
+
+-the gun idle called UZIG 
+<br>
+
+-the gun firing called UZIF
+<br>
+
+-the blank one called NULL (this is a pic that is ONE pixel of cyan)
+<br>
+
+-the gun icon called UZIC
+
+</blockquote>
+
+All sprites HAVE to be 4 letters as the description, and the last two
+characters are the frame letter, A, B, C, etc., to define the
+sequence, and 1 thru 8 for the direction. See the Wintex documentation
+for more info on this.
+
+<p>
+
+Weapon sprites will always be 0 (zero) for "all views" (like a dead
+monster, or an item you pick up, same from all directions and spins to
+face you when you walk around it).
+
+<p>
+
+<b>6) <u>We now need to import them into our WAD file that we already
+have our sounds in, name them as such:</b></u>
+
+
+<blockquote>
+
+-UZIGA0
+<br>
+
+-UZIFA0
+<br>
+
+-NULLA0
+<br>
+
+-UZICA0
+
+</blockquote>
+
+<b>7) <u>We now need to code the weapon, this is the good part, open
+EDGE's existing WEAPONS.DDF, PAGE DOWN to the bottom to add new
+stuff.</b></u>
+
+
+<p>
+
+Add the following (no word wrap either):
+
+<p>
+
+<table BORDER=1 width=95% CELLSPACING=0 CELLPADDING=2 FRAME="box">
+<TR><TD>
+<font size=2>
+<br>
+
+[UZI] //  WEAPON NAME 
+<br>
+
+AMMOTYPE=BULLETS; //  TYPE OF AMMO 
+<br>
+
+AMMOPERSHOT=1; //  AMMO PER SHOT, SHOTGUN USES A LOT MORE, ROCKET LAUNCHER USES 1, ETC. 
+<br>
+
+AUTOMATIC=TRUE; //  LOOPS AUTOMATICALLY 
+<br>
+
+BINDKEY=8; //  KEY TO SELECT THIS WEAPON 
+<br>
+
+PRIORITY=-1; //  WHEN YOU RUN OUT OF AMMO, IT SELECTS WHATEVER IS NEXT IN PRIORITY LIST
+<br>
+
+ATTACK=PLAYER_UZI; //  ATTACK TYPE DEFINED IN ATTACKS.DDF 
+<br>
+
+START_SOUND=UZI1; //  THIS IS THE SOUND PLAYED WHEN THE WEAPON IS SELECTED, DOOM ONLY USES THIS FOR THE CHAINSAW, BUT WE CAN USE IT HERE 
+<p>
+
+STATES(UP)=UZIG:A:1:NORMAL:RAISE; //  WEAPON SELECTED FRAME
+<p>
+
+STATES(DOWN)=UZIG:A:1:NORMAL:LOWER; //  WEAPON DESELECT FRAME 
+<p>
+
+STATES(READY)=UZIG:A:1:NORMAL:READY; //  BOBBING OR IDLE FRAME 
+<p>
+
+STATES(ATTACK)=UZIF:A:1:BRIGHT:SHOOT, //  FIRING FRAME 
+<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp UZIG:A:1:NORMAL:NOTHING, //  RECOIL FRAME 
+<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp UZIG:A:0:NORMAL:REFIRE; //  LOOP BACK TO FIRING FRAME IF FIRE BUTTON IS HELD 
+<p>
+
+STATES(FLASH)=NULL:A:1:BRIGHT:LIGHT1, //  LOW LIGHT FLASH 
+<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp NULL:A:1:BRIGHT:LIGHT2, //  BRIGHT LIGHT FLASH 
+<br>
+&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp NULL:A:0:NORMAL:LIGHT0,#REMOVE; //  RESET WEAPON LIGHT FLASH 
+<p>
+
+//  I USED THE NULL IN FLASHSTATE CAUSE I ALREADY SET THE FIRING FRAMES 
+<br>
+
+//  IN THE ATTACKSTATE SET, IT LOOKS BETTER, GIVES IT THAT ROCKING LOOK 
+<br>
+
+//  AND I DON'T LOSE THE LIGHTING EFFECT WHILE FIRING.
+<p>
+
+</font>
+</td></tr>
+</table>
+<p>
+
+Now, the frames work as such:
+
+<p>
+
+[state]=[4 letter sprite name]:[frame letter]:[duration of the frame]:[light level -NORMAL or BRIGHT]:[action];
+
+<p>
+
+Remember to close the lines with a semi-colon ";". Commas indicate to
+continue the loop.
+
+<p>
+
+The #REMOVE statement tells the frame to dissapear. Otherwise the
+sprite will remain on the screen. Use this for one time sprites, e.g
+an explosion's last frame.
+
+<p>
+
+This is enough to get the gun up and running - but to put the gun into
+a  TC or mod, you'll need to  make: 
+<p>
+a) an icon for the new weapon<BR>
+b) a pickup message for the weapon<BR>
+
+<p>
+
+<b>8) <u>We are now going to add a weapon icon. So open THINGS.DDF,
+and PAGE DOWN to the bottom to add new stuff.</b></u>
+
+<p>
+
+Add the following (no word wrap either):
+
+<p>
+<table BORDER=1 width=95% CELLSPACING=0 CELLPADDING=2 FRAME="box">
+<TR><TD>
+<font size=2>
+<br>
+
+[UZI:200] //  IDENTIFIES THE WEAPON ICON + NUMBER USED BY MAP EDITORS
+<br>
+BENEFIT_TYPE=BULLETS(40), // AMOUNT OF BULLETS THE GUN COMES WITH
+<br>
+&nbsp;&nbsp;&nbsp; BULLETS.LIMIT(400); // LIMIT THAT THE GUN CAN HOLD
+<br>
+RADIUS=20;
+<br>
+HEIGHT=16;
+<br>
+PICKUP_MESSAGE=GotUzi; // CALLS A STRING STORED IN LANGUAGE.LDF
+<br>
+PICKUP_SOUND=WPNUP; // STANDARD DOOM SFX FOR WHEN YOU GET THE UZI
+<br>
+SPECIAL=SPECIAL;
+<br>
+RESPAWN_EFFECT=ITEM_RESPAWN;
+<br>
+STATES(IDLE)=UZIC:A:-1:NORMAL:NOTHING; // ONE ROTATION
+<p>
+
+</font>
+</td></tr>
+</table>
+<p>
+
+We now need to create a text string to play when you pick up the
+weapon. If we don't do this, we'll run into problems.
+
+<p>
+
+<b>9) <u>We'll add our pickup message to the weapon. Open LANGUAGE.LDF,
+and begin a text search.</b></u>
+<p>
+
+You should search (or scroll down) until you find the text
+"GotShotgun". This marks the end of the normal doom weapon pickup
+messages. You'll need to insert a new entry called GotUzi (see above)
+
+<p>
+
+Add the following:
+
+<p>
+
+GotUzi="You got the Uzi 9mm";
+
+<p>
+
+At this point, you've done almost everything necessary to get your gun
+working. You can access it by using the IDFA cheat code, or by placing
+the uzi into a map (most good map editors have a specific method of
+adding new or custom items - so read the documentation that came with
+the map editor for more info). You could also make enemies drop the uzi
+when killed by assigning DROPITEM=UZI; to a creature in THINGS.DDF.
+<P>
+But before you charge off to use your new weapon, you'll have to use
+Wintex or DeuSF to append all sprites to your WAD file with the sounds
+and sprites, then run EDGE as such:
+
+<p>
+
+edge -file [wadname].wad
+
+<p>
+
+That's it!
+
+<p>
+
+I keep my DDF file I'm editing in another directory for Anomaly, and
+refer to the originals in my DOOM2 directory when editing.
+
+<p>
+
+If you do this, you'll need to run it as such:
+
+<p>
+
+edge -ddf [directory where you store your DDF files] -file [wadname].wad
+
+
+</block>
+
+<!--- template --->
+<file include="ddf_page.tpl">

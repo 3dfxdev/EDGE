@@ -1,0 +1,40 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Properties">
+<set RTSreference="properties">
+
+<block name="content">
+
+<h3 class="page_title">WHEN_PLAYER_NUM</h3>
+
+<p>
+<B>Usage:</B><br>
+WHEN_PLAYER_NUM &lt;minimum players&gt; [maximum players]
+
+<p>
+<B>Description:</B><br>
+Use this to define how many COOP or DM players have to be in a game
+for this trigger to exist. 
+
+<p>
+<B>Details:</B><br>
+
+&lt;minimum players&gt; gives the minimum number of players.<br>
+[maximum players] gives the maximum number of players, with no limit when
+this value is absent.
+
+<p>
+Valid numbers are 1 to 8, since EDGE can handle up to 8 players.
+
+<p>
+<B>See Also:</B><br>
+Use <a class="rts" HREF="when_appear.htm">WHEN_APPEAR</a>
+to define what game modes (like DeathMatch)
+the script appears in.
+
+<p>
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

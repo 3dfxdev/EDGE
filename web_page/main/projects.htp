@@ -1,0 +1,91 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: Projects">
+
+<block name="content">
+
+<h2 class="page_title"> Projects: Finished </h2>
+
+SCREENSHOT |> PROJECT | AUTHOR | SITE | DOWNLOAD (size) | DESCRIPTION
+
+<ul class="project_list">
+<li> 
+  <A HREF="http://www.doomworld.com/fanatic/qdoom.htm">QDOOM</A>
+  <td bgcolor="#F1EFE2">Quake for Doom! One of the best TCs out there!
+
+<li> 
+  <A HREF="http://www.doomworld.com/covert/">Covert Ops</A>
+  <td bgcolor="#F1EFE2">Great TC that has lots of interesting features.
+
+<li> 
+  <A HREF="http://www.doomworld.com/immoralconduct">Immoral Conduct</A>
+  Great weapons PC with some of the coolest guns around!
+
+<li> 
+  <A HREF="http://www.grimwold.org.uk/games/doom/127.php">PlanetFall</A>
+  Pretty cool TC based on Star Wars.
+
+<p>
+
+<li> 
+  <A HREF="http://www.geocities.com/lizardcommando/enter.html">Lizard Commando</A>
+  Very original TC for Edge.
+
+<li> 
+  <A HREF="http://nick_the_doomer.tripod.com/mouac">Marines Of UAC</A>
+  A weapons PC with a touch of realism and plenty of firepower.
+
+<li> 
+  <A HREF="http://apocsoft01.250free.com/Apocsoft.html">Napalm TC</A>
+  A TC for Edge based on a Vietnam/Platoon theme.
+
+</ul>
+
+
+<!--- ----------------------------------------------------- --->
+
+<h2 class="page_title"> Projects: Playable Demos </h2>
+
+<ul class="project_list">
+<li> 
+  <A HREF="http://www.newdoom.com/hosted/goldeneye">GoldenEye TC</A>
+  This James bond TC is looking good!
+
+</ul>
+
+
+<!--- ----------------------------------------------------- --->
+
+<h2 class="page_title"> Projects: Under Development </h2>
+
+<ul class="project_list">
+
+<li> FATAL DISASTER!
+
+<li> Doom 2.5?
+
+<li> LonelyMeadows and/or FirstGen TC?
+
+<li> Earthbound Doom?
+
+<li> Don's Challenge?
+
+<li> 
+  <A HREF="http://www.iespana.es/cyberkiller/">Cyberkillers web site</A>
+  This is the home of UAC en Hapal, probably one of the most ambitious TCs ever made for EDGE.
+<li> 
+  <A HREF="http://www.geocities.com/beanovsky_doom/">Beanovskis Site</A>
+  Home of the Big Freak Day Out TC by Beanovski (in spanish)
+
+
+</ul>
+
+<p>
+For more in-development projects, please visit the
+<a href="http://www.wadsinprogress.info/?a=listwads&amp;game=&amp;status=&amp;mode=&amp;port=5">
+Wads In Progress</a> page.
+
+</block>
+
+<!--- template --->
+<file include="main_page.tpl">

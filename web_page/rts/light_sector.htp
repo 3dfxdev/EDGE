@@ -1,0 +1,54 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Level commands">
+<set RTSreference="level">
+
+<block name="content">
+
+<h3 class="page_title">LIGHT_SECTOR</h3>
+
+<P>
+<B>Usage:</B><br>
+LIGHT_SECTOR &lt;sector tag&gt; &lt;light change&gt;
+
+<P><B>Description:</B><br>
+Use this to change the light level of a sector
+(or multiple sectors, if they share the same tag).
+
+
+<p>
+<B>Details:</B><br>
+&lt;sector tag&gt; is the sector tag in your map editor.
+
+<p>
+&lt;light change&gt; is the amount to add to the current level.
+Use a positive number to raise the light level,
+and a negative number to lower it.
+The maximum is <B>255</B>, the minimum is <B>-255</B>.
+
+<p>
+You can use this command multiple times, for example to change
+the light level of multiple sectors in a single script.
+You could also combine it with TAGGED_REPEATABLE for a faded
+light change instead of an instant change to the desired level.
+
+<p>
+<b>Example:</b><br>
+This script will slowly darken the starting area on DOOM2's
+MAP08 (Tricks and Traps).
+
+<PRE class="rts">
+START_MAP map08
+  RADIUS_TRIGGER 0 0 -1
+    TAGGED_REPEATABLE 255 1T
+    LIGHT_SECTOR 8 -2
+  END_RADIUS_TRIGGER
+END_MAP
+</PRE>
+
+<p>
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

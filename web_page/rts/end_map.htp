@@ -1,0 +1,22 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Maps & Triggers">
+<set RTSreference="triggers">
+
+<block name="content">
+
+<h3 class="page_title">END_MAP</h3>
+
+<P>
+<B>Usage:</B><br>
+END_MAP
+
+<P><B>Description:</B><br>
+This labels the end of a particular map section. 
+
+<p>
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

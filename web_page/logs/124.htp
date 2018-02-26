@@ -1,0 +1,82 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: ChangeLogs">
+
+<block name="content">
+
+<h2 class="page_title">ChangeLog for EDGE 1.24</h2>
+
+Type: First public release of EDGE
+<p>
+
+Date: JUNE 2000
+<p>
+
+<PRE class="bugs">
+<u>Bugs fixed:</u>
+
+ - many math bugs (like div-by-zero) fixed.
+ - fixed a sound bug: Priority should now work better.
+ - certain RTS error messages were improved.
+ - some extrafloor bugs (include x-offset problem) fixed.
+ - problems with monsters/items not being counted in stats fixed.
+ - missiles no longer disappear underneath certain extrafloors.
+ - PLAYER_SCREAM action fixes player death sounds.
+ - items dropped by monsters no longer appear under extrafloors.
+ - the shotgun's shot now looks more like a horizontal line.
+ - aspect and zooming now work in the GL renderer.
+ - the GL screen can now be shrunk down.
+</PRE>
+ 
+<PRE class="changes">
+<u>Features removed:</u>
+
+ - the RTS primitive EXTEND_MAP.
+</PRE>
+
+<PRE class="changes">
+<u>Changes:</u>
+
+ - beginnings of a new bot system.  Bots are considered to be
+   "simulated players".  Activating 4 bots is done like this:
+
+     edge -players 5 -bots 4
+
+   The AI is being worked on (currently they are very dumb).
+
+ - DOS networking code was re-added -- but untested.
+
+ - TrueBSP mode is automatically enabled when "GL Nodes" are detected.
+   Thus the -truebsp option is rarely needed now.  A new option
+   "-classic" forces the classic renderer (but this is not
+   recommended).
+
+ - EDGE.WAD now contains all the necessary DDF and RTS files.  The
+   external ddf files are only used if their presence is detected or
+   if the "-ddf" option is used.  Anyone updating from previous EDGE
+   releases should move or delete the old DDF files.
+ 
+ - the cursor in the option menus is now light blue.
+</PRE>
+
+<PRE class="features">
+<u>New features:</u>
+
+ - REFIRE_INACCURATE command in weapons.ddf, when set to TRUE then
+   this weapon will lose accuracy while the trigger is held down.
+   Used to get the classic Doom behaviour for pistol and chaingun.
+
+ - Thick translucent extrafloors.  Use this in lines.ddf:
+
+      EXTRAFLOOR_TYPE = THICK, SEE_THROUGH, ...;
+      EXTRAFLOOR_TRANSLUCENCY = 0.5;  // or whatever
+   Or:
+      EXTRAFLOOR_TYPE = THICK, LIQUID, ...;
+      EXTRAFLOOR_TRANSLUCENCY = 0.5;  // or whatever
+</PRE>
+<p>
+
+</block>
+
+<!--- template --->
+<file include="logs_page.tpl">

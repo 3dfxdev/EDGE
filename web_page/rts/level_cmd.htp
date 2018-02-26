@@ -1,0 +1,66 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Level commands">
+<set RTSreference="level">
+
+<block name="content">
+
+<h2 class="page_title"> Level Commands </h2>
+
+RTS contains many commands for interacting with the
+current level.  You can move sectors, change the lighting,
+modify the textures on walls and floors, and even play sounds.
+<p>
+
+
+<h3>List of commands</h3>
+
+<a class="rts" href="activate_linetype.htm">ACTIVATE_LINETYPE</a> <br>
+Activate a line that is tagged to a sector.
+<p>
+
+<a class="rts" href="change_music.htm">CHANGE_MUSIC</a> <br>
+Change music in-game.
+<p>
+
+<a class="rts" href="change_tex.htm">CHANGE_TEX</a> <br>
+For changing textures on the fly.
+<p>
+
+<a class="rts" href="light_sector.htm">LIGHT_SECTOR</a> <br>
+Change the light level of a sector on the fly.
+<p>
+
+<a class="rts" href="move_sector.htm">MOVE_SECTOR</a> <br>
+Move a sectors floor or ceiling.
+<p>
+
+<a class="rts" href="unblock_lines.htm">UNBLOCK_LINES</a> <br>
+Unblock 2-sided blocking lines.
+<p>
+
+<a class="rts" href="block_lines.htm">BLOCK_LINES</a>
+<br>
+Convert 2-sided lines to blocking.
+<p>
+
+<a class="rts" href="play_sound.htm">PLAY_SOUND</a> <br>
+Play a certain sound.
+<p>
+
+<a class="rts" href="skill.htm">SKILL</a> <br>
+Change skill level on the fly.
+<p>
+
+<a class="rts" href="goto_map.htm">GOTO_MAP</a> <br>
+Finish current map and go to another.
+<p>
+
+<a class="rts" href="exit_level.htm">EXIT_LEVEL</a> <br>
+End the level.
+<p>
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

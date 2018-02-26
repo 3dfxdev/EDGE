@@ -1,0 +1,51 @@
+<file include="../common/common.inc">
+
+<set title="EDGE: Credits">
+
+<block name="content">
+
+<h2 class="page_title"> Credits </h2>
+
+<UL class="credits">
+<LI><B>Current EDGE Team</B>
+  <ul>
+    <li>Andrew Apted (aka "Ajapted") <!--- programming --->
+    <li>Luke Brennan (aka "Lobo")  <!--- support, docs --->
+  </ul>
+
+<LI><B>Former EDGE Members</B>
+  <ul class="credit">
+    <li>Andrew Baker (aka "Darkknight") <!--- programming --->
+    <li>Marc Pullen  (aka "Fanatic") <!--- support, music --->
+    <li>Erik Sandberg            <!--- programming --->
+    <li>David Leatherdale        <!--- programming --->
+  </ul>
+
+<LI><B>Patches</B>
+  <ul class="credit">
+    <li>Darren Salt  (aka "dsalt") <!--- programming --->
+  </ul>
+
+<LI><B>DOSDoom Contributors</B>
+  <ul class="credit">
+    <li>Kester Maddock             <!--- programming --->
+    <li>Martin Howe                <!--- programming --->
+    <li>John Cole, Rasem Brsiq     <!--- programming --->
+    <li>Captain Mellow, CowMonster <!--- support, graphics --->
+    <li>Ziggy Gnarly & Sidearm Joe <!--- support, graphics --->
+    <li>Matt Cooke, Eric Simpson   <!--- support --->
+  </ul>
+
+<LI><B>Special Thanks</B>
+  <ul class="credit">
+    <li>Chi Hoang, author of DOSDoom
+    <li>id Software, for the original DOOM Engine
+  </ul>
+</UL>
+
+<p>
+
+</block>
+
+<!--- template --->
+<file include="main_page.tpl">

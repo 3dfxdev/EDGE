@@ -1,0 +1,267 @@
+#
+# Makefile for EDGE/MacOSX
+#
+# (Note: requires GNU make)
+#
+
+# --- variables that can be overridden ---
+
+BIN=gledge
+
+# Prefix for static libraries and their headers
+prefix=/Users/aapted
+
+# compiler
+CXX=g++
+
+# assembler (for the .asm files)
+AS=nasm -f elf
+
+# optimisation
+#OPTIM=-g3
+OPTIM=-O2
+
+DEBUG=1
+#PROFILE=1
+#RELEASE=1
+
+# --- internal stuff from here on ------
+
+LX_DIR=linux
+EPI_DIR=epi
+SDL_DIR=SDL
+AL_DIR=AL
+LZO_DIR=lzo
+GLBSP_DIR=glbsp
+DEH_DIR=deh_edge
+
+VIDEO_FLAGS=$(shell $(prefix)/bin/sdl-config --cflags)
+VIDEO_LDFLAGS=
+VIDEO_OBJS=$(SDL_DIR)/i_video.o
+VIDEO_LIBS=$(shell $(prefix)/bin/sdl-config --static-libs)
+
+SOUND_FLAGS=-I/Library/Frameworks/OpenAL.framework/Headers
+SOUND_LDFLAGS=
+SOUND_OBJS=$(AL_DIR)/i_sound.o $(AL_DIR)/oggplayer.o
+SOUND_LIBS=-logg -lvorbis -lvorbisfile -framework OpenAL
+
+ASM_DIR=noasm
+ASM_FLAGS=
+
+FLTK_FLAGS=-I/usr/local/lib -DUSE_FLTK
+FLTK_LIBS=$(prefix)/lib/libfltk_images.a $(prefix)/lib/libfltk.a
+
+# HUM_OBJS=
+# HUM_FLAGS=
+# HUM_LIBS=
+HUM_OBJS=$(AL_DIR)/humdinger.o
+HUM_FLAGS=-I./humidity -DUSE_HUMID
+HUM_LIBS=./humidity/libhumidity.a  # -lpthread
+
+HAWK_FLAGS=
+HAWK_LDFLAGS=
+HAWK_LIBS=
+# HAWK_FLAGS=-I./hawknl1.68/include -DUSE_HAWKNL
+# HAWK_LDFLAGS=-L./hawknl1.68/src
+# HAWK_LIBS=-lpthread $(prefix)/lib/libNL.a
+
+# --- putting it all together ---------
+
+CPPFLAGS=-I$(LX_DIR) -I.
+
+CFLAGS=-Wall $(OPTIM) -DMACOSX -DDEVELOPERS -DUSE_FLTK -D__BIG_ENDIAN__  \
+       $(ASM_FLAGS) $(VIDEO_FLAGS) $(SOUND_FLAGS) \
+	   $(FLTK_FLAGS) $(HUM_FLAGS) $(HAWK_FLAGS) \
+	   -I$(prefix)/include
+
+CXXFLAGS=-Wall $(OPTIM) -ffast-math -DMACOSX -DDEVELOPERS -DUSE_FLTK -D__BIG_ENDIAN__ \
+       $(ASM_FLAGS) $(VIDEO_FLAGS) $(SOUND_FLAGS) \
+	   $(FLTK_FLAGS) $(HUM_FLAGS) $(HAWK_FLAGS) \
+	   -I$(prefix)/include
+
+LDFLAGS=$(VIDEO_LDFLAGS)  \
+        $(SOUND_LDFLAGS) -I$(prefix)/lib
+
+# ----- LIBRARIES --------------------------------------------------------
+
+LIBS=-lm  \
+	$(EPI_DIR)/libepi.a \
+	$(LZO_DIR)/liblzo.a \
+	$(GLBSP_DIR)/libglbsp.a  \
+	$(DEH_DIR)/libdehedge.a  \
+	$(prefix)/lib/libz.a \
+	$(prefix)/lib/libpng.a \
+	$(VIDEO_LIBS) \
+	$(SOUND_LIBS) \
+	$(FLTK_LIBS) \
+	$(HUM_LIBS) 
+
+# ----- OBJECTS --------------------------------------------------------
+
+SDL_OBJS= \
+		$(SDL_DIR)/i_ctrl.o \
+        $(SDL_DIR)/i_cd.o \
+        $(SDL_DIR)/i_loop.o \
+		$(SDL_DIR)/i_net.o
+ 
+SYSTEM_OBJS= \
+        $(LX_DIR)/i_main.o \
+		$(LX_DIR)/i_music.o \
+        $(LX_DIR)/i_compen.o \
+		$(LX_DIR)/i_system.o
+
+COMMON_OBJS= \
+        am_map.o \
+		con_con.o \
+        con_cvar.o \
+		con_main.o \
+        ddf_anim.o \
+		ddf_atk.o \
+        ddf_boom.o \
+		ddf_colm.o \
+		ddf_font.o \
+        ddf_game.o \
+		ddf_image.o \
+		ddf_lang.o \
+        ddf_levl.o \
+		ddf_line.o \
+        ddf_main.o \
+		ddf_mobj.o \
+        ddf_mus.o \
+        ddf_sect.o \
+		ddf_sfx.o \
+		ddf_stat.o \
+		ddf_style.o \
+        ddf_swth.o \
+		ddf_weap.o \
+		dem_chunk.o \
+		dem_glob.o \
+        dm_defs.o \
+		dm_state.o \
+		e_demo.o \
+		e_input.o \
+        e_main.o \
+		e_player.o \
+        f_finale.o \
+		g_game.o \
+		gui_ctls.o \
+        gui_main.o \
+		hu_font.o \
+        hu_lib.o \
+		hu_stuff.o \
+		hu_style.o \
+		l_deh.o \
+        l_glbsp.o \
+        lu_gamma.o \
+        m_argv.o \
+        m_bbox.o \
+		m_cheat.o \
+        m_math.o \
+        m_menu.o \
+        m_misc.o \
+		m_option.o \
+		m_random.o \
+		n_network.o \
+		n_packet.o \
+		n_proto.o \
+        p_action.o \
+        p_bot.o \
+		p_enemy.o \
+        p_inter.o \
+		p_lights.o \
+        p_map.o \
+		p_maputl.o \
+		p_mobj.o \
+        p_plane.o \
+        p_setup.o \
+		p_sight.o \
+        p_spec.o \
+		p_switch.o \
+        p_tick.o \
+		p_user.o \
+		p_weapon.o \
+        r2_util.o \
+        rad_act.o \
+		rad_pars.o \
+        rad_trig.o \
+        r_bsp.o \
+		r_data.o \
+        rgl_bsp.o \
+        rgl_fx.o \
+		rgl_main.o \
+		rgl_occ.o \
+        rgl_sky.o \
+		rgl_tex.o \
+        rgl_thing.o \
+		rgl_unit.o \
+        rgl_wipe.o \
+		r_layers.o \
+        r_main.o \
+        r_sky.o \
+		r_things.o \
+		r_vbinit.o \
+        r_view.o \
+		s_music.o \
+        s_sound.o \
+        st_lib.o \
+		st_stuff.o \
+		sv_chunk.o \
+        sv_dump.o \
+		sv_glob.o \
+        sv_level.o \
+        sv_load.o \
+        sv_main.o \
+		sv_misc.o \
+		sv_mobj.o \
+        sv_play.o \
+		sv_save.o \
+		v_colour.o \
+        v_res.o \
+        w_image.o \
+		wi_stuff.o \
+        wp_wipe.o \
+        w_textur.o \
+        w_wad.o \
+		z_zone.o
+
+ASM_OBJS= \
+        noasm/i_asm.o 
+
+OBJS=$(SYSTEM_OBJS) \
+     $(SDL_OBJS) \
+	 $(ASM_OBJS) \
+     $(VIDEO_OBJS) \
+	 $(SOUND_OBJS) \
+	 $(HUM_OBJS) \
+	 $(COMMON_OBJS)
+
+# ----- RULES --------------------------------------------------------
+
+%.o: %.asm
+	$(AS) $< -o $@
+
+# ----- TARGETS ------------------------------------------------------
+
+SUBDIRS = epi glbsp dehedge lzo
+
+all: $(SUBDIRS) $(BIN)
+
+clean:
+	rm -f $(BIN) core *.o $(AL_DIR)/*.o \
+	    $(LX_DIR)/*.o $(SDL_DIR)/*.o $(EPI_DIR)/*.o $(ASM_DIR)/*.o \
+		$(EPI_DIR)/libepi.a $(LZO_DIR)/liblzo.a
+
+epi lzo:
+	$(MAKE) -C $@ -f Makefile.osx
+
+glbsp:
+	$(MAKE) -C $(GLBSP_DIR) -f Plugin_osx.mak
+
+dehedge:
+	$(MAKE) -C $(DEH_DIR) -f Plugin_osx.mak
+
+$(BIN): $(OBJS)
+	$(CXX) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $(BIN) $(LIBS)
+
+.PHONY: all clean $(SUBDIRS)
+

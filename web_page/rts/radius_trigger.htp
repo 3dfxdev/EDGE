@@ -1,0 +1,68 @@
+<file include="../common/common.inc">
+
+<set title="RTS: Maps & Triggers">
+<set RTSreference="triggers">
+
+<block name="content">
+
+<h3 class="page_title">RADIUS_TRIGGER</h3>
+
+<p>
+<B>Usage:</B><br>
+RADIUS_TRIGGER &lt;X&gt; &lt;Y&gt; &lt;Radius&gt; [Low Z] [High Z]
+
+<p>
+<B>Description:</B><br>
+This defines where the center point of your trigger is, how large
+its radius is, and optionally, where its high and low trigger areas
+are.
+
+<p>
+<B>Details:</B><br>
+It's best to use your map editor to determine the exact points
+for the X and Y values you want
+(most map editors show the grid location in real time).
+
+<p>
+To create a trigger that covers the entire map, use x=0, y=0,
+and radius=-1 (-1 means everywhere).
+
+<p>
+The optional [low Z] and [high Z] values are to create
+a "3D" trigger: one that can be walked over or under without
+being triggered. The [low Z] must be a value below [high Z]
+(you cannot invert the low and high Z values).
+If you use Low Z then high Z is also required.
+
+<p>
+<b>Example:</b><br>
+
+
+<pre class="rts">
+START_MAP
+  RADIUS_TRIGGER 0 0 -1
+    TIP "Hello world!"
+  END_RADIUS_TRIGGER
+END_MAP
+</pre>
+
+<p>
+<b>Height Example:</b>
+<p>
+This script is designed for DOOM2 MAP29 ("The Living End").
+Hop on the lowering floor near the start and wait.
+When you get to the bottom, the monsters near the start
+will get a nasty surprise.
+
+<pre class="rts">
+START_MAP map29
+  RADIUS_TRIGGER 1120 544 250  304 312
+    TIP "Die monsters!"
+    DAMAGE_MONSTERS ANY 200
+  END_RADIUS_TRIGGER
+END_MAP
+
+</block>
+
+<!--- template --->
+<file include="rts_page.tpl">

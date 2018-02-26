@@ -1,0 +1,26 @@
+#
+# Makefile for Borland C++
+#
+MAIN=.
+OUTPUT=.
+CFLAGS=-O2 -tWC
+DEFINES=
+LIBDIR=C:\BCC55\LIB
+MSLIBDIR=$(LIBDIR)\PSDK
+
+OBJS= $(OUTPUT)\main.obj   \
+      $(OUTPUT)\system.obj \
+      $(OUTPUT)\wad.obj 
+    
+#
+# Main Source Compilation
+# ^^^^^^^^^^^^^^^^^^^^^^^
+{$(MAIN)\}.c{$(OUTPUT)\}.obj:
+  bcc32 $(CFLAGS) $(DEFINES) -c -n$(OUTPUT) {$< }
+
+#
+# Link LevNamer
+# ^^^^^^^^^^^^^
+levnamer.exe: $(OBJS)
+  ilink32 /ap $(LIBDIR)\c0x32.obj $(LIBDIR)\import32.lib $(LIBDIR)\CW32.LIB \
+          $(OBJS), $*, $*

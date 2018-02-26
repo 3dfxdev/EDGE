@@ -1,0 +1,26 @@
+#
+# Makefile for DJGPP
+#
+
+CC=gcc
+
+PROGNAME=levnamer.exe
+
+CFLAGS=-O3 -Wall
+LIBS=-lm
+
+OBJS=main.o system.o wad.o
+
+
+# ----- TARGETS ------------------------------------------------------
+
+all:    $(PROGNAME)
+
+clean:
+	rm -f $(PROGNAME) *.o core
+
+$(PROGNAME): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(PROGNAME) $(LIBS)
+
+.PHONY: all clean
+
