@@ -23,11 +23,6 @@
 namespace epi
 {
 
-// hack?
-#ifdef __OpenBSD__
-#define nullptr NULL
-#endif
-
 image_data_c::image_data_c(int _w, int _h, int _bpp) :
     width(_w), height(_h), bpp(_bpp), flags(IDF_NONE),
     used_w(_w), used_h(_h), grAb(nullptr)
