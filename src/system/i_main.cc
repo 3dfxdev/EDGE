@@ -180,7 +180,7 @@ fflush(stdout);
 	}
 #endif
 
-#ifdef LINUX
+#if defined(LINUX) || defined(BSD)
 	try 
 	{
 		FILE *dcph;
