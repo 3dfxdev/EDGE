@@ -38,13 +38,11 @@
 ///      define, like WIN32_GLAD, for GLEWs successor..
 #ifdef GLEWISDEAD
 #define GLEW_STATIC  1
-#include "GL\glew.h"
 #include "GL\gl.h"
 #include "GL\glext.h"
 #endif
 
 #ifdef MACOSX
-#include <GL/glew.h>
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>
 #endif
