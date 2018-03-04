@@ -34,6 +34,10 @@
 #elif defined (MACOSX)
 // put osx specific ff stuff here
 
+#elif defined (BSD)
+// put bsd specific ff stuff here
+#include <unistd.h>
+
 #else
 // put linux specific ff stuff here
 #include <unistd.h>

@@ -151,7 +151,7 @@ if(APPLE)
 		-DHAVE_STDINT_H
 	)
 elseif(UNIX)
-	if(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
+	if(${CMAKE_SYSTEM_NAME} MATCHES "(Free|Open)BSD")
 		add_definitions(
 			-DBSD
 			-DHAVE_STDINT_H
@@ -239,6 +239,10 @@ include_directories(${SDL_INCLUDE_DIR})
 # GLEW
 #find_package(GLEW REQUIRED)
 #include_directories(${GLEW_INCLUDE_DIR})
+
+# OpenGL
+find_package(OpenGL REQUIRED)
+include_directories(${OPENGL_INCLUDE_DIR})
 
 # libvorbis/libogg
 #find_package(OGG REQUIRED)
@@ -581,6 +585,6 @@ if (WIN32)
 	)
 elseif(APPLE)
 	set_target_properties(3DGE PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa")
-elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
+elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "(Free|Open)BSD")
 	target_link_libraries(3DGE GL dl)
 endif()

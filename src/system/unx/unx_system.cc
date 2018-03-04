@@ -27,7 +27,7 @@
 #include <sys/time.h>
 #include <time.h>
 
-#ifdef MACOSX
+#if defined(MACOSX) || defined(BSD)
 
 #else
 #include <linux/input.h>
@@ -65,9 +65,12 @@ int ff_intensity[MAXPLAYERS];
 int ff_timeout[MAXPLAYERS];
 
 int ff_rumble[MAXPLAYERS];
-#ifndef MACOSX
+#if defined (MACOSX) || defined (BSD)
+
+#else
 struct ff_effect effect[MAXPLAYERS];
 #endif // !MACOSX
+
 
 #ifdef USE_FLTK
 
@@ -416,7 +419,7 @@ void I_SystemStartup(void)
 
 	if (M_CheckParm("-ffrumble"))
 	{
-#ifdef MACOSX
+#if defined (MACOSX) || defined (BSD)
 
 #else
 		ff_rumble[0] = open("/dev/input/event0", O_RDWR);
