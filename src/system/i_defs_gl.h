@@ -30,7 +30,6 @@
 #include "i_sdlinc.h"
 
 #if defined(LINUX) || defined(BSD)
-#include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glext.h>
 #endif

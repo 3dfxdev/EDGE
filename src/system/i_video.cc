@@ -24,10 +24,6 @@
 #include "opengl/gledge_wgl.h"
 //#define WGL_WGLEXT_PROTOTYPES 1
 PFNWGLSWAPINTERVALEXTPROC myWglSwapIntervalExtProc;
-
-
-#else
-#include <GL/glew.h>
 #endif
 
 #include "i_sdlinc.h"
