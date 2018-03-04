@@ -67,11 +67,6 @@
 #include "z_zone.h"
 #include "games/wolf3d/wlf_rawdef.h"
 
-// hack?
-#ifdef __OpenBSD__
-#define nullptr NULL
-#endif
-
 // LIGHTING DEBUGGING
 // #define MAKE_TEXTURES_WHITE  1
 
