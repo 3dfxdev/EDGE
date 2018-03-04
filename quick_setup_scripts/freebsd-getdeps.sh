@@ -17,7 +17,7 @@ echo ""
 
 if [ $REPLY == y ]
 then
-	pkg install -y sdl2 physfs-devel sdl2_net glew png libogg libvorbis libjpeg-turbo \
+	pkg install -y sdl2 physfs-devel sdl2_net png libogg libvorbis libjpeg-turbo \
 		cmake cmake-gui mesa-libs git
 fi
 

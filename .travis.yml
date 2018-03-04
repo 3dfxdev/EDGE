@@ -24,7 +24,6 @@ matrix:
             - libsdl2-dev
             - libphysfs-dev
             - libsdl2-net-dev
-            - libglew-dev
             - libpng++-dev
             - libogg-dev
             - libvorbis-dev
@@ -48,7 +47,6 @@ matrix:
             - libsdl2-dev
             - libphysfs-dev
             - libsdl2-net-dev
-            - libglew-dev
             - libpng++-dev
             - libogg-dev
             - libvorbis-dev
@@ -67,7 +65,7 @@ matrix:
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
       brew update;
-      brew install glew jpeg-turbo physfs png++ sdl2_net libvorbis;
+      brew install jpeg-turbo physfs png++ sdl2_net libvorbis;
       ln -s /usr/local/bin/glibtoolize /usr/local/bin/libtoolize;
     fi
   - if [ -n "$GCC_VERSION" ]; then export CC="gcc-${GCC_VERSION}" CXX="g++-${GCC_VERSION}"; fi

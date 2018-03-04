@@ -17,7 +17,7 @@ echo ""
 
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-	dnf install -y SDL2-devel physfs-devel SDL2_net-devel glew-devel libpng-devel libogg-devel libvorbis-devel ghc-zlib-devel libjpeg-turbo-devel \
+	dnf install -y SDL2-devel physfs-devel SDL2_net-devel libpng-devel libogg-devel libvorbis-devel ghc-zlib-devel libjpeg-turbo-devel \
 		cmake cmake-gui mesa-libGL-devel gcc-c++ make git
 fi
 
