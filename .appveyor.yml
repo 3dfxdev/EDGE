@@ -26,7 +26,7 @@ build_script:
   - 7z x VSLibs.7z
   - md build
   - cd build
-  - cmake -G "%GENERATOR%" -T "%TOOLSET%" ..
+  - cmake -G "%GENERATOR%" -T "%TOOLSET%" -DPK3_QUIET_ZIPDIR=YES ..
   - cmake --build . --config "%CONFIGURATION%" -- /verbosity:minimal
 
 after_build:
