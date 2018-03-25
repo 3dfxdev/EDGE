@@ -3337,7 +3337,8 @@ static const char *FileKind_Strings[] =
 {
 	"iwad", "pwad", "EDGE2", "gwa", "hwa",
 	"lump", "ddf",  "demo", "rts", "deh",
-	"pak",  "wl6",  "rtl",  "fp", "vp"
+	"pak",  "wl6",  "rtl",  "fp", "vp", "pk3",
+	"epk", "pk7"
 };
 
 static const char *LumpKind_Strings[] =

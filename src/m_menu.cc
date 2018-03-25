@@ -166,6 +166,7 @@ static const image_c *rott_skull;
 static const image_c *menu_readthis[2];
 static const image_c *SkullBaseLump[18]; //replaced = NULL -> 17, 17 frames of animation
 
+// STYLES
 static style_c *menu_def_style;
 static style_c *main_menu_style;
 static style_c *multi_menu_style;
@@ -513,9 +514,13 @@ static menu_t MainDef =
 	MainMenu,
 	&main_menu_style,
 	M_DrawMainMenu,
+#ifdef HYPERTENSION
+	37, 100,
+#else
 	97, 64,
+#endif
 	//Hypertension	37, 100, //97, 64
-		0
+	0
 };
 
 static menu_t HereticMainDef =

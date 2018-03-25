@@ -1529,16 +1529,14 @@ static void SetupLogAndDebugFiles(void)
 	//
 	// -ACB- 1999/10/02 Don't print to console, since we don't have a console yet.
 
-	/// int p = M_CheckParm("-debug");
+	int p = M_CheckParm("-gldebug");
 	if (true)
 	{
 		debugfile = fopen(debug_fn.c_str(), "w");
 
 		openglfile = fopen(gl_fn.c_str(), "w");
 
-		
 		shadercompilefile = fopen(glsl_fn.c_str(), "w");
-
 
 		if (!debugfile)
 			I_Error("[E_Startup] Unable to create debugfile");
