@@ -1305,8 +1305,8 @@ void E_PlayMovie(const char *name, int flags)
 
             // upload decoded video into opengl buffer
             glBindTexture(GL_TEXTURE_2D, tex[0]);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-                mdata.width, mdata.height, 0, GL_RGB,
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+                mdata.width, mdata.height, 0, GL_RGBA,
                 GL_UNSIGNED_BYTE, mdata.image);
 
             // draw to screen
@@ -1320,14 +1320,13 @@ void E_PlayMovie(const char *name, int flags)
 
             glBegin(GL_QUADS);
 
-            glTexCoord2f(0.0f, (float)mdata.height / (float)SCREENHEIGHT);
+            glTexCoord2f(0.0f, 1.0f);
             glVertex2i(0, 0);
 
-            glTexCoord2f((float)mdata.width / (float)SCREENWIDTH,
-                (float)mdata.height / (float)SCREENHEIGHT);
+            glTexCoord2f(1.0f, 1.0f);
             glVertex2i(SCREENWIDTH, 0);
 
-            glTexCoord2f((float)mdata.width / (float)SCREENWIDTH, 0.0f);
+            glTexCoord2f(1.0f, 0.0f);
             glVertex2i(SCREENWIDTH, SCREENHEIGHT);
 
             glTexCoord2f(0.0f, 0.0f);
