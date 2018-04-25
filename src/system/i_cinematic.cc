@@ -1230,7 +1230,7 @@ cinHandle_t CIN_PlayCinematic (const char *name, int flags)
 
             // Force console and GUI off
             //Con_Close();
-            CON_SetVisible(vs_notvisible);
+            //CON_SetVisible(vs_notvisible);
             //GUI_Close();
             M_ClearMenus();
 
@@ -1345,7 +1345,7 @@ void E_PlayMovie(const char *name, int flags)
         //    break;
     }
     CIN_StopCinematic(midx);
-    CIN_Shutdown();
+    //CIN_Shutdown();
 
     // delete OpenGL texture buffer
     if (tex[0])
@@ -1486,7 +1486,7 @@ void CIN_StopCinematic (cinHandle_t handle)
         I_Debugf("Stopped cinematic %s\n", cin->name);
 
         // Make sure sounds aren't playing
-        S_FreeChannels();
+        // S_FreeChannels();
     }
 
     // Free the frame buffers
@@ -1497,10 +1497,10 @@ void CIN_StopCinematic (cinHandle_t handle)
 
     // Close the file
     if (cin->file)
-        Z_Free(cin->file);
+		delete[] (cin->file);
 
-    //Z_Malloc(0, sizeof(cinematic_t));
-    Z_Free(cin->file);
+	// Z_Resize(cin, cinematic_t, 0);
+   // Z_Free(cin->file);
 }
 
 
@@ -1650,9 +1650,9 @@ void CIN_Shutdown (void)
 
         // Close the file
         if (cin->file)
-            Z_Free(cin->file);
+            delete[] (cin->file);
     }
 
     // Clear cinematics list
-    Z_Free(cin_cinematics);
+	delete[](cin_cinematics);
 }
