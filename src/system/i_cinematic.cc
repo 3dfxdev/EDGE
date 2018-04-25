@@ -1344,12 +1344,17 @@ void E_PlayMovie(const char *name, int flags)
         //    break;
     }
     CIN_StopCinematic(midx);
+    I_Printf("Cinematic stopped\n");
     //CIN_Shutdown();
 
     // delete OpenGL texture buffer
     if (tex[0])
+    {
+        I_Printf("Deleting OpenGL texture\n");
         glDeleteTextures(1, tex);
+    }
 
+    I_Printf("E_PlayMovie exiting\n");
     return;
 }
 
@@ -1490,13 +1495,24 @@ void CIN_StopCinematic (cinHandle_t handle)
 
     // Free the frame buffers
     if (cin->frameBuffer[0])
+    {
+        I_Printf("  Freeing framebuffer[0]\n");
         Z_Free(cin->frameBuffer[0]);
+        cin->frameBuffer[0] = NULL;
+    }
     if (cin->frameBuffer[1])
+    {
+        I_Printf("  Freeing framebuffer[1]\n");
         Z_Free(cin->frameBuffer[1]);
+        cin->frameBuffer[1] = NULL;
+    }
 
     // Close the file
     if (cin->file)
-		delete[] (cin->file);
+    {
+        I_Printf("  Deleting file\n");
+		delete cin->file;
+    }
 
 	// Z_Resize(cin, cinematic_t, 0);
    // Z_Free(cin->file);
