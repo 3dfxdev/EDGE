@@ -120,6 +120,9 @@ bool playing_movie = false;
 
 static SDL_AudioSpec mydev;
 
+extern int sfx_volume;
+extern float slider_to_gain[];
+
 static void MovieSnd_Callback(void *udata, Uint8 *stream, int len)
 {
     CIN_UpdateAudio(stream, len);
@@ -1516,6 +1519,8 @@ void CIN_UpdateAudio(Uint8 *stream, int len)
 {
     //I_Printf("CIN_UpdateAudio!\n");
     cinematic_t *cin;
+    int j;
+    Uint16 *dst = (Uint16 *)stream;
 
     cin = CIN_GetCinematicByHandle(current_movie);
 
@@ -1527,14 +1532,18 @@ void CIN_UpdateAudio(Uint8 *stream, int len)
         int wanted = len >> 1;
         if (wanted <= cin->nextSample)
         {
-            memcpy(stream, cin->soundSamples, len);
+            //memcpy(stream, cin->soundSamples, len);
+            for (j=0; j<wanted; j++)
+                dst[j] = (Uint16)((float)cin->soundSamples[j] * slider_to_gain[sfx_volume]);
             if (wanted < cin->nextSample)
                 memcpy(cin->soundSamples, &cin->soundSamples[wanted], (cin->nextSample - wanted) * 2);
             cin->nextSample -= wanted;
         }
         else
         {
-            memcpy(stream, cin->soundSamples, cin->nextSample * 2);
+            //memcpy(stream, cin->soundSamples, cin->nextSample * 2);
+            for (j=0; j<cin->nextSample; j++)
+                dst[j] = (Uint16)((float)cin->soundSamples[j] * slider_to_gain[sfx_volume]);
             cin->nextSample = 0;
         }
     }
