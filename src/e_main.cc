@@ -97,7 +97,7 @@
 #define E_TITLE  "EDGE v" EDGEVERSTR
 
 // uncomment line below to enable ROQ playback, which is in testing phases.
-//#define ROQMOVIETEST
+#define ROQMOVIETEST
 
 // Application active?
 int app_state = APP_STATE_ACTIVE;
@@ -1478,7 +1478,7 @@ static void ShowDateAndVersion(void)
 	I_Printf("EDGE forums are located at http://tdgmods.net/smf\n");
 	I_Printf("EDGE problems should be reported via https://github.com/3dfxdev/hyper3DGE/issues\n");
 	I_Printf("EDGE is based on id Tech by id Software http://www.idsoftware.com/\n");
-	
+
 
 #ifdef WIN32
 	I_Printf("Executable path: '%s'\n", win32_exe_path);
@@ -2092,9 +2092,9 @@ void E_Tick(void)
 
 		extern cvar_c r_maxfps;
 
-		if (r_maxfps.d > 0) 
+		if (r_maxfps.d > 0)
 		{
-			while (I_GetMillies() < nextframe) 
+			while (I_GetMillies() < nextframe)
 			{
 				//just in case someone plays for over 24 days and nextframe/getmillies overflow
 				if ((nextframe - I_GetMillies()) > 1000)

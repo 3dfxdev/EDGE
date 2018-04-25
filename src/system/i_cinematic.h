@@ -12,14 +12,14 @@ typedef int							cinHandle_t;
 
 cinHandle_t	cinematicHandle;
 
-typedef enum 
+typedef enum
 {
 	CIN_SYSTEM						= BIT(0),
 	CIN_LOOPING						= BIT(1),
 	CIN_SILENT						= BIT(2)
 } cinFlags_t;
 
-typedef struct 
+typedef struct
 {
 	const byte *			image;
 	bool					dirty;
@@ -32,7 +32,7 @@ typedef struct
 cinHandle_t		CIN_PlayCinematic (const char *name, int flags);
 
 // Runs a cinematic frame
-cinData_t		CIN_UpdateCinematic (cinHandle_t handle, int time);
+void    		CIN_UpdateCinematic (cinHandle_t handle, int time, cinData_t *data);
 
 // Resets a cinematic
 void			CIN_ResetCinematic (cinHandle_t handle);
@@ -69,10 +69,10 @@ void E_PlayMovie(const char *name, int flags);
 #define ROQ_VQ_SLD						0x8000
 #define ROQ_VQ_CCC						0xC000
 
-typedef struct 
+typedef struct
 {
 	u16_t				id;
 	u32_t				size;
 	u16_t				args;
-} 
+}
 roqChunkHeader_t;
