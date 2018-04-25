@@ -79,15 +79,9 @@ static char scratcherror[256];
 
 static bool audio_is_locked = false;
 
-extern bool playing_movie;
-extern void CIN_UpdateAudio (Uint8 *stream, int len);
-
 void SoundFill_Callback(void *udata, Uint8 *stream, int len)
 {
-    if (playing_movie)
-        CIN_UpdateAudio(stream, len);
-    else
-        S_MixAllChannels(stream, len);
+    S_MixAllChannels(stream, len);
 }
 
 static bool I_TryOpenSound(const sound_mode_t *mode)

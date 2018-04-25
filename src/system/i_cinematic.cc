@@ -81,6 +81,7 @@ typedef struct
     int                 frameCount;
     byte *              frameBuffer[2];
 
+    int                 sampleRate;
     int                 nextSample;
     short *             soundSamples;
 
@@ -117,9 +118,49 @@ static cinHandle_t current_movie;
 
 bool playing_movie = false;
 
-extern int dev_frag_pairs;
+static SDL_AudioSpec mydev;
 
-//#define u32_t u32_t
+static void MovieSnd_Callback(void *udata, Uint8 *stream, int len)
+{
+    CIN_UpdateAudio(stream, len);
+}
+
+/*
+ ==================
+ CIN_TryOpenSound
+ ==================
+*/
+static bool CIN_TryOpenSound(int rate)
+{
+	SDL_AudioSpec firstdev;
+
+    SDL_CloseAudio();
+
+	int samples = 512;
+	if (rate < 18000)
+		samples = 256;
+	else if (rate >= 40000)
+		samples = 1024;
+
+	I_Printf("CIN_TryOpenSound: trying %d Hz, %d bit %s\n",
+			 rate, 16, "Stereo");
+
+	firstdev.freq     = rate;
+	firstdev.format   = AUDIO_S16SYS;
+	firstdev.channels = 2;
+	firstdev.samples  = samples;
+	firstdev.callback = MovieSnd_Callback;
+
+	if (SDL_OpenAudio(&firstdev, &mydev) >= 0)
+    {
+        SDL_PauseAudio(0);
+		return true;
+    }
+
+    I_Printf("CIN_TryOpenSound: failed!\n");
+    return false;
+}
+
 /*
  ==================
  CIN_BlitBlock2x2
@@ -921,6 +962,9 @@ static void CIN_DecodeSoundMono22 (cinematic_t *cin, const byte *data){
         cin->soundSamples[cin->nextSample + 1] = prev;
         cin->nextSample += 2;
     }
+    if (cin->sampleRate != 22050)
+        if (CIN_TryOpenSound(22050))
+            cin->sampleRate = 22050;
 }
 
 /*
@@ -948,6 +992,9 @@ static void CIN_DecodeSoundStereo22 (cinematic_t *cin, const byte *data){
         cin->soundSamples[cin->nextSample + 1] = prevR;
         cin->nextSample += 2;
     }
+    if (cin->sampleRate != 22050)
+        if (CIN_TryOpenSound(22050))
+            cin->sampleRate = 22050;
 }
 
 /*
@@ -971,6 +1018,9 @@ static void CIN_DecodeSoundMono48 (cinematic_t *cin, const byte *data){
         cin->soundSamples[cin->nextSample + 1] = samp;
         cin->nextSample += 2;
     }
+    if (cin->sampleRate != 48000)
+        if (CIN_TryOpenSound(48000))
+            cin->sampleRate = 48000;
 }
 
 /*
@@ -995,6 +1045,7 @@ static void CIN_DecodeSoundStereo48 (cinematic_t *cin, const byte *data){
         cin->soundSamples[cin->nextSample + 1] = sampR;
         cin->nextSample += 2;
     }
+    cin->sampleRate = 48000;
 }
 
 /*
@@ -1244,6 +1295,7 @@ cinHandle_t CIN_PlayCinematic (const char *name, int flags)
         cin->frameCount = 0;
         cin->frameBuffer[0] = NULL;
         cin->frameBuffer[1] = NULL;
+        cin->sampleRate = 0;
         cin->nextSample = 0;
         cin->soundSamples = (short *)Z_Malloc(ROQ_CHUNK_MAX_DATA_SIZE << 2);
 
@@ -1268,7 +1320,10 @@ void E_PlayMovie(const char *name, int flags)
 
     if (midx < 0)
     {
-        CIN_Shutdown();
+        //CIN_Shutdown();
+        SDL_CloseAudio();
+        I_StartupSound();
+        SDL_PauseAudio(0);
         I_Printf("WARNING: Could not open ROQ: %s", name);
         return; // couldn't open movie
     }
@@ -1344,7 +1399,11 @@ void E_PlayMovie(const char *name, int flags)
     playing_movie = false;
     CIN_StopCinematic(midx);
     I_Printf("Cinematic stopped\n");
+
     //CIN_Shutdown();
+    SDL_CloseAudio();
+    I_StartupSound();
+    SDL_PauseAudio(0);
 
     // delete OpenGL texture buffer
     if (tex[0])
@@ -1449,9 +1508,9 @@ void CIN_UpdateCinematic (cinHandle_t handle, int time, cinData_t *mdata)
 }
 
 /*
- ===============
+ =================
  CIN_UpdateAudio
- ===============
+ =================
 */
 void CIN_UpdateAudio(Uint8 *stream, int len)
 {
@@ -1470,7 +1529,7 @@ void CIN_UpdateAudio(Uint8 *stream, int len)
         {
             memcpy(stream, cin->soundSamples, len);
             if (wanted < cin->nextSample)
-                memcpy(cin->soundSamples, &cin->soundSamples[wanted * 2], cin->nextSample - wanted);
+                memcpy(cin->soundSamples, &cin->soundSamples[wanted * 2], (cin->nextSample - wanted) * 4);
             cin->nextSample -= wanted;
         }
         else
