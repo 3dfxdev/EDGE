@@ -1529,12 +1529,12 @@ void CIN_UpdateAudio(Uint8 *stream, int len)
         {
             memcpy(stream, cin->soundSamples, len);
             if (wanted < cin->nextSample)
-                memcpy(cin->soundSamples, &cin->soundSamples[wanted * 2], (cin->nextSample - wanted) * 4);
+                memcpy(cin->soundSamples, &cin->soundSamples[wanted], (cin->nextSample - wanted) * 2);
             cin->nextSample -= wanted;
         }
         else
         {
-            memcpy(stream, cin->soundSamples, cin->nextSample * 4);
+            memcpy(stream, cin->soundSamples, cin->nextSample * 2);
             cin->nextSample = 0;
         }
     }
