@@ -81,6 +81,9 @@ typedef struct
     int                 frameCount;
     byte *              frameBuffer[2];
 
+    int                 nextSample;
+    short *             soundSamples;
+
     roqChunkHeader_t    chunkHeader;
 }
 cinematic_t;
@@ -109,6 +112,10 @@ static short cin_soundSamples[ROQ_CHUNK_MAX_DATA_SIZE << 2];
 static u8_t cin_chunkData[ROQ_CHUNK_HEADER_SIZE + ROQ_CHUNK_MAX_DATA_SIZE];
 
 static cinematic_t cin_cinematics[MAX_CINEMATICS];
+
+static cinHandle_t current_movie;
+
+bool playing_movie = false;
 
 extern int dev_frag_pairs;
 
@@ -910,11 +917,10 @@ static void CIN_DecodeSoundMono22 (cinematic_t *cin, const byte *data){
     for (i = 0; i < cin->chunkHeader.size; i++){
         prev = (short)(prev + cin_sqrTable[data[i]]);
 
-        cin_soundSamples[i] = prev;
+        cin->soundSamples[cin->nextSample] = prev;
+        cin->soundSamples[cin->nextSample + 1] = prev;
+        cin->nextSample += 2;
     }
-
-    // Submit the sound samples
-    S_MixAllChannels(cin_soundSamples, cin->chunkHeader.size);
 }
 
 /*
@@ -938,19 +944,10 @@ static void CIN_DecodeSoundStereo22 (cinematic_t *cin, const byte *data){
         prevL = (short)(prevL + cin_sqrTable[data[i+0]]);
         prevR = (short)(prevR + cin_sqrTable[data[i+1]]);
 
-        cin_soundSamples[i+0] = prevL;
-        cin_soundSamples[i+1] = prevR;
+        cin->soundSamples[cin->nextSample] = prevL;
+        cin->soundSamples[cin->nextSample + 1] = prevR;
+        cin->nextSample += 2;
     }
-
-    // Submit the sound samples
-    int cnt = cin->chunkHeader.size >> 1;
-    int offs = 0;
-    while (cnt > dev_frag_pairs){
-        S_MixAllChannels(&cin_soundSamples[offs*2], dev_frag_pairs);
-        cnt -= dev_frag_pairs;
-        offs += dev_frag_pairs * 2;
-    }
-    S_MixAllChannels(&cin_soundSamples[offs*2], cnt);
 }
 
 /*
@@ -961,21 +958,19 @@ static void CIN_DecodeSoundStereo22 (cinematic_t *cin, const byte *data){
 static void CIN_DecodeSoundMono48 (cinematic_t *cin, const byte *data){
 
     short   samp;
-    int     i, j;
+    int     i;
 
     if (cin->flags & CIN_SILENT)
         return;
 
     // Decode the sound samples
-    for (i = 0, j = 0; i < cin->chunkHeader.size; i += 2, j++){
+    for (i = 0; i < cin->chunkHeader.size; i += 2){
         samp = (short)(data[i] | (data[i+1] << 8));
 
-        cin_soundSamples[j] = samp;
+        cin->soundSamples[cin->nextSample] = samp;
+        cin->soundSamples[cin->nextSample + 1] = samp;
+        cin->nextSample += 2;
     }
-
-    // Submit the sound samples
-    S_MixAllChannels(cin_soundSamples, cin->chunkHeader.size >> 1);
-    //S_RawSamples(cin_soundSamples, cin->chunkHeader.size >> 1, 48000, false);
 }
 
 /*
@@ -986,23 +981,20 @@ static void CIN_DecodeSoundMono48 (cinematic_t *cin, const byte *data){
 static void CIN_DecodeSoundStereo48 (cinematic_t *cin, const byte *data){
 
     short   sampL, sampR;
-    int     i, j;
+    int     i;
 
     if (cin->flags & CIN_SILENT)
         return;
 
     // Decode the sound samples
-    for (i = 0, j = 0; i < cin->chunkHeader.size; i += 4, j += 2){
+    for (i = 0; i < cin->chunkHeader.size; i += 4){
         sampL = (short)(data[i+0] | (data[i+1] << 8));
         sampR = (short)(data[i+2] | (data[i+3] << 8));
 
-        cin_soundSamples[j+0] = sampL;
-        cin_soundSamples[j+1] = sampR;
+        cin->soundSamples[cin->nextSample] = sampL;
+        cin->soundSamples[cin->nextSample + 1] = sampR;
+        cin->nextSample += 2;
     }
-
-    // Submit the sound samples
-    S_MixAllChannels(cin_soundSamples, cin->chunkHeader.size >> 2);
-    //S_RawSamples(cin_soundSamples, cin->chunkHeader.size >> 2, 48000, true);
 }
 
 /*
@@ -1252,6 +1244,8 @@ cinHandle_t CIN_PlayCinematic (const char *name, int flags)
         cin->frameCount = 0;
         cin->frameBuffer[0] = NULL;
         cin->frameBuffer[1] = NULL;
+        cin->nextSample = 0;
+        cin->soundSamples = (short *)Z_Malloc(ROQ_CHUNK_MAX_DATA_SIZE << 2);
 
         return handle;
 }
@@ -1262,10 +1256,12 @@ cinHandle_t CIN_PlayCinematic (const char *name, int flags)
 //EDGE Function to play ROQ
 void E_PlayMovie(const char *name, int flags)
 {
-    bool playing_movie = true;
     GLuint tex[1];
     cinHandle_t midx;
     cinData_t mdata;
+
+    playing_movie = false;
+
     CIN_Init();
 
     midx = CIN_PlayCinematic(name, flags);
@@ -1282,6 +1278,8 @@ void E_PlayMovie(const char *name, int flags)
 
     RGL_SetupMatrices2D();
 
+    current_movie = midx;
+    playing_movie = true;
     while (playing_movie)
     {
         uint32_t curr_ms;
@@ -1343,6 +1341,7 @@ void E_PlayMovie(const char *name, int flags)
         //if (HwMdReadPad(0) & (SEGA_CTRL_A | SEGA_CTRL_B | SEGA_CTRL_C))
         //    break;
     }
+    playing_movie = false;
     CIN_StopCinematic(midx);
     I_Printf("Cinematic stopped\n");
     //CIN_Shutdown();
@@ -1450,6 +1449,39 @@ void CIN_UpdateCinematic (cinHandle_t handle, int time, cinData_t *mdata)
 }
 
 /*
+ ===============
+ CIN_UpdateAudio
+ ===============
+*/
+void CIN_UpdateAudio(Uint8 *stream, int len)
+{
+    //I_Printf("CIN_UpdateAudio!\n");
+    cinematic_t *cin;
+
+    cin = CIN_GetCinematicByHandle(current_movie);
+
+    // clear SDL buffer
+    memset(stream, 0, len);
+
+    if (cin->nextSample)
+    {
+        int wanted = len >> 1;
+        if (wanted <= cin->nextSample)
+        {
+            memcpy(stream, cin->soundSamples, len);
+            if (wanted < cin->nextSample)
+                memcpy(cin->soundSamples, &cin->soundSamples[wanted * 2], cin->nextSample - wanted);
+            cin->nextSample -= wanted;
+        }
+        else
+        {
+            memcpy(stream, cin->soundSamples, cin->nextSample * 4);
+            cin->nextSample = 0;
+        }
+    }
+}
+
+/*
  ==================
  CIN_ResetCinematic
  ==================
@@ -1505,6 +1537,12 @@ void CIN_StopCinematic (cinHandle_t handle)
         I_Printf("  Freeing framebuffer[1]\n");
         Z_Free(cin->frameBuffer[1]);
         cin->frameBuffer[1] = NULL;
+    }
+    if (cin->soundSamples)
+    {
+        I_Printf("  Freeing soundSamples\n");
+        Z_Free(cin->soundSamples);
+        cin->soundSamples = NULL;
     }
 
     // Close the file

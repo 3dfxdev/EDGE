@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Sound System for SDL
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -79,12 +79,15 @@ static char scratcherror[256];
 
 static bool audio_is_locked = false;
 
-
-
+extern bool playing_movie;
+extern void CIN_UpdateAudio (Uint8 *stream, int len);
 
 void SoundFill_Callback(void *udata, Uint8 *stream, int len)
 {
-	S_MixAllChannels(stream, len);
+    if (playing_movie)
+        CIN_UpdateAudio(stream, len);
+    else
+        S_MixAllChannels(stream, len);
 }
 
 static bool I_TryOpenSound(const sound_mode_t *mode)
@@ -100,7 +103,7 @@ static bool I_TryOpenSound(const sound_mode_t *mode)
 
 	I_Printf("I_StartupSound: trying %d Hz, %d bit %s\n",
 			 mode->freq, mode->bits, mode->stereo ? "Stereo" : "Mono");
-	
+
 	firstdev.freq     = mode->freq;
 	firstdev.format   = (mode->bits < 12) ? AUDIO_U8 : AUDIO_S16SYS;
 	firstdev.channels = mode->stereo ? 2 : 1;
@@ -230,7 +233,7 @@ void I_StartupSound(void)
 	int count = BuildSoundModeTryList(want_freq, want_bits, want_stereo);
 
 	bool success = false;
-	
+
 	for (int i=0; i < count; i++)
 	{
 		if (I_TryOpenSound(mode_try_list + i))
@@ -239,7 +242,7 @@ void I_StartupSound(void)
 			break;
 		}
 	}
-	
+
 	if (! success)
 	{
 		I_Printf("I_StartupSound: Unable to find a working sound mode!\n");
@@ -262,7 +265,7 @@ void I_StartupSound(void)
 		case AUDIO_S8: dev_bits=8; dev_signed=true;  break;
 		case AUDIO_U8: dev_bits=8; dev_signed=false; break;
 
-	    default:				   
+	    default:
 			I_Printf("I_StartupSound: unsupported format: %d\n", mydev.format);
 			SDL_CloseAudio();
 
@@ -287,7 +290,7 @@ void I_StartupSound(void)
 	else if (!want_stereo && mydev.channels != 1)
 		I_Printf("I_StartupSound: mono sound not available.\n");
 
-	if (mydev.freq < (want_freq - want_freq/100) || 
+	if (mydev.freq < (want_freq - want_freq/100) ||
 		mydev.freq > (want_freq + want_freq/100))
 	{
 		I_Printf("I_StartupSound: %d Hz sound not available.\n", want_freq);

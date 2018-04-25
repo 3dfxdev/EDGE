@@ -34,6 +34,9 @@ cinHandle_t		CIN_PlayCinematic (const char *name, int flags);
 // Runs a cinematic frame
 void    		CIN_UpdateCinematic (cinHandle_t handle, int time, cinData_t *data);
 
+// Update audio stream from cinematic buffer
+void            CIN_UpdateAudio (Uint8 *stream, int len);
+
 // Resets a cinematic
 void			CIN_ResetCinematic (cinHandle_t handle);
 
