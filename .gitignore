@@ -30,3 +30,7 @@ src/gitinfo.h
 doom2.wad
 /data/3DGE
 /data/zdbsp
+*.exe
+*.html
+VSLibs_vs2017
+vsLibsx64
