@@ -123,6 +123,9 @@ static SDL_AudioSpec mydev;
 extern int sfx_volume;
 extern float slider_to_gain[];
 
+#undef SIMD_X64
+
+
 static void MovieSnd_Callback(void *udata, Uint8 *stream, int len)
 {
     CIN_UpdateAudio(stream, len);
@@ -938,8 +941,10 @@ static void CIN_DecodeQuadVQ (cinematic_t *cin, const byte *data){
     // Bump frame count
     cin->frameCount++;
 
-    // Copy the frame buffer
-    memcpy(cin->frameBuffer[1], cin->frameBuffer[0], cin->frameWidth * cin->frameHeight * 4);
+    // swap the frame buffers
+    byte *tmp = cin->frameBuffer[0];
+    cin->frameBuffer[0] = cin->frameBuffer[1];
+    cin->frameBuffer[1] = tmp;
 }
 
 /*
@@ -1323,7 +1328,7 @@ void E_PlayMovie(const char *name, int flags)
 
     if (midx < 0)
     {
-        //CIN_Shutdown();
+        CIN_Shutdown();
         SDL_CloseAudio();
         I_StartupSound();
         SDL_PauseAudio(0);
@@ -1342,7 +1347,7 @@ void E_PlayMovie(const char *name, int flags)
     {
         uint32_t curr_ms;
 
-        SDL_Delay(10);
+        SDL_Delay(5);
 
         curr_ms = SDL_GetTicks();
         CIN_UpdateCinematic(midx, curr_ms, &mdata);
@@ -1403,7 +1408,7 @@ void E_PlayMovie(const char *name, int flags)
     CIN_StopCinematic(midx);
     I_Printf("Cinematic stopped\n");
 
-    //CIN_Shutdown();
+    CIN_Shutdown();
     SDL_CloseAudio();
     I_StartupSound();
     SDL_PauseAudio(0);
@@ -1618,10 +1623,10 @@ void CIN_StopCinematic (cinHandle_t handle)
     {
         I_Printf("  Deleting file\n");
 		delete cin->file;
+        cin->file = 0;
     }
 
-	// Z_Resize(cin, cinematic_t, 0);
-   // Z_Free(cin->file);
+    cin->playing = false;
 }
 
 
@@ -1769,11 +1774,12 @@ void CIN_Shutdown (void)
         if (cin->frameBuffer[1])
             Z_Free(cin->frameBuffer[1]);
 
+        // Free the sound sample buffer
+        if (cin->soundSamples)
+            Z_Free(cin->soundSamples);
+
         // Close the file
         if (cin->file)
-            delete[] (cin->file);
+            delete cin->file;
     }
-
-    // Clear cinematics list
-	delete[](cin_cinematics);
 }
