@@ -2,7 +2,7 @@
 //  EDGE Cinematic Playback Engine (ROQ)
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 2018  The EDGE2 Team.
+//  Copyright (c) 2018 The EDGE Team
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -22,11 +22,6 @@
 //
 //  Inspired by cl_cinematic.cpp from OverDose (C) Team Blur Games
 //--------------------------------
-
-// CA 2.4.18:
-// Changed Quake functions to EDGE/EPI functions.
-// Added:
-// SIMD_X64: SSE2 intricies, go into i_system.h to undefine and/or disable for no SSE2 (Should the flag be changed???)
 
 #include "../../epi/epi.h"
 #include "../../epi/bytearray.h"
@@ -123,8 +118,10 @@ static SDL_AudioSpec mydev;
 extern int sfx_volume;
 extern float slider_to_gain[];
 
-#undef SIMD_X64
+#define DEBUG_ROQ_READER
+#undef DEBUG_ROQ_READER
 
+#define SIMD_X64 __SSE2__
 
 static void MovieSnd_Callback(void *udata, Uint8 *stream, int len)
 {
@@ -1063,13 +1060,17 @@ static void CIN_DecodeSoundStereo48 (cinematic_t *cin, const byte *data){
 */
 static bool CIN_DecodeChunk (cinematic_t *cin)
 {
+#if DEBUG_ROQ_READER
     I_Printf("CIN_DecodeChunk!!\n");
+#endif
     //epi::file_c *f = cin->file;
     byte    *data;
 
     if (cin->offset >= cin->size)
     {
+#if DEBUG_ROQ_READER
         I_Printf("  Out of data!\n");
+#endif
         cin->frameCount = 0;
         return false;   // Finished
     }
@@ -1079,12 +1080,16 @@ static bool CIN_DecodeChunk (cinematic_t *cin)
     // Read and decode the first chunk header if needed
     if (cin->offset == ROQ_CHUNK_HEADER_SIZE)
     {
+#if DEBUG_ROQ_READER
         I_Printf("  offset 0x%08x\n", cin->offset);
+#endif
         cin->offset += cin->file->Read(cin_chunkData, ROQ_CHUNK_HEADER_SIZE);
         cin->chunkHeader.id = EPI_LE_U16(data[0] | (data[1] << 8));
         cin->chunkHeader.size = EPI_LE_U32(data[2] | (data[3] << 8) | (data[4] << 16) | (data[5] << 24));
         cin->chunkHeader.args = EPI_LE_U16(data[6] | (data[7] << 8));
+#if DEBUG_ROQ_READER
         I_Printf("    CHDR: 0x%04x %d 0x%04x\n", cin->chunkHeader.id, cin->chunkHeader.size, cin->chunkHeader.args);
+#endif
     }
 
     // Read the chunk data and the next chunk header
@@ -1130,11 +1135,15 @@ static bool CIN_DecodeChunk (cinematic_t *cin)
 
     data += cin->chunkHeader.size;
 
+#if DEBUG_ROQ_READER
     I_Printf("  offset 0x%08x\n", cin->offset);
+#endif
     cin->chunkHeader.id = data[0] | (data[1] << 8);
     cin->chunkHeader.size = data[2] | (data[3] << 8) | (data[4] << 16) | (data[5] << 24);
     cin->chunkHeader.args = data[6] | (data[7] << 8);
+#if DEBUG_ROQ_READER
     I_Printf("    CHDR: 0x%04x %d 0x%04x\n", cin->chunkHeader.id, cin->chunkHeader.size, cin->chunkHeader.args);
+#endif
 
     return true;
 }
@@ -1432,7 +1441,9 @@ void E_PlayMovie(const char *name, int flags)
 */
 void CIN_UpdateCinematic (cinHandle_t handle, int time, cinData_t *mdata)
 {
+#if DEBUG_ROQ_READER
     I_Printf("CIN_UpdateCinematic!\n");
+#endif
     cinematic_t *cin;
     int         frame;
     //epi::file_c *f = cin->file;
