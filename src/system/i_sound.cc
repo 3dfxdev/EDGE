@@ -55,8 +55,9 @@ int dev_freq;
 int dev_bits;
 int dev_bytes_per_sample;
 int dev_frag_pairs;
-bool dev_signed;  // S8 vs U8, S16 vs U16
+bool dev_signed;  // S8 vs U8, S16 vs U16, or F32
 bool dev_stereo;
+bool dev_float;  // F32 vs everything else.
 
 
 typedef struct
@@ -253,11 +254,13 @@ void I_StartupSound(void)
 
 	switch (mydev.format)
 	{
-		case AUDIO_S16SYS: dev_bits=16; dev_signed=true;  break;
-		case AUDIO_U16SYS: dev_bits=16; dev_signed=false; break;
+		case AUDIO_S16SYS: dev_bits=16; dev_signed=true; dev_float=false; break;
+		case AUDIO_U16SYS: dev_bits=16; dev_signed=false; dev_float=false; break;
 
-		case AUDIO_S8: dev_bits=8; dev_signed=true;  break;
-		case AUDIO_U8: dev_bits=8; dev_signed=false; break;
+		case AUDIO_S8: dev_bits=8; dev_signed=true; dev_float=false; break;
+		case AUDIO_U8: dev_bits=8; dev_signed=false; dev_float=false; break;
+
+		case AUDIO_F32SYS: dev_bits=32; dev_signed=true; dev_float=true; break;
 
 	    default:
 			I_Printf("I_StartupSound: unsupported format: %d\n", mydev.format);
