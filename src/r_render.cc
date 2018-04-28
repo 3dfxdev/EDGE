@@ -591,7 +591,7 @@ static void DrawLaser(player_t *p)
 		glvert[kk].pos.x += octagon[kk/2].x * size;
 		glvert[kk].pos.z += octagon[kk/2].y * size;
 
-		glvert[kk].EDGE2 = true;
+		glvert[kk].edge = true;
 	}
 
 	RGL_EndUnit(14);

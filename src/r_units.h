@@ -36,7 +36,7 @@ typedef struct local_gl_vert_s
 	vec2_t texc[2];
 	vec3_t normal;
 	vec3_t tangent;		//needed for bump mapping
-	GLboolean EDGE2;
+	GLboolean edge;
 }
 local_gl_vert_t;
 
