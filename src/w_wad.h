@@ -60,6 +60,7 @@ typedef enum
 	FLKIND_PK7,       // PK7 7zip file
 
 	FLKIND_Lump,      // raw lump (no extension)
+	FLKIND_ROQ,       // ROQ Video Cinematics
 
 	FLKIND_DDF,       // .ddf or .ldf file
 	FLKIND_Demo,      // .lmp demo file

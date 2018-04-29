@@ -1,0 +1,19 @@
+=====
+DDFALL General Description
+=====
+Andrew Apted, 2018
+--
+
+I think the idea behind DDFALL was being able to put any
+type of DDF definitions into a single lump, which could be
+more convenient than having to create several lumps.
+
+I don't remember what happened to the idea, it probably
+turned out to be more difficult than we thought and so we
+decided to not bother about it.
+
+For example, I remember that the current DDF code (well the
+stuff in 1.35) needs to read files or lumps in a certain order,
+such as all the attacks before all the things, but a system like
+DDFALL would require being able to read stuff in any order,
+which may require some major surgery to the DDF code.

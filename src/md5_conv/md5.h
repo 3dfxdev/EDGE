@@ -40,7 +40,8 @@ typedef char MD5jointidx;
 
 //md5 mesh
 typedef struct MD5joint_s MD5joint;
-struct MD5joint_s {
+struct MD5joint_s 
+{
 	int parent;
 	fvec3_t pos;
 	quat4_t rot;
@@ -48,7 +49,8 @@ struct MD5joint_s {
 	char name[MAX_MD5_NAME];
 };
 
-typedef struct {
+typedef struct 
+{
 	int jointidx;
 	float weight;
 	fvec3_t pos;
@@ -57,19 +59,24 @@ typedef struct {
 } MD5weight;
 
 typedef unsigned short md5_vert_idx;
-typedef struct {
+
+typedef struct 
+{
 	md5_vert_idx vidx[3];
 } MD5triangle;
 
-typedef struct {
+typedef struct 
+{
 	fvec2_t uv;
 	int firstweight, weightcnt;
 } MD5vertex;
 
 class image_c;
-typedef struct {
+typedef struct 
+{
 	char shader[MAX_MD5_NAME];
-	union {
+	union 
+	{
 		int gltex;
 		const image_c *tex;
 	};
@@ -84,7 +91,8 @@ typedef struct {
 	MD5weight *weights;
 } MD5mesh;
 
-typedef struct {
+typedef struct 
+{
 	int version;
 	char commandline[MAX_MD5_NAME];
 	
@@ -96,7 +104,8 @@ typedef struct {
 } MD5model;
 
 //unified md5
-typedef struct {
+typedef struct 
+{
 	MD5model model;
 	int weightcnt;
 	MD5weight *weights;

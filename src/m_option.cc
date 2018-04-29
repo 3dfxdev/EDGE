@@ -224,7 +224,7 @@ static char StretchWorld[] = "Off/On";
 const char WIPE_EnumStr[] = "none/melt/crossfade/pixelfade/top/bottom/left/right/spooky/doors";
 
 static char SampleRates[] = "11025 Hz/16000 Hz/22050 Hz/32000 Hz/44100 Hz";
-static char SoundBits[] = "8 bit/16 bit";
+static char SoundBits[] = "8 bit/16 bit/32 bit";
 static char StereoNess[] = "Off/On/Swapped";
 static char MixChans[] = "8/16/32/64/96";
 static char QuietNess[] = "Loud (distorted)/Normal/Soft/Very Soft";
@@ -603,8 +603,8 @@ static optmenuitem_t soundoptions[] =
 	{OPT_Slider,  "Sound Volume", NULL, SND_SLIDER_NUM, &sfx_volume, M_ChangeSfxVol, NULL},
 	{OPT_Slider,  "Music Volume", NULL, SND_SLIDER_NUM, &mus_volume, M_ChangeMusVol, NULL},
 	{OPT_Plain,   "",             NULL, 0,  NULL, NULL, NULL},
-	{OPT_Switch,  "Sample Rate",  SampleRates, 5, &var_sample_rate,  NULL, "NeedRestart"},
-	{OPT_Switch,  "Sample Size",  SoundBits, 2,   &var_sound_bits,   NULL, "NeedRestart"},
+	//{OPT_Switch,  "Sample Rate",  SampleRates, 6, &var_sample_rate,  NULL, "NeedRestart"},
+	//{OPT_Switch,  "Sample Size",  SoundBits, 2,   &var_sound_bits,   NULL, "NeedRestart"},
 	{OPT_Switch,  "Stereo",       StereoNess, 3,  &var_sound_stereo, NULL, "NeedRestart"},
 	{ OPT_Switch,  "Music Device",    MusicDevs, 3, &var_music_dev, NULL, "Win32: SYSTEM will not work with Vista or higher!" },
 

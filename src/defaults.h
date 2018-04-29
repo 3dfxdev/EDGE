@@ -77,8 +77,8 @@
 // Sound and Music
 #define CFGDEF_SOUND_VOLUME     (8)
 #define CFGDEF_MUSIC_VOLUME     (8)
-#define CFGDEF_SAMPLE_RATE      (4)  // 22050Hz
-#define CFGDEF_SOUND_BITS       (1)  // 16-bit
+//#define CFGDEF_SAMPLE_RATE      (4)  // 22050Hz
+//#define CFGDEF_SOUND_BITS       (1)  // 16-bit
 #define CFGDEF_SOUND_STEREO     (1)  // Stereo
 #define CFGDEF_MIX_CHANNELS     (3)  // 32 channels
 #define CFGDEF_QUIET_FACTOR     (1)

@@ -78,7 +78,7 @@ angle_t M_ATan(float slope) GCCATTR((const));
 float M_Cos(angle_t ang)    GCCATTR((const));
 float M_Sin(angle_t ang)    GCCATTR((const));
 void M_Angle2Matrix(angle_t ang, vec2_t *x, vec2_t *y);
-
+bool Q_IsPowerOfTwo(int i);
 
 #endif //__M_MATH_H__
 

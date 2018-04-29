@@ -48,9 +48,9 @@ typedef unsigned int uint;
 #define ALIGN_STRUCT(x)    __attribute__((aligned(x)))
 #endif
 
-// Uncomment the line below to enable SIMD_X64 intricies for ROQ playback via i_cinematic.cc (disabled by default!)
-//#define SIMD_X64
-#ifdef SIMD_X64
+//SIMD intricies for ROQ playback via i_cinematic.cc (to disable, #undef __SSE2__, but EDGE is built by default with SSE2 support!
+
+#ifdef __SSE2__
 
 #include <xmmintrin.h>
 #include <emmintrin.h>
