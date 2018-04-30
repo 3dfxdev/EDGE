@@ -100,7 +100,7 @@ static bool I_TryOpenSound(const sound_mode_t *mode)
 			 mode->freq, mode->bits, mode->stereo ? "Stereo" : "Mono");
 
 	firstdev.freq     = mode->freq;
-	firstdev.format   = (mode->bits < 12) ? AUDIO_U8 : AUDIO_S16SYS;
+	firstdev.format   = (mode->bits < 12) ? AUDIO_U8 : (mode->bits < 28) ? AUDIO_S16SYS : AUDIO_F32SYS;
 	firstdev.channels = mode->stereo ? 2 : 1;
 	firstdev.samples  = samples;
 	firstdev.callback = SoundFill_Callback;
@@ -113,7 +113,7 @@ static bool I_TryOpenSound(const sound_mode_t *mode)
 	// --- try again, but with the less common formats ---
 
 	firstdev.freq     = mode->freq;
-	firstdev.format   = (mode->bits < 12) ? AUDIO_S8 : AUDIO_U16SYS;
+	firstdev.format   = (mode->bits < 12) ? AUDIO_S8 : (mode->bits < 28) ? AUDIO_S16SYS : AUDIO_F32SYS;
 	firstdev.channels = mode->stereo ? 2 : 1;
 	firstdev.samples  = samples;
 	firstdev.callback = SoundFill_Callback;
