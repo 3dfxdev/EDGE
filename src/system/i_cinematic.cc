@@ -145,11 +145,11 @@ static bool CIN_TryOpenSound(int rate)
 	else if (rate >= 40000)
 		samples = 1024;
 
-	I_Printf("CIN_TryOpenSound: trying %d Hz, %d bit %s\n",
-			 rate, 16, "Stereo");
+	I_Printf("CIN_TryOpenSound: trying %d Hz %s\n",
+			 rate, "Stereo SP Floating Point");
 
 	firstdev.freq     = rate;
-	firstdev.format   = AUDIO_S16SYS;
+	firstdev.format   = AUDIO_F32SYS;
 	firstdev.channels = 2;
 	firstdev.samples  = samples;
 	firstdev.callback = MovieSnd_Callback;
@@ -958,10 +958,10 @@ static void CIN_DecodeSoundMono22 (cinematic_t *cin, const byte *data){
         return;
 
     // Decode the sound samples
-    prev = cin->chunkHeader.args;
+    prev = (short)cin->chunkHeader.args;
 
     for (i = 0; i < cin->chunkHeader.size; i++){
-        prev = (short)(prev + cin_sqrTable[data[i]]);
+        prev += cin_sqrTable[data[i]];
 
         cin->soundSamples[cin->nextSample] = prev;
         cin->soundSamples[cin->nextSample + 1] = prev;
@@ -986,12 +986,12 @@ static void CIN_DecodeSoundStereo22 (cinematic_t *cin, const byte *data){
         return;
 
     // Decode the sound samples
-    prevL = (cin->chunkHeader.args & 0xFF00) << 0;
-    prevR = (cin->chunkHeader.args & 0x00FF) << 8;
+    prevL = (short)((cin->chunkHeader.args & 0xFF00) << 0);
+    prevR = (short)((cin->chunkHeader.args & 0x00FF) << 8);
 
     for (i = 0; i < cin->chunkHeader.size; i += 2){
-        prevL = (short)(prevL + cin_sqrTable[data[i+0]]);
-        prevR = (short)(prevR + cin_sqrTable[data[i+1]]);
+        prevL += cin_sqrTable[data[i+0]];
+        prevR += cin_sqrTable[data[i+1]];
 
         cin->soundSamples[cin->nextSample] = prevL;
         cin->soundSamples[cin->nextSample + 1] = prevR;
@@ -1536,33 +1536,34 @@ void CIN_UpdateAudio(Uint8 *stream, int len)
     //I_Printf("CIN_UpdateAudio!\n");
     cinematic_t *cin;
     int j;
-    Uint16 *dst = (Uint16 *)stream;
+    float *dst = (float *)stream;
 
     cin = CIN_GetCinematicByHandle(current_movie);
 
-    // clear SDL buffer
-    memset(stream, 0, len);
-
     if (cin->nextSample)
     {
-        int wanted = len >> 1;
+        int wanted = len >> 2;
         if (wanted <= cin->nextSample)
         {
-            //memcpy(stream, cin->soundSamples, len);
             for (j=0; j<wanted; j++)
-                dst[j] = (Uint16)((float)cin->soundSamples[j] * slider_to_gain[sfx_volume]);
+                dst[j] = (float)cin->soundSamples[j] * slider_to_gain[sfx_volume] * 0.000030518f;
             if (wanted < cin->nextSample)
                 memcpy(cin->soundSamples, &cin->soundSamples[wanted], (cin->nextSample - wanted) * 2);
             cin->nextSample -= wanted;
         }
         else
         {
-            //memcpy(stream, cin->soundSamples, cin->nextSample * 2);
             for (j=0; j<cin->nextSample; j++)
-                dst[j] = (Uint16)((float)cin->soundSamples[j] * slider_to_gain[sfx_volume]);
+                dst[j] = (float)cin->soundSamples[j] * slider_to_gain[sfx_volume] * 0.000030518f;
             cin->nextSample = 0;
+
+            for (; j<wanted; j++)
+                dst[j] = 0.0f;
         }
     }
+    else
+        for (j=0; j<len>>2; j++)
+            dst[j] = 0.0f;
 }
 
 /*
@@ -1728,7 +1729,6 @@ void CIN_Init (void)
 {
     I_Printf("I_Cinematic: Starting up...\n");
     float   f;
-    short   s;
     int     i;
 
     // Add commands
