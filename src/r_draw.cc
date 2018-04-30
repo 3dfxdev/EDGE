@@ -28,7 +28,8 @@
 #include "r_modes.h"
 #include "r_image.h"
 
-
+extern void E_SplashScreen(void);
+extern void RGL_DrawSplash(int perc);
 static int glbsp_last_prog_time = 0;
 
 
@@ -188,18 +189,19 @@ printf("Drawing progress %i %i\n",perc,glbsp_perc);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glEnable(GL_BLEND);
 
-	int y = SCREENHEIGHT - 20;
+	//int y = SCREENHEIGHT - 20;
 
-	const byte *logo_lum; int lw, lh;
-	const byte *text_lum; int tw, th;
+	//const byte *logo_lum; int lw, lh;
+	//const byte *text_lum; int tw, th;
 
-	logo_lum = RGL_LogoImage(&lw, &lh);
-	text_lum = RGL_InitImage(&tw, &th);
+	//logo_lum = RGL_LogoImage(&lw, &lh);
+	//text_lum = RGL_InitImage(&tw, &th);
 
-	ProgressSection(logo_lum, lw, lh, text_lum, tw, th,
-		0.4f, 0.6f, 1.0f, &y, perc, 1.0f);
+	RGL_DrawSplash(perc);
+	//ProgressSection(logo_lum, lw, lh, text_lum, tw, th,
+	//	0.4f, 0.6f, 1.0f, &y, perc, 1.0f);
 
-	y -= 40;
+	//y -= 40;
 
 	if (glbsp_perc >= 0 || glbsp_last_prog_time > 0)
 	{
@@ -222,11 +224,10 @@ printf("Drawing progress %i %i\n",perc,glbsp_perc);
 			glbsp_perc = 100;
 		}
 
-		logo_lum = RGL_GlbspImage(&lw, &lh);
-		text_lum = RGL_BuildImage(&tw, &th);
+		//logo_lum = RGL_GlbspImage(&lw, &lh);
+		//text_lum = RGL_BuildImage(&tw, &th);
 
-		ProgressSection(logo_lum, lw, lh, text_lum, tw, th,
-			1.0f, 0.2f, 0.1f, &y, glbsp_perc, alpha);
+		RGL_DrawSplash(perc);
 	}
 
 	glDisable(GL_BLEND);

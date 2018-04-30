@@ -623,6 +623,45 @@ bool E_DrawSplash(int millies)
 	return (millies >= max_time);  // finished
 }
 
+void RGL_DrawSplash(int perc)
+{
+	srand(time(NULL));
+
+	color = rand() & 7;
+
+	CreateStarTex();
+	CreateLogoTex();
+
+	int max_time = 2700 * perc / 100;
+	//int millies = I_GetMillies() - start_millies;
+
+	perc = perc - 400;
+
+	I_StartFrame();
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glEnable(GL_BLEND);
+
+	if (perc > 0 && perc < max_time)
+	{
+		RemoveDeadStars(perc);
+
+		DrawStars(perc);
+
+		DrawName(perc);
+		DrawLogo(perc);
+
+		InsertNewStars(perc);
+	}
+
+	glDisable(GL_BLEND);
+
+	I_FinishFrame();
+
+	//return (perc >= max_time);  // finished
+}
 
 void E_SplashScreen(void)
 {

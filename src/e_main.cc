@@ -95,7 +95,7 @@
 #include "system/i_x86.h"
 
 #define E_TITLE  "EDGE v" EDGEVERSTR
-
+extern void E_SplashScreen(void);
 // uncomment line below to enable ROQ playback, which is in testing phases.
 #define ROQMOVIETEST
 
@@ -1777,7 +1777,7 @@ startuporder_t startcode[] =
 extern void WF_InitMaps(void); //!!!
 
 								// Local Prototypes
-extern void E_SplashScreen(void);
+
 static void E_Startup(void);
 static void E_Shutdown(void);
 
