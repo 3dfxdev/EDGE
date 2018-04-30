@@ -45,8 +45,8 @@ bool nosound = false;
 static int steptable[256];
 
 /* See m_option.cc for corresponding menu items */
-static const int sample_rates[5] = { 11025, 16000, 22050, 32000, 44100 };
-static const int sample_bits[2]  = { 8, 16 };
+static const int sample_rates[6] = { 11025, 16000, 22050, 32000, 44100, 48000 };
+static const int sample_bits[3]  = { 8, 16, 32 };
 
 
 static SDL_AudioSpec mydev;
