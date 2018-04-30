@@ -1407,11 +1407,25 @@ void E_PlayMovie(const char *name, int flags)
             glDisable(GL_TEXTURE_2D);
 
             I_FinishFrame();
-        }
 
-        /* check if press pad button */
-        //if (HwMdReadPad(0) & (SEGA_CTRL_A | SEGA_CTRL_B | SEGA_CTRL_C))
-        //    break;
+            /* check if press key/button */
+            SDL_PumpEvents();
+            SDL_Event sdl_ev;
+            while (SDL_PollEvent(&sdl_ev))
+            {
+                switch(sdl_ev.type)
+                {
+                    case SDL_KEYUP:
+                    case SDL_MOUSEBUTTONUP:
+                    case SDL_JOYBUTTONUP:
+                        playing_movie = false;
+                        break;
+
+                    default:
+                        break; // Don't care
+                }
+            }
+        }
     }
     playing_movie = false;
     CIN_StopCinematic(midx);
