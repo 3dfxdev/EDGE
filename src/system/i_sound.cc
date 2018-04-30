@@ -186,6 +186,8 @@ void I_StartupSound(void)
 #ifdef WIN32
 		if (force_waveout)
 			driver = "waveout";
+		//else
+		//	driver = "directsound";
 #endif
 	}
 
@@ -198,6 +200,9 @@ void I_StartupSound(void)
 		snprintf(valueBuffer, sizeof(valueBuffer), "%s", driver);
 		SDL_setenv(nameBuffer, valueBuffer, overWrite);
 	}
+#ifdef WIN32
+		//SDL_setenv("SDL_AUDIODRIVER", "directsound", true);
+#endif
 
 	I_Printf("SDL_Audio_Driver: %s\n", driver);
 
@@ -221,6 +226,11 @@ void I_StartupSound(void)
 
 	if (M_CheckParm("-sound8")  > 0) want_bits = 8;
 	if (M_CheckParm("-sound16") > 0) want_bits = 16;
+	if (M_CheckParm("-sound32") > 0) want_bits = 32;
+
+#ifdef WIN32
+	want_bits = 32;
+#endif
 
 	if (M_CheckParm("-mono")   > 0) want_stereo = false;
 	if (M_CheckParm("-stereo") > 0) want_stereo = true;
@@ -303,14 +313,16 @@ void I_StartupSound(void)
 	dev_stereo = (mydev.channels == 2);
 
 	// update Sound Options menu
-	if (dev_bits != sample_bits[var_sound_bits])
-		var_sound_bits = (dev_bits >= 16) ? 1 : 0;
+	//if (dev_bits != sample_bits[var_sound_bits])
+	//	var_sound_bits = (dev_bits >= 32) ? 2 : 0;
 
-	if (dev_stereo != (var_sound_stereo >= 1))
-		var_sound_stereo = dev_stereo ? 1 : 0;
+	//if (dev_stereo != (var_sound_stereo >= 1))
+	//	var_sound_stereo = dev_stereo ? 1 : 0;
 
 	if (dev_freq != sample_rates[var_sample_rate])
 	{
+		if (dev_freq >= 48000)
+			var_sample_rate = 5; // 48 Khz
 		if (dev_freq >= 38000)
 			var_sample_rate = 4; // 44 Khz
 		else if (dev_freq >= 27000)
