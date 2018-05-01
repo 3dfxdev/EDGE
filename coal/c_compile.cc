@@ -754,11 +754,17 @@ def_t * real_vm_c::FindLiteral()
 		}
 		else if	(comp.literal_type == &type_vector)
 		{
-			if (G_FLOAT(cn->ofs)   == comp.literal_value[0] &&
-				G_FLOAT(cn->ofs+1) == comp.literal_value[1] &&
-				G_FLOAT(cn->ofs+2) == comp.literal_value[2])
-				///G_FLOAT(cn->ofs+sizeof(double)) == comp.literal_value[1] &&
-				///G_FLOAT(cn->ofs+sizeof(double)*2) == comp.literal_value[2])
+#ifndef DREAMCAST
+			if (G_FLOAT(cn->ofs) == comp.literal_value[0] &&
+				G_FLOAT(cn->ofs + 1) == comp.literal_value[1] &&
+				G_FLOAT(cn->ofs + 2) == comp.literal_value[2])
+			
+#else
+			if (G_FLOAT(cn->ofs) == comp.literal_value[0] &&
+				G_FLOAT(cn->ofs + sizeof(double)) == comp.literal_value[1] &&
+				G_FLOAT(cn->ofs + sizeof(double) * 2) == comp.literal_value[2])
+#endif
+				
 			{
 				return cn;
 			}
@@ -1898,7 +1904,10 @@ void real_vm_c::SetAsmDump(bool enable)
 
 vm_c * CreateVM()
 {
+
+#if DREAMCAST
 	assert(sizeof(double) == 8);
+#endif
 
 	return new real_vm_c;
 }
