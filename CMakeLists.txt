@@ -264,6 +264,9 @@ include_directories(${PNG_INCLUDE_DIR})
 #find_package(JPEG REQUIRED)
 include_directories(${JPEG_INCLUDE_DIR})
 
+# acsvm
+INCLUDE_DIRECTORIES(acsvm)
+
 # 3DGE
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(3DGE_SOURCES
@@ -319,7 +322,7 @@ set(3DGE_SOURCES
 	src/system/i_x86.cc
 	src/system/i_cinematic.cc
 	src/system/GL/gl_load.c
-
+	
 	src/am_map.cc
 	src/con_con.cc
 	src/con_main.cc
@@ -561,6 +564,10 @@ add_dependencies( 3DGE revision_check )
 if(MSVC)
 	add_dependencies( 3DGE eecrashreport )
 endif()
+
+SET(ACSVM_NOFLAGS ON)
+SET(ACSVM_SHARED OFF)
+ADD_SUBDIRECTORY(acsvm)
 
 target_link_libraries(3DGE
 	${SDL2MAIN_LIBRARY}
