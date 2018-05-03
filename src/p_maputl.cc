@@ -130,9 +130,39 @@ void P_ComputeIntersection(divline_t *div,
 //
 int P_PointOnDivlineSide(float x, float y, divline_t *div)
 {
-	return (div->dx * (y - div->y) - div->dy * (x - div->x)) >= 0; // FIXME: returns back / left if the point is *on* the line.
+	float dx, dy;
+	float left, right;
+	
+	if (div->dx == 0)
+		return ((x <= div->x) ^ (div->dy > 0)) ? 0 : 1;
+	
+	if (div->dy == 0)
+		return ((y <= div->y) ^ (div->dx < 0)) ? 0 : 1;
+	
+	dx = x - div->x;
+	dy = y - div->y;
+	
+	// try to quickly decide by looking at sign bits
+	if ((div->dy < 0) ^ (div->dx < 0) ^ (dx < 0) ^ (dy < 0))
+	{
+		// left is negative
+		if ((div->dy < 0) ^ (dx < 0))
+			return 1;
+		
+			return 0;
+	}
+	
+		left = dx * div->dy;
+	right = dy * div->dx;
+	
+		return (right < left) ? 0 : 1;
+	//return (div->dx * (y - div->y) - div->dy * (x - div->x)) >= 0; // FIXME: returns back / left if the point is *on* the line.
 	//We should find a way to use a tri-state instead of boolean logic. Besides, there's currently no way to *tell* the engine the state is undefined... maybe there is upstream logic for this?
 }
+
+
+
+
 
 // [SP] -- might we be able to license this code for later use? ---> __forceinline int32_t DMulScale32(int32_t a, int32_t b, int32_t c, int32_t d) { return (int32_t)(((int64_t)a*b + (int64_t)c*d) >> 32); } // used by R_PointOnSide.
 //inline int R_PointOnSide (float x, float y, divline_t *div)
