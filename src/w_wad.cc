@@ -3,7 +3,7 @@
 //  WAD, PAK, ZIP, WL6 (Wolfenstein) Handler
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License

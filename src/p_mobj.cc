@@ -1,10 +1,8 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Moving Object Handling Code
 //----------------------------------------------------------------------------
-// (C) EDGE2 Team, 2011.
 //
-//
-//  Mainfile Copyright (c) 1999-2009  The EDGE Team.
+//  Mainfile Copyright (c) 1999-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -26,11 +24,13 @@
 //
 //  Some code based on the Hexen source, adapted by the EDGE2 Team.
 //
-//   Copyright (C) 2008 Activison, Inc.
+//    Copyright (C) 2008 Activison, Inc.
 //
+//  Some code based on prBoom+.
 //
-//  Some code adapted from Doom Legacy,
-//   Copyright (C) Doom Legacy Team, 1998-2010.
+//  Some code adapted from Doom Legacy:
+//
+//    Copyright (C) Doom Legacy Team, 1998-2010.
 //----------------------------------------------------------------------------
 //
 // -MH- 1998/07/02  "shootupdown" --> "true3dgameplay"
@@ -200,8 +200,8 @@ static void BounceOffWall(mobj_t * mo, line_t * wall)
 		// random angle to bounce away.  And don't attenuate the speed (so
 		// we can get far enough away).
 
-		//angle = P_Random() << (ANGLEBITS - 8);
-		mo->speed = 0; // -CW- Almost certainly stuck in wall. Kill motion.
+		angle = P_Random() << (ANGLEBITS - 8);
+		//mo->speed = 0; // -CW- Almost certainly stuck in wall. Kill motion.
 	}
 	else
 	{

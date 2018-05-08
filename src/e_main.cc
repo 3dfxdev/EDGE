@@ -2,7 +2,7 @@
 //  EDGE2 Main Init + Program Loop Code
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -1833,7 +1833,7 @@ static void E_Startup(void)
 	M_CheckBooleanParm("nosplash", &nosplash, false);
 	if (!nosplash && i_skipsplash.d == 0)
 	{
-		//E_SplashScreen();
+		E_SplashScreen();
 	}
 
 #if 0

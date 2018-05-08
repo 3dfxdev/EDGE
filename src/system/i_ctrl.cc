@@ -2,7 +2,7 @@
 //  EDGE2 SDL Controller Stuff
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -205,7 +205,8 @@ void HandleFocusLost(void)
 	app_state &= ~APP_STATE_ACTIVE;
 }
 
-static int I_SDLtoDoomMouseState(Uint8 buttonstate) {
+static int I_SDLtoDoomMouseState(Uint8 buttonstate) 
+{
     return 0
            | (buttonstate & SDL_BUTTON(SDL_BUTTON_LEFT)      ? 1 : 0)
            | (buttonstate & SDL_BUTTON(SDL_BUTTON_MIDDLE)    ? 2 : 0)

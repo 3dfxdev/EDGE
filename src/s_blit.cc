@@ -2,7 +2,7 @@
 //  Sound Blitter
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -647,9 +647,9 @@ void S_InitChannels(int total)
 
 	// generate pitch table
 	for (int i = 0; i < 256; i++)
-		{
+	{
 		freq_pitch[i] = (byte)floor(pow(2.0, (i - 128) / 128.0)*128.0);
-		}
+	}
 }
 
 void S_FreeChannels(void)

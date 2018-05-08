@@ -41,7 +41,7 @@
 #include "../r_shader.h"
 #include "../r_units.h"
 
-#pragma optimize( "", off )  
+//#pragma optimize( "", off )  
 
 #define PREMULTIPLY 1
  
