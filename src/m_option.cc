@@ -2,7 +2,7 @@
 //  EDGE2 Option Menu Modification
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -208,7 +208,7 @@ static char JoyDevs[] = "None/1/2/3/4/5/6";
 static char DLMode[] = "Off/On";
 static char JpgPng[] = "JPEG/PNG";  // basic on/off
 static char AAim[] = "Off/On/Mlook";
-static char MipMaps[] = "None/Bilinear/Trilinear/Anisotropic"; ///CA - Renamed for better understanding of what they are changing
+static char MipMaps[] = "None/Bilinear/Trilinear"; ///CA - Renamed for better understanding of what they are changing
 static char Anisotropy[] = "Off/On";
 static char Details[] = "Low/Medium/High";
 static char Hq2xMode[] = "Off/UI Only/UI & Sprites/All";
@@ -426,8 +426,8 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch,  "Smoothing",     YesNo, 2, &var_smoothing, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "H.Q.2x Scaling", Hq2xMode, 4, &hq2x_scaling, M_ChangeMipMap, NULL},
 	{OPT_Switch ,  "Detail Level",   Details,  3, &detail_level, M_ChangeMipMap, NULL},
-	{OPT_Switch,  "Texture Filtering",     MipMaps,  4, &var_mipmapping, M_ChangeMipMap, NULL},
-	{OPT_Switch,  "Anisotropy Value",  Anisotropy,  2,  &r_anisotropy, NULL, "Requires restart."},
+	{OPT_Switch,  "Texture Filtering",     MipMaps,  3, &var_mipmapping, M_ChangeMipMap, NULL},
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Boolean, "Show Disk Icon",  YesNo, 1, &m_diskicon, NULL, NULL},
 	//{OPT_Slider,  "HUD Text Scale",  HudT,  20,  &r_textscale, NULL, "Experimental"},
@@ -604,7 +604,7 @@ static optmenuitem_t soundoptions[] =
 	{OPT_Slider,  "Music Volume", NULL, SND_SLIDER_NUM, &mus_volume, M_ChangeMusVol, NULL},
 	{OPT_Plain,   "",             NULL, 0,  NULL, NULL, NULL},
 	//{OPT_Switch,  "Sample Rate",  SampleRates, 6, &var_sample_rate,  NULL, "NeedRestart"},
-	//{OPT_Switch,  "Sample Size",  SoundBits, 2,   &var_sound_bits,   NULL, "NeedRestart"},
+	//{OPT_Switch,  "Sample Size",  SoundBits, 3,   &var_sound_bits,   NULL, "NeedRestart"},
 	{OPT_Switch,  "Stereo",       StereoNess, 3,  &var_sound_stereo, NULL, "NeedRestart"},
 	{ OPT_Switch,  "Music Device",    MusicDevs, 3, &var_music_dev, NULL, "Win32: SYSTEM will not work with Vista or higher!" },
 
