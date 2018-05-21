@@ -2,7 +2,7 @@
 //  EDGE2 Floating Point Math Stuff
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -63,6 +63,11 @@ void M_Angle2Matrix (angle_t ang, vec2_t * x, vec2_t * y)
 
     y->x = -x->y;
     y->y =  x->x;
+}
+
+bool Q_IsPowerOfTwo(int i)
+{
+	return (i > 0 && !(i & (i - 1)));
 }
 
 

@@ -328,6 +328,9 @@ void I_PrintGLSL(const char *message, ...) GCCATTR((format(printf, 1, 2)));
 #define L_WriteLog    I_Logf
 #define L_WriteOpenGL I_GLf
 
+#define OBJSET(obj, val) (memset(&(obj), (val), sizeof(obj)))
+#define OBJZERO(obj)     OBJSET((obj), 0)
+
 
 #endif /*__I_SYSTEM_H__*/
 

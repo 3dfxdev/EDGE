@@ -158,7 +158,7 @@ void I_StartupGraphics(void)
 	if (M_CheckParm("-nograb"))
 		in_grab = 0;
 
-	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,   8);
@@ -175,7 +175,7 @@ void I_StartupGraphics(void)
 	display_W = SCREENWIDTH;
 	display_H = SCREENHEIGHT;
 
-	sprintf(title, "3DGE");
+	sprintf(title, "EDGE");
     my_vis = SDL_CreateWindow(title,
                               SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED,
@@ -333,8 +333,7 @@ void I_FinishFrame(void)
 	glColor4f(1, 1, 1, 1);
 #endif
 
-	//FIXME: WIN32 relies on WGLEW, so when we go to GLAD, make sure to generate a WGL_GLAD header to compensate.
-	//       I wonder if SDL_GL_SwapWindow will work under Win32 without WGLEW extensions. hmmm.
+	// I wonder if SDL_GL_SwapWindow is working properly (?)
 #ifdef WIN32
 
 		if (r_vsync.d > 0)
@@ -429,6 +428,7 @@ void I_GetDesktopSize(int *width, int *height)
 
 	*width = mode.w;
 	*height = mode.h;
+
 }
 
 //--- editor settings ---

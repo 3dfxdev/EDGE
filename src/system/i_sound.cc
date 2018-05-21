@@ -2,7 +2,7 @@
 //  EDGE2 Sound System for SDL
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -45,8 +45,8 @@ bool nosound = false;
 static int steptable[256];
 
 /* See m_option.cc for corresponding menu items */
-static const int sample_rates[5] = { 11025, 16000, 22050, 32000, 44100 };
-static const int sample_bits[2]  = { 8, 16 };
+static const int sample_rates[6] = { 11025, 16000, 22050, 32000, 44100, 48000 };
+static const int sample_bits[3]  = { 8, 16, 32 };
 
 
 static SDL_AudioSpec mydev;
@@ -55,8 +55,9 @@ int dev_freq;
 int dev_bits;
 int dev_bytes_per_sample;
 int dev_frag_pairs;
-bool dev_signed;  // S8 vs U8, S16 vs U16
+bool dev_signed;  // S8 vs U8, S16 vs U16, or F32
 bool dev_stereo;
+bool dev_float;  // F32 vs everything else.
 
 
 typedef struct
@@ -99,7 +100,7 @@ static bool I_TryOpenSound(const sound_mode_t *mode)
 			 mode->freq, mode->bits, mode->stereo ? "Stereo" : "Mono");
 
 	firstdev.freq     = mode->freq;
-	firstdev.format   = (mode->bits < 12) ? AUDIO_U8 : AUDIO_S16SYS;
+	firstdev.format   = (mode->bits < 12) ? AUDIO_U8 : (mode->bits < 28) ? AUDIO_S16SYS : AUDIO_F32SYS;
 	firstdev.channels = mode->stereo ? 2 : 1;
 	firstdev.samples  = samples;
 	firstdev.callback = SoundFill_Callback;
@@ -112,7 +113,7 @@ static bool I_TryOpenSound(const sound_mode_t *mode)
 	// --- try again, but with the less common formats ---
 
 	firstdev.freq     = mode->freq;
-	firstdev.format   = (mode->bits < 12) ? AUDIO_S8 : AUDIO_U16SYS;
+	firstdev.format   = (mode->bits < 12) ? AUDIO_S8 : (mode->bits < 28) ? AUDIO_S16SYS : AUDIO_F32SYS;
 	firstdev.channels = mode->stereo ? 2 : 1;
 	firstdev.samples  = samples;
 	firstdev.callback = SoundFill_Callback;
@@ -185,6 +186,8 @@ void I_StartupSound(void)
 #ifdef WIN32
 		if (force_waveout)
 			driver = "waveout";
+		//else
+		//	driver = "directsound";
 #endif
 	}
 
@@ -197,6 +200,9 @@ void I_StartupSound(void)
 		snprintf(valueBuffer, sizeof(valueBuffer), "%s", driver);
 		SDL_setenv(nameBuffer, valueBuffer, overWrite);
 	}
+#ifdef WIN32
+		//SDL_setenv("SDL_AUDIODRIVER", "directsound", true);
+#endif
 
 	I_Printf("SDL_Audio_Driver: %s\n", driver);
 
@@ -220,6 +226,11 @@ void I_StartupSound(void)
 
 	if (M_CheckParm("-sound8")  > 0) want_bits = 8;
 	if (M_CheckParm("-sound16") > 0) want_bits = 16;
+	if (M_CheckParm("-sound32") > 0) want_bits = 32;
+
+#ifdef WIN32
+	want_bits = 32;
+#endif
 
 	if (M_CheckParm("-mono")   > 0) want_stereo = false;
 	if (M_CheckParm("-stereo") > 0) want_stereo = true;
@@ -253,11 +264,13 @@ void I_StartupSound(void)
 
 	switch (mydev.format)
 	{
-		case AUDIO_S16SYS: dev_bits=16; dev_signed=true;  break;
-		case AUDIO_U16SYS: dev_bits=16; dev_signed=false; break;
+		case AUDIO_S16SYS: dev_bits=16; dev_signed=true; dev_float=false; break;
+		case AUDIO_U16SYS: dev_bits=16; dev_signed=false; dev_float=false; break;
 
-		case AUDIO_S8: dev_bits=8; dev_signed=true;  break;
-		case AUDIO_U8: dev_bits=8; dev_signed=false; break;
+		case AUDIO_S8: dev_bits=8; dev_signed=true; dev_float=false; break;
+		case AUDIO_U8: dev_bits=8; dev_signed=false; dev_float=false; break;
+
+		case AUDIO_F32SYS: dev_bits=32; dev_signed=true; dev_float=true; break;
 
 	    default:
 			I_Printf("I_StartupSound: unsupported format: %d\n", mydev.format);
@@ -300,14 +313,16 @@ void I_StartupSound(void)
 	dev_stereo = (mydev.channels == 2);
 
 	// update Sound Options menu
-	if (dev_bits != sample_bits[var_sound_bits])
-		var_sound_bits = (dev_bits >= 16) ? 1 : 0;
+	//if (dev_bits != sample_bits[var_sound_bits])
+	//	var_sound_bits = (dev_bits >= 32) ? 2 : 0;
 
-	if (dev_stereo != (var_sound_stereo >= 1))
-		var_sound_stereo = dev_stereo ? 1 : 0;
+	//if (dev_stereo != (var_sound_stereo >= 1))
+	//	var_sound_stereo = dev_stereo ? 1 : 0;
 
 	if (dev_freq != sample_rates[var_sample_rate])
 	{
+		if (dev_freq >= 48000)
+			var_sample_rate = 5; // 48 Khz
 		if (dev_freq >= 38000)
 			var_sample_rate = 4; // 44 Khz
 		else if (dev_freq >= 27000)

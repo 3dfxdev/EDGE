@@ -164,7 +164,7 @@ void FLensShader::Bind()
 		mShader.Compile(FShaderProgram::Vertex, "/pack0/shaders/glsl/screenquad.vp", "", 330);
 		mShader.Compile(FShaderProgram::Fragment, "/pack0/shaders/glsl/lensdistortion.fp", "", 330);
 		mShader.SetFragDataLocation(0, "FragColor");
-		mShader.Link("pack0/shaders/glsl/lensdistortion");
+		mShader.Link("/pack0/shaders/glsl/lensdistortion");
 		mShader.SetAttribLocation(0, "PositionInProjection");
 		mShader.SetAttribLocation(1, "UV");
 		InputTexture.Init(mShader, "InputTexture");

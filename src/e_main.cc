@@ -2,7 +2,7 @@
 //  EDGE2 Main Init + Program Loop Code
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -2014,7 +2014,7 @@ void E_Main(int argc, const char **argv)
 
 		//I_StartupMovie();
 #ifdef ROQMOVIETEST
-		E_PlayMovie("intro.roq", 1);
+		E_PlayMovie("/pack0/video/intro.roq", 1);
 #endif
 		//I_ShutdownMovie();
 

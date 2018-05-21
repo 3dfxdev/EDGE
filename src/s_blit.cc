@@ -2,7 +2,7 @@
 //  Sound Blitter
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -107,6 +107,7 @@ extern int dev_frag_pairs;
 
 extern bool dev_signed;
 extern bool dev_stereo;
+extern bool dev_float;
 
 
 mix_channel_c::mix_channel_c() : state(CHAN_Empty), data(NULL)
@@ -328,6 +329,20 @@ static void BlitToS16(const int *src, s16_t *dest, int length)
 		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
 
 		*dest++ = (s16_t) (val >> (16-SAFE_BITS));
+	}
+}
+
+static void BlitToF32(const int *src, float *dest, int length)
+{
+	const int *s_end = src + length;
+	while (src < s_end)
+	{
+		int val = *src++;
+
+		     if (val >  CLIP_THRESHHOLD) val =  CLIP_THRESHHOLD;
+		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
+
+		*dest++ = ((float) val) / CLIP_THRESHHOLD;
 	}
 }
 
@@ -589,7 +604,13 @@ void S_MixAllChannels(void *stream, int len)
 	MixQueues(pairs);
 
 	// blit to the SDL stream
-	if (dev_bits == 8)
+	if (dev_float)
+	{
+		// currently, this is always AUDIO_F32, but maybe you want to check
+		//  dev_bits someday.
+		BlitToF32(mix_buffer, (float *)stream, samples);
+	}
+	else if (dev_bits == 8)
 	{
 		if (dev_signed)
 			BlitToS8(mix_buffer, (s8_t *)stream, samples);
@@ -626,9 +647,9 @@ void S_InitChannels(int total)
 
 	// generate pitch table
 	for (int i = 0; i < 256; i++)
-		{
+	{
 		freq_pitch[i] = (byte)floor(pow(2.0, (i - 128) / 128.0)*128.0);
-		}
+	}
 }
 
 void S_FreeChannels(void)

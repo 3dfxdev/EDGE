@@ -23,7 +23,7 @@
 #define CFGDEF_SCREENWIDTH      (640)
 #define CFGDEF_SCREENHEIGHT     (480)
 #define CFGDEF_SCREENBITS       (32)
-#define CFGDEF_FULLSCREEN       (1)
+#define CFGDEF_FULLSCREEN       (0)
 
 // Controls (Key/Mouse Buttons)
 #define CFGDEF_KEY_FIRE         (KEYD_RCTRL + (KEYD_MOUSE1 << 16))
@@ -77,12 +77,12 @@
 // Sound and Music
 #define CFGDEF_SOUND_VOLUME     (8)
 #define CFGDEF_MUSIC_VOLUME     (8)
-#define CFGDEF_SAMPLE_RATE      (4)  // 22050Hz
-#define CFGDEF_SOUND_BITS       (1)  // 16-bit
+#define CFGDEF_SAMPLE_RATE      (5)  // 22050Hz, 5 = 48000Hz
+#define CFGDEF_SOUND_BITS       (2)  // 16-bit, 2 = 32-bit floating point
 #define CFGDEF_SOUND_STEREO     (1)  // Stereo
-#define CFGDEF_MIX_CHANNELS     (3)  // 32 channels
+#define CFGDEF_MIX_CHANNELS     (3)  // 32 channels, 3 = 96 mixing channels!
 #define CFGDEF_QUIET_FACTOR     (1)
-#define CFGDEF_OPL_OPL3MODE     (0)
+#define CFGDEF_OPL_OPL3MODE     (1)
 
 #ifdef LINUX
 #define CFGDEF_MUSIC_DEVICE     (1)  // Timidity

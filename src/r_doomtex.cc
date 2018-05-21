@@ -2,7 +2,7 @@
 //  EDGE2 Generalised Image Handling
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -869,7 +869,7 @@ static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
 		I_Error("Error occurred loading image file: %s\n",
 			def->info.c_str());
 
-#if 1  // DEBUGGING
+#if 0  // DEBUGGING
 	L_WriteDebug("CREATE IMAGE [%s] %dx%d < %dx%d opac=%d --> %p %dx%d bpp %d\n",
 		rim->name,
 		rim->actual_w, rim->actual_h,

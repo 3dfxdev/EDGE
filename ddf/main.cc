@@ -2,7 +2,7 @@
 //  EDGE Data Definition Files Code (Main)
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2009  The EDGE Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -374,7 +374,7 @@ static void *DDF_MainCacheFile(readinfo_t * readinfo)
 	file = fopen(filename.c_str(), "rb");
 	if (file == NULL)
 	{
-		I_Warning("DDF_MainReadFile: Unable to open: '%s'\n", filename.c_str());
+		//I_Warning("DDF_MainReadFile: Unable to open: '%s'\n", filename.c_str());
 		return NULL;
 	}
 

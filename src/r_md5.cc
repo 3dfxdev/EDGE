@@ -143,7 +143,7 @@ void md5_draw_unified_gl(MD5umodel *umd5, epi::mat4_c *jointmats,const epi::mat4
 		if (!skin_img)
 		{   
 
-			//I_Debugf("R_unifiedMD5: no skin(s) defined in MD5 model: \"%s\"\n", msh->shader);
+			I_Debugf("R_unifiedMD5: no skin(s) defined in MD5 model: \"%s\"\n", md5);
 			//I_Debugf("md5draw: No skin(s) found, subbing for DummySkin!\n");
 			skin_img = W_ImageForDummySkin();
 		}
@@ -151,9 +151,7 @@ void md5_draw_unified_gl(MD5umodel *umd5, epi::mat4_c *jointmats,const epi::mat4
 #ifndef SSE2  // Visual Studio Version: #ifdef __SSE2__
 		md5_transform_vertices(msh, jointmats, vbuff); /// DOES NOT USE SSE
 #else
-		//md5_transform_vertices_sse(msh, jointmats, vbuff); /// uses _SSE for quicker transforms
-		md5_transform_vertices(msh, jointmats, vbuff); /// DOES NOT USE SSE
-		
+		md5_transform_vertices_sse(msh, jointmats, vbuff); /// uses _SSE for quicker transforms
 #endif
 		//Lighting render stage. This would be what we would change to render softer lighting on triangles!
 		render_md5_direct_triangle_lighting(msh, vbuff,model_mat);
@@ -214,8 +212,8 @@ void MD5_RenderModel(modeldef_c *md, int last_anim, int last_frame,
 	float sin_a=sin(ang);
 
 	//TODO: vert angle disabled for now!
-	//float vertang=ANG_2_FLOAT(mo->GetInterpolatedVertAngle())*M_PI/180.0f;
-	float vertang=0.0f; 
+	float vertang=ANG_2_FLOAT(mo->GetInterpolatedVertAngle())*M_PI/180.0f;
+	//float vertang=0.0f; 
 	float cos_va=cos(vertang);
 	float sin_va=sin(vertang);
 

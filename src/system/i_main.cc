@@ -2,7 +2,7 @@
 //  EDGE2 Main
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -34,7 +34,7 @@ extern int __cdecl I_W32ExceptionHandler(PEXCEPTION_POINTERS ep);
 
 const char *win32_exe_path = ".";
 
-#define HYPERTENSION 1
+//#undef HYPERTENSION
 
 static int		dcargc;
 static char*	dcargv[64];
@@ -106,14 +106,9 @@ fflush(stdout);
 	E_Main(12,a);
 #else
 
-#if 0
 #ifdef HYPERTENSION
-// this is to help debug MD5 models!
-//const char *a[] = { "-file","edgemd5.pk3" };
-	const char *a[] = { "-file","hod.pk3" };
-	E_Main(2, a);
+	system("compile_hod_pk3.bat");
 #endif  
-#endif // 0
 
 	fflush(stdout);
 
@@ -143,9 +138,13 @@ fflush(stdout);
 		FILE *dcph;
 		int ix;
 
-		printf("Attempting to load settings from edge.preset...\n");
+		printf("Attempting to load settings from preset file...\n");
 
+#ifdef HYPERTENSION
+		dcph = fopen("hod.preset", "r");
+#else
 		dcph = fopen("edge.preset", "r");
+#endif
 
 		if (dcph == NULL)
 		{
@@ -223,6 +222,7 @@ fflush(stdout);
 		I_Error(0, "Exception caught in main: see CRASHLOG.TXT for info\n");
 	}
 #endif
+
 
 	return 0;
 

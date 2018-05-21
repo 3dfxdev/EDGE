@@ -24,7 +24,7 @@
 #include "structs.h"
 
 
-#define DEFAULT_FACTOR  11
+#define DEFAULT_FACTOR  16
 
 #define IFFY_LEN  4.0
 

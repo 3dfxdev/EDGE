@@ -441,8 +441,10 @@ void w32_mus_player_c::SysTicker(void)
 
 
 //----------------------------------------------------------------------------
-
-void CALLBACK SysTicker(UINT id, UINT msg, DWORD user, DWORD dw1, DWORD dw2)
+//
+// CA: 5/8/2018:
+//     Modified SysTicker to use DWORD_PTR to satisfy x64 (also works in x86)!
+void CALLBACK SysTicker(UINT id, UINT msg, DWORD_PTR user, DWORD_PTR dw1, DWORD_PTR dw2)
 {
 	// Sanity Checks...
 	if (!midiavailable)
@@ -467,7 +469,6 @@ void CALLBACK SysTicker(UINT id, UINT msg, DWORD user, DWORD dw1, DWORD dw2)
 
 	SDL_SemPost(semaphore);
 }
-
 
 bool I_StartupMUS()
 {

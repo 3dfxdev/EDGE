@@ -205,3 +205,28 @@ skipwhite:
 	return com_token;
 }
 
+/**
+* @brief Removes the file extension from a filename
+* @sa Com_SkipPath
+* @param[in] in The incoming filename
+* @param[out] out The stripped filename
+* @param[in] size The size of the output buffer
+*/
+void Com_StripExtension(const char* in, char* out, const size_t size)
+{
+	char* out_ext = nullptr;
+	int i = 1;
+
+	while (in && *in && i < size) {
+		*out++ = *in++;
+		i++;
+
+		if (*in == '.')
+			out_ext = out;
+	}
+
+	if (out_ext)
+		*out_ext = '\0';
+	else
+		*out = '\0';
+}

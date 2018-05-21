@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------
 //
 //  Copyright (C) 2011-2016 Isotope SoftWorks
-//  Copyright (c) 1999-2009  Andrew Apted
+//  Copyright (c) 1999-2018  Andrew Apted
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License

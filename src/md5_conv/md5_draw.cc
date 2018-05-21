@@ -17,27 +17,10 @@
 //
 //----------------------------------------------------------------------------
 
-
-#define _STDCALL_SUPPORTED
-
-#define GLUT_DISABLE_ATEXIT_HACK
-
-#define COMMON_NO_LOADING
-
 #ifdef WIN32
 #include <windows.h>
 #include "../system/i_defs_gl.h"
 #endif
-
-#ifdef _MSC_VER
-#include <io.h>
-#else
-#include <unistd.h>
-#endif
-
-#include <stdio.h>
-#include <assert.h>
-#include <math.h>
 
 #include "md5_draw.h"
 #include "md5_anim.h"
@@ -58,6 +41,7 @@
 #include "../r_shader.h"
 #include "../r_units.h"
 
+//#pragma optimize( "", off )  
 
 #define PREMULTIPLY 1
  
@@ -76,20 +60,21 @@ __m128 m4x4v_colSSE(const __m128 cols[4], const __m128 v)
 	__m128 u4 = _mm_shuffle_ps(v, v, _MM_SHUFFLE(3, 3, 3, 3));
 
 	__m128 prod1 = _mm_mul_ps(u1, cols[0]);
-	__m128 prod2 = _mm_mul_ps(u2, cols[1]);
+	__m128 prod2 = _mm_mul_ps(u2, cols[1]); //<--- this line produces the error! Exception thrown at 0x0012F167 
 	__m128 prod3 = _mm_mul_ps(u3, cols[2]);
-	__m128 prod4 = _mm_mul_ps(u4, cols[3]); //BUG:  <-- THIS CAUSES A CRASH IN 3DGE!
+	__m128 prod4 = _mm_mul_ps(u4, cols[3]);
 
 	return _mm_add_ps(_mm_add_ps(prod1, prod2), _mm_add_ps(prod3, prod4));
 }
 
 
 
-void md5_transform_vertices_sse(MD5mesh *msh, epi::mat4_c *posemats, basevert *dst) {
-
+void md5_transform_vertices_sse(MD5mesh *msh, epi::mat4_c *posemats, basevert *dst) 
+{
 	epi::mat4_c *mats = posemats + 1;
 	MD5vertex *vs = msh->verts;
 	MD5weight *ws = msh->weights;
+
 	int i,j;
 	
 	for(i = 0; i < msh->vertcnt; i++)
@@ -112,11 +97,13 @@ void md5_transform_vertices_sse(MD5mesh *msh, epi::mat4_c *posemats, basevert *d
 			pos = _mm_mul_ps(_mm_add_ps(wpos,pos),weight);
 			norm = _mm_mul_ps(_mm_add_ps(wnorm,norm),weight);
 		}
+
 		_mm_store_ps((float*)&cv->pos, pos);
 		_mm_store_ps((float*)&cv->norm, norm);
 	}
 
-void md5_transform_vertices(MD5mesh *msh, epi::mat4_c *posemats, basevert *dst); //FIXME: temporary workaround to the SSE version crashing the system somehow
+	// non-SSE2 "fix" below (?)
+	//void md5_transform_vertices(MD5mesh *msh, epi::mat4_c *posemats, basevert *dst); //FIXME: temporary workaround to the SSE version crashing the system somehow
 }
 
 
@@ -234,7 +221,7 @@ void render_md5_direct_triangle_lighting(MD5mesh *msh, basevert *vbuff,const epi
 
 			dest->texc[0].x=vbuff[id].uv.x;
 			dest->texc[0].y=vbuff[id].uv.y;
-			dest->EDGE2=false;
+			dest->edge=false;
 		}
 	}
 

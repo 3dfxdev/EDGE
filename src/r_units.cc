@@ -2,7 +2,7 @@
 //  EDGE2 OpenGL Rendering (Unit batching)
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -387,7 +387,7 @@ static inline void RGL_SendRawVector(const local_gl_vert_t *V)
 
 	glNormal3f(V->normal.x, V->normal.y, V->normal.z);
 #ifndef NO_EDGEFLAG
-	glEdgeFlag(V->EDGE2);
+	glEdgeFlag(V->edge);
 #endif
 
 	// vertex must be last
@@ -415,7 +415,7 @@ static inline void RGL_SendRawVector2(const local_gl_vert_t *V)
 
 	glNormal3f(V->normal.x, V->normal.y, V->normal.z);
 #ifndef NO_EDGEFLAG
-	glEdgeFlag(V->EDGE2);
+	glEdgeFlag(V->edge);
 #endif
 
 	glVertexAttrib3f(bmap_shader.attr_tan,V->tangent.x,V->tangent.y,V->tangent.z);
@@ -424,7 +424,8 @@ static inline void RGL_SendRawVector2(const local_gl_vert_t *V)
 	glVertex3f(V->pos.x, V->pos.y, V->pos.z);
 }
 
-void calc_tan(local_gl_vert_t* v1,local_gl_vert_t* v2,local_gl_vert_t* v3) {
+void calc_tan(local_gl_vert_t* v1,local_gl_vert_t* v2,local_gl_vert_t* v3) 
+{
 	vec2_t d_uv1;
 	vec2_t d_uv2;
 	vec3_t d_pos1;
@@ -653,7 +654,8 @@ void RGL_DrawUnits(void)
 
 
 		//disable if unit has multiple textures (level geometry lightmap for instance)
-		if(RGL_GL3Enabled() && unit->tex[1]==0) {
+		if(RGL_GL3Enabled() && unit->tex[1]==0) 
+		{
 			RGL_BatchShape(0);
 
 			//use normal and specular map
@@ -668,8 +670,10 @@ void RGL_DrawUnits(void)
 
 			//calc tangents, works for GL_TRIANGLE_STRIP
 			//TODO: don't re-calc every frame
-			if(unit->shape==GL_TRIANGLE_STRIP) {
-				for(int v_idx=0;v_idx<unit->count-2;v_idx+=3) {
+			if(unit->shape==GL_TRIANGLE_STRIP) 
+			{
+				for(int v_idx=0;v_idx<unit->count-2;v_idx+=3) 
+				{
 					local_gl_vert_t* v=local_verts+unit->first+v_idx;
 					calc_tan(v+0,v+1,v+2);
 					calc_tan(v+1,v+2,v+0);
@@ -678,23 +682,27 @@ void RGL_DrawUnits(void)
 			}
 
 			glBegin(unit->shape);
-			if(bmap_shader.attr_tan!=-1) {
+			if(bmap_shader.attr_tan!=-1) 
+			{
 				for (int v_idx=0; v_idx < unit->count; v_idx++)
 				{
 					RGL_SendRawVector2(local_verts + unit->first + v_idx);
 				}
 			}
-			else {
+			else 
+			{
 				for (int v_idx=0; v_idx < unit->count; v_idx++)
 				{
 					RGL_SendRawVector(local_verts + unit->first + v_idx);
 				}
 			}
+
 			glEnd();
+
 			bmap_shader.unbind();
+
+#ifdef DEBUG_GL3
 			//bmap_shader.debugDrawLights();
-
-
 			//XXX normals and tangent debug
 			/*
 			glBegin(GL_LINES);
@@ -713,9 +721,11 @@ void RGL_DrawUnits(void)
 			}
 			glEnd();
 			*/
+#endif
 
 		}
-		else {
+		else 
+		{
 			// Simplify things into triangles as that allows us to keep a single glBegin open for longer
 			if (unit->shape == GL_POLYGON || unit->shape == GL_TRIANGLE_FAN)
 			{
@@ -730,6 +740,7 @@ void RGL_DrawUnits(void)
 			else if (unit->shape == GL_QUADS)
 			{
 				RGL_BatchShape(GL_TRIANGLES);
+
 				for (int v_idx = 0; v_idx + 3 < unit->count; v_idx += 4)
 				{
 					RGL_SendRawVector(local_verts + unit->first + v_idx);
@@ -744,6 +755,7 @@ void RGL_DrawUnits(void)
 			else
 			{
 				RGL_BatchShape(unit->shape);
+
 				for (int v_idx = 0; v_idx < unit->count; v_idx++)
 				{
 					RGL_SendRawVector(local_verts + unit->first + v_idx);

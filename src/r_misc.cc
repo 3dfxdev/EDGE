@@ -2,7 +2,7 @@
 //  EDGE2 Main Rendering Organisation Code
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -94,6 +94,15 @@ mobj_t *background_camera_mo = NULL;
 
 angle_t viewanglebaseoffset;
 angle_t viewangleoffset;
+//prboomplus
+angle_t clipangle;
+
+// The xtoviewangleangle[] table maps a screen pixel
+// to the lowest viewangle that maps back to x ranges
+// from clipangle to -clipangle.
+
+// e6y: resolution limitation is removed
+angle_t *xtoviewangle;   // killough 2/8/98
 
 extern float gamma_settings;
 extern float fade_gdelta;
@@ -184,6 +193,19 @@ angle_t BSP_PointToAngle(float x1, float y1, float x, float y)
 	}
 }
 
+//-----------------------------------------------------------------------------
+//
+// ! Returns the pseudoangle between the line p1 to (infinity, p1.y) and the 
+// line from p1 to p2. The pseudoangle has the property that the ordering of 
+// points by true angle anround p1 and ordering of points by pseudoangle are the 
+// same.
+//
+// For clipping exact angles are not needed. Only the ordering matters.
+// This is about as fast as the fixed point R_PointToAngle2 but without
+// the precision issues associated with that function.
+//
+//------
+
 angle_t R_PointToPseudoAngle (double x, double y)
 {
   // Note: float won't work here as it's less precise than the BAM values being passed as parameters!
@@ -205,15 +227,6 @@ angle_t R_PointToPseudoAngle (double x, double y)
   }
 }
 
-//angle_t R_GetVertexViewAngleGL(vertex_t *v)
-//{
-//  if (v->angletime != framecount)
-//  {
-//    v->angletime = framecount;
-//    v->viewangle = R_PointToPseudoAngle(v->x, v->y);
-//  }
-//  return v->viewangle;
-//}
 
 
 #if 0

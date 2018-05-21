@@ -28,6 +28,7 @@
 #include "sound_voc.h"
 #include "sound_wav.h"
 #include "sound_gather.h"
+#include "../src/system/i_sdlinc.h"
 
 #if 1
 #define SND_DEBUG(args)  I_Debugf(args)
@@ -118,6 +119,7 @@ namespace epi
 		u16_t wBitsPerSample;
 
 		u32_t next_chunk_offset;
+
 		u32_t sample_frame_size;
 		u32_t total_bytes;
 
@@ -239,6 +241,7 @@ namespace epi
 		 * We don't actually do any decoding, so we read the wav data
 		 * directly into the internal buffer...
 		 */
+		//u32_t retval = SDL_RWread(internal->rw, internal->buffer, 1, max);
 		int got_bytes = decode_F->Read(buffer, want * bytes_each);  // FIXME: DECODE U8 --> S16
 
 		if (got_bytes < 0)
@@ -272,6 +275,36 @@ namespace epi
 			for (int i = 0; i < got_bytes / 2; i++)
 				buffer[i] = EPI_LE_S16(buffer[i]);
 		}
+
+#ifdef LOW_PASS_FILTER
+		// Perform a low-pass filter on the upscaled sound to filter
+		// out high-frequency noise from the conversion process.
+
+		{
+			float rc, dt, alpha;
+
+			// Low-pass filter for cutoff frequency f:
+			//
+			// For sampling rate r, dt = 1 / r
+			// rc = 1 / 2*pi*f
+			// alpha = dt / (rc + dt)
+
+			// Filter to the half sample rate of the original sound effect
+			// (maximum frequency, by nyquist)
+
+			dt = 1.0f / mixer_freq;
+			rc = 1.0f / (3.14f * samplerate);
+			alpha = dt / (rc + dt);
+
+			// Both channels are processed in parallel, hence [i-2]:
+
+			for (i = 2; i<expanded_length * 2; ++i)
+			{
+				expanded[i] = (Sint16)(alpha * expanded[i]
+					+ (1 - alpha) * expanded[i - 2]);
+			}
+		}
+#endif /* #ifdef LOW_PASS_FILTER */
 
 		w->bytes_left -= got_bytes;
 

@@ -2,7 +2,7 @@
 //  EDGE2 OpenGL Rendering (Main Stuff)
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -36,10 +36,6 @@
 #include "m_argv.h"
 #define DEBUG  0
 
-#define GL_EXT_texture_filter_anisotropic_Init() \
-	has_GL_EXT_texture_filter_anisotropic = RGL_RGL_CheckExtensions("GL_EXT_texture_filter_anisotropic");
-
-//fixme: Remove "tarray" and use epi::array_c
 static epi::TArray<std::string>  m_Extensions;
 
 // implementation limits

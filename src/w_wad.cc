@@ -3,7 +3,7 @@
 //  WAD, PAK, ZIP, WL6 (Wolfenstein) Handler
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE2 Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -167,6 +167,9 @@ public:
 	// GLSL Shaders
 	int shader_files;
 
+	// ROQ Cinematics
+	int roq_videos;
+
 	// BOOM stuff
 	int animated, switches;
 
@@ -186,7 +189,7 @@ public:
 		colmap_lumps(), tx_lumps(), hires_lumps(),
 		level_markers(), skin_markers(),
 		wadtex(), vv(), deh_lump(-1), coal_huds(-1),
-		coal_api(-1), shader_files(-1), animated(-1), switches(-1),
+		coal_api(-1), shader_files(-1), roq_videos(-1), animated(-1), switches(-1),
 		companion_gwa(-1), dir_hash()
 	{
 		file_name = strdup(_fname);
@@ -235,7 +238,8 @@ typedef enum
 	LMKIND_Sprite = 17,
 	LMKIND_Patch = 18,
 	LMKIND_HiRes = 19,
-	LMKIND_Shaders = 20
+	LMKIND_Shaders = 20,
+	LMKIND_ROQ = 21
 }
 lump_kind_e;
 
@@ -1403,7 +1407,11 @@ static bool FindCacheFilename(std::string& out_name,
 	return false;
 }
 
-typedef struct {
+//
+// File_Info
+//
+typedef struct 
+{
 	data_file_c *dfile;
 	const char *name;
 	int kind;
@@ -1581,7 +1589,7 @@ static void ScriptNamespace(void *userData, const char *origDir, const char *fna
 		// check for supported namespace directory
 		if (wolf3d_mode)
 		{
-			if (stricmp(fname, "wolf3d") == 0)
+			if ((stricmp(fname, "wolf3d") == 0) || (stricmp(fname, "wolf_ddf") == 0))
 			{
 				// recurse wolf3d subdirectory to TopLevel
 				PHYSFS_enumerateFilesCallback(path, TopLevel, userData);
@@ -1589,7 +1597,7 @@ static void ScriptNamespace(void *userData, const char *origDir, const char *fna
 		}
 		else if (rott_mode)
 		{
-			if (stricmp(fname, "rott") == 0)
+			if ((stricmp(fname, "rott") == 0) || (stricmp(fname, "rott_ddf") == 0))
 			{
 				I_Printf("Rise of the Triad: enumerate PAKdir...\n");
 				// recurse rott subdirectory to TopLevel
@@ -1598,7 +1606,7 @@ static void ScriptNamespace(void *userData, const char *origDir, const char *fna
 		}
 		else if (heretic_mode)
 		{
-			if (stricmp(fname, "heretic") == 0)
+			if ((stricmp(fname, "heretic") == 0) || (stricmp(fname, "her_ddf") == 0))
 			{
 				// recurse heretic subdirectory to TopLevel
 				PHYSFS_enumerateFilesCallback(path, TopLevel, userData);
@@ -1606,7 +1614,7 @@ static void ScriptNamespace(void *userData, const char *origDir, const char *fna
 		}
 		else // default to doom mode
 		{
-			if (stricmp(fname, "doom") == 0)
+			if ((stricmp(fname, "doom") == 0) || (stricmp(fname, "doom_ddf") == 0))
 			{
 				// recurse doom subdirectory to TopLevel
 				PHYSFS_enumerateFilesCallback(path, TopLevel, userData);
@@ -1854,6 +1862,11 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			// enumerate scripts subdirectory
 			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
 		}
+		else if ((stricmp(fname, "video") == 0) || (stricmp(fname, "cinematics") == 0))
+		{
+			// enumerate scripts subdirectory
+			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+		}
 		else if (strncasecmp(fname, "root", 4) == 0)
 		{
 			// recurse root subdirectory to TopLevel
@@ -1926,6 +1939,9 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 }
 
 extern void MapsReadHeaders(); //<--- This makes wlf_maps able to start the header identification
+
+
+
 //
 // AddFile
 //
@@ -2119,6 +2135,12 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	// for RTS scripts, adding the data_file is enough
 	if (kind == FLKIND_RTS)
 		return;
+
+	// for ROQ, is adding the data_file enough??
+	if (kind == FLKIND_ROQ)
+	{
+		return;
+	}
 
 	//First things first: Here, we will call all of the existing functions to open neccesarry Wolf files.
 	// Start FLKIND_ enumeration, eventually starting with MAPHEAD/GAMEMAPS -> VGADICT/VGAGRAPH, VSWAP,
@@ -2742,8 +2764,8 @@ int W_CheckNumForName2(const char *name)
 	{
 		if (i > 8)
 		{
-			I_Warning("W_CheckNumForName: Name '%s' longer than 8 chars!\n", name);
 			I_Warning("Attempting to load: Name '%s', must use a ZIP to do this!\n", name);
+			I_Error("W_CheckNumForName: Name '%s' longer than 8 chars!\n", name);
 			return -1;
 		}
 		buf[i] = toupper(name[i]);

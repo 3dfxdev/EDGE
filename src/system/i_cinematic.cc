@@ -2,7 +2,7 @@
 //  EDGE Cinematic Playback Engine (ROQ)
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 2018  The EDGE2 Team.
+//  Copyright (c) 2018 The EDGE Team
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -22,11 +22,6 @@
 //
 //  Inspired by cl_cinematic.cpp from OverDose (C) Team Blur Games
 //--------------------------------
-
-// CA 2.4.18:
-// Changed Quake functions to EDGE/EPI functions.
-// Added:
-// SIMD_X64: SSE2 intricies, go into i_system.h to undefine and/or disable for no SSE2 (Should the flag be changed???)
 
 #include "../../epi/epi.h"
 #include "../../epi/bytearray.h"
@@ -123,6 +118,11 @@ static SDL_AudioSpec mydev;
 extern int sfx_volume;
 extern float slider_to_gain[];
 
+#define DEBUG_ROQ_READER
+#undef DEBUG_ROQ_READER
+
+#define SIMD_X64 __SSE2__
+
 static void MovieSnd_Callback(void *udata, Uint8 *stream, int len)
 {
     CIN_UpdateAudio(stream, len);
@@ -145,11 +145,11 @@ static bool CIN_TryOpenSound(int rate)
 	else if (rate >= 40000)
 		samples = 1024;
 
-	I_Printf("CIN_TryOpenSound: trying %d Hz, %d bit %s\n",
-			 rate, 16, "Stereo");
+	I_Printf("CIN_TryOpenSound: trying %d Hz %s\n",
+			 rate, "Stereo SP Floating Point");
 
 	firstdev.freq     = rate;
-	firstdev.format   = AUDIO_S16SYS;
+	firstdev.format   = AUDIO_F32SYS;
 	firstdev.channels = 2;
 	firstdev.samples  = samples;
 	firstdev.callback = MovieSnd_Callback;
@@ -938,8 +938,10 @@ static void CIN_DecodeQuadVQ (cinematic_t *cin, const byte *data){
     // Bump frame count
     cin->frameCount++;
 
-    // Copy the frame buffer
-    memcpy(cin->frameBuffer[1], cin->frameBuffer[0], cin->frameWidth * cin->frameHeight * 4);
+    // swap the frame buffers
+    byte *tmp = cin->frameBuffer[0];
+    cin->frameBuffer[0] = cin->frameBuffer[1];
+    cin->frameBuffer[1] = tmp;
 }
 
 /*
@@ -956,10 +958,10 @@ static void CIN_DecodeSoundMono22 (cinematic_t *cin, const byte *data){
         return;
 
     // Decode the sound samples
-    prev = cin->chunkHeader.args;
+    prev = (short)cin->chunkHeader.args;
 
     for (i = 0; i < cin->chunkHeader.size; i++){
-        prev = (short)(prev + cin_sqrTable[data[i]]);
+        prev += cin_sqrTable[data[i]];
 
         cin->soundSamples[cin->nextSample] = prev;
         cin->soundSamples[cin->nextSample + 1] = prev;
@@ -984,12 +986,12 @@ static void CIN_DecodeSoundStereo22 (cinematic_t *cin, const byte *data){
         return;
 
     // Decode the sound samples
-    prevL = (cin->chunkHeader.args & 0xFF00) << 0;
-    prevR = (cin->chunkHeader.args & 0x00FF) << 8;
+    prevL = (short)((cin->chunkHeader.args & 0xFF00) << 0);
+    prevR = (short)((cin->chunkHeader.args & 0x00FF) << 8);
 
     for (i = 0; i < cin->chunkHeader.size; i += 2){
-        prevL = (short)(prevL + cin_sqrTable[data[i+0]]);
-        prevR = (short)(prevR + cin_sqrTable[data[i+1]]);
+        prevL += cin_sqrTable[data[i+0]];
+        prevR += cin_sqrTable[data[i+1]];
 
         cin->soundSamples[cin->nextSample] = prevL;
         cin->soundSamples[cin->nextSample + 1] = prevR;
@@ -1058,13 +1060,17 @@ static void CIN_DecodeSoundStereo48 (cinematic_t *cin, const byte *data){
 */
 static bool CIN_DecodeChunk (cinematic_t *cin)
 {
+#if DEBUG_ROQ_READER
     I_Printf("CIN_DecodeChunk!!\n");
+#endif
     //epi::file_c *f = cin->file;
     byte    *data;
 
     if (cin->offset >= cin->size)
     {
+#if DEBUG_ROQ_READER
         I_Printf("  Out of data!\n");
+#endif
         cin->frameCount = 0;
         return false;   // Finished
     }
@@ -1074,12 +1080,16 @@ static bool CIN_DecodeChunk (cinematic_t *cin)
     // Read and decode the first chunk header if needed
     if (cin->offset == ROQ_CHUNK_HEADER_SIZE)
     {
+#if DEBUG_ROQ_READER
         I_Printf("  offset 0x%08x\n", cin->offset);
+#endif
         cin->offset += cin->file->Read(cin_chunkData, ROQ_CHUNK_HEADER_SIZE);
         cin->chunkHeader.id = EPI_LE_U16(data[0] | (data[1] << 8));
         cin->chunkHeader.size = EPI_LE_U32(data[2] | (data[3] << 8) | (data[4] << 16) | (data[5] << 24));
         cin->chunkHeader.args = EPI_LE_U16(data[6] | (data[7] << 8));
+#if DEBUG_ROQ_READER
         I_Printf("    CHDR: 0x%04x %d 0x%04x\n", cin->chunkHeader.id, cin->chunkHeader.size, cin->chunkHeader.args);
+#endif
     }
 
     // Read the chunk data and the next chunk header
@@ -1125,11 +1135,15 @@ static bool CIN_DecodeChunk (cinematic_t *cin)
 
     data += cin->chunkHeader.size;
 
+#if DEBUG_ROQ_READER
     I_Printf("  offset 0x%08x\n", cin->offset);
+#endif
     cin->chunkHeader.id = data[0] | (data[1] << 8);
     cin->chunkHeader.size = data[2] | (data[3] << 8) | (data[4] << 16) | (data[5] << 24);
     cin->chunkHeader.args = data[6] | (data[7] << 8);
+#if DEBUG_ROQ_READER
     I_Printf("    CHDR: 0x%04x %d 0x%04x\n", cin->chunkHeader.id, cin->chunkHeader.size, cin->chunkHeader.args);
+#endif
 
     return true;
 }
@@ -1231,7 +1245,7 @@ cinHandle_t CIN_PlayCinematic (const char *name, int flags)
         else
         {
             // not a file, try a lump
-            int lump = W_CheckNumForName(name);
+            int lump = W_FindLumpFromPath(name);
             if (lump < 0)
             {
                 M_WarnError("Movie player: Missing file or lump: %s\n", name);
@@ -1323,7 +1337,7 @@ void E_PlayMovie(const char *name, int flags)
 
     if (midx < 0)
     {
-        //CIN_Shutdown();
+        CIN_Shutdown();
         SDL_CloseAudio();
         I_StartupSound();
         SDL_PauseAudio(0);
@@ -1342,7 +1356,7 @@ void E_PlayMovie(const char *name, int flags)
     {
         uint32_t curr_ms;
 
-        SDL_Delay(10);
+        SDL_Delay(5);
 
         curr_ms = SDL_GetTicks();
         CIN_UpdateCinematic(midx, curr_ms, &mdata);
@@ -1393,17 +1407,31 @@ void E_PlayMovie(const char *name, int flags)
             glDisable(GL_TEXTURE_2D);
 
             I_FinishFrame();
-        }
 
-        /* check if press pad button */
-        //if (HwMdReadPad(0) & (SEGA_CTRL_A | SEGA_CTRL_B | SEGA_CTRL_C))
-        //    break;
+            /* check if press key/button */
+            SDL_PumpEvents();
+            SDL_Event sdl_ev;
+            while (SDL_PollEvent(&sdl_ev))
+            {
+                switch(sdl_ev.type)
+                {
+                    case SDL_KEYUP:
+                    case SDL_MOUSEBUTTONUP:
+                    case SDL_JOYBUTTONUP:
+                        playing_movie = false;
+                        break;
+
+                    default:
+                        break; // Don't care
+                }
+            }
+        }
     }
     playing_movie = false;
     CIN_StopCinematic(midx);
     I_Printf("Cinematic stopped\n");
 
-    //CIN_Shutdown();
+    CIN_Shutdown();
     SDL_CloseAudio();
     I_StartupSound();
     SDL_PauseAudio(0);
@@ -1427,7 +1455,9 @@ void E_PlayMovie(const char *name, int flags)
 */
 void CIN_UpdateCinematic (cinHandle_t handle, int time, cinData_t *mdata)
 {
+#if DEBUG_ROQ_READER
     I_Printf("CIN_UpdateCinematic!\n");
+#endif
     cinematic_t *cin;
     int         frame;
     //epi::file_c *f = cin->file;
@@ -1520,33 +1550,34 @@ void CIN_UpdateAudio(Uint8 *stream, int len)
     //I_Printf("CIN_UpdateAudio!\n");
     cinematic_t *cin;
     int j;
-    Uint16 *dst = (Uint16 *)stream;
+    float *dst = (float *)stream;
 
     cin = CIN_GetCinematicByHandle(current_movie);
 
-    // clear SDL buffer
-    memset(stream, 0, len);
-
     if (cin->nextSample)
     {
-        int wanted = len >> 1;
+        int wanted = len >> 2;
         if (wanted <= cin->nextSample)
         {
-            //memcpy(stream, cin->soundSamples, len);
             for (j=0; j<wanted; j++)
-                dst[j] = (Uint16)((float)cin->soundSamples[j] * slider_to_gain[sfx_volume]);
+                dst[j] = (float)cin->soundSamples[j] * slider_to_gain[sfx_volume] * 0.000030518f;
             if (wanted < cin->nextSample)
                 memcpy(cin->soundSamples, &cin->soundSamples[wanted], (cin->nextSample - wanted) * 2);
             cin->nextSample -= wanted;
         }
         else
         {
-            //memcpy(stream, cin->soundSamples, cin->nextSample * 2);
             for (j=0; j<cin->nextSample; j++)
-                dst[j] = (Uint16)((float)cin->soundSamples[j] * slider_to_gain[sfx_volume]);
+                dst[j] = (float)cin->soundSamples[j] * slider_to_gain[sfx_volume] * 0.000030518f;
             cin->nextSample = 0;
+
+            for (; j<wanted; j++)
+                dst[j] = 0.0f;
         }
     }
+    else
+        for (j=0; j<len>>2; j++)
+            dst[j] = 0.0f;
 }
 
 /*
@@ -1618,10 +1649,10 @@ void CIN_StopCinematic (cinHandle_t handle)
     {
         I_Printf("  Deleting file\n");
 		delete cin->file;
+        cin->file = 0;
     }
 
-	// Z_Resize(cin, cinematic_t, 0);
-   // Z_Free(cin->file);
+    cin->playing = false;
 }
 
 
@@ -1712,7 +1743,6 @@ void CIN_Init (void)
 {
     I_Printf("I_Cinematic: Starting up...\n");
     float   f;
-    short   s;
     int     i;
 
     // Add commands
@@ -1769,11 +1799,12 @@ void CIN_Shutdown (void)
         if (cin->frameBuffer[1])
             Z_Free(cin->frameBuffer[1]);
 
+        // Free the sound sample buffer
+        if (cin->soundSamples)
+            Z_Free(cin->soundSamples);
+
         // Close the file
         if (cin->file)
-            delete[] (cin->file);
+            delete cin->file;
     }
-
-    // Clear cinematics list
-	delete[](cin_cinematics);
 }

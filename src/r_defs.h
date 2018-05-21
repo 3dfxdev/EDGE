@@ -545,7 +545,7 @@ divline_t;
 //
 typedef struct node_s
 {
-	divline_t div;
+	divline_t div; // Partition line, x, y, dx, dy (mapped to divline_t div).
 	float div_len;
 
 	// bit NF_V5_SUBSECTOR set for a subsector.

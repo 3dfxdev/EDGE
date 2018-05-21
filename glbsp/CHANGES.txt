@@ -2,6 +2,24 @@
 CHANGELOG
 =========
 
+Changes in V2.28  (EDGE git repo)
+----------------------------------
+
+ - added ability for glBSP to build nodes contained in various
+   archives.
+   
+ - pulled in some bug fixes and changes from OBLIGE repo.
+
+
+Changes in V2.27  (TEST ONLY)
+-----------------------------
+
+ - experimental new method for fast mode (-f), which does not
+   require existing nodes.  Instead it works by simply picking
+   the horizontal or vertical partition which is closest to a
+   perfect binary division.  On large maps it can be upto six
+   times faster.
+
 Changes in V2.24  (26th July 2007)
 ----------------------------------
 
