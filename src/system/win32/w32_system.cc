@@ -254,6 +254,9 @@ void I_Printf(const char *message,...)
 	// Send the message to the console.
 	CON_Printf("%s", printbuf);
 
+	//if (!graphicsmode)
+	I_WinConPrintf(printbuf);
+
 	va_end(argptr);
 }
 
@@ -344,6 +347,75 @@ void I_MessageBox(const char *message, const char *title)
 			   MB_SYSTEMMODAL | MB_SETFOREGROUND);
 }
 
+//
+// I_WindowProc
+//
+// The Main Window Message Handling Procedure
+//
+#if 0
+long FAR PASCAL I_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	//  DWORD actflag;
+
+	switch (message)
+	{
+	case WM_CLOSE:
+		return 1L;
+
+	case WM_KEYDOWN:
+		// We don't want to know about a key still being pressed.
+		if ((lParam & 0x40000000) != 0)
+			break;
+
+		if (wParam == VK_PAUSE)
+			E_IsKeyPressed(KEYD_PAUSE, true);
+
+		return 0L;
+
+	case WM_KEYUP:
+		if (wParam == VK_PAUSE)
+			E_IsKeyPressed(KEYD_PAUSE, false);
+
+		return 0L;
+
+	case WM_KILLFOCUS:
+		HandleFocusChange(hWnd, (HWND)(wParam), false);
+		return 0L;
+
+	case WM_SETFOCUS:
+		HandleFocusChange(hWnd, (HWND)(wParam), true);
+		return 0L;
+
+	case WM_SIZE:
+		if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED)
+		{
+			I_SizeWindow();
+			return 0L;
+		}
+		break;
+
+	default:
+		break;
+	}
+
+	return (long)DefWindowProc(hWnd, message, wParam, lParam);
+}
+#endif // 0
+
+
+//
+// I_PutTitle
+//
+// This basically inits the Win32 System Console for init an sets
+// the main window's title (which isn't yet viewable).
+//
+void I_PutTitle(const char *title)
+{
+	I_StartWinConsole();
+	SetWindowText(mainwindow, title); // Set EDGE Engine Window with this title
+	I_SetConsoleTitle(NULL);
+}
+
 
 //
 // I_PureRandom
@@ -399,6 +471,8 @@ void I_SystemShutdown(void)
 	I_ShutdownControl();
 	I_ShutdownGraphics();
 
+	
+
 	if (logfile)
 	{
 		fclose(logfile);
@@ -413,6 +487,7 @@ void I_SystemShutdown(void)
 	}
 
 	//ShowCursor(TRUE);
+	I_ShutdownWinConsole();
 	FlushMessageQueue();
 }
 

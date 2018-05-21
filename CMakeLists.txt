@@ -164,14 +164,15 @@ elseif(UNIX)
 	endif()
 endif()
 
-# Module Paths
-#list(APPEND CMAKE_MODULE_PATH
-	#${CMAKE_CURRENT_SOURCE_DIR}
-	#${CMAKE_CURRENT_SOURCE_DIR}/modules
-#)
-SET(CMAKE_MODULE_PATH ${CMAKE_ROOT}/Modules  "${CMAKE_CURRENT_SOURCE_DIR}/modules")
+#Module Paths
+ # list(APPEND CMAKE_MODULE_PATH
+	 # ${CMAKE_CURRENT_SOURCE_DIR}
+	 # ${CMAKE_CURRENT_SOURCE_DIR}/modules
+ # )
+ # SET(CMAKE_MODULE_PATH ${CMAKE_ROOT}/Modules  "${CMAKE_CURRENT_SOURCE_DIR}/modules")
+# message(${CMAKE_MODULE_PATH})
 
-#message(${CMAKE_MODULE_PATH})
+SET(CMAKE_MODULE_PATH ${CMAKE_ROOT}/Modules  "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 
 add_subdirectory( tools/zipdir )
 
@@ -181,6 +182,7 @@ add_custom_target(revision_check ALL
    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
    DEPENDS updaterevision 
 )
+
 
 # See /VSLibs/lib_versions.txt
 # Download VSLibs for MSVC - http://tdgmods.net/VSLibs.7z (up to date as of listing below)
@@ -228,7 +230,7 @@ include_directories(${PHYSFS_INCLUDE_DIR})
 #find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIR})
 
-# SDL_net
+# SDL2_net
 #find_package(SDL2_net REQUIRED)
 include_directories(${SDL_INCLUDE_DIR})
 
@@ -240,7 +242,7 @@ include_directories(${SDL_INCLUDE_DIR})
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 
-# libvorbis/libogg
+# libvorbis/OGG
 #find_package(OGG REQUIRED)
 #find_package(Vorbis REQUIRED)
 include_directories(
@@ -505,6 +507,7 @@ set(3DGE_WIN32_SOURCES
 	src/system/win32/w32_system.cc
 	src/system/win32/w32_res.rc
 	src/system/win32/i_exception.cc
+	src/system/win32/i_conwin.cc
 	epi/epi_win32.cc
 	epi/filesystem_win32.cc
 )

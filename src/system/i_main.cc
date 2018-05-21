@@ -34,6 +34,11 @@ extern int __cdecl I_W32ExceptionHandler(PEXCEPTION_POINTERS ep);
 
 const char *win32_exe_path = ".";
 
+#ifdef _MSC_VER
+HWND mainwindow;
+HINSTANCE maininstance;
+HACCEL accelerator;
+#endif
 //#undef HYPERTENSION
 
 static int		dcargc;
@@ -49,11 +54,11 @@ static char*	dcargv[64];
 static void I_TweakConsole()
 {
 #if _WIN32_WINNT > 0x500
-   HWND hwnd = GetConsoleWindow();
+   HWND conwinhandle = GetConsoleWindow();
 
-   if(hwnd)
+   if(conwinhandle)
    {
-      HMENU hMenu = GetSystemMenu(hwnd, FALSE);
+      HMENU hMenu = GetSystemMenu(conwinhandle, FALSE);
       DeleteMenu(hMenu, SC_CLOSE, MF_BYCOMMAND);
    }
    SetConsoleTitle("EDGE Engine System Console");
@@ -74,7 +79,7 @@ int main(int argc, char *argv[])
 #ifdef WIN32
 	// -AJA- give us a proper name in the Task Manager
 	SDL_RegisterApp(TITLE, 0, 0);
-	I_TweakConsole();
+	//I_TweakConsole();
 #endif
 
     I_CheckAlreadyRunning();

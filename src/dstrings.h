@@ -73,6 +73,11 @@
 #define EDGEHOMESUBDIR  ".EDGE2"
 #endif
 
+#define NAME        "The EDGE Engine"
+#define OUTPUTNAME  "EDGECONSOLE"
+#define TITLE       "EDGE Engine"
+#define OUTPUTTITLE "EDGE System Console"
+
 #endif // __DOOM_STRINGS__
 
 //--- editor settings ---

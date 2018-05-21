@@ -30,7 +30,7 @@ find_path(PHYSFS_INCLUDE_DIR physfs.h
 )
 
 find_library(PHYSFS_LIBRARY
-  NAMES physfs
+  NAMES physfs physfs-static
   HINTS
     ENV PHYSFSDIR
   PATH_SUFFIXES lib

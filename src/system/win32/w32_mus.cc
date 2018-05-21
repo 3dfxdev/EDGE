@@ -519,7 +519,12 @@ bool I_StartupMUS()
 	int clockspeed = 1000 / ACTUAL_TIMER_HZ;
 
 	timeBeginPeriod(TIMER_RES);
+
+#if _M_X64
+	timerID = timeSetEvent(clockspeed, TIMER_RES, x64SysTicker, 0, TIME_PERIODIC);
+#else
 	timerID = timeSetEvent(clockspeed, TIMER_RES, SysTicker, 0, TIME_PERIODIC);
+#endif
 
 	midiavailable = true;
 

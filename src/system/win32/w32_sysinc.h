@@ -63,6 +63,21 @@ void I_MusicReleaseMixer(win32_mixer_t* mixer);
 bool I_MusicGetMixerVol(win32_mixer_t* mixer, DWORD *vol);
 bool I_MusicSetMixerVol(win32_mixer_t* mixer, DWORD vol);
 
+// I_CONWIN.C - For console output when not is graphics mode
+void I_StartWinConsole(void);
+void I_SetConsoleTitle(const char *title);
+void I_WinConPrintf(const char *message, ...);
+void I_ShutdownWinConsole(void);
+
+// Window stuff
+extern HWND mainwindow;
+extern HINSTANCE maininstance;
+extern HACCEL accelerator;
+
+// -ACB- 2000/07/04 We want to see this lot from elsewhere in the EPI
+extern HWND conwinhandle;
+extern bool appactive;
+
 #endif /* __WIN32_SYSTEM_INTERNAL_H__ */
 
 

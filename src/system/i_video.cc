@@ -170,7 +170,7 @@ void I_StartupGraphics(void)
 
 	// ~CA 5.7.2016:
 
-	flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
+	flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_ALLOW_HIGHDPI ;
 
 	display_W = SCREENWIDTH;
 	display_H = SCREENHEIGHT;
@@ -266,14 +266,17 @@ bool I_SetScreenSize(scrmode_c *mode)
 			 mode->width, mode->height, mode->depth,
 			 mode->full ? "fullscreen" : "windowed");
 
-	my_vis = SDL_CreateWindow("Hyper3DGE",
+	my_vis = SDL_CreateWindow("EDGE",
 					SDL_WINDOWPOS_UNDEFINED,
                     SDL_WINDOWPOS_UNDEFINED,
                     mode->width, mode->height,
                     SDL_WINDOW_OPENGL | //SDL2 is double-buffered by default
                     (mode->full ? SDL_WINDOW_FULLSCREEN :0));
+
 	glContext = SDL_GL_CreateContext( my_vis );
+
     SDL_GL_MakeCurrent( my_vis, glContext );
+
 	if (my_vis == NULL)
 	{
 		I_Printf("I_SetScreenSize: (mode not possible)\n");
@@ -378,10 +381,12 @@ void I_FinishFrame(void)
 		I_GrabCursor(grab_state);
 }
 
+#ifndef WIN32
 void I_PutTitle(const char *title)
 {
 	SDL_SetWindowTitle(my_vis, title);
 }
+#endif
 
 void I_SetGamma(float gamma)
 {

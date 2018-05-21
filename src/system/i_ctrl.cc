@@ -240,7 +240,7 @@ void HandleKeyEvent(SDL_Event* ev)
         E_PostEvent(&event);
         break;
 
-	/*case SDL_MOUSEBUTTONDOWN:
+	case SDL_MOUSEBUTTONDOWN:
 	case SDL_MOUSEBUTTONUP:
 		 if (!window_focused)
 			break;
@@ -251,9 +251,9 @@ void HandleKeyEvent(SDL_Event* ev)
 		event.data2 = event.data3 = 0;
 
 		E_PostEvent(&event);
-		break;*/
+		break;
 
-	/*case SDL_WINDOWEVENT:
+	case SDL_WINDOWEVENT:
 		switch (ev->window.event)
 		{
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
@@ -279,26 +279,29 @@ void HandleKeyEvent(SDL_Event* ev)
 
     case SDL_QUIT:
          I_CloseProgram(-1);
-        break; */
+        break;
 
     default:
         break;
     }
 
-   /* if(mwheeluptic && mwheeluptic + 1 < tic) {
-        event.type = ev_keyup;
-        event.data1 = KEYD_MWHEELUP;
-        E_PostEvent(&event);
-        mwheeluptic = 0;
-    }
+#if 0
+	if (mwheeluptic && mwheeluptic + 1 < tic) {
+		event.type = ev_keyup;
+		event.data1 = KEYD_MWHEELUP;
+		E_PostEvent(&event);
+		mwheeluptic = 0;
+	}
 
-    if(mwheeldowntic && mwheeldowntic + 1 < tic) {
-        event.type = ev_keyup;
-        event.data1 = KEYD_MWHEELDOWN;
-        E_PostEvent(&event);
-        mwheeldowntic = 0;
-    }
-	*/
+	if (mwheeldowntic && mwheeldowntic + 1 < tic) {
+		event.type = ev_keyup;
+		event.data1 = KEYD_MWHEELDOWN;
+		E_PostEvent(&event);
+		mwheeldowntic = 0;
+	}
+#endif // 0
+
+	
 
 
 //	E_PostEvent(&event);
@@ -520,29 +523,33 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 //
 void InactiveEventProcess(SDL_Event *sdl_ev)
 {
-	/* switch(sdl_ev->type)
+#if 0
+	switch (sdl_ev->type)
 	{
-		case SDL_WINDOWEVENT:
-			if (app_state & APP_STATE_PENDING_QUIT)
-				break; // Don't care: we're going to exit
+	case SDL_WINDOWEVENT:
+		if (app_state & APP_STATE_PENDING_QUIT)
+			break; // Don't care: we're going to exit
 
-			 if (!sdl_ev->window.event)
-				break;
-
-			if (sdl_ev->window.event & SDL_APPACTIVE ||
-                sdl_ev->window.event & SDL_APPINPUTFOCUS)
-				window_focused = true;
+		if (!sdl_ev->window.event)
 			break;
 
-		case SDL_QUIT:
-			// Note we deliberate clear all other flags here. Its our method of
-			// ensuring nothing more is done with events.
-			app_state = APP_STATE_PENDING_QUIT;
-			break;
+		if (sdl_ev->window.event & APP_STATE_ACTIVE ||
+			sdl_ev->window.event & SDL_WINDOWEVENT_FOCUS_GAINED)
+			window_focused = true;
+		break;
 
-		default:
-			break; // Don't care
-	} */
+	case SDL_QUIT:
+		// Note we deliberate clear all other flags here. Its our method of
+		// ensuring nothing more is done with events.
+		app_state = APP_STATE_PENDING_QUIT;
+		break;
+
+	default:
+		break; // Don't care  
+
+
+	}
+#endif // 0
 }
 
 
