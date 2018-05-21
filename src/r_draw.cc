@@ -183,7 +183,7 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 void RGL_DrawProgress(int perc, int glbsp_perc)
 {
 	/* show EDGE2 logo and a progress indicator */
-printf("Drawing progress %i %i\n",perc,glbsp_perc);
+	//printf("Drawing progress %i %i\n",perc,glbsp_perc);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glEnable(GL_BLEND);

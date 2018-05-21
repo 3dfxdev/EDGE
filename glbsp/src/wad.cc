@@ -49,9 +49,6 @@ static FILE *out_file = NULL;
 static int packMounted = 0;
 static char *pFilename = NULL;
 
-#define DEBUG_DIR   0
-#define DEBUG_LUMP  0
-#define DEBUG_KEYS  0
 
 #define APPEND_BLKSIZE  256
 #define LEVNAME_BUNCH   20
@@ -1441,6 +1438,7 @@ glbsp_ret_e ReadWadFile(const char *filename)
 	if ((stricmp(&filename[strlen(filename) - 4], ".pak") == 0) ||
 		(stricmp(&filename[strlen(filename) - 4], ".pk3") == 0) ||
 		(stricmp(&filename[strlen(filename) - 4], ".pk7") == 0) ||
+		(stricmp(&filename[strlen(filename) - 4], ".epk") == 0) ||
 		(strncmp(filename, "/pack", 5) == 0))
 	{
 		if (strncmp(filename, "/pack", 5) == 0)

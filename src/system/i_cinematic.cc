@@ -1245,7 +1245,7 @@ cinHandle_t CIN_PlayCinematic (const char *name, int flags)
         else
         {
             // not a file, try a lump
-            int lump = W_CheckNumForName(name);
+            int lump = W_FindLumpFromPath(name);
             if (lump < 0)
             {
                 M_WarnError("Movie player: Missing file or lump: %s\n", name);

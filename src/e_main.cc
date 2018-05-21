@@ -1833,7 +1833,7 @@ static void E_Startup(void)
 	M_CheckBooleanParm("nosplash", &nosplash, false);
 	if (!nosplash && i_skipsplash.d == 0)
 	{
-		E_SplashScreen();
+		//E_SplashScreen();
 	}
 
 #if 0
@@ -2014,7 +2014,7 @@ void E_Main(int argc, const char **argv)
 
 		//I_StartupMovie();
 #ifdef ROQMOVIETEST
-		E_PlayMovie("intro.roq", 1);
+		E_PlayMovie("/pack0/video/intro.roq", 1);
 #endif
 		//I_ShutdownMovie();
 

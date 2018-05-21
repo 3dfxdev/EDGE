@@ -239,7 +239,7 @@ typedef enum
 	LMKIND_Patch = 18,
 	LMKIND_HiRes = 19,
 	LMKIND_Shaders = 20,
-	LMKIND_Roq = 21
+	LMKIND_ROQ = 21
 }
 lump_kind_e;
 
@@ -1407,7 +1407,11 @@ static bool FindCacheFilename(std::string& out_name,
 	return false;
 }
 
-typedef struct {
+//
+// File_Info
+//
+typedef struct 
+{
 	data_file_c *dfile;
 	const char *name;
 	int kind;
@@ -1858,7 +1862,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			// enumerate scripts subdirectory
 			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
 		}
-		else if (stricmp(fname, "video") == 0)
+		else if ((stricmp(fname, "video") == 0) || (stricmp(fname, "cinematics") == 0))
 		{
 			// enumerate scripts subdirectory
 			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
@@ -1935,6 +1939,9 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 }
 
 extern void MapsReadHeaders(); //<--- This makes wlf_maps able to start the header identification
+
+
+
 //
 // AddFile
 //
@@ -2129,6 +2136,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	if (kind == FLKIND_RTS)
 		return;
 
+	// for ROQ, is adding the data_file enough??
 	if (kind == FLKIND_ROQ)
 	{
 		return;
