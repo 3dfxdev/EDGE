@@ -321,6 +321,9 @@ set(3DGE_SOURCES
 	src/con_main.cc
 	src/con_link.cc
 	src/con_var.cc
+	src/dem_chunk.cc
+	src/dem_glob.cc
+	src/e_demo.cc
 	src/e_input.cc
 	src/e_main.cc
 	src/e_player.cc
