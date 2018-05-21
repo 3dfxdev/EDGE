@@ -1,0 +1,64 @@
+
+EDGE EGM Format
+================
+Concieved originally by Andrew Apted
+
+Last updated: June 2009
+
+
+I've also been thinking about IWADs and support for custom
+EDGE games (like QDoom etc).  This has lead to a simple
+but flexible concept of "EGM" files (Edge Game Module).
+They are basically just a list of files that need to be
+loaded to play that game/module.  There would be one EGM
+file for each supported IWAD, for example:
+
+   // DOOM2.EGM
+   doom2.wad
+   edge.wad
+   doom_ddf/anims.ddf
+   doom_ddf/things.ddf
+   ... (and so forth for all the ddf)
+   doom_ddf/doom2.rts
+   doom_ddf/doom_hud.lua
+
+The engine would be using (playing) ONLY ONE EGM module
+at any one time.  A menu would allow switching to another
+module (causing everything to be unloaded/freed and all
+the new files loaded).  Each module would have its own
+folder for savegames.
+
+This system does solve some problems: it removes the
+hard-coded list of IWADs, it specifies what DDF files
+(etc) need to be loaded for each IWAD, and TNT/Plutonia
+language strings can be handled properly.
+
+One issue not addressed is pwads (and other kinds of
+add-ons).  Currently I'm thinking that there would be
+two kinds of EGM files: "base" and "addon", with some
+syntax to differentiate them.  Pwads loaded via -file
+would get an implicit EGM file (essentially just the
+filename of the pwad + any associated DEH/BEX or DDF/RTS
+files with the same basename).  A different menu would
+allow add-ons to be enabled/disabled individually.
+Add-on EGMs would also specify a required base EGM
+(perhaps on the first line, like: !extends doom2).
+
+An internal EGM file could be built applying the base
+EGM + any enabled add-on modules.  When a change is
+confirmed by the user, all the current data is unloaded
+and all the new files are loaded.
+
+[This unload/reload process could of course be optimised
+so that, for example: if all the DDF files are the same
+then nothing needs to be done by the DDF subsystem].
+
+The savegame menu could be changed.  There would be 8
+slots (ONLY!) for each EGM module.  If there are addons
+loaded containing maps, then pressing LEFT/RIGHT would
+go to a separate menu for each pwad (the first page is
+just for the base module i.e. the IWAD).  Maps that are
+unavailable (due to pwad replacement) would need to be
+unselectable.  In this paradigm it would be impossible
+to load a savegame for the wrong map or game.  If we
+ever re-implement demos, the same system would apply.
