@@ -2013,9 +2013,9 @@ void E_Main(int argc, const char **argv)
 		E_Startup();
 
 		//I_StartupMovie();
-#ifdef ROQMOVIETEST
+//#ifdef ROQMOVIETEST
 		E_PlayMovie("/pack0/video/intro.roq", 1);
-#endif
+//#endif
 		//I_ShutdownMovie();
 
 		E_InitialState();

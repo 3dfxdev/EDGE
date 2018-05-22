@@ -1,0 +1,51 @@
+//----------------------------------------------------------------------------
+//  glBSPX WIN32 RESOURCE FILE
+//----------------------------------------------------------------------------
+//
+//  GL-Friendly Node Builder (C) 2000-2007 Andrew Apted
+//
+//  Based on 'BSP 2.3' by Colin Reed, Lee Killough and others.
+//
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//------------------------------------------------------------------------
+
+1 ICON DISCARDABLE "gui/glBSPX.ico"
+
+1 VERSIONINFO
+FILEVERSION 4, 2, 24, 1
+PRODUCTVERSION 4, 2, 24, 1
+FILEFLAGSMASK 0x0
+FILEOS 0x40004 // VOS_NT_WINDOWS32
+FILETYPE 1     // VFT_APP
+FILESUBTYPE 0  // VFT_UNKNOWN
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    // 0409 means "US English"; 04B0 means "Unicode encoding"
+    BLOCK "040904B0"
+    BEGIN
+      VALUE "CompanyName",      "Andrew Apted\0"
+      VALUE "FileDescription",  "GL-Node Builder\0"
+      VALUE "FileVersion",      "2.24\0"
+      VALUE "InternalName",     "glBSP\0"
+      VALUE "LegalCopyright",   "\251 Andrew Apted, GNU General Public License\0"
+      VALUE "OriginalFilename", "GLBSPX.EXE\0"
+      VALUE "ProductName",      "glBSP\0"
+      VALUE "ProductVersion",   "2.24\0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0409, 0x04B0
+  END
+END
+

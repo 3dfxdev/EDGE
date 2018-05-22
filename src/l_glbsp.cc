@@ -239,7 +239,7 @@ bool GB_BuildNodes(const char *filename, const char *outname)
 
 	nb_info.input_file  = GlbspStrDup(filename);
 	nb_info.output_file = GlbspStrDup(outname);
-	nb_info.fast  = 1;
+	nb_info.fast  = 0;
 	nb_info.quiet = 1;
 
 	// FIXME: user-controllable build options (factor, fresh, etc).

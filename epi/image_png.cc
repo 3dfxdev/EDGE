@@ -21,18 +21,12 @@
 
 #include "image_png.h"
 
-#undef _SETJMP_H  // workaround for some weirdness in pngconf.h
+//#undef _SETJMP_H  // workaround for some weirdness in pngconf.h
+#undef _SETJMP_H
+#undef PNG_SETJMP_SUPPORTED
 
 #include <png.h>
-#include <zlib.h>
-
-
-
-
-// if we can't use C++11 or aren't using VS2015, resort to gross hacks
-#if __cplusplus < 201103L && (!defined(_MSC_VER) || _MSC_VER < 1900)
-#define nullptr NULL
-#endif
+//#include <zlib.h>
 
 
 namespace epi
@@ -379,6 +373,7 @@ namespace epi
 		}
 
 		png_init_io(png_ptr, fp);
+
 		png_set_compression_level(png_ptr, compress);
 
 		png_set_IHDR(png_ptr, info_ptr, img->used_w, img->used_h, 8,

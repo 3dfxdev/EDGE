@@ -47,7 +47,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "zlib.h"
-#include "bzlib.h"
+#include <bzlib.h>
 #include "LzmaEnc.h"
 #include "7zVersion.h"
 #ifdef PPMD

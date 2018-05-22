@@ -578,9 +578,9 @@ static image_c *AddImageUser(imagedef_c *def)
 		}
 
 		CloseUserFileOrLump(def, f);
-#if 1
-		L_WriteDebug("GETINFO [%s] : size %dx%d\n", def->name.c_str(), w, h);
-#endif
+//#if 0
+//		L_WriteDebug("GETINFO [%s] : size %dx%d\n", def->name.c_str(), w, h);
+//#endif
 	}
 	break;
 

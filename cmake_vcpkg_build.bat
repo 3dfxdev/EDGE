@@ -1,0 +1,1 @@
+CMAKE -G "Visual Studio 15" -T "v141_xp" "-DCMAKE_TOOLCHAIN_FILE=d:\vcpkg\scripts\buildsystems\vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=%x86-windows-static%" "-DCMAKE_BUILD_TYPE=Release"

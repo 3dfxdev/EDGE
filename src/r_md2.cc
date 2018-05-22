@@ -687,9 +687,10 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 
 		md->frames[i].name = CopyFrameName16(raw_frame.name);
 
-		I_Debugf("Frame %d = '%s'\n", i+1, md->frames[i].name);
+		
 
 #ifdef DEBUG_MD2_LOAD
+		I_Debugf("Frame %d = '%s'\n", i + 1, md->frames[i].name);
 //		I_Debugf("  __FRAME_%d__[%s]\n", i+1, md->frames[i].name);
 		I_Debugf("    scale: %1.2f, %1.2f, %1.2f\n", scale[0], scale[1], scale[2]);
 		I_Debugf("    translate: %1.2f, %1.2f, %1.2f\n", translate[0], translate[1], translate[2]);
@@ -972,7 +973,7 @@ md2_model_c *MD3_LoadModel(epi::file_c *f)
 
 		md->frames[i].name = CopyFrameName16(frame.name);
 
-		I_Debugf("Frame %d = '%s'\n", i+1, md->frames[i].name);
+		//I_Debugf("Frame %d = '%s'\n", i+1, md->frames[i].name);
 
 		// TODO: load in bbox (for visibility checking)
 	}

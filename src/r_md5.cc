@@ -48,8 +48,6 @@
 #include "../src/r_shader.h"
 #include "../src/r_units.h"
 
-#define SSE2 1
-
 
 #define MAX_ANIMATION_NAME_LENGTH 11
 typedef struct md5_animation_handle_s
@@ -143,12 +141,12 @@ void md5_draw_unified_gl(MD5umodel *umd5, epi::mat4_c *jointmats,const epi::mat4
 		if (!skin_img)
 		{   
 
-			I_Debugf("R_unifiedMD5: no skin(s) defined in MD5 model: \"%s\"\n", md5);
-			//I_Debugf("md5draw: No skin(s) found, subbing for DummySkin!\n");
+			//I_Debugf("R_unifiedMD5: no skin(s) defined in MD5 model: \"%s\"\n", md5);
+			I_Debugf("md5draw: No skin(s) found, subbing for DummySkin!\n");
 			skin_img = W_ImageForDummySkin();
 		}
 		//BUG: md5_transform_Verticies_sse() is not functional and will crash 3DGE.
-#ifndef SSE2  // Visual Studio Version: #ifdef __SSE2__
+#ifndef __SSE2__  // Visual Studio Version: #ifdef __SSE2__
 		md5_transform_vertices(msh, jointmats, vbuff); /// DOES NOT USE SSE
 #else
 		md5_transform_vertices_sse(msh, jointmats, vbuff); /// uses _SSE for quicker transforms

@@ -27,7 +27,7 @@ RANLIB=$(PREFIX)ranlib
 
 BASE_FLAGS=-Wall -O2 -I./src -DWIN32 -DINLINE_G=inline
 
-ZLIB_DIR=./zlib-1.2.3
+ZLIB_DIR=../zlib
 # ZLIB_DIR=C:/Program\ Files/GnuWin32/src/zlib/1.2.3/zlib-1.2.3
 
 
