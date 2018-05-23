@@ -418,6 +418,11 @@ void W_PrecacheTextures(void)
 //
 void W_PrecacheLevel(void)
 {
+	// !!!
+	if (demoplayback)
+		return;
+
+
 	if (r_precache_sprite.d)
 		W_PrecacheSprites();
 

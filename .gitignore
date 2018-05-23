@@ -34,3 +34,7 @@ doom2.wad
 *.html
 VSLibs_vs2017
 vsLibsx64
+/rott_resources
+/rott_tc_16
+/MapToWad
+/hypertension

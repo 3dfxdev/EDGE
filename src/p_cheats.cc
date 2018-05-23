@@ -63,7 +63,7 @@ bool CheckCheats(bool silent)
 #endif
 
 	// disable cheats while in RTS menu, or demos
-	if (rts_menuactive)
+	if (rts_menuactive || demoplayback)
 		return false;
 
 	// no cheating in netgames or if disallowed in levels.ddf

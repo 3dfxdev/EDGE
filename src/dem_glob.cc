@@ -34,6 +34,7 @@ static void DG_GetInt(const char *info, void *storage);
 static void DG_GetString(const char *info, void *storage);
 static void DG_GetCheckCRC(const char *info, void *storage);
 static void DG_GetLevelFlags(const char *info, void *storage);
+static void GV_GetImage(const char *info, void *storage);
 
 static const char *DG_PutInt(void *storage);
 static const char *DG_PutString(void *storage);
@@ -379,6 +380,17 @@ static bool GlobReadWADS(saveglobals_t *glob)
 	return true;
 }
 
+static bool GlobReadVIEW(saveglobals_t *glob)
+{
+	if (!DEM_PushReadChunk("View"))
+		return false;
+
+	//!!! IMPLEMENT THIS
+
+	DEM_PopReadChunk();
+	return true;
+}
+
 
 saveglobals_t *DEM_LoadGLOB(void)
 {
@@ -400,7 +412,7 @@ saveglobals_t *DEM_LoadGLOB(void)
 		if (DEM_GetError() != 0)
 			break;  /// set error !!
 
-		if (DEM_RemainingChunkSize() < 4)
+		if (DEM_RemainingChunkSize() == 0)
 			break;
 
 		DEM_GetMarker(marker);
@@ -410,14 +422,20 @@ saveglobals_t *DEM_LoadGLOB(void)
 			GlobReadVARI(globs);
 			continue;
 		}
-		if (strcmp(marker, "Plyr") == 0)
-		{
-			GlobReadPLYR(globs);
-			continue;
-		}
+		//if (strcmp(marker, "Plyr") == 0)
+		//{
+		//	GlobReadPLYR(globs);
+		//	continue;
+		//}
 		if (strcmp(marker, "Wads") == 0)
 		{
 			GlobReadWADS(globs);
+			continue;
+		}
+
+		if (strcmp(marker, "View") == 0)
+		{
+			GlobReadVIEW(globs);
 			continue;
 		}
 
@@ -495,6 +513,32 @@ static void GlobWriteWADS(saveglobals_t *globs)
 	DEM_PopWriteChunk();
 }
 
+static void GlobWriteVIEW(saveglobals_t *globs)
+{
+	int x, y;
+
+	if (!globs->view_pixels)
+		return;
+
+	SYS_ASSERT(globs->view_width  > 0);
+	SYS_ASSERT(globs->view_height > 0);
+
+	DEM_PushWriteChunk("View");
+
+	DEM_PutInt(globs->view_width);
+	DEM_PutInt(globs->view_height);
+
+	for (y = 0; y < globs->view_height; y++)
+	{
+		for (x = 0; x < globs->view_width; x++)
+		{
+			DEM_PutShort(globs->view_pixels[y * globs->view_width + x]);
+		}
+	}
+
+	DEM_PopWriteChunk();
+}
+
 
 void DEM_SaveGLOB(saveglobals_t *globs)
 {
@@ -503,8 +547,9 @@ void DEM_SaveGLOB(saveglobals_t *globs)
 	DEM_PushWriteChunk("Glob");
 
 	GlobWriteVARI(globs);
-	GlobWritePLYR(globs);
+	//GlobWritePLYR(globs);
 	GlobWriteWADS(globs);
+	GlobWriteVIEW(globs);
 
 	// all done
 	DEM_PopWriteChunk();

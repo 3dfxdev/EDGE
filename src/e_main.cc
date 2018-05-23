@@ -56,6 +56,7 @@
 #include "games/wolf3d/wlf_local.h"
 //#include "games/rott/rott_local.h"
 #include "dstrings.h"
+#include "e_demo.h"
 #include "e_input.h"
 #include "f_finale.h"
 #include "f_interm.h"
@@ -188,6 +189,8 @@ std::string game_dir;
 std::string home_dir;
 std::string save_dir;
 std::string shot_dir;
+
+static std::string dragged_demo;
 
 extern cvar_c m_language;
 extern cvar_c g_aggression;
@@ -788,6 +791,8 @@ void E_AdvanceTitle(void)
 {
 	title_pic++;
 
+	//demosequence = (demosequence + 1) % 2;  // - Kester
+
 	// prevent an infinite loop
 	for (int loop = 0; loop < 100; loop++)
 	{
@@ -833,6 +838,28 @@ void E_AdvanceTitle(void)
 
 	title_image = NULL;
 	title_countdown = TICRATE;
+
+#if 0
+				default:  // Play Demo
+				{
+					char buffer[9];
+
+					sprintf(buffer, "DEMO%x", demo_num++);
+
+					if (W_CheckNumForName(buffer) < 0)
+					{
+						demo_num = 1;
+						sprintf(buffer, "DEMO1");
+					}
+
+					// -AJA- FIXME: demos in lumps not yet supported
+					// G_DeferredPlayDemo(buffer);
+
+					break;
+
+
+	}
+#endif // 0
 }
 
 
@@ -1558,7 +1585,11 @@ static void AddSingleCmdLineFile(const char *name)
 	// cw - check for GWA... need to add manually for pak/pk3/pk7
 
 	if (stricmp(ext.c_str(), "edm") == 0)
-		I_Error("Demos are no longer supported\n");
+	{
+		//I_Error("Demos are no longer supported\n");
+		dragged_demo = std::string(name);
+		return;
+	}
 	else if (stricmp(ext.c_str(), "gwa") == 0)
 		kind = FLKIND_GWad;
 	else if (stricmp(ext.c_str(), "wad") == 0)
@@ -1713,6 +1744,10 @@ static void InitDDF(void)
 
 void E_EngineShutdown(void)
 {
+
+	if (demorecording)
+		G_FinishDemo();
+
 	N_QuitNetGame();
 
 	S_StopMusic();
@@ -1887,10 +1922,26 @@ static void E_InitialState(void)
 	// do demos and loadgames first, as they contain all of the
 	// necessary state already (in the demo file / savegame).
 
-	if (M_CheckParm("-playdemo") || M_CheckParm("-timedemo") ||
-		M_CheckParm("-record"))
+	ps = M_GetParm("-playdemo");
+	if (ps)
 	{
-		I_Error("Demos are no longer supported\n");
+		// quit after one demo
+		singledemo = true;
+		G_DeferredPlayDemo(ps);
+		return;
+	}
+	else if (dragged_demo.length() > 0)
+	{
+		singledemo = true;
+		G_DeferredPlayDemo(dragged_demo.c_str());
+		return;
+	}
+
+	ps = M_GetParm("-timedemo");
+	if (ps)
+	{
+		G_DeferredTimeDemo(ps);
+		return;
 	}
 
 	ps = M_GetParm("-loadgame");
@@ -1979,7 +2030,11 @@ static void E_InitialState(void)
 	else
 		params.SinglePlayer(bots);
 
-	G_DeferredNewGame(params);
+	ps = M_GetParm("-record");
+	if (ps)
+		G_DeferredRecordDemo(params, ps);
+	else
+		G_DeferredNewGame(params);
 }
 
 
