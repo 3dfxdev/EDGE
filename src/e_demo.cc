@@ -237,6 +237,7 @@ void G_DeferredRecordDemo(newgame_params_c& params, const char *filename)
 //
 void G_BeginRecording(void)
 {
+	I_Printf("Entering G_BeginRecording...\n");
 	saveglobals_t *globs = DEM_NewGLOB();
 
 	L_WriteDebug("G_BeginRecording: %s\n", currmap->name.c_str());
