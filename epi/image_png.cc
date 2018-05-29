@@ -26,7 +26,7 @@
 #undef PNG_SETJMP_SUPPORTED
 
 #include <png.h>
-//#include <zlib.h>
+#include <zlib.h>
 
 
 namespace epi
