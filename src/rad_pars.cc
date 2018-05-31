@@ -35,6 +35,7 @@
 #include "w_wad.h"
 #include "version.h"
 #include "z_zone.h"
+#include "con_main.h"
 
 
 typedef struct define_s
@@ -985,6 +986,12 @@ static void RAD_ParseEndMap(int pnum, const char **pars)
 	this_map = NULL;
 
 	rad_cur_level--;
+}
+
+static void RAD_ParseLoadCameras(int pnum, const char **pars)
+{
+	cameraman::Activate(1);
+	cameraman::Serialize(1, pars[1]);
 }
 
 static void RAD_ParseName(int pnum, const char **pars)
@@ -2176,6 +2183,19 @@ static void RAD_ParseWaitUntilDead(int pnum, const char **pars)
 	AddStateToScript(this_rad, 0, RAD_ActWaitUntilDead, wud);
 }
 
+static void RAD_ParseActivateCamera(int pnum, const char **pars)
+{
+	int id = -1;
+	RAD_CheckForInt(pars[1], &id);
+
+	if (pnum == 2 && id < 0)
+	{
+		std::string name = pars[2];
+		id = cameraman::GetId(name);
+	}
+
+	AddStateToScript(this_rad, 0, RAD_ActActivateCamera, &id);
+}
 
 //  PARSER TABLE
 
@@ -2192,6 +2212,7 @@ static const rts_parser_t radtrig_parsers[] =
 	{-1, "RECT_TRIGGER", 5,7, RAD_ParseRadiusTrigger},
 	{-1, "END_RADIUS_TRIGGER", 1,1, RAD_ParseEndRadiusTrigger},
 	{-1, "END_MAP",  1,1, RAD_ParseEndMap},
+	{-1, "LOAD_CAMERAS", 1,1, RAD_ParseLoadCameras},
 
 	// properties...
 	{2, "NAME", 2,2, RAD_ParseName},
@@ -2260,6 +2281,7 @@ static const rts_parser_t radtrig_parsers[] =
 	{2, "MENU_STYLE", 2,2, RAD_ParseMenuStyle},
 	{2, "JUMP_ON", 3,99, RAD_ParseJumpOn},
 	{2, "WAIT_UNTIL_DEAD", 2,11, RAD_ParseWaitUntilDead},
+	{2, "ACTIVATE_CAMERA", 1,2, RAD_ParseActivateCamera},
 
 	// old crud
 	{2, "SECTORV", 4,4, RAD_ParseMoveSector},

@@ -60,19 +60,21 @@ void CON_SetVisible(visible_t v);
 int CON_MatchAllCmds(std::vector<const char *>& list,
                      const char *pattern);
 
-// Camera-man system interface.
+// Camera-man system interface.[TODO: Move it to a separate file]
 namespace cameraman
 {
 	void Reset();
-	void Serialize(int reading);
+	void Serialize(int reading, const char *map = NULL);
 	void Activate(int activate);
 	void Toggle();
-	int Add(float x, float y, float z, float ax, float ay, float fov);
+	void ToggleHelpers();
+	int Add(float x, float y, float z, float ax, float ay, float fov, const char *name);
 	int Remove(int id);
 	int SetPosition(int id, float x, float y, float z);
 	int SetAngles(int id, float ax, float ay);
 	int SetFov(int id, float fov);
 	int IsActive();
+	int GetId(std::string name);
 	int GetStartId();
 	int GetEndId();
 	void SetStartId(int id);

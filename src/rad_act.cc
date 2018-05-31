@@ -1058,6 +1058,12 @@ void RAD_ActWaitUntilDead(rad_trigger_t *R, void *param)
 	}
 }
 
+void RAD_ActActivateCamera(rad_trigger_t *R, void *param)
+{
+	int id = (*(int *)param);
+	cameraman::SetStartId(id);
+	cameraman::SetEndId(id);
+}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

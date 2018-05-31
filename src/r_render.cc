@@ -159,6 +159,466 @@ static bool solid_mode;
 
 static std::list<drawsub_c *> drawsubs;
 
+// Camera-man system implementation.
+static void RGL_DrawHelper(float x, float y, float z, float scale, int type)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	{
+		glLoadIdentity();
+
+		switch (type)
+		{
+		case 0:
+			glLineWidth(4.0f);
+			glTranslatef(x, y, z);
+			glScalef(scale, scale, scale);
+			glBegin(GL_LINE);
+			{
+				glColor3f(1.0f, 0.0f, 0.0f);
+				glVertex3f(0, 0, 0);
+				glVertex3f(1, 0, 0);
+
+				glColor3f(0.0f, 1.0f, 0.0f);
+				glVertex3f(0, 0, 0);
+				glVertex3f(0, 1, 0);
+
+				glColor3f(0.0f, 0.0f, 1.0f);
+				glVertex3f(0, 0, 0);
+				glVertex3f(0, 0, 1);
+			}
+			glEnd();
+			glLineWidth(1.0f);
+			break;
+
+		default: break;
+		}
+	}
+	glPopMatrix();
+}
+
+cvar_c camera_subdir;	// CVAR for camera-man system data files subdirectory.
+
+namespace cameraman
+{
+	//TODO: Different types of interpolation...
+	//TODO: Debug view mode...
+	//TODO: Free camera mode...
+	//TODO: Disable HUD when camera-man is in use...
+	//TODO: Disable camera movement on player's input when camera-man is in use...
+
+#define MAX_COUNT 512
+
+	typedef struct
+	{
+		char name[32];
+		int valid;
+		angle_t viewangle, viewvertangle;
+		float x, y, z;
+		float fov;
+	} cameraman_t;
+
+	enum {
+		E_LERP,
+	};
+
+	static int g_active = 0;
+	static int g_drawHelpers = 0;
+	static int g_count = 0;
+	static int g_startId = -1, g_endId = -1;
+	static int g_interpolationType = E_LERP;
+	static float g_interpolationValue = 0.0f;
+	static cameraman_t cameramen[MAX_COUNT];
+
+	static const cameraman_t *Get(int id)
+	{
+		if (id > -1 && id < MAX_COUNT)
+		{
+			const cameraman_t *cam = (const cameraman_t *)cameramen + id;
+			if (cam->valid > 0)
+			{
+				return cam;
+			}
+		}
+
+		return NULL;
+	}
+
+	static cameraman_t *Lerp(cameraman_t *interp, int id0, int id1, float t)
+	{
+		if (interp)
+		{
+			const cameraman_t *cam0 = Get(id0);
+			const cameraman_t *cam1 = Get(id1);
+
+			if (t <= 0.0f)
+			{
+				interp->x = cam0->x;
+				interp->y = cam0->y;
+				interp->z = cam0->z;
+				interp->fov = cam0->fov;
+				interp->viewangle = cam0->viewangle;
+				interp->viewvertangle = cam0->viewvertangle;
+				interp->valid = 1;
+				return interp;
+			}
+
+			if (t >= 1.0f)
+			{
+				interp->x = cam1->x;
+				interp->y = cam1->y;
+				interp->z = cam1->z;
+				interp->fov = cam1->fov;
+				interp->viewangle = cam1->viewangle;
+				interp->viewvertangle = cam1->viewvertangle;
+				interp->valid = 1;
+				return interp;
+			}
+
+			if (cam0 != NULL && cam1 != NULL)
+			{
+				interp->x = cam0->x + t * (cam1->x - cam0->x);
+				interp->y = cam0->y + t * (cam1->y - cam0->y);
+				interp->z = cam0->z + t * (cam1->z - cam0->z);
+				interp->fov = cam0->fov + t * (cam1->fov - cam0->fov);
+				interp->viewangle = G_CircularLerp(cam0->viewangle, cam1->viewangle, t);
+				interp->viewvertangle = G_CircularLerp(cam0->viewvertangle, cam1->viewvertangle, t);
+				interp->valid = 1;
+				return interp;
+			}
+		}
+		return NULL;
+	}
+
+	static cameraman_t *Update(cameraman_t *cam)
+	{
+		if (cam != NULL)
+		{
+			if (g_active > 0)
+			{
+				if (g_startId > -1 && g_endId > -1 && g_startId != g_endId)
+				{
+					switch (g_interpolationType)
+					{
+					case E_LERP:
+					default:
+						return Lerp(cam, g_startId, g_endId, g_interpolationValue);
+						break;
+					}
+				}
+				else
+				{
+					return (cameraman_t *)Get(g_startId);
+				}
+			}
+		}
+		return NULL;
+	}
+
+	void Reset()
+	{
+		for (int i = 0; i < MAX_COUNT; ++i)
+		{
+			cameraman_t *cam = cameramen + i;
+			cam->valid = 0;
+			cam->viewangle = 0;
+			cam->viewvertangle = 0;
+			cam->x = 0.0f;
+			cam->y = 0.0f;
+			cam->z = 0.0f;
+			cam->fov = 0.0f;
+		}
+
+		g_count = 0;
+		g_startId = -1;
+		g_endId = -1;
+		g_interpolationValue = 0.0f;
+	}
+
+	void Serialize(int reading, const char *map)
+	{
+		SYS_ASSERT(map || currmap);
+
+		std::string fileName("./");
+		FILE *file = NULL;
+
+		fileName = fileName.append(camera_subdir.str);
+		fileName = fileName.append("/");
+		fileName = fileName.append(map ? map : currmap->name.c_str());
+		fileName = fileName.append(".camdata");
+
+		CON_Printf("Serializing: %s\n", fileName.c_str());
+
+		char body[5] = { 0 };
+
+		if (reading > 0)
+		{
+			if (file = fopen(fileName.c_str(), "rb"))
+			{
+				fread((void *)&g_count, sizeof(int), 1, file);
+				fread((void *)body, sizeof(char), 5, file);
+				fread((void *)cameramen, sizeof(cameraman_t), (size_t)g_count, file);
+				fclose(file);
+			}
+			else
+			{
+				CON_Printf("File \'%s\' not found!", fileName.c_str());
+			}
+		}
+		else // Only editing
+		{
+			if (file = fopen(fileName.c_str(), "wb"))
+			{
+				fwrite((void *)&g_count, sizeof(int), 1, file);
+				fwrite((void *)body, sizeof(char), 5, file);
+				fwrite((void *)cameramen, sizeof(cameraman_t), (size_t)g_count, file);
+				fclose(file);
+			}
+			else
+			{
+				CON_Printf("File \'%s\' not found!", fileName.c_str());
+			}
+		}
+	}
+
+	void Activate(int activate)
+	{
+		Reset();
+		g_active = activate;
+	}
+
+	void Toggle()
+	{
+		if (g_active > 0)
+			Activate(0);
+		else
+			Activate(1);
+	}
+
+	void ToggleHelpers()
+	{
+		if (g_drawHelpers > 0)
+			g_drawHelpers = 0;
+		else
+			g_drawHelpers = 1;
+	}
+
+	int Add(float x, float y, float z, float ax, float ay, float fov, const char *name)
+	{
+		if (g_active > 0)
+		{
+			if (g_count < MAX_COUNT)
+			{
+				cameraman_t *cam = cameramen + g_count;
+				cam->valid = 1;
+				cam->x = x;
+				cam->y = y;
+				cam->z = z;
+				cam->viewangle = G_CircularLerp(0, ay, 1.0f);
+				cam->viewvertangle = G_CircularLerp(0, ax, 1.0f);
+				cam->fov = fov;
+
+				std::string sname = "camera" + std::to_string(g_count);
+
+				if (!name)
+					strncpy(cam->name, sname.c_str(), sname.size());
+				else
+					strncpy(cam->name, name, strlen(name));
+
+				++g_count;
+				return (g_count - 1);
+			}
+			else
+			{
+				for (int i = 0; i < g_count; ++i)
+				{
+					cameraman_t *cam = cameramen + i;
+					if (cam->valid != 1)
+					{
+						cam->valid = 1;
+						cam->x = x;
+						cam->y = y;
+						cam->z = z;
+						cam->viewangle = G_CircularLerp(0, ay, 1.0f);
+						cam->viewvertangle = G_CircularLerp(0, ax, 1.0f);
+						cam->fov = fov;
+
+						std::string sname = "camera" + std::to_string(g_count);
+
+						if (!name)
+							strncpy(cam->name, sname.c_str(), sname.size());
+						else
+							strncpy(cam->name, name, strlen(name));
+						return i;
+					}
+				}
+			}
+		}
+		return -1;
+	}
+
+	int Remove(int id)
+	{
+		if (g_active > 0)
+		{
+			if (id > -1 && id < MAX_COUNT)
+			{
+				cameraman_t *cam = cameramen + id;
+				cam->valid = 0;
+				return id;
+			}
+		}
+		return -1;
+	}
+
+	int SetPosition(int id, float x, float y, float z)
+	{
+		if (g_active > 0)
+		{
+			if (id > -1 && id < MAX_COUNT)
+			{
+				cameraman_t *cam = cameramen + id;
+				if (cam->valid > 0)
+				{
+					cam->x = x;
+					cam->y = y;
+					cam->z = z;
+					return id;
+				}
+			}
+		}
+		return -1;
+	}
+
+	int SetAngles(int id, float ax, float ay)
+	{
+		if (g_active > 0)
+		{
+			if (id > -1 && id < MAX_COUNT)
+			{
+				cameraman_t *cam = cameramen + id;
+				if (cam->valid > 0)
+				{
+					cam->viewangle = G_CircularLerp(0, ay, 1.0f);
+					cam->viewvertangle = G_CircularLerp(0, ax, 1.0f);
+					return id;
+				}
+			}
+		}
+		return -1;
+	}
+
+	int SetFov(int id, float fov)
+	{
+		if (g_active > 0)
+		{
+			if (id > -1 && id < MAX_COUNT)
+			{
+				cameraman_t *cam = cameramen + id;
+				if (cam->valid > 0)
+				{
+					cam->fov = fov;
+					return id;
+				}
+			}
+		}
+		return -1;
+	}
+
+	int IsActive()
+	{
+		return g_active;
+	}
+
+	int GetId(std::string name)
+	{
+		if (g_active > 0)
+		{
+			for (int i = 0; i < g_count; ++i)
+			{
+				cameraman_t *cam = cameramen + i;
+				if (cam->valid && name == cam->name)
+					return i;
+			}
+		}
+		return -1;
+	}
+
+	int GetStartId()
+	{
+		return g_startId;
+	}
+
+	int GetEndId()
+	{
+		return g_endId;
+	}
+
+	void SetStartId(int id)
+	{
+		if (const cameraman_t *cam = Get(id))
+		{
+			g_startId = id;
+		}
+		else
+		{
+			g_startId = -1;
+		}
+	}
+
+	void SetEndId(int id)
+	{
+		if (const cameraman_t *cam = Get(id))
+		{
+			g_endId = id;
+		}
+		else
+		{
+			g_endId = -1;
+		}
+	}
+
+	void SetStep(float value)
+	{
+		g_interpolationValue = value;
+	}
+
+	void Print()
+	{
+		CON_Printf("Camera-man system info - Is active: %s\n", g_active ? "yes" : "no");
+		CON_Printf("--------------------------------------------\n");
+
+		if (g_count > 0 && g_active > 0)
+		{
+			for (int i = 0; i < g_count; ++i)
+			{
+				const cameraman_t *cam = (const cameraman_t *)cameramen + i;
+
+				CON_Printf("[ID: %d, NAME: %s] Valid: %s, Pos: (%g, %g, %g), Ang: (%i, %i), FOV: %g\n",
+					i, cam->name, cam->valid > 0 ? "yes" : "no", cam->x, cam->y, cam->z, cam->viewangle, cam->viewvertangle, cam->fov);
+			}
+		}
+		else
+		{
+			CON_Printf("\t%s...\n", g_active > 0 ? "No resident camera-man found" : "System is not active");
+		}
+
+		CON_Printf("--------------------------------------------\n");
+	}
+
+	void DrawHelpers()
+	{
+		if (g_count > 0 && g_active > 0 && g_drawHelpers > 0)
+		{
+			for (int i = 0; i < g_count; ++i)
+			{
+				const cameraman_t *cam = (const cameraman_t *)cameramen + i;
+
+				RGL_DrawHelper(cam->x, cam->y, cam->z, 10.0f, 0);
+			}
+		}
+	}
+}
 
 // ========= MIRROR STUFF ===========
 
@@ -3379,6 +3839,8 @@ static void RGL_RenderTrueBSP(void)
 
 	DoWeaponModel();
 
+	//cameraman::DrawHelpers();
+
 	glDisable(GL_DEPTH_TEST);
 
 	// now draw 2D stuff like psprites, and add effects
@@ -3403,380 +3865,6 @@ extern bool ff_shake[MAXPLAYERS];
 extern int ff_frequency[MAXPLAYERS];
 extern int ff_intensity[MAXPLAYERS];
 extern int ff_timeout[MAXPLAYERS];
-
-// Camera-man system implementation.
-
-cvar_c camera_subdir;	// CVAR for camera-man system data files subdirectory.
-
-namespace cameraman
-{
-	//TODO: Different types of interpolation...
-	//TODO: Debug view mode...
-	//TODO: Free camera mode...
-	//TODO: Disable HUD when camera-man is in use...
-	//TODO: Disable camera movement on player's input when camera-man is in use...
-
-#define MAX_COUNT 512
-
-	typedef struct
-	{
-		int valid;
-		angle_t viewangle, viewvertangle;
-		float x, y, z;
-		float fov;
-	} cameraman_t;
-
-	enum {
-		E_LERP,
-	};
-
-	static int g_active = 0;
-	static int g_count = 0;
-	static int g_startId = -1, g_endId = -1;
-	static int g_interpolationType = E_LERP;
-	static float g_interpolationValue = 0.0f;
-	static cameraman_t cameramen[MAX_COUNT];
-
-	static const cameraman_t *Get(int id)
-	{
-		if (id > -1 && id < MAX_COUNT)
-		{
-			const cameraman_t *cam = (const cameraman_t *)cameramen + id;
-			if (cam->valid > 0)
-			{
-				return cam;
-			}
-		}
-
-		return NULL;
-	}
-
-	static cameraman_t *Lerp(cameraman_t *interp, int id0, int id1, float t)
-	{
-		if (interp)
-		{
-			const cameraman_t *cam0 = Get(id0);
-			const cameraman_t *cam1 = Get(id1);
-
-			if (t <= 0.0f)
-			{
-				interp->x = cam0->x;
-				interp->y = cam0->y;
-				interp->z = cam0->z;
-				interp->fov = cam0->fov;
-				interp->viewangle = cam0->viewangle;
-				interp->viewvertangle = cam0->viewvertangle;
-				interp->valid = 1;
-				return interp;
-			}
-
-			if (t >= 1.0f)
-			{
-				interp->x = cam1->x;
-				interp->y = cam1->y;
-				interp->z = cam1->z;
-				interp->fov = cam1->fov;
-				interp->viewangle = cam1->viewangle;
-				interp->viewvertangle = cam1->viewvertangle;
-				interp->valid = 1;
-				return interp;
-			}
-
-			if (cam0 != NULL && cam1 != NULL)
-			{
-				interp->x = cam0->x + t * (cam1->x - cam0->x);
-				interp->y = cam0->y + t * (cam1->y - cam0->y);
-				interp->z = cam0->z + t * (cam1->z - cam0->z);
-				interp->fov = cam0->fov + t * (cam1->fov - cam0->fov);
-				interp->viewangle = G_CircularLerp(cam0->viewangle, cam1->viewangle, t);
-				interp->viewvertangle = G_CircularLerp(cam0->viewvertangle, cam1->viewvertangle, t);
-				interp->valid = 1;
-				return interp;
-			}
-		}
-		return NULL;
-	}
-
-	static cameraman_t *Update(cameraman_t *cam)
-	{
-		if (cam != NULL)
-		{
-			if (g_active > 0)
-			{
-				if (g_startId > -1 && g_endId > -1 && g_startId != g_endId)
-				{
-					switch (g_interpolationType)
-					{
-					case E_LERP:
-					default:
-						return Lerp(cam, g_startId, g_endId, g_interpolationValue);
-						break;
-					}
-				}
-				else
-				{
-					return (cameraman_t *)Get(g_startId);
-				}
-			}
-		}
-		return NULL;
-	}
-
-	void Reset()
-	{
-		for (int i = 0; i < MAX_COUNT; ++i)
-		{
-			cameraman_t *cam = cameramen + i;
-			cam->valid = 0;
-			cam->viewangle = 0;
-			cam->viewvertangle = 0;
-			cam->x = 0.0f;
-			cam->y = 0.0f;
-			cam->z = 0.0f;
-			cam->fov = 0.0f;
-		}
-
-		g_count = 0;
-		g_startId = -1;
-		g_endId = -1;
-		g_interpolationValue = 0.0f;
-	}
-
-	void Serialize(int reading)
-	{
-		SYS_ASSERT(currmap);
-
-		std::string fileName("./");
-		FILE *file = NULL;
-		
-		fileName = fileName.append(camera_subdir.str);
-		fileName = fileName.append("/");
-		fileName = fileName.append(currmap->name.c_str());
-		fileName = fileName.append(".camdata");
-
-		CON_Printf("Serializing: %s\n", fileName.c_str());
-
-		char body[5] = { 0 };
-
-		if (reading > 0)
-		{
-			if (file = fopen(fileName.c_str(), "rb"))
-			{
-				fread((void *)&g_count, sizeof(int), 1, file);
-				fread((void *)body, sizeof(char), 5, file);
-				fread((void *)cameramen, sizeof(cameraman_t), (size_t)g_count, file);
-				fclose(file);
-			}
-			else
-			{
-				CON_Printf("File \'%s\' not found!", fileName.c_str());
-			}
-		}
-		else // Only editing
-		{
-			if (file = fopen(fileName.c_str(), "wb"))
-			{
-				fwrite((void *)&g_count, sizeof(int), 1, file);
-				fwrite((void *)body, sizeof(char), 5, file);
-				fwrite((void *)cameramen, sizeof(cameraman_t), (size_t)g_count, file);
-				fclose(file);
-			}
-			else
-			{
-				CON_Printf("File \'%s\' not found!", fileName.c_str());
-			}
-		}
-	}
-
-	void Activate(int activate)
-	{
-		Reset();
-		g_active = activate;
-	}
-
-	void Toggle()
-	{
-		if (g_active > 0)
-			Activate(0);
-		else
-			Activate(1);
-	}
-
-	int Add(float x, float y, float z, float ax, float ay, float fov)
-	{
-		if (g_active > 0)
-		{
-			if (g_count < MAX_COUNT)
-			{
-				cameraman_t *cam = cameramen + g_count;
-				cam->valid = 1;
-				cam->x = x;
-				cam->y = y;
-				cam->z = z;
-				cam->viewangle = G_CircularLerp(0, ay, 1.0f);
-				cam->viewvertangle = G_CircularLerp(0, ax, 1.0f);
-				cam->fov = fov;
-
-				++g_count;
-				return (g_count - 1);
-			}
-			else
-			{
-				for (int i = 0; i < g_count; ++i)
-				{
-					cameraman_t *cam = cameramen + i;
-					if (cam->valid != 1)
-					{
-						cam->valid = 1;
-						cam->x = x;
-						cam->y = y;
-						cam->z = z;
-						cam->viewangle = G_CircularLerp(0, ay, 1.0f);
-						cam->viewvertangle = G_CircularLerp(0, ax, 1.0f);
-						cam->fov = fov;
-						return i;
-					}
-				}
-			}
-		}
-		return -1;
-	}
-
-	int Remove(int id)
-	{
-		if (g_active > 0)
-		{
-			if (id > -1 && id < MAX_COUNT)
-			{
-				cameraman_t *cam = cameramen + id;
-				cam->valid = 0;
-				return id;
-			}
-		}
-		return -1;
-	}
-
-	int SetPosition(int id, float x, float y, float z)
-	{
-		if (g_active > 0)
-		{
-			if (id > -1 && id < MAX_COUNT)
-			{
-				cameraman_t *cam = cameramen + id;
-				if (cam->valid > 0)
-				{
-					cam->x = x;
-					cam->y = y;
-					cam->z = z;
-					return id;
-				}
-			}
-		}
-		return -1;
-	}
-
-	int SetAngles(int id, float ax, float ay)
-	{
-		if (g_active > 0)
-		{
-			if (id > -1 && id < MAX_COUNT)
-			{
-				cameraman_t *cam = cameramen + id;
-				if (cam->valid > 0)
-				{
-					cam->viewangle = G_CircularLerp(0, ay, 1.0f);
-					cam->viewvertangle = G_CircularLerp(0, ax, 1.0f);
-					return id;
-				}
-			}
-		}
-		return -1;
-	}
-
-	int SetFov(int id, float fov)
-	{
-		if (g_active > 0)
-		{
-			if (id > -1 && id < MAX_COUNT)
-			{
-				cameraman_t *cam = cameramen + id;
-				if (cam->valid > 0)
-				{
-					cam->fov = fov;
-					return id;
-				}
-			}
-		}
-		return -1;
-	}
-
-	int IsActive()
-	{
-		return g_active;
-	}
-	
-	int GetStartId()
-	{
-		return g_startId;
-	}
-
-	int GetEndId()
-	{
-		return g_endId;
-	}
-
-	void SetStartId(int id)
-	{
-		if (const cameraman_t *cam = Get(id))
-		{
-			g_startId = id;
-		}
-		else
-		{
-			g_startId = -1;
-		}
-	}
-
-	void SetEndId(int id)
-	{
-		if (const cameraman_t *cam = Get(id))
-		{
-			g_endId = id;
-		}
-		else
-		{
-			g_endId = -1;
-		}
-	}
-
-	void SetStep(float value)
-	{
-		g_interpolationValue = value;
-	}
-
-	void Print()
-	{
-		CON_Printf("Camera-man system info - Is active: %s\n", g_active ? "yes" : "no");
-		CON_Printf("--------------------------------------------\n");
-		
-		if (g_count > 0 && g_active > 0)
-		{
-			for (int i = 0; i < g_count; ++i)
-			{
-				const cameraman_t *cam = (const cameraman_t *)cameramen + i;
-
-				CON_Printf("[ID: %d] Valid: %s, Pos: (%g, %g, %g), Ang: (%i, %i), FOV: %g\n",
-					i, cam->valid > 0 ? "yes" : "no", cam->x, cam->y, cam->z, cam->viewangle, cam->viewvertangle, cam->fov);
-			}
-		}
-		else
-		{
-			CON_Printf("\t%s...\n", g_active > 0 ? "No resident camera-man found" : "System is not active" );
-		}
-
-		CON_Printf("--------------------------------------------\n");
-	}
-}
 
 /// rendering view point based on the camera's location.
 static void InitCamera(mobj_t *mo, bool full_height, float expand_w)

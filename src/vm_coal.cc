@@ -323,7 +323,7 @@ static void CAM_Add(coal::vm_c *vm, int argc)
 		float ax = (float)*vm->AccessParam(3);
 		float ay = (float)*vm->AccessParam(4);
 		float fov = (float)*vm->AccessParam(5);
-		id = cameraman::Add(x, y, z, ax, ay, fov);
+		id = cameraman::Add(x, y, z, ax, ay, fov, NULL);
 	}
 	vm->ReturnFloat(id);
 }

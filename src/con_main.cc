@@ -442,7 +442,7 @@ int CMD_ResetCameraManSystem(char **argv, int argc)
 
 int CMD_AddCameraMan(char **argv, int argc)
 {
-	if (argc == 2)
+	if (argc >= 2)
 	{		
 		if (player_t *hero = players[0])
 		{
@@ -453,7 +453,7 @@ int CMD_AddCameraMan(char **argv, int argc)
 			float ay = hero->mo->GetInterpolatedAngle();
 			float fov = atof(argv[1]);
 
-			int id = cameraman::Add(x, y, z, ax, ay, fov);
+			int id = cameraman::Add(x, y, z, ax, ay, fov, (argc == 3) ? argv[2] : NULL);
 			if (id > -1)
 				I_Printf("Successfully added camera-man of ID: %d...\n", id);
 			return id;
@@ -465,7 +465,7 @@ int CMD_AddCameraMan(char **argv, int argc)
 	}
 	else
 	{
-		I_Printf("Usage: %s FOV\n\tAdds a camera-man of the given FOV for the current player position and view angles.\n", argv[0]);
+		I_Printf("Usage: %s FOV\n\tAdds a named camera-man of the given FOV for the current player position and view angles.\n", argv[0]);
 	}
 	return 0;
 }
@@ -599,6 +599,12 @@ int CMD_LoadCameraManSystem(char **argv, int argc)
 int CMD_PrintCameraManSystem(char **argv, int argc)
 {
 	cameraman::Print();
+	return 0;
+}
+
+int CMD_ToggleHelpers(char **argv, int argc)
+{
+	cameraman::ToggleHelpers();
 	return 0;
 }
 
@@ -830,6 +836,8 @@ const con_cmd_t builtin_commands[] =
 	{ "savcam",   CMD_SaveCameraManSystem },
 	{ "lddcam",	  CMD_LoadCameraManSystem },
 	{ "prtcam",	  CMD_PrintCameraManSystem },
+
+	{ "tghelp",   CMD_ToggleHelpers },
 
 #ifndef NOCHEATS
 	// [SP] Cheats

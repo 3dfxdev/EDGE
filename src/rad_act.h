@@ -55,6 +55,7 @@ void RAD_ActShowMenu(rad_trigger_t *R, void *param);
 void RAD_ActMenuStyle(rad_trigger_t *R, void *param);
 void RAD_ActJumpOn(rad_trigger_t *R, void *param);
 void RAD_ActWaitUntilDead(rad_trigger_t *R, void *param);
+void RAD_ActActivateCamera(rad_trigger_t *R, void *param);
 
 #endif  /*__RAD_ACT_H__*/
 
