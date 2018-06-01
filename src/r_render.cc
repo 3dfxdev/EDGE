@@ -160,20 +160,17 @@ static bool solid_mode;
 static std::list<drawsub_c *> drawsubs;
 
 // Camera-man system implementation.
-static void RGL_DrawHelper(float x, float y, float z, float scale, int type)
+static void RGL_DrawGizmo(int type, float x, float y, float z, float ax, float ay, float az, float scale)
 {
-	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	{
-		glLoadIdentity();
-
 		switch (type)
 		{
 		case 0:
 			glLineWidth(4.0f);
 			glTranslatef(x, y, z);
 			glScalef(scale, scale, scale);
-			glBegin(GL_LINE);
+			glBegin(GL_LINES);
 			{
 				glColor3f(1.0f, 0.0f, 0.0f);
 				glVertex3f(0, 0, 0);
@@ -186,6 +183,10 @@ static void RGL_DrawHelper(float x, float y, float z, float scale, int type)
 				glColor3f(0.0f, 0.0f, 1.0f);
 				glVertex3f(0, 0, 0);
 				glVertex3f(0, 0, 1);
+
+				glColor3f(1.0f, 0.0f, 1.0f);
+				glVertex3f(0, 0, 0);
+				glVertex3f(ax, ay, az);
 			}
 			glEnd();
 			glLineWidth(1.0f);
@@ -206,6 +207,7 @@ namespace cameraman
 	//TODO: Free camera mode...
 	//TODO: Disable HUD when camera-man is in use...
 	//TODO: Disable camera movement on player's input when camera-man is in use...
+	//TODO: Look-at mechanics for tracking moving targets...
 
 #define MAX_COUNT 512
 
@@ -220,6 +222,7 @@ namespace cameraman
 
 	enum {
 		E_LERP,
+		E_LOOKAT,
 	};
 
 	static int g_active = 0;
@@ -290,6 +293,17 @@ namespace cameraman
 		return NULL;
 	}
 
+	static cameraman_t *LerpLookAt(cameraman_t *interp, int id0, int id1, float t)//????
+	{
+		if (interp)
+		{
+			interp = Lerp(interp, id0, id1, t);
+			//TODO: Override the angels with the ones calculated from direction to target...
+			return interp;
+		}
+		return NULL;
+	}
+
 	static cameraman_t *Update(cameraman_t *cam)
 	{
 		if (cam != NULL)
@@ -300,6 +314,10 @@ namespace cameraman
 				{
 					switch (g_interpolationType)
 					{
+					case E_LOOKAT:
+						return LerpLookAt(cam, g_startId, g_endId, g_interpolationValue);
+						break;
+
 					case E_LERP:
 					default:
 						return Lerp(cam, g_startId, g_endId, g_interpolationValue);
@@ -471,6 +489,12 @@ namespace cameraman
 		return -1;
 	}
 
+	int SetLookAtTarget(int id, int target)//???
+	{
+		//TODO:
+		return id;
+	}
+
 	int SetPosition(int id, float x, float y, float z)
 	{
 		if (g_active > 0)
@@ -594,8 +618,8 @@ namespace cameraman
 			{
 				const cameraman_t *cam = (const cameraman_t *)cameramen + i;
 
-				CON_Printf("[ID: %d, NAME: %s] Valid: %s, Pos: (%g, %g, %g), Ang: (%i, %i), FOV: %g\n",
-					i, cam->name, cam->valid > 0 ? "yes" : "no", cam->x, cam->y, cam->z, cam->viewangle, cam->viewvertangle, cam->fov);
+				CON_Printf("[ID: %d, NAME: %s] Valid: %s, Pos: (%g, %g, %g), Ang: (%f, %f), FOV: %g\n",
+					i, cam->name, cam->valid > 0 ? "yes" : "no", cam->x, cam->y, cam->z, ANG_2_FLOAT(cam->viewangle), ANG_2_FLOAT(cam->viewvertangle), cam->fov);
 			}
 		}
 		else
@@ -613,8 +637,15 @@ namespace cameraman
 			for (int i = 0; i < g_count; ++i)
 			{
 				const cameraman_t *cam = (const cameraman_t *)cameramen + i;
+				float av = ANG_2_FLOAT(cam->viewangle) * (M_PI / 180.0f);
+				float avv = ANG_2_FLOAT(cam->viewvertangle) * (M_PI / 180.0f);
+				avv = (avv > M_PI ? (2.0f * M_PI) - avv : avv) + (M_PI * 0.5f);//FIX-ME!!!!
 
-				RGL_DrawHelper(cam->x, cam->y, cam->z, 10.0f, 0);
+				float ax = 0;// (float)(sin(avv) * cos(av));
+				float ay = 0;// (float)(sin(avv) * sin(av));
+				float az = 0;// (float)cos(avv);
+
+				RGL_DrawGizmo(0, cam->x, cam->y, cam->z, ax, ay, az, 50.0f);
 			}
 		}
 	}
@@ -3839,9 +3870,9 @@ static void RGL_RenderTrueBSP(void)
 
 	DoWeaponModel();
 
-	//cameraman::DrawHelpers();
-
 	glDisable(GL_DEPTH_TEST);
+
+	cameraman::DrawHelpers();
 
 	// now draw 2D stuff like psprites, and add effects
 	RGL_SetupMatrices2D();
