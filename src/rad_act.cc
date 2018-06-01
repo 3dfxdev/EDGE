@@ -1060,9 +1060,9 @@ void RAD_ActWaitUntilDead(rad_trigger_t *R, void *param)
 
 void RAD_ActActivateCamera(rad_trigger_t *R, void *param)
 {
-	int id = (*(int *)param);
-	cameraman::SetStartId(id);
-	cameraman::SetEndId(id);
+	s_actvcamera_t *camera = (s_actvcamera_t *)param;
+	cameraman::SetStartId(camera->id);
+	cameraman::SetEndId(camera->id);
 }
 
 //--- editor settings ---

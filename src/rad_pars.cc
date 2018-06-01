@@ -2185,16 +2185,21 @@ static void RAD_ParseWaitUntilDead(int pnum, const char **pars)
 
 static void RAD_ParseActivateCamera(int pnum, const char **pars)
 {
-	int id = -1;
-	RAD_CheckForInt(pars[1], &id);
+	s_actvcamera_t *camera = Z_New(s_actvcamera_t, 1);
 
-	if (pnum == 2 && id < 0)
+	Z_Clear(camera, s_actvcamera_t, 1);
+
+	SYS_ASSERT(2 <= pnum && pnum <= 3);
+
+	RAD_CheckForInt(pars[1], &camera->id);
+
+	if (pnum == 3 && camera->id < 0)
 	{
 		std::string name = pars[2];
-		id = cameraman::GetId(name);
+		camera->id = cameraman::GetId(name);
 	}
 
-	AddStateToScript(this_rad, 0, RAD_ActActivateCamera, &id);
+	AddStateToScript(this_rad, 0, RAD_ActActivateCamera, camera);
 }
 
 //  PARSER TABLE

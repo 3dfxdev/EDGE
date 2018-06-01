@@ -196,6 +196,12 @@ typedef struct
 }
 s_gotomap_t;
 
+typedef struct
+{
+	int id;
+}
+s_actvcamera_t;
+
 
 // Play Sound function
 typedef enum
