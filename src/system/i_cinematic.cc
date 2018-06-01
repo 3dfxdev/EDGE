@@ -1749,6 +1749,9 @@ void CIN_Init (void)
     //Cmd_AddCommand("playCinematic", CIN_PlayCinematic_f, "Plays a cinematic", Cmd_ArgCompletion_VideoName);
     //Cmd_AddCommand("listCinematics", CIN_ListCinematics_f, "Lists playing cinematics", NULL);
 
+    // Clear global array
+    memset(cin_cinematics, 0, sizeof(cin_cinematics));
+
     // Build YCbCr-to-RGB tables
     for (i = 0; i < 256; i++)
     {
