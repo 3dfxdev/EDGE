@@ -159,37 +159,60 @@ static bool solid_mode;
 
 static std::list<drawsub_c *> drawsubs;
 
-// Camera-man system implementation.
-static void RGL_DrawGizmo(int type, float x, float y, float z, float ax, float ay, float az, float scale)
+enum {
+	E_NONE,
+	E_CAMERA_GIZMO,
+};
+
+struct gizmo_t
+{
+	int type;
+};
+
+struct camera_gizmo_t : public gizmo_t
+{
+	camera_gizmo_t()
+	{
+		type = E_CAMERA_GIZMO;
+	}
+
+	float x, y, z, ax, ay, az, scale;
+};
+
+static void RGL_DrawGizmo(const gizmo_t *gizmo)
 {
 	glPushMatrix();
 	{
-		switch (type)
+		switch (gizmo->type)
 		{
-		case 0:
-			glLineWidth(4.0f);
-			glTranslatef(x, y, z);
-			glScalef(scale, scale, scale);
-			glBegin(GL_LINES);
+			case E_CAMERA_GIZMO:
 			{
-				glColor3f(1.0f, 0.0f, 0.0f);
-				glVertex3f(0, 0, 0);
-				glVertex3f(1, 0, 0);
+				const camera_gizmo_t *camera = (const camera_gizmo_t *)gizmo;
 
-				glColor3f(0.0f, 1.0f, 0.0f);
-				glVertex3f(0, 0, 0);
-				glVertex3f(0, 1, 0);
+				glLineWidth(4.0f);
+				glTranslatef(camera->x, camera->y, camera->z);
+				glScalef(camera->scale, camera->scale, camera->scale);
+				glBegin(GL_LINES);
+				{
+					glColor3f(1.0f, 0.0f, 0.0f);
+					glVertex3f(0, 0, 0);
+					glVertex3f(1, 0, 0);
 
-				glColor3f(0.0f, 0.0f, 1.0f);
-				glVertex3f(0, 0, 0);
-				glVertex3f(0, 0, 1);
+					glColor3f(0.0f, 1.0f, 0.0f);
+					glVertex3f(0, 0, 0);
+					glVertex3f(0, 1, 0);
 
-				glColor3f(1.0f, 0.0f, 1.0f);
-				glVertex3f(0, 0, 0);
-				glVertex3f(ax, ay, az);
+					glColor3f(0.0f, 0.0f, 1.0f);
+					glVertex3f(0, 0, 0);
+					glVertex3f(0, 0, 1);
+
+					glColor3f(1.0f, 0.0f, 1.0f);
+					glVertex3f(0, 0, 0);
+					glVertex3f(camera->ax, camera->ay, camera->az);
+				}
+				glEnd();
+				glLineWidth(1.0f);
 			}
-			glEnd();
-			glLineWidth(1.0f);
 			break;
 
 		default: break;
@@ -198,6 +221,7 @@ static void RGL_DrawGizmo(int type, float x, float y, float z, float ax, float a
 	glPopMatrix();
 }
 
+// Camera-man system implementation.
 cvar_c camera_subdir;	// CVAR for camera-man system data files subdirectory.
 
 namespace cameraman
@@ -618,8 +642,16 @@ namespace cameraman
 			{
 				const cameraman_t *cam = (const cameraman_t *)cameramen + i;
 
-				CON_Printf("[ID: %d, NAME: %s] Valid: %s, Pos: (%g, %g, %g), Ang: (%f, %f), FOV: %g\n",
-					i, cam->name, cam->valid > 0 ? "yes" : "no", cam->x, cam->y, cam->z, ANG_2_FLOAT(cam->viewangle), ANG_2_FLOAT(cam->viewvertangle), cam->fov);
+				float va = ANG_2_FLOAT(cam->viewangle);
+				float vav = ANG_2_FLOAT(cam->viewvertangle);
+
+				// vav is from 0 to 2PI, while it should be from -PI/2 to PI/2
+				vav = (vav > 1.5f * 180.0f) ? vav - 2.0f * 180.0f : vav;
+				vav = (vav > 180.0f) ? 180.0f - vav : vav;
+				vav = (vav > 180.0f * 0.5f) ? 180.0f * 0.5f - (vav - 180.0f * 0.5f) : vav;
+
+				CON_Printf("[ID: %d, NAME: %s] Valid: %s, Pos: (%g, %g, %g), Vertical: %3.3f, Horizontal: %3.3f, FOV: %g\n",
+					i, cam->name, cam->valid > 0 ? "yes" : "no", cam->x, cam->y, cam->z, vav, va, cam->fov);
 			}
 		}
 		else
@@ -637,15 +669,31 @@ namespace cameraman
 			for (int i = 0; i < g_count; ++i)
 			{
 				const cameraman_t *cam = (const cameraman_t *)cameramen + i;
-				float av = ANG_2_FLOAT(cam->viewangle) * (M_PI / 180.0f);
-				float avv = ANG_2_FLOAT(cam->viewvertangle) * (M_PI / 180.0f);
-				avv = (avv > M_PI ? (2.0f * M_PI) - avv : avv) + (M_PI * 0.5f);//FIX-ME!!!!
+				float va = ANG_2_FLOAT(cam->viewangle) * (M_PI / 180.0f);
+				float vav = ANG_2_FLOAT(cam->viewvertangle) * (M_PI / 180.0f);
 
-				float ax = 0;// (float)(sin(avv) * cos(av));
-				float ay = 0;// (float)(sin(avv) * sin(av));
-				float az = 0;// (float)cos(avv);
+				// vav is from 0 to 2PI, while it should be from -PI/2 to PI/2
+				vav = (vav > 1.5f * M_PI) ? vav - 2.0f * M_PI : vav;
+				vav = (vav > M_PI) ? M_PI - vav : vav;
+				vav = (vav > M_PI * 0.5f) ? M_PI * 0.5f - (vav - M_PI * 0.5f) : vav;
+				vav -= (0.5f * M_PI);
+				vav *= -1.0f;
 
-				RGL_DrawGizmo(0, cam->x, cam->y, cam->z, ax, ay, az, 50.0f);
+				float r = 2.0f;
+				float ax = (float)(sin(vav) * cos(va));
+				float ay = (float)(sin(vav) * sin(va));
+				float az = (float)cos(vav);
+
+				camera_gizmo_t gizmo;
+				gizmo.x = cam->x;
+				gizmo.y = cam->y;
+				gizmo.z = cam->z;
+				gizmo.ax = r * ax;
+				gizmo.ay = r * ay;
+				gizmo.az = r * az;
+				gizmo.scale = 20.0f;
+
+				RGL_DrawGizmo(&gizmo);
 			}
 		}
 	}
