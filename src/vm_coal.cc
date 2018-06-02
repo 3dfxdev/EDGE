@@ -341,43 +341,55 @@ static void CAM_Remove(coal::vm_c *vm, int argc)
 	vm->ReturnFloat(done);
 }
 
-// cameraman.set_position(id, pos.x, pos.y, pos.z)
+// cameraman.set_position(id, [name,] pos.x, pos.y, pos.z)
 static void CAM_SetPosition(coal::vm_c *vm, int argc)
 {
-	int done = -1;
-	if (argc == 4)
+	int done = -1, idx = 0;
+	if (argc >= 4)
 	{
-		int id = (int)*vm->AccessParam(0);
-		float x = (float)*vm->AccessParam(1);
-		float y = (float)*vm->AccessParam(2);
-		float z = (float)*vm->AccessParam(3);
+		int id = (int)*vm->AccessParam(idx++);
+
+		if (argc == 5 && id < 0)
+			id = cameraman::GetId(std::string(vm->AccessParamString(idx++)));
+
+		float x = (float)*vm->AccessParam(idx++);
+		float y = (float)*vm->AccessParam(idx++);
+		float z = (float)*vm->AccessParam(idx++);
 		done = cameraman::SetPosition(id, x, y, z);
 	}
 	vm->ReturnFloat(done);
 }
 
-// cameraman.set_angles(id, viewvertangle, viewangle)
+// cameraman.set_angles(id, [name,] viewvertangle, viewangle)
 static void CAM_SetAngles(coal::vm_c *vm, int argc)
 {
-	int done = -1;
-	if (argc == 3)
+	int done = -1, idx = 0;
+	if (argc >= 3)
 	{
-		int id = (int)*vm->AccessParam(0);
-		float ax = (float)*vm->AccessParam(1);
-		float ay = (float)*vm->AccessParam(2);
+		int id = (int)*vm->AccessParam(idx++);
+
+		if (argc == 4 && id < 0)
+			id = cameraman::GetId(std::string(vm->AccessParamString(idx++)));
+
+		float ax = (float)*vm->AccessParam(idx++);
+		float ay = (float)*vm->AccessParam(idx++);
 		done = cameraman::SetAngles(id, ax, ay);
 	}
 	vm->ReturnFloat(done);
 }
 
-// cameraman.set_fov(id, fov)
+// cameraman.set_fov(id, [name,] fov)
 static void CAM_SetFov(coal::vm_c *vm, int argc)
 {
-	int done = -1;
-	if (argc == 2)
+	int done = -1, idx = 0;
+	if (argc >= 2)
 	{
-		int id = (int)*vm->AccessParam(0);
-		float fov = (float)*vm->AccessParam(1);
+		int id = (int)*vm->AccessParam(idx++);
+
+		if (argc == 3 && id < 0)
+			id = cameraman::GetId(std::string(vm->AccessParamString(idx++)));
+
+		float fov = (float)*vm->AccessParam(idx++);
 		done = cameraman::SetFov(id, fov);
 	}
 	vm->ReturnFloat(done);
@@ -404,22 +416,32 @@ static void CAM_GetEndId(coal::vm_c *vm, int argc)
 	vm->ReturnFloat(id);
 }
 
-// cameraman.set_start_id(id)
+// cameraman.set_start_id(id [, name])
 static void CAM_SetStartId(coal::vm_c *vm, int argc)
 {
-	if (argc == 1)
+	if (argc >= 1)
 	{
-		int id = (int)*vm->AccessParam(0);
+		int idx = 0;
+		int id = (int)*vm->AccessParam(idx++);
+
+		if (argc == 2 && id < 0)
+			id = cameraman::GetId(std::string(vm->AccessParamString(idx++)));
+
 		cameraman::SetStartId(id);
 	}
 }
 
-// cameraman.set_end_id(id)
+// cameraman.set_end_id(id [, name])
 static void CAM_SetEndId(coal::vm_c *vm, int argc)
 {
-	if (argc == 1)
+	if (argc >= 1)
 	{
-		int id = (int)*vm->AccessParam(0);
+		int idx = 0;
+		int id = (int)*vm->AccessParam(idx++);
+
+		if (argc == 2 && id < 0)
+			id = cameraman::GetId(std::string(vm->AccessParamString(idx++)));
+
 		cameraman::SetEndId(id);
 	}
 }
@@ -434,12 +456,17 @@ static void CAM_SetStep(coal::vm_c *vm, int argc)
 	}
 }
 
-// cameraman.switch_to(id)
+// cameraman.switch_to(id [, name])
 static void CAM_SwitchTo(coal::vm_c *vm, int argc)
 {
-	if (argc == 1)
+	if (argc >= 1)
 	{
-		int id = (int)*vm->AccessParam(0);
+		int idx = 0;
+		int id = (int)*vm->AccessParam(idx++);
+
+		if (argc == 2 && id < 0)
+			id = cameraman::GetId(std::string(vm->AccessParamString(idx++)));
+
 		cameraman::SetStartId(id);
 		cameraman::SetEndId(id);
 	}

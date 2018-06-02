@@ -1,0 +1,32 @@
+Camera-man System readme
+
+ 1. What is Camera-man
+	Camera-man system governs setup and handling of [TODO]
+	
+ 2. Basics
+	2.1 Console Commands
+		Basic setup of the camera-man system is done via set of console commands, listed below:
+		 - 'actcam' - activates (turns on) the system, by default it is inactive; the command requires a single parameter to indicated whether to turn on or off the system (1 or 0),
+		 - 'rstcam' - resets the system to its default state (erases all stored cameras and turns it off),
+		 - 'addcam' - adds a new camera in player's current location and orientation; it requires two parameters - field-of-view angle, in degrees and a name for the camera (which is optional),
+		 - 'remcam' - removes a camera of given idetifier (provided by 'addcam') or name; removal by name requires the first parameter to be set to -1,
+		 - 'swtcam' - switches the view to the camera given by an identifier or a name; switching by name requires the first parameter to be set to -1,
+		 - 'strcam' - sets the camera of given identifier or name as the first one (start) to interpolate between; setting the camera by name requires the first parameter to be set to -1,
+		 - 'endcam' - sets the camera of given identifier or name as the second one (end) to interpolate between; setting the camera by name requires the first parameter to be set to -1,
+		 - 'poscam' - sets position of the camera of given identifier or name to be players current position; setting the camera by name requires the first parameter to be set to -1,
+		 - 'angcam' - sets angles of the camera of given identifier or name to be players current angles (vertical and horizontal); setting the camera by name requires 
+					  the first parameter to be set to -1,
+		 - 'fovcam' - sets field-of-view angle (in degrees) of the camera of given identifier or name to be of the given value; setting the camera by name requires the first parameter to be set to -1,
+		 - 'savcam' - saves current state of the system to a file located in a sub-directory specified in 'camera_subdir' global variable (by default set to 'doom_ddf/cameras'); 
+					  saved file name is the same as the name of the currently open map,
+		 - 'lddcam' - loads the state of the system from a file located in a sub-directory specified in 'camera_subdir' global variable (by default set to 'doom_ddf/cameras');
+					  loaded file name is the same as the name of the currently open map,
+		 - 'prtcam' - prints debugging information about current state of the system (i.e. lists all cameras avaiable),
+		 - 'tghelp' - toggles rendering of helper gizmos in the engine (e.g. gizmos showing where cameras were set up).
+		 
+	2.2 COAL Interface
+		Camera-man system is also controlable via COAL scripts, via the following procedures:
+		 - [TODO]
+		 
+	2.3 RTS Interface
+		[TODO]

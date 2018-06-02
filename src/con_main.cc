@@ -463,123 +463,126 @@ int CMD_AddCameraMan(char **argv, int argc)
 			I_Printf("NO PLAYER!\n");
 		}
 	}
-	else
-	{
-		I_Printf("Usage: %s FOV\n\tAdds a named camera-man of the given FOV for the current player position and view angles.\n", argv[0]);
-	}
 	return 0;
 }
 
 int CMD_RemoveCameraMan(char **argv, int argc)
 {
-	if (argc == 2)
+	if (argc >= 2)
 	{
 		int id = atoi(argv[1]);
+
+		if (argc == 3 && id < 0)
+			id = cameraman::GetId(argv[2]);
+
 		int state = cameraman::Remove(id);
 		if (state > -1)
 			CON_Printf("Successfully removed camera-man of ID: %d...\n", id);
 		return state;
-	}
-	else
-	{
-		I_Printf("Usage: %s ID\n\tRemoves camera-man of the given ID.\n", argv[0]);
 	}
 	return 0;
 }
 
 int CMD_SwitchToCameraMan(char **argv, int argc)
 {
-	if (argc == 2)
+	if (argc >= 2)
 	{
 		int id = atoi(argv[1]);
+
+		if (argc == 3 && id < 0)
+			id = cameraman::GetId(argv[2]);
+
 		cameraman::SetStartId(id);
 		cameraman::SetEndId(id);
-	}
-	else
-	{
-		I_Printf("Usage: %s ID\n\tSwitches current view to the one given by the camera-man of ID. To switch back to normal view give -1 as ID.\n", argv[0]);
 	}
 	return 0;
 }
 
 int CMD_SetStartCameraMan(char **argv, int argc)
 {
-	if (argc == 2)
+	if (argc >= 2)
 	{
 		int id = atoi(argv[1]);
+
+		if (argc == 3 && id < 0)
+			id = cameraman::GetId(argv[2]);
+
 		cameraman::SetStartId(id);
-	}
-	else
-	{
-		I_Printf("Usage: %s ID\n\tSets given camera-man ID as a ID of a camera-man start point for camera interpolation.\n", argv[0]);
 	}
 	return 0;
 }
 
 int CMD_SetEndCameraMan(char **argv, int argc)
 {
-	if (argc == 2)
+	if (argc >= 2)
 	{
 		int id = atoi(argv[1]);
+
+		if (argc == 3 && id < 0)
+			id = cameraman::GetId(argv[2]);
+
 		cameraman::SetEndId(id);
-	}
-	else
-	{
-		I_Printf("Usage: %s ID\n\tSets given camera-man ID as an ID of a camera-man end point for camera interpolation.\n", argv[0]);
 	}
 	return 0;
 }
 
 int CMD_SetCameraManPosition(char **argv, int argc)
 {
-	if (argc == 2)
+	if (argc >= 2)
 	{
 		if (player_t *hero = players[0])
 		{
 			int id = atoi(argv[1]);
+
+			if (argc == 3 && id < 0)
+				id = cameraman::GetId(argv[2]);
+
 			float x = hero->mo->x;
 			float y = hero->mo->y;
-			float z = hero->mo->z;
+			float z = hero->mo->z + hero->viewz;
 			return cameraman::SetPosition(id, x, y, z);
 		}
-	}
-	else
-	{
-		I_Printf("Usage: %s ID\n\tMoves camera-man of the given ID to current player position.\n", argv[0]);
 	}
 	return 0;
 }
 
 int CMD_SetCameraManAngles(char **argv, int argc)
 {
-	if (argc == 2)
+	if (argc >= 2)
 	{
 		if (player_t *hero = players[0])
 		{
 			int id = atoi(argv[1]);
+
+			if (argc == 3 && id < 0)
+				id = cameraman::GetId(argv[2]);
+
 			float ax = hero->mo->GetInterpolatedVertAngle();
 			float ay = hero->mo->GetInterpolatedAngle();
 			return cameraman::SetAngles(id, ax, ay);
 		}
-	}
-	else
-	{
-		I_Printf("Usage: %s ID\n\tChanges camera-man of the given ID view angles to the ones of the current player.\n", argv[0]);
 	}
 	return 0;
 }
 
 int CMD_SetCameraManFov(char **argv, int argc)
 {
-	if (argc == 3)
+	if (argc >= 3)
 	{
 		int id = atoi(argv[1]);
-		float fov = atof(argv[2]);
+		float fov = 0.0f;
+
+		if (argc == 4 && id < 0)
+		{
+			id = cameraman::GetId(argv[2]);
+			fov = atof(argv[3]);
+		}
+		else
+		{
+			fov = atof(argv[2]);
+		}
+
 		return cameraman::SetFov(id, fov);
-	}
-	else
-	{
-		I_Printf("Usage: %s ID\n\tChanges camera-man of the given ID view angles to the ones of the current player.\n", argv[0]);
 	}
 	return 0;
 }

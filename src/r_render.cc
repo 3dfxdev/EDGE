@@ -669,6 +669,10 @@ namespace cameraman
 			for (int i = 0; i < g_count; ++i)
 			{
 				const cameraman_t *cam = (const cameraman_t *)cameramen + i;
+
+				if (!cam->valid)
+					continue;
+
 				float va = ANG_2_FLOAT(cam->viewangle) * (M_PI / 180.0f);
 				float vav = ANG_2_FLOAT(cam->viewvertangle) * (M_PI / 180.0f);
 
