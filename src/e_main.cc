@@ -431,48 +431,13 @@ void SetLanguage(void)
 }
 
 //
-// SpecialWadVerify
-//
-static void SpecialWadVerify(void)
-{
-	int lump = W_CheckNumForName("EDGEVER");
-	if (lump < 0)
-		I_Error("EDGEVER lump not found. Get EDGE2.WAD at http://edge2.sourceforge.net/");
-
-	const void *data = W_CacheLumpNum(lump);
-
-	// parse version number
-	const char *s = (const char*)data;
-	int wad_ver = atoi(s) * 100;
-
-	while (isdigit(*s)) s++;
-	s++;
-	wad_ver += atoi(s);
-
-	W_DoneWithLump(data);
-
-	I_Printf("EDGE2.WAD version %1.2f found.\n", wad_ver / 100.0);
-
-	if (wad_ver < EDGE_WAD_VERSION)
-	{
-		I_Warning("EDGE2.WAD is an older version (expected %1.2f)\n",
-			EDGE_WAD_VERSION / 100.0);
-	}
-	else if (wad_ver > EDGE_WAD_VERSION)
-	{
-		I_Warning("EDGE2.WAD is a newer version (expected %1.2f)\n",
-			EDGE_WAD_VERSION / 100.0);
-	}
-}
-
-//
 // SpecialPAKVerify
 //
 static void SpecialPAKVerify(void)
 {
 	int lump = W_CheckNumForName("EDGEVER");
 	if (lump < 0)
-		I_Error("EDGEVER lump not found. Get EDGE.PAK at http://edge2.sourceforge.net/");
+		I_Error("EDGEVER lump not found. Get EDGE.EPK at http://edge2.sourceforge.net/");
 
 	const void *data = W_CacheLumpNum(lump);
 
@@ -486,7 +451,7 @@ static void SpecialPAKVerify(void)
 
 	W_DoneWithLump(data);
 
-	I_Printf("EDGE.PAK version %1.2f found.\n", pak_ver / 100.0);
+	I_Printf("EDGE.EPK version %1.2f found.\n", pak_ver / 100.0);
 
 	if (pak_ver < EDGE_PAK_VERSION)
 	{

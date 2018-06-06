@@ -126,7 +126,14 @@ add_subdirectory(wadsrc)
 # MSVC
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
-	set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT ${CMAKE_CXX_FLAGS} /arch:SSE2" )
+	
+	if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
+		set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT ${CMAKE_CXX_FLAGS} /arch:SSE2" )
+	else()
+		set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT ${CMAKE_CXX_FLAGS} /arch:AVX" )
+		add_definitions(-DSIMD_X64)
+		add_definitions(-DWIN64)
+	endif()
 else()
 	if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
 		set ( CMAKE_CXX_FLAGS "-mfpu=neon-vfpv4 -mtune=cortex-a7 -mhard-float ${CMAKE_CXX_FLAGS}" )
@@ -184,45 +191,61 @@ add_custom_target(revision_check ALL
 
 # See /VSLibs/lib_versions.txt
 # Download VSLibs for MSVC - http://tdgmods.net/VSLibs.7z (up to date as of listing below)
-
-if(MSVC)
-	set( JPEG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libjpeg-turbo/include" )
-	set( JPEG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libjpeg-turbo/lib/turbojpeg-static.lib" )
-	set( OGG_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg/lib/libogg_staticd.lib" )
-	set( OGG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg/include" )
-	set( OGG_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg/lib/libogg_static.lib" )
-	set( PHYSFS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/physfs/include" )
-	set( PHYSFS_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/physfs/lib/physfs.lib" )
-	set( PNG_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng/lib/libpng14_staticd.lib" )
-	set( PNG_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng/lib/libpng14_static.lib" )
-	set( PNG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng/include" )
-	set( SDL2MAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2main.lib" )
-	set( SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/include" )
-	set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2.lib" )
-	set( SDL_NET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2_net-2.0.1/include" )
-	set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2_net-2.0.1/lib/x86/SDL2_net.lib" )
-	set( VORBISFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/lib/libvorbisfile_static.lib" )
-	set( VORBISFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/lib/libvorbisfile_static.lib" )
-	set( VORBIS_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/lib/libvorbis_static.lib" )
-	set( VORBIS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/include" )
-	set( VORBIS_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/lib/libvorbis_static.lib" )
-	set( ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.11/include" )
-	set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.11/lib/zlibstatic.lib" )
-	set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.11/lib/zlibstatic.lib" )
-else(MSVC)
-	find_package(PhysFS REQUIRED)
-	find_package(SDL2 REQUIRED)
-	find_package(SDL2_net REQUIRED)
-	find_package(OGG REQUIRED)
-	find_package(Vorbis REQUIRED)
-	find_package(ZLIB REQUIRED)
-	find_package(PNG REQUIRED)
-	find_package(JPEG REQUIRED)
+if (MSVC)
+	if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
+		set( JPEG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libjpeg-turbo/include" )
+		set( JPEG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libjpeg-turbo/lib/turbojpeg-static.lib" )
+		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg/lib/libogg_staticd.lib" )
+		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg/include" )
+		set( ogg_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg/lib/libogg_static.lib" )
+		set( physfs_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/physfs/include" )
+		set( physfs_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/physfs/lib/physfs.lib" )
+		set( PNG_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng/lib/libpng14_staticd.lib" )
+		set( PNG_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng/lib/libpng14_static.lib" )
+		set( PNG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libpng/include" )
+		set( SDL2MAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2main.lib" )
+		set( SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/include" )
+		set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2.lib" )
+		set( SDL_NET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2_net-2.0.1/include" )
+		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2_net-2.0.1/lib/x86/SDL2_net.lib" )
+		set( vorbisFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/lib/libvorbisfile_static.lib" )
+		set( vorbisFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/lib/libvorbisfile_static.lib" )
+		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/lib/libvorbis_static.lib" )
+		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/include" )
+		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/lib/libvorbis_static.lib" )
+		set( ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.11/include" )
+		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.11/lib/zlibstatic.lib" )
+		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.11/lib/zlibstatic.lib" )
+	else()
+		set( JPEG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libjpeg-turbo/include" )
+		set( JPEG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libjpeg-turbo/lib/turbojpeg-static.lib" )
+		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libogg-1.3.3/lib/libogg_staticd.lib" )
+		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libogg-1.3.3/include" )
+		set( ogg_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libogg-1.3.3/lib/libogg_static.lib" )
+		set( physfs_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/physfs/include" )
+		set( physfs_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/physfs/lib/physfs-static.lib" )
+		set( PNG_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/lpng1530/build/Debug/libpng15_staticd.lib" )
+		set( PNG_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/lpng1530/build/RelWithDebInfo/libpng15_static.lib" )
+		set( PNG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/lpng1530/include" )
+		set( SDL2MAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2/lib/x64/SDL2main.lib" )
+		set( SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2/include" )
+		set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2/lib/x64/SDL2.lib" )
+		set( SDL_NET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2_net-2.0.1/include" )
+		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2_net-2.0.1/lib/x64/SDL2_net.lib" )
+		set( vorbisFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.5/lib/libvorbisfile_static.lib" )
+		set( vorbisFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.5/lib/libvorbisfile_static.lib" )
+		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.5/lib/libvorbis_static.lib" )
+		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.5/include" )
+		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.5/lib/libvorbis_static.lib" )
+		set( ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/zlib-1.2.11/include" )
+		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/zlib-1.2.11/lib/zlibstatic.lib" )
+		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/zlib-1.2.11/lib/zlibstatic.lib" )
+	endif()
 endif(MSVC)
 
 # Phys
-#find_package(PHYSFS REQUIRED)
-include_directories(${PHYSFS_INCLUDE_DIR})
+#find_package(physfs REQUIRED)
+include_directories(${physfs_INCLUDE_DIR})
 
 # SDL
 #find_package(SDL2 REQUIRED)
@@ -241,11 +264,11 @@ find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 
 # libvorbis/libogg
-#find_package(OGG REQUIRED)
+#find_package(ogg REQUIRED)
 #find_package(Vorbis REQUIRED)
 include_directories(
-	${OGG_INCLUDE_DIR}
-	${VORBIS_INCLUDE_DIR}
+	${ogg_INCLUDE_DIR}
+	${vorbis_INCLUDE_DIR}
 )
 
 # zlib
@@ -505,6 +528,8 @@ set(3DGE_WIN32_SOURCES
 	src/system/win32/w32_system.cc
 	src/system/win32/w32_res.rc
 	src/system/win32/i_exception.cc
+	src/system/win32/w32_iwad.cc
+	#src/system/win32/vs2015hack.cc
 	epi/epi_win32.cc
 	epi/filesystem_win32.cc
 )
@@ -564,13 +589,13 @@ target_link_libraries(3DGE
 	${SDL2MAIN_LIBRARY}
 	${SDL2_LIBRARY}
 	${SDL2_NET_LIBRARY}
-	${OGG_RELEASE_LIBRARY}
-	${VORBIS_RELEASE_LIBRARY}
-	${VORBISFILE_RELEASE_LIBRARY}
+	${ogg_RELEASE_LIBRARY}
+	${vorbis_RELEASE_LIBRARY}
+	${vorbisFILE_RELEASE_LIBRARY}
 	${ZLIB_LIBRARY_RELEASE}
 	${PNG_LIBRARY_RELEASE}
 	${JPEG_LIBRARY}
-	${PHYSFS_LIBRARY}
+	${physfs_LIBRARY}
 )
 
 if (WIN32)
