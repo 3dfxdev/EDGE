@@ -34,6 +34,28 @@ const char *GetVersionString();
 #define EDGEVERSTR "2.1.0 - TEST3"
 #endif
 
+// Build Platform Strings (Visual Studio/Windows)
+#if (_MSC_VER)
+#ifdef _M_X64
+#define EDGEPLATFORM "x64"
+#define EDGEPRINTBIT "64-bit"
+#elif _M_IX86
+#define EDGEPLATFORM "x86"
+#define EDGEPRINTBIT "32-bit"
+#endif
+#endif
+
+// Build Platform Strings (GCC/Linux, et al)
+#ifdef LINUX
+#ifdef __i386__
+#define EDGEPLATFORM "x86"
+#define EDGEPRINTBIT "32-bit"
+#elif __ia64__
+#define EDGEPLATFORM "x64"
+#define EDGEPRINTBIT "64-bit"
+#endif
+#endif
+
 #define EDGEBUILDSTR "(205af44)"
 
 #define VERSIONSTR "v1.2.0test3"

@@ -232,11 +232,11 @@ if (MSVC)
 		set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2/lib/x64/SDL2.lib" )
 		set( SDL_NET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2_net-2.0.1/include" )
 		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2_net-2.0.1/lib/x64/SDL2_net.lib" )
-		set( vorbisFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.5/lib/libvorbisfile_static.lib" )
-		set( vorbisFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.5/lib/libvorbisfile_static.lib" )
-		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.5/lib/libvorbis_static.lib" )
-		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.5/include" )
-		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.5/lib/libvorbis_static.lib" )
+		set( vorbisFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.6/lib/libvorbisfile_static.lib" )
+		set( vorbisFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.6/lib/libvorbisfile_static.lib" )
+		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.6/lib/libvorbis_static.lib" )
+		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.6/include" )
+		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.6/lib/libvorbis_static.lib" )
 		set( ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/zlib-1.2.11/include" )
 		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/zlib-1.2.11/lib/zlibstatic.lib" )
 		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/zlib-1.2.11/lib/zlibstatic.lib" )
@@ -528,7 +528,7 @@ set(3DGE_WIN32_SOURCES
 	src/system/win32/w32_system.cc
 	src/system/win32/w32_res.rc
 	src/system/win32/i_exception.cc
-	src/system/win32/w32_iwad.cc
+	#src/system/win32/w32_iwad.cc
 	#src/system/win32/vs2015hack.cc
 	epi/epi_win32.cc
 	epi/filesystem_win32.cc

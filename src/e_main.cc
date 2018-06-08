@@ -451,7 +451,7 @@ static void SpecialPAKVerify(void)
 
 	W_DoneWithLump(data);
 
-	I_Printf("EDGE.EPK version %1.2f found.\n", pak_ver / 100.0);
+	I_Printf("Edge PacKage (EPK) version %1.2f found.\n", pak_ver / 100.0);
 
 	if (pak_ver < EDGE_PAK_VERSION)
 	{
@@ -1437,7 +1437,9 @@ static void ShowDateAndVersion(void)
 	I_Debugf("[Debug file created at %s]\n\n", timebuf);
 
 	// 23-6-98 KM Changed to hex to allow versions such as 0.65a etc
-	I_Printf("EDGE v" EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
+	I_Printf("EDGE (" EDGEPLATFORM ") v" EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
+
+
 	I_Printf("EDGE homepage is at http://edge2.sourceforge.net/\n");
 	I_Printf("EDGE Wiki is at http://3dfxdev.net/edgewiki/\n");
 	I_Printf("EDGE forums are located at http://tdgmods.net/smf\n");
@@ -1750,7 +1752,7 @@ static void E_Shutdown(void);
 static void E_Startup(void)
 {
 	int p;
-	const char *ps;
+//	const char *ps;
 
 #ifdef DREAMCAST_DEBUG
 	printf("Changing dir\n");
