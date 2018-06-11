@@ -108,43 +108,43 @@ void OPL_Player::OPL_Synth_Reset_Chip(opl3_chip *chip)
 {
     for (Bit32u i = 0x40; i < 0x56; i++)
     {
-        OPL3_WriteReg(chip, i, 0x3f);
+        OPL3_WriteRegBuffered(chip, i, 0x3f);
     }
 
     for (Bit32u i = 0x60; i < 0xf6; i++)
     {
-        OPL3_WriteReg(chip, i, 0x00);
+        OPL3_WriteRegBuffered(chip, i, 0x00);
     }
 
     for (Bit32u i = 0x01; i < 0x40; i++)
     {
-        OPL3_WriteReg(chip, i, 0x00);
+        OPL3_WriteRegBuffered(chip, i, 0x00);
     }
 
-    OPL3_WriteReg(chip, 0x01, 0x20);
+    OPL3_WriteRegBuffered(chip, 0x01, 0x20);
 
     if (!opl_opl2mode)
     {
-        OPL3_WriteReg(chip, 0x105, 0x01);
+        OPL3_WriteRegBuffered(chip, 0x105, 0x01);
         for (Bit32u i = 0x140; i < 0x156; i++)
         {
-            OPL3_WriteReg(chip, i, 0x3f);
+            OPL3_WriteRegBuffered(chip, i, 0x3f);
         }
 
         for (Bit32u i = 0x160; i < 0x1f6; i++)
         {
-            OPL3_WriteReg(chip, i, 0x00);
+            OPL3_WriteRegBuffered(chip, i, 0x00);
         }
 
         for (Bit32u i = 0x101; i < 0x140; i++)
         {
-            OPL3_WriteReg(chip, i, 0x00);
+            OPL3_WriteRegBuffered(chip, i, 0x00);
         }
-        OPL3_WriteReg(chip, 0x105, 0x01);
+        OPL3_WriteRegBuffered(chip, 0x105, 0x01);
     }
     else
     {
-        OPL3_WriteReg(chip, 0x105, 0x00);
+        OPL3_WriteRegBuffered(chip, 0x105, 0x00);
     }
 }
 
@@ -204,7 +204,7 @@ void OPL_Player::OPL_Synth_WriteReg(Bit32u bank, Bit16u reg, Bit8u data)
 {
     reg |= bank << 8;
 
-    OPL3_WriteReg(&chip, reg, data);
+    OPL3_WriteRegBuffered(&chip, reg, data);
 }
 
 
@@ -1240,7 +1240,7 @@ void OPL_Player::Player_Init(void)
 
 OPL_Player::OPL_Player()
 {
-    OPL3_Reset(&chip);
+	OPL3_Reset(&chip, (Bit32u)config.samplerate);
 
     genmidi_init = false;
 
