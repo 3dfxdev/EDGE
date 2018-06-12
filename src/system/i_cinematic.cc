@@ -121,8 +121,6 @@ extern float slider_to_gain[];
 #define DEBUG_ROQ_READER
 #undef DEBUG_ROQ_READER
 
-#define SIMD_X64 __SSE2__
-
 static void MovieSnd_Callback(void *udata, Uint8 *stream, int len)
 {
     CIN_UpdateAudio(stream, len);

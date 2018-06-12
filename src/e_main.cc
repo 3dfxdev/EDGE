@@ -94,8 +94,8 @@
 
 #include "system/i_x86.h"
 
-#define E_TITLE  "EDGE v" EDGEVERSTR
-
+//CA: 6/11/2018
+//    Removed E_TITLE from e_main.cc and into version.h!
 // uncomment line below to enable ROQ playback, which is in testing phases.
 #define ROQMOVIETEST
 
@@ -1979,16 +1979,14 @@ void E_Main(int argc, const char **argv)
 	{
 		E_Startup();
 
-		//I_StartupMovie();
-//#ifdef ROQMOVIETEST
 		E_PlayMovie("/pack0/video/intro.roq", 1);
-//#endif
-		//I_ShutdownMovie();
 
 		E_InitialState();
 
 		CON_MessageColor(RGB_MAKE(255, 255, 0));
+
 		I_Printf("EDGE2 v" GIT_DESCRIPTION " system ready.\n");
+		I_Printf("Platform Arch:" EDGEPLATFORM " \n");
 
 		I_Debugf("- Entering game loop...\n");
 

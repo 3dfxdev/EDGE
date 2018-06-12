@@ -5,6 +5,23 @@
  ==============================================================================
 */
 
+#ifdef _M_X64 || __ia64__
+#include <xmmintrin.h>
+#include <emmintrin.h>
+
+#define _mm_muladd_ss(A, B, C)				_mm_add_ss(_mm_mul_ss((A), (B)), (C))
+#define _mm_muladd_ps(A, B, C)				_mm_add_ps(_mm_mul_ps((A), (B)), (C))
+
+#define _mm_mulsub_ss(A, B, C)				_mm_sub_ss((C), _mm_mul_ss((A), (B)))
+#define _mm_mulsub_ps(A, B, C)				_mm_sub_ps((C), _mm_mul_ps((A), (B)))
+
+#define _mm_clamp_ss(A, B, C)				_mm_min_ss(_mm_max_ss((A), (B)), (C))
+#define _mm_clamp_ps(A, B, C)				_mm_min_ps(_mm_max_ps((A), (B)), (C))
+
+#define _mm_splat_ps(A, I)					_mm_shuffle_ps((A), (A), _MM_SHUFFLE(I, I, I, I))
+#define _mm_splat_epi32(A, I)				_mm_shuffle_epi32((A), _MM_SHUFFLE(I, I, I, I))
+#endif
+
 #define MAX_CINEMATICS						16
 #define BIT(num)							(1 << (num))
 

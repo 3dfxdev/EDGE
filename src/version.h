@@ -39,9 +39,11 @@ const char *GetVersionString();
 #ifdef _M_X64
 #define EDGEPLATFORM "x64"
 #define EDGEPRINTBIT "64-bit"
+#define E_TITLE "EDGE (64-bit)" "v" EDGEVERSTR
 #elif _M_IX86
 #define EDGEPLATFORM "x86"
 #define EDGEPRINTBIT "32-bit"
+#define E_TITLE "EDGE (32-bit)" "v" EDGEVERSTR
 #endif
 #endif
 
@@ -50,15 +52,18 @@ const char *GetVersionString();
 #ifdef __i386__
 #define EDGEPLATFORM "x86"
 #define EDGEPRINTBIT "32-bit"
+#define E_TITLE "EDGE (32-bit)" "v" EDGEVERSTR
 #elif __ia64__
 #define EDGEPLATFORM "x64"
 #define EDGEPRINTBIT "64-bit"
+#define E_TITLE "EDGE (64-bit)" "v" EDGEVERSTR
 #endif
 #endif
 
-#define EDGEBUILDSTR "(205af44)"
+//#define EDGEBUILDSTR "(205af44)"
 
 #define VERSIONSTR "v1.2.0test3"
+#define FINALVERSIONSTR "v2.1.0 (Final)" "x" EDGEPRINTBIT
 
 // patch level (Savegames and Demos)
 #define EDGEPATCH  7

@@ -24,6 +24,9 @@
 #include "macros.h"
 #include "asserts.h"
 
+// 
+#endif /*__SYSTEM_SPECIFIC_DEFS__*/
+
 #ifdef LINUX
 #include "epi_linux.h"
 #endif
@@ -63,7 +66,28 @@ void I_Warning(const char *warning,...) GCCATTR((format(printf, 1, 2)));
 void I_Printf(const char *message,...) GCCATTR((format(printf, 1, 2)));
 void I_Debugf(const char *message,...) GCCATTR((format(printf, 1, 2)));
 
-#endif /* __EDGE_PLATFORM_INTERFACE__ */
+/// `CA- 6.5.2016: quick hacks to change these in Visual Studio (less warnings). 
+#ifdef _MSC_VER
+#define strdup _strdup
+#define stricmp _stricmp
+#define strnicmp _strnicmp
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#define uint unsigned int
+#define ALIGN_8(x)							__declspec(align(8)) x
+#define ALIGN_16(x)							__declspec(align(16)) x
+#define ALIGN_32(x)							__declspec(align(32)) x
+#pragma warning( disable : 4099)
+#elif defined MACOSX
+typedef unsigned int uint;
+#endif
+// Template for LINUX like MSVC 
+#elif defined LINUX 
+#define ALIGN_STRUCT(x)    __attribute__((aligned(x)))
+//#endif
 
+
+
+#endif /* __EDGE_PLATFORM_INTERFACE__ */
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab
