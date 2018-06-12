@@ -43,6 +43,8 @@
 
 void strupr(char *str);
 
+#define ALIGN_STRUCT(x)    __attribute__((aligned(x)))
+
 #endif /* __LINUX_EPI_HEADER__ */
 
 //--- editor settings ---

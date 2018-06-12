@@ -34,6 +34,7 @@
 #define strnicmp  strncasecmp
 
 void strupr(char *str);
+typedef unsigned int uint;
 
 #endif /* __MACOSX_EPI_HEADER__ */
 

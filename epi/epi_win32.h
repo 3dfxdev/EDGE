@@ -51,6 +51,17 @@
 
 #include <windows.h>
 
+#define strdup _strdup
+#define stricmp _stricmp
+#define strnicmp _strnicmp
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#define uint unsigned int
+#define ALIGN_8(x)							__declspec(align(8)) x
+#define ALIGN_16(x)							__declspec(align(16)) x
+#define ALIGN_32(x)							__declspec(align(32)) x
+#pragma warning( disable : 4099)
+
 
 #endif /*__WIN32_EPI_HEADER__*/
 
