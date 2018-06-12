@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2.2)
-project(3DGE)
+project(EDGE)
 
 if( COMMAND cmake_policy )
 	if( POLICY CMP0011 )
@@ -81,7 +81,7 @@ function( add_pk3 PK3_NAME PK3_DIR )
 
 	add_custom_command( OUTPUT ${CMAKE_BINARY_DIR}/${PK3_NAME}
 		COMMAND zipdir -udf ${CMAKE_BINARY_DIR}/${PK3_NAME} ${PK3_DIR}
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/${PK3_NAME} $<TARGET_FILE_DIR:3DGE>/${PK3_NAME}
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/${PK3_NAME} $<TARGET_FILE_DIR:EDGE>/${PK3_NAME}
 		DEPENDS zipdir )
 	# Create a list of source files for this PK3, for use in the IDE
 	# Phase 1: Create a list of all source files for this PK3 archive, except 
@@ -283,9 +283,9 @@ include_directories(${PNG_INCLUDE_DIR})
 #find_package(JPEG REQUIRED)
 include_directories(${JPEG_INCLUDE_DIR})
 
-# 3DGE
+# EDGE
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src)
-set(3DGE_SOURCES
+set(EDGE_SOURCES
 	coal/c_compile.cc
 	coal/c_execute.cc
 	coal/c_memory.cc
@@ -521,7 +521,7 @@ set(3DGE_SOURCES
 
 )
 
-set(3DGE_WIN32_SOURCES
+set(EDGE_WIN32_SOURCES
 	src/system/win32/w32_music.cc
 	src/system/win32/w32_mus.cc
 	src/system/win32/w32_net.cc
@@ -534,7 +534,7 @@ set(3DGE_WIN32_SOURCES
 	epi/filesystem_win32.cc
 )
 
-set(3DGE_UNIX_SOURCES
+set(EDGE_UNIX_SOURCES
     #	src/system/unx/unx_main.cc
 	src/system/unx/unx_music.cc
 	src/system/unx/unx_net.cc
@@ -543,7 +543,7 @@ set(3DGE_UNIX_SOURCES
 	epi/epi_linux.cc
 )
 
-set(3DGE_DREAMCAST_SOURCES
+set(EDGE_DREAMCAST_SOURCES
 	src/dc_music.cc
 	src/dc_net.cc
 	src/dc_system.cc
@@ -552,8 +552,8 @@ set(3DGE_DREAMCAST_SOURCES
 )
 
 if (APPLE)
-	set(3DGE_UNIX_SOURCES
-		${3DGE_UNIX_SOURCES}
+	set(EDGE_UNIX_SOURCES
+		${EDGE_UNIX_SOURCES}
 		src/system/unx/mac/mac_ui.mm
 	)
 endif()
@@ -561,31 +561,31 @@ endif()
 add_subdirectory( tools )
 
 if(WIN32)
-	set(3DGE_SOURCES ${3DGE_SOURCES}
-		${3DGE_WIN32_SOURCES}
+	set(EDGE_SOURCES ${EDGE_SOURCES}
+		${EDGE_WIN32_SOURCES}
 	)
 elseif(UNIX)
-	set(3DGE_SOURCES ${3DGE_SOURCES}
-		${3DGE_UNIX_SOURCES}
+	set(EDGE_SOURCES ${EDGE_SOURCES}
+		${EDGE_UNIX_SOURCES}
 	)
 elseif(DREAMCAST)
-	set(3DGE_SOURCES ${3DGE_SOURCES}
-		${3DGE_DREAMCAST_SOURCES}
+	set(EDGE_SOURCES ${EDGE_SOURCES}
+		${EDGE_DREAMCAST_SOURCES}
 	)
 endif()
 
-add_executable(3DGE
-	${3DGE_SOURCES}
+add_executable(EDGE
+	${EDGE_SOURCES}
 )
 
 
 
-add_dependencies( 3DGE revision_check )
+add_dependencies( EDGE revision_check )
 if(MSVC)
-	add_dependencies( 3DGE eecrashreport )
+	add_dependencies( EDGE eecrashreport )
 endif()
 
-target_link_libraries(3DGE
+target_link_libraries(EDGE
 	${SDL2MAIN_LIBRARY}
 	${SDL2_LIBRARY}
 	${SDL2_NET_LIBRARY}
@@ -599,14 +599,14 @@ target_link_libraries(3DGE
 )
 
 if (WIN32)
-	target_link_libraries(3DGE
+	target_link_libraries(EDGE
 		wsock32
 		winmm
 		gdi32
 		opengl32
 	)
 elseif(APPLE)
-	set_target_properties(3DGE PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa")
+	set_target_properties(EDGE PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa")
 elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "(Free|Open)BSD")
-	target_link_libraries(3DGE GL dl)
+	target_link_libraries(EDGE GL dl)
 endif()

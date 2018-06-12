@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  Win32 EDGE System Specifics
+//  Windows EDGE System Specifics
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 2003-2008  The EDGE Team.
+//  Copyright (c) 2003-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -45,12 +45,9 @@
 
 #pragma warning( disable : 4290 )
 #pragma warning( disable : 4005 ) // This is to disable the macro redefinition of _WINDOWS under Visual Studio
+#pragma warning( disable : 4099)
 
-#define _WINDOWS
-#define WIN32_LEAN_AND_MEAN
-
-#include <windows.h>
-
+// Win-specific definition stuff:
 #define strdup _strdup
 #define stricmp _stricmp
 #define strnicmp _strnicmp
@@ -60,7 +57,12 @@
 #define ALIGN_8(x)							__declspec(align(8)) x
 #define ALIGN_16(x)							__declspec(align(16)) x
 #define ALIGN_32(x)							__declspec(align(32)) x
-#pragma warning( disable : 4099)
+
+#define _WINDOWS
+#define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN
+
+#include <windows.h>
 
 
 #endif /*__WIN32_EPI_HEADER__*/
