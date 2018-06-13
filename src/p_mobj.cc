@@ -97,7 +97,7 @@ void P_DumpMobjs(void)
 
 	for (mo=mobjlisthead; mo; mo=mo->next, index++)
 	{
-		L_WriteDebug(" %4d: %p next:%p prev:%p [%s] at (%1.0f,%1.0f,%1.0f) states=%d > %d tics=%d\n",
+		L_WriteDebug(" %4d: %p next:%p prev:%p [%s] at (%1.0f,%1.0f,%1.0f) states=%ld > %ld tics=%d\n",
 			index,
 			mo, mo->next, mo->prev,
 			mo->info->name.c_str(),

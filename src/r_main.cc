@@ -44,7 +44,7 @@ int glmax_lights;
 int glmax_clip_planes;
 int glmax_tex_size;
 int glmax_tex_units;
-extern float max_anisotropic = 0;
+extern float max_anisotropic;
 
 extern cvar_c r_bloom;
 extern cvar_c r_lens;
@@ -272,6 +272,7 @@ static bool RGL_CheckExtension(const char *ext)
 
 //#define name GLEW_GET_FUN
 
+#undef FUDGE_FUNC
 #define FUDGE_FUNC(name, ext) 	if (_ptrc_##name == NULL) _ptrc_##name = _ptrc_##name##ext;
 
 // forward declaration to detect outdated opengl

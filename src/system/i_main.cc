@@ -175,7 +175,7 @@ fflush(stdout);
 	}
 	__except (I_W32ExceptionHandler(GetExceptionInformation()))
 	{
-		I_Error(0, "Exception caught in main: see CRASHLOG.TXT for info\n");
+		I_Error("Exception caught in main: see CRASHLOG.TXT for info\n");
 	}
 #endif
 
@@ -219,7 +219,7 @@ fflush(stdout);
 	}
 	catch (int e) 
 	{
-		I_Error(0, "Exception caught in main: see CRASHLOG.TXT for info\n");
+		I_Error("Exception caught in main: see CRASHLOG.TXT for info\n");
 	}
 #endif
 
@@ -253,7 +253,7 @@ int main(int argc, char **argv)
 	}
 	__except (I_W32ExceptionHandler(GetExceptionInformation()))
 	{
-		I_Error(0, "Exception caught in main: see CRASHLOG.TXT for info\n");
+		I_Error("Exception caught in main: see CRASHLOG.TXT for info\n");
 	}
 
 	return 0;

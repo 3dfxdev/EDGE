@@ -110,7 +110,7 @@ static void LoadMapInfo(FILE *fp, int offset, raw_gamemap_t *gmp)
 	// move to correct position in file
 	fseek(fp, offset, SEEK_SET);
 
-	I_Printf("Reading %d bytes...\n", sizeof(raw_gamemap_t));
+	I_Printf("Reading %lu bytes...\n", sizeof(raw_gamemap_t));
 	// FIXME: check error
 	fread(gmp, sizeof(raw_gamemap_t), 1, fp);
 

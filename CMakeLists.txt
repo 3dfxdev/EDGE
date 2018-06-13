@@ -243,6 +243,11 @@ if (MSVC)
 	endif()
 endif(MSVC)
 
+if(UNIX)
+	set( ogg_RELEASE_LIBRARY "libvorbisfile.so" )
+	set( physfs_LIBRARY "libphysfs.so" )
+endif(UNIX)
+
 # Phys
 #find_package(physfs REQUIRED)
 include_directories(${physfs_INCLUDE_DIR})

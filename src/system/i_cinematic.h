@@ -5,7 +5,7 @@
  ==============================================================================
 */
 
-#ifdef _M_X64 || __ia64__
+#if defined (_M_X64) || defined (__ia64__)
 #include <xmmintrin.h>
 #include <emmintrin.h>
 

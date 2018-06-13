@@ -96,6 +96,7 @@ char *COM_Parse (char **data_p)
 	int		c;
 	int		len;
 	char	*data;
+	static char nuthin[1] = { 0 };
 
 	data = *data_p;
 	len = 0;
@@ -105,7 +106,7 @@ char *COM_Parse (char **data_p)
 	if (!data)
 	{
 		*data_p = NULL;
-		return "";
+		return nuthin;
 	}
 		
 // skip whitespace
@@ -115,7 +116,7 @@ skipwhite:
 		if (c == 0)
 		{
 			*data_p = NULL;
-			return "";
+			return nuthin;
 		}
 		data++;
 	}

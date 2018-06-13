@@ -1281,7 +1281,7 @@ void OPL_Player::OPL_SendConfig(opl_config conf)
     OPL_Synth_Init();
 }
 
-char *genmidi_head = "#OPL_II#";
+char genmidi_head[] = "#OPL_II#";
 
 bool OPL_Player::OPL_LoadGENMIDI(void *data)
 {

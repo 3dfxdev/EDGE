@@ -169,7 +169,7 @@ void FShaderProgram::Link(const char *name)
 		I_Error("Link Shader '%s':\n%s\n", name, GetProgramInfoLog(mProgram).c_str());
 	}
 	else
-		I_PrintGLSL("Linking GLSL Shader '%s'\n", name, GetProgramInfoLog(mProgram).c_str());
+		I_PrintGLSL("Linking GLSL Shader '%s'\n%s\n", name, GetProgramInfoLog(mProgram).c_str());
 }
 
 //==========================================================================

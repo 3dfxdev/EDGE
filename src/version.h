@@ -35,7 +35,7 @@ const char *GetVersionString();
 #endif
 
 // Build Platform Strings (Visual Studio/Windows)
-#if (_MSC_VER)
+#ifdef _MSC_VER
 #ifdef _M_X64
 #define EDGEPLATFORM "x64"
 #define EDGEPRINTBIT "64-bit"
@@ -53,10 +53,12 @@ const char *GetVersionString();
 #define EDGEPLATFORM "x86"
 #define EDGEPRINTBIT "32-bit"
 #define E_TITLE "EDGE (32-bit)" "v" EDGEVERSTR
-#elif __ia64__
+#elif __x86_64__
 #define EDGEPLATFORM "x64"
 #define EDGEPRINTBIT "64-bit"
 #define E_TITLE "EDGE (64-bit)" "v" EDGEVERSTR
+#else
+#error "No platform defined"
 #endif
 #endif
 

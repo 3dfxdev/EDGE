@@ -1296,15 +1296,15 @@ static bool HasInternalGLNodes(data_file_c *df, int datafile)
 
 		levels++;
 
-		char gl_marker[10];
+		char glmarker[16];
 
-		sprintf(gl_marker, "GL_%s", lumpinfo[lump].name);
+		sprintf(glmarker, "GL_%s", lumpinfo[lump].name);
 
 		for (int M = L + 1; M < df->level_markers.GetSize(); M++)
 		{
 			int lump2 = df->level_markers[M];
 
-			if (strcmp(lumpinfo[lump2].name, gl_marker) == 0)
+			if (strcmp(lumpinfo[lump2].name, glmarker) == 0)
 			{
 				glnodes++;
 				break;
@@ -1419,9 +1419,16 @@ typedef struct
 	int dfindex;
 } file_info_t;
 
-static void TopLevel(void *userData, const char *origDir, const char *fname);
+static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origDir, const char *fname);
 
-static void LumpNamespace(void *userData, const char *origDir, const char *fname)
+static bool Check_isDirectory(const char *fname)
+{
+	PHYSFS_Stat fstat;
+	PHYSFS_stat(fname, &fstat);
+	return fstat.filetype == PHYSFS_FILETYPE_DIRECTORY ? true : false;
+}
+
+static PHYSFS_EnumerateCallbackResult LumpNamespace(void *userData, const char *origDir, const char *fname)
 {
 #ifdef HAVE_PHYSFS
 	file_info_t *user_data = (file_info_t *)userData;
@@ -1432,11 +1439,11 @@ static void LumpNamespace(void *userData, const char *origDir, const char *fname
 
 	I_Debugf("  LumpNamespace: processing %s\n", path);
 
-	if (PHYSFS_isDirectory(path))
+	if (Check_isDirectory(path))
 	{
 		// subdirectory... recurse
-		PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
-		return;
+		PHYSFS_enumerate(path, LumpNamespace, userData);
+		return PHYSFS_ENUM_OK;
 	}
 
 	if (wolf3d_mode)
@@ -1444,8 +1451,8 @@ static void LumpNamespace(void *userData, const char *origDir, const char *fname
 		if (stricmp(fname, "wolf3d") == 0)
 		{
 			// recurse wolf3d subdirectory to TopLevel
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
-			return;
+			PHYSFS_enumerate(path, LumpNamespace, userData);
+			return PHYSFS_ENUM_OK;
 		}
 	}
 
@@ -1454,8 +1461,8 @@ static void LumpNamespace(void *userData, const char *origDir, const char *fname
 		if (stricmp(fname, "rott") == 0)
 		{
 			// recurse rott subdirectory to TopLevel
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
-			return;
+			PHYSFS_enumerate(path, LumpNamespace, userData);
+			return PHYSFS_ENUM_OK;
 		}
 	}
 	else
@@ -1463,7 +1470,7 @@ static void LumpNamespace(void *userData, const char *origDir, const char *fname
 		I_Debugf("    opening lump %s\n", fname);
 	PHYSFS_File *file = PHYSFS_openRead(path);
 	if (!file)
-		return; // couldn't open file - skip
+		return PHYSFS_ENUM_OK; // couldn't open file - skip
 	int length = PHYSFS_fileLength(file);
 	PHYSFS_close(file);
 
@@ -1473,9 +1480,10 @@ static void LumpNamespace(void *userData, const char *origDir, const char *fname
 	AddLumpEx(user_data->dfile, numlumps - 1, 0, length,
 		user_data->dfindex, user_data->index, fname, 1, path);
 #endif
+	return PHYSFS_ENUM_OK;
 }
 
-static void WadNamespace(void *userData, const char *origDir, const char *fname)
+static PHYSFS_EnumerateCallbackResult WadNamespace(void *userData, const char *origDir, const char *fname)
 {
 #ifdef HAVE_PHYSFS
 	file_info_t *user_data = (file_info_t *)userData;
@@ -1489,20 +1497,20 @@ static void WadNamespace(void *userData, const char *origDir, const char *fname)
 
 	I_Printf("  WadNamespace: processing %s\n", path);
 
-	if (PHYSFS_isDirectory(path))
+	if (Check_isDirectory(path))
 	{
 		// subdirectory... recurse
-		PHYSFS_enumerateFilesCallback(path, WadNamespace, userData);
-		return;
+		PHYSFS_enumerate(path, WadNamespace, userData);
+		return PHYSFS_ENUM_OK;
 	}
 
 	// open wad lump
 	I_Debugf("    opening wad %s\n", fname);
 	PHYSFS_File *file = PHYSFS_openRead(path);
 	if (!file)
-		return; // couldn't open file - skip
+		return PHYSFS_ENUM_OK; // couldn't open file - skip
 
-	PHYSFS_read(file, &header, sizeof(raw_wad_header_t), 1);
+	PHYSFS_readBytes(file, &header, sizeof(raw_wad_header_t));
 
 	if (strncmp(header.identification, "IWAD", 4) != 0)
 	{
@@ -1520,7 +1528,7 @@ static void WadNamespace(void *userData, const char *origDir, const char *fname)
 	// loop over wad directory entries
 	for (int i = 0; i < (int)header.num_entries; i++)
 	{
-		PHYSFS_read(file, &entry, sizeof(raw_wad_entry_t), 1);
+		PHYSFS_readBytes(file, &entry, sizeof(raw_wad_entry_t));
 		int pos = EPI_LE_S32(entry.pos);
 		int size = EPI_LE_S32(entry.size);
 		int marker = 0;
@@ -1558,7 +1566,8 @@ static void WadNamespace(void *userData, const char *origDir, const char *fname)
 				if (strcmp(lumpinfo[df->level_markers[L]].name, tname) == 0)
 				{
 					I_Warning("Duplicate level '%s' ignored.\n", tname);
-					return;
+					PHYSFS_close(file);
+					return PHYSFS_ENUM_OK;
 				}
 			}
 
@@ -1568,9 +1577,10 @@ static void WadNamespace(void *userData, const char *origDir, const char *fname)
 
 	PHYSFS_close(file);
 #endif
+	return PHYSFS_ENUM_OK;
 }
 
-static void ScriptNamespace(void *userData, const char *origDir, const char *fname)
+static PHYSFS_EnumerateCallbackResult ScriptNamespace(void *userData, const char *origDir, const char *fname)
 {
 #ifdef HAVE_PHYSFS
 	file_info_t *user_data = (file_info_t *)userData;
@@ -1582,7 +1592,7 @@ static void ScriptNamespace(void *userData, const char *origDir, const char *fna
 
 	I_Printf("ScriptNamespace: processing %s\n", path);
 
-	if (PHYSFS_isDirectory(path))
+	if (Check_isDirectory(path))
 	{
 		I_Printf("ScriptNamespace: found subdirectory %s\n", fname);
 
@@ -1592,7 +1602,7 @@ static void ScriptNamespace(void *userData, const char *origDir, const char *fna
 			if ((stricmp(fname, "wolf3d") == 0) || (stricmp(fname, "wolf_ddf") == 0))
 			{
 				// recurse wolf3d subdirectory to TopLevel
-				PHYSFS_enumerateFilesCallback(path, TopLevel, userData);
+				PHYSFS_enumerate(path, TopLevel, userData);
 			}
 		}
 		else if (rott_mode)
@@ -1601,7 +1611,7 @@ static void ScriptNamespace(void *userData, const char *origDir, const char *fna
 			{
 				I_Printf("Rise of the Triad: enumerate PAKdir...\n");
 				// recurse rott subdirectory to TopLevel
-				PHYSFS_enumerateFilesCallback(path, TopLevel, userData);
+				PHYSFS_enumerate(path, TopLevel, userData);
 			}
 		}
 		else if (heretic_mode)
@@ -1609,7 +1619,7 @@ static void ScriptNamespace(void *userData, const char *origDir, const char *fna
 			if ((stricmp(fname, "heretic") == 0) || (stricmp(fname, "her_ddf") == 0))
 			{
 				// recurse heretic subdirectory to TopLevel
-				PHYSFS_enumerateFilesCallback(path, TopLevel, userData);
+				PHYSFS_enumerate(path, TopLevel, userData);
 			}
 		}
 		else // default to doom mode
@@ -1617,11 +1627,11 @@ static void ScriptNamespace(void *userData, const char *origDir, const char *fna
 			if ((stricmp(fname, "doom") == 0) || (stricmp(fname, "doom_ddf") == 0))
 			{
 				// recurse doom subdirectory to TopLevel
-				PHYSFS_enumerateFilesCallback(path, TopLevel, userData);
+				PHYSFS_enumerate(path, TopLevel, userData);
 			}
 		}
 
-		return;
+		return PHYSFS_ENUM_OK;
 	}
 
 	// check if add global lump - TODO
@@ -1631,7 +1641,7 @@ static void ScriptNamespace(void *userData, const char *origDir, const char *fna
 		I_Printf("  checking global lump %s\n", fname);
 		PHYSFS_File *file = PHYSFS_openRead(path);
 		if (!file)
-			return; // couldn't open file - skip
+			return PHYSFS_ENUM_OK; // couldn't open file - skip
 		int length = PHYSFS_fileLength(file);
 		PHYSFS_close(file);
 
@@ -1642,9 +1652,10 @@ static void ScriptNamespace(void *userData, const char *origDir, const char *fna
 			user_data->dfindex, user_data->index, fname, 1, path);
 	}
 #endif
+	return PHYSFS_ENUM_OK;
 }
 
-static void TopLevel(void *userData, const char *origDir, const char *fname)
+static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origDir, const char *fname)
 {
 #ifdef HAVE_PHYSFS
 	file_info_t *user_data = (file_info_t *)userData;
@@ -1656,7 +1667,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 
 	I_Printf("TopLevel: processing %s\n", path);
 
-	if (PHYSFS_isDirectory(path))
+	if (Check_isDirectory(path))
 	{
 		I_Printf("TopLevel: found subdirectory %s\n", fname);
 
@@ -1670,7 +1681,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "C_START", 0);
 
 			// enumerate all entries in the colormaps directory
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			PHYSFS_enumerate(path, LumpNamespace, userData);
 
 			// add fake C_END lump
 			I_Printf("  adding fake lump C_END\n");
@@ -1687,7 +1698,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "F_START", 0);
 
 			// enumerate all entries in the flats directory
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			PHYSFS_enumerate(path, LumpNamespace, userData);
 
 			// add fake F_END lump
 			I_Printf("  adding fake lump F_END\n");
@@ -1704,7 +1715,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "HI_START", 0);
 
 			// enumerate all entries in the hires directory
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			PHYSFS_enumerate(path, LumpNamespace, userData);
 
 			// add fake HI_END lump
 			I_Printf("  adding fake lump HI_END\n");
@@ -1721,7 +1732,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "P_START", 0);
 
 			// enumerate all entries in the flats directory
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			PHYSFS_enumerate(path, LumpNamespace, userData);
 
 			// add fake P_END lump
 			I_Printf("  adding fake lump P_END\n");
@@ -1738,7 +1749,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "S_START", 0);
 
 			// enumerate all entries in the sprites directory
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			PHYSFS_enumerate(path, LumpNamespace, userData);
 
 			// add fake S_END lump
 			I_Printf("  adding fake lump S_END\n");
@@ -1755,7 +1766,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "TX_START", 0);
 
 			// enumerate all entries in the textures directory
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			PHYSFS_enumerate(path, LumpNamespace, userData);
 
 			// add fake TX_END lump
 			I_Printf("  adding fake lump TX_END\n");
@@ -1772,7 +1783,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "V_START", 0);
 
 			// enumerate all entries in the voices directory
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			PHYSFS_enumerate(path, LumpNamespace, userData);
 
 			// add fake V_END lump
 			I_Printf("  adding fake lump V_END\n");
@@ -1789,7 +1800,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "VX_START", 0);
 
 			// enumerate all entries in the voxels directory
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			PHYSFS_enumerate(path, LumpNamespace, userData);
 
 			// add fake VX_END lump
 			I_Printf("  adding fake lump VX_END\n");
@@ -1802,7 +1813,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			if (stricmp(fname, "wolf3d") == 0)
 			{
 				// enumerate all entries in placebo Wolf3d Directory (inside edge2.pak)
-				PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+				PHYSFS_enumerate(path, LumpNamespace, userData);
 			}
 		}
 		else if (rott_mode)
@@ -1810,7 +1821,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			if (stricmp(fname, "rott") == 0)
 			{
 				// enumerate all entries in placebo ROTT Directory (inside edge2.pak)
-				PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+				PHYSFS_enumerate(path, LumpNamespace, userData);
 			}
 		}
 		//Startup IWAD?
@@ -1818,62 +1829,62 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 		else if (stricmp(fname, "startup") == 0)
 		{
 			// enumerate all entries in the graphics directory
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			PHYSFS_enumerate(path, LumpNamespace, userData);
 		}
 #endif // 0
 
 		else if (stricmp(fname, "graphics") == 0)
 		{
 			// enumerate all entries in the graphics directory
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			PHYSFS_enumerate(path, LumpNamespace, userData);
 		}
 		else if (stricmp(fname, "maps") == 0)
 		{
 			// enumerate all entries in the maps directory
-			PHYSFS_enumerateFilesCallback(path, WadNamespace, userData);
+			PHYSFS_enumerate(path, WadNamespace, userData);
 		}
 		else if (stricmp(fname, "models") == 0)
 		{
 			// enumerate all entries in the models directory
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			PHYSFS_enumerate(path, LumpNamespace, userData);
 		}
 		else if (stricmp(fname, "music") == 0)
 		{
 			// enumerate all entries in the music directory
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			PHYSFS_enumerate(path, LumpNamespace, userData);
 		}
 		else if (stricmp(fname, "skins") == 0)
 		{
 			// enumerate all entries in the skins directory
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			PHYSFS_enumerate(path, LumpNamespace, userData);
 		}
 		else if (stricmp(fname, "sounds") == 0)
 		{
 			// enumerate all entries in the sounds directory
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			PHYSFS_enumerate(path, LumpNamespace, userData);
 		}
 		else if (stricmp(fname, "scripts") == 0)
 		{
 			// enumerate scripts subdirectory
-			PHYSFS_enumerateFilesCallback(path, ScriptNamespace, userData);
+			PHYSFS_enumerate(path, ScriptNamespace, userData);
 		}
 		else if (stricmp(fname, "shaders") == 0)
 		{
 			// enumerate scripts subdirectory
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			PHYSFS_enumerate(path, LumpNamespace, userData);
 		}
 		else if ((stricmp(fname, "video") == 0) || (stricmp(fname, "cinematics") == 0))
 		{
 			// enumerate scripts subdirectory
-			PHYSFS_enumerateFilesCallback(path, LumpNamespace, userData);
+			PHYSFS_enumerate(path, LumpNamespace, userData);
 		}
 		else if (strncasecmp(fname, "root", 4) == 0)
 		{
 			// recurse root subdirectory to TopLevel
-			PHYSFS_enumerateFilesCallback(path, TopLevel, userData);
+			PHYSFS_enumerate(path, TopLevel, userData);
 		}
 
-		return;
+		return PHYSFS_ENUM_OK;
 	}
 
 	// check for special lumps, like map wad lumps
@@ -1888,7 +1899,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			{
 				// process wad lump
 				WadNamespace(userData, origDir, fname);
-				return;
+				return PHYSFS_ENUM_OK;
 			}
 		}
 	}
@@ -1901,7 +1912,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 		{
 			// process wad lump
 			WadNamespace(userData, origDir, fname);
-			return;
+			return PHYSFS_ENUM_OK;
 		}
 	}
 	// checking for startup.wad!
@@ -1914,7 +1925,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 		{
 			// process wad lump
 			WadNamespace(userData, origDir, fname);
-			return;
+			return PHYSFS_ENUM_OK;
 		}
 	}
 
@@ -1925,7 +1936,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 		I_Printf("  checking global lump %s\n", fname);
 		PHYSFS_File *file = PHYSFS_openRead(path);
 		if (!file)
-			return; // couldn't open file - skip
+			return PHYSFS_ENUM_OK; // couldn't open file - skip
 		int length = PHYSFS_fileLength(file);
 		PHYSFS_close(file);
 
@@ -1936,6 +1947,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			user_data->dfindex, user_data->index, fname, 1, path);
 	}
 #endif
+	return PHYSFS_ENUM_OK;
 }
 
 extern void MapsReadHeaders(); //<--- This makes wlf_maps able to start the header identification
@@ -2002,7 +2014,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 		zmarker = 0;
 
-		PHYSFS_enumerateFilesCallback(pakdir, TopLevel, (void *)&userData);
+		PHYSFS_enumerate(pakdir, TopLevel, (void *)&userData);
 
 		SortLumps();
 		SortSpriteLumps(df);
@@ -3102,9 +3114,9 @@ static void W_ReadLump(int lump, void *dest)
 		if (handle)
 		{
 			PHYSFS_seek(handle, L->position);
-			int c = PHYSFS_read(handle, dest, L->size, 1);
+			int c = PHYSFS_readBytes(handle, dest, L->size);
 			if (c < 1)
-				I_Error("W_ReadLump: PHYSFS_read returned %i on lump %i", c, lump);
+				I_Error("W_ReadLump: PHYSFS_readBytes returned %i on lump %i", c, lump);
 			PHYSFS_close(handle);
 		}
 		else

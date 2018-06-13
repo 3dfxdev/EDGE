@@ -538,7 +538,14 @@ static void ProcessDirEntry(lump_t *lump)
 	wad.dir_tail = lump;
 }
 
-static void WadNamespace(void *userData, const char *origDir, const char *fname)
+static bool Check_isDirectory(const char *fname)
+{
+	PHYSFS_Stat fstat;
+	PHYSFS_stat(fname, &fstat);
+	return fstat.filetype == PHYSFS_FILETYPE_DIRECTORY ? true : false;
+}
+
+static PHYSFS_EnumerateCallbackResult WadNamespace(void *userData, const char *origDir, const char *fname)
 {
 	lump_t *lump;
 	raw_wad_header_t header;
@@ -551,20 +558,20 @@ static void WadNamespace(void *userData, const char *origDir, const char *fname)
 
 	PrintVerbose("  WadNamespace: processing %s\n", path);
 
-	if (PHYSFS_isDirectory(path))
+	if (Check_isDirectory(path))
 	{
 		// subdirectory... recurse
-		PHYSFS_enumerateFilesCallback(path, WadNamespace, userData);
-		return;
+		PHYSFS_enumerate(path, WadNamespace, userData);
+		return PHYSFS_ENUM_OK;
 	}
 
 	// open wad lump
 	PrintVerbose("    opening wad %s\n", fname);
 	PHYSFS_File *file = PHYSFS_openRead(path);
 	if (!file)
-		return; // couldn't open file - skip
+		return PHYSFS_ENUM_OK; // couldn't open file - skip
 
-	PHYSFS_read(file, &header, sizeof(raw_wad_header_t), 1);
+	PHYSFS_readBytes(file, &header, sizeof(raw_wad_header_t));
 
 	header.num_entries = PHYSFS_swapSLE32(header.num_entries);
 	header.dir_start = PHYSFS_swapSLE32(header.dir_start);
@@ -573,7 +580,7 @@ static void WadNamespace(void *userData, const char *origDir, const char *fname)
 	// loop over wad directory entries
 	for (int i=0; i<(int)header.num_entries; i++)
 	{
-		PHYSFS_read(file, &entry, sizeof(raw_wad_entry_t), 1);
+		PHYSFS_readBytes(file, &entry, sizeof(raw_wad_entry_t));
 		strncpy(tname, entry.name, 8);
 		tname[8] = 0;
 		// check for ExMy/MAPxx - some map wads have bad map marker lump
@@ -606,9 +613,10 @@ static void WadNamespace(void *userData, const char *origDir, const char *fname)
 	}
 
 	PHYSFS_close(file);
+	return PHYSFS_ENUM_OK;
 }
 
-static void TopLevel(void *userData, const char *origDir, const char *fname)
+static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origDir, const char *fname)
 {
 	char check[16];
 	char path[256];
@@ -618,7 +626,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 
 	PrintVerbose("TopLevel:Processing %s\n", path);
 
-	if (PHYSFS_isDirectory(path))
+	if (Check_isDirectory(path))
 	{
 		PrintVerbose(" found subdirectory %s\n", fname);
 
@@ -626,7 +634,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 		if (stricmp(fname, "maps") == 0)
 		{
 			// enumerate all entries in the maps directory
-			PHYSFS_enumerateFilesCallback(path, WadNamespace, userData);
+			PHYSFS_enumerate(path, WadNamespace, userData);
 		}
 	}
 	// check for map wad lumps
@@ -641,7 +649,7 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 			{
 				// process wad lump
 				WadNamespace(userData, origDir, fname);
-				return;
+				return PHYSFS_ENUM_OK;
 			}
 		}
 	}
@@ -654,9 +662,10 @@ static void TopLevel(void *userData, const char *origDir, const char *fname)
 		{
 			// process wad lump
 			WadNamespace(userData, origDir, fname);
-			return;
+			return PHYSFS_ENUM_OK;
 		}
 	}
+	return PHYSFS_ENUM_OK;
 }
 
 //
@@ -670,7 +679,7 @@ static void ReadDirectory(void)
 
 	if (packMounted)
 	{
-		PHYSFS_enumerateFilesCallback(pFilename, TopLevel, NULL);
+		PHYSFS_enumerate(pFilename, TopLevel, NULL);
 		total_entries = wad.num_entries;
 	}
 	else
@@ -727,7 +736,7 @@ static void ReadLumpData(lump_t *lump)
 		if (file)
 		{
 			PHYSFS_seek(file, lump->start);
-			len = PHYSFS_read(file, lump->data, lump->length, 1);
+			len = PHYSFS_readBytes(file, lump->data, lump->length);
 			PHYSFS_close(file);
 		}
 	}
@@ -1634,7 +1643,7 @@ void CloseWads(void)
 	{
 		if (packMounted > 0)
 		{
-			PHYSFS_removeFromSearchPath(pFilename);
+			PHYSFS_unmount(pFilename);
 			PHYSFS_deinit();
 		}
 

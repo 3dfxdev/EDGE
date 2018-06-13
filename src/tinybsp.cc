@@ -956,7 +956,7 @@ static void Poly_AssignSectors(void)
 			{
 				if (seg->back_sub && seg->back_sub->sector)
 				{
-					I_Debugf("TinyBSP: Island fill for sub:%d sector:%d\n",
+					I_Debugf("TinyBSP: Island fill for sub:%ld sector:%ld\n",
 							 sub - subsectors, seg->back_sub->sector - sectors);
 
 					DoAssignSec(sub, seg->back_sub->sector);
@@ -978,7 +978,7 @@ static void Poly_AssignSectors(void)
 
 		if (! sub->sector)
 		{
-			I_Debugf("TinyBSP: Emergency fallback for sub:%d\n", sub - subsectors);
+			I_Debugf("TinyBSP: Emergency fallback for sub:%ld\n", sub - subsectors);
 			DoAssignSec(sub, &sectors[0]);
 		}
 	}
