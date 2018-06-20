@@ -43,8 +43,8 @@ typedef struct
     SDL_Texture         *subtitle_tex;
     GLuint              stex[1];
 
-    int					frameWidth;
-    int					frameHeight;
+    int                 frameWidth;
+    int                 frameHeight;
     int                 frameCount;
 
     SDL_Rect            sources[ATLAS_MAX];

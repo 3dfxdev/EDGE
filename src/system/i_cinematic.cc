@@ -76,7 +76,7 @@ extern "C" int ReadFunc(void *ptr, unsigned char *buf, int len);
 int ReadFunc(void *ptr, unsigned char *buf, int len)
 {
     cinematic_t *cin = reinterpret_cast<cinematic_t*>(ptr);
-	epi::file_c *F = cin->file;
+    epi::file_c *F = cin->file;
 
     return F->Read(buf, len);
 }
@@ -86,7 +86,7 @@ extern "C" int64_t SeekFunc(void* ptr, int64_t pos, int whence);
 int64_t SeekFunc(void* ptr, int64_t pos, int whence)
 {
     cinematic_t *cin = reinterpret_cast<cinematic_t*>(ptr);
-	epi::file_c *F = cin->file;
+    epi::file_c *F = cin->file;
 
     F->Seek(pos, whence);
     return F->GetPosition();
@@ -220,10 +220,10 @@ cinHandle_t CIN_PlayCinematic (const char *name, int flags)
         }
         else
         {
-			M_WarnError("CIN_PlayCinematic: Cannot create movie source for %s\n", name);
-			delete F;
-			return -1;
-		}
+            M_WarnError("CIN_PlayCinematic: Cannot create movie source for %s\n", name);
+            delete F;
+            return -1;
+        }
 
         // print stream types
         I_Printf("  Source streams:\n");
@@ -237,7 +237,7 @@ cinHandle_t CIN_PlayCinematic (const char *name, int flags)
         {
             M_WarnError("CIN_PlayCinematic: Couldn't create kitchensink player!\n");
             Kit_CloseSource(cin->src);
-			delete F;
+            delete F;
             return -1;
         }
 
@@ -248,15 +248,18 @@ cinHandle_t CIN_PlayCinematic (const char *name, int flags)
             M_WarnError("CIN_PlayCinematic: File contains no video!\n");
             Kit_ClosePlayer(cin->player);
             Kit_CloseSource(cin->src);
-			delete F;
+            delete F;
             return -1;
         }
         I_Printf("  Media information:\n");
-        I_Printf("   * Video: %s (%s), %dx%d\n",
-            cin->pinfo.vcodec,
-            cin->pinfo.vcodec_name,
-            cin->pinfo.video.width,
-            cin->pinfo.video.height);
+        if (cin->pinfo.video.is_enabled)
+        {
+            I_Printf("   * Video: %s (%s), %dx%d\n",
+                cin->pinfo.vcodec,
+                cin->pinfo.vcodec_name,
+                cin->pinfo.video.width,
+                cin->pinfo.video.height);
+        }
         if (cin->pinfo.audio.is_enabled)
         {
             I_Printf("   * Audio: %s (%s), %dHz, %dch, %db, %s\n",
@@ -274,103 +277,111 @@ cinHandle_t CIN_PlayCinematic (const char *name, int flags)
                 cin->pinfo.scodec_name);
         }
         I_Printf("  Duration: %f seconds\n", Kit_GetPlayerDuration(cin->player));
-        I_Printf("  Texture type: %s\n", Kit_GetSDLPixelFormatString(cin->pinfo.video.format));
+        if (cin->pinfo.video.is_enabled)
+            I_Printf("  Texture type: %s\n", Kit_GetSDLPixelFormatString(cin->pinfo.video.format));
+        else
+            Kit_SetSourceStream(cin->src, KIT_STREAMTYPE_VIDEO, -1);
         if (cin->pinfo.audio.is_enabled)
             I_Printf("  Audio format: %s\n", Kit_GetSDLAudioFormatString(cin->pinfo.audio.format));
-		else
-			Kit_SetSourceStream(cin->src, KIT_STREAMTYPE_AUDIO, -1);
+        else
+            Kit_SetSourceStream(cin->src, KIT_STREAMTYPE_AUDIO, -1);
         if (cin->pinfo.subtitle.is_enabled)
             I_Printf("  Subtitle format: %s\n", Kit_GetSDLPixelFormatString(cin->pinfo.subtitle.format));
-		else
-			Kit_SetSourceStream(cin->src, KIT_STREAMTYPE_SUBTITLE, -1);
+        else
+            Kit_SetSourceStream(cin->src, KIT_STREAMTYPE_SUBTITLE, -1);
 
-        // create video texture
-        cin->video_tex = SDL_CreateTexture(
-            my_rndrr,
-            cin->pinfo.video.format,
-            SDL_TEXTUREACCESS_STATIC,
-            cin->pinfo.video.width,
-            cin->pinfo.video.height);
-        if (cin->video_tex == NULL)
+        if (cin->pinfo.video.is_enabled)
         {
-            M_WarnError("CIN_PlayCinematic: Couldn't create a video texture\n");
-            Kit_ClosePlayer(cin->player);
-            Kit_CloseSource(cin->src);
-			delete F;
-            return -1;
-        }
-        // setup OGL texture buffer
-        glGenTextures(1, &cin->vtex[0]);
+            // create video texture
+            cin->video_tex = SDL_CreateTexture(
+                my_rndrr,
+                cin->pinfo.video.format,
+                SDL_TEXTUREACCESS_STATIC,
+                cin->pinfo.video.width,
+                cin->pinfo.video.height);
+            if (cin->video_tex == NULL)
+            {
+                M_WarnError("CIN_PlayCinematic: Couldn't create a video texture\n");
+                Kit_ClosePlayer(cin->player);
+                Kit_CloseSource(cin->src);
+                delete F;
+                return -1;
+            }
+            // setup OGL texture buffer
+            glGenTextures(1, &cin->vtex[0]);
 
-        cin->render_tex = SDL_CreateTexture(
-            my_rndrr,
-            SDL_PIXELFORMAT_RGB24,
-            SDL_TEXTUREACCESS_TARGET,
-            cin->pinfo.video.width,
-            cin->pinfo.video.height);
-        if (cin->render_tex == NULL)
-        {
-            M_WarnError("CIN_PlayCinematic: Couldn't create a render target texture\n");
-            SDL_DestroyTexture(cin->video_tex);
-            if (cin->vtex[0])
-                glDeleteTextures(1, &cin->vtex[0]);
-            Kit_ClosePlayer(cin->player);
-            Kit_CloseSource(cin->src);
-			delete F;
-            return -1;
-        }
+            cin->render_tex = SDL_CreateTexture(
+                my_rndrr,
+                SDL_PIXELFORMAT_RGB24,
+                SDL_TEXTUREACCESS_TARGET,
+                cin->pinfo.video.width,
+                cin->pinfo.video.height);
+            if (cin->render_tex == NULL)
+            {
+                M_WarnError("CIN_PlayCinematic: Couldn't create a render target texture\n");
+                SDL_DestroyTexture(cin->video_tex);
+                if (cin->vtex[0])
+                    glDeleteTextures(1, &cin->vtex[0]);
+                Kit_ClosePlayer(cin->player);
+                Kit_CloseSource(cin->src);
+                delete F;
+                return -1;
+            }
 
-        cin->flip_tex = SDL_CreateTexture(
-            my_rndrr,
-            SDL_PIXELFORMAT_RGB24,
-            SDL_TEXTUREACCESS_TARGET,
-            cin->pinfo.video.width,
-            cin->pinfo.video.height);
-        if (cin->flip_tex == NULL)
-        {
-            M_WarnError("CIN_PlayCinematic: Couldn't create a render flip texture\n");
-            SDL_DestroyTexture(cin->video_tex);
-            if (cin->vtex[0])
-                glDeleteTextures(1, &cin->vtex[0]);
-            SDL_DestroyTexture(cin->render_tex);
-            Kit_ClosePlayer(cin->player);
-            Kit_CloseSource(cin->src);
-			delete F;
-            return -1;
-        }
+            cin->flip_tex = SDL_CreateTexture(
+                my_rndrr,
+                SDL_PIXELFORMAT_RGB24,
+                SDL_TEXTUREACCESS_TARGET,
+                cin->pinfo.video.width,
+                cin->pinfo.video.height);
+            if (cin->flip_tex == NULL)
+            {
+                M_WarnError("CIN_PlayCinematic: Couldn't create a render flip texture\n");
+                SDL_DestroyTexture(cin->video_tex);
+                if (cin->vtex[0])
+                    glDeleteTextures(1, &cin->vtex[0]);
+                SDL_DestroyTexture(cin->render_tex);
+                Kit_ClosePlayer(cin->player);
+                Kit_CloseSource(cin->src);
+                delete F;
+                return -1;
+            }
 
-        // The subtitle texture atlas contains all the subtitle image fragments.
-        cin->subtitle_tex = SDL_CreateTexture(
-            my_rndrr,
-            cin->pinfo.subtitle.format,
-            SDL_TEXTUREACCESS_STATIC,
-            ATLAS_WIDTH, ATLAS_HEIGHT);
-        if (cin->subtitle_tex == NULL)
-        {
-            M_WarnError("CIN_PlayCinematic: Couldn't create a subtitle texture atlas\n");
-            SDL_DestroyTexture(cin->video_tex);
-            if (cin->vtex[0])
-                glDeleteTextures(1, &cin->vtex[0]);
-            SDL_DestroyTexture(cin->render_tex);
-            SDL_DestroyTexture(cin->flip_tex);
-            Kit_ClosePlayer(cin->player);
-            Kit_CloseSource(cin->src);
-			delete F;
-            return 1;
-        }
-        // setup OGL texture buffer
-        glGenTextures(1, &cin->stex[0]);
+            // The subtitle texture atlas contains all the subtitle image fragments.
+            cin->subtitle_tex = SDL_CreateTexture(
+                my_rndrr,
+                cin->pinfo.subtitle.format,
+                SDL_TEXTUREACCESS_STATIC,
+                ATLAS_WIDTH, ATLAS_HEIGHT);
+            if (cin->subtitle_tex == NULL)
+            {
+                M_WarnError("CIN_PlayCinematic: Couldn't create a subtitle texture atlas\n");
+                SDL_DestroyTexture(cin->video_tex);
+                if (cin->vtex[0])
+                    glDeleteTextures(1, &cin->vtex[0]);
+                SDL_DestroyTexture(cin->render_tex);
+                SDL_DestroyTexture(cin->flip_tex);
+                Kit_ClosePlayer(cin->player);
+                Kit_CloseSource(cin->src);
+                delete F;
+                return 1;
+            }
+            // setup OGL texture buffer
+            glGenTextures(1, &cin->stex[0]);
 
-        // set subtitle texture blendmode
-        SDL_SetTextureBlendMode(cin->subtitle_tex, SDL_BLENDMODE_BLEND);
+            // set subtitle texture blendmode
+            SDL_SetTextureBlendMode(cin->subtitle_tex, SDL_BLENDMODE_BLEND);
+        }
 
         // set audio specs wanted
-        memset(&cin->wanted_spec, 0, sizeof(cin->wanted_spec));
-        cin->wanted_spec.freq = cin->pinfo.audio.samplerate;
-        cin->wanted_spec.format = cin->pinfo.audio.format;
-        cin->wanted_spec.channels = cin->pinfo.audio.channels;
         if (cin->pinfo.audio.is_enabled)
+        {
+            memset(&cin->wanted_spec, 0, sizeof(cin->wanted_spec));
+            cin->wanted_spec.freq = cin->pinfo.audio.samplerate;
+            cin->wanted_spec.format = cin->pinfo.audio.format;
+            cin->wanted_spec.channels = cin->pinfo.audio.channels;
             cin->audiobuf = (unsigned char *)Z_Malloc(AUDIOBUFFER_SIZE);
+        }
 
         // Fill in the rest
         cin->playing = true;
@@ -400,13 +411,13 @@ void E_PlayMovie(const char *name, int flags)
     SDL_AudioSpec audio_spec;
     int afree;
 
-	I_Printf("E_PlayMovie: Attemptimp to play %s\n",name);
-	if (flags & CIN_SYSTEM)
-		I_Printf("  SYSTEM flag\n");
-	if (flags & CIN_LOOPING)
-		I_Printf("  LOOPING flag\n");
-	if (flags & CIN_SILENT)
-		I_Printf("  SILENT flag\n");
+    I_Printf("E_PlayMovie: Attemptimp to play %s\n",name);
+    if (flags & CIN_SYSTEM)
+        I_Printf("  SYSTEM flag\n");
+    if (flags & CIN_LOOPING)
+        I_Printf("  LOOPING flag\n");
+    if (flags & CIN_SILENT)
+        I_Printf("  SILENT flag\n");
 
     playing_movie = false;
 
@@ -441,7 +452,7 @@ void E_PlayMovie(const char *name, int flags)
     SDL_CloseAudio();
     audio_dev = SDL_OpenAudioDevice(NULL, 0, &cin->wanted_spec, &audio_spec, 0);
     SDL_PauseAudioDevice(audio_dev, 0);
-	I_Printf("E_PlayMovie: Opened audio device at %d Hz / %d chan\n", audio_spec.freq, audio_spec.channels);
+    I_Printf("E_PlayMovie: Opened audio device at %d Hz / %d chan\n", audio_spec.freq, audio_spec.channels);
 
     // sync to vblank
     SDL_GL_SetSwapInterval(1);
@@ -530,7 +541,7 @@ void E_PlayMovie(const char *name, int flags)
 
         I_FinishFrame();
 
-		playing_movie = CIN_CheckCinematic(midx);
+        playing_movie = CIN_CheckCinematic(midx);
 
         // check if press key/button
         SDL_PumpEvents();
@@ -562,7 +573,7 @@ void E_PlayMovie(const char *name, int flags)
     I_StartupSound();
     SDL_PauseAudio(0);
 
-	// restore OGL context
+    // restore OGL context
     SDL_GL_MakeCurrent( my_vis, glContext );
 
     // restore OGL swap interval
@@ -582,26 +593,26 @@ bool CIN_CheckCinematic (cinHandle_t handle)
 {
     cinematic_t *cin = CIN_GetCinematicByHandle(handle);
 
-	if (Kit_GetPlayerState(cin->player) == KIT_STOPPED)
-	{
-		const char *estr = Kit_GetError();
+    if (Kit_GetPlayerState(cin->player) == KIT_STOPPED)
+    {
+        const char *estr = Kit_GetError();
 #ifdef DEBUG_MOVIE_PLAYER
-		I_Printf("  Cinematic stopped - %s\n", estr ? estr : "done");
+        I_Printf("  Cinematic stopped - %s\n", estr ? estr : "done");
 #endif
-		if (cin->flags & CIN_LOOPING)
-		{
+        if (cin->flags & CIN_LOOPING)
+        {
 #ifdef DEBUG_MOVIE_PLAYER
-			I_Printf("  Cinematic looping!\n");
+            I_Printf("  Cinematic looping!\n");
 #endif
-			CIN_ResetCinematic(handle);
-		}
-		else
-		{
-			// done or error
-			return false;
-		}
-	}
-	return true;
+            CIN_ResetCinematic(handle);
+        }
+        else
+        {
+            // done or error
+            return false;
+        }
+    }
+    return true;
 }
 
 /*
@@ -618,16 +629,19 @@ void CIN_UpdateCinematic (cinHandle_t handle)
     cin->got = 0;
 
     // update video texture
-    Kit_GetVideoData(cin->player, cin->video_tex);
-	// convert video texture to flip target
-	SDL_SetRenderTarget(my_rndrr, cin->flip_tex);
-	// Clear screen with black
-	SDL_SetRenderDrawColor(my_rndrr, 0, 0, 0, 255);
-	SDL_RenderClear(my_rndrr);
-    SDL_RenderCopy(my_rndrr, cin->video_tex, NULL, NULL);
-	SDL_SetRenderTarget(my_rndrr, cin->render_tex);
-    SDL_RenderCopyEx(my_rndrr, cin->flip_tex, NULL, NULL, 0, NULL, SDL_FLIP_VERTICAL);
-	SDL_SetRenderTarget(my_rndrr, NULL);
+    if (cin->pinfo.video.is_enabled)
+    {
+        Kit_GetVideoData(cin->player, cin->video_tex);
+        // convert video texture to flip target
+        SDL_SetRenderTarget(my_rndrr, cin->flip_tex);
+        // Clear screen with black
+        SDL_SetRenderDrawColor(my_rndrr, 0, 0, 0, 255);
+        SDL_RenderClear(my_rndrr);
+        SDL_RenderCopy(my_rndrr, cin->video_tex, NULL, NULL);
+        SDL_SetRenderTarget(my_rndrr, cin->render_tex);
+        SDL_RenderCopyEx(my_rndrr, cin->flip_tex, NULL, NULL, 0, NULL, SDL_FLIP_VERTICAL);
+        SDL_SetRenderTarget(my_rndrr, NULL);
+    }
 
     // update subtitle texture
     if (cin->pinfo.subtitle.is_enabled)
@@ -734,8 +748,8 @@ void CIN_StopCinematic (cinHandle_t handle)
     if (cin->src)
         Kit_CloseSource(cin->src);
 
-	F = cin->file;
-	delete F;
+    F = cin->file;
+    delete F;
 
     memset(cin, 0, sizeof(cinematic_t));
 }
