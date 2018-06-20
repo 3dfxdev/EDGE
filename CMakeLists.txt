@@ -66,7 +66,7 @@ function( assort_pk3_source_folder FOLDER_NAME PK3_DIR )
 			assort_pk3_source_folder( ${FOLDER_NAME}\\${DIRNAME} ${PK3_SRC} )
 		endif()
 		# Assign IDE group for current top-level source files
-		source_group(${FOLDER_NAME} FILES ${PK3_SRCS}) 
+		source_group(${FOLDER_NAME} FILES ${PK3_SRCS})
 	endforeach()
 endfunction()
 
@@ -84,7 +84,7 @@ function( add_pk3 PK3_NAME PK3_DIR )
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/${PK3_NAME} $<TARGET_FILE_DIR:EDGE>/${PK3_NAME}
 		DEPENDS zipdir )
 	# Create a list of source files for this PK3, for use in the IDE
-	# Phase 1: Create a list of all source files for this PK3 archive, except 
+	# Phase 1: Create a list of all source files for this PK3 archive, except
 	#  for a couple of strife image file names that confuse CMake.
 	file(GLOB_RECURSE PK3_SRCS ${PK3_DIR}/*)
 	# Exclude from the source list some gzdoom .png files with brackets in the
@@ -126,7 +126,7 @@ add_subdirectory(wadsrc)
 # MSVC
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
-	
+
 	if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
 		set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT ${CMAKE_CXX_FLAGS} /arch:SSE2" )
 	else()
@@ -186,7 +186,7 @@ add_subdirectory( tools/zipdir )
 add_custom_target(revision_check ALL
    COMMAND updaterevision src/gitinfo.h
    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-   DEPENDS updaterevision 
+   DEPENDS updaterevision
 )
 
 # See /VSLibs/lib_versions.txt
@@ -246,6 +246,7 @@ endif(MSVC)
 if(UNIX)
 	set( ogg_RELEASE_LIBRARY "libvorbisfile.so" )
 	set( physfs_LIBRARY "libphysfs.so" )
+    set( kitchensink_LIBRARY "libSDL_kitchensink.so")
 endif(UNIX)
 
 # Phys
@@ -294,7 +295,7 @@ set(EDGE_SOURCES
 	coal/c_compile.cc
 	coal/c_execute.cc
 	coal/c_memory.cc
-	
+
 	ddf/anim.cc
 	ddf/attack.cc
 	ddf/boom.cc
@@ -314,7 +315,7 @@ set(EDGE_SOURCES
 	ddf/switch.cc
 	ddf/thing.cc
 	ddf/weapon.cc
-	
+
 	deh_edge/ammo.cc
 	deh_edge/attacks.cc
 	deh_edge/buffer.cc
@@ -417,7 +418,7 @@ set(EDGE_SOURCES
 	src/r_modes.cc
 	src/r_md2.cc
 	src/r_md5.cc
-	src/r_graph.cc 
+	src/r_graph.cc
 	src/r_image.cc
 	src/r_doomtex.cc
 	src/r_texgl.cc
@@ -462,13 +463,13 @@ set(EDGE_SOURCES
 	src/games/wolf3d/wlf_vswap.cc
 	src/games/wolf3d/wlf_maps.cc
 	src/games/wolf3d/wlf_setup.cc
-	
+
 	src/md5_conv/md5_load.cc
 	src/md5_conv/md5_parse.cc
 	src/md5_conv/md5_anim.cc
 	src/md5_conv/md5_draw.cc
 	epi/kmq2/epi_quake2stuff.cc
-	
+
 	epi/arrays.cc
 	epi/bytearray.cc
 	epi/exe_path.cc
@@ -499,8 +500,8 @@ set(EDGE_SOURCES
 	epi/sound_wav.cc
 	epi/timestamp.cc
 	epi/utility.cc
-	
-	
+
+
 	glbsp/src/analyze.cc
 	glbsp/src/blockmap.cc
 	glbsp/src/glbsp.cc
@@ -511,7 +512,7 @@ set(EDGE_SOURCES
 	glbsp/src/system.cc
 	glbsp/src/util.cc
 	glbsp/src/wad.cc
-	
+
 	timidity/common.cc
 	timidity/instrum.cc
 	timidity/mix.cc
@@ -601,6 +602,7 @@ target_link_libraries(EDGE
 	${PNG_LIBRARY_RELEASE}
 	${JPEG_LIBRARY}
 	${physfs_LIBRARY}
+    ${kitchensink_LIBRARY}
 )
 
 if (WIN32)

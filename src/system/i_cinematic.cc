@@ -14,14 +14,7 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
 //
-//----------------------------------
-//  Based on the Quake 3 Arena source code, released by Id Software under the
-//  following copyright:
-//
-//    Copyright (C) 1996-2005 by id Software, Inc.
-//
-//  Inspired by cl_cinematic.cpp from OverDose (C) Team Blur Games
-//--------------------------------
+//----------------------------------------------------------------------------
 
 #include "../../epi/epi.h"
 #include "../../epi/bytearray.h"
@@ -35,7 +28,6 @@
 #include "i_system.h"
 #include "i_cinematic.h"
 #include "z_zone.h"
-
 
 #include "s_blit.h"
 #include "s_sound.h"
@@ -57,1098 +49,50 @@
 #include "r_gldefs.h"
 #include "r_image.h"
 
-typedef struct
-{
-    bool                playing;
 
-    char                name[254];
-    int                 flags;
+//#define DEBUG_MOVIE_PLAYER
+#define HSS(u) ((float)(u) / (float)(ATLAS_WIDTH))
+#define VSS(v) ((float)(v) / (float)(ATLAS_HEIGHT))
+#define HTS(x) ((x) * (SCREENWIDTH) / (ATLAS_WIDTH))
+#define VTS(y) ((y) * (SCREENHEIGHT) / (ATLAS_HEIGHT))
 
-    epi::file_c         *file;
-    int                 size;
-    int                 offset;
-
-    int                 startTime;
-
-    int                 frameRate;
-    int                 frameWidth;
-    int                 frameHeight;
-    int                 frameCount;
-    byte *              frameBuffer[2];
-
-    int                 sampleRate;
-    int                 nextSample;
-    short *             soundSamples;
-
-    roqChunkHeader_t    chunkHeader;
-}
-cinematic_t;
-
-static short cin_cr2rTable[256];
-static short cin_cb2gTable[256];
-static short cin_cr2gTable[256];
-static short cin_cb2bTable[256];
-
-static short cin_sqrTable[256];
-
-// TODO: Check if the GCC-based attribute/aligned is correctly written for Linux users!
-#if !defined(_MSC_VER)
-static u32_t __attribute__((aligned(16))) cin_quadVQ2[256 << 2];
-static u32_t __attribute__((aligned(16))) cin_quadVQ4[256 << 4];
-static u32_t __attribute__((aligned(16))) cin_quadVQ8[256 << 6];
-#else
-// CA: New template (ALIGN_x, resides in i_defs.h [for MSVC users]
-ALIGN_16(static u32_t)  cin_quadVQ2[256 << 2];
-ALIGN_16(static u32_t)  cin_quadVQ4[256 << 4];
-ALIGN_16(static u32_t)  cin_quadVQ8[256 << 6];
-#endif
-
-static short cin_soundSamples[ROQ_CHUNK_MAX_DATA_SIZE << 2];
-
-static u8_t cin_chunkData[ROQ_CHUNK_HEADER_SIZE + ROQ_CHUNK_MAX_DATA_SIZE];
 
 static cinematic_t cin_cinematics[MAX_CINEMATICS];
 
-static cinHandle_t current_movie;
+static bool cin_init = false;
 
 bool playing_movie = false;
 
-static SDL_AudioSpec mydev;
-
-extern int sfx_volume;
-extern float slider_to_gain[];
-
-#define DEBUG_ROQ_READER
-#undef DEBUG_ROQ_READER
-
-static void MovieSnd_Callback(void *udata, Uint8 *stream, int len)
-{
-    CIN_UpdateAudio(stream, len);
-}
-
-/*
- ==================
- CIN_TryOpenSound
- ==================
-*/
-static bool CIN_TryOpenSound(int rate)
-{
-	SDL_AudioSpec firstdev;
-
-    SDL_CloseAudio();
-
-	int samples = 512;
-	if (rate < 18000)
-		samples = 256;
-	else if (rate >= 40000)
-		samples = 1024;
-
-	I_Printf("CIN_TryOpenSound: trying %d Hz %s\n",
-			 rate, "Stereo SP Floating Point");
-
-	firstdev.freq     = rate;
-	firstdev.format   = AUDIO_F32SYS;
-	firstdev.channels = 2;
-	firstdev.samples  = samples;
-	firstdev.callback = MovieSnd_Callback;
-
-	if (SDL_OpenAudio(&firstdev, &mydev) >= 0)
-    {
-        SDL_PauseAudio(0);
-		return true;
-    }
-
-    I_Printf("CIN_TryOpenSound: failed!\n");
-    return false;
-}
-
-/*
- ==================
- CIN_BlitBlock2x2
- ==================
-*/
-static void CIN_BlitBlock2x2 (cinematic_t *cin, int x, int y, int index)
-{
-
-    u32_t   *src, *dst;
-
-    src = (u32_t *)&cin_quadVQ2[index << 2];
-    dst = (u32_t *)cin->frameBuffer[0] + (y * cin->frameWidth + x);
-
-#if defined SIMD_X64
-
-    __m128i xmm[2];
-
-    xmm[0] = _mm_loadl_epi64((const __m128i *)(src + 0));
-    xmm[1] = _mm_loadl_epi64((const __m128i *)(src + 2));
-
-    _mm_storel_epi64((__m128i *)(dst + cin->frameWidth * 0), xmm[0]);
-    _mm_storel_epi64((__m128i *)(dst + cin->frameWidth * 1), xmm[1]);
-
-#else
-
-    dst[cin->frameWidth * 0 + 0] = src[0];
-    dst[cin->frameWidth * 0 + 1] = src[1];
-    dst[cin->frameWidth * 1 + 0] = src[2];
-    dst[cin->frameWidth * 1 + 1] = src[3];
-
-#endif
-}
-
-/*
- ==================
- CIN_BlitBlock4x4
- ==================
-*/
-static void CIN_BlitBlock4x4 (cinematic_t *cin, int x, int y, int index)
-{
-
-    u32_t   *src, *dst;
-
-    src = (u32_t *)&cin_quadVQ4[index << 4];
-    dst = (u32_t *)cin->frameBuffer[0] + (y * cin->frameWidth + x);
-
-#if defined SIMD_X64
-
-    __m128i xmm[4];
-
-    xmm[0] = _mm_loadu_si128((const __m128i *)(src +  0));
-    xmm[1] = _mm_loadu_si128((const __m128i *)(src +  4));
-    xmm[2] = _mm_loadu_si128((const __m128i *)(src +  8));
-    xmm[3] = _mm_loadu_si128((const __m128i *)(src + 12));
-
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 0), xmm[0]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 1), xmm[1]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 2), xmm[2]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 3), xmm[3]);
-
-#else
-
-    dst[cin->frameWidth * 0 + 0] = src[ 0];
-    dst[cin->frameWidth * 0 + 1] = src[ 1];
-    dst[cin->frameWidth * 0 + 2] = src[ 2];
-    dst[cin->frameWidth * 0 + 3] = src[ 3];
-    dst[cin->frameWidth * 1 + 0] = src[ 4];
-    dst[cin->frameWidth * 1 + 1] = src[ 5];
-    dst[cin->frameWidth * 1 + 2] = src[ 6];
-    dst[cin->frameWidth * 1 + 3] = src[ 7];
-    dst[cin->frameWidth * 2 + 0] = src[ 8];
-    dst[cin->frameWidth * 2 + 1] = src[ 9];
-    dst[cin->frameWidth * 2 + 2] = src[10];
-    dst[cin->frameWidth * 2 + 3] = src[11];
-    dst[cin->frameWidth * 3 + 0] = src[12];
-    dst[cin->frameWidth * 3 + 1] = src[13];
-    dst[cin->frameWidth * 3 + 2] = src[14];
-    dst[cin->frameWidth * 3 + 3] = src[15];
-
-#endif
-}
-
-/*
- ==================
- CIN_BlitBlock8x8
- ==================
-*/
-static void CIN_BlitBlock8x8 (cinematic_t *cin, int x, int y, int index){
-
-    u32_t   *src, *dst;
-
-    src = (u32_t *)&cin_quadVQ8[index << 6];
-    dst = (u32_t *)cin->frameBuffer[0] + (y * cin->frameWidth + x);
-
-#if defined SIMD_X64
-
-    __m128i xmm[16];
-
-    xmm[ 0] = _mm_loadu_si128((const __m128i *)(src +  0));
-    xmm[ 1] = _mm_loadu_si128((const __m128i *)(src +  4));
-    xmm[ 2] = _mm_loadu_si128((const __m128i *)(src +  8));
-    xmm[ 3] = _mm_loadu_si128((const __m128i *)(src + 12));
-    xmm[ 4] = _mm_loadu_si128((const __m128i *)(src + 16));
-    xmm[ 5] = _mm_loadu_si128((const __m128i *)(src + 20));
-    xmm[ 6] = _mm_loadu_si128((const __m128i *)(src + 24));
-    xmm[ 7] = _mm_loadu_si128((const __m128i *)(src + 28));
-    xmm[ 8] = _mm_loadu_si128((const __m128i *)(src + 32));
-    xmm[ 9] = _mm_loadu_si128((const __m128i *)(src + 36));
-    xmm[10] = _mm_loadu_si128((const __m128i *)(src + 40));
-    xmm[11] = _mm_loadu_si128((const __m128i *)(src + 44));
-    xmm[12] = _mm_loadu_si128((const __m128i *)(src + 48));
-    xmm[13] = _mm_loadu_si128((const __m128i *)(src + 52));
-    xmm[14] = _mm_loadu_si128((const __m128i *)(src + 56));
-    xmm[15] = _mm_loadu_si128((const __m128i *)(src + 60));
-
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 0 + 0), xmm[ 0]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 0 + 4), xmm[ 1]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 1 + 0), xmm[ 2]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 1 + 4), xmm[ 3]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 2 + 0), xmm[ 4]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 2 + 4), xmm[ 5]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 3 + 0), xmm[ 6]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 3 + 4), xmm[ 7]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 4 + 0), xmm[ 8]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 4 + 4), xmm[ 9]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 5 + 0), xmm[10]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 5 + 4), xmm[11]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 6 + 0), xmm[12]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 6 + 4), xmm[13]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 7 + 0), xmm[14]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 7 + 4), xmm[15]);
-
-#else
-
-    dst[cin->frameWidth * 0 + 0] = src[ 0];
-    dst[cin->frameWidth * 0 + 1] = src[ 1];
-    dst[cin->frameWidth * 0 + 2] = src[ 2];
-    dst[cin->frameWidth * 0 + 3] = src[ 3];
-    dst[cin->frameWidth * 0 + 4] = src[ 4];
-    dst[cin->frameWidth * 0 + 5] = src[ 5];
-    dst[cin->frameWidth * 0 + 6] = src[ 6];
-    dst[cin->frameWidth * 0 + 7] = src[ 7];
-    dst[cin->frameWidth * 1 + 0] = src[ 8];
-    dst[cin->frameWidth * 1 + 1] = src[ 9];
-    dst[cin->frameWidth * 1 + 2] = src[10];
-    dst[cin->frameWidth * 1 + 3] = src[11];
-    dst[cin->frameWidth * 1 + 4] = src[12];
-    dst[cin->frameWidth * 1 + 5] = src[13];
-    dst[cin->frameWidth * 1 + 6] = src[14];
-    dst[cin->frameWidth * 1 + 7] = src[15];
-    dst[cin->frameWidth * 2 + 0] = src[16];
-    dst[cin->frameWidth * 2 + 1] = src[17];
-    dst[cin->frameWidth * 2 + 2] = src[18];
-    dst[cin->frameWidth * 2 + 3] = src[19];
-    dst[cin->frameWidth * 2 + 4] = src[20];
-    dst[cin->frameWidth * 2 + 5] = src[21];
-    dst[cin->frameWidth * 2 + 6] = src[22];
-    dst[cin->frameWidth * 2 + 7] = src[23];
-    dst[cin->frameWidth * 3 + 0] = src[24];
-    dst[cin->frameWidth * 3 + 1] = src[25];
-    dst[cin->frameWidth * 3 + 2] = src[26];
-    dst[cin->frameWidth * 3 + 3] = src[27];
-    dst[cin->frameWidth * 3 + 4] = src[28];
-    dst[cin->frameWidth * 3 + 5] = src[29];
-    dst[cin->frameWidth * 3 + 6] = src[30];
-    dst[cin->frameWidth * 3 + 7] = src[31];
-    dst[cin->frameWidth * 4 + 0] = src[32];
-    dst[cin->frameWidth * 4 + 1] = src[33];
-    dst[cin->frameWidth * 4 + 2] = src[34];
-    dst[cin->frameWidth * 4 + 3] = src[35];
-    dst[cin->frameWidth * 4 + 4] = src[36];
-    dst[cin->frameWidth * 4 + 5] = src[37];
-    dst[cin->frameWidth * 4 + 6] = src[38];
-    dst[cin->frameWidth * 4 + 7] = src[39];
-    dst[cin->frameWidth * 5 + 0] = src[40];
-    dst[cin->frameWidth * 5 + 1] = src[41];
-    dst[cin->frameWidth * 5 + 2] = src[42];
-    dst[cin->frameWidth * 5 + 3] = src[43];
-    dst[cin->frameWidth * 5 + 4] = src[44];
-    dst[cin->frameWidth * 5 + 5] = src[45];
-    dst[cin->frameWidth * 5 + 6] = src[46];
-    dst[cin->frameWidth * 5 + 7] = src[47];
-    dst[cin->frameWidth * 6 + 0] = src[48];
-    dst[cin->frameWidth * 6 + 1] = src[49];
-    dst[cin->frameWidth * 6 + 2] = src[50];
-    dst[cin->frameWidth * 6 + 3] = src[51];
-    dst[cin->frameWidth * 6 + 4] = src[52];
-    dst[cin->frameWidth * 6 + 5] = src[53];
-    dst[cin->frameWidth * 6 + 6] = src[54];
-    dst[cin->frameWidth * 6 + 7] = src[55];
-    dst[cin->frameWidth * 7 + 0] = src[56];
-    dst[cin->frameWidth * 7 + 1] = src[57];
-    dst[cin->frameWidth * 7 + 2] = src[58];
-    dst[cin->frameWidth * 7 + 3] = src[59];
-    dst[cin->frameWidth * 7 + 4] = src[60];
-    dst[cin->frameWidth * 7 + 5] = src[61];
-    dst[cin->frameWidth * 7 + 6] = src[62];
-    dst[cin->frameWidth * 7 + 7] = src[63];
-
-#endif
-}
-
-/*
- ==================
- CIN_MoveBlock4x4
- ==================
-*/
-static void CIN_MoveBlock4x4 (cinematic_t *cin, int x, int y, int xMean, int yMean, int xyMove){
-
-    u32_t   *src, *dst;
-    int     xMot, yMot;
-
-    xMot = x + xMean - (xyMove >> 4);
-    yMot = y + yMean - (xyMove & 15);
-
-    src = (u32_t *)cin->frameBuffer[1] + (yMot * cin->frameWidth + xMot);
-    dst = (u32_t *)cin->frameBuffer[0] + (y * cin->frameWidth + x);
-
-#if defined SIMD_X64
-
-    __m128i xmm[4];
-
-    xmm[0] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 0));
-    xmm[1] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 1));
-    xmm[2] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 2));
-    xmm[3] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 3));
-
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 0), xmm[0]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 1), xmm[1]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 2), xmm[2]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 3), xmm[3]);
-
-#else
-
-    dst[cin->frameWidth * 0 + 0] = src[cin->frameWidth * 0 + 0];
-    dst[cin->frameWidth * 0 + 1] = src[cin->frameWidth * 0 + 1];
-    dst[cin->frameWidth * 0 + 2] = src[cin->frameWidth * 0 + 2];
-    dst[cin->frameWidth * 0 + 3] = src[cin->frameWidth * 0 + 3];
-    dst[cin->frameWidth * 1 + 0] = src[cin->frameWidth * 1 + 0];
-    dst[cin->frameWidth * 1 + 1] = src[cin->frameWidth * 1 + 1];
-    dst[cin->frameWidth * 1 + 2] = src[cin->frameWidth * 1 + 2];
-    dst[cin->frameWidth * 1 + 3] = src[cin->frameWidth * 1 + 3];
-    dst[cin->frameWidth * 2 + 0] = src[cin->frameWidth * 2 + 0];
-    dst[cin->frameWidth * 2 + 1] = src[cin->frameWidth * 2 + 1];
-    dst[cin->frameWidth * 2 + 2] = src[cin->frameWidth * 2 + 2];
-    dst[cin->frameWidth * 2 + 3] = src[cin->frameWidth * 2 + 3];
-    dst[cin->frameWidth * 3 + 0] = src[cin->frameWidth * 3 + 0];
-    dst[cin->frameWidth * 3 + 1] = src[cin->frameWidth * 3 + 1];
-    dst[cin->frameWidth * 3 + 2] = src[cin->frameWidth * 3 + 2];
-    dst[cin->frameWidth * 3 + 3] = src[cin->frameWidth * 3 + 3];
-
-#endif
-}
-
-/*
- ==================
- CIN_MoveBlock8x8
- ==================
-*/
-static void CIN_MoveBlock8x8 (cinematic_t *cin, int x, int y, int xMean, int yMean, int xyMove){
-
-    u32_t   *src, *dst;
-    int     xMot, yMot;
-
-    xMot = x + xMean - (xyMove >> 4);
-    yMot = y + yMean - (xyMove & 15);
-
-    src = (u32_t *)cin->frameBuffer[1] + (yMot * cin->frameWidth + xMot);
-    dst = (u32_t *)cin->frameBuffer[0] + (y * cin->frameWidth + x);
-
-#if defined SIMD_X64
-
-    __m128i xmm[16];
-
-    xmm[ 0] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 0 + 0));
-    xmm[ 1] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 0 + 4));
-    xmm[ 2] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 1 + 0));
-    xmm[ 3] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 1 + 4));
-    xmm[ 4] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 2 + 0));
-    xmm[ 5] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 2 + 4));
-    xmm[ 6] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 3 + 0));
-    xmm[ 7] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 3 + 4));
-    xmm[ 8] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 4 + 0));
-    xmm[ 9] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 4 + 4));
-    xmm[10] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 5 + 0));
-    xmm[11] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 5 + 4));
-    xmm[12] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 6 + 0));
-    xmm[13] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 6 + 4));
-    xmm[14] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 7 + 0));
-    xmm[15] = _mm_loadu_si128((const __m128i *)(src + cin->frameWidth * 7 + 4));
-
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 0 + 0), xmm[ 0]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 0 + 4), xmm[ 1]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 1 + 0), xmm[ 2]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 1 + 4), xmm[ 3]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 2 + 0), xmm[ 4]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 2 + 4), xmm[ 5]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 3 + 0), xmm[ 6]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 3 + 4), xmm[ 7]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 4 + 0), xmm[ 8]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 4 + 4), xmm[ 9]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 5 + 0), xmm[10]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 5 + 4), xmm[11]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 6 + 0), xmm[12]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 6 + 4), xmm[13]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 7 + 0), xmm[14]);
-    _mm_storeu_si128((__m128i *)(dst + cin->frameWidth * 7 + 4), xmm[15]);
-
-#else
-
-    dst[cin->frameWidth * 0 + 0] = src[cin->frameWidth * 0 + 0];
-    dst[cin->frameWidth * 0 + 1] = src[cin->frameWidth * 0 + 1];
-    dst[cin->frameWidth * 0 + 2] = src[cin->frameWidth * 0 + 2];
-    dst[cin->frameWidth * 0 + 3] = src[cin->frameWidth * 0 + 3];
-    dst[cin->frameWidth * 0 + 4] = src[cin->frameWidth * 0 + 4];
-    dst[cin->frameWidth * 0 + 5] = src[cin->frameWidth * 0 + 5];
-    dst[cin->frameWidth * 0 + 6] = src[cin->frameWidth * 0 + 6];
-    dst[cin->frameWidth * 0 + 7] = src[cin->frameWidth * 0 + 7];
-    dst[cin->frameWidth * 1 + 0] = src[cin->frameWidth * 1 + 0];
-    dst[cin->frameWidth * 1 + 1] = src[cin->frameWidth * 1 + 1];
-    dst[cin->frameWidth * 1 + 2] = src[cin->frameWidth * 1 + 2];
-    dst[cin->frameWidth * 1 + 3] = src[cin->frameWidth * 1 + 3];
-    dst[cin->frameWidth * 1 + 4] = src[cin->frameWidth * 1 + 4];
-    dst[cin->frameWidth * 1 + 5] = src[cin->frameWidth * 1 + 5];
-    dst[cin->frameWidth * 1 + 6] = src[cin->frameWidth * 1 + 6];
-    dst[cin->frameWidth * 1 + 7] = src[cin->frameWidth * 1 + 7];
-    dst[cin->frameWidth * 2 + 0] = src[cin->frameWidth * 2 + 0];
-    dst[cin->frameWidth * 2 + 1] = src[cin->frameWidth * 2 + 1];
-    dst[cin->frameWidth * 2 + 2] = src[cin->frameWidth * 2 + 2];
-    dst[cin->frameWidth * 2 + 3] = src[cin->frameWidth * 2 + 3];
-    dst[cin->frameWidth * 2 + 4] = src[cin->frameWidth * 2 + 4];
-    dst[cin->frameWidth * 2 + 5] = src[cin->frameWidth * 2 + 5];
-    dst[cin->frameWidth * 2 + 6] = src[cin->frameWidth * 2 + 6];
-    dst[cin->frameWidth * 2 + 7] = src[cin->frameWidth * 2 + 7];
-    dst[cin->frameWidth * 3 + 0] = src[cin->frameWidth * 3 + 0];
-    dst[cin->frameWidth * 3 + 1] = src[cin->frameWidth * 3 + 1];
-    dst[cin->frameWidth * 3 + 2] = src[cin->frameWidth * 3 + 2];
-    dst[cin->frameWidth * 3 + 3] = src[cin->frameWidth * 3 + 3];
-    dst[cin->frameWidth * 3 + 4] = src[cin->frameWidth * 3 + 4];
-    dst[cin->frameWidth * 3 + 5] = src[cin->frameWidth * 3 + 5];
-    dst[cin->frameWidth * 3 + 6] = src[cin->frameWidth * 3 + 6];
-    dst[cin->frameWidth * 3 + 7] = src[cin->frameWidth * 3 + 7];
-    dst[cin->frameWidth * 4 + 0] = src[cin->frameWidth * 4 + 0];
-    dst[cin->frameWidth * 4 + 1] = src[cin->frameWidth * 4 + 1];
-    dst[cin->frameWidth * 4 + 2] = src[cin->frameWidth * 4 + 2];
-    dst[cin->frameWidth * 4 + 3] = src[cin->frameWidth * 4 + 3];
-    dst[cin->frameWidth * 4 + 4] = src[cin->frameWidth * 4 + 4];
-    dst[cin->frameWidth * 4 + 5] = src[cin->frameWidth * 4 + 5];
-    dst[cin->frameWidth * 4 + 6] = src[cin->frameWidth * 4 + 6];
-    dst[cin->frameWidth * 4 + 7] = src[cin->frameWidth * 4 + 7];
-    dst[cin->frameWidth * 5 + 0] = src[cin->frameWidth * 5 + 0];
-    dst[cin->frameWidth * 5 + 1] = src[cin->frameWidth * 5 + 1];
-    dst[cin->frameWidth * 5 + 2] = src[cin->frameWidth * 5 + 2];
-    dst[cin->frameWidth * 5 + 3] = src[cin->frameWidth * 5 + 3];
-    dst[cin->frameWidth * 5 + 4] = src[cin->frameWidth * 5 + 4];
-    dst[cin->frameWidth * 5 + 5] = src[cin->frameWidth * 5 + 5];
-    dst[cin->frameWidth * 5 + 6] = src[cin->frameWidth * 5 + 6];
-    dst[cin->frameWidth * 5 + 7] = src[cin->frameWidth * 5 + 7];
-    dst[cin->frameWidth * 6 + 0] = src[cin->frameWidth * 6 + 0];
-    dst[cin->frameWidth * 6 + 1] = src[cin->frameWidth * 6 + 1];
-    dst[cin->frameWidth * 6 + 2] = src[cin->frameWidth * 6 + 2];
-    dst[cin->frameWidth * 6 + 3] = src[cin->frameWidth * 6 + 3];
-    dst[cin->frameWidth * 6 + 4] = src[cin->frameWidth * 6 + 4];
-    dst[cin->frameWidth * 6 + 5] = src[cin->frameWidth * 6 + 5];
-    dst[cin->frameWidth * 6 + 6] = src[cin->frameWidth * 6 + 6];
-    dst[cin->frameWidth * 6 + 7] = src[cin->frameWidth * 6 + 7];
-    dst[cin->frameWidth * 7 + 0] = src[cin->frameWidth * 7 + 0];
-    dst[cin->frameWidth * 7 + 1] = src[cin->frameWidth * 7 + 1];
-    dst[cin->frameWidth * 7 + 2] = src[cin->frameWidth * 7 + 2];
-    dst[cin->frameWidth * 7 + 3] = src[cin->frameWidth * 7 + 3];
-    dst[cin->frameWidth * 7 + 4] = src[cin->frameWidth * 7 + 4];
-    dst[cin->frameWidth * 7 + 5] = src[cin->frameWidth * 7 + 5];
-    dst[cin->frameWidth * 7 + 6] = src[cin->frameWidth * 7 + 6];
-    dst[cin->frameWidth * 7 + 7] = src[cin->frameWidth * 7 + 7];
-
-#endif
-}
-
-/*
- ==================
- CIN_DecodeQuadInfo
- ==================
-*/
-static void CIN_DecodeQuadInfo (cinematic_t *cin, const byte *data){
-
-    if (cin->frameBuffer[0] && cin->frameBuffer[1])
-        return;
-
-    // Allocate the frame buffers
-    cin->frameWidth = data[0] | (data[1] << 8);
-    cin->frameHeight = data[2] | (data[3] << 8);
-    I_Printf("Cinematic dimensions: %dx%d\n", cin->frameWidth,cin->frameHeight);
-
-    if ((cin->frameWidth & 15) || (cin->frameHeight & 15))
-        I_Error("CIN_DecodeQuadInfo: video dimensions not divisible by 16");
-
-    cin->frameBuffer[0] = (byte *)Z_Malloc(cin->frameWidth * cin->frameHeight * 4);// , TAG_COMMON);
-    cin->frameBuffer[1] = (byte *)Z_Malloc(cin->frameWidth * cin->frameHeight * 4);// , TAG_COMMON);
-}
-
-/*
- ==================
- CIN_DecodeQuadCodebook
- ==================
-*/
-static void CIN_DecodeQuadCodebook (cinematic_t *cin, const byte *data){
-
-    u32_t   *quadVQ2, *quadVQ4, *quadVQ8;
-    int     index0, index1, index2, index3;
-    int     numQuadVecs;
-    int     numQuadCels;
-    int     i;
-
-    if (!cin->chunkHeader.args){
-        numQuadVecs = 256;
-        numQuadCels = 256;
-    }
-    else {
-        numQuadVecs = (cin->chunkHeader.args >> 8) & 255;
-        numQuadCels = (cin->chunkHeader.args >> 0) & 255;
-
-        if (!numQuadVecs)
-            numQuadVecs = 256;
-    }
-
-#if defined SIMD_X64
-
-    __m128i xmmRGBA, xmmPixels[2];
-    __m128i xmmVQ2[4], xmmVQ4[4], xmmVQ8[8];
-
-    // Convert 2x2 pixel vectors from YCbCr to RGB
-    for (i = 0; i < numQuadVecs; i++){
-        quadVQ2 = &cin_quadVQ2[i << 2];
-
-        xmmRGBA = _mm_set_epi32(255, cin_cb2bTable[data[4]], cin_cb2gTable[data[4]] + cin_cr2gTable[data[5]], cin_cr2rTable[data[5]]);
-        xmmRGBA = _mm_packs_epi32(xmmRGBA, xmmRGBA);
-
-        xmmPixels[0] = _mm_add_epi16(xmmRGBA, _mm_packs_epi32(_mm_set1_epi32(data[0]), _mm_set1_epi32(data[1])));
-        xmmPixels[1] = _mm_add_epi16(xmmRGBA, _mm_packs_epi32(_mm_set1_epi32(data[2]), _mm_set1_epi32(data[3])));
-
-        _mm_store_si128((__m128i *)quadVQ2, _mm_packus_epi16(xmmPixels[0], xmmPixels[1]));
-
-        data += 6;
-    }
-
-    // Set up 4x4 and 8x8 pixel vectors
-    for (i = 0; i < numQuadCels; i++){
-        index0 = data[0] << 2;
-        index1 = data[1] << 2;
-        index2 = data[2] << 2;
-        index3 = data[3] << 2;
-
-        quadVQ4 = &cin_quadVQ4[i << 4];
-        quadVQ8 = &cin_quadVQ8[i << 6];
-
-        xmmVQ2[0] = _mm_load_si128((const __m128i *)(cin_quadVQ2 + index0));
-        xmmVQ2[1] = _mm_load_si128((const __m128i *)(cin_quadVQ2 + index1));
-        xmmVQ2[2] = _mm_load_si128((const __m128i *)(cin_quadVQ2 + index2));
-        xmmVQ2[3] = _mm_load_si128((const __m128i *)(cin_quadVQ2 + index3));
-
-        // Set up 4x4 pixel vectors
-        xmmVQ4[0] = _mm_unpacklo_epi64(xmmVQ2[0], xmmVQ2[1]);
-        xmmVQ4[1] = _mm_unpackhi_epi64(xmmVQ2[0], xmmVQ2[1]);
-        xmmVQ4[2] = _mm_unpacklo_epi64(xmmVQ2[2], xmmVQ2[3]);
-        xmmVQ4[3] = _mm_unpackhi_epi64(xmmVQ2[2], xmmVQ2[3]);
-
-        _mm_store_si128((__m128i *)(quadVQ4 +  0), xmmVQ4[0]);
-        _mm_store_si128((__m128i *)(quadVQ4 +  4), xmmVQ4[1]);
-        _mm_store_si128((__m128i *)(quadVQ4 +  8), xmmVQ4[2]);
-        _mm_store_si128((__m128i *)(quadVQ4 + 12), xmmVQ4[3]);
-
-        // Set up 8x8 pixel vectors
-        xmmVQ8[0] = _mm_unpacklo_epi32(xmmVQ2[0], xmmVQ2[0]);
-        xmmVQ8[1] = _mm_unpackhi_epi32(xmmVQ2[0], xmmVQ2[0]);
-        xmmVQ8[2] = _mm_unpacklo_epi32(xmmVQ2[1], xmmVQ2[1]);
-        xmmVQ8[3] = _mm_unpackhi_epi32(xmmVQ2[1], xmmVQ2[1]);
-        xmmVQ8[4] = _mm_unpacklo_epi32(xmmVQ2[2], xmmVQ2[2]);
-        xmmVQ8[5] = _mm_unpackhi_epi32(xmmVQ2[2], xmmVQ2[2]);
-        xmmVQ8[6] = _mm_unpacklo_epi32(xmmVQ2[3], xmmVQ2[3]);
-        xmmVQ8[7] = _mm_unpackhi_epi32(xmmVQ2[3], xmmVQ2[3]);
-
-        _mm_store_si128((__m128i *)(quadVQ8 +  0), xmmVQ8[0]);
-        _mm_store_si128((__m128i *)(quadVQ8 +  4), xmmVQ8[2]);
-        _mm_store_si128((__m128i *)(quadVQ8 +  8), xmmVQ8[0]);
-        _mm_store_si128((__m128i *)(quadVQ8 + 12), xmmVQ8[2]);
-        _mm_store_si128((__m128i *)(quadVQ8 + 16), xmmVQ8[1]);
-        _mm_store_si128((__m128i *)(quadVQ8 + 20), xmmVQ8[3]);
-        _mm_store_si128((__m128i *)(quadVQ8 + 24), xmmVQ8[1]);
-        _mm_store_si128((__m128i *)(quadVQ8 + 28), xmmVQ8[3]);
-        _mm_store_si128((__m128i *)(quadVQ8 + 32), xmmVQ8[4]);
-        _mm_store_si128((__m128i *)(quadVQ8 + 36), xmmVQ8[6]);
-        _mm_store_si128((__m128i *)(quadVQ8 + 40), xmmVQ8[4]);
-        _mm_store_si128((__m128i *)(quadVQ8 + 44), xmmVQ8[6]);
-        _mm_store_si128((__m128i *)(quadVQ8 + 48), xmmVQ8[5]);
-        _mm_store_si128((__m128i *)(quadVQ8 + 52), xmmVQ8[7]);
-        _mm_store_si128((__m128i *)(quadVQ8 + 56), xmmVQ8[5]);
-        _mm_store_si128((__m128i *)(quadVQ8 + 60), xmmVQ8[7]);
-
-        data += 4;
-    }
-
-#else
-
-    int     r, g, b;
-    byte    pixels[4][4];
-
-    // Convert 2x2 pixel vectors from YCbCr to RGB
-    for (i = 0; i < numQuadVecs; i++){
-        quadVQ2 = &cin_quadVQ2[i << 2];
-
-        r = cin_cr2rTable[data[5]];
-        g = cin_cb2gTable[data[4]] + cin_cr2gTable[data[5]];
-        b = cin_cb2bTable[data[4]];
-
-        pixels[0][0] = epi::ClampByte(r + data[0]);
-        pixels[0][1] = epi::ClampByte(g + data[0]);
-        pixels[0][2] = epi::ClampByte(b + data[0]);
-        pixels[0][3] = 255;
-
-        pixels[1][0] = epi::ClampByte(r + data[1]);
-        pixels[1][1] = epi::ClampByte(g + data[1]);
-        pixels[1][2] = epi::ClampByte(b + data[1]);
-        pixels[1][3] = 255;
-
-        pixels[2][0] = epi::ClampByte(r + data[2]);
-        pixels[2][1] = epi::ClampByte(g + data[2]);
-        pixels[2][2] = epi::ClampByte(b + data[2]);
-        pixels[2][3] = 255;
-
-        pixels[3][0] = epi::ClampByte(r + data[3]);
-        pixels[3][1] = epi::ClampByte(g + data[3]);
-        pixels[3][2] = epi::ClampByte(b + data[3]);
-        pixels[3][3] = 255;
-
-        quadVQ2[0] = *(u32_t *)(&pixels[0]);
-        quadVQ2[1] = *(u32_t *)(&pixels[1]);
-        quadVQ2[2] = *(u32_t *)(&pixels[2]);
-        quadVQ2[3] = *(u32_t *)(&pixels[3]);
-
-        data += 6;
-    }
-
-    // Set up 4x4 and 8x8 pixel vectors
-    for (i = 0; i < numQuadCels; i++){
-        index0 = data[0] << 2;
-        index1 = data[1] << 2;
-        index2 = data[2] << 2;
-        index3 = data[3] << 2;
-
-        quadVQ4 = &cin_quadVQ4[i << 4];
-        quadVQ8 = &cin_quadVQ8[i << 6];
-
-        // Set up 4x4 pixel vectors
-        quadVQ4[ 0] = cin_quadVQ2[index0 + 0];
-        quadVQ4[ 1] = cin_quadVQ2[index0 + 1];
-        quadVQ4[ 2] = cin_quadVQ2[index1 + 0];
-        quadVQ4[ 3] = cin_quadVQ2[index1 + 1];
-        quadVQ4[ 4] = cin_quadVQ2[index0 + 2];
-        quadVQ4[ 5] = cin_quadVQ2[index0 + 3];
-        quadVQ4[ 6] = cin_quadVQ2[index1 + 2];
-        quadVQ4[ 7] = cin_quadVQ2[index1 + 3];
-        quadVQ4[ 8] = cin_quadVQ2[index2 + 0];
-        quadVQ4[ 9] = cin_quadVQ2[index2 + 1];
-        quadVQ4[10] = cin_quadVQ2[index3 + 0];
-        quadVQ4[11] = cin_quadVQ2[index3 + 1];
-        quadVQ4[12] = cin_quadVQ2[index2 + 2];
-        quadVQ4[13] = cin_quadVQ2[index2 + 3];
-        quadVQ4[14] = cin_quadVQ2[index3 + 2];
-        quadVQ4[15] = cin_quadVQ2[index3 + 3];
-
-        // Set up 8x8 pixel vectors
-        quadVQ8[ 0] = cin_quadVQ2[index0 + 0];
-        quadVQ8[ 1] = cin_quadVQ2[index0 + 0];
-        quadVQ8[ 2] = cin_quadVQ2[index0 + 1];
-        quadVQ8[ 3] = cin_quadVQ2[index0 + 1];
-        quadVQ8[ 4] = cin_quadVQ2[index1 + 0];
-        quadVQ8[ 5] = cin_quadVQ2[index1 + 0];
-        quadVQ8[ 6] = cin_quadVQ2[index1 + 1];
-        quadVQ8[ 7] = cin_quadVQ2[index1 + 1];
-        quadVQ8[ 8] = cin_quadVQ2[index0 + 0];
-        quadVQ8[ 9] = cin_quadVQ2[index0 + 0];
-        quadVQ8[10] = cin_quadVQ2[index0 + 1];
-        quadVQ8[11] = cin_quadVQ2[index0 + 1];
-        quadVQ8[12] = cin_quadVQ2[index1 + 0];
-        quadVQ8[13] = cin_quadVQ2[index1 + 0];
-        quadVQ8[14] = cin_quadVQ2[index1 + 1];
-        quadVQ8[15] = cin_quadVQ2[index1 + 1];
-        quadVQ8[16] = cin_quadVQ2[index0 + 2];
-        quadVQ8[17] = cin_quadVQ2[index0 + 2];
-        quadVQ8[18] = cin_quadVQ2[index0 + 3];
-        quadVQ8[19] = cin_quadVQ2[index0 + 3];
-        quadVQ8[20] = cin_quadVQ2[index1 + 2];
-        quadVQ8[21] = cin_quadVQ2[index1 + 2];
-        quadVQ8[22] = cin_quadVQ2[index1 + 3];
-        quadVQ8[23] = cin_quadVQ2[index1 + 3];
-        quadVQ8[24] = cin_quadVQ2[index0 + 2];
-        quadVQ8[25] = cin_quadVQ2[index0 + 2];
-        quadVQ8[26] = cin_quadVQ2[index0 + 3];
-        quadVQ8[27] = cin_quadVQ2[index0 + 3];
-        quadVQ8[28] = cin_quadVQ2[index1 + 2];
-        quadVQ8[29] = cin_quadVQ2[index1 + 2];
-        quadVQ8[30] = cin_quadVQ2[index1 + 3];
-        quadVQ8[31] = cin_quadVQ2[index1 + 3];
-        quadVQ8[32] = cin_quadVQ2[index2 + 0];
-        quadVQ8[33] = cin_quadVQ2[index2 + 0];
-        quadVQ8[34] = cin_quadVQ2[index2 + 1];
-        quadVQ8[35] = cin_quadVQ2[index2 + 1];
-        quadVQ8[36] = cin_quadVQ2[index3 + 0];
-        quadVQ8[37] = cin_quadVQ2[index3 + 0];
-        quadVQ8[38] = cin_quadVQ2[index3 + 1];
-        quadVQ8[39] = cin_quadVQ2[index3 + 1];
-        quadVQ8[40] = cin_quadVQ2[index2 + 0];
-        quadVQ8[41] = cin_quadVQ2[index2 + 0];
-        quadVQ8[42] = cin_quadVQ2[index2 + 1];
-        quadVQ8[43] = cin_quadVQ2[index2 + 1];
-        quadVQ8[44] = cin_quadVQ2[index3 + 0];
-        quadVQ8[45] = cin_quadVQ2[index3 + 0];
-        quadVQ8[46] = cin_quadVQ2[index3 + 1];
-        quadVQ8[47] = cin_quadVQ2[index3 + 1];
-        quadVQ8[48] = cin_quadVQ2[index2 + 2];
-        quadVQ8[49] = cin_quadVQ2[index2 + 2];
-        quadVQ8[50] = cin_quadVQ2[index2 + 3];
-        quadVQ8[51] = cin_quadVQ2[index2 + 3];
-        quadVQ8[52] = cin_quadVQ2[index3 + 2];
-        quadVQ8[53] = cin_quadVQ2[index3 + 2];
-        quadVQ8[54] = cin_quadVQ2[index3 + 3];
-        quadVQ8[55] = cin_quadVQ2[index3 + 3];
-        quadVQ8[56] = cin_quadVQ2[index2 + 2];
-        quadVQ8[57] = cin_quadVQ2[index2 + 2];
-        quadVQ8[58] = cin_quadVQ2[index2 + 3];
-        quadVQ8[59] = cin_quadVQ2[index2 + 3];
-        quadVQ8[60] = cin_quadVQ2[index3 + 2];
-        quadVQ8[61] = cin_quadVQ2[index3 + 2];
-        quadVQ8[62] = cin_quadVQ2[index3 + 3];
-        quadVQ8[63] = cin_quadVQ2[index3 + 3];
-
-        data += 4;
-    }
-
-#endif
-}
-
-/*
- ==================
- CIN_DecodeQuadVQ
- ==================
-*/
-static void CIN_DecodeQuadVQ (cinematic_t *cin, const byte *data){
-
-    int     code, codeBits, codeWord;
-    int     xPos, yPos, xOfs, yOfs;
-    int     xMean, yMean;
-    int     x = 0, y = 0;
-    int     i;
-
-    if (!cin->frameBuffer[0] || !cin->frameBuffer[1])
-        I_Error("CIN_DecodeQuadVQ: video buffers not allocated");
-
-    codeBits = 0;
-    codeWord = 0;
-
-    xMean = 8 - (char)((cin->chunkHeader.args >> 8) & 255);
-    yMean = 8 - (char)((cin->chunkHeader.args >> 0) & 255);
-
-    while (1){
-        // Subdivide the 16x16 pixel macro block into 8x8 pixel blocks
-        for (yPos = y; yPos < y + 16; yPos += 8){
-            for (xPos = x; xPos < x + 16; xPos += 8){
-                // Decode
-                if (!codeBits){
-                    codeBits = 16;
-                    codeWord = data[0] | (data[1] << 8);
-
-                    data += 2;
-                }
-
-                code = codeWord & 0xC000;
-
-                codeBits -= 2;
-                codeWord <<= 2;
-
-                switch (code){
-                case ROQ_VQ_MOT:
-                    // Skip over block
-
-                    break;
-                case ROQ_VQ_FCC:
-                    // Motion compensation
-                    CIN_MoveBlock8x8(cin, xPos, yPos, xMean, yMean, *data);
-
-                    data += 1;
-
-                    break;
-                case ROQ_VQ_SLD:
-                    // Vector quantization
-                    CIN_BlitBlock8x8(cin, xPos, yPos, *data);
-
-                    data += 1;
-
-                    break;
-                case ROQ_VQ_CCC:
-                    // Subdivide the 8x8 pixel block into 4x4 pixel sub blocks
-                    for (i = 0; i < 4; i++){
-                        xOfs = xPos + 4 * (i & 1);
-                        yOfs = yPos + 4 * (i >> 1);
-
-                        // Decode
-                        if (!codeBits){
-                            codeBits = 16;
-                            codeWord = data[0] | (data[1] << 8);
-
-                            data += 2;
-                        }
-
-                        code = codeWord & 0xC000;
-
-                        codeBits -= 2;
-                        codeWord <<= 2;
-
-                        switch (code){
-                        case ROQ_VQ_MOT:
-                            // Skip over block
-
-                            break;
-                        case ROQ_VQ_FCC:
-                            // Motion compensation
-                            CIN_MoveBlock4x4(cin, xOfs, yOfs, xMean, yMean, *data);
-
-                            data += 1;
-
-                            break;
-                        case ROQ_VQ_SLD:
-                            // Vector quantization
-                            CIN_BlitBlock4x4(cin, xOfs, yOfs, *data);
-
-                            data += 1;
-
-                            break;
-                        case ROQ_VQ_CCC:
-                            // Vector quantization in 2x2 pixel sub blocks
-                            CIN_BlitBlock2x2(cin, xOfs + 0, yOfs + 0, data[0]);
-                            CIN_BlitBlock2x2(cin, xOfs + 2, yOfs + 0, data[1]);
-                            CIN_BlitBlock2x2(cin, xOfs + 0, yOfs + 2, data[2]);
-                            CIN_BlitBlock2x2(cin, xOfs + 2, yOfs + 2, data[3]);
-
-                            data += 4;
-
-                            break;
-                        default:
-                            I_Error("CIN_DecodeQuadVQ: bad code (%i)", code);
-                        }
-                    }
-
-                    break;
-                default:
-                    I_Error("CIN_DecodeQuadVQ: bad code (%i)", code);
-                }
-            }
-        }
-
-        // Go to the next 16x16 pixel macro block
-        x += 16;
-        if (x == cin->frameWidth){
-            x = 0;
-
-            y += 16;
-            if (y == cin->frameHeight)
-                break;
-        }
-    }
-
-    // Bump frame count
-    cin->frameCount++;
-
-    // swap the frame buffers
-    byte *tmp = cin->frameBuffer[0];
-    cin->frameBuffer[0] = cin->frameBuffer[1];
-    cin->frameBuffer[1] = tmp;
-}
-
-/*
- ==================
- CIN_DecodeSoundMono22
- ==================
-*/
-static void CIN_DecodeSoundMono22 (cinematic_t *cin, const byte *data){
-
-    short   prev;
-    int     i;
-
-    if (cin->flags & CIN_SILENT)
-        return;
-
-    // Decode the sound samples
-    prev = (short)cin->chunkHeader.args;
-
-    for (i = 0; i < cin->chunkHeader.size; i++){
-        prev += cin_sqrTable[data[i]];
-
-        cin->soundSamples[cin->nextSample] = prev;
-        cin->soundSamples[cin->nextSample + 1] = prev;
-        cin->nextSample += 2;
-    }
-    if (cin->sampleRate != 22050)
-        if (CIN_TryOpenSound(22050))
-            cin->sampleRate = 22050;
-}
-
-/*
- ==================
- CIN_DecodeSoundStereo22
- ==================
-*/
-static void CIN_DecodeSoundStereo22 (cinematic_t *cin, const byte *data){
-
-    short   prevL, prevR;
-    int     i;
-
-    if (cin->flags & CIN_SILENT)
-        return;
-
-    // Decode the sound samples
-    prevL = (short)((cin->chunkHeader.args & 0xFF00) << 0);
-    prevR = (short)((cin->chunkHeader.args & 0x00FF) << 8);
-
-    for (i = 0; i < cin->chunkHeader.size; i += 2){
-        prevL += cin_sqrTable[data[i+0]];
-        prevR += cin_sqrTable[data[i+1]];
-
-        cin->soundSamples[cin->nextSample] = prevL;
-        cin->soundSamples[cin->nextSample + 1] = prevR;
-        cin->nextSample += 2;
-    }
-    if (cin->sampleRate != 22050)
-        if (CIN_TryOpenSound(22050))
-            cin->sampleRate = 22050;
-}
-
-/*
- ==================
- CIN_DecodeSoundMono48
- ==================
-*/
-static void CIN_DecodeSoundMono48 (cinematic_t *cin, const byte *data){
-
-    short   samp;
-    int     i;
-
-    if (cin->flags & CIN_SILENT)
-        return;
-
-    // Decode the sound samples
-    for (i = 0; i < cin->chunkHeader.size; i += 2){
-        samp = (short)(data[i] | (data[i+1] << 8));
-
-        cin->soundSamples[cin->nextSample] = samp;
-        cin->soundSamples[cin->nextSample + 1] = samp;
-        cin->nextSample += 2;
-    }
-    if (cin->sampleRate != 48000)
-        if (CIN_TryOpenSound(48000))
-            cin->sampleRate = 48000;
-}
-
-/*
- ==================
- CIN_DecodeSoundStereo48
- ==================
-*/
-static void CIN_DecodeSoundStereo48 (cinematic_t *cin, const byte *data){
-
-    short   sampL, sampR;
-    int     i;
-
-    if (cin->flags & CIN_SILENT)
-        return;
-
-    // Decode the sound samples
-    for (i = 0; i < cin->chunkHeader.size; i += 4){
-        sampL = (short)(data[i+0] | (data[i+1] << 8));
-        sampR = (short)(data[i+2] | (data[i+3] << 8));
-
-        cin->soundSamples[cin->nextSample] = sampL;
-        cin->soundSamples[cin->nextSample + 1] = sampR;
-        cin->nextSample += 2;
-    }
-    cin->sampleRate = 48000;
-}
-
-/*
- ==================
- CIN_DecodeChunk
- ==================
-*/
-static bool CIN_DecodeChunk (cinematic_t *cin)
-{
-#if DEBUG_ROQ_READER
-    I_Printf("CIN_DecodeChunk!!\n");
-#endif
-    //epi::file_c *f = cin->file;
-    byte    *data;
-
-    if (cin->offset >= cin->size)
-    {
-#if DEBUG_ROQ_READER
-        I_Printf("  Out of data!\n");
-#endif
-        cin->frameCount = 0;
-        return false;   // Finished
-    }
-
-    data = cin_chunkData;
-
-    // Read and decode the first chunk header if needed
-    if (cin->offset == ROQ_CHUNK_HEADER_SIZE)
-    {
-#if DEBUG_ROQ_READER
-        I_Printf("  offset 0x%08x\n", cin->offset);
-#endif
-        cin->offset += cin->file->Read(cin_chunkData, ROQ_CHUNK_HEADER_SIZE);
-        cin->chunkHeader.id = EPI_LE_U16(data[0] | (data[1] << 8));
-        cin->chunkHeader.size = EPI_LE_U32(data[2] | (data[3] << 8) | (data[4] << 16) | (data[5] << 24));
-        cin->chunkHeader.args = EPI_LE_U16(data[6] | (data[7] << 8));
-#if DEBUG_ROQ_READER
-        I_Printf("    CHDR: 0x%04x %d 0x%04x\n", cin->chunkHeader.id, cin->chunkHeader.size, cin->chunkHeader.args);
-#endif
-    }
-
-    // Read the chunk data and the next chunk header
-    if (cin->chunkHeader.size > ROQ_CHUNK_MAX_DATA_SIZE)
-        I_Error("CIN_DecodeChunk: bad chunk size (%u)", cin->chunkHeader.size);
-
-    if (cin->offset + cin->chunkHeader.size >= cin->size)
-        cin->offset += cin->file->Read(cin_chunkData, cin->chunkHeader.size);
-    else
-        cin->offset += cin->file->Read(cin_chunkData, cin->chunkHeader.size + ROQ_CHUNK_HEADER_SIZE);
-
-    // Decode the chunk data
-    switch (cin->chunkHeader.id)
-    {
-    case ROQ_QUAD_INFO:
-        CIN_DecodeQuadInfo(cin, data);
-        break;
-    case ROQ_QUAD_CODEBOOK:
-        CIN_DecodeQuadCodebook(cin, data);
-        break;
-    case ROQ_QUAD_VQ:
-        CIN_DecodeQuadVQ(cin, data);
-        break;
-    case ROQ_SOUND_MONO_22:
-        CIN_DecodeSoundMono22(cin, data);
-        break;
-    case ROQ_SOUND_STEREO_22:
-        CIN_DecodeSoundStereo22(cin, data);
-        break;
-    case ROQ_SOUND_MONO_48:
-        CIN_DecodeSoundMono48(cin, data);
-        break;
-    case ROQ_SOUND_STEREO_48:
-        CIN_DecodeSoundStereo48(cin, data);
-        break;
-    default:
-        I_Error("CIN_DecodeChunk: bad chunk id (%u)", cin->chunkHeader.id);
-    }
-
-    // Decode the next chunk header if needed
-    if (cin->offset >= cin->size)
-        return true;
-
-    data += cin->chunkHeader.size;
-
-#if DEBUG_ROQ_READER
-    I_Printf("  offset 0x%08x\n", cin->offset);
-#endif
-    cin->chunkHeader.id = data[0] | (data[1] << 8);
-    cin->chunkHeader.size = data[2] | (data[3] << 8) | (data[4] << 16) | (data[5] << 24);
-    cin->chunkHeader.args = data[6] | (data[7] << 8);
-#if DEBUG_ROQ_READER
-    I_Printf("    CHDR: 0x%04x %d 0x%04x\n", cin->chunkHeader.id, cin->chunkHeader.size, cin->chunkHeader.args);
-#endif
-
-    return true;
-}
+extern SDL_Window *my_vis;
+extern SDL_Renderer *my_rndrr;
+extern SDL_GLContext glContext;
+extern cvar_c r_vsync;
 
 
 // ============================================================================
 
+extern "C" int ReadFunc(void *ptr, unsigned char *buf, int len);
+
+int ReadFunc(void *ptr, unsigned char *buf, int len)
+{
+    cinematic_t *cin = reinterpret_cast<cinematic_t*>(ptr);
+	epi::file_c *F = cin->file;
+
+    return F->Read(buf, len);
+}
+
+extern "C" int64_t SeekFunc(void* ptr, int64_t pos, int whence);
+
+int64_t SeekFunc(void* ptr, int64_t pos, int whence)
+{
+    cinematic_t *cin = reinterpret_cast<cinematic_t*>(ptr);
+	epi::file_c *F = cin->file;
+
+    F->Seek(pos, whence);
+    return F->GetPosition();
+}
+
+// ============================================================================
 
 /*
  ==================
@@ -1174,6 +118,7 @@ static cinematic_t *CIN_HandleForCinematic (cinHandle_t *handle)
 
     *handle = i + 1;
 
+    memset(cin, 0, sizeof(cinematic_t));
     return cin;
 }
 
@@ -1203,16 +148,17 @@ static cinematic_t *CIN_GetCinematicByHandle (cinHandle_t handle)
 /*
  ==================
  CIN_PlayCinematic
+
+ Setup kitchensink player for a given video
+ Returns a cinHandle_t
  ==================
 */
 cinHandle_t CIN_PlayCinematic (const char *name, int flags)
 {
-
     cinematic_t        *cin;
     cinHandle_t        handle;
-    epi::file_c        *F;
-    u16_t            id, fps;
     int                i;
+    epi::file_c        *F;
 
     if (name)
     {
@@ -1222,23 +168,29 @@ cinHandle_t CIN_PlayCinematic (const char *name, int flags)
             if (!cin->playing)
                 continue;
 
-            if (!strcmp(cin->name, name))
+            if (!strncmp(cin->name, name, PLAYER_NAME_MAX_LEN))
             {
                 if (cin->flags != flags)
                     continue;
-
+                // Yes, return existing handle
                 return i + 1;
             }
         }
+        // No, get a new handle
+        cin = CIN_HandleForCinematic(&handle);
+        if (!cin)
+        {
+            I_Printf("CIN_PlayCinematic: Couldn't get a cinematic handle!\n");
+            return -1;
+        }
 
         std::string fn = M_ComposeFileName(game_dir.c_str(), name);
-
         F = epi::FS_Open(fn.c_str(), epi::file_c::ACCESS_READ |
             epi::file_c::ACCESS_BINARY);
 
         if (F)
         {
-            I_Printf("Movie player: Opened movie file '%s'\n", fn.c_str());
+            I_Printf("CIN_PlayCinematic: Opened movie file '%s'\n", fn.c_str());
         }
         else
         {
@@ -1246,336 +198,477 @@ cinHandle_t CIN_PlayCinematic (const char *name, int flags)
             int lump = W_FindLumpFromPath(name);
             if (lump < 0)
             {
-                M_WarnError("Movie player: Missing file or lump: %s\n", name);
+                M_WarnError("CIN_PlayCinematic: Missing file or lump: %s\n", name);
                 return -1;
             }
 
             F = W_OpenLump(lump);
             if (!F)
             {
-                M_WarnError("Movie player: Can't open lump: %s\n", name);
+                M_WarnError("CIN_PlayCinematic: Can't open lump: %s\n", name);
                 return -1;
             }
-            I_Printf("Movie player: Opened movie lump '%s'\n", name);
+            I_Printf("CIN_PlayCinematic: Opened movie lump '%s'\n", name);
         }
+        cin->file = F;
 
-        int size = F->GetLength();
-
-        int offset = F->GetPosition();
-
-        F->Read(&cin_chunkData, ROQ_CHUNK_HEADER_SIZE);
-
-        id = cin_chunkData[0] | (cin_chunkData[1] << 8);
-        fps = cin_chunkData[6] | (cin_chunkData[7] << 8);
-
-        if (id != ROQ_ID)
+        // open the source file
+        cin->src = Kit_CreateSourceFromCio(ReadFunc, SeekFunc, (void*)cin, 262144);
+        if (cin->src)
         {
-            delete F;
+            I_Printf("CIN_PlayCinematic: Created movie source\n");
+        }
+        else
+        {
+			M_WarnError("CIN_PlayCinematic: Cannot create movie source for %s\n", name);
+			delete F;
+			return -1;
+		}
 
-            if (flags & CIN_SYSTEM)
-                I_Printf("Cinematic %s is not a RoQ file\n", name);
+        // print stream types
+        I_Printf("  Source streams:\n");
+        for(i = 0; i < Kit_GetSourceStreamCount(cin->src); i++)
+            if (!Kit_GetSourceStreamInfo(cin->src, &cin->sinfo, i))
+                I_Printf("   * Stream #%d: %s\n", i, Kit_GetKitStreamTypeString(cin->sinfo.type));
 
+        // create the player
+        cin->player = Kit_CreatePlayer(cin->src);
+        if (cin->player == NULL)
+        {
+            M_WarnError("CIN_PlayCinematic: Couldn't create kitchensink player!\n");
+            Kit_CloseSource(cin->src);
+			delete F;
             return -1;
         }
-        I_Printf("RoQ format movie at %d FPS opened.\n", fps);
 
-        // Play the cinematic
-        cin = CIN_HandleForCinematic(&handle);
-
-        if (flags & CIN_SYSTEM)
+        // get player info
+        Kit_GetPlayerInfo(cin->player, &cin->pinfo);
+        if (!cin->pinfo.video.is_enabled)
         {
-            I_Printf("Playing cinematic %s\n", name);
+            M_WarnError("CIN_PlayCinematic: File contains no video!\n");
+            Kit_ClosePlayer(cin->player);
+            Kit_CloseSource(cin->src);
+			delete F;
+            return -1;
+        }
+        I_Printf("  Media information:\n");
+        I_Printf("   * Video: %s (%s), %dx%d\n",
+            cin->pinfo.vcodec,
+            cin->pinfo.vcodec_name,
+            cin->pinfo.video.width,
+            cin->pinfo.video.height);
+        if (cin->pinfo.audio.is_enabled)
+        {
+            I_Printf("   * Audio: %s (%s), %dHz, %dch, %db, %s\n",
+                cin->pinfo.acodec,
+                cin->pinfo.acodec_name,
+                cin->pinfo.audio.samplerate,
+                cin->pinfo.audio.channels,
+                cin->pinfo.audio.bytes,
+                cin->pinfo.audio.is_signed ? "signed" : "unsigned");
+        }
+        if (cin->pinfo.subtitle.is_enabled)
+        {
+            I_Printf("   * Subtitle: %s (%s)\n",
+                cin->pinfo.scodec,
+                cin->pinfo.scodec_name);
+        }
+        I_Printf("  Duration: %f seconds\n", Kit_GetPlayerDuration(cin->player));
+        I_Printf("  Texture type: %s\n", Kit_GetSDLPixelFormatString(cin->pinfo.video.format));
+        if (cin->pinfo.audio.is_enabled)
+            I_Printf("  Audio format: %s\n", Kit_GetSDLAudioFormatString(cin->pinfo.audio.format));
+		else
+			Kit_SetSourceStream(cin->src, KIT_STREAMTYPE_AUDIO, -1);
+        if (cin->pinfo.subtitle.is_enabled)
+            I_Printf("  Subtitle format: %s\n", Kit_GetSDLPixelFormatString(cin->pinfo.subtitle.format));
+		else
+			Kit_SetSourceStream(cin->src, KIT_STREAMTYPE_SUBTITLE, -1);
 
-            // Force console and GUI off
-            //Con_Close();
-            //CON_SetVisible(vs_notvisible);
-            //GUI_Close();
-            M_ClearMenus();
+        // create video texture
+        cin->video_tex = SDL_CreateTexture(
+            my_rndrr,
+            cin->pinfo.video.format,
+            SDL_TEXTUREACCESS_STATIC,
+            cin->pinfo.video.width,
+            cin->pinfo.video.height);
+        if (cin->video_tex == NULL)
+        {
+            M_WarnError("CIN_PlayCinematic: Couldn't create a video texture\n");
+            Kit_ClosePlayer(cin->player);
+            Kit_CloseSource(cin->src);
+			delete F;
+            return -1;
+        }
+        // setup OGL texture buffer
+        glGenTextures(1, &cin->vtex[0]);
 
-            // Make sure sounds aren't playing
-            //S_FreeChannels();
+        cin->render_tex = SDL_CreateTexture(
+            my_rndrr,
+            SDL_PIXELFORMAT_RGB24,
+            SDL_TEXTUREACCESS_TARGET,
+            cin->pinfo.video.width,
+            cin->pinfo.video.height);
+        if (cin->render_tex == NULL)
+        {
+            M_WarnError("CIN_PlayCinematic: Couldn't create a render target texture\n");
+            SDL_DestroyTexture(cin->video_tex);
+            if (cin->vtex[0])
+                glDeleteTextures(1, &cin->vtex[0]);
+            Kit_ClosePlayer(cin->player);
+            Kit_CloseSource(cin->src);
+			delete F;
+            return -1;
         }
 
-        // Fill it in
+        cin->flip_tex = SDL_CreateTexture(
+            my_rndrr,
+            SDL_PIXELFORMAT_RGB24,
+            SDL_TEXTUREACCESS_TARGET,
+            cin->pinfo.video.width,
+            cin->pinfo.video.height);
+        if (cin->flip_tex == NULL)
+        {
+            M_WarnError("CIN_PlayCinematic: Couldn't create a render flip texture\n");
+            SDL_DestroyTexture(cin->video_tex);
+            if (cin->vtex[0])
+                glDeleteTextures(1, &cin->vtex[0]);
+            SDL_DestroyTexture(cin->render_tex);
+            Kit_ClosePlayer(cin->player);
+            Kit_CloseSource(cin->src);
+			delete F;
+            return -1;
+        }
+
+        // The subtitle texture atlas contains all the subtitle image fragments.
+        cin->subtitle_tex = SDL_CreateTexture(
+            my_rndrr,
+            cin->pinfo.subtitle.format,
+            SDL_TEXTUREACCESS_STATIC,
+            ATLAS_WIDTH, ATLAS_HEIGHT);
+        if (cin->subtitle_tex == NULL)
+        {
+            M_WarnError("CIN_PlayCinematic: Couldn't create a subtitle texture atlas\n");
+            SDL_DestroyTexture(cin->video_tex);
+            if (cin->vtex[0])
+                glDeleteTextures(1, &cin->vtex[0]);
+            SDL_DestroyTexture(cin->render_tex);
+            SDL_DestroyTexture(cin->flip_tex);
+            Kit_ClosePlayer(cin->player);
+            Kit_CloseSource(cin->src);
+			delete F;
+            return 1;
+        }
+        // setup OGL texture buffer
+        glGenTextures(1, &cin->stex[0]);
+
+        // set subtitle texture blendmode
+        SDL_SetTextureBlendMode(cin->subtitle_tex, SDL_BLENDMODE_BLEND);
+
+        // set audio specs wanted
+        memset(&cin->wanted_spec, 0, sizeof(cin->wanted_spec));
+        cin->wanted_spec.freq = cin->pinfo.audio.samplerate;
+        cin->wanted_spec.format = cin->pinfo.audio.format;
+        cin->wanted_spec.channels = cin->pinfo.audio.channels;
+        if (cin->pinfo.audio.is_enabled)
+            cin->audiobuf = (unsigned char *)Z_Malloc(AUDIOBUFFER_SIZE);
+
+        // Fill in the rest
         cin->playing = true;
-        strcpy(cin->name, name);
-        cin->flags = flags;
         cin->file = F;
-        cin->size = size;
-        cin->offset = ROQ_CHUNK_HEADER_SIZE;
-        cin->startTime = 0;
-        cin->frameRate = (fps) ? fps : 30;
-        cin->frameWidth = 0;
-        cin->frameHeight = 0;
+        strncpy(cin->name, name, PLAYER_NAME_MAX_LEN);
+        cin->name[PLAYER_NAME_MAX_LEN-1] = 0;
+        cin->flags = flags;
+        cin->frameWidth = cin->pinfo.video.width;
+        cin->frameHeight = cin->pinfo.video.height;
         cin->frameCount = 0;
-        cin->frameBuffer[0] = NULL;
-        cin->frameBuffer[1] = NULL;
-        cin->sampleRate = 0;
-        cin->nextSample = 0;
-        cin->soundSamples = (short *)Z_Malloc(ROQ_CHUNK_MAX_DATA_SIZE << 2);
+
+        // Start playback
+        Kit_PlayerPlay(cin->player);
 
         return handle;
+    }
+
+    return -1; // didn't pass a name
 }
 
-    return -1;
-}
-
-//EDGE Function to play ROQ
+//EDGE Function to play movie
 void E_PlayMovie(const char *name, int flags)
 {
-    GLuint tex[1];
     cinHandle_t midx;
-    cinData_t mdata;
+    cinematic_t *cin;
+    SDL_AudioDeviceID audio_dev;
+    SDL_AudioSpec audio_spec;
+    int afree;
+
+	I_Printf("E_PlayMovie: Attemptimp to play %s\n",name);
+	if (flags & CIN_SYSTEM)
+		I_Printf("  SYSTEM flag\n");
+	if (flags & CIN_LOOPING)
+		I_Printf("  LOOPING flag\n");
+	if (flags & CIN_SILENT)
+		I_Printf("  SILENT flag\n");
 
     playing_movie = false;
 
+    // initialize kitchensink and movie vars
     CIN_Init();
 
+    // try to setup movie using kitchensink
     midx = CIN_PlayCinematic(name, flags);
-
     if (midx < 0)
     {
         CIN_Shutdown();
-        SDL_CloseAudio();
-        I_StartupSound();
-        SDL_PauseAudio(0);
-        I_Printf("WARNING: Could not open ROQ: %s", name);
-        return; // couldn't open movie
+        M_WarnError("E_PlayMovie: Could not play movie %s\n", name);
+        return;
+    }
+    cin = CIN_GetCinematicByHandle(midx);
+
+    if (flags & CIN_SYSTEM)
+    {
+        I_Printf("E_PlayMovie: Playing cinematic %s\n", name);
+
+        // Force console and GUI off
+        //Con_Close();
+        //CON_SetVisible(vs_notvisible);
+        //GUI_Close();
+        M_ClearMenus();
+
+        // Make sure sounds aren't playing
+        //S_FreeChannels();
     }
 
-    // setup OpenGL texture buffer
-    glGenTextures(1, tex);
+    // close game audio and setup movie audio
+    SDL_CloseAudio();
+    audio_dev = SDL_OpenAudioDevice(NULL, 0, &cin->wanted_spec, &audio_spec, 0);
+    SDL_PauseAudioDevice(audio_dev, 0);
+	I_Printf("E_PlayMovie: Opened audio device at %d Hz / %d chan\n", audio_spec.freq, audio_spec.channels);
 
+    // sync to vblank
+    SDL_GL_SetSwapInterval(1);
+
+    // setup to draw 2D screen
     RGL_SetupMatrices2D();
 
-    current_movie = midx;
+    // set global flag that a movie is playing as opposed to just animated textures
     playing_movie = true;
     while (playing_movie)
     {
-        uint32_t curr_ms;
+        // update audio
+        SDL_LockAudio();
+        afree = AUDIOBUFFER_SIZE - SDL_GetQueuedAudioSize(audio_dev); // buffer space to fill
+        CIN_UpdateAudio(midx, afree, audio_dev);
+        SDL_UnlockAudio();
+        SDL_PauseAudioDevice(audio_dev, 0);
 
-        SDL_Delay(5);
+        // update video
+        CIN_UpdateCinematic(midx);
 
-        curr_ms = SDL_GetTicks();
-        CIN_UpdateCinematic(midx, curr_ms, &mdata);
+        // draw a movie frame
+        I_StartFrame();
 
-        if ((mdata.image == NULL) && (mdata.dirty == false) &&
-            (mdata.width == 0) && (mdata.height == 0))
+        // upload decoded video into opengl texture
+        glBindTexture(GL_TEXTURE_2D, cin->vtex[0]);
+        SDL_GL_BindTexture(cin->render_tex, NULL, NULL);
+
+        // draw to screen
+        glEnable(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glDisable(GL_ALPHA_TEST);
+
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+        glBegin(GL_QUADS);
+
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex2i(0, 0);
+
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex2i(SCREENWIDTH, 0);
+
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex2i(SCREENWIDTH, SCREENHEIGHT);
+
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex2i(0, SCREENHEIGHT);
+
+        SDL_GL_UnbindTexture(cin->render_tex);
+
+        if (cin->pinfo.subtitle.is_enabled)
         {
-            I_Printf("End of movie %s\n", name);
-            break; // end of movie
+            // upload decoded subtitle into opengl texture
+            glBindTexture(GL_TEXTURE_2D, cin->stex[0]);
+            SDL_GL_BindTexture(cin->subtitle_tex, NULL, NULL);
+
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+            // draw all subtitle fragments
+            for(int i = 0; i < cin->got; i++)
+            {
+                glTexCoord2f(HSS(cin->sources[i].x), VSS(cin->sources[i].y + cin->sources[i].h)); //0.0f, 1.0f
+                glVertex2i(HTS(cin->targets[i].x), VTS(cin->targets[i].y)); // 0, 0
+
+                glTexCoord2f(HSS(cin->sources[i].x + cin->sources[i].w), VSS(cin->sources[i].y + cin->sources[i].h)); // 1.0f, 1.0f
+                glVertex2i(HTS(cin->targets[i].x + cin->targets[i].w), VTS(cin->targets[i].y)); // sw, 0
+
+                glTexCoord2f(HSS(cin->sources[i].x + cin->sources[i].w), VSS(cin->sources[i].y)); // 1.0f, 0.0f
+                glVertex2i(HTS(cin->targets[i].x + cin->targets[i].w), VTS(cin->targets[i].y + cin->targets[i].h)); // sw, sh
+
+                glTexCoord2f(HSS(cin->sources[i].x), VSS(cin->sources[i].y)); // 0.0f, 0.0f
+                glVertex2i(HTS(cin->targets[i].x), VTS(cin->targets[i].y + cin->targets[i].h)); // 0, sh
+            }
+
+            SDL_GL_UnbindTexture(cin->subtitle_tex);
         }
 
-        if (mdata.dirty)
+        glEnd();
+
+        glDisable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+
+        I_FinishFrame();
+
+		playing_movie = CIN_CheckCinematic(midx);
+
+        // check if press key/button
+        SDL_PumpEvents();
+        SDL_Event sdl_ev;
+        while (SDL_PollEvent(&sdl_ev))
         {
-            // dirty set => need to draw a movie frame
-            I_StartFrame();
-
-            // upload decoded video into opengl buffer
-            glBindTexture(GL_TEXTURE_2D, tex[0]);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-                mdata.width, mdata.height, 0, GL_RGBA,
-                GL_UNSIGNED_BYTE, mdata.image);
-
-            // draw to screen
-            glEnable(GL_TEXTURE_2D);
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glDisable(GL_ALPHA_TEST);
-
-            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-            glBegin(GL_QUADS);
-
-            glTexCoord2f(0.0f, 1.0f);
-            glVertex2i(0, 0);
-
-            glTexCoord2f(1.0f, 1.0f);
-            glVertex2i(SCREENWIDTH, 0);
-
-            glTexCoord2f(1.0f, 0.0f);
-            glVertex2i(SCREENWIDTH, SCREENHEIGHT);
-
-            glTexCoord2f(0.0f, 0.0f);
-            glVertex2i(0, SCREENHEIGHT);
-
-            glEnd();
-
-            glDisable(GL_TEXTURE_2D);
-
-            I_FinishFrame();
-
-            /* check if press key/button */
-            SDL_PumpEvents();
-            SDL_Event sdl_ev;
-            while (SDL_PollEvent(&sdl_ev))
+            switch(sdl_ev.type)
             {
-                switch(sdl_ev.type)
-                {
-                    case SDL_KEYUP:
-                    case SDL_MOUSEBUTTONUP:
-                    case SDL_JOYBUTTONUP:
-                        playing_movie = false;
-                        break;
+                case SDL_KEYUP:
+                case SDL_MOUSEBUTTONUP:
+                case SDL_JOYBUTTONUP:
+                    playing_movie = false;
+                    break;
 
-                    default:
-                        break; // Don't care
-                }
+                default:
+                    break; // Don't care
             }
         }
     }
-    playing_movie = false;
+
+    // stop cinematic (just in case the video was interrupted or hit an error)
     CIN_StopCinematic(midx);
-    I_Printf("Cinematic stopped\n");
+    I_Printf("E_PlayMovie: Cinematic stopped\n");
 
     CIN_Shutdown();
-    SDL_CloseAudio();
+
+    // close movie audio and restart game audio
+    SDL_CloseAudioDevice(audio_dev);
     I_StartupSound();
     SDL_PauseAudio(0);
 
-    // delete OpenGL texture buffer
-    if (tex[0])
-    {
-        I_Printf("Deleting OpenGL texture\n");
-        glDeleteTextures(1, tex);
-    }
+	// restore OGL context
+    SDL_GL_MakeCurrent( my_vis, glContext );
+
+    // restore OGL swap interval
+    if (r_vsync.d != 1)
+        SDL_GL_SetSwapInterval(-1);
 
     I_Printf("E_PlayMovie exiting\n");
     return;
 }
 
+/*
+ ==================
+ CIN_CheckCinematic
+ ==================
+*/
+bool CIN_CheckCinematic (cinHandle_t handle)
+{
+    cinematic_t *cin = CIN_GetCinematicByHandle(handle);
+
+	if (Kit_GetPlayerState(cin->player) == KIT_STOPPED)
+	{
+		const char *estr = Kit_GetError();
+#ifdef DEBUG_MOVIE_PLAYER
+		I_Printf("  Cinematic stopped - %s\n", estr ? estr : "done");
+#endif
+		if (cin->flags & CIN_LOOPING)
+		{
+#ifdef DEBUG_MOVIE_PLAYER
+			I_Printf("  Cinematic looping!\n");
+#endif
+			CIN_ResetCinematic(handle);
+		}
+		else
+		{
+			// done or error
+			return false;
+		}
+	}
+	return true;
+}
 
 /*
  ==================
  CIN_UpdateCinematic
  ==================
 */
-void CIN_UpdateCinematic (cinHandle_t handle, int time, cinData_t *mdata)
+void CIN_UpdateCinematic (cinHandle_t handle)
 {
-#if DEBUG_ROQ_READER
-    I_Printf("CIN_UpdateCinematic!\n");
+#ifdef DEBUG_MOVIE_PLAYER
+    //I_Printf("CIN_UpdateCinematic!\n");
 #endif
-    cinematic_t *cin;
-    int         frame;
-    //epi::file_c *f = cin->file;
+    cinematic_t *cin = CIN_GetCinematicByHandle(handle);
+    cin->got = 0;
 
-    cin = CIN_GetCinematicByHandle(handle);
+    // update video texture
+    Kit_GetVideoData(cin->player, cin->video_tex);
+	// convert video texture to flip target
+	SDL_SetRenderTarget(my_rndrr, cin->flip_tex);
+	// Clear screen with black
+	SDL_SetRenderDrawColor(my_rndrr, 0, 0, 0, 255);
+	SDL_RenderClear(my_rndrr);
+    SDL_RenderCopy(my_rndrr, cin->video_tex, NULL, NULL);
+	SDL_SetRenderTarget(my_rndrr, cin->render_tex);
+    SDL_RenderCopyEx(my_rndrr, cin->flip_tex, NULL, NULL, 0, NULL, SDL_FLIP_VERTICAL);
+	SDL_SetRenderTarget(my_rndrr, NULL);
 
-    // If we don't have a frame yet, set the start time
-    if (!cin->frameCount)
-        cin->startTime = time;
+    // update subtitle texture
+    if (cin->pinfo.subtitle.is_enabled)
+        cin->got = Kit_GetSubtitleData(cin->player, cin->subtitle_tex, &cin->sources[0], &cin->targets[0], ATLAS_MAX);
 
-    // Check if a new frame is needed
-    frame = (time - cin->startTime) * cin->frameRate / 1000;
-    if (frame < 1)
-        frame = 1;
-
-    if (frame <= cin->frameCount)
-    {
-        mdata->image = cin->frameBuffer[1];
-        mdata->dirty = false;
-
-        mdata->width = cin->frameWidth;
-        mdata->height = cin->frameHeight;
-
-        return;
-    }
-
-    // If we're dropping frames
-    if (frame > cin->frameCount + 1)
-    {
-        if (cin->flags & CIN_SYSTEM)
-            I_Printf("Dropped cinematic frame: %i > %i (%s)\n", frame, cin->frameCount + 1, cin->name);
-        else
-            I_Debugf("Dropped cinematic frame: %i > %i (%s)\n", frame, cin->frameCount + 1, cin->name);
-
-        frame = cin->frameCount + 1;
-
-        // Reset the start time
-        cin->startTime = time - frame * 1000 / cin->frameRate;
-    }
-
-    // Get the desired frame
-    while (frame > cin->frameCount)
-    {
-        // Decode a chunk
-        if (CIN_DecodeChunk(cin))
-            continue;
-
-        // If we get here, the cinematic has finished
-        if (!cin->frameCount && !(cin->flags & CIN_LOOPING))
-        {
-            I_Printf("  Cinematic finished!\n");
-
-            mdata->image = NULL;
-            mdata->dirty = false;
-
-            mdata->width = 0;
-            mdata->height = 0;
-
-            return;
-        }
-
-        // Reset the cinematic
-        cin->file->Seek(ROQ_CHUNK_HEADER_SIZE, epi::file_c::SEEKPOINT_START);
-        //F->Seek(cin->file, ROQ_CHUNK_HEADER_SIZE, SEEKPOINT_START);
-
-        cin->offset = ROQ_CHUNK_HEADER_SIZE;
-        cin->startTime = time;
-        cin->frameCount = 0;
-
-        // Get the first frame
-        frame = 1;
-    }
-
-    mdata->image = cin->frameBuffer[1];
-    mdata->dirty = true;
-
-    mdata->width = cin->frameWidth;
-    mdata->height = cin->frameHeight;
-
+    cin->frameCount++;
     return;
 }
 
 /*
  =================
  CIN_UpdateAudio
+
+ Returns number of bytes of audio fetched
  =================
 */
-void CIN_UpdateAudio(Uint8 *stream, int len)
+int CIN_UpdateAudio(cinHandle_t handle, int need, SDL_AudioDeviceID audio_dev)
 {
+#ifdef DEBUG_MOVIE_PLAYER
     //I_Printf("CIN_UpdateAudio!\n");
-    cinematic_t *cin;
-    int j;
-    float *dst = (float *)stream;
+#endif
+    cinematic_t *cin = CIN_GetCinematicByHandle(handle);
+    int bytes = 0;
 
-    cin = CIN_GetCinematicByHandle(current_movie);
+    if (!cin->audiobuf)
+        return 0; // no audiobuf => no audio for this cinematic
 
-    if (cin->nextSample)
+    while (need > 0)
     {
-        int wanted = len >> 2;
-        if (wanted <= cin->nextSample)
-        {
-            for (j=0; j<wanted; j++)
-                dst[j] = (float)cin->soundSamples[j] * slider_to_gain[sfx_volume] * 0.000030518f;
-            if (wanted < cin->nextSample)
-                memcpy(cin->soundSamples, &cin->soundSamples[wanted], (cin->nextSample - wanted) * 2);
-            cin->nextSample -= wanted;
-        }
+        int ret = Kit_GetAudioData(
+            cin->player,
+            cin->audiobuf,
+            AUDIOBUFFER_SIZE);
+        need -= ret;
+        bytes += ret;
+        if ((ret > 0) && audio_dev)
+            SDL_QueueAudio(audio_dev, cin->audiobuf, ret);
         else
-        {
-            for (j=0; j<cin->nextSample; j++)
-                dst[j] = (float)cin->soundSamples[j] * slider_to_gain[sfx_volume] * 0.000030518f;
-            cin->nextSample = 0;
-
-            for (; j<wanted; j++)
-                dst[j] = 0.0f;
-        }
+            break; // error or no audio device (only do one fetch and return)
     }
-    else
-        for (j=0; j<len>>2; j++)
-            dst[j] = 0.0f;
+    return bytes;
 }
 
 /*
@@ -1585,18 +678,12 @@ void CIN_UpdateAudio(Uint8 *stream, int len)
 */
 void CIN_ResetCinematic (cinHandle_t handle)
 {
-
-    cinematic_t *cin;
-    //epi::file_c *f = cin->file;
-
-    cin = CIN_GetCinematicByHandle(handle);
+    cinematic_t *cin = CIN_GetCinematicByHandle(handle);
 
     // Reset the cinematic
-    cin->file->Seek(ROQ_CHUNK_HEADER_SIZE, epi::file_c::SEEKPOINT_START);
-    //FS_Seek(cin->file, ROQ_CHUNK_HEADER_SIZE, FS_SEEK_SET);
+    Kit_PlayerSeek(cin->player, 0.0);
+    Kit_PlayerPlay(cin->player);
 
-    cin->offset = ROQ_CHUNK_HEADER_SIZE;
-    cin->startTime = 0;
     cin->frameCount = 0;
 }
 
@@ -1607,11 +694,8 @@ void CIN_ResetCinematic (cinHandle_t handle)
 */
 void CIN_StopCinematic (cinHandle_t handle)
 {
-
-    cinematic_t *cin;
-    //epi::file_c *f = cin->file;
-
-    cin = CIN_GetCinematicByHandle(handle);
+    cinematic_t *cin = CIN_GetCinematicByHandle(handle);
+    epi::file_c *F;
 
     // Stop the cinematic
     if (cin->flags & CIN_SYSTEM)
@@ -1622,35 +706,38 @@ void CIN_StopCinematic (cinHandle_t handle)
         // S_FreeChannels();
     }
 
-    // Free the frame buffers
-    if (cin->frameBuffer[0])
-    {
-        I_Printf("  Freeing framebuffer[0]\n");
-        Z_Free(cin->frameBuffer[0]);
-        cin->frameBuffer[0] = NULL;
-    }
-    if (cin->frameBuffer[1])
-    {
-        I_Printf("  Freeing framebuffer[1]\n");
-        Z_Free(cin->frameBuffer[1]);
-        cin->frameBuffer[1] = NULL;
-    }
-    if (cin->soundSamples)
-    {
-        I_Printf("  Freeing soundSamples\n");
-        Z_Free(cin->soundSamples);
-        cin->soundSamples = NULL;
-    }
+    // free OGL textures
+    if (cin->vtex[0])
+        glDeleteTextures(1, &cin->vtex[0]);
+    if (cin->stex[0])
+        glDeleteTextures(1, &cin->stex[0]);
 
-    // Close the file
-    if (cin->file)
-    {
-        I_Printf("  Deleting file\n");
-		delete cin->file;
-        cin->file = 0;
-    }
+    // free SDL textures
+    if (cin->video_tex)
+        SDL_DestroyTexture(cin->video_tex);
+    if (cin->render_tex)
+        SDL_DestroyTexture(cin->render_tex);
+    if (cin->flip_tex)
+        SDL_DestroyTexture(cin->flip_tex);
+    if (cin->subtitle_tex)
+        SDL_DestroyTexture(cin->subtitle_tex);
 
-    cin->playing = false;
+    // free audio buffer
+    if (cin->audiobuf)
+        Z_Free(cin->audiobuf);
+
+    // close player
+    if (cin->player)
+        Kit_ClosePlayer(cin->player);
+
+    // close source
+    if (cin->src)
+        Kit_CloseSource(cin->src);
+
+	F = cin->file;
+	delete F;
+
+    memset(cin, 0, sizeof(cinematic_t));
 }
 
 
@@ -1739,36 +826,22 @@ static void CIN_ListCinematics_f(void)
 */
 void CIN_Init (void)
 {
-    I_Printf("I_Cinematic: Starting up...\n");
-    float   f;
-    int     i;
+    if (cin_init)
+        return;
+
+    I_Printf("CIN_Init: Starting up...\n");
+
+    // Clear global array
+    memset(cin_cinematics, 0, sizeof(cin_cinematics));
+
+    // initialize SDL kitchensink
+    Kit_Init(0);
 
     // Add commands
     //Cmd_AddCommand("playCinematic", CIN_PlayCinematic_f, "Plays a cinematic", Cmd_ArgCompletion_VideoName);
     //Cmd_AddCommand("listCinematics", CIN_ListCinematics_f, "Lists playing cinematics", NULL);
 
-    // Clear global array
-    memset(cin_cinematics, 0, sizeof(cin_cinematics));
-
-    // Build YCbCr-to-RGB tables
-    for (i = 0; i < 256; i++)
-    {
-        f = (float)(i - 128);
-
-        cin_cr2rTable[i] = (short)(f *  1.40200f);
-        cin_cb2gTable[i] = (short)(f * -0.34414f);
-        cin_cr2gTable[i] = (short)(f * -0.71414f);
-        cin_cb2bTable[i] = (short)(f *  1.77200f);
-    }
-
-    // CA: Removed SQUARE template -- just write it out manually ;)
-    //Build square table (cin_sqrTable[])
-    for (int i = 0; i < 128; i++)
-    {
-        const short s = (short)(i * i);
-        cin_sqrTable[i] = s;
-        cin_sqrTable[i + 128] = -s;
-    }
+    cin_init = true;
 }
 
 /*
@@ -1778,34 +851,25 @@ void CIN_Init (void)
 */
 void CIN_Shutdown (void)
 {
-
     cinematic_t *cin;
     int         i;
+
+    if (!cin_init)
+        return; // not initialized
+
+    // check all cinematics
+    for (i = 0, cin = cin_cinematics; i < MAX_CINEMATICS; i++, cin++)
+        if (cin->playing)
+            return; // cinematics still in use!
+
+    I_Printf("CIN_Shutdown: Shutting down...\n");
 
     // Remove commands
     //Cmd_RemoveCommand("playCinematic");
     //Cmd_RemoveCommand("listCinematics");
 
-    // Stop all the cinematics
-    cinematicHandle = 0;
+    // close SDL kitchensink
+    Kit_Quit();
 
-    for (i = 0, cin = cin_cinematics; i < MAX_CINEMATICS; i++, cin++)
-    {
-        if (!cin->playing)
-            continue;
-
-        // Free the frame buffers
-        if (cin->frameBuffer[0])
-            Z_Free(cin->frameBuffer[0]);
-        if (cin->frameBuffer[1])
-            Z_Free(cin->frameBuffer[1]);
-
-        // Free the sound sample buffer
-        if (cin->soundSamples)
-            Z_Free(cin->soundSamples);
-
-        // Close the file
-        if (cin->file)
-            delete cin->file;
-    }
+    cin_init = false;
 }

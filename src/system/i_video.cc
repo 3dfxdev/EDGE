@@ -41,6 +41,8 @@ extern cvar_c r_width, r_height, r_depth, r_fullscreen, r_vsync;
 
 //The window we'll be rendering to
 SDL_Window *my_vis;
+//Renderer for window - used by cinematic
+SDL_Renderer *my_rndrr;
 
 int graphics_shutdown = 0;
 
@@ -182,7 +184,7 @@ void I_StartupGraphics(void)
                               display_W,
                               display_H,
                               flags);
-
+	my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_ACCELERATED);
 	glContext = SDL_GL_CreateContext( my_vis );
     SDL_GL_MakeCurrent( my_vis, glContext );
     if(my_vis == NULL)
@@ -260,6 +262,7 @@ bool I_SetScreenSize(scrmode_c *mode)
 	I_GrabCursor(false);
 
 	SDL_GL_DeleteContext(glContext);
+	SDL_DestroyRenderer(my_rndrr);
 	SDL_DestroyWindow(my_vis);
 
 	I_Printf("I_SetScreenSize: trying %dx%d %dbpp (%s)\n",
@@ -272,6 +275,7 @@ bool I_SetScreenSize(scrmode_c *mode)
                     mode->width, mode->height,
                     SDL_WINDOW_OPENGL | //SDL2 is double-buffered by default
                     (mode->full ? SDL_WINDOW_FULLSCREEN :0));
+	my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_ACCELERATED);
 	glContext = SDL_GL_CreateContext( my_vis );
     SDL_GL_MakeCurrent( my_vis, glContext );
 	if (my_vis == NULL)
@@ -408,6 +412,8 @@ void I_ShutdownGraphics(void)
 
 		if (glContext)
 			SDL_GL_DeleteContext(glContext);
+		if (my_rndrr)
+			SDL_DestroyRenderer(my_rndrr);
 		if (my_vis)
 			SDL_DestroyWindow(my_vis);
 
