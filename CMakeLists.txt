@@ -463,6 +463,7 @@ set(EDGE_SOURCES
 	src/games/wolf3d/wlf_vswap.cc
 	src/games/wolf3d/wlf_maps.cc
 	src/games/wolf3d/wlf_setup.cc
+	src/games/wolf3d/wlf_bsp.cc
 
 	src/md5_conv/md5_load.cc
 	src/md5_conv/md5_parse.cc

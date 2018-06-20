@@ -1,12 +1,36 @@
-
-/* WOLF LOCAL DEFS */
+//----------------------------------------------------------------------------
+//  EDGE2 Wolfenstein Local Definitions
+//----------------------------------------------------------------------------
+//
+//  Copyright (c) 1999-2009  The EDGE2 Team.
+//
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//----------------------------------------------------------------------------
+//
+//  Based on the Wolfenstein and DOOM source codes, released by Id Software 
+//  under the following copyright:
+//
+//    Copyright (C) 1993-1996 by id Software, Inc.
+//
+//----------------------------------------------------------------------------
 
 #ifndef __WOLF_LOCAL_H__
 #define __WOLF_LOCAL_H__
 
-#include "../../../epi/image_data.h"
 #include "wlf_rawdef.h"
+#include "../../r_defs.h"
 
+#include "../../../epi/image_data.h"
+#include "../../../epi/math_vector.h"
 
 // --- globals ---
 
@@ -23,6 +47,7 @@ extern const byte wolf_palette[256*3];
 void CreatePlaypal(void);
 
 
+
 // ---- wf_util ----
 
 void WF_Carmack_Expand(const byte *source, byte *dest, int length);
@@ -32,12 +57,17 @@ void WF_Huff_Expand(const byte *source, int src_len, byte *dest, int dest_len, c
 
 // ---- wf_maps ----
 void TinyBSP(void);
+void WF_BuildBSP(void);
 void WF_InitMaps(void);
 
 void WF_LoadMap(int map_num);
 void WF_FreeMap(void);
 
 void WF_SetupLevel(void);
+
+// ---- wf_setup ----
+
+vertex_t *WF_GetVertex(int vx, int vy);
 
 // ---- wf_vswap ----
 //class graph_info_c vga_info;

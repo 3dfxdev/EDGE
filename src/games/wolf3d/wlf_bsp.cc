@@ -24,7 +24,6 @@
 //
 
 #include "system/i_defs.h"
-#include "dm_structs.h"
 #include "wlf_local.h"
 
 #include "dm_state.h"

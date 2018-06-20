@@ -241,13 +241,15 @@ void WF_FreeMap(void)
 	// FIXME
 }
 
+extern void WF_BuildBSP(void);
+
 void WF_InitMaps(void)
 {
 	MapsReadHeaders();
 	I_Printf("WOLF: MapsReadHeaders successful!\n");
 
-	WF_LoadMap(0);  // !!!! TEST
-	//TinyBSP();
+	WF_LoadMap(1);  // !!!! TEST
+	WF_BuildBSP();  // !!!! TEST
 }
 
 

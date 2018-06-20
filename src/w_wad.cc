@@ -2090,8 +2090,8 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		if (wolf3d_mode)
 		{
 			I_Printf("WOLF: Read levels from MAPHEAD\n");
-
-			I_Printf("WOLF: Not implemented!\n");
+			WF_InitMaps();
+			//I_Printf("WOLF: Not implemented!\n");
 		}
 
 		// handle DeHackEd patch files
