@@ -854,7 +854,7 @@ void CIN_Init (void)
     memset(cin_cinematics, 0, sizeof(cin_cinematics));
 
     // initialize SDL kitchensink
-    Kit_Init(0);
+    Kit_Init(KIT_INIT_ASS);
 
     // Add commands
     //Cmd_AddCommand("playCinematic", CIN_PlayCinematic_f, "Plays a cinematic", Cmd_ArgCompletion_VideoName);

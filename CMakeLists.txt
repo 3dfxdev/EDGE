@@ -244,9 +244,13 @@ if (MSVC)
 endif(MSVC)
 
 if(UNIX)
+	set( JPEG_LIBRARY "libjpeg.so" )
+	set( PNG_LIBRARY_RELEASE "libpng.so" )
+	set( SDL2_INCLUDE_DIR "/usr/include/SDL2" )
+	set( SDL2_LIBRARY "libSDL2.so" )
 	set( ogg_RELEASE_LIBRARY "libvorbisfile.so" )
 	set( physfs_LIBRARY "libphysfs.so" )
-    set( kitchensink_LIBRARY "libSDL_kitchensink.so")
+	set( kitchensink_LIBRARY "libSDL_kitchensink.so")
 endif(UNIX)
 
 # Phys
