@@ -23,6 +23,11 @@
 #include <SDL_keycode.h> /// Keys
 #include <SDL_opengl.h> // opengl
 
+#include <SDL_render.h> // kitchensink
+#include <SDL_thread.h>
+#include <SDL_surface.h>
+#include <SDL_mutex.h>
+
 #include "i_local.h"  // FIXME: remove
 
 #endif /* __SDL_SYSTEM_INTERNAL_H__ */

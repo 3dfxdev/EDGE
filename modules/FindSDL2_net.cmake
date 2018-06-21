@@ -1,88 +1,88 @@
-# - Locate SDL2_net library
-# This module defines:
-#  SDL2_NET_LIBRARIES, the name of the library to link against
-#  SDL2_NET_INCLUDE_DIRS, where to find the headers
-#  SDL2_NET_FOUND, if false, do not try to link against
-#  SDL2_NET_VERSION_STRING - human-readable string containing the version of SDL2_net
+# FindSDL2_net.cmake
 #
-# For backward compatiblity the following variables are also set:
-#  SDLNET_LIBRARY (same value as SDL2_NET_LIBRARIES)
-#  SDLNET_INCLUDE_DIR (same value as SDL2_NET_INCLUDE_DIRS)
-#  SDLNET_FOUND (same value as SDL2_NET_FOUND)
+# Copyright (c) 2018, Alex Mayfield <alexmax2742@gmail.com>
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the <organization> nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# $SDLDIR is an environment variable that would
-# correspond to the ./configure --prefix=$SDLDIR
-# used in building SDL.
-#
-# Created by Eric Wing. This was influenced by the FindSDL.cmake
-# module, but with modifications to recognize OS X frameworks and
-# additional Unix paths (FreeBSD, etc).
+# Currently works with the following generators:
+# - Unix Makefiles
+# - Ninja
+# - Visual Studio
 
-#=============================================================================
-# Copyright 2005-2009 Kitware, Inc.
-# Copyright 2012 Benjamin Eikel
-#
-# Distributed under the OSI-approved BSD License (the "License");
-# see accompanying file Copyright.txt for details.
-#
-# This software is distributed WITHOUT ANY WARRANTY; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the License for more information.
-#=============================================================================
-# (To distribute this file outside of CMake, substitute the full
-#  License text for the above reference.)
+# Cache variable that allows you to point CMake at a directory containing
+# an extracted development library.
+set(SDL2_NET_DIR "${SDL2_NET_DIR}" CACHE PATH "Location of SDL2_net library directory")
 
-if(NOT SDL2_NET_INCLUDE_DIR AND SDLNET_INCLUDE_DIR)
-  set(SDL2_NET_INCLUDE_DIR ${SDLNET_INCLUDE_DIR} CACHE PATH "directory cache
-entry initialized from old variable name")
-endif()
-find_path(SDL2_NET_INCLUDE_DIR SDL_net.h
-  HINTS
-    ENV SDLNETDIR
-    ENV SDLDIR
-  PATH_SUFFIXES include/SDL2 include/SDL2.0 include
-)
-
-if(NOT SDL2_NET_LIBRARY AND SDLNET_LIBRARY)
-  set(SDL2_NET_LIBRARY ${SDLNET_LIBRARY} CACHE FILEPATH "file cache entry
-initialized from old variable name")
-endif()
-find_library(SDL2_NET_LIBRARY
-  NAMES SDL2_net
-  HINTS
-    ENV SDLNETDIR
-    ENV SDLDIR
-  PATH_SUFFIXES lib
-)
-
-if(SDL2_NET_INCLUDE_DIR AND EXISTS "${SDL2_NET_INCLUDE_DIR}/SDL2_net.h")
-  file(STRINGS "${SDL2_NET_INCLUDE_DIR}/SDL2_net.h" SDL2_NET_VERSION_MAJOR_LINE REGEX "^#define[ \t]+SDL2_NET_MAJOR_VERSION[ \t]+[0-9]+$")
-  file(STRINGS "${SDL2_NET_INCLUDE_DIR}/SDL2_net.h" SDL2_NET_VERSION_MINOR_LINE REGEX "^#define[ \t]+SDL2_NET_MINOR_VERSION[ \t]+[0-9]+$")
-  file(STRINGS "${SDL2_NET_INCLUDE_DIR}/SDL2_net.h" SDL2_NET_VERSION_PATCH_LINE REGEX "^#define[ \t]+SDL2_NET_PATCHLEVEL[ \t]+[0-9]+$")
-  string(REGEX REPLACE "^#define[ \t]+SDL2_NET_MAJOR_VERSION[ \t]+([0-9]+)$" "\\1" SDL2_NET_VERSION_MAJOR "${SDL2_NET_VERSION_MAJOR_LINE}")
-  string(REGEX REPLACE "^#define[ \t]+SDL2_NET_MINOR_VERSION[ \t]+([0-9]+)$" "\\1" SDL2_NET_VERSION_MINOR "${SDL2_NET_VERSION_MINOR_LINE}")
-  string(REGEX REPLACE "^#define[ \t]+SDL2_NET_PATCHLEVEL[ \t]+([0-9]+)$" "\\1" SDL2_NET_VERSION_PATCH "${SDL2_NET_VERSION_PATCH_LINE}")
-  set(SDL2_NET_VERSION_STRING ${SDL2_NET_VERSION_MAJOR}.${SDL2_NET_VERSION_MINOR}.${SDL2_NET_VERSION_PATCH})
-  unset(SDL2_NET_VERSION_MAJOR_LINE)
-  unset(SDL2_NET_VERSION_MINOR_LINE)
-  unset(SDL2_NET_VERSION_PATCH_LINE)
-  unset(SDL2_NET_VERSION_MAJOR)
-  unset(SDL2_NET_VERSION_MINOR)
-  unset(SDL2_NET_VERSION_PATCH)
+# Use pkg-config to find library locations in *NIX environments.
+find_package(PkgConfig QUIET)
+if(PKG_CONFIG_FOUND)
+    pkg_search_module(PC_SDL2_NET QUIET SDL2_net)
 endif()
 
-set(SDL2_NET_LIBRARIES ${SDL2_NET_LIBRARY})
-set(SDL2_NET_INCLUDE_DIRS ${SDL2_NET_INCLUDE_DIR})
+# Find the include directory.
+find_path(SDL2_NET_INCLUDE_DIR "SDL_net.h"
+    HINTS "${SDL2_NET_DIR}/include" ${PC_SDL2_NET_INCLUDE_DIRS})
+
+# Find the version.  Taken and modified from CMake's FindSDL.cmake.
+if(SDL2_NET_INCLUDE_DIR AND EXISTS "${SDL2_NET_INCLUDE_DIR}/SDL_net.h")
+    file(STRINGS "${SDL2_NET_INCLUDE_DIR}/SDL_net.h" SDL2_NET_VERSION_MAJOR_LINE REGEX "^#define[ \t]+SDL_NET_MAJOR_VERSION[ \t]+[0-9]+$")
+    file(STRINGS "${SDL2_NET_INCLUDE_DIR}/SDL_net.h" SDL2_NET_VERSION_MINOR_LINE REGEX "^#define[ \t]+SDL_NET_MINOR_VERSION[ \t]+[0-9]+$")
+    file(STRINGS "${SDL2_NET_INCLUDE_DIR}/SDL_net.h" SDL2_NET_VERSION_PATCH_LINE REGEX "^#define[ \t]+SDL_NET_PATCHLEVEL[ \t]+[0-9]+$")
+    string(REGEX REPLACE "^#define[ \t]+SDL_NET_MAJOR_VERSION[ \t]+([0-9]+)$" "\\1" SDL2_NET_VERSION_MAJOR "${SDL2_NET_VERSION_MAJOR_LINE}")
+    string(REGEX REPLACE "^#define[ \t]+SDL_NET_MINOR_VERSION[ \t]+([0-9]+)$" "\\1" SDL2_NET_VERSION_MINOR "${SDL2_NET_VERSION_MINOR_LINE}")
+    string(REGEX REPLACE "^#define[ \t]+SDL_NET_PATCHLEVEL[ \t]+([0-9]+)$" "\\1" SDL2_NET_VERSION_PATCH "${SDL2_NET_VERSION_PATCH_LINE}")
+    set(SDL2_NET_VERSION "${SDL2_NET_VERSION_MAJOR}.${SDL2_NET_VERSION_MINOR}.${SDL2_NET_VERSION_PATCH}")
+    unset(SDL2_NET_VERSION_MAJOR_LINE)
+    unset(SDL2_NET_VERSION_MINOR_LINE)
+    unset(SDL2_NET_VERSION_PATCH_LINE)
+    unset(SDL2_NET_VERSION_MAJOR)
+    unset(SDL2_NET_VERSION_MINOR)
+    unset(SDL2_NET_VERSION_PATCH)
+endif()
+
+# Find the library.
+if(CMAKE_SIZEOF_VOID_P STREQUAL 8)
+    find_library(SDL2_NET_LIBRARY "SDL2_net"
+        HINTS "${SDL2_NET_DIR}/lib/x64" ${PC_SDL2_NET_LIBRARY_DIRS})
+else()
+    find_library(SDL2_NET_LIBRARY "SDL2_net"
+        HINTS "${SDL2_NET_DIR}/lib/x86" ${PC_SDL2_NET_LIBRARY_DIRS})
+endif()
 
 include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(SDL2_net
+    FOUND_VAR SDL2_NET_FOUND
+    REQUIRED_VARS SDL2_NET_INCLUDE_DIR SDL2_NET_LIBRARY
+    VERSION_VAR SDL2_NET_VERSION
+)
 
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(SDL2_net
-                                  REQUIRED_VARS SDL2_NET_LIBRARIES SDL2_NET_INCLUDE_DIRS
-                                  VERSION_VAR SDL2_NET_VERSION_STRING)
-
-# for backward compatiblity
-set(SDLNET_LIBRARY ${SDL2_NET_LIBRARIES})
-set(SDLNET_INCLUDE_DIR ${SDL2_NET_INCLUDE_DIRS})
-set(SDLNET_FOUND ${SDL2_NET_FOUND})
-
-mark_as_advanced(SDL2_NET_LIBRARY SDL2_NET_INCLUDE_DIR)
+if(SDL2_NET_FOUND)
+    # Imported target.
+    add_library(SDL2::net UNKNOWN IMPORTED)
+    set_target_properties(SDL2::net PROPERTIES
+                          INTERFACE_COMPILE_OPTIONS "${PC_SDL2_NET_CFLAGS_OTHER}"
+                          INTERFACE_INCLUDE_DIRECTORIES "${SDL2_NET_INCLUDE_DIR}"
+                          INTERFACE_LINK_LIBRARIES SDL2::SDL2
+                          IMPORTED_LOCATION "${SDL2_NET_LIBRARY}")
+endif()

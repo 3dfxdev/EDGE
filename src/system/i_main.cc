@@ -106,7 +106,7 @@ fflush(stdout);
 	E_Main(12,a);
 #else
 
-#ifdef HYPERTENSION
+#if defined(HYPERTENSION)
 	system("compile_hod_pk3.bat");
 #endif  
 
