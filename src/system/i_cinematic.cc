@@ -78,6 +78,9 @@ int ReadFunc(void *ptr, unsigned char *buf, int len)
     cinematic_t *cin = reinterpret_cast<cinematic_t*>(ptr);
     epi::file_c *F = cin->file;
 
+    if (F->GetPosition() == F->GetLength())
+        return -1;
+
     return F->Read(buf, len);
 }
 
@@ -88,7 +91,9 @@ int64_t SeekFunc(void* ptr, int64_t pos, int whence)
     cinematic_t *cin = reinterpret_cast<cinematic_t*>(ptr);
     epi::file_c *F = cin->file;
 
-    F->Seek(pos, whence);
+    if (F->Seek(pos, whence))
+        return -1;
+
     return F->GetPosition();
 }
 
@@ -213,7 +218,7 @@ cinHandle_t CIN_PlayCinematic (const char *name, int flags)
         cin->file = F;
 
         // open the source file
-        cin->src = Kit_CreateSourceFromCio(ReadFunc, SeekFunc, (void*)cin, 262144);
+        cin->src = Kit_CreateSourceFromCustom(ReadFunc, SeekFunc, (void*)cin);
         if (cin->src)
         {
             I_Printf("CIN_PlayCinematic: Created movie source\n");
