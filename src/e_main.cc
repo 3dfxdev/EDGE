@@ -1980,7 +1980,7 @@ void E_Main(int argc, const char **argv)
 		E_Startup();
 
 //		E_PlayMovie("/pack0/video/intro.roq", 1);
-		E_PlayMovie("/pack0/video/intro.mkv", 1);
+		E_PlayMovie("/pack0/video/intro.roq", 1);
 
 		E_InitialState();
 

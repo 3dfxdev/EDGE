@@ -25,6 +25,7 @@ endmacro()
 set( LZMA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lzma/C" )
 option(FORCE_INTERNAL_ZLIB "Use internal zlib")
 option(FORCE_INTERNAL_BZIP2 "Use internal bzip2")
+#option (FFMPEG_CINEMATICS "Use FFMPEG and include i_ffmpeg" OFF)
 
 find_package( ZLIB )
 find_package( BZip2 )
@@ -224,8 +225,8 @@ if (MSVC)
 		set( ogg_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libogg-1.3.3/lib/libogg_static.lib" )
 		set( physfs_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/physfs/include" )
 		set( physfs_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/physfs/lib/physfs-static.lib" )
-		set( PNG_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/lpng1530/build/Debug/libpng15_staticd.lib" )
-		set( PNG_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/lpng1530/build/RelWithDebInfo/libpng15_static.lib" )
+		set( PNG_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/lpng1530/lib/libpng15_staticd.lib" )
+		set( PNG_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/lpng1530/lib/libpng15_static.lib" )
 		set( PNG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/lpng1530/include" )
 		set( SDL2MAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2/lib/x64/SDL2main.lib" )
 		set( SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2/include" )
@@ -347,6 +348,7 @@ set(EDGE_SOURCES
 	src/system/i_net.cc
 	src/system/i_x86.cc
 	src/system/i_cinematic.cc
+	src/system/i_ffmpeg.cc
 	src/system/GL/gl_load.c
 
 	src/am_map.cc
@@ -531,6 +533,10 @@ set(EDGE_SOURCES
 	src/opllib/oplapi.cc
 
 )
+
+#set(USE_FFMPEG
+#	src/i_ffmpeg.cc
+#}
 
 set(EDGE_WIN32_SOURCES
 	src/system/win32/w32_music.cc
