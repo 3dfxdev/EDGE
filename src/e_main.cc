@@ -1190,10 +1190,6 @@ static void IdentifyVersion(void)
 
 	std::string reqwad(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEEPKEXT));
 
-
-	///this one will join pak files with IWAD.
-	///std::string reqpak(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT));
-
 	if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
 	{
 		reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEEPKEXT);
@@ -1376,19 +1372,19 @@ static void IdentifyWolfenstein(void)
 
 	//All this function below does is add EDGE2.WAD to whatever the fuck we are adding as well.
 
-	std::string reqwad(epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT));
+	std::string reqwad(epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEEPKEXT));
 
 	///this one will join pak files with IWAD.
-	///std::string reqpak(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT));
+	///std::string reqpak(epi::PATH_Join(iwad_dir.c_str(), REQUIREDWAD "." EDGEEPKEXT));
 
 	if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
 	{
-		reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEPAKEXT);
+		reqwad = epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEEPKEXT);
 
 		if (!epi::FS_Access(reqwad.c_str(), epi::file_c::ACCESS_READ))
 		{
 			I_Error("IdentifyVersion: Could not find required %s.%s!\n",
-				REQUIREDWAD, EDGEPAKEXT);
+				REQUIREDWAD, EDGEEPKEXT);
 		}
 	}
 
