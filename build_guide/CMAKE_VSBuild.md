@@ -5,7 +5,7 @@
 > #### [EDGE (et al.) licensed under the GPLv2 or greater license](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 # Check out our [EDGEWiki](http://3dfxdev.net/edgewiki/) for more information!
 ### Build Preface:
-This build uses CMakeLists.txt, CMake-GUI, and Visual Studio to compile for Win32. *This is now the preferred method for anyone building a Windows version of EDGE. Also note that CMake can also be used to cross-compile EDGE for Win32 (or others, like Linux, Raspberry Pi, MacOSX, etc), with or without Visual Studio (called Cross-Compiling). We will not cover that here.*
+This build uses CMakeLists.txt, CMake-GUI, and Visual Studio to compile for Win32/Win64. *This is now the preferred method for anyone building a Windows version of EDGE. Also note that CMake can also be used to cross-compile EDGE for Win32 (or others, like Linux, Raspberry Pi, MacOSX, etc), with or without Visual Studio (called Cross-Compiling). We will not cover that here.*
 
 # Configuring/Building with Cmake-GUI/Visual Studio:
 
@@ -14,15 +14,15 @@ This build uses CMakeLists.txt, CMake-GUI, and Visual Studio to compile for Win3
 ---
 #### Pre-Requisites
 1) [Cmake](https://www.cmake.org)
-2) [Visual Studio Community 2015/2017](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
-3) [Pre-Built Libraries](http://tdgmods.net/VSLibs.7z) (MSVC15+), *unless* you have [vcpkg](https://github.com/Microsoft/vcpkg) or desire to build the libraries yourself. For the former, see Step 4a in 'Configuring EDGE'.
+2) [Visual Studio Community 2017](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
+3) *Pre-Built Libraries for [WIN32/X86](http://tdgmods.net/VSLibs.7z) or [WIN64/x64](http://tdgmods.net/vsLibsx64.7z), *unless* you have [vcpkg](https://github.com/Microsoft/vcpkg) or desire to build the libraries yourself. *For the former, see Step 4a in 'Configuring EDGE'.*
 
-*Note that these pre-built libs should only be used with Visual Studio/CMake. While we have a different set of standard Makefiles (located in /Makefiles), they are deprecated and not kept up to date -- you will have to manually update them. It is therefore highly recommended to use CMakeLists to generate your Visual Studio (or MinGW/GCC cross-compile) project for Windows!
+> * The libs provided by us for Visual Studio are built using MSVC 17. If
+> you are using MSVC 15, the pre-built libs must be rebuilt with your
+> version of Visual Studio! 
 
-> The libs provided by us for Visual Studio are built using MSVC 15. The
-> team doesn't always use the same version of MSVC, and we strive to
-> provide backward compatible pre-built libs, but if a VS2017 built .lib
-> sneaks its way into a 7z, please let us know,
+ > Note that these pre-built libs should only be used with Visual Studio/CMake. While we have a different set of standard Makefiles (located in /Makefiles), they are deprecated and not kept up to date -- you will have to manually update them. It is therefore highly recommended to use CMakeLists to generate your Visual Studio (or MinGW/GCC cross-compile) project for Windows!
+
 
 ---
 

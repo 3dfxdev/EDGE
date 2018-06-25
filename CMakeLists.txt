@@ -130,9 +130,9 @@ if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
 
 	if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
-		set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT ${CMAKE_CXX_FLAGS} /arch:SSE2" )
+		set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT /W2 ${CMAKE_CXX_FLAGS} /arch:SSE2" )
 	else()
-		set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT ${CMAKE_CXX_FLAGS} /arch:AVX" )
+		set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT /W2 ${CMAKE_CXX_FLAGS} /arch:AVX" )
 		add_definitions(-DSIMD_X64)
 		add_definitions(-DWIN64)
 	endif()
@@ -155,11 +155,11 @@ add_definitions(
 )
 
 if(HYPERTENSION)
-add_definitions(
-	-DHYPERTENSION
-	-DSSE2
-)
-	endif()
+	add_definitions(
+		-DHYPERTENSION
+		-DSSE2
+	)
+endif()
 	
 # Removed HAVE_STDINT_H on Visual Studio/Win32 machines (Caused problems, so I Shoved it into UNIX define)
 if(APPLE)
