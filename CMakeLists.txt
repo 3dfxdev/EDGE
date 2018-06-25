@@ -260,7 +260,7 @@ if(UNIX)
 	set( SDL2_LIBRARY "libSDL2.so" )
 	set( ogg_RELEASE_LIBRARY "libvorbisfile.so" )
 	set( physfs_LIBRARY "libphysfs.so" )
-	set( kitchensink_LIBRARY "libSDL_kitchensink.so")
+#	set( kitchensink_LIBRARY "libSDL_kitchensink.so")
 endif(UNIX)
 
 # Phys
