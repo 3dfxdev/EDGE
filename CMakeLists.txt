@@ -152,11 +152,15 @@ endif()
 add_definitions(
 	-DDEH_EDGE_PLUGIN
 	-DHAVE_PHYSFS
+)
+
 if(HYPERTENSION)
+add_definitions(
 	-DHYPERTENSION
 	-DSSE2
-	endif()
 )
+	endif()
+	
 # Removed HAVE_STDINT_H on Visual Studio/Win32 machines (Caused problems, so I Shoved it into UNIX define)
 if(APPLE)
 	add_definitions(
