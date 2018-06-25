@@ -98,7 +98,7 @@ static void MapsReadHeaders()
 	if (map_count == 0)
 		I_Error("MapsReadHeaders: no maps!");
 
-	I_Printf("Num MAPS : %d\n", map_count);
+	I_Printf("Number of maps found : %d\n", map_count);
 }
 
 //------------------------------------------------------------------------
@@ -170,6 +170,7 @@ static u16_t *LoadMapPlane(FILE *fp, int offset, int complen, int width, int hei
 	delete[] buf2;
 
 	// flip plane upsidedown
+	I_Printf("Flipping plane upsidedown...\n");
 	for (int y = 0; y < height / 2; y++)
 		for (int x = 0; x < width; x++)
 		{
@@ -184,6 +185,7 @@ static u16_t *LoadMapPlane(FILE *fp, int offset, int complen, int width, int hei
 
 void WF_LoadMap(int map_num)
 {
+	I_Printf("Wolf: Loading Map  %d\n", map_num);
 	SYS_ASSERT(map_num >= 0);
 	SYS_ASSERT(map_num < map_count);
 	SYS_ASSERT(map_head.offsets[map_num] > 0);
@@ -234,6 +236,8 @@ void WF_LoadMap(int map_num)
 	}
 
 	L_WriteDebug("<------\n");
+
+	WF_BuildBSP();
 }
 
 void WF_FreeMap(void)
@@ -246,10 +250,11 @@ extern void WF_BuildBSP(void);
 void WF_InitMaps(void)
 {
 	MapsReadHeaders();
+
 	I_Printf("WOLF: MapsReadHeaders successful!\n");
 
-	WF_LoadMap(1);  // !!!! TEST
-	WF_BuildBSP();  // !!!! TEST
+	//WF_LoadMap(1);  // !!!! TEST
+	//WF_BuildBSP();  // !!!! TEST
 }
 
 

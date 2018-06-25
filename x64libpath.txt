@@ -1,0 +1,10 @@
+D:\vcpkg\installed\x64-windows\lib\manual-link\SDL2main.lib
+D:\vcpkg\installed\x64-windows\lib\SDL2.lib
+D:\vcpkg\installed\x64-windows-static\lib\ogg.lib
+D:\vcpkg\installed\x64-windows-static\lib\vorbis.lib
+D:\vcpkg\installed\x64-windows-static\lib\vorbisfile.lib
+D:\vcpkg\installed\x64-windows-static\lib\zlib.lib
+D:\vcpkg\installed\x64-windows-static\lib\libpng16.lib
+D:\vcpkg\installed\x64-windows-static\lib\turbojpeg.lib
+D:\vcpkg\installed\x64-windows-static\lib\physfs-static.lib
+D:\vcpkg\installed\x64-windows\lib\Ws2_32.lib

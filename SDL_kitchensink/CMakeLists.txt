@@ -19,8 +19,7 @@ set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -ggdb -O2 -fno
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2 -DNDEBUG")
 set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os -DNDEBUG")
 
-option(BUILD_EXAMPLES "Build examples" OFF)
-option(BUILD_TESTS "Build unittests" OFF)
+
 option(USE_DYNAMIC_LIBASS "Use dynamically loaded libass" ON)
 option(USE_ASAN "Use AddressSanitizer" OFF)
 
@@ -89,26 +88,6 @@ configure_file(
     ${PKG_CONFIG_FILE}
     @ONLY
 )
-
-if(BUILD_EXAMPLES)
-    add_executable(exampleaudio examples/example_audio.c)
-    add_executable(examplevideo examples/example_video.c)
-    add_executable(examplecustvideo examples/example_cust_video.c)
-
-    if(MINGW)
-        target_link_libraries(exampleaudio mingw32)
-        target_link_libraries(examplevideo mingw32)
-        target_link_libraries(examplecustvideo mingw32)
-    endif()
-
-    set_property(TARGET exampleaudio PROPERTY C_STANDARD 99)
-    set_property(TARGET examplevideo PROPERTY C_STANDARD 99)
-    set_property(TARGET examplecustvideo PROPERTY C_STANDARD 99)
-
-    target_link_libraries(exampleaudio SDL_kitchensink_static ${LIBRARIES})
-    target_link_libraries(examplevideo SDL_kitchensink_static ${LIBRARIES})
-    target_link_libraries(examplecustvideo SDL_kitchensink_static ${LIBRARIES})
-endif()
 
 # Installation
 install(FILES ${PKG_CONFIG_FILE} DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)

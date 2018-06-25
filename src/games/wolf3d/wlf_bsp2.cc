@@ -24,6 +24,7 @@
 //
 
 #include "system/i_defs.h"
+#include "dm_structs.h"
 #include "wlf_local.h"
 
 #include "dm_state.h"
@@ -32,6 +33,8 @@
 #include "m_bbox.h"
 #include "p_local.h"
 #include "r_defs.h"
+
+
 
 extern int max_segs;
 
@@ -50,7 +53,7 @@ static inline seg_t *NewSeg(void)
 	if (numsegs >= max_segs)
 		I_Error("WF_BuildBSP: too many segs !\n");
 
-	seg_t *seg = segs + numsegs;
+  seg_t *seg = segs + numsegs;
 
 	memset(seg, 0, sizeof(seg_t));
 
@@ -70,7 +73,7 @@ static inline int NewSubsector(void)
 	if (numsubsectors >= max_segs)
 		I_Error("WF_BuildBSP: too many subsectors !\n");
 
-	subsector_t *sub = subsectors + numsubsectors;
+  subsector_t *sub = subsectors + numsubsectors;
 
 	memset(sub, 0, sizeof(subsector_t));
 
@@ -105,7 +108,6 @@ static inline int NewNode(void)
 static seg_t *CreateInitialSeg(line_t *line, vertex_t *start,
 		vertex_t *end, side_t *side)
 {
-	I_Printf("CreateInitialSeg...\n");
 	seg_t *result = NewSeg();
 
 	result->v1 = start;
@@ -348,7 +350,6 @@ static seg_t *FindPartition(seg_t *seglist)
 static void CreateOneMiniseg(seg_t ** seglist, int vx1, int vy1,
 		int vx2, int vy2)
 {
-	I_Printf("CreateInitialSeg...\n");
 	seg_t *A = NewSeg();
 	seg_t *B = NewSeg();
 
@@ -526,7 +527,6 @@ static seg_t *SortClockwise(seg_t *seglist)
 //
 static int BuildSubsector(seg_t *seglist)
 {
-	I_Printf("WLF_BSP: Building Subsectors...\n");
 	SYS_ASSERT(seglist);
 
 	int sub = NewSubsector();

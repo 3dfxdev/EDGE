@@ -155,6 +155,7 @@ fflush(stdout);
 		}
 		else
 		printf("Found Preset:");
+
 		for (ix = 0; ix < 64; ix++)
 		{
 			char temp[256];
@@ -166,6 +167,7 @@ fflush(stdout);
 			dcargv[ix] = strdup(temp);
 			I_Printf(" %s", dcargv[ix]);
 		}
+
 		fclose(dcph);
 		dcargc = ix;
 		I_Printf("\n");

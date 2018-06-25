@@ -179,7 +179,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SDL2_0)\include;$(SDLMIXER2_0)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\EDGE\vsLibsx64\SDL2_mixer-2.0.1\include;D:\EDGE\vsLibsx64\SDL2\include;$(SDL2_0)\include;$(SDLMIXER2_0)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -189,7 +189,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SDL2_0)\lib\x64\sdl2.lib;$(SDLMIXER2_0)\lib\x64\sdl2_mixer.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>D:\EDGE\vsLibsx64\SDL2\lib\x64\sdl2.lib;D:\EDGE\vsLibsx64\SDL2_mixer-2.0.1\lib\x64\SDL2_mixer.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>

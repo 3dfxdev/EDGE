@@ -48,6 +48,11 @@
 #include "../src/r_shader.h"
 #include "../src/r_units.h"
 
+//64 bit hack!
+#ifdef _M_X64
+#define SSE2 1
+#endif
+
 
 #define MAX_ANIMATION_NAME_LENGTH 11
 typedef struct md5_animation_handle_s

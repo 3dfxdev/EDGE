@@ -613,7 +613,7 @@ target_link_libraries(EDGE
 	${PNG_LIBRARY_RELEASE}
 	${JPEG_LIBRARY}
 	${physfs_LIBRARY}
-    ${kitchensink_LIBRARY}
+    #${kitchensink_LIBRARY}
 )
 
 if (WIN32)

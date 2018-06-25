@@ -1013,10 +1013,12 @@ void TinyBSP(void)
 	subsector_t *base_sub = CreateSubsector();
 
 	Poly_CreateSegs(base_sub);
+
+	float bbox[4];
 	
 	// now build the root node
 
-#if 0
+#if 1
 	bbox[BOXLEFT] = 64 * (0);
 	bbox[BOXBOTTOM] = 64 * (0);
 	bbox[BOXRIGHT] = 64 * (WLFMAP_W);

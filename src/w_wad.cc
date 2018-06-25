@@ -2091,6 +2091,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		{
 			I_Printf("WOLF: Read levels from MAPHEAD\n");
 			WF_InitMaps();
+			WF_SetupLevel();
 			//I_Printf("WOLF: Not implemented!\n");
 		}
 

@@ -20,8 +20,10 @@
 
 #include "image_jpeg.h"
 
+
+
 // CA 7.24.17: Changed this so we always build SSE2 version under Windows 
-#if defined WIN32 && !defined _MSC_VER
+#if defined WIN32 //&& !defined _MSC_VER
 extern "C"
 {
 // horrible workaround for INT32 typedef incompatibility between
@@ -30,14 +32,17 @@ extern "C"
 } //libjpeg-turbo seems to be allergic to C style linking.
 #endif
 #if defined _MSC_VER
+extern "C"
+{
 #include <turbojpeg.h>
 #include <jpeglib.h> //NOTE: this implementation will call the first version listed in the makefile regardless of whether jpeg-turbo is supported.
 #include <jerror.h>
+
 #else
 #include <jpeglib.h>
 #include <jerror.h>
 #endif
-
+}
 
 
 namespace epi
@@ -151,8 +156,8 @@ namespace JPEG
 
 image_data_c *JPEG_Load(file_c *f, int read_flags)
 {
-	struct jpeg_decompress_struct cinfo;
-	struct jpeg_error_mgr jerr;
+	jpeg_decompress_struct cinfo;
+	jpeg_error_mgr jerr;
 
 	cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_decompress(&cinfo);

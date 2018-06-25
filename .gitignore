@@ -16,6 +16,8 @@ obj_bsd
 obj_build
 build
 build2
+build3
+build64
 releases
 backups
 /src/gitinfo.h
@@ -30,10 +32,6 @@ src/gitinfo.h
 doom2.wad
 /data/3DGE
 /data/zdbsp
-/build
-/build2
-/build3
-/hypertension
 /VSLibs_vs2017
 /VSLibsx64
 /build64
@@ -41,3 +39,8 @@ doom2.wad
 /MapToWad
 /rott_tc_16
 /modules
+.vs
+/.vs
+OGGVorbis
+/ffmpeg
+ffmpeg
