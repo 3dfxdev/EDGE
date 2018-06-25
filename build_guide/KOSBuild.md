@@ -1,5 +1,5 @@
 # 3DGE - KallistiOS Building Instructions
-# (C) 2011-2016 Isotope SoftWorks & Contributors
+# (C) 2011-2018 Isotope SoftWorks & Contributors
 ##### id Tech/id Tech 2/ id Tech 3/ id Tech 4 (C) id Software, LLC
 #### All id techs (and 3DGE itself) Licensed under the GPLv2
 http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
@@ -16,6 +16,6 @@ That will generate KallistiOS complaint code from the main branch, and produces 
 #### NOTE: The Dreamcast code currently experiences massive bitrot due to our rendering and sound upgrades. This version cannot be reliably built and tested as-is. Work is ongoing to bring the KOS version up-to-date with the rest of our engine.
 
 ---
-(C) Isotope SoftWorks, 2016
+(C) Isotope SoftWorks, 2018
 
 
