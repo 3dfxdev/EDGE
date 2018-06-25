@@ -8,10 +8,10 @@ clone_depth: 10
 
 environment:
   matrix:
-    - GENERATOR: "Visual Studio 14 2015"
-      CONFIGURATION: Release
-      TOOLSET: v140_xp
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+#    - GENERATOR: "Visual Studio 14 2015"
+#      CONFIGURATION: Release
+#      TOOLSET: v140_xp
+#      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
     - GENERATOR: "Visual Studio 15 2017"
       CONFIGURATION: Release
       TOOLSET: v141_xp
@@ -20,10 +20,17 @@ environment:
       CONFIGURATION: Debug
       TOOLSET: v141
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2017"
+    - GENERATOR: "Visual Studio 15 2017 Win64"
+      CONFIGURATION: Release
+      TOOLSET: v141
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2017 Win64"
+      
 
 build_script:
   - appveyor DownloadFile http://tdgmods.net/VSLibs.7z
+  - appveyor DownloadFile http://tdgmods.net/vsLibsx64.7z
   - 7z x VSLibs.7z
+  - 7z x vsLibsx64.7z
   - md build
   - cd build
   - cmake -G "%GENERATOR%" -T "%TOOLSET%" -DPK3_QUIET_ZIPDIR=YES ..
@@ -31,7 +38,7 @@ build_script:
 
 after_build:
   - set OUTPUT_DIR=%APPVEYOR_BUILD_FOLDER%\build\%CONFIGURATION%\
-  - 7z a ..\3dge.zip "%OUTPUT_DIR%3dge.exe"
+  - 7z a ..\3dge.zip "%OUTPUT_DIR%Edge.exe"
 
 artifacts:
   - path: 3dge.zip
