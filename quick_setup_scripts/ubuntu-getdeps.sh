@@ -12,12 +12,22 @@ echo ""
 echo "This tool will automatically download and install all the libraries"
 echo "that 3DGE depends on."
 echo ""
+echo "Until the script for libphysfs-dev is updated to 3.1.0, we have to"
+echo "manually pull and build physfs. This will install the library."
+echo ""
 read -p "Do you wish to do this? " -n 1 -r
 echo ""
 
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-	apt-get install -y libsdl2-dev libphysfs-dev libsdl2-net-dev libpng++-dev libogg-dev libvorbis-dev libghc-zlib-dev libjpeg-turbo8-dev \
+	apt-get install -y libsdl2-dev libsdl2-net-dev libpng++-dev libogg-dev libvorbis-dev libghc-zlib-dev libjpeg-turbo8-dev \
 		cmake cmake-gui libgl1-mesa-dev g++ make git zlib1g-dev
+	mkdir physfs/build
+	cd physfs/build
+	git clone https://github.com/criptych/physfs
+	cmake .. -DCMAKE_BUILD_TYPE=Release -DPHYSFS_BUILD_STATIC=1
+	#make
+	#make install
+	#cd ..
 fi
 
