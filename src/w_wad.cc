@@ -75,6 +75,8 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+#define HAVE_PHYSFS 1
+
 #ifdef HAVE_PHYSFS
 #include <physfs.h>
 #endif

@@ -26,7 +26,6 @@ set( LZMA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lzma/C" )
 option(FORCE_INTERNAL_ZLIB "Use internal zlib")
 option(FORCE_INTERNAL_BZIP2 "Use internal bzip2")
 option(HYPERTENSION "Compile Hypertension Executable")
-#option (FFMPEG_CINEMATICS "Use FFMPEG and include i_ffmpeg" OFF)
 
 find_package( ZLIB )
 find_package( BZip2 )
@@ -154,6 +153,7 @@ add_definitions(
 	-DHAVE_PHYSFS
 )
 
+# For the Hypertension team, we must continue using SSE2 and _not_ AVX, since not everyone has an AVX-compatible processor.
 if(HYPERTENSION)
 	add_definitions(
 		-DHYPERTENSION
@@ -543,10 +543,6 @@ set(EDGE_SOURCES
 
 )
 
-#set(USE_FFMPEG
-#	src/i_ffmpeg.cc
-#}
-
 set(EDGE_WIN32_SOURCES
 	src/system/win32/w32_music.cc
 	src/system/win32/w32_mus.cc
@@ -554,8 +550,6 @@ set(EDGE_WIN32_SOURCES
 	src/system/win32/w32_system.cc
 	src/system/win32/w32_res.rc
 	src/system/win32/i_exception.cc
-	#src/system/win32/w32_iwad.cc
-	#src/system/win32/vs2015hack.cc
 	epi/epi_win32.cc
 	epi/filesystem_win32.cc
 )
