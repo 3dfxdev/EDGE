@@ -2,7 +2,7 @@
 //  JPEG Image Handling
 //------------------------------------------------------------------------
 //
-//  Copyright (c) 2003-2008  The EDGE Team.
+//  Copyright (c) 2003-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -20,30 +20,15 @@
 
 #include "image_jpeg.h"
 
-
-
-// CA 7.24.17: Changed this so we always build SSE2 version under Windows 
-#if defined WIN32 //&& !defined _MSC_VER
-extern "C"
-{
+extern "C"{
 // horrible workaround for INT32 typedef incompatibility between
 // jmorecfg.h and standard MinGW headers (basetds.h).
 #define INT32  INT32_jpeg
-} //libjpeg-turbo seems to be allergic to C style linking.
-#endif
-#if defined _MSC_VER
-extern "C"
-{
+
 #include <turbojpeg.h>
 #include <jpeglib.h> //NOTE: this implementation will call the first version listed in the makefile regardless of whether jpeg-turbo is supported.
 #include <jerror.h>
-
-#else
-#include <jpeglib.h>
-#include <jerror.h>
-#endif
 }
-
 
 namespace epi
 {
