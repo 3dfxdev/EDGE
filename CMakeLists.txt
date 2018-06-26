@@ -25,7 +25,7 @@ endmacro()
 set( LZMA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lzma/C" )
 option(FORCE_INTERNAL_ZLIB "Use internal zlib")
 option(FORCE_INTERNAL_BZIP2 "Use internal bzip2")
-option(HYPERTENSION "Compile Hypertension Executable")
+option(HYPERTENSION "Compile Hypertension Executable" OFF)
 
 find_package( ZLIB )
 find_package( BZip2 )
@@ -159,7 +159,7 @@ if(HYPERTENSION)
 		-DHYPERTENSION
 		-DSSE2
 	)
-endif()
+endif(HYPERTENSION)
 	
 # Removed HAVE_STDINT_H on Visual Studio/Win32 machines (Caused problems, so I Shoved it into UNIX define)
 if(APPLE)
