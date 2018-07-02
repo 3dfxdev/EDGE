@@ -102,7 +102,11 @@ void V_InitPalette(void)
 	const byte *rotpal = 0;
 
 	if (rott_mode)
+	{
 		rotpal = (const byte*)W_CacheLumpName("PAL");
+		I_Printf("ROTT: Found PLAYPAL (PAL)\n");
+		return;
+	}
 	else
 		pal = (const byte*)W_CacheLumpName("PLAYPAL");
 
@@ -122,10 +126,17 @@ void V_InitPalette(void)
 	}
 
 	if (pal_lump == -1)
-		I_Error("Missing PLAYPAL palette lump !\n");
+	{
+		I_Warning("Cannot find PLAYPAL, searching...\n");
+		if (rott_mode)
+		{
+			rotpal = (const byte*)W_CacheLumpNum(pal_lump);
+			I_Printf("ROTT: found PLAYPAL lump\n");
+		}
 
-	pal = (const byte*)W_CacheLumpNum(pal_lump);
-	rotpal = (const byte*)W_CacheLumpNum(pal_lump);
+		else
+			I_Error("Missing PLAYPAL palette lump !\n");
+	}
 
 	// read in palette colours
 	for (t = 0; t < 14; t++)
