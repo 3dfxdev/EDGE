@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Wolfenstein Local Definitions
+//  EDGE Wolfenstein/Rise of the Triad Local Definitions
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -20,6 +20,10 @@
 //  under the following copyright:
 //
 //    Copyright (C) 1993-1996 by id Software, Inc.
+//
+//  Based on the Rise of the Triad source codes, release by Apogee Software
+//
+//    Copyright (C) 1994-1995 Apogee Software, Ltd.
 //
 //----------------------------------------------------------------------------
 
@@ -44,7 +48,9 @@ extern u16_t *wlf_obj_tiles;
 // ---- wf_colors ----
 
 extern const byte wolf_palette[256*3];
+extern const byte rott_palette[256 * 3];
 void CreatePlaypal(void);
+void CreateROTTpal(void);
 
 
 

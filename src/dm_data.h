@@ -219,6 +219,34 @@ typedef struct pic_s
 } 
 pic_t;
 
+typedef struct
+{
+	short height;
+	char  width[256];
+	short charofs[256];
+	byte  data;       // as much as required
+} font_t;
+
+typedef struct
+{
+	byte  color;
+	short height;
+	char  width[256];
+	short charofs[256];
+	byte  pal[0x300];
+	byte  data;       // as much as required
+} cfont_t;
+
+struct rottpatch_header_t
+{
+	short	origsize;
+	short	width;
+	short	height;
+	short	left;
+	short	top;
+	//short	translevel; // Not all of them have that
+};
+
 
 #endif // __DOOMDATA__
 

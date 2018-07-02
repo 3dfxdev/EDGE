@@ -97,7 +97,7 @@
 //CA: 6/11/2018
 //    Removed E_TITLE from e_main.cc and into version.h!
 // uncomment line below to enable ROQ playback, which is in testing phases.
-#define ROQMOVIETEST
+//#define ROQMOVIETEST
 
 // Application active?
 int app_state = APP_STATE_ACTIVE;
@@ -369,8 +369,8 @@ static void SetGlobalVars(void)
 	if (M_CheckParm("-wolf3d_mode"))
 		wolf3d_mode = true;
 
-	if (M_CheckParm("-rott_mode"))
-		rott_mode = true;
+	//if (M_CheckParm("-rott_mode"))
+	//	rott_mode = true;
 
 	if (M_CheckParm("-infight"))
 		g_aggression = 1;
@@ -528,7 +528,7 @@ static void M_DisplayPause(void)
 
 		if (!pause_image)
 		{
-			if (heretic_mode)
+			if ((heretic_mode) || (rott_mode))
 			{
 				pause_image = W_ImageLookup("PAUSED");
 			}
@@ -1107,6 +1107,7 @@ static void IdentifyVersion(void)
 				DDF_SetWhere(ddf_dir);
 				rott_mode = true;
 				printf("ROTT mode TRUE\n");
+				CreateROTTpal();
 			}
 
 		}
@@ -1163,6 +1164,7 @@ static void IdentifyVersion(void)
 						ddf_dir = epi::PATH_Join(game_dir.c_str(), "rott_ddf");
 						DDF_SetWhere(ddf_dir);
 						rott_mode = true;
+						CreateROTTpal();
 					}
 					iwad_file = fn;
 					done = true;
@@ -1976,7 +1978,10 @@ void E_Main(int argc, const char **argv)
 		E_Startup();
 
 //		E_PlayMovie("/pack0/video/intro.roq", 1);
-		E_PlayMovie("/pack0/video/intro.roq", 1);
+		if (rott_mode)
+			E_PlayMovie("/pack0/rott/video/intro.roq", 1);
+		else
+			E_PlayMovie("/pack0/video/intro.roq", 1);
 
 		E_InitialState();
 

@@ -463,30 +463,13 @@ const byte rott_palette[256 * 3] =
 	152, 0, 136
 };
 
-//TODO: Handle ROTT palette as well.
-
-//TODO: This routine only creates a PLAYPAL for Wolfenstein 3D,
-//      so it will need to be modified to generate a PLAYPAL
-//		for the other games listed above (including ROTT).
 void CreatePlaypal(void)
 {
 	I_Printf("WOLF: Creating PLAYPAL lump...\n");
 
 	epi::image_data_c *img = new epi::image_data_c(256, 32);
 
-	const byte *src;
-
-	if (rott_mode)
-	{
-		const byte *src = rott_palette;
-		return;
-	}
-
-	if (wolf3d_mode)
-	{
-		const byte *src = wolf_palette;
-		return;
-	}
+	const byte *src = wolf_palette;
 
 	byte *dest = img->PixelAt(0, 0);
 
@@ -504,3 +487,26 @@ void CreatePlaypal(void)
 	delete img;
 }
 
+void CreateROTTpal(void)
+{
+	I_Printf("ROTT: Creating PLAYPAL lump...\n");
+
+	epi::image_data_c *img = new epi::image_data_c(256, 32);
+
+	const byte *src = rott_palette;
+
+	byte *dest = img->PixelAt(0, 0);
+
+	for (; *src; src += 2)
+	{
+		for (int j = 0; j < src[0]; j++)
+		{
+			dest[0] = dest[1] = dest[2] = src[1];
+			dest += 3;
+		}
+	}
+
+	rott_pal = R_UploadTexture(img, UPL_NONE);
+
+	delete img;
+}
