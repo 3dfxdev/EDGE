@@ -81,7 +81,8 @@
 #include <physfs.h>
 #endif
 
-extern void CreatePlaypal(); //Wolfenstein 3D / Rise of the Triad
+extern void CreatePlaypal(); //Wolfenstein 3D 
+extern void CreateROTTpal(); // Rise of the Triad
 
 // -KM- 1999/01/31 Order is important, Languages are loaded before sfx, etc...
 typedef struct ddf_reader_s
@@ -180,6 +181,8 @@ public:
 	// temporarily before a new GWA files has been built and added).
 	int companion_gwa;
 
+	int wolf_maphead;
+
 	// MD5 hash of the contents of the WAD directory.
 	// This is used to disambiguate cached GWA/HWA filenames.
 	epi::md5hash_c dir_hash;
@@ -192,7 +195,7 @@ public:
 		level_markers(), skin_markers(),
 		wadtex(), vv(), deh_lump(-1), coal_huds(-1),
 		coal_api(-1), shader_files(-1), roq_videos(-1), animated(-1), switches(-1),
-		companion_gwa(-1), dir_hash()
+		wolf_maphead(-1), companion_gwa(-1), dir_hash()
 	{
 		file_name = strdup(_fname);
 
@@ -241,7 +244,9 @@ typedef enum
 	LMKIND_Patch = 18,
 	LMKIND_HiRes = 19,
 	LMKIND_Shaders = 20,
-	LMKIND_ROQ = 21
+	LMKIND_ROQ = 21,
+	LMKIND_ROTTPatch = 22,
+	LMKIND_ROTTPic = 23
 }
 lump_kind_e;
 
@@ -337,10 +342,10 @@ byte *W_ReadLumpAlloc(int lump, int *length);
 //
 static bool IsS_START(char *name)
 {
-	if ((strncmp(name, "GUNSTART", 8) == 0) && (strncmp(name, "SHAPSTART", 8) == 0))
+	if ((strncmp(name, "GUNSTART", 8) == 0) || (strncmp(name, "SHAPSTART", 8) == 0))
 	{
-		// fix up flag to standard syntax
-		// Note: strncpy will pad will nulls
+		 //fix up flag to standard syntax
+		 //Note: strncpy will pad will nulls
 		strncpy(name, "S_START", 8);
 		return 1;
 	}
@@ -362,7 +367,7 @@ static bool IsS_START(char *name)
 //
 static bool IsS_END(char *name)
 {
-	if ((strncmp(name, "GUNSTOP", 8) == 0) && (strncmp(name, "SHAPSTOP", 8) == 0))
+	if ((strncmp(name, "GUNSTOP", 8) == 0) || (strncmp(name, "SHAPSTOP", 8) == 0))
 	{
 		 //fix up flag to standard syntax
 		// Note: strncpy will pad will nulls
@@ -623,6 +628,13 @@ static bool IsP_END(char *name)
 	//	return 1;
 	//}
 
+	if (strncmp(name, "SHAPSTOP", 8) == 0)
+	{
+		// fix up flag to standard syntax
+		strncpy(name, "P_END", 8);
+		return 1;
+	}
+
 	if (strncmp(name, "PP_END", 8) == 0)
 	{
 		// fix up flag to standard syntax
@@ -706,6 +718,13 @@ static bool IsDummySF(const char *name)
 		strncmp(name, "P1_START", 8) == 0 ||
 		strncmp(name, "P2_START", 8) == 0 ||
 		strncmp(name, "P3_START", 8) == 0 ||
+		strncmp(name, "GUNSTART", 8) == 0 ||
+		strncmp(name, "GUNSTOP", 7) == 0 ||
+		strncmp(name, "MASKSTRT", 8) == 0 ||
+		strncmp(name, "MASKSTOP", 8) == 0 ||
+		strncmp(name, "SKYSTART", 8) == 0 ||
+		strncmp(name, "SKYSTOP", 7) == 0 ||
+		strncmp(name, "ADLSTART", 8) == 0 ||
 		strncmp(name, "DIGISTRT", 8) == 0);
 }
 
@@ -754,10 +773,12 @@ static bool IsROTTMask_End(const char *name)
 		strncmp(name, "GUNSTART", 8) == 0);
 }
 
+//static bool IsROTTSprite_Start(const char *name)
+
 static bool IsROTTRaw(const char *name)
 {
 	return (strncmp(name, "TRILOGO", 7) == 0);
-	return (strncmp(name, "PLANE", 7) == 0);
+	return (strncmp(name, "PLANE", 5) == 0);
 }
 
 //
@@ -986,7 +1007,7 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 
 	// -- handle special names --
 
-	if (strncmp(lump_p->name, "PLAYPAL", 8) == 0)
+	if ((strncmp(lump_p->name, "PLAYPAL", 8) == 0) || (strncmp(lump_p->name, "PAL", 8) == 0))
 	{
 		lump_p->kind = LMKIND_WadTex;
 		df->wadtex.palette = lump;
@@ -1124,11 +1145,25 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		within_patch_list = true;
 		return;
 	}
+	else if (IsROTTMask_Start(lump_p->name))
+	{
+		I_Printf("Parsing ROTT Masked Lumps by array\n");
+		lump_p->kind = LMKIND_Marker;
+		within_patch_list = true;
+		return;
+	}
 	else if (IsP_END(lump_p->name))
 	{
 		if (!within_patch_list)
 			I_Warning("Unexpected P_END marker in wad.\n");
 
+		lump_p->kind = LMKIND_Marker;
+		within_patch_list = false;
+		return;
+	}
+	else if (IsROTTMask_End(lump_p->name))
+	{
+		I_Printf("Parsing ROTT Masked Lumps by array\n");
 		lump_p->kind = LMKIND_Marker;
 		within_patch_list = false;
 		return;
@@ -1586,7 +1621,7 @@ static PHYSFS_EnumerateCallbackResult ScriptNamespace(void *userData, const char
 {
 #ifdef HAVE_PHYSFS
 	file_info_t *user_data = (file_info_t *)userData;
-	char check[16];
+	//char check[16];
 	char path[256];
 	strcpy(path, origDir);
 	strcat(path, "/");
@@ -2093,7 +2128,28 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		{
 			I_Printf("WOLF: Read levels from MAPHEAD\n");
 			WF_InitMaps();
-			WF_SetupLevel();
+
+			std::string maphead_filename;
+			char base_name[64];
+			sprintf(base_name, "GAMEMAPS.%s", datafile, WOLFDATEXT);
+			maphead_filename = epi::PATH_Join(cache_dir.c_str(), base_name);
+
+			I_Debugf("Actual_MAPHEAD_filename: %s\n", maphead_filename.c_str());
+
+			AddFile(maphead_filename.c_str(), FLKIND_GAMEMAPS, datafile);
+
+			const char *lump_name = lumpinfo[df->wolf_maphead].name;
+
+			I_Printf("Converting [%s] /?lump/? in: %s\n", lump_name, filename);
+
+			const byte *data = (const byte *)W_CacheLumpNum(df->wolf_maphead);
+			int length = W_LumpLength(df->wolf_maphead);
+
+			W_DoneWithLump(data);
+
+			AddFile(maphead_filename.c_str(), FLKIND_MAPHEAD, datafile);
+			WF_BuildBSP();
+			//WF_SetupLevel();
 			//I_Printf("WOLF: Not implemented!\n");
 		}
 
@@ -2841,7 +2897,9 @@ int W_CheckNumForName_GFX(const char *name)
 	{
 		if (lumpinfo[i].kind == LMKIND_Normal ||
 			lumpinfo[i].kind == LMKIND_Sprite ||
-			lumpinfo[i].kind == LMKIND_Patch)
+			lumpinfo[i].kind == LMKIND_Patch ||
+			lumpinfo[i].kind == LMKIND_ROTTPatch ||
+			lumpinfo[i].kind == LMKIND_ROTTPic)
 		{
 			if (strncmp(lumpinfo[i].name, buf, 8) == 0)
 				return i;
@@ -2973,7 +3031,7 @@ int W_CheckNumForTexPatch(const char *name)
 	{
 		lumpinfo_t *L = lumpinfo + lumpmap[i];
 
-		if (L->kind == LMKIND_Patch || L->kind == LMKIND_Sprite ||
+		if (L->kind == LMKIND_Patch || L->kind == LMKIND_Sprite || L->kind == LMKIND_ROTTPatch || L->kind == LMKIND_ROTTPic ||
 			L->kind == LMKIND_Normal)
 		{
 			// allow LMKIND_Normal to support patches outside of the
@@ -3386,7 +3444,7 @@ static const char *LumpKind_Strings[] =
 	"ddf",    "???", "???", "???",
 
 	"tx", "colmap", "flat", "sprite", "patch",
-	"vp", "fp", "???", "???"
+	"vp", "fp", "ROTT Patch", "ROTT Pic"
 };
 
 void W_ShowLumps(int for_file, const char *match)
