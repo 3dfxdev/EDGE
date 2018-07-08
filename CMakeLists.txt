@@ -123,6 +123,7 @@ function( add_pk3 PK3_NAME PK3_DIR )
 endfunction()
 
 add_subdirectory(wadsrc)
+add_subdirectory(data)
 
 # MSVC
 if(MSVC)

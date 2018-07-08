@@ -1,0 +1,7 @@
+cmake_minimum_required( VERSION 2.8.7 )
+
+file(COPY doom_ddf DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY her_ddf DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY hexen_ddf DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY rott_ddf DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY wolf_ddf DESTINATION ${CMAKE_BINARY_DIR})
