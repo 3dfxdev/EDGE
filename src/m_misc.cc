@@ -188,7 +188,7 @@ static default_t defaults[] =
     {CFGT_Int,      "joy_axis5",         &joy_axis[4],    AXIS_DISABLE},
     {CFGT_Int,      "joy_axis6",         &joy_axis[5],    AXIS_DISABLE},
 
-    {CFGT_Int,      "monitor_size",      &monitor_size,   0},
+    {CFGT_Int,      "monitor_size",      &monitor_size,   1}, // Changed to always do 16:9 by default!
     {CFGT_Int,      "screen_hud",        &screen_hud,     CFGDEF_SCREEN_HUD},
     {CFGT_Int,      "save_page",         &save_page, 0},
     {CFGT_Boolean,  "png_scrshots",      &png_scrshots,   CFGDEF_PNG_SCRSHOTS},
