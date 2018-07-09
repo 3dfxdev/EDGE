@@ -373,20 +373,16 @@ static void DrawROTTColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 		return;
 
 	// row = topdelta
+	// top = pos
 	while (patchcol->topdelta != P_SENTINEL)
 	{
 		int top = ((int)patchcol->topdelta <= y) ? y + (int)patchcol->topdelta : (int)patchcol->topdelta;
 		int count = patchcol->length;
 		y = top;
 
-		byte *src = (byte *)patchcol +3;
-
-		//byte src = data[x * 64 + 63 - y];  // column-major order
-
-		//byte *dest = img->PixelAt(left + x, (63 - y1));
+		byte *src = (byte *)patchcol; // +3;
 		byte *dest = img->pixels + x;
 
-		// top = pos
 		if (top < 0)
 		{
 			count += top;
