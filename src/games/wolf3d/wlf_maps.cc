@@ -237,7 +237,7 @@ void WF_LoadMap(int map_num)
 
 	L_WriteDebug("<------\n");
 
-	WF_BuildBSP();
+	return;
 }
 
 void WF_FreeMap(void)
@@ -253,7 +253,7 @@ void WF_InitMaps(void)
 
 	I_Printf("WOLF: MapsReadHeaders successful!\n");
 
-	//WF_LoadMap(1);  // !!!! TEST
+	return;
 	//WF_BuildBSP();  // !!!! TEST
 }
 

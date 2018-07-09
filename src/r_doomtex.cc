@@ -63,9 +63,6 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-//#include "games/rott/rott_local.h" //RISE OF THE TRIAD
-//#include "games/rott/rott_structs.h" //RISE OF THE TRIAD
-//#include "games/rott/rott_types.h" //RISE OF THE TRIAD
 
 
 
@@ -299,7 +296,7 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 	int w1 = rim->actual_w;
 	int h1 = rim->actual_h;
 	int w2 = rim->total_w;
-	//	int h2 = rim->total_h;
+	//int h2 = rim->total_h;
 
 	// clip horizontally
 	if (x < 0 || x >= w1)
@@ -332,6 +329,12 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 				dest[(h1 - 1 - top) * w2] = *src;
 			}
 
+			if (r_transfix.d > 1)
+			{
+				//I_Printf("DoomTex: No transparent pixel remapping mode ENABLED\n");
+				dest[(w2 - 1 - top) * h1] = *src;
+			}
+
 			if ((r_transfix.d == 0) && (*src == TRANS_PIXEL))
 			{
 				//I_Debugf("DoomTex: Remapping trans_pixel 247 -> pal_black\n");
@@ -349,18 +352,19 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 }
 
 //
-// DrawColumnIntoBlock
+// DrawROTTColumnIntoBlock
 //
 // Clip and draw an old-style column from a patch into a block.
 //
 static void DrawROTTColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 	const column_t *patchcol, int x, int y)
 {
-
+	//I_Printf("DrawROTTColumnIntoEpiBlock...!!!\n");
 	SYS_ASSERT(patchcol);
 
 	int w1 = rim->actual_w;
 	int h1 = rim->actual_h;
+
 	int w2 = rim->total_w;
 	int h2 = rim->total_h;
 
@@ -368,15 +372,21 @@ static void DrawROTTColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 	if (x < 0 || x >= w1)
 		return;
 
+	// row = topdelta
 	while (patchcol->topdelta != P_SENTINEL)
 	{
 		int top = ((int)patchcol->topdelta <= y) ? y + (int)patchcol->topdelta : (int)patchcol->topdelta;
 		int count = patchcol->length;
 		y = top;
 
-		byte *src = (byte *)patchcol + 3;
+		byte *src = (byte *)patchcol +3;
+
+		//byte src = data[x * 64 + 63 - y];  // column-major order
+
+		//byte *dest = img->PixelAt(left + x, (63 - y1));
 		byte *dest = img->pixels + x;
 
+		// top = pos
 		if (top < 0)
 		{
 			count += top;
@@ -389,21 +399,14 @@ static void DrawROTTColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 		// copy the pixels, remapping any TRANS_PIXEL values
 		for (; count > 0; count--, src++, top++)
 		{
-			if (*src == TRANS_PIXEL)
 
-				if (r_transfix.d > 0)
-				{
-					//I_Printf("DoomTex: No transparent pixel remapping mode ENABLED\n");
-					dest[(h1 - 1 - top) * w2] = *src;
-				}
-				else if (r_transfix.d == 0)
+			if (*src == TRANS_PIXEL)
 			{
-				//I_Debugf("DoomTex: Remapping trans_pixel 247 -> pal_black\n");
+				I_Debugf("ROTT: Remapping trans_pixel 247 -> pal_black\n");
 				dest[(h1 - 1 - top) * w2] = TRANS_REPLACE;
 			}
-				else
+			else
 				dest[(h1 - 1 - top) * w2] = *src;
-
 		}
 
 		patchcol = (const column_t *)((const byte *)patchcol +
@@ -563,6 +566,142 @@ static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
 }
 
 //
+// ReadROTTPatchAsBlock
+//
+// Loads a Rise of the Triad patch from the wad and returns the image block for it.
+// Very similiar to ReadTextureAsBlock() above.  Doesn't do any
+// mipmapping (this is too "raw" if you follow).
+//
+//---- This routine will also update the `solid' flag
+//---- if it turns out to be 100% solid.
+//
+static epi::image_data_c *ReadROTTPatchAsEpiBlock(image_c *rim)// , bool mask)
+{
+	SYS_ASSERT(rim->source_type == IMSRC_ROTTGFX ||
+		rim->source_type == IMSRC_ROTTSprite);
+
+	int lump = rim->source.graphic.lump;
+
+	//I_Printf("ReadROTTPatchAsEpiBlock. . . !!!\n");
+
+	// handle PNG images
+
+	if (rim->source.graphic.is_png)
+	{
+		epi::file_c * f = W_OpenLump(lump);
+
+		epi::image_data_c *img = epi::PNG_Load(f, epi::IRF_Round_POW2);
+
+		// close it
+		delete f;
+
+		if (!img)
+			I_Error("Error loading PNG image in lump: %s\n", W_GetLumpName(lump));
+
+		return img;
+	}
+
+	int tw = rim->total_w;
+	int th = rim->total_h;
+
+	epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
+
+	// Clear initial pixels to either totally transparent, or totally
+	// black (if we know the image should be solid).
+	//
+	//---- If the image turns
+	//---- out to be solid instead of transparent, the transparent pixels
+	//---- will be blackened.
+
+	if (rim->opacity == OPAC_Solid)
+		img->Clear(pal_black);
+	else
+		img->Clear(TRANS_PIXEL);
+
+	// Composite the columns into the block.
+	const rottpatch_t *rottpatch = (const rottpatch_t*)W_CacheLumpNum(lump);
+
+	int realsize = W_LumpLength(lump);
+	//int originalsize = W_LumpLength(lump);
+
+
+	SYS_ASSERT(rim->actual_w == EPI_LE_S16(rottpatch->width * 2 + 10));// *2 + 10));
+	SYS_ASSERT(rim->actual_h == EPI_LE_S16(rottpatch->height));
+
+	for (int x = 0; x < rim->actual_w; x++)
+	{
+		int offset = EPI_LE_U16(rottpatch->columnofs[x]);
+		I_Printf("Image offset 0x%08x in image [%s]\n", offset, rim->name);
+
+		const column_t *patchcol = (const column_t *)
+			((const byte *)rottpatch + offset);
+
+		DrawROTTColumnIntoEpiBlock(rim, img, patchcol, x, 0);
+	}
+
+	W_DoneWithLump(rottpatch);
+
+	return img;
+
+}
+
+#if 1
+// ReadROTTAsRAWBlock
+static epi::image_data_c *ReadROTTAsRAWBlock(image_c *rim)// , bool mask)
+{
+	SYS_ASSERT(rim->source_type == IMSRC_ROTTRAW);
+	I_Printf("Reading RAW RISE OF THE TRIAD lpic_t. . . !!!\n");
+
+	lpic_t pic;
+	//I_Printf("Reading RAW RISE OF THE TRIAD lpic_t. . . !!!\n");
+
+
+	int tw = MAX(rim->total_w, 1);
+	int th = MAX(rim->total_h, 1);
+
+	int w = rim->actual_w;
+	int h = rim->actual_h;
+
+	epi::image_data_c *img = new epi::image_data_c(th, tw, 1);
+
+	byte *dest = img->pixels;
+
+#ifdef MAKE_TEXTURES_WHITE
+	img->Clear(pal_white);
+	return img;
+#endif
+
+	// clear initial image to black
+	img->Clear(pal_black);
+
+	// read in pixels
+	const byte *src = (const byte*)W_CacheLumpNum(rim->source.lpic.lump);
+
+	for (int y = 0; y < h; y++)
+
+		for (int x = 0; x < w; x++)
+		{
+			byte src_pix = src[y * w + x];
+
+			byte *dest_pix = &dest[(h - 1 - y) * tw + x];
+
+			// make sure TRANS_PIXEL values (which do not occur naturally in
+			// Doom images) are properly remapped.
+			if (src_pix == TRANS_PIXEL)
+				dest_pix[0] = TRANS_REPLACE;
+			else
+				dest_pix[0] = src_pix;
+		}
+
+	W_DoneWithLump(src);
+
+	return img;
+
+}
+
+#endif // 0
+
+//
 // ReadPatchAsBlock
 //
 // Loads a patch from the wad and returns the image block for it.
@@ -616,13 +755,13 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 
 	// Composite the columns into the block.
 	const patch_t *realpatch = (const patch_t*)W_CacheLumpNum(lump);
-	const rottpatch_t *rottpatch = (const rottpatch_t*)W_CacheLumpNum(lump);
+	//const rottpatch_t *rottpatch = (const rottpatch_t*)W_CacheLumpNum(lump);
 
 	int realsize = W_LumpLength(lump);
 
 
-	SYS_ASSERT(rim->actual_w == EPI_LE_S16(realpatch->width));
-	SYS_ASSERT(rim->actual_h == EPI_LE_S16(realpatch->height));
+	rim->actual_w = EPI_LE_S16(realpatch->width);
+	rim->actual_h = EPI_LE_S16(realpatch->height);
 
 	for (int x = 0; x < rim->actual_w; x++)
 	{
@@ -631,12 +770,12 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 			if (offset < 0 || offset >= realsize)
 			{
 				I_Warning("Bad patch image offset 0x%08x in image [%s]\n", offset, rim->name);
-				I_Warning("Might be a ROTT Patch, TRANSLATING offset to LE_U16\n");
-				int offset = EPI_LE_U16(rottpatch->columnofs[x]);
-				I_Warning("Patch image offset now reads 0x%08x in image [%s]\n", offset, rim->name);
-				break;
+				I_Warning("Patch might be a ROTT patch! \n", rim->name);
+				return ReadROTTPatchAsEpiBlock(rim);
+				//break;
 			}
 
+			//I_Warning("Final offset reads 0x%08x in image [%s]\n", offset, rim->name);
 
 		const column_t *patchcol = (const column_t *)
 			((const byte *)realpatch + offset);
@@ -649,72 +788,6 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 	return img;
 }
 
-
-static epi::image_data_c *ReadROTTPatchAsEpiBlock(image_c *rim)
-{
-	SYS_ASSERT(rim->source_type == IMSRC_ROTTGFX);
-
-	int lump = rim->source.graphic.lump;
-
-	// handle PNG images
-
-	if (rim->source.graphic.is_png)
-	{
-		epi::file_c * f = W_OpenLump(lump);
-
-		epi::image_data_c *img = epi::PNG_Load(f, epi::IRF_Round_POW2);
-
-		// close it
-		delete f;
-
-		if (!img)
-			I_Error("Error loading PNG image in lump: %s\n", W_GetLumpName(lump));
-
-		return img;
-	}
-
-	int tw = rim->total_w;
-	int th = rim->total_h;
-
-	epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
-
-	// Clear initial pixels to either totally transparent, or totally
-	// black (if we know the image should be solid).
-	//
-	//---- If the image turns
-	//---- out to be solid instead of transparent, the transparent pixels
-	//---- will be blackened.
-
-	if (rim->opacity == OPAC_Solid)
-		img->Clear(pal_black);
-	else
-		img->Clear(TRANS_PIXEL);
-
-	// Composite the columns into the block.
-	const rottpatch_t *realpatch = (const rottpatch_t*)W_CacheLumpNum(lump);
-
-	int realsize = W_LumpLength(lump);
-
-	SYS_ASSERT(rim->actual_w == EPI_LE_S16(realpatch->width * 2 +10 ));
-	SYS_ASSERT(rim->actual_h == EPI_LE_S16(realpatch->height));
-
-	for (int x = 0; x < rim->actual_w; x++)
-	{
-		int offset = EPI_LE_U16(realpatch->columnofs[x]);
-
-		if (offset != (10 + realpatch->width * 2))
-			I_Error("ROTT: Bad image offset 0x%08x in image [%s]\n", offset, rim->name);
-
-		const column_t *patchcol = (const column_t *)
-			((const byte *)realpatch + offset);
-
-		DrawColumnIntoEpiBlock(rim, img, patchcol, x, 0);
-	}
-
-	W_DoneWithLump(realpatch);
-
-	return img;
-}
 
 //
 // ReadDummyAsBlock
@@ -991,7 +1064,11 @@ epi::image_data_c *ReadAsEpiBlock(image_c *rim)
 	case IMSRC_Texture:
 		return ReadTextureAsEpiBlock(rim);
 
+	//case IMSRC_Graphic:
 	case IMSRC_ROTTGFX:
+	case IMSRC_ROTTSprite:
+	case IMSRC_ROTTLBM:
+	case IMSRC_ROTTRAW:
 		return ReadROTTPatchAsEpiBlock(rim);
 
 	case IMSRC_Graphic:

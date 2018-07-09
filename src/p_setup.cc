@@ -4275,7 +4275,7 @@ void P_SetupLevel(void)
 
 	if (wolf3d_mode)
 	{
-		TinyBSP();
+		WF_BuildBSP();
 	}
 
 	// REJECT is ignored

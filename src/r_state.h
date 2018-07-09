@@ -48,6 +48,7 @@ extern int numsectors;
 extern sector_t *sectors;
 
 extern int numsubsectors;
+extern int seg_count;
 extern subsector_t *subsectors;
 
 extern int numextrafloors;

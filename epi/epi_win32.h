@@ -53,6 +53,7 @@
 #define strnicmp _strnicmp
 #define strncasecmp _strnicmp
 #define strcasecmp _stricmp
+#define strupr _strupr
 #define uint unsigned int
 #define ALIGN_8(x)							__declspec(align(8)) x
 #define ALIGN_16(x)							__declspec(align(16)) x

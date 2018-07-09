@@ -39,6 +39,8 @@ struct texturedef_s;
 
 // the transparent pixel value we use
 #define TRANS_PIXEL  247
+#define ROTT_TRANSPIXEL 255
+#define ALPHA_SHIFT 24
 
 // Post end marker
 #define P_SENTINEL  0xFF
@@ -46,7 +48,6 @@ struct texturedef_s;
 // dynamic light sizing factor
 #define DL_OUTER       64.0f
 #define DL_OUTER_SQRT   8.0f
-
 
 typedef enum
 {
@@ -58,6 +59,7 @@ typedef enum
 }
 image_opacity_e;
 
+//class image_data_c;
 
 class image_c
 {
@@ -105,6 +107,9 @@ public:
 		// case IMSRC_Flat:
 		// case IMSRC_Raw320x200:
 		struct { int lump; } flat;
+
+		// case IMSRC_ROTTRAW:
+		struct { int lump; } lpic;
 
 		// case IMSRC_Texture:
 		struct { struct texturedef_s *tdef; } texture;
@@ -249,10 +254,10 @@ typedef enum
 	// Rise of the Triad's patch_t
 	IMSRC_ROTTGFX,
 
-	// Rise of the Triad's maskedpatch_t
-	IMSRC_ROTTMASK,
+	// INTERNAL ONLY: Source was a raw LBM block (Rise of the Triad)
+	IMSRC_ROTTLBM,
 
-	// Rise of the Triad RAW
+	// INTERNAL ONLY: Source was a raw block (Rise of the Triad)
 	IMSRC_ROTTRAW,
 
 	// INTERNAL ONLY: Source was a raw block of 320x200 bytes (Heretic/Hexen)
@@ -263,6 +268,9 @@ typedef enum
 
 	// Source was a sprite name
 	IMSRC_Sprite,
+
+	// Source was a ROTT sprite name
+	IMSRC_ROTTSprite,
 
 	// Source was a flat name
 	IMSRC_Flat,

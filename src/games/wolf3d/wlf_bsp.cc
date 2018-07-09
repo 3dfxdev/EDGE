@@ -67,6 +67,7 @@ static inline seg_t *NewSeg(void)
 //
 static inline int NewSubsector(void)
 {
+	I_Printf("WLF_BSP: NewSubsector...\n");
 	if (numsubsectors >= max_segs)
 		I_Error("WF_BuildBSP: too many subsectors !\n");
 
@@ -87,6 +88,7 @@ static inline int NewSubsector(void)
 //
 static inline int NewNode(void)
 {
+	I_Printf("WLF_BSP: NewNode...\n");
 	if (numnodes >= max_segs)
 		I_Error("WF_BuildBSP: too many nodes !\n");
 
@@ -139,6 +141,7 @@ static seg_t *CreateInitialSeg(line_t *line, vertex_t *start,
 //
 static seg_t *CreateSegs(void)
 {
+	I_Printf("WLF_BSP: CreateSegs()...\n");
 	int i;
 
 	seg_t *left;
@@ -165,6 +168,7 @@ static seg_t *CreateSegs(void)
 		segs[i].sub_next = &segs[i+1];
 
 	return &segs[0];
+	I_Printf("WLF_BSP: Done creating Segs!\n");
 }
 
 //
@@ -172,6 +176,7 @@ static seg_t *CreateSegs(void)
 //
 static void FindLimits(float *bbox, seg_t *seglist)
 {
+	I_Printf("WLF_BSP: Finding Limits for bbox...\n");
 	M_ClearBox(bbox);
 
 	for (; seglist; seglist = seglist->sub_next)
@@ -193,6 +198,7 @@ static void FindLimits(float *bbox, seg_t *seglist)
 //
 static bool SegOnRight(seg_t *seg, seg_t *part)
 {
+	I_Printf("WLF_BSP: SegOnRight\n");
 	bool neg;
 
 	if (part->v1->y == part->v2->y)
@@ -236,6 +242,7 @@ static bool SegOnRight(seg_t *seg, seg_t *part)
 // 
 static bool CoversOneTile(seg_t *seglist)
 {
+	I_Printf("WLF_BSP: CoversOneTile...\n");
 	float bbox[4];
 
 	FindLimits(bbox, seglist);
@@ -258,6 +265,7 @@ static bool CoversOneTile(seg_t *seglist)
 //
 static int EvalPartition(seg_t *seglist, seg_t *part)
 {
+	I_Printf("WLF_BSP: EvalPartition..\n");
 	int on_left  = 0;
 	int on_right = 0;
 
@@ -286,6 +294,7 @@ static int EvalPartition(seg_t *seglist, seg_t *part)
 //
 static seg_t *FindPartition(seg_t *seglist)
 {
+	I_Printf("WLF_BSP: FindPartition...\n");
 	bool single_tile = CoversOneTile(seglist);
 
 	seg_t *part;
@@ -385,7 +394,7 @@ static void CreateOneMiniseg(seg_t ** seglist, int vx1, int vy1,
 static void CreateMinisegs(seg_t ** seglist, seg_t *part, float *bbox)
 {
 	int x, y;
-
+	I_Printf("WLF_BSP: CreateMiniSegs...\n");
 	if (part->v1->y == part->v2->y)
 	{
 		// horizontal partition
@@ -436,6 +445,7 @@ static void CreateMinisegs(seg_t ** seglist, seg_t *part, float *bbox)
 static void DivideSegs(seg_t *seglist, seg_t *part,
 		seg_t ** left, seg_t ** right, float *bbox)
 {
+	I_Printf("WLF_BSP: DivideSegs...\n");
 	seg_t *next;
 
 	(*left)  = NULL;
@@ -470,6 +480,7 @@ static void DivideSegs(seg_t *seglist, seg_t *part,
 //
 static seg_t *SortClockwise(seg_t *seglist)
 {
+	I_Printf("WLF_BSP: SortClockwise...\n");
 	int i;
 	int total;
 	float mid_x, mid_y;
@@ -560,6 +571,7 @@ static int BuildSubsector(seg_t *seglist)
 //
 static int BuildNodes(seg_t *seglist, float *bbox)
 {
+	I_Printf("WLF_BSP: Building Nodes...\n");
 	seg_t *part;
 	seg_t *left, *right;
 	int nd;
@@ -607,6 +619,7 @@ static int BuildNodes(seg_t *seglist, float *bbox)
 //
 static void FixupSubsectors(void)
 {
+	I_Printf("WLF_BSP: Fixing up Subsectors...\n");
 	int i;
 	seg_t *cur;
 
@@ -650,6 +663,7 @@ static void FixupSubsectors(void)
 //
 void WF_BuildBSP(void)
 {
+	I_Printf("WLF_BSP: Converting map -> BSP...\n");
 	seg_t *seglist;
 	float bbox[4];
 

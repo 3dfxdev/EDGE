@@ -101,8 +101,8 @@
 #define CFGDEF_SCREEN_HUD       (0)
 #define CFGDEF_SHADOWS          (1)
 #define CFGDEF_CROSSHAIR        (0)
-#define CFGDEF_MAP_OVERLAY      (0)
-#define CFGDEF_ROTATEMAP        (0)
+#define CFGDEF_MAP_OVERLAY      (1)
+#define CFGDEF_ROTATEMAP        (1)
 #define CFGDEF_INVUL_FX         (2)  // TEXTURED
 #define CFGDEF_TELEPT_FLASH     (1)
 #define CFGDEF_WIPE_METHOD      (1)
@@ -110,7 +110,7 @@
 #define CFGDEF_TELEPT_EFFECT    (2)
 #define CFGDEF_TELEPT_REVERSE   (0)
 #define CFGDEF_WIPE_REVERSE     (0)
-#define CFGDEF_USE_VSYNC        (0)
+#define CFGDEF_USE_VSYNC        (1)
 #define CFGDEF_INTERPOLATION    (1)
 #define CFGDEF_SCREENSHAKE      (1)
 
