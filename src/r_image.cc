@@ -593,7 +593,6 @@ static image_c *AddImageUser(imagedef_c *def)
 	switch (def->type)
 	{
 	case IMGDT_Colour:
-	case IMGDT_Colour:
 		w = h = 8;
 		solid = true;
 		break;
