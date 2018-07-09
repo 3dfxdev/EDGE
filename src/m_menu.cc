@@ -255,25 +255,6 @@ typedef struct
 }
 menuitem_t;
 
-#if 0
-typedef struct
-{
-	// 0 = no cursor here, 1 = ok, 2 = arrows ok
-	int status;
-
-	char name[64];
-
-	// choice = menu item #.
-	// if status = 2, choice can be SLIDERLEFT or SLIDERRIGHT
-	// select_func became draw_func
-	void(*draw_func)(int choice);
-
-	// hotkey in menu
-	char alpha_key;
-}
-d64menuitem_t;
-#endif // 0
-
 typedef struct menu_s
 {
 	// # of menu items
@@ -299,45 +280,6 @@ typedef struct menu_s
 }
 menu_t;
 
-//typedef struct
-//{
-//	cvar_c* mitem;
-//	float    mdefault;
-//} d64menudefault_t;
-
-//typedef struct
-//{
-//	int item;
-//	float width;
-//	cvar_c *mitem;
-//} d64menuthermobar_t;
-
-//typedef struct d64menu_s
-//{
-//	short               numitems;           // # of menu items
-//	bool            textonly;
-//	struct menu_s       *prevMenu;          // previous menu
-//	d64menuitem_t          *menuitems;         // menu items
-//	void(*draw_func)(void);                  // draw routine
-//	char                title[64];
-//	short               x;
-//	short               y;                  // x,y of menu
-//	short               lastOn;             // last item user was on in menu
-//	bool				smallfont;          // draw text using small fonts
-//	d64menudefault_t       *defaultitems;      // pointer to default values for cvars
-//	short               numpageitems;       // number of items to display per page
-//	short               menupageoffset;
-//	float               scale;
-//	char                **hints;
-//	d64menuthermobar_t     *thermobars;
-//} d64menu_t;
-
-//typedef struct
-//{
-//	char    *name;
-//	char    *action;
-//} d64menuaction_t;
-
 // menu item skull is on
 static int itemOn;
 
@@ -360,29 +302,6 @@ char  msgNames[2][4] = { "Off","On" };
 
 // current menudef
 static menu_t *currentMenu;
-
-// current DOOM64 menudef
-#if 0
-static d64menu_t* currentMenu;
-static d64menu_t* nextmenu;
-
-extern d64menu_t ControlMenuDef;
-#endif // 0
-
-//------------------------------------------------------------------------
-// DOOM 64
-// PROTOTYPES
-//
-//------------------------------------------------------------------------
-#if 0
-static int M_StringWidth(const char *string);
-static int M_StringHeight(const char *string);
-static int M_BigStringWidth(const char *string);
-static void M_DrawSmbString(const char* text, d64menu_t* menu, int item);
-static void M_DrawSaveGameFrontend(d64menu_t* def);
-static void M_SetInputString(char* string, int len);
-static void M_Scroll(d64menu_t* menu, bool up);
-#endif // 0
 
 //------------------------------------------------------------------------
 // 3DGE
@@ -474,6 +393,20 @@ typedef enum
 }
 hmain_e;
 
+//
+// ROTT MENU
+//
+typedef enum
+{
+	rnewgame = 0,
+	rmultiplayer,
+	roptions,
+	rreadthis,
+	quitrott,
+	rmain_end
+}
+rmain_e;
+
 #if 0
 d64menuitem_t MainMenu[] = {
 { 1,"New Game",M_NewGame,'n' },
@@ -507,6 +440,18 @@ static menuitem_t MainMenu[] =
 	{1, "M_QUITG",   NULL, M_QuitEDGE, 'q'}
 };
 
+static menuitem_t ROTTMainMenu[] =
+{
+{ 1, "TNGAME",   NULL,  M_NewGame, 'n' },
+{ 1, "TCBGAME",   NULL,  M_Multiplayer, 'p' },
+{ 1, "TOPTIONS",  NULL,  M_Options, 'o' },
+{ 1, "TRESTORE",   NULL, M_LoadGame, 'l' },
+{ 1, "TSAVE",   NULL,  M_SaveGame, 's' },
+// Another hickup with Special edition.
+{ 1, "THELP",  NULL,  M_ReadThis, 'r' },
+{ 1, "TQUITG",   NULL, M_QuitEDGE, 'q' }
+};
+
 static menu_t MainDef =
 {
 	main_end,
@@ -531,6 +476,17 @@ static menu_t HereticMainDef =
 	&main_menu_style,
 	HereticMainMenuDrawer,
 	110, 56,
+	0
+};
+
+static menu_t ROTTMainDef =
+{
+	main_end,
+	NULL,
+	ROTTMainMenu,
+	&main_menu_style,
+	M_DrawMainMenu,
+	97, 64,
 	0
 };
 
@@ -2397,7 +2353,11 @@ void M_StartControlPanel(void)
 	{
 		currentMenu = &HereticMainDef;
 	}
-	else if (!heretic_mode)
+	else if (rott_mode)
+	{
+		currentMenu = &ROTTMainDef;
+	}
+	else
 	{
 		currentMenu = &MainDef;  // JDC
 	}
@@ -3023,12 +2983,28 @@ void M_Drawer(void)
 		therm_r = W_ImageLookup("M_THERMR");
 		therm_o = W_ImageLookup("M_THERMO");
 
-		menu_loadg = W_ImageLookup("M_LOADG");
-		menu_saveg = W_ImageLookup("M_SAVEG");
+		//if (W_CheckNumForName("TRESTORE") >= 0)
+		//	menu_loadg = W_ImageLookup("TRESTORE");
+		//else
+			menu_loadg = W_ImageLookup("M_LOADG");
+
+		//if (W_CheckNumForName("TSAVE") >= 0)
+		//	menu_saveg = W_ImageLookup("TSAVE");
+		//else
+			menu_saveg = W_ImageLookup("M_SAVEG");
+
 		menu_svol = W_ImageLookup("M_SVOL");
-		menu_newgame = W_ImageLookup("M_NEWG");
+
+		if (W_CheckNumForName("TNGAME") >= 0)
+			menu_newgame = W_ImageLookup("TNGAME");
+		else
+			menu_newgame = W_ImageLookup("M_NEWG");
+
+
 		menu_multiplayer = W_ImageLookup("M_MULTI");
+
 		menu_skill = W_ImageLookup("M_SKILL");
+
 		menu_episode = W_ImageLookup("M_EPISOD");
 
 		menu_skull[0] = W_ImageLookup("M_SKULL1");
@@ -3043,12 +3019,17 @@ void M_Drawer(void)
 		// menu_doom = HL_WriteText(style,2,LoadDef.x,y, "NEW GAME");
 		if (W_CheckNumForName("M_HTIC") >= 0)
 			menu_doom = W_ImageLookup("M_HTIC");
+		else if (W_CheckNumForName("TMAIN") >= 0)
+			menu_doom = W_ImageLookup("TMAIN");
 		else
-			menu_doom = W_ImageLookup("M_DOOM");
+			if (W_CheckNumForName("M_DOOM") >= 0)
+				menu_doom = W_ImageLookup("M_DOOM");
 
 		//code below switches out skull
 		if (W_CheckNumForName("M_SLCTR1") >= 0)
 			menu_skull[0] = W_ImageLookup("M_SLCTR1");
+		//else if (W_CheckNumForName("CURSOR01") >= 0)
+			//menu_skull[0] = W_ImageLookup("CURSOR01");
 		else
 			menu_skull[0] = W_ImageLookup("M_SKULL1");
 

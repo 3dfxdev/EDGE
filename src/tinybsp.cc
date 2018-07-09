@@ -97,7 +97,7 @@ static seg_t *NewSeg(void)
 static subsector_t *NewSubsector(void)
 {
 	if (numsubsectors >= max_segs)
-		I_Error("WF_BuildBSP: ran out of subsectors !\n");
+		I_Error("TinyBSP: ran out of subsectors !\n");
 
 	subsector_t *sub = subsectors + numsubsectors;
 

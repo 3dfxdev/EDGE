@@ -244,9 +244,7 @@ typedef enum
 	LMKIND_Patch = 18,
 	LMKIND_HiRes = 19,
 	LMKIND_Shaders = 20,
-	LMKIND_ROQ = 21,
-	LMKIND_ROTTPatch = 22,
-	LMKIND_ROTTPic = 23
+	LMKIND_ROQ = 21
 }
 lump_kind_e;
 
@@ -342,7 +340,7 @@ byte *W_ReadLumpAlloc(int lump, int *length);
 //
 static bool IsS_START(char *name)
 {
-	if ((strncmp(name, "GUNSTART", 8) == 0) || (strncmp(name, "SHAPSTART", 8) == 0))
+	if ((strncmp(name, "GUNSTART", 8) == 0) && (strncmp(name, "SHAPSTART", 8) == 0))
 	{
 		 //fix up flag to standard syntax
 		 //Note: strncpy will pad will nulls
@@ -376,14 +374,14 @@ static bool IsS_END(char *name)
 		return 1;
 	}
 
-	//if (strncmp(name, "SHAPSTOP", 8) == 0)
-	//{
-		// fix up flag to standard syntax
-		// Note: strncpy will pad will nulls
-	//	I_Printf("ROTT: SHAPSTOP -> Sprites list end...\n");
-	//	strncpy(name, "S_START", 8);
-	//	return 1;
-	//}
+	if (strncmp(name, "SHAPSTOP", 8) == 0)
+	{
+		 //fix up flag to standard syntax
+		 //Note: strncpy will pad will nulls
+		I_Printf("ROTT: SHAPSTOP -> Sprites list end...\n");
+		strncpy(name, "S_START", 8);
+		return 1;
+	}
 
 	if (strncmp(name, "SS_END", 8) == 0)
 	{
@@ -777,8 +775,8 @@ static bool IsROTTMask_End(const char *name)
 
 static bool IsROTTRaw(const char *name)
 {
-	return (strncmp(name, "TRILOGO", 7) == 0);
-	return (strncmp(name, "PLANE", 5) == 0);
+	return (strncmp(name, "TRILOGO", 8) == 0);
+	return (strncmp(name, "PLANE", 8) == 0);
 }
 
 //
@@ -998,9 +996,8 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		}
 
 	Z_StrNCpy(lump_p->path, path, 255);
-	//Z_StrNCpy(lump_p->fullname, fullname, 255);
 
-#if 0
+#ifdef DEVELOPERS
 	I_Debugf("AddLumpEx: %p, %d, %d, %d, %d, %d, %s, %d, %s\n",
 		df, lump, pos, size, file, sort_index, lump_p->name, allow_ddf, lump_p->path);
 #endif
@@ -2124,6 +2121,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		else
 			I_Printf("No levels in this pack\n");
 
+#if 0
 		if (wolf3d_mode)
 		{
 			I_Printf("WOLF: Read levels from MAPHEAD\n");
@@ -2152,6 +2150,8 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 			//WF_SetupLevel();
 			//I_Printf("WOLF: Not implemented!\n");
 		}
+
+#endif // 0
 
 		// handle DeHackEd patch files
 		if (df->deh_lump >= 0)
@@ -2897,9 +2897,7 @@ int W_CheckNumForName_GFX(const char *name)
 	{
 		if (lumpinfo[i].kind == LMKIND_Normal ||
 			lumpinfo[i].kind == LMKIND_Sprite ||
-			lumpinfo[i].kind == LMKIND_Patch ||
-			lumpinfo[i].kind == LMKIND_ROTTPatch ||
-			lumpinfo[i].kind == LMKIND_ROTTPic)
+			lumpinfo[i].kind == LMKIND_Patch)
 		{
 			if (strncmp(lumpinfo[i].name, buf, 8) == 0)
 				return i;
@@ -3031,7 +3029,7 @@ int W_CheckNumForTexPatch(const char *name)
 	{
 		lumpinfo_t *L = lumpinfo + lumpmap[i];
 
-		if (L->kind == LMKIND_Patch || L->kind == LMKIND_Sprite || L->kind == LMKIND_ROTTPatch || L->kind == LMKIND_ROTTPic ||
+		if (L->kind == LMKIND_Patch || L->kind == LMKIND_Sprite || // L->kind == LMKIND_ROTTPatch || L->kind == LMKIND_ROTTPic ||
 			L->kind == LMKIND_Normal)
 		{
 			// allow LMKIND_Normal to support patches outside of the

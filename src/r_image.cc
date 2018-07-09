@@ -165,7 +165,7 @@ static void do_Animate(real_image_container_c& bucket)
 	}
 }
 
-//#if 0
+#if 0
 static void do_DebugDump(real_image_container_c& bucket)
 {
 	L_WriteDebug("{\n");
@@ -184,7 +184,7 @@ static void do_DebugDump(real_image_container_c& bucket)
 
 	L_WriteDebug("}\n");
 }
-//#endif
+#endif
 
 // mipmapping enabled ?
 // 0 off, 1 bilinear, 2 trilinear
@@ -319,6 +319,11 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	int offset_x = 0, offset_y = 0;
 	int origsize; //ROTT
 
+	// determine RAW ROTT picture info (!!!)
+	int picwidth = 0, picheight = 0;
+	int picorg_x = 0, picorg_y = 0;
+
+
 	bool is_png = false;
 	bool solid = false;
 	bool is_rott = false;
@@ -384,16 +389,23 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 #endif // 0
 
 
-	else  // DOOM PATCH format
+	else  // DOOM/ROTT GRAPHICS/PATCHES/RAW
 	{
 		patch_t *pat = (patch_t *)buffer;
 		rottpatch_t *rpat = (rottpatch_t *)buffer;
+
+		lpic_t *lpic = (lpic_t *)buffer; //raw ROTT pics
 
 		origsize = EPI_LE_S16(rpat->origsize); // ROTT (rottpatch_t is in *rpat via the rottpatch_t header)
 		width = EPI_LE_S16(pat->width);
 		height = EPI_LE_S16(pat->height);
 		offset_x = EPI_LE_S16(pat->leftoffset);
 		offset_y = EPI_LE_S16(pat->topoffset);
+
+		picwidth = EPI_LE_S16(lpic->width);
+		picheight = EPI_LE_S16(lpic->height);
+		picorg_x = EPI_LE_S16(lpic->orgx);
+		picorg_y = EPI_LE_S16(lpic->orgy);
 
 #if 0
 		L_WriteDebug("DOOM GETINFO [%s] : size %dx%d\n", W_GetLumpName(lump), pat->width, pat->height);
@@ -410,7 +422,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 			ABS(offset_x) > 2048 || ABS(offset_y) > 1024)
 		{
 			// check for Heretic/Hexen/ROTT images, which are raw 320x200
-			if (lump_len == 320 * 200 && type == IMSRC_Graphic)
+			if (lump_len == 320 * 200 && type == IMSRC_Graphic || IMSRC_ROTTGFX)
 			{
 				I_Printf("Graphic '%s' seems to be a flat, 320x200 it..\n", name);
 				image_c *rim = NewImage(320, 200, OPAC_Solid);
@@ -420,9 +432,30 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 				rim->source.flat.lump = lump;
 				rim->source_palette = W_GetPaletteForLump(lump);
 				return rim;
+
 			}
+			//(origsize > 320 || width <= 0 || width > 320 ||
+			if (picwidth <= 0 || picwidth > 2048 ||
+				picheight <= 0 || picheight > 512 ||
+				ABS(picorg_x) > 2048 || ABS(picorg_y) > 1024)
+			{
+				if ((lump_len == 288 * 158 && type == IMSRC_ROTTRAW) || (lump_len == 320 * 200 && type == IMSRC_ROTTRAW))
+				{
+					I_Printf("Graphic '%s' seems to be a raw ROTT picture..\n", name);
+					image_c *rim = NewImage(picheight, picwidth, OPAC_Solid);
 
+					rim->offset_x = picorg_x;
+					rim->offset_y = picorg_y;
 
+					strcpy(rim->name, name);
+
+					rim->source_type = IMSRC_ROTTRAW;
+					rim->source.lpic.lump = lump;
+					rim->source_palette = W_GetPaletteForLump(lump);
+					return rim;
+				}
+
+			}
 			if (lump_len == 64 * 64 || lump_len == 64 * 65 || lump_len == 64 * 128)
 				I_Warning("Graphic '%s' seems to be a flat.\n", name);
 			else
@@ -483,6 +516,26 @@ static image_c *AddImageTexture(const char *name, texturedef_t *tdef)
 	return rim;
 }
 
+static image_c *AddROTTPatchTexture(const char *name, texturedef_t *tdef)
+{
+	image_c *rim;
+
+	rim = NewImage(tdef->width, tdef->height);
+
+	strcpy(rim->name, name);
+
+	if (tdef->scale_x) rim->scale_x = 8.0 / tdef->scale_x;
+	if (tdef->scale_y) rim->scale_y = 8.0 / tdef->scale_y;
+
+	rim->source_type = IMSRC_ROTTGFX;
+	rim->source.texture.tdef = tdef;
+	rim->source_palette = tdef->palette_lump;
+
+	real_textures.push_back(rim);
+
+	return rim;
+}
+
 static image_c *AddImageFlat(const char *name, int lump)
 {
 	image_c *rim;
@@ -500,8 +553,11 @@ static image_c *AddImageFlat(const char *name, int lump)
 		// support for odd-size Hexen flats
 	case 64 * 128: size = 64; break;
 
+		// support for ROTT flats
+	case 128 * 128: size = 128; break;
+
 		// -- EDGE2 feature: bigger than normal flats --
-	case 128 * 128: size = 128; break; // ROTT Flats especially.
+	
 	case 256 * 256: size = 256; break;
 	case 512 * 512: size = 512; break;
 	case 1024 * 1024: size = 1024; break;
@@ -528,6 +584,7 @@ static image_c *AddImageFlat(const char *name, int lump)
 	return rim;
 }
 
+
 static image_c *AddImageUser(imagedef_c *def)
 {
 	int w, h;
@@ -541,9 +598,10 @@ static image_c *AddImageUser(imagedef_c *def)
 		break;
 
 	case IMGDT_Builtin:
-		//!!!!! (detail_level == 2) ? 512 : 256;
-		w = 256;
-		h = 256;
+		//(detail_level == 2) ? 512 : 256;
+		// If this breaks from upping width/height, implement detail_level from DC code!
+		w = 512;
+		h = 512;
 		solid = false;
 		break;
 
@@ -671,6 +729,9 @@ void W_ImageCreateTextures(struct texturedef_s ** defs, int number)
 		if (defs[i] == NULL)
 			continue;
 
+		//if (rott_mode)
+		//	AddROTTPatchTexture(defs[i]->name, defs[i]);
+		//else
 		AddImageTexture(defs[i]->name, defs[i]);
 	}
 }
@@ -933,7 +994,9 @@ static bool IM_ShouldHQ2X(image_c *rim)
 	switch (rim->source_type)
 	{
 	case IMSRC_Graphic:
+	case IMSRC_ROTTGFX:
 	case IMSRC_Raw320x200:
+	case IMSRC_ROTTRAW:
 		// UI elements
 		return true;
 #if 0
@@ -1221,6 +1284,10 @@ static const image_c *BackupGraphic(const char *gfx_name, int flags)
 		if (rim)
 			return rim;
 
+		rim = do_Lookup(real_graphics, gfx_name, IMSRC_ROTTRAW);
+		if (rim)
+			return rim;
+
 		rim = do_Lookup(real_graphics, gfx_name, IMSRC_ROTTGFX);
 		if (rim)
 			return rim;
@@ -1407,6 +1474,8 @@ void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf)
 	switch (rim->source_type)
 	{
 	case IMSRC_Raw320x200:
+	case IMSRC_ROTTRAW:
+	case IMSRC_ROTTGFX:
 	case IMSRC_Graphic: (*type) = 'P'; return;
 
 	case IMSRC_TX_HI:

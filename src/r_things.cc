@@ -1145,7 +1145,7 @@ static void RGL_DrawModel(drawthing_t *dthing)
 
 	if (! md->skins[mo->model_skin].img)
 	{
-		I_Debugf("Render model: no skin %d\n", mo->model_skin);
+		//I_Debugf("Render model: no skin %d\n", mo->model_skin);
 	}
 
 

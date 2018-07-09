@@ -403,10 +403,10 @@ static void FillMapArea(short ax, short ay, short sec_num)
 //
 static void BuildSectors(void)
 {
-	const void *data;
+	//const void *data;
 	int i;
-	const raw_sector_t *ms;
-	sector_t *ss;
+	//const raw_sector_t *ms;
+	sector_t *sec;
 
 	numsectors = marked_cur_sec;
 	//numsectors = W_LumpLength(lump) / sizeof(raw_sector_t);
@@ -1063,7 +1063,7 @@ static void AnalyseObjects(void)
 {
 	int x, y; //Wolf3d Maps have no 'Z'!!, also using float here makes M_INDEX act up. . .
 
-	const raw_thing_t *mt;
+	//const raw_thing_t *mt;
 	//const mobjtype_c *info;
 
 	for (y = 0; y < WLFMAP_H; y++)
@@ -1196,7 +1196,8 @@ static void DoBlockMap(int lump)
 //
 void WF_SetupLevel(void)
 {
-	int j;
+	I_Printf("WF_SetupLevel...\n!!!!!");
+	//int j;
 	int lumpnum;
 	//int gl_lumpnum;
 	//char gl_lumpname[16];

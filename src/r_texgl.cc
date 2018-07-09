@@ -23,6 +23,7 @@
 
 #include "../epi/image_data.h"
 
+#include "dm_state.h"
 #include "e_search.h"
 #include "e_main.h"
 #include "m_argv.h"
@@ -378,7 +379,7 @@ int R_DetermineOpacity(epi::image_data_c *img)
 			{
 				u8_t pix = img->PixelAt(x, y)[0];
 
-				if (pix == TRANS_PIXEL)
+				if ((pix == TRANS_PIXEL) || (pix == ROTT_TRANSPIXEL))
 					return OPAC_Masked;
 			}
 
@@ -418,6 +419,11 @@ void R_BlackenClearAreas(epi::image_data_c *img)
 	{
 		for (; count > 0; count--, dest++)
 		{
+			if (rott_mode)
+			{
+				*dest == ROTT_TRANSPIXEL;
+			}
+			else
 			if (*dest == TRANS_PIXEL)
 				*dest = pal_black;
 		}
