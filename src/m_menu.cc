@@ -1555,6 +1555,9 @@ void M_DrawEpisode(void)
 {
 	if (!EpisodeMenu)
 		CreateEpisodeMenu();
+	
+	if (EpiDef.numitems == 1)
+		M_Episode(0);
 
 	HUD_DrawImage(54, 38, menu_episode);
 }
