@@ -929,8 +929,8 @@ static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
 	else if (def->format == LIF_PNG)
 		img = epi::PNG_Load(f, epi::IRF_Round_POW2);
 
-	else if (def->format == LIF_RIM)
-		img = ReadPatchAsEpiBlock(rim);
+	//else if (def->format == LIF_RIM)
+		//img = ReadPatchAsEpiBlock(rim);
 
 	CloseUserFileOrLump(def, f);
 

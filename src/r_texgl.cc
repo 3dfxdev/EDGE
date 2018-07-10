@@ -421,10 +421,10 @@ void R_BlackenClearAreas(epi::image_data_c *img)
 		{
 			if (rott_mode)
 			{
-				*dest == ROTT_TRANSPIXEL;
+				if (*dest == ROTT_TRANSPIXEL)
+					*dest = pal_black;
 			}
-			else
-			if (*dest == TRANS_PIXEL)
+			else if (*dest == TRANS_PIXEL)
 				*dest = pal_black;
 		}
 	}
