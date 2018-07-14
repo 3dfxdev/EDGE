@@ -42,7 +42,7 @@ extern cvar_c am_gridsize;
 
 extern cvar_c m_language;
 extern cvar_c m_diskicon, m_busywait, m_screenhud;
-extern cvar_c m_tactile; //screen shake
+extern cvar_c m_tactile, melee_tactile; //screen shake
 extern cvar_c m_messages, m_obituaries;
 extern cvar_c m_centerem;
 extern cvar_c m_goobers;
@@ -146,6 +146,7 @@ cvar_link_t  all_cvars[] =
 	{ "spriteflip",      &r_spriteflip,       "c",   "0"  },
 
 	{ "screen_shake",    &m_tactile,       "c",   "1" },
+	{ "melee_tactile",   &melee_tactile,   "c",   "0" },
 
 	{ "shadows",         &r_shadows,          "c",   "1" },
 
@@ -200,7 +201,6 @@ cvar_link_t  all_cvars[] =
 	{ "r_precache_model",  &r_precache_model,  "c", "1" },
 
 	{ "r_anisotropy",	&r_anisotropy,			"c",   "0" },
-	//{ "r_anisotropyval",	&r_anisotropyval,			"c",   "0.0" },
 	{ "r_colormaterial",&r_colormaterial, "",   "1"  },
 	{ "r_colorlighting",&r_colorlighting, "",   "1"  },
 	{ "r_dumbsky",      &r_dumbsky,       "",   "0"  },
@@ -208,7 +208,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_dumbcombine",  &r_dumbcombine,   "",   "0"  },
 	{ "r_dumbclamp",    &r_dumbclamp,     "",   "0"  },
 	{ "r_gl3_path",     &r_gl3_path,      "c",   "0"  },
-	{ "r_swapinterval", &r_swapinterval,  "r",   "1" },
+	{ "r_swapinterval", &r_swapinterval,  "",   "1" },
 
 	{ "r_gpuswitch",    &r_gpuswitch,     "c",   "0"  }, // notebook optimus gpu selector
 
@@ -250,9 +250,9 @@ cvar_link_t  all_cvars[] =
 
 	{ "r_lens",		       &r_lens,			"c", "1" },
 	{ "r_fxaa",            &r_fxaa,         "c", "0" },
-	{ "r_fxaa_quality",    &r_fxaa_quality,         "c", "0" },
+	{ "r_fxaa_quality",    &r_fxaa_quality, "c", "0" },
 
-	{ "i_skipsplash",	&i_skipsplash,	"c", "0" },
+	{ "i_skipsplash",	&i_skipsplash,		"c", "0" },
 
 #if 0 // FIXME
     { "edge_compat",    &edge_compat,    "",    "0"  },

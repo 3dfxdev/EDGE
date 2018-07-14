@@ -72,7 +72,7 @@
 int monitor_size;
 
 cvar_c m_diskicon;
-extern cvar_c m_tactile;
+extern cvar_c m_tactile, melee_tactile;
 extern cvar_c r_vsync;
 extern cvar_c r_lerp;
 extern cvar_c r_shadows;
@@ -165,6 +165,7 @@ static default_t defaults[] =
 	{CFGT_Boolean,  "r_vsync",           &r_vsync,   	  CFGDEF_USE_VSYNC},
 	{CFGT_Boolean,  "r_lerp",            &r_lerp,   	  CFGDEF_INTERPOLATION},
 	{CFGT_Boolean,  "m_tactile",         &m_tactile,      CFGDEF_SCREENSHAKE},
+	{CFGT_Boolean,  "melee_tactile",     &melee_tactile,  CFGDEF_MELEESHAKE },
 
     // -KM- 1998/09/01 Useless mouse/joy stuff removed,
     //                 analogue binding added

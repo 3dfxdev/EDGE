@@ -43,6 +43,7 @@
 #define DAMAGE_LIMIT  100
 
 extern cvar_c m_tactile;
+extern cvar_c melee_tactile;
 bool var_obituaries = true;
 
 
