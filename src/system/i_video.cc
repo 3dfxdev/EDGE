@@ -37,6 +37,9 @@ PFNWGLSWAPINTERVALEXTPROC myWglSwapIntervalExtProc;
 #include "../m_misc.h"
 #include "../r_modes.h"
 
+SDL_version compiled;
+SDL_version linked;
+
 extern cvar_c r_width, r_height, r_depth, r_fullscreen, r_vsync;
 
 //The window we'll be rendering to
@@ -253,6 +256,16 @@ void I_StartupGraphics(void)
 	I_Printf("I_StartupGraphics: initialisation OK\n");
 
 	I_Printf("Desktop resolution: %dx%d\n", mode.w ? mode.w : display_W, mode.h ? mode.h : display_H);
+
+	SDL_VERSION(&compiled);
+	SDL_GetVersion(&linked);
+	I_Printf("==============================================================================\n");
+	I_Printf("Getting SDL2 Version Information...\n");
+	I_Printf("EDGE compiled against SDL version %d.%d.%d ...\n",
+		compiled.major, compiled.minor, compiled.patch);
+	I_Printf("But EDGE is linking against SDL version %d.%d.%d.\n",
+		linked.major, linked.minor, linked.patch);
+	I_Printf("==============================================================================\n");
 }
 
 
@@ -269,7 +282,7 @@ bool I_SetScreenSize(scrmode_c *mode)
 			 mode->width, mode->height, mode->depth,
 			 mode->full ? "fullscreen" : "windowed");
 
-	my_vis = SDL_CreateWindow("Hyper3DGE",
+	my_vis = SDL_CreateWindow("EDGE",
 					SDL_WINDOWPOS_UNDEFINED,
                     SDL_WINDOWPOS_UNDEFINED,
                     mode->width, mode->height,
