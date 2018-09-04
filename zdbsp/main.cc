@@ -1,6 +1,7 @@
 /*
-    The main glue for ZDBSP.
-    Copyright (C) 2002-2006 Randy Heit
+    MAIN: The main glue for ZDBSP <-> EDGE
+    Copyright (C) 2002-2006 Marissa Heit
+	Copyright (C) 2018 The EDGE Team
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -241,22 +242,23 @@ int zdbsp_main(int argc, char **argv)
 				else if (inwad.IsGLNodes (lump))
 				{
 					// Ignore GL nodes from the input for any maps we process.
-					if (BuildNodes && (Map == NULL || stricmp (inwad.LumpName (lump)+3, Map) == 0))
-					{
-						lump = inwad.SkipGLNodes (lump);
-					}
-					else
+					//if (BuildNodes && (Map == NULL || stricmp (inwad.LumpName (lump)+3, Map) == 0))
+					//{
+					//	lump = inwad.IsGLNodes(lump);
+					//}
+					//else
+					if (BuildNodes && (Map == NULL || stricmp(inwad.LumpName(lump) + 3, Map) == 0))
 					{
 						outwad.CopyLump (inwad, lump);
 						++lump;
 					}
 				}
-				else
-				{
+				//else
+				//{
 					//printf ("copy %s\n", inwad.LumpName (lump));
-					outwad.CopyLump (inwad, lump);
-					++lump;
-				}
+				//	outwad.CopyLump (inwad, lump);
+				//	++lump;
+				//}
 			}
 
 			outwad.Close ();
@@ -429,8 +431,11 @@ static void ParseArgs (int argc, char **argv)
 			ShowUsage ();
 			exit (0);
 		default:
-			printf ("Try `zdbsp --help' for more information.\n");
-			exit (0);
+			//~CA~ 9.1.2018 - Set ZDBSP to *ALWAYS* build GLNodes for EDGE, this is an absolute *REQUIREMENT*, at least until we restore the software renderer... ;-)
+			CompressNodes = true;
+			CompressGLNodes = true;
+			ForceCompression = false;
+			break;
 		}
 	}
 }

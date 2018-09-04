@@ -756,29 +756,38 @@ const image_c *W_ImageCreateSprite(const char *name, int lump, bool is_weapon)
 
 	//need to check grAb much earlier for is_weapon. . .
 	//epi::image_data_c *grAb = ReadAsEpiBlock(rim);
+	//need to check grAb much earlier for is_weapon. . .
+	epi::image_data_c *offsets = ReadAsEpiBlock(rim);
 
-#if 0
-	if (is_weapon && grAb->grAb != nullptr)
+	if (is_weapon)
 	{
-		I_Printf("Checking if (is_weapon && tmp_img->grAb != nullptr)");
-		rim->offset_x += (320 / 2 - grAb->x / 2);
-		rim->offset_y += (200 - 32 - grAb->y);
+		rim->offset_x += (320 / 2 - rim->actual_w / 2);  // loss of accuracy
+		rim->offset_y += (200 - 32 - rim->actual_h);
 	}
 	else
-#endif // 0
-		//TODO: THIS NEEDS TO HONOR THE grAb struct, _nothing more_, and EXCLUDE 3D MODELS!
-		if (is_weapon)
-		{
-			rim->offset_x += (320 / 2 - rim->actual_w / 2);  // loss of accuracy
-			rim->offset_y += (200 - 32 - rim->actual_h);
-		}
-		else
-		{
-			rim->offset_x -= rim->actual_w / 2;   // loss of accuracy
-			rim->offset_y -= rim->actual_h;
-		}
+	{
+		rim->offset_x -= rim->actual_w / 2;   // loss of accuracy
+		rim->offset_y -= rim->actual_h;
+	}
+
+//	if (offsets->grAb != nullptr)
+	//{
+		//if (grAb->grAb->x)
+		//rim->offset_x += is_weapon ? offsets->grAb->x + (160 - rim->actual_w / 2) : offsets->grAb->x = rim->actual_w / 2 - offsets->grAb->x;
+
+		//if (grAb->grAb->y)
+		//rim->offset_y += is_weapon ? offsets->grAb->y + (200 - 32 - rim->actual_w) : offsets->grAb->y = rim->actual_h - offsets->grAb->y;
+
+	//}
+	//TODO: THIS NEEDS TO HONOR THE grAb struct, _nothing more_, and EXCLUDE 3D MODELS!
 
 	return rim;
+}
+
+void W_ApplygrAbOffsets(void)
+{
+	///
+
 }
 
 //

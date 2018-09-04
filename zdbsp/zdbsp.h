@@ -18,6 +18,8 @@ typedef __int32 int32_t;
 
 #define ZDBSP_VERSION	"1.19"
 
+extern int zdbsp_main(int argc, char **argv);
+
 enum EBlockmapMode
 {
 	EBM_Rebuild,

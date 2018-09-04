@@ -53,6 +53,8 @@ endif()
 
 add_subdirectory( lzma )
 
+add_subdirectory( zdbsp )
+
 # Recursive function to place PK3 archive source files into a hierarchy of source file in the IDE
 function( assort_pk3_source_folder FOLDER_NAME PK3_DIR )
 	# Assort source files into folders in the IDE
@@ -228,6 +230,8 @@ if (MSVC)
 		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.11/lib/zlibstatic.lib" )
 		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.11/lib/zlibstatic.lib" )
 	else()
+		#set( DUMB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libjpeg-turbo/include" )
+		#set( DUMB_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libjpeg-turbo/lib/turbojpeg-static.lib" )
 		set( JPEG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libjpeg-turbo/include" )
 		set( JPEG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libjpeg-turbo/lib/turbojpeg-static.lib" )
 		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libogg-1.3.3/lib/libogg_staticd.lib" )
@@ -530,17 +534,17 @@ set(EDGE_SOURCES
 	glbsp/src/util.cc
 	glbsp/src/wad.cc
 
-	timidity/common.cc
-	timidity/instrum.cc
-	timidity/mix.cc
-	timidity/playmidi.cc
-	timidity/loadmidi.cc
-	timidity/resample.cc
-	timidity/tables.cc
-	timidity/timidity.cc
+	src/system/sound/timidity/common.cc
+	src/system/sound/timidity/instrum.cc
+	src/system/sound/timidity/mix.cc
+	src/system/sound/timidity/playmidi.cc
+	src/system/sound/timidity/loadmidi.cc
+	src/system/sound/timidity/resample.cc
+	src/system/sound/timidity/tables.cc
+	src/system/sound/timidity/timidity.cc
 
-	src/opllib/opl3.cc
-	src/opllib/oplapi.cc
+	src/system/sound/opllib/opl3.cc
+	src/system/sound/opllib/oplapi.cc
 
 )
 
@@ -617,7 +621,6 @@ target_link_libraries(EDGE
 	${PNG_LIBRARY_RELEASE}
 	${JPEG_LIBRARY}
 	${physfs_LIBRARY}
-    #${kitchensink_LIBRARY}
 )
 
 if (WIN32)

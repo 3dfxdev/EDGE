@@ -18,7 +18,7 @@
 
 #include "system/i_defs.h"
 
-#include "opllib/oplapi.h"
+#include "system/sound/opllib/oplapi.h"
 
 #include "s_blit.h"
 #include "s_music.h"

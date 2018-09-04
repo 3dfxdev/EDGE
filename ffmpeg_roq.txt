@@ -1,0 +1,1 @@
+ffmpeg -i [name].avi -r 30 -s 512x512 -ar 22050 intro.Roq 

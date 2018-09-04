@@ -24,7 +24,7 @@
 #include "../epi/path.h"
 #include "../epi/str_format.h"
 
-#include "../timidity/timidity.h"
+#include "system/sound/timidity/timidity.h"
 
 #include "s_blit.h"
 #include "s_music.h"

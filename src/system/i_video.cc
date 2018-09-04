@@ -154,7 +154,7 @@ void I_StartupGraphics(void)
 		SDL_setenv(nameBuffer, valueBuffer, overWrite);
 	}
 
-	I_Printf("SDL_Video_Driver: %s\n", driver);
+	//I_Printf("SDL_Video_Driver: %s\n", driver);
 
 
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0)
