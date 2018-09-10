@@ -127,7 +127,7 @@ static void CalcHeight(player_t * player)
 	else
 	{
 		player->bob = 0;
-		disable_bob = false;
+		//disable_bob = false;
 	}
 
 	//if (bob_z == 0)
@@ -143,8 +143,9 @@ static void CalcHeight(player_t * player)
 	if (player->playerstate == PST_LIVE && onground)
 	{
 		angle_t angle = ANG90 / 5 * leveltime;
+		extern float bob_scale;
 
-		bob_z = player->bob / 2 * player->mo->info->bobbing * M_Sin(angle);
+		bob_z = player->bob / 2 * player->mo->info->bobbing * M_Sin(angle) * bob_scale;
 	}
 
 

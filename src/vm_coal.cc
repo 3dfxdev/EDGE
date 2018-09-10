@@ -471,6 +471,25 @@ static void CAM_SwitchTo(coal::vm_c *vm, int argc)
 		cameraman::SetEndId(id);
 	}
 }
+
+// cam.set_bob(1|0 [, 1.2])
+static void CAM_SetBob(coal::vm_c *vm, int argc)
+{
+	if (argc >= 1)
+	{
+		int idx = 0;
+		int set = (int)*vm->AccessParam(idx++);
+
+		extern bool disable_bob;
+		disable_bob = (set > 0);
+
+		if (argc == 2)
+		{
+			extern float bob_scale;
+			bob_scale = (float)*vm->AccessParam(idx++);
+		}
+	}
+}
 //------------------------------------------------------------------------
 
 void VM_RegisterBASE(coal::vm_c *vm)
@@ -519,6 +538,8 @@ void VM_RegisterCameraMan()
 	ui_vm->AddNativeFunction("cameraman.set_end_id", CAM_SetEndId);
 	ui_vm->AddNativeFunction("cameraman.set_step", CAM_SetStep);
 	ui_vm->AddNativeFunction("cameraman.switch_to", CAM_SwitchTo);
+
+	ui_vm->AddNativeFunction("cam.set_bob", CAM_SetBob);
 }
 
 void VM_InitCoal()
