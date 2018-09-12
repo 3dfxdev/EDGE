@@ -478,15 +478,15 @@ static void CAM_SetBob(coal::vm_c *vm, int argc)
 	if (argc >= 1)
 	{
 		int idx = 0;
-		int set = (int)*vm->AccessParam(idx++);
+		int flag = (int)*vm->AccessParam(idx++);
 
 		extern bool disable_bob;
 		extern float bob_z_scale;
 		extern float bob_r_scale;
 
-		disable_bob = (set > 0);
-		bob_z_scale = (disable_bob) ? 0.0f : bob_z_scale;
-		bob_r_scale = (disable_bob) ? 0.0f : bob_r_scale;
+		disable_bob = !(flag > 0);
+		bob_z_scale = (disable_bob) ? 0.0f : 0.5f;
+		bob_r_scale = (disable_bob) ? 0.0f : 0.2f;
 
 		if (argc == 3)
 		{

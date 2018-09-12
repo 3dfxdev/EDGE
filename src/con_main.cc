@@ -612,6 +612,29 @@ int CMD_ToggleHelpers(char **argv, int argc)
 	return 0;
 }
 
+int CMD_SetCameraBobbing(char **argv, int argc)
+{
+	if (argc >= 2)
+	{
+		int flag = atoi(argv[1]);
+
+		extern bool disable_bob;
+		extern float bob_z_scale;
+		extern float bob_r_scale;
+
+		disable_bob = !(flag > 0);
+		bob_z_scale = (disable_bob) ? 0.0f : 0.5f;
+		bob_r_scale = (disable_bob) ? 0.0f : 0.2f;
+
+		if (argc == 4)
+		{
+			bob_z_scale = atof(argv[2]);
+			bob_r_scale = atof(argv[3]);
+		}
+	}
+	return 0;
+}
+
 // [SP] --- BEGIN CHEAT CODES ---
 
 int CMD_CheatGod(char **argv, int argc)
@@ -842,6 +865,8 @@ const con_cmd_t builtin_commands[] =
 	{ "prtcam",	  CMD_PrintCameraManSystem },
 
 	{ "tghelp",   CMD_ToggleHelpers },
+
+	{ "setbob",   CMD_SetCameraBobbing },
 
 #ifndef NOCHEATS
 	// [SP] Cheats
