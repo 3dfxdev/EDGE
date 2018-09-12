@@ -58,7 +58,7 @@ int viewwindow_h;
 
 angle_t viewangle = 0;
 angle_t viewvertangle = 0;
-
+float cameraroll = 0.0f;
 
 vec3_t viewforward;
 vec3_t viewup;

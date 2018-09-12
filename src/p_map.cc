@@ -92,7 +92,8 @@ static try_move_info_t tm_I;
 
 // set to stop weapon bobbing
 bool disable_bob = false;
-float bob_scale = 1.0f;
+float bob_z_scale = 0.5f;
+float bob_r_scale = 0.2f;
 
 bool mobj_hit_sky;
 line_t *blockline;

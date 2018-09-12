@@ -176,12 +176,14 @@ void RGL_SetupMatrices3D(void)
 		glRotatef(270.0f - vvang, 1.0f, 0.0f, 0.0f);
 		glRotatef(90.0f - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
 		glScalef(1.0f, 1.0f, 1.2f);
+		glRotatef(cameraroll, viewforward.x, viewforward.y, viewforward.z);
 		glTranslatef(-viewx, -viewy, -viewz);
 	}
 	else
 	{
 		glRotatef(270.0f - ANG_2_FLOAT(viewvertangle), 1.0f, 0.0f, 0.0f);
 		glRotatef(90.0f - ANG_2_FLOAT(viewangle), 0.0f, 0.0f, 1.0f);
+		glRotatef(cameraroll, viewforward.x, viewforward.y, viewforward.z);
 		glTranslatef(-viewx, -viewy, -viewz);
 	}
 

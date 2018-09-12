@@ -472,7 +472,7 @@ static void CAM_SwitchTo(coal::vm_c *vm, int argc)
 	}
 }
 
-// cam.set_bob(1|0 [, 1.2])
+// cam.set_bob(1|0 [, 1.2, 0.25])
 static void CAM_SetBob(coal::vm_c *vm, int argc)
 {
 	if (argc >= 1)
@@ -481,12 +481,17 @@ static void CAM_SetBob(coal::vm_c *vm, int argc)
 		int set = (int)*vm->AccessParam(idx++);
 
 		extern bool disable_bob;
-		disable_bob = (set > 0);
+		extern float bob_z_scale;
+		extern float bob_r_scale;
 
-		if (argc == 2)
+		disable_bob = (set > 0);
+		bob_z_scale = (disable_bob) ? 0.0f : bob_z_scale;
+		bob_r_scale = (disable_bob) ? 0.0f : bob_r_scale;
+
+		if (argc == 3)
 		{
-			extern float bob_scale;
-			bob_scale = (float)*vm->AccessParam(idx++);
+			bob_z_scale = (float)*vm->AccessParam(idx++);
+			bob_r_scale = (float)*vm->AccessParam(idx++);
 		}
 	}
 }
