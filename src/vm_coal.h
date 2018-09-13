@@ -28,8 +28,8 @@ void VM_LoadCoalFire(const char *filename);
 void VM_LoadLumpOfCoal(int lump);
 void VM_LoadScripts();
 
-void VM_RegisterHUD();
-void VM_RegisterPlaysim();
+void VM_RegisterHUD(coal::vm_c *vm);
+void VM_RegisterPlaysim(coal::vm_c *vm);
 
 // HUD stuff
 void VM_BeginLevel(void);

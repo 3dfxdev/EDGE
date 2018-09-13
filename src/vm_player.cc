@@ -294,6 +294,12 @@ static void PL_move_speed(coal::vm_c *vm, int argc)
 	vm->ReturnFloat(ui_player_who->actual_speed);
 }
 
+// player.get_side_move()
+//
+static void PL_get_side_move(coal::vm_c *vm, int argc)
+{
+	vm->ReturnFloat((float)ui_player_who->cmd.sidemove);
+}
 
 // player.air_in_lungs()
 //
@@ -723,58 +729,59 @@ static void PL_hurt_angle(coal::vm_c *vm, int argc)
 //------------------------------------------------------------------------
 
 
-void VM_RegisterPlaysim()
+void VM_RegisterPlaysim(coal::vm_c *vm)
 {
-	ui_vm->AddNativeFunction("player.num_players", PL_num_players);
-	ui_vm->AddNativeFunction("player.set_who",     PL_set_who);
-    ui_vm->AddNativeFunction("player.is_bot",      PL_is_bot);
-    ui_vm->AddNativeFunction("player.get_name",    PL_get_name);
-    ui_vm->AddNativeFunction("player.get_pos",     PL_get_pos);
-    ui_vm->AddNativeFunction("player.get_angle",   PL_get_angle);
-    ui_vm->AddNativeFunction("player.get_mlook",   PL_get_mlook);
+	vm->AddNativeFunction("player.num_players", PL_num_players);
+	vm->AddNativeFunction("player.set_who",     PL_set_who);
+	vm->AddNativeFunction("player.is_bot",      PL_is_bot);
+	vm->AddNativeFunction("player.get_name",    PL_get_name);
+	vm->AddNativeFunction("player.get_pos",     PL_get_pos);
+	vm->AddNativeFunction("player.get_angle",   PL_get_angle);
+	vm->AddNativeFunction("player.get_mlook",   PL_get_mlook);
 
-    ui_vm->AddNativeFunction("player.health",      PL_health);
-    ui_vm->AddNativeFunction("player.armor",       PL_armor);
-    ui_vm->AddNativeFunction("player.total_armor", PL_total_armor);
-    ui_vm->AddNativeFunction("player.ammo",        PL_ammo);
-    ui_vm->AddNativeFunction("player.ammomax",     PL_ammomax);
-    ui_vm->AddNativeFunction("player.frags",       PL_frags);
+	vm->AddNativeFunction("player.health",      PL_health);
+	vm->AddNativeFunction("player.armor",       PL_armor);
+	vm->AddNativeFunction("player.total_armor", PL_total_armor);
+	vm->AddNativeFunction("player.ammo",        PL_ammo);
+	vm->AddNativeFunction("player.ammomax",     PL_ammomax);
+	vm->AddNativeFunction("player.frags",       PL_frags);
 
-    ui_vm->AddNativeFunction("player.is_swimming",     PL_is_swimming);
-    ui_vm->AddNativeFunction("player.is_jumping",      PL_is_jumping);
-    ui_vm->AddNativeFunction("player.is_crouching",    PL_is_crouching);
-    ui_vm->AddNativeFunction("player.is_using",        PL_is_using);
-    ui_vm->AddNativeFunction("player.is_action1",      PL_is_action1);
-    ui_vm->AddNativeFunction("player.is_action2",      PL_is_action2);
-    ui_vm->AddNativeFunction("player.is_attacking",    PL_is_attacking);
-    ui_vm->AddNativeFunction("player.is_rampaging",    PL_is_rampaging);
-    ui_vm->AddNativeFunction("player.is_grinning",     PL_is_grinning);
+	vm->AddNativeFunction("player.is_swimming",     PL_is_swimming);
+	vm->AddNativeFunction("player.is_jumping",      PL_is_jumping);
+	vm->AddNativeFunction("player.is_crouching",    PL_is_crouching);
+	vm->AddNativeFunction("player.is_using",        PL_is_using);
+	vm->AddNativeFunction("player.is_action1",      PL_is_action1);
+	vm->AddNativeFunction("player.is_action2",      PL_is_action2);
+	vm->AddNativeFunction("player.is_attacking",    PL_is_attacking);
+	vm->AddNativeFunction("player.is_rampaging",    PL_is_rampaging);
+	vm->AddNativeFunction("player.is_grinning",     PL_is_grinning);
 
-    ui_vm->AddNativeFunction("player.under_water",     PL_under_water);
-    ui_vm->AddNativeFunction("player.on_ground",       PL_on_ground);
-    ui_vm->AddNativeFunction("player.move_speed",      PL_move_speed);
-    ui_vm->AddNativeFunction("player.air_in_lungs",    PL_air_in_lungs);
+	vm->AddNativeFunction("player.under_water",     PL_under_water);
+	vm->AddNativeFunction("player.on_ground",       PL_on_ground);
+	vm->AddNativeFunction("player.move_speed",      PL_move_speed);
+	vm->AddNativeFunction("player.air_in_lungs",    PL_air_in_lungs);
+	vm->AddNativeFunction("player.get_side_move",   PL_get_side_move);
 
-    ui_vm->AddNativeFunction("player.has_key",         PL_has_key);
-    ui_vm->AddNativeFunction("player.has_power",       PL_has_power);
-    ui_vm->AddNativeFunction("player.power_left",      PL_power_left);
-    ui_vm->AddNativeFunction("player.has_weapon",      PL_has_weapon);
-    ui_vm->AddNativeFunction("player.has_weapon_slot", PL_has_weapon_slot);
-    ui_vm->AddNativeFunction("player.cur_weapon",      PL_cur_weapon);
-    ui_vm->AddNativeFunction("player.cur_weapon_slot", PL_cur_weapon_slot);
+	vm->AddNativeFunction("player.has_key",         PL_has_key);
+	vm->AddNativeFunction("player.has_power",       PL_has_power);
+	vm->AddNativeFunction("player.power_left",      PL_power_left);
+	vm->AddNativeFunction("player.has_weapon",      PL_has_weapon);
+	vm->AddNativeFunction("player.has_weapon_slot", PL_has_weapon_slot);
+	vm->AddNativeFunction("player.cur_weapon",      PL_cur_weapon);
+	vm->AddNativeFunction("player.cur_weapon_slot", PL_cur_weapon_slot);
 
-    ui_vm->AddNativeFunction("player.main_ammo",       PL_main_ammo);
-    ui_vm->AddNativeFunction("player.ammo_type",       PL_ammo_type);
-    ui_vm->AddNativeFunction("player.ammo_pershot",    PL_ammo_pershot);
-    ui_vm->AddNativeFunction("player.clip_ammo",       PL_clip_ammo);
-    ui_vm->AddNativeFunction("player.clip_size",       PL_clip_size);
-    ui_vm->AddNativeFunction("player.clip_is_shared",  PL_clip_is_shared);
+	vm->AddNativeFunction("player.main_ammo",       PL_main_ammo);
+	vm->AddNativeFunction("player.ammo_type",       PL_ammo_type);
+	vm->AddNativeFunction("player.ammo_pershot",    PL_ammo_pershot);
+	vm->AddNativeFunction("player.clip_ammo",       PL_clip_ammo);
+	vm->AddNativeFunction("player.clip_size",       PL_clip_size);
+	vm->AddNativeFunction("player.clip_is_shared",  PL_clip_is_shared);
 
-    ui_vm->AddNativeFunction("player.hurt_by",         PL_hurt_by);
-    ui_vm->AddNativeFunction("player.hurt_mon",        PL_hurt_mon);
-    ui_vm->AddNativeFunction("player.hurt_pain",       PL_hurt_pain);
-    ui_vm->AddNativeFunction("player.hurt_dir",        PL_hurt_dir);
-    ui_vm->AddNativeFunction("player.hurt_angle",      PL_hurt_angle);
+	vm->AddNativeFunction("player.hurt_by",         PL_hurt_by);
+	vm->AddNativeFunction("player.hurt_mon",        PL_hurt_mon);
+	vm->AddNativeFunction("player.hurt_pain",       PL_hurt_pain);
+	vm->AddNativeFunction("player.hurt_dir",        PL_hurt_dir);
+	vm->AddNativeFunction("player.hurt_angle",      PL_hurt_angle);
 }
 
 

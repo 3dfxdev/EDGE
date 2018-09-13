@@ -472,29 +472,28 @@ static void CAM_SwitchTo(coal::vm_c *vm, int argc)
 	}
 }
 
-// cam.set_bob(1|0 [, 1.2, 0.25])
-static void CAM_SetBob(coal::vm_c *vm, int argc)
+// cam.set_vert_bob(1.2)
+static void GAME_SetCameraVerticalBobbing(coal::vm_c *vm, int argc)
 {
 	if (argc >= 1)
 	{
 		int idx = 0;
-		int flag = (int)*vm->AccessParam(idx++);
-
-		extern bool disable_bob;
 		extern float bob_z_scale;
-		extern float bob_r_scale;
-
-		disable_bob = !(flag > 0);
-		bob_z_scale = (disable_bob) ? 0.0f : 0.5f;
-		bob_r_scale = (disable_bob) ? 0.0f : 0.2f;
-
-		if (argc == 3)
-		{
-			bob_z_scale = (float)*vm->AccessParam(idx++);
-			bob_r_scale = (float)*vm->AccessParam(idx++);
-		}
+		bob_z_scale = (float)*vm->AccessParam(idx++);
 	}
 }
+
+// cam.set_roll_bob(0.5)
+static void GAME_SetCameraRollBobbing(coal::vm_c *vm, int argc)
+{
+	if (argc >= 1)
+	{
+		int idx = 0;
+		extern float bob_r_scale;
+		bob_r_scale = (float)*vm->AccessParam(idx++);
+	}
+}
+
 //------------------------------------------------------------------------
 
 void VM_RegisterBASE(coal::vm_c *vm)
@@ -526,25 +525,26 @@ void VM_RegisterBASE(coal::vm_c *vm)
     vm->AddNativeFunction("strings.tonumber", STRINGS_tonumber);
 }
 
-void VM_RegisterCameraMan()
+void VM_RegisterCameraMan(coal::vm_c *vm)
 {
-//	ui_vm->AddNativeFunction("cameraman.reset", CAM_Reset);
-	ui_vm->AddNativeFunction("cameraman.load", CAM_Load);
-	ui_vm->AddNativeFunction("cameraman.activate", CAM_Activate);
-//	ui_vm->AddNativeFunction("cameraman.add", CAM_Add);
-//	ui_vm->AddNativeFunction("cameraman.remove", CAM_Remove);
-	ui_vm->AddNativeFunction("cameraman.set_position", CAM_SetPosition);
-	ui_vm->AddNativeFunction("cameraman.set_angles", CAM_SetAngles);
-	ui_vm->AddNativeFunction("cameraman.set_fov", CAM_SetFov);
-	ui_vm->AddNativeFunction("cameraman.is_active", CAM_IsActive);
-	ui_vm->AddNativeFunction("cameraman.get_start_id", CAM_GetStartId);
-	ui_vm->AddNativeFunction("cameraman.get_end_id", CAM_GetEndId);
-	ui_vm->AddNativeFunction("cameraman.set_start_id", CAM_SetStartId);
-	ui_vm->AddNativeFunction("cameraman.set_end_id", CAM_SetEndId);
-	ui_vm->AddNativeFunction("cameraman.set_step", CAM_SetStep);
-	ui_vm->AddNativeFunction("cameraman.switch_to", CAM_SwitchTo);
+//	vm->AddNativeFunction("cameraman.reset", CAM_Reset);
+	vm->AddNativeFunction("cameraman.load", CAM_Load);
+	vm->AddNativeFunction("cameraman.activate", CAM_Activate);
+//	vm->AddNativeFunction("cameraman.add", CAM_Add);
+//	vm->AddNativeFunction("cameraman.remove", CAM_Remove);
+	vm->AddNativeFunction("cameraman.set_position", CAM_SetPosition);
+	vm->AddNativeFunction("cameraman.set_angles", CAM_SetAngles);
+	vm->AddNativeFunction("cameraman.set_fov", CAM_SetFov);
+	vm->AddNativeFunction("cameraman.is_active", CAM_IsActive);
+	vm->AddNativeFunction("cameraman.get_start_id", CAM_GetStartId);
+	vm->AddNativeFunction("cameraman.get_end_id", CAM_GetEndId);
+	vm->AddNativeFunction("cameraman.set_start_id", CAM_SetStartId);
+	vm->AddNativeFunction("cameraman.set_end_id", CAM_SetEndId);
+	vm->AddNativeFunction("cameraman.set_step", CAM_SetStep);
+	vm->AddNativeFunction("cameraman.switch_to", CAM_SwitchTo);
 
-	ui_vm->AddNativeFunction("cam.set_bob", CAM_SetBob);
+	vm->AddNativeFunction("cam.set_vert_bob", GAME_SetCameraVerticalBobbing);
+	vm->AddNativeFunction("cam.set_roll_bob", GAME_SetCameraRollBobbing);
 }
 
 void VM_InitCoal()
@@ -554,9 +554,9 @@ void VM_InitCoal()
 	ui_vm->SetPrinter(VM_Printer);
 
 	VM_RegisterBASE(ui_vm);
-	VM_RegisterHUD();
-	VM_RegisterPlaysim();
-	VM_RegisterCameraMan();
+	VM_RegisterHUD(ui_vm);
+	VM_RegisterPlaysim(ui_vm);
+	VM_RegisterCameraMan(ui_vm);
 }
 
 void VM_QuitCoal()

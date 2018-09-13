@@ -611,51 +611,51 @@ static void HD_play_sound(coal::vm_c *vm, int argc)
 // HUD Functions
 //------------------------------------------------------------------------
 
-void VM_RegisterHUD()
+void VM_RegisterHUD(coal::vm_c *vm)
 {
 	// query functions
-    ui_vm->AddNativeFunction("hud.game_mode",       HD_game_mode);
-    ui_vm->AddNativeFunction("hud.game_name",       HD_game_name);
-    ui_vm->AddNativeFunction("hud.map_name",  	    HD_map_name);
-    ui_vm->AddNativeFunction("hud.map_title",  	    HD_map_title);
-	//ui_vm->AddNativeFunction("hud.message_ticker",  HD_message_ticker); //CORBIN NEW!
+    vm->AddNativeFunction("hud.game_mode",       HD_game_mode);
+    vm->AddNativeFunction("hud.game_name",       HD_game_name);
+    vm->AddNativeFunction("hud.map_name",  	    HD_map_name);
+    vm->AddNativeFunction("hud.map_title",  	    HD_map_title);
+	//vm->AddNativeFunction("hud.message_ticker",  HD_message_ticker); //CORBIN NEW!
 
-    ui_vm->AddNativeFunction("hud.which_hud",  	    HD_which_hud);
-    ui_vm->AddNativeFunction("hud.check_automap",  	HD_check_automap);
-    ui_vm->AddNativeFunction("hud.get_time",  	    HD_get_time);
+    vm->AddNativeFunction("hud.which_hud",  	    HD_which_hud);
+    vm->AddNativeFunction("hud.check_automap",  	HD_check_automap);
+	vm->AddNativeFunction("hud.get_time",  	    HD_get_time);
 
 	// set-state functions
-    ui_vm->AddNativeFunction("hud.coord_sys",       HD_coord_sys);
+	vm->AddNativeFunction("hud.coord_sys",       HD_coord_sys);
 
-    ui_vm->AddNativeFunction("hud.text_font",       HD_text_font);
-    ui_vm->AddNativeFunction("hud.text_color",      HD_text_color);
-	//ui_vm->AddNativeFunction("hud.text_scale",		HD_text_scale); // CORBIN NEW!
-    ui_vm->AddNativeFunction("hud.set_scale",       HD_set_scale);
-    ui_vm->AddNativeFunction("hud.set_alpha",       HD_set_alpha);
+	vm->AddNativeFunction("hud.text_font",       HD_text_font);
+	vm->AddNativeFunction("hud.text_color",      HD_text_color);
+	//vm->AddNativeFunction("hud.text_scale",		HD_text_scale); // CORBIN NEW!
+	vm->AddNativeFunction("hud.set_scale",       HD_set_scale);
+	vm->AddNativeFunction("hud.set_alpha",       HD_set_alpha);
 
-	ui_vm->AddNativeFunction("hud.set_render_who",  HD_set_render_who);
-    ui_vm->AddNativeFunction("hud.automap_color",   HD_automap_color);
-    ui_vm->AddNativeFunction("hud.automap_option",  HD_automap_option);
-    ui_vm->AddNativeFunction("hud.automap_zoom",    HD_automap_zoom);
+	vm->AddNativeFunction("hud.set_render_who",  HD_set_render_who);
+	vm->AddNativeFunction("hud.automap_color",   HD_automap_color);
+	vm->AddNativeFunction("hud.automap_option",  HD_automap_option);
+	vm->AddNativeFunction("hud.automap_zoom",    HD_automap_zoom);
 
 	// drawing functions
-    ui_vm->AddNativeFunction("hud.solid_box",       HD_solid_box);
-    ui_vm->AddNativeFunction("hud.solid_line",      HD_solid_line);
-    ui_vm->AddNativeFunction("hud.thin_box",        HD_thin_box);
-    ui_vm->AddNativeFunction("hud.gradient_box",    HD_gradient_box);
+	vm->AddNativeFunction("hud.solid_box",       HD_solid_box);
+	vm->AddNativeFunction("hud.solid_line",      HD_solid_line);
+	vm->AddNativeFunction("hud.thin_box",        HD_thin_box);
+	vm->AddNativeFunction("hud.gradient_box",    HD_gradient_box);
 
-    ui_vm->AddNativeFunction("hud.draw_image",      HD_draw_image);
-    ui_vm->AddNativeFunction("hud.stretch_image",   HD_stretch_image);
-    ui_vm->AddNativeFunction("hud.tile_image",      HD_tile_image);
-    ui_vm->AddNativeFunction("hud.draw_text",       HD_draw_text);
-    ui_vm->AddNativeFunction("hud.draw_num2",       HD_draw_num2);
-	ui_vm->AddNativeFunction("hud.draw_num",       HD_draw_num);
+	vm->AddNativeFunction("hud.draw_image",      HD_draw_image);
+	vm->AddNativeFunction("hud.stretch_image",   HD_stretch_image);
+	vm->AddNativeFunction("hud.tile_image",      HD_tile_image);
+	vm->AddNativeFunction("hud.draw_text",       HD_draw_text);
+	vm->AddNativeFunction("hud.draw_num2",       HD_draw_num2);
+	vm->AddNativeFunction("hud.draw_num",       HD_draw_num);
 
-    ui_vm->AddNativeFunction("hud.render_world",    HD_render_world);
-    ui_vm->AddNativeFunction("hud.render_automap",  HD_render_automap);
+	vm->AddNativeFunction("hud.render_world",    HD_render_world);
+	vm->AddNativeFunction("hud.render_automap",  HD_render_automap);
 
 	// sound functions
-	ui_vm->AddNativeFunction("hud.play_sound",      HD_play_sound);
+	vm->AddNativeFunction("hud.play_sound",      HD_play_sound);
 }
 
 void VM_BeginLevel(void)
