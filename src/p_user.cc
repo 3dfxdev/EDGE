@@ -575,6 +575,8 @@ static void DeathThink(player_t * player)
 
 	if (player->cmd.buttons & BT_USE)
 		player->playerstate = PST_REBORN;
+
+	cameraroll = 70.0f;//TODO: lerp it!
 }
 
 static void P_UpdatePowerups(player_t *player)
