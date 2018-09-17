@@ -25,6 +25,10 @@
 #ifndef __COAL_API_H__
 #define __COAL_API_H__
 
+#ifdef _MSC_VER
+#define strdup _strdup
+#endif
+
 namespace coal
 {
 

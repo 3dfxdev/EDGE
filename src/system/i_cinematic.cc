@@ -47,7 +47,6 @@
 #include "z_zone.h"
 
 
-
 static short cin_cr2rTable[256];
 static short cin_cb2gTable[256];
 static short cin_cr2gTable[256];
