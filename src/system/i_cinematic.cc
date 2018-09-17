@@ -24,66 +24,29 @@
 //--------------------------------
 #ifndef USE_FFMPEG //define this first, in case people want to compile with i_ffmpeg instead of our ROQ cinematic decoder.
 
-#include "../../epi/epi.h"
-#include "../../epi/bytearray.h"
-#include "../../epi/file.h"
-#include "../../epi/filesystem.h"
-#include "../../epi/math_oddity.h"
-#include "../../epi/endianess.h"
+#include <signal.h>
 #include "i_defs.h"
 #include "i_defs_gl.h"
 #include "i_sdlinc.h"
 #include "i_system.h"
 #include "i_cinematic.h"
-#include "z_zone.h"
 
-
-#include "s_blit.h"
-#include "s_sound.h"
-
-#include "m_misc.h"
-
-#include <signal.h>
-
+#include "dm_state.h"
 #include "con_main.h"
 #include "e_input.h"
+#include "e_main.h"
 #include "m_argv.h"
 #include "m_menu.h"
 #include "m_misc.h"
-#include "r_modes.h"
-
-#include "dm_state.h"
-#include "w_wad.h"
-#include "e_main.h"
 #include "r_gldefs.h"
 #include "r_image.h"
+#include "r_modes.h"
+#include "s_blit.h"
+#include "s_sound.h"
+#include "w_wad.h"
+#include "z_zone.h"
 
-typedef struct
-{
-	bool                playing;
 
-	char                name[254];
-	int                 flags;
-
-	epi::file_c         *file;
-	int                 size;
-	int                 offset;
-
-	int                 startTime;
-
-	int                 frameRate;
-	int                 frameWidth;
-	int                 frameHeight;
-	int                 frameCount;
-	byte *              frameBuffer[2];
-
-	int                 sampleRate;
-	int                 nextSample;
-	short *             soundSamples;
-
-	roqChunkHeader_t    chunkHeader;
-}
-cinematic_t;
 
 static short cin_cr2rTable[256];
 static short cin_cb2gTable[256];

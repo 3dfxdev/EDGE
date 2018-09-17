@@ -1,9 +1,36 @@
- /*==============================================================================
+//----------------------------------------------------------------------------
+//  EDGE Cinematic Playback Engine (ROQ)
+//----------------------------------------------------------------------------
+//
+//  Copyright (c) 2018 The EDGE Team
+//
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//----------------------------------
+//  Based on the Quake 3 Arena source code, released by Id Software under the
+//  following copyright:
+//
+//    Copyright (C) 1996-2005 by id Software, Inc.
+//
+//  Inspired by cl_cinematic.cpp from OverDose (C) Team Blur Games
+//--------------------------------
+#ifndef __I_CINEMATIC__
+#define __I_CINEMATIC__
 
- CINEMATICS
-
- ==============================================================================
-*/
+#include "../../epi/epi.h"
+#include "../../epi/bytearray.h"
+#include "../../epi/file.h"
+#include "../../epi/filesystem.h"
+#include "../../epi/math_oddity.h"
+#include "../../epi/endianess.h"
 
 #if defined (_M_X64) || (__ia64__)
 #include <xmmintrin.h>
@@ -25,9 +52,9 @@
 #define MAX_CINEMATICS						16
 #define BIT(num)							(1 << (num))
 
-typedef int							cinHandle_t;
+typedef int	cinHandle_t;
 
-cinHandle_t	cinematicHandle;
+static cinHandle_t	cinematicHandle;
 
 typedef enum
 {
@@ -52,7 +79,7 @@ cinHandle_t		CIN_PlayCinematic (const char *name, int flags);
 void    		CIN_UpdateCinematic (cinHandle_t handle, int time, cinData_t *data);
 
 // Update audio stream from cinematic buffer
-void            CIN_UpdateAudio (Uint8 *stream, int len);
+void            CIN_UpdateAudio (u8_t *stream, int len);
 
 // Resets a cinematic
 void			CIN_ResetCinematic (cinHandle_t handle);
@@ -96,3 +123,37 @@ typedef struct
 	u16_t				args;
 }
 roqChunkHeader_t;
+
+
+typedef struct
+{
+	bool                playing;
+
+	char                name[254];
+	int                 flags;
+
+	epi::file_c         *file;
+	int                 size;
+	int                 offset;
+
+	int                 startTime;
+
+	int                 frameRate;
+	int                 frameWidth;
+	int                 frameHeight;
+	int                 frameCount;
+	byte *              frameBuffer[2];
+
+	int                 sampleRate;
+	int                 nextSample;
+	short *             soundSamples;
+
+	roqChunkHeader_t    chunkHeader;
+}
+cinematic_t;
+
+
+#endif // __I_CINEMATIC__
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab
