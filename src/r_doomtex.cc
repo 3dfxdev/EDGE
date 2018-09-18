@@ -103,7 +103,7 @@ int getinfo_patch(u8_t* lump, int len, texbufinfo_t* ti)
 	int cofs = EPI_LE_U16(ppat->columnofs[0]);
 	int width = EPI_LE_U16(ppat->width);
 
-	if (cofs != (10 + width * 2)) 
+	if (cofs != (10 + width * 2))
 	{
 		return 0;
 	}
@@ -121,7 +121,7 @@ int getinfo_patch(u8_t* lump, int len, texbufinfo_t* ti)
 	ti->tofs = to = -ppat->topoffset;
 	ti->osize = ppat->origsize;
 
-	if (ti->rep == REPEAT_AUTO) 
+	if (ti->rep == REPEAT_AUTO)
 	{
 		ti->rep = 0;
 
@@ -343,7 +343,7 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 			else
 				dest[(h1 - 1 - top) * w2] = *src;
 
-			
+
 		}
 
 		patchcol = (const column_t *)((const byte *)patchcol +
@@ -766,7 +766,7 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 			if (offset < 0 || offset >= realsize)
 			{
 				I_Warning("Bad patch image offset 0x%08x in image [%s]\n", offset, rim->name);
-				I_Warning("Patch might be a ROTT patch! \n", rim->name);
+				I_Warning("Patch %s might be a ROTT patch! \n", rim->name);
 				return ReadROTTPatchAsEpiBlock(rim);
 				//break;
 			}
