@@ -315,7 +315,7 @@ static void ImageParseLump(const char *spec)
 	{
 		dynamic_image->format = LIF_PNG;
 	}
-	else if (DDF_CompareName(keyword, "EXT") == 0 ||
+	else if (DDF_CompareName(keyword, "JPEG") == 0 ||
 		DDF_CompareName(keyword, "EXT") == 0)
 	{
 		dynamic_image->format = LIF_EXT;
