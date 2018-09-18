@@ -315,8 +315,7 @@ static void ImageParseLump(const char *spec)
 	{
 		dynamic_image->format = LIF_PNG;
 	}
-	else if (DDF_CompareName(keyword, "JPEG") == 0 ||
-		DDF_CompareName(keyword, "EXT") == 0)
+	else if (DDF_CompareName(keyword, "JPEG") == 0)
 	{
 		dynamic_image->format = LIF_EXT;
 	}
@@ -329,7 +328,8 @@ static void ImageParseLump(const char *spec)
 		dynamic_image->format = LIF_RIM;
 	}
 	else
-		DDF_Error("Unknown image format: %s \n", keyword);
+		dynamic_image->format = LIF_EXT;
+		//DDF_Error("Unknown image format: %s \n", keyword);
 }
 
 static void DDF_ImageGetType(const char *info, void *storage)
