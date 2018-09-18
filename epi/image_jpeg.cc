@@ -36,7 +36,7 @@ namespace epi
 		img = epimg_load(f, read_flags);
         if (!img)
 		{
-			fprintf(stderr, "JPEG_Load - Couldn't load image!\n");
+			fprintf(stderr, "Image Loader - Couldn't load image!\n");
 			return NULL;
 		}
 

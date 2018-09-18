@@ -157,13 +157,14 @@ static void ImageFinishEntry(void)
 			dynamic_image->format = LIF_PNG;
 		else if (DDF_CompareName(ext.c_str(), "jpg") == 0 ||
 			DDF_CompareName(ext.c_str(), "jpeg") == 0)
-			dynamic_image->format = LIF_JPEG;
+			dynamic_image->format = LIF_EXT;
 		else if (DDF_CompareName(ext.c_str(), "tga") == 0)
 			dynamic_image->format = LIF_TGA;
 		else if (DDF_CompareName(ext.c_str(), "lmp") == 0)
 			dynamic_image->format = LIF_RIM;
 		else
-			DDF_Error("Unknown image extension for '%s'\n", filename);
+			//DDF_Error("Unknown image extension for '%s'\n", filename);
+			dynamic_image->format = LIF_EXT;
 	}
 
 	// TODO: check more stuff...
@@ -314,10 +315,10 @@ static void ImageParseLump(const char *spec)
 	{
 		dynamic_image->format = LIF_PNG;
 	}
-	else if (DDF_CompareName(keyword, "JPG") == 0 ||
-		DDF_CompareName(keyword, "JPEG") == 0)
+	else if (DDF_CompareName(keyword, "EXT") == 0 ||
+		DDF_CompareName(keyword, "EXT") == 0)
 	{
-		dynamic_image->format = LIF_JPEG;
+		dynamic_image->format = LIF_EXT;
 	}
 	else if (DDF_CompareName(keyword, "TGA") == 0)
 	{
@@ -328,7 +329,7 @@ static void ImageParseLump(const char *spec)
 		dynamic_image->format = LIF_RIM;
 	}
 	else
-		DDF_Error("Unknown image format: %s (use PNG, TGA, JPEG, or RIM)\n", keyword);
+		DDF_Error("Unknown image format: %s \n", keyword);
 }
 
 static void DDF_ImageGetType(const char *info, void *storage)
@@ -450,7 +451,7 @@ void imagedef_c::Default()
 	type = IMGDT_Colour;
 	colour = 0x000000;  // black
 	builtin = BLTIM_Quadratic;
-	format = LIF_PNG;
+	format = LIF_EXT; //externally figure out image extension/type
 
 	info.clear();
 

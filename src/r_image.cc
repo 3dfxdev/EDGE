@@ -621,7 +621,7 @@ static image_c *AddImageUser(imagedef_c *def)
 
 		bool got_info;
 
-		if (def->format == LIF_JPEG)
+		if (def->format == LIF_EXT)
 			got_info = epi::JPEG_GetInfo(f, &w, &h, &solid);
 		else if (def->format == LIF_TGA)
 			got_info = epi::TGA_GetInfo(f, &w, &h, &solid);

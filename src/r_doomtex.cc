@@ -920,7 +920,8 @@ static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
 
 	epi::image_data_c *img;
 
-	if (def->format == LIF_JPEG)
+	// NOTE WELL: JPEG_Load does not actually load specifically JPEGs, but is a handle to stb_image's internal decoder! 
+	if (def->format == LIF_EXT)
 		img = epi::JPEG_Load(f, epi::IRF_Round_POW2);
 
 	else if (def->format == LIF_TGA)
