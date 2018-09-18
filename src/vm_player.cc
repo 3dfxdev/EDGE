@@ -752,6 +752,8 @@ void VM_RegisterPlaysim(coal::vm_c *vm)
 	vm->AddNativeFunction("player.is_using",        PL_is_using);
 	vm->AddNativeFunction("player.is_action1",      PL_is_action1);
 	vm->AddNativeFunction("player.is_action2",      PL_is_action2);
+	vm->AddNativeFunction("player.is_action3",		PL_is_action3);
+	vm->AddNativeFunction("player.is_action4",		PL_is_action4);
 	vm->AddNativeFunction("player.is_attacking",    PL_is_attacking);
 	vm->AddNativeFunction("player.is_rampaging",    PL_is_rampaging);
 	vm->AddNativeFunction("player.is_grinning",     PL_is_grinning);

@@ -480,6 +480,7 @@ static void GAME_SetCameraVerticalBobbing(coal::vm_c *vm, int argc)
 		int idx = 0;
 		extern float bob_z_scale;
 		bob_z_scale = (float)*vm->AccessParam(idx++);
+		vm->ReturnFloat(bob_z_scale);
 	}
 }
 
@@ -491,6 +492,7 @@ static void GAME_SetCameraRollBobbing(coal::vm_c *vm, int argc)
 		int idx = 0;
 		extern float bob_r_scale;
 		bob_r_scale = (float)*vm->AccessParam(idx++);
+		vm->ReturnFloat(bob_r_scale);
 	}
 }
 

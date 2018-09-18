@@ -740,7 +740,7 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 
 				break;
 
-/* 			case COND_Action3:
+ 			case COND_Action3:
 				if (!p)
 					return false;
 
@@ -760,7 +760,7 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 				if ((!cond->negate && !temp) || (cond->negate && temp))
 					return false;
 
-				break; */
+				break; 
 
 			case COND_Walking:
 				if (!p)

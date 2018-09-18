@@ -86,7 +86,6 @@ module math
     }
 }
 
-
 // STRINGS
 
 module strings
@@ -96,6 +95,15 @@ module strings
     function tonumber(s : string) : float = native
 }
 
+// CAMERA-MAN LIBRARY
+module cam
+{
+    var bob_z_scale
+	var bob_r_scale
+	
+	function set_vert_bob (bob_z_scale : float) = native
+	function set_roll_bob (bob_r_scale : float) = native
+}
 
 // HUD LIBRARY
 
@@ -255,6 +263,7 @@ module player
     function get_pos()   : vector = native
     function get_angle() : float  = native
     function get_mlook() : float  = native
+	
 
     function health()      : float = native
     function armor(type)   : float = native
@@ -269,6 +278,8 @@ module player
     function is_using()     : float = native
     function is_action1()   : float = native
     function is_action2()   : float = native
+	function is_action3()   : float = native
+	function is_action4()   : float = native
     function is_attacking() : float = native
     function is_rampaging() : float = native
     function is_grinning()  : float = native
@@ -277,6 +288,7 @@ module player
     function on_ground()    : float = native
     function move_speed()   : float = native
     function air_in_lungs() : float = native
+	function get_side_move() : float = native
 
     function has_key(key)     : float = native
     function has_power(type)  : float = native

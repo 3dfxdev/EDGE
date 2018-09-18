@@ -29,8 +29,8 @@
 // Misc. other strings.
 #define REQUIREDWAD    "edge"
 #define REQUIREDPAK    "edge2" // this will become edge2.epk
-#define EDGECONFIGFILE "EDGE2.cfg"
-#define EDGELOGFILE    "EDGE2.log"
+#define EDGECONFIGFILE "EDGE.ini"
+#define EDGELOGFILE    "EDGE.log"
 #define REQHERETICPWAD "herfix" //Not needed anymore..?
 
 #define EDGEGWAEXT     "gwa"

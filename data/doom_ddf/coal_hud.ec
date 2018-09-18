@@ -10,6 +10,8 @@ var face_image : string
 var face_time : float
 var w_message : string
 var text_float : float
+var bob_z_scale : float
+var bob_r_scale : float
 
 
 function doom_weapon_icon(slot, x, y, off_pic : string, on_pic : string) =
@@ -70,6 +72,20 @@ function turn_digit() : string =
     if (r < 0.67) return "1"
     return "2"
 }
+
+// bob_z_scale | bob_r_scale
+// verticle bob = 0 for OFF, 1.0 is normal value_comp
+// camera_roll = 0 for OFF, 0.5 is normal value 
+// combine with player_get_side_move() for camera_roll "strafing"
+//function set_player_camera() : float = 
+//{
+//   var bob_r_scale = cam.set_vert_bob()
+//   var bob_z_scale = cam.set_roll_bob()
+//   
+//   bob_r_scale = 1
+//   bob_z_scale = 0
+//   //return
+//}
 
 function select_new_face() =
 {
@@ -1780,6 +1796,7 @@ function edge_air_bar() =
 
 function begin_level() =
 {
+	//cam.set_player_camera()
 }
 
 function draw_all() =
@@ -1793,7 +1810,6 @@ function draw_all() =
         doom_automap()
         return
     }
-	
 
     // there are three standard HUDs
     var which = hud.which_hud() % 4
@@ -1812,7 +1828,9 @@ function draw_all() =
 		zdoom_overlay_status()
 
     edge_air_bar()
-	// message_ticker()
+	cam.set_vert_bob(1.0)
+	cam.set_roll_bob(0.25)
+   
 }
 
 function draw_split() =
