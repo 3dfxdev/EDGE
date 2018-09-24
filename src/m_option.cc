@@ -1988,9 +1988,10 @@ static void M_OptionSetResolution(int keypressed)
 {
 	if (R_ChangeResolution(&new_scrmode))
 	{
-		RGL_InitRenderBuffers(); //this is already inited in the HUD code, so maybe we need to shut the HUD down?
+		HUD_Reset(); // Reset COAL
+		//RGL_InitRenderBuffers(); //this is already inited in the HUD code, so maybe we need to shut the HUD down?
 		R_SoftInitResolution();
-		FGLRenderBuffers* renderbuffers = FGLRenderBuffers::Instance(); //Recreates the HUD 
+		//FGLRenderBuffers* renderbuffers = FGLRenderBuffers::Instance(); //Recreates the HUD 
 	}
 	else
 	{

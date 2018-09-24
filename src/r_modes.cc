@@ -31,10 +31,12 @@
 #include <vector>
 #include <algorithm>
 
+#include "hu_draw.h"
 #include "r_modes.h"
 #include "r_gldefs.h"
 #include "r_colormap.h"
 #include "am_map.h"
+#include "r_renderbuffers.h"
 #include "r_image.h"
 #include "r_units.h"
 #include "r_draw.h"
@@ -220,6 +222,8 @@ void R_SoftInitResolution(void)
 	RGL_SoftInit();
 	RGL_SoftInitUnits();	// -ACB- 2004/02/15 Needed to sort vars lost in res change
 
+	//HUD_Reset(); // Reset COAL
+
 	L_WriteDebug("-  returning true.\n");
 
 	return ;
@@ -231,6 +235,8 @@ static bool DoExecuteChangeResolution(scrmode_c *mode)
 	RGL_StopWipe();  // delete any wipe texture too
 
 	W_DeleteAllImages();
+
+	HUD_Reset();
 
 	bool was_ok = I_SetScreenSize(mode);
 
