@@ -20,7 +20,7 @@ echo ""
 
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-	apt-get install -y libsdl2-dev libsdl2-net-dev libpng++-dev libogg-dev libvorbis-dev libghc-zlib-dev libjpeg-turbo8-dev \
+	apt-get install -y libsdl2-dev libsdl2-net-dev libogg-dev libvorbis-dev libghc-zlib-dev \
 		cmake cmake-gui libgl1-mesa-dev g++ make git zlib1g-dev
 	mkdir physfs/build
 	cd physfs/build
