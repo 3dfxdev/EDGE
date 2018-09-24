@@ -1,8 +1,8 @@
-3DGE Library Versions
+EDGE Library Versions
 ===================
-This document outlines the libraries 3DGE needs for compile. 
+This document outlines the libraries EDGE needs for compiling. 
 
-    Please note that all libraries **must be statically linked** to the EXE (except for SDL2 on Win32).
+Windows x86/x64: Please note that all libraries **must be statically linked** to the EXE (except for SDL2).
 
 ----------
 
@@ -18,5 +18,7 @@ for Visual Studio, here: [tdgmods.net/VSLibs.7z](tdgmods.net/VSLibs.7z). The arc
 when new versions of libraries are built. x64 libraries pre-built for Visual Studio 2017 can be
 downloaded from here: [tdgmods.net/vsLibsx64.7z].
 
+
 Cross-Compile users (Unix-based) must build these libraries from scratch. Just look
-at the version table above and you should be fine.
+at the version table above and you should be fine. You can also look into /quick_setup_scripts to quickly download,
+build, and link the required libraries automatically. 
