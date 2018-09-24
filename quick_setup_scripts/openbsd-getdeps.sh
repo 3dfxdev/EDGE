@@ -17,8 +17,8 @@ echo ""
 
 if [ $REPLY == y ]
 then
-	pkg_add -v sdl2 physfs sdl2-net png \
-		libogg libvorbis jpeg \
+	pkg_add -v sdl2 physfs sdl2-net \
+		libogg libvorbis \
 		cmake git
 fi
 
