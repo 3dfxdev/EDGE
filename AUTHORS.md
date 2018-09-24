@@ -24,15 +24,17 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 * Rachael "Eruanna" Alexanderson: programming
 * Maciej Kadlubowski: programming
 * Brendan "Brendoe1" Doe: programming, support
-* dpJudas: programming
 * Alex "TapamN" Nesemann: programming
+* Andrew Apted: support
 * Anton "UsernameAK" Korzhuk: support
 * Gameblabla: support
 * Ryan "ryan-sg" Freeman: support
 
 ## Codebase Contributors
 ---
+* dpJudas: programming
 * Josh "Ph3nom" Pearson: KOS OpenGL programming
+* Kazade: KOS GLdc Library and Support
 * Birger N. Andreasen (WinROTT, Rise of the Triad support)
 * Benjamin "The Zombie Killer" Moir (Visual Studio/CMake support)
 * AlexeyNukeyT (OPL and sound code)
@@ -41,7 +43,6 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
 ## Special Thanks
 ---
-* Andrew Apted (additional programming, bug fixes)
 * Graf Zahl (for his ongoing wisdom, contributions, and guidance)
 * Marisa Heit (most amazing woman in the community, TBH ;)
 * Blzut3 (ECWolf, Wolf3D/ROTT technical support)
@@ -50,10 +51,10 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 * Quasar (Eternity Engine, dynaBSP/midi_RPC stuff)
 * KnightMare (KMQuake 2 backends, Splines help)
 * Kaiser (Doom64-ex, KEX-lib support)
-* ctd1500
-* Dan Loosen
-* Gary Heil
-* Winston "Zardoz" Branyon 
+* ctd1500 (networking, wiki/server backend)
+* Dan Loosen (GOAT Store Publishing, LLC)
+* Gary Heil (GOAT Store Publishing, LLC)
+* Winston "Zardoz" Branyon (support)
 
 ## Original EDGE Team (1999-2011):
 ![alt text](http://3dfxdev.net/edgewiki/images/f/f6/EDGElogo.jpg "EDGE")
