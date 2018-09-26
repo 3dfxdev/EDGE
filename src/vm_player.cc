@@ -726,6 +726,22 @@ static void PL_hurt_angle(coal::vm_c *vm, int argc)
 }
 
 
+// player.add_tactile(id, freq, amp)
+//
+static void PL_add_tactile(coal::vm_c *vm, int argc)
+{
+	if (argc == 4)
+	{
+		int idx = 0;
+		int playerId = (int)*vm->AccessParam(idx++);
+		int freq = (int)*vm->AccessParam(idx++);
+		int ampl = (int)*vm->AccessParam(idx++);
+
+		I_Tactile(freq, ampl, playerId);
+	}
+}
+
+
 //------------------------------------------------------------------------
 
 
@@ -784,6 +800,7 @@ void VM_RegisterPlaysim(coal::vm_c *vm)
 	vm->AddNativeFunction("player.hurt_pain",       PL_hurt_pain);
 	vm->AddNativeFunction("player.hurt_dir",        PL_hurt_dir);
 	vm->AddNativeFunction("player.hurt_angle",      PL_hurt_angle);
+	vm->AddNativeFunction("player.add_tactile",     PL_add_tactile);
 }
 
 
