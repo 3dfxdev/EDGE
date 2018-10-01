@@ -497,7 +497,7 @@ static void SegCommonStuff(seg_t *seg, int linedef  )
 		if (! seg->sidedef)
 			I_Error("Bad GWA file: missing side for seg #%d\n", (int)(seg - segs));
 
-		seg->frontsector = seg->sidedef->sector;
+		seg->frontsector = seg->sidedef->sector; //TODO: V1004 https://www.viva64.com/en/w/v1004/ The 'seg->sidedef' pointer was used unsafely after it was verified against nullptr. Check lines: 497, 500.
 
 		if (seg->linedef->flags & MLF_TwoSided)
 		{
@@ -520,7 +520,8 @@ static void LoadV3Segs(const byte *data, int length)
 
 	segs = new seg_t[numsegs];
 
-	Z_Clear(segs, seg_t, numsegs);
+	Z_Clear(segs, seg_t, numsegs); 
+	//TODO: V782 https://www.viva64.com/en/w/v782/ There is no sense in evaluating the distance between elements from different arrays: '(segs) - ((seg_t *)(segs))'.
 
 	// check both V3 and V5 bits
 	unsigned int VERTEX_V3_OR_V5 = SF_GL_VERTEX_V3 | SF_GL_VERTEX_V5;
@@ -1854,7 +1855,7 @@ static void LoadZNodes(int lumpnum)
 		ss->sec_next = ss->sector->subsectors;
 		ss->sector->subsectors = ss;
 	}
-	delete ss_temp;
+	delete [] ss_temp; //CA 9.30.18: allocated with new but released using delete, added [] between delete and ss_temp
 
 	if (M_CheckParm("-fixsegs"))
 	{
@@ -3812,7 +3813,7 @@ static void SetupUDMFSpecials(void)
 				if (ls)
 				{
 					// duplicate special
-					linetype_c *lt = (linetype_c *)malloc(sizeof(linetype_c));
+					linetype_c *lt = (linetype_c *)Z_Malloc(sizeof(linetype_c)); //supress high: swapped malloc with Z_Malloc
 					memcpy(lt, ls, sizeof(linetype_c));
 					// make changes
 					lt->number = -1; // custom copy - no lookup on load

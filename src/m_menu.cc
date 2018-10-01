@@ -2045,9 +2045,9 @@ bool M_Responder(event_t * ev)
 
 		if ((ch == KEYD_BACKSPACE || ch == KEYD_DELETE) && !input_string.empty())
 		{
-			std::string s = input_string.c_str();
+			std::string s = input_string.c_str(); //TODO: V811 https://www.viva64.com/en/w/v811/ Decreased performance. Excessive type casting: string -> char * -> string. Consider inspecting the 'input_string.c_str()' expression. //TODO: V808 https://www.viva64.com/en/w/v808/ 's' object of 'basic_string' type was created but was not utilized.
 
-			if (input_string.size() > 0)
+			if (input_string.size() > 0) //TODO: V547 https://www.viva64.com/en/w/v547/ Expression 'input_string.size() > 0' is always true.
 			{
 				input_string.resize(input_string.size() - 1);
 			}

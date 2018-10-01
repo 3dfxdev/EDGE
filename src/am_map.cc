@@ -284,7 +284,7 @@ static void AM_Show(void)
 		AM_Stop();
 		return;
 
-	AM_InitLevel();
+	AM_InitLevel(); //TODO: V779 https://www.viva64.com/en/w/v779/ Unreachable code detected. It is possible that an error is present.
 
 	stopped  = false;
 
@@ -359,7 +359,7 @@ bool AM_Responder(event_t * ev)
 
     // --- handle key presses ---
 
-	if (ev->type != ev_keydown)
+	if (ev->type != ev_keydown) //TODO: V547 https://www.viva64.com/en/w/v547/ Expression 'ev->type != ev_keydown' is always false.
 		return false;
 
 	if (! followplayer)

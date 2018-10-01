@@ -154,11 +154,11 @@ void P_ClearPolyobjects(void)
 void P_AddPolyobject(int ix, line_t *start)
 {
 	if (numpolyobjs)
-		polyobjects = (polyobj_t*)realloc(polyobjects, (numpolyobjs + 1) * sizeof(polyobj_t));
+		polyobjects = (polyobj_t*)realloc(polyobjects, (numpolyobjs + 1) * sizeof(polyobj_t)); //TODO: V701 https://www.viva64.com/en/w/v701/ realloc() possible leak: when realloc() fails in allocating memory, original pointer 'polyobjects' is lost. Consider assigning realloc() to a temporary pointer.
 	else
 		polyobjects = (polyobj_t*)malloc((numpolyobjs + 1) * sizeof(polyobj_t));
 
-	polyobj_t *po = polyobjects + numpolyobjs;
+	polyobj_t *po = polyobjects + numpolyobjs; //TODO: V769 https://www.viva64.com/en/w/v769/ The 'polyobjects' pointer in the 'polyobjects + numpolyobjs' expression could be nullptr. In such case, resulting value will be senseless and it should not be used.
 	numpolyobjs++;
 	memset((void*)po, 0, sizeof(polyobj_t));
 
@@ -166,7 +166,7 @@ void P_AddPolyobject(int ix, line_t *start)
 	po->start = start;
 
 	//I_Printf("P_AddPolyobject: Added PO %d for line %p\n", ix, start);
-}
+} //TODO: V773 https://www.viva64.com/en/w/v773/ Visibility scope of the 'po' pointer was exited without releasing the memory. A memory leak is possible.
 
 // called once after level data is loaded to alter PO vertexes to where they should appear
 void P_PostProcessPolyObjs(void)

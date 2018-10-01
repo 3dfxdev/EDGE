@@ -549,7 +549,7 @@ void styledef_c::Default()
 
 	sounds.Default();
 
-	special = (style_special_e)0;
+	special = (style_special_e)0; //TODO: V1016 https://www.viva64.com/en/w/v1016/ The value '0' is out of range of enum values. This causes unspecified or undefined behavior.
 }
 
 // --> map definition container class

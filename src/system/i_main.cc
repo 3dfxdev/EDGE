@@ -168,7 +168,7 @@ fflush(stdout);
 			I_Printf(" %s", dcargv[ix]);
 		}
 
-		fclose(dcph);
+		fclose(dcph); //TODO: V1004 https://www.viva64.com/en/w/v1004/ The 'dcph' pointer was used unsafely after it was verified against nullptr. Check lines: 149, 171.
 		dcargc = ix;
 		I_Printf("\n");
 		fflush(stdout);

@@ -60,7 +60,7 @@ typedef int socklen_t;
 #endif
 
 
-class net_address_c
+class net_address_c //TODO: V690 https://www.viva64.com/en/w/v690/ The 'net_address_c' class implements a copy constructor, but lacks the '=' operator. It is dangerous to use such a class.
 {
 public:
 	byte addr[4];

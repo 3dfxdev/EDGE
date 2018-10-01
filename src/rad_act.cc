@@ -20,6 +20,7 @@
 //
 
 #include "system/i_defs.h"
+#include "system/i_cinematic.h"
 
 #include <limits.h>
 
@@ -48,6 +49,9 @@
 #include "w_wad.h"
 #include "w_texture.h"
 #include "z_zone.h"
+
+extern void E_PlayMovie(const char *name, int flags);
+
 
 // current tip slots
 drawtip_t tip_slots[MAXTIPSLOT];
@@ -656,6 +660,16 @@ void RAD_ActChangeMusic(rad_trigger_t *R, void *param)
 	s_music_t *music = (s_music_t *) param;
 
 	S_ChangeMusic(music->playnum, music->looping);
+}
+
+void RAD_ActPlayCinematic(rad_trigger_t *R, void *param)
+{
+	cinematic_t *cin = (cinematic_t *) param;
+
+	//cin->playing = true;
+
+	E_PlayMovie("/pack0/video/intro.roq", 1);
+	cin->playing = true;
 }
 
 void RAD_ActChangeTex(rad_trigger_t *R, void *param)

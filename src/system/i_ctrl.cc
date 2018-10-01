@@ -89,7 +89,7 @@ int TranslateSDLKey(int key)
 	// if keypad is not wanted, convert to normal keys
 	if (! in_keypad.d)
 	{
-		if (SDLK_KP_0 <= key && key <= SDLK_KP_9)
+		if (SDLK_KP_0 <= key && key <= SDLK_KP_9) //TODO: V560 https://www.viva64.com/en/w/v560/ A part of conditional expression is always false: key <= SDLK_KP_9.
 			return '0' + (key - SDLK_KP_0);
 
 		switch (key)

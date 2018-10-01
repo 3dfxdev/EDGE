@@ -490,7 +490,7 @@ namespace cameraman
 						if (!name)
 							strncpy(cam->name, sname.c_str(), sname.size());
 						else
-							strncpy(cam->name, name, strlen(name));
+							strncpy(cam->name, name, strlen(name)); //TODO: V814 https://www.viva64.com/en/w/v814/ Decreased performance. The 'strlen' function was called multiple times inside the body of a loop.
 						return i;
 					}
 				}
@@ -3338,7 +3338,8 @@ static void RGL_WalkPolyobject(drawsub_c *dsub, mobj_t *mo)
 	polyobj_t *po = P_GetPolyobject(mo->po_ix);
 	if (!po)
 	{
-		I_Debugf("RGL_WalkPolyobject: No PO %d!\n", po->index);
+		I_Debugf("RGL_WalkPolyobject: No PO %d!\n", po->index); 
+		//TODO: V522 https://www.viva64.com/en/w/v522/ Dereferencing of the null pointer 'po' might take place.
 		return;
 	}
 
@@ -3971,7 +3972,7 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 
 	if (player_t *hero = players[0])
 	{
-		hero->mo->visibility = (!pcman);
+		hero->mo->visibility = (!pcman); //TODO: V601 https://www.viva64.com/en/w/v601/ The bool type is implicitly cast to the float type.
 	}
 
 	if (!pcman && mo->player && mo->player->zoom_fov > 0)

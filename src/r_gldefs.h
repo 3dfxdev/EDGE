@@ -230,7 +230,7 @@ public:
 	std::list<drawsub_c *> drawsubs;
 
 public:
-	drawmirror_c() : seg(NULL), is_portal(false), drawsubs()
+	drawmirror_c() : seg(NULL), is_portal(false), drawsubs() //TODO: V730 https://www.viva64.com/en/w/v730/ Not all members of a class are initialized inside the constructor. Consider inspecting: left, right.
 	{ }
 
 	~drawmirror_c()
@@ -271,7 +271,7 @@ public:
 	bool sorted;
 
 public:
-	drawsub_c() : sub(NULL), floors(), segs(), mirrors()
+	drawsub_c() : sub(NULL), floors(), segs(), mirrors() //TODO: V730 https://www.viva64.com/en/w/v730/ Not all members of a class are initialized inside the constructor. Consider inspecting: floors_R, visible, sorted.
 	{ }
 
 	~drawsub_c()

@@ -54,7 +54,7 @@ namespace epi
 		void* ExpandAtTail(void);
 		
 		void* FetchObjectDirect(int pos) const
-			{ return (void*)&array[pos*array_block_objsize]; }
+			{ return (void*)&array[pos*array_block_objsize]; } //TODO: V108 https://www.viva64.com/en/w/v108/ Incorrect index type: array[not a memsize-type]. Use memsize type instead.
 
 		void ShrinkAtTail(void);
 		
@@ -62,7 +62,7 @@ namespace epi
 		void DecrementCount()
 		{
 			array_entries--;
-			array_end -= array_block_objsize;
+			array_end -= array_block_objsize; //TODO: V102 https://www.viva64.com/en/w/v102/ Usage of non memsize type for pointer arithmetic.
 		}
 		 
 		void IncrementCount()
@@ -74,7 +74,7 @@ namespace epi
 		void SetCount(int count)
 		{
 			array_entries = count; 
-			array_end = array + (array_block_objsize*array_entries); 
+			array_end = array + (array_block_objsize*array_entries);  //TODO: V104 https://www.viva64.com/en/w/v104/ Implicit conversion of '(array_block_objsize * array_entries)' to memsize type in an arithmetic expression.
 		}
 		
 	public:
@@ -126,7 +126,7 @@ namespace epi
 
 		bool IsValid()
 		{
-			return ((parent->array + idx) >= parent->array_end)?false:true;
+			return ((parent->array + idx) >= parent->array_end)?false:true; //TODO: V104 https://www.viva64.com/en/w/v104/ Implicit conversion of 'idx' to memsize type in an arithmetic expression: parent->array + idx
 		}
 
 		void SetPos(int pos) { idx = pos * parent->array_block_objsize; }

@@ -17,6 +17,7 @@
 //----------------------------------------------------------------------------
 
 #include "system/i_defs.h"
+#include "system/i_cinematic.h"
 
 #include <limits.h>
 
@@ -36,7 +37,6 @@
 #include "version.h"
 #include "z_zone.h"
 #include "con_main.h"
-
 
 typedef struct define_s
 {
@@ -436,7 +436,7 @@ static bool CheckForBoolean(const char *s)
 	return false;
 }
 
-#if 0 // UNUSED
+#if 1 // UNUSED
 static void DoParsePlayerSet(const char *info, u32_t *set)
 {
 	const char *p = info;
@@ -867,7 +867,7 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 	this_rad->rad_x = -1;
 	this_rad->rad_y = -1;
 	this_rad->rad_z = -1;
-	this_rad->appear = DEFAULT_APPEAR;
+	this_rad->appear = DEFAULT_APPEAR; //TODO: V1016 https://www.viva64.com/en/w/v1016/ The value '(0xFFFF)' is out of range of enum values. This causes unspecified or undefined behavior.
 	this_rad->min_players = 0;
 	this_rad->max_players = MAXPLAYERS;
 	this_rad->absolute_req_players = 1;
@@ -1518,7 +1518,7 @@ static void RAD_ParseSpawnThing(int pnum, const char **pars)
 	else
 		t->z = this_rad->z - this_rad->rad_z;
 
-	t->appear = DEFAULT_APPEAR;
+	t->appear = DEFAULT_APPEAR; //TODO: V1016 https://www.viva64.com/en/w/v1016/ The value '(0xFFFF)' is out of range of enum values. This causes unspecified or undefined behavior.
 
 	t->ambush = DDF_CompareName("SPAWNTHING_AMBUSH", pars[0]) == 0;
 	t->spawn_effect = DDF_CompareName("SPAWNTHING_FLASH", pars[0]) == 0;
@@ -1637,6 +1637,20 @@ static void RAD_ParseChangeMusic(int pnum, const char **pars)
 	music->looping = true;
 
 	AddStateToScript(this_rad, 0, RAD_ActChangeMusic, music);
+}
+
+static void RAD_ParseChangeCinematic(int pnum, const char **pars)
+{
+	cinematic_t *cin = Z_New(cinematic_t, 1);
+
+	Z_Clear(cin, cinematic_t, 1);
+
+	//cin->name = Z_StrDup(pars[1]);
+
+	//cin->playing = true;
+	//RAD_CheckForInt(pars[1], &cin->file);
+
+	AddStateToScript(this_rad, 0, RAD_ActPlayCinematic, cin);
 }
 
 static void RAD_ParseDamagePlayer(int pnum, const char **pars)
@@ -2281,6 +2295,7 @@ static const rts_parser_t radtrig_parsers[] =
 	{2, "RETRIGGER", 1,1, RAD_ParseRetrigger},
 	{2, "CHANGE_TEX", 3,5, RAD_ParseChangeTex},
 	{2, "CHANGE_MUSIC", 2,2, RAD_ParseChangeMusic},
+	{2, "PLAY_CINEMATIC", 1,1, RAD_ParseChangeCinematic},
 	{2, "SHOW_MENU", 2,99, RAD_ParseShowMenu},
 	{2, "SHOW_MENU_LDF", 2,99, RAD_ParseShowMenu},
 	{2, "MENU_STYLE", 2,2, RAD_ParseMenuStyle},

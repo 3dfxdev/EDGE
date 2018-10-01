@@ -45,8 +45,8 @@ public: //// private:
 	int total_len;
 
 public:
-	graph_info_c() : num_chunks(0), pics(NULL) { }
-	~graph_info_c() { }
+	graph_info_c() : num_chunks(0), pics(NULL) { } //TODO: V730 https://www.viva64.com/en/w/v730/ Not all members of a class are initialized inside the constructor. Consider inspecting: fp, total_len.
+	~graph_info_c() { } //TODO: V773 https://www.viva64.com/en/w/v773/ The 'pics' pointer was not released in destructor. A memory leak is possible.
 
 	void Setup(int _chunks)
 	{
@@ -111,7 +111,7 @@ void Load_VgaDict()
 	FILE *fp = fopen("VGADICT.WL6", "rb");
 	if (! fp) I_Error("Missing VGADICT file.\n");
 
-	fread(&gfx_huffman, 1024, 1, fp);
+	fread(&gfx_huffman, 1024, 1, fp); //TODO: V1004 https://www.viva64.com/en/w/v1004/ The 'fp' pointer was used unsafely after it was verified against nullptr. Check lines: 112, 114.
 
 	fclose(fp);
 
@@ -158,7 +158,7 @@ void Load_VgaHead()
 	FILE *fp = fopen("VGAHEAD.WL6", "rb");
 	if (! fp) I_Error("Missing VGAHEAD file.\n");
 
-	int len = ut_file_length(fp);
+	int len = ut_file_length(fp); //TODO: V1004 https://www.viva64.com/en/w/v1004/ The 'fp' pointer was used unsafely after it was verified against nullptr. Check lines: 159, 161.
 
 	if (len < 3) throw "fucked up vgahead"; //!!!
 

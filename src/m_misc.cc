@@ -379,7 +379,8 @@ void M_LoadDefaults(void)
 		std::string newstr;
 		bool isstring = false;
 
-		if (fscanf(f, "%79s %[^\n]\n", def, strparm) != 2)
+		if (fscanf(f, "%79s %[^\n]\n", def, strparm) != 2) 
+			//TODO: V576 https://www.viva64.com/en/w/v576/ Incorrect format. Consider checking the fourth actual argument of the 'fscanf' function. It's dangerous to use string specifier without width specification. Buffer overflow is possible.
 			continue;
 
 		// console var?
@@ -405,7 +406,8 @@ void M_LoadDefaults(void)
 			newstr = std::string(strparm + 1);
 		}
 		else if (strparm[0] == '0' && strparm[1] == 'x')
-			sscanf(strparm + 2, "%x", &parm);
+			sscanf(strparm + 2, "%x", &parm); 
+		//TODO: V576 https://www.viva64.com/en/w/v576/ Incorrect format. Consider checking the third actual argument of the 'sscanf' function. A pointer to the unsigned int type is expected.
 		else
 			sscanf(strparm, "%i", &parm);
 

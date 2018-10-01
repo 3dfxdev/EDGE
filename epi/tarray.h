@@ -149,7 +149,7 @@ public:
 	{
 		NoInit
 	};
-	TArray(ENoInit dummy)
+	TArray(ENoInit dummy) //TODO: V730 https://www.viva64.com/en/w/v730/ Not all members of a class are initialized inside the constructor. Consider inspecting: Count, Most.
 	{
 	}
 	////////

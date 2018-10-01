@@ -387,7 +387,7 @@ void P_NewChaseDir(mobj_t * object)
 	}
 	else
 	{
-		for (tdir = DI_SOUTHEAST; tdir != (dirtype_e)(DI_EAST - 1); tdir = (dirtype_e)((int)tdir-1))
+		for (tdir = DI_SOUTHEAST; tdir != (dirtype_e)(DI_EAST - 1); tdir = (dirtype_e)((int)tdir-1)) //TODO: V1016 https://www.viva64.com/en/w/v1016/ The value '(DI_EAST - 1)' is out of range of enum values. This causes unspecified or undefined behavior.
 		{
 			if (tdir != turnaround)
 			{

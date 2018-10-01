@@ -43,7 +43,7 @@
 class ddf_bi_lang_c
 {
 public:
-	ddf_bi_lang_c()
+	ddf_bi_lang_c() //TODO: V730 https://www.viva64.com/en/w/v730/ Not all members of a class are initialized inside the constructor. Consider inspecting: currlang.
 	{
 		treehead = NULL;
 	}
@@ -55,7 +55,7 @@ public:
 
 	struct langentry_s
 	{
-		langentry_s()
+		langentry_s() //TODO: V730 https://www.viva64.com/en/w/v730/ Not all members of a class are initialized inside the constructor. Consider inspecting: lang.
 		{
 			// Binary tree for sorting
 			left = NULL;
@@ -483,7 +483,7 @@ void DDF_LanguageCleanUp(void)
 //
 // language_c Constructor
 //
-language_c::language_c()
+language_c::language_c() //TODO: V730 https://www.viva64.com/en/w/v730/ Not all members of a class are initialized inside the constructor. Consider inspecting: values.
 {
 	current = -1;
 }

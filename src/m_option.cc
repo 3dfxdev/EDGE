@@ -1102,7 +1102,7 @@ void M_OptDrawer()
 			k = 0;
 			for (j = 0; j < M_GetCurrentSwitchValue(&curr_menu->items[i]); j++)
 			{
-				while ((curr_menu->items[i].typenames[k] != '/') && (k < strlen(curr_menu->items[i].typenames)))
+				while ((curr_menu->items[i].typenames[k] != '/') && (k < strlen(curr_menu->items[i].typenames))) //TODO: V814 https://www.viva64.com/en/w/v814/ Decreased performance. Calls to the 'strlen' function have being made multiple times when a condition for the loop's continuation was calculated.
 					k++;
 
 				k++;
@@ -1111,7 +1111,7 @@ void M_OptDrawer()
 			if (k < strlen(curr_menu->items[i].typenames))
 			{
 				j = 0;
-				while ((curr_menu->items[i].typenames[k] != '/') && (k < strlen(curr_menu->items[i].typenames)))
+				while ((curr_menu->items[i].typenames[k] != '/') && (k < strlen(curr_menu->items[i].typenames))) //TODO: V814 https://www.viva64.com/en/w/v814/ Decreased performance. Calls to the 'strlen' function have being made multiple times when a condition for the loop's continuation was calculated.
 				{
 					tempstring[j] = curr_menu->items[i].typenames[k];
 					j++;
@@ -1397,7 +1397,7 @@ bool M_OptResponder(event_t * ev, int ch)
 		default:
 			break;
 		}
-	}
+	} //TODO: V796 https://www.viva64.com/en/w/v796/ It is possible that 'break' statement is missing in switch statement.
 
 	case KEYD_RIGHTARROW:
 		if (curr_menu->key_page[0])

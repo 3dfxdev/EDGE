@@ -140,7 +140,7 @@ angle_t R_PointToAngleEx(float x, float y)
 		// e6y: here is where "slime trails" can SOMETIMES occur
 
 		if (y_viewy < INT_MAX / 4 && x_viewx < INT_MAX / 4
-			&& y_viewy > -INT_MAX / 4 && x_viewx > -INT_MAX / 4)
+			&& y_viewy > -INT_MAX / 4 && x_viewx > -INT_MAX / 4) //TODO: V605 https://www.viva64.com/en/w/v605/ Consider verifying the expression: y_viewy > - 2147483647 / 4. An unsigned value is compared to the number -536870911.
 
 			return R_PointToAngle(viewx, viewy, x, y);
 	}

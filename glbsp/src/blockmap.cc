@@ -154,7 +154,8 @@ int CheckLinedefInsideBox(int xmin, int ymin, int xmax, int ymax,
 
 static void BlockAdd(int blk_num, int line_index)
 {
-  uint16_g *cur = block_lines[blk_num];
+  uint16_g *cur = block_lines[blk_num]; 
+  //TODO: V781 https://www.viva64.com/en/w/v781/ The value of the 'blk_num' variable is checked after it was used. Perhaps there is a mistake in program logic. Check lines: 157, 163.
 
 # if DEBUG_BLOCKMAP
   PrintDebug("Block %d has line %d\n", blk_num, line_index);
@@ -457,7 +458,7 @@ static void WriteBlockmap(void)
       InternalError("WriteBlockmap: block %d is NULL !", i);
 
     AppendLevelLump(lump, &m_zero, sizeof(uint16_g));
-    AppendLevelLump(lump, blk + BK_FIRST, blk[BK_NUM] * sizeof(uint16_g));
+    AppendLevelLump(lump, blk + BK_FIRST, blk[BK_NUM] * sizeof(uint16_g)); //TODO: V1004 https://www.viva64.com/en/w/v1004/ The 'blk' pointer was used unsafely after it was verified against nullptr. Check lines: 457, 461.
     AppendLevelLump(lump, &m_neg1, sizeof(uint16_g));
   }
 }

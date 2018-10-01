@@ -172,7 +172,7 @@ void WAD::AddData(const byte *data, int size)
 		while (cur_lump->size + size > cur_max_size)
 			cur_max_size *= 2;
 
-		cur_lump->data = (byte *) realloc(cur_lump->data, cur_max_size);
+		cur_lump->data = (byte *) realloc(cur_lump->data, cur_max_size); //TODO: V701 https://www.viva64.com/en/w/v701/ realloc() possible leak: when realloc() fails in allocating memory, original pointer 'cur_lump->data' is lost. Consider assigning realloc() to a temporary pointer.
 
 		if (! cur_lump->data)
 			FatalError("Out of memory (adding %d bytes)\n", size);
@@ -306,7 +306,7 @@ void WAD::Shutdown(void)
 	for (i = 0; i < num_lumps; i++)
 	{
 		free(lumplist[i]->data);
-		free(lumplist[i]);
+		free(lumplist[i]); //TODO: V595 https://www.viva64.com/en/w/v595/ The 'lumplist' pointer was utilized before it was verified against nullptr. Check lines: 309, 314.
 	}
 
 	num_lumps = 0;

@@ -1104,7 +1104,8 @@ static bool P_ActivateSpecialLine(line_t * line,
 	if (special->t.teleport)
 	{
 		if (line->action == 71)
-			texSwitch = EV_Teleport(line, line->args[2], thing, &special->t);
+			texSwitch = EV_Teleport(line, line->args[2], thing, &special->t); 
+		//TODO: V595 https://www.viva64.com/en/w/v595/ The 'line' pointer was utilized before it was verified against nullptr. Check lines: 1107, 1124.
 		else
 			texSwitch = EV_Teleport(line, tag, thing, &special->t);
 	}

@@ -205,7 +205,7 @@ char *safe_strdup(const char *orig)
 
 	char *result = (char *)safe_malloc(len+1);
 
-	strcpy(result, orig);;
+	strcpy(result, orig);; //TODO: V575 https://www.viva64.com/en/w/v575/ The potential null pointer is passed into 'strcpy' function. Inspect the first argument.
 
 	return result;
 }
@@ -231,7 +231,7 @@ void add_to_pathlist(const char *s)
 		return;
 
 	PathList *pl = (PathList*) safe_malloc(sizeof(PathList));
-	pl->path = safe_strdup(s);
+	pl->path = safe_strdup(s); //TODO: V522 https://www.viva64.com/en/w/v522/ There might be dereferencing of a potential null pointer 'pl'.
 
 	// add to head of list (will be checked first)
 	pl->next = pathlist;
@@ -261,7 +261,7 @@ void add_basedir_to_pathlist(const char *s)
 		return;
 
 	char *dir = safe_strdup(s);
-	dir[pos - s] = 0;
+	dir[pos - s] = 0; //TODO: V522 https://www.viva64.com/en/w/v522/ There might be dereferencing of a potential null pointer 'dir'.
 
 	add_to_pathlist(dir);
 

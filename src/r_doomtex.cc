@@ -311,7 +311,7 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 		byte *src = (byte *)patchcol + 3;
 		byte *dest = img->pixels + x;
 
-		if (top < 0)
+		if (top < 0) //TODO: V547 https://www.viva64.com/en/w/v547/ Expression 'top < 0' is always false.
 		{
 			count += top;
 			top = 0;
@@ -383,7 +383,7 @@ static void DrawROTTColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 		byte *src = (byte *)patchcol; // +3;
 		byte *dest = img->pixels + x;
 
-		if (top < 0)
+		if (top < 0) //TODO: V547 https://www.viva64.com/en/w/v547/ Expression 'top < 0' is always false.
 		{
 			count += top;
 			top = 0;
@@ -767,7 +767,8 @@ static epi::image_data_c *ReadPatchAsEpiBlock(image_c *rim)
 			{
 				I_Warning("Bad patch image offset 0x%08x in image [%s]\n", offset, rim->name);
 				I_Warning("Patch %s might be a ROTT patch! \n", rim->name);
-				return ReadROTTPatchAsEpiBlock(rim);
+				return ReadROTTPatchAsEpiBlock(rim); 
+				//TODO: V773 https://www.viva64.com/en/w/v773/ The function was exited without releasing the 'img' pointer. A memory leak is possible.
 				//break;
 			}
 
@@ -935,7 +936,8 @@ static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
 
 	CloseUserFileOrLump(def, f);
 
-	if (!img)
+	if (!img) 
+	//TODO: V614 https://www.viva64.com/en/w/v614/ Potentially uninitialized pointer 'img' used.
 		I_Error("Error occurred loading image file: %s\n",
 			def->info.c_str());
 
@@ -955,7 +957,7 @@ static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
 	SYS_ASSERT(rim->total_h == img->height);
 
 	// CW: Textures MUST tile! If actual size not total size, manually tile
-	if (img->bpp == 3)
+	if (img->bpp == 3) //TODO: V1004 https://www.viva64.com/en/w/v1004/ The 'img' pointer was used unsafely after it was verified against nullptr. Check lines: 939, 960.
 	{
 		if (rim->actual_w != rim->total_w)
 		{

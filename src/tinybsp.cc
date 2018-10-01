@@ -374,7 +374,8 @@ static void Poly_CreateSegs(subsector_t *sub)
 		{
 			left = CreateOneSeg(ld, ld->backsector, 1, ld->v2, ld->v1 );
 
-			right->partner = left;
+			right->partner = left; 
+			//TODO: V595 https://www.viva64.com/en/w/v595/ The 'right' pointer was utilized before it was verified against nullptr. Check lines: 377, 381.
 			left ->partner = right;
 		}
 
@@ -704,9 +705,9 @@ static bool CoversOneTile(seg_t *seg)
 {
 	float bbox[4];
 
-	////AddSeg(bbox, seg);
+	//AddSeg(bbox, seg);
 
-	if (bbox[BOXRIGHT] - bbox[BOXLEFT] > 64 * (1))
+	if (bbox[BOXRIGHT] - bbox[BOXLEFT] > 64 * (1)) //TODO: V614 https://www.viva64.com/en/w/v614/ Uninitialized variables 'bbox[BOXRIGHT/BOXLEFT/BOXTOP/BOXBOTTOM]' used.
 		return false;
 
 	if (bbox[BOXTOP] - bbox[BOXBOTTOM] > 64 * (1))
@@ -940,8 +941,10 @@ static void Poly_AssignSectors(void)
 		}
 	}
 
+	//TODO: V654 https://www.viva64.com/en/w/v654/ The condition 'loop < 32' of loop is always true. 
+	//TODO: V621 https://www.viva64.com/en/w/v621/ Consider inspecting the 'for' operator. It's possible that the loop will be executed incorrectly or won't be executed at all.
 	// take care of any island subsectors (all segs are minisegs)
-	for (int loop = 0; loop < 32; loop--)
+	for (int loop = 0; loop < 32; loop--) 
 	{
 		int changes = 0;
 

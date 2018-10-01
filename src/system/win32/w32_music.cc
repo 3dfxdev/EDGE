@@ -197,7 +197,7 @@ win32_mixer_t *I_MusicLoadMixer(DWORD type)
 	win32_mixer_t *m;
 
 	m = new win32_mixer_t;
-	if (!m)
+	if (!m) //TODO: V668 https://www.viva64.com/en/w/v668/ There is no sense in testing the 'm' pointer against null, as the memory was allocated using the 'new' operator. The exception will be generated in the case of memory allocation error.
 	{
 		mixerClose(mixer.handle);
 		return NULL;
@@ -225,7 +225,7 @@ bool I_MusicGetMixerVol(win32_mixer_t* mixer, DWORD *vol)
 	MMRESULT res;
 	
 	details = new MIXERCONTROLDETAILS_UNSIGNED[mixer->channels];
-	if (!details)
+	if (!details) //TODO: V668 https://www.viva64.com/en/w/v668/ There is no sense in testing the 'details' pointer against null, as the memory was allocated using the 'new' operator. The exception will be generated in the case of memory allocation error.
 		return false;
 
 	MIXERCONTROLDETAILS ctrldetails;

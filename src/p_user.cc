@@ -692,7 +692,7 @@ bool P_PlayerSwitchWeapon(player_t *player, weapondef_c *choice)
 		return false;
 	}
 
-	player->pending_wp = (weapon_selection_e) pw_index;
+	player->pending_wp = (weapon_selection_e) pw_index; //TODO: V1016 https://www.viva64.com/en/w/v1016/ The value 'pw_index' is out of range of enum values. This causes unspecified or undefined behavior.
 
 	return true;
 }
@@ -879,7 +879,7 @@ void P_CreatePlayer(int pnum, bool is_bot)
 
 	player_t *p = new player_t;
 
-	Z_Clear(p, player_t, 1);
+	Z_Clear(p, player_t, 1); //TODO: V782 https://www.viva64.com/en/w/v782/ There is no sense in evaluating the distance between elements from different arrays: '(p) - ((player_t *)(p))'.
 
 	p->pnum = pnum;
 	p->playerstate = PST_DEAD;
@@ -1071,7 +1071,7 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 		// check and update key_choices[]
 		for (int w=0; w <= 9; w++)
 			if (player->key_choices[w] == upgrade_slot)
-				player->key_choices[w] = (weapon_selection_e)slot;
+				player->key_choices[w] = (weapon_selection_e)slot; //TODO: V1016 https://www.viva64.com/en/w/v1016/ The value 'slot' is out of range of enum values. This causes unspecified or undefined behavior.
 
 		// handle the case of holding the weapon which is being upgraded
 		// by the new one.  We mark the old weapon for removal.

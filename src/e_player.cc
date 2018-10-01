@@ -566,6 +566,7 @@ void G_SpawnVoodooDolls(player_t *p)
 // G_CheckConditions
 //
 bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
+//TODO: V728 https://www.viva64.com/en/w/v728/ An excessive check can be simplified. The '(A && B) || (!A && !B)' expression is equivalent to the 'bool(A) == bool(B)' expression.
 {
 	player_t *p = mo->player;
 	bool temp;
@@ -579,7 +580,7 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 			case COND_Health:
 				temp = (mo->health >= cond->amount);
 
-				if ((!cond->negate && !temp) || (cond->negate && temp))
+				if ((!cond->negate && !temp) || (cond->negate && temp)) 
 					return false;
 
 				break;
@@ -604,7 +605,7 @@ bool G_CheckConditions(mobj_t *mo, condition_check_t *cond)
 
 				temp = ((p->cards & cond->sub.type) != 0);
 
-				if ((!cond->negate && !temp) || (cond->negate && temp))
+				if ((!cond->negate && !temp) || (cond->negate && temp)) 
 					return false;
 
 				break;

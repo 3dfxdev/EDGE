@@ -36,6 +36,7 @@ PFNWGLSWAPINTERVALEXTPROC myWglSwapIntervalExtProc;
 #include "../m_argv.h"
 #include "../m_misc.h"
 #include "../r_modes.h"
+#include "../r_renderbuffers.h"
 
 SDL_version compiled;
 SDL_version linked;
@@ -158,7 +159,7 @@ void I_StartupGraphics(void)
 
 
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0)
-		I_Error("Couldn't init SDL VIDEO!\n%s\n", SDL_GetError());
+		I_Error("Couldn't init SDL!\n%s\n", SDL_GetError());
 
 	if (M_CheckParm("-nograb"))
 		in_grab = 0;
@@ -171,11 +172,11 @@ void I_StartupGraphics(void)
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    8);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   16);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 2);
 
 	// ~CA 5.7.2016:
 
-	flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
+	flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_ALLOW_HIGHDPI;
 
 	display_W = SCREENWIDTH;
 	display_H = SCREENHEIGHT;
@@ -314,6 +315,8 @@ bool I_SetScreenSize(scrmode_c *mode)
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	//RGL_InitRenderBuffers(); //recreate renderbuffers here!
+
 #ifdef MACOSX
 	//TODO: On Mac OS X make sure to bind 0 to the draw framebuffer before swapping the window, otherwise nothing will happen.
 #endif
@@ -445,8 +448,8 @@ void I_GetDesktopSize(int *width, int *height)
 		*height = display_H;
 	}
 
-	*width = mode.w;
-	*height = mode.h;
+	*width = mode.w; //TODO: V519 https://www.viva64.com/en/w/v519/ The '* width' variable is assigned values twice successively. Perhaps this is a mistake. Check lines: 447, 451.
+	*height = mode.h; //TODO: V519 https://www.viva64.com/en/w/v519/ The '* height' variable is assigned values twice successively. Perhaps this is a mistake. Check lines: 448, 452.
 
 }
 

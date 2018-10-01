@@ -132,7 +132,7 @@ namespace Mus2Midi
 	class MIDI_c                  /* a midi file */
 	{
 	public:
-		MIDI_c()
+		MIDI_c() //TODO: V730 https://www.viva64.com/en/w/v730/ Not all members of a class are initialized inside the constructor. Consider inspecting: divisions.
 		{
 			for (int i = 0; i < MAX_TRACKS; i++)
 				track[i] = new TrackInfo_c();

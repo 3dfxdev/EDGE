@@ -515,7 +515,7 @@ static const char *CopyFrameName16(char *name16)
 {
 	char *str = new char[20];
 //memcpy(str, frm->name, 16);
-	memcpy(str, name16, 16);
+	memcpy(str, name16, 16); //TODO: V512 https://www.viva64.com/en/w/v512/ A call of the 'memcpy' function will lead to underflow of the buffer 'str'.
 
 	// ensure it is NUL terminated
 	str[16] = 0;
@@ -681,9 +681,10 @@ md2_model_c *MD2_LoadModel(epi::file_c *f)
 		scale[1] = f_ptr[1];
 		scale[2] = f_ptr[2];
 
-		translate[0] = f_ptr[3];
-		translate[1] = f_ptr[4];
-		translate[2] = f_ptr[5];
+		// TODO: V557 https://www.viva64.com/en/w/v557/
+		translate[0] = f_ptr[3]; // Array overrun is possible. The '3' index is pointing beyond array bound.
+		translate[1] = f_ptr[4]; //Array overrun is possible. The '4' index is pointing beyond array bound.
+		translate[2] = f_ptr[5]; //Array overrun is possible. The '5' index is pointing beyond array bound.
 
 		md->frames[i].name = CopyFrameName16(raw_frame.name);
 
@@ -1244,7 +1245,7 @@ void MD2_RenderModel(md2_model_c *md, const skindef_c *skin,bool is_weapon,
 	}
 	if (frame2 < 0 || frame2 >= md->num_frames)
 	{
-		I_Debugf("Render model: bad frame %d\n", frame1);
+		I_Debugf("Render model: bad frame %d\n", frame1); //TODO: V778 https://www.viva64.com/en/w/v778/ Two similar code fragments were found. Perhaps, this is a typo and 'frame2' variable should be used instead of 'frame1'.
 		return;
 	}
 

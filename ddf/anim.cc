@@ -59,7 +59,7 @@ static animdef_c * animdefs_Lookup(const char *name)
 {
 	epi::array_iterator_c it;
 
-	for (it = animdefs.GetBaseIterator(); it.IsValid(); it++)
+	for (it = animdefs.GetBaseIterator(); it.IsValid(); it++) //TODO: V803 https://www.viva64.com/en/w/v803/ Decreased performance. In case 'it' is iterator it's more effective to use prefix form of increment. Replace iterator++ with ++iterator.
 	{
 		animdef_c *a = ITERATOR_TO_TYPE(it, animdef_c*);
 

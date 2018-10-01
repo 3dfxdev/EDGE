@@ -66,7 +66,7 @@ static bool loaded_playpal = false;
 // -AJA- 1999/07/03: moved these here from v_res.c:
 int var_gamma;
 
-static bool old_gamma = -1;
+static bool old_gamma = -1; //TODO: V786 https://www.viva64.com/en/w/v786/ It is odd that value '-1' is assigned to the 'old_gamma' variable. The value range of 'old_gamma' variable: [0, 1].
 
 // text translation tables
 const byte *font_whitener = NULL;
@@ -152,7 +152,7 @@ void V_InitPalette(void)
 		}
 		else
 			playpal_data[t][i][0] = pal[(t * 256 + i) * 3 + 0];
-			playpal_data[t][i][1] = pal[(t * 256 + i) * 3 + 1];
+			playpal_data[t][i][1] = pal[(t * 256 + i) * 3 + 1]; //TODO: V640 https://www.viva64.com/en/w/v640/ The code's operational logic does not correspond with its formatting. The statement is indented to the right, but it is always executed. It is possible that curly brackets are missing.
 			playpal_data[t][i][2] = pal[(t * 256 + i) * 3 + 2];
 		}
 	}
@@ -790,7 +790,7 @@ private:
 	rgbcol_t whites[32];
 
 public:
-	colormap_shader_c(const colourmap_c *CM) : colmap(CM),
+	colormap_shader_c(const colourmap_c *CM) : colmap(CM), //TODO: V730 https://www.viva64.com/en/w/v730/ Not all members of a class are initialized inside the constructor. Consider inspecting: whites.
 		light_lev(255), light_color(0), desat_lev(0.0f), fade_tex(0),
 		simple_cmap(true), lt_model(LMODEL_Doom)
 	{

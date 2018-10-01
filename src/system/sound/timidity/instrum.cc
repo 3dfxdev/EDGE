@@ -248,7 +248,7 @@ static InstrumentLayer *load_instrument(char *name, int font_type, int percussio
 		/* Try with various extensions */
 		for (i=0; patch_ext[i]; i++)
 		{
-			if (strlen(name)+strlen(patch_ext[i])<1024)
+			if (strlen(name)+strlen(patch_ext[i])<1024) //TODO: V814 https://www.viva64.com/en/w/v814/ Decreased performance. The 'strlen' function was called multiple times inside the body of a loop.
 			{
 				char path[1024];
 				strcpy(path, name);

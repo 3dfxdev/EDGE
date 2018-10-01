@@ -340,7 +340,7 @@ byte *W_ReadLumpAlloc(int lump, int *length);
 //
 static bool IsS_START(char *name)
 {
-	if ((strncmp(name, "GUNSTART", 8) == 0) && (strncmp(name, "SHAPSTART", 8) == 0))
+	if ((strncmp(name, "GUNSTART", 8) == 0) && (strncmp(name, "SHAPSTART", 8) == 0)) //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
 	{
 		 //fix up flag to standard syntax
 		 //Note: strncpy will pad will nulls
@@ -383,14 +383,14 @@ static bool IsS_END(char *name)
 		return 1;
 	}
 
-	if (strncmp(name, "SS_END", 8) == 0)
+	if (strncmp(name, "SS_END", 8) == 0) //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
 	{
 		// fix up flag to standard syntax
 		strncpy(name, "S_END", 8);
 		return 1;
 	}
 
-	return (strncmp(name, "S_END", 8) == 0);
+	return (strncmp(name, "S_END", 8) == 0); //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
 }
 
 //
@@ -559,14 +559,14 @@ static bool IsF_END(char *name)
 	//	return 1;
 	//}
 
-	if (strncmp(name, "FF_END", 8) == 0)
+	if (strncmp(name, "FF_END", 8) == 0) //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
 	{
 		// fix up flag to standard syntax
 		strncpy(name, "F_END", 8);
 		return 1;
 	}
 
-	return (strncmp(name, "F_END", 8) == 0);
+	return (strncmp(name, "F_END", 8) == 0); //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
 }
 
 //
@@ -633,14 +633,14 @@ static bool IsP_END(char *name)
 		return 1;
 	}
 
-	if (strncmp(name, "PP_END", 8) == 0)
+	if (strncmp(name, "PP_END", 8) == 0) //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
 	{
 		// fix up flag to standard syntax
 		strncpy(name, "P_END", 8);
 		return 1;
 	}
 
-	return (strncmp(name, "P_END", 8) == 0);
+	return (strncmp(name, "P_END", 8) == 0); //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
 }
 
 //
@@ -672,7 +672,7 @@ static bool IsC_END(char *name)
 		return 1;
 	}
 #endif
-	return (strncmp(name, "C_END", 8) == 0);
+	return (strncmp(name, "C_END", 8) == 0); //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
 }
 
 //
@@ -685,7 +685,7 @@ static bool IsTX_START(char *name)
 
 static bool IsTX_END(char *name)
 {
-	return (strncmp(name, "TX_END", 8) == 0);
+	return (strncmp(name, "TX_END", 8) == 0); //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
 }
 
 //
@@ -698,7 +698,7 @@ static bool IsHI_START(char *name)
 
 static bool IsHI_END(char *name)
 {
-	return (strncmp(name, "HI_END", 8) == 0);
+	return (strncmp(name, "HI_END", 8) == 0); //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
 }
 
 //
@@ -706,9 +706,9 @@ static bool IsHI_END(char *name)
 //
 static bool IsDummySF(const char *name)
 {
-	return (strncmp(name, "S1_START", 8) == 0 ||
+	//TODO: V501 https://www.viva64.com/en/w/v501/ There are identical sub-expressions 'strncmp(name, "S3_START", 8) == 0' to the left and to the right of the '||' operator.
+	return (strncmp(name, "S1_START", 8) == 0 ||  
 		strncmp(name, "S2_START", 8) == 0 ||
-		strncmp(name, "S3_START", 8) == 0 ||
 		strncmp(name, "S3_START", 8) == 0 ||
 		strncmp(name, "F1_START", 8) == 0 ||
 		strncmp(name, "F2_START", 8) == 0 ||
@@ -717,11 +717,11 @@ static bool IsDummySF(const char *name)
 		strncmp(name, "P2_START", 8) == 0 ||
 		strncmp(name, "P3_START", 8) == 0 ||
 		strncmp(name, "GUNSTART", 8) == 0 ||
-		strncmp(name, "GUNSTOP", 7) == 0 ||
+		strncmp(name, "GUNSTOP", 7) == 0  ||
 		strncmp(name, "MASKSTRT", 8) == 0 ||
 		strncmp(name, "MASKSTOP", 8) == 0 ||
 		strncmp(name, "SKYSTART", 8) == 0 ||
-		strncmp(name, "SKYSTOP", 7) == 0 ||
+		strncmp(name, "SKYSTOP", 7) == 0  ||
 		strncmp(name, "ADLSTART", 8) == 0 ||
 		strncmp(name, "DIGISTRT", 8) == 0);
 }
@@ -2950,11 +2950,11 @@ int W_FindLumpFromPath(const std::string &path)
 //==========================================================================
 int W_FindNameFromPath(const char *name)
 {
-	std::string fn;
+	std::string fn; //TODO: V808 https://www.viva64.com/en/w/v808/ 'fn' object of 'basic_string' type was created but was not utilized.
 
 	for (int i = 0; i < numlumps; i++)
 	{
-		if (!lumpinfo[i].fullname.compare(0, strlen(name), name))
+		if (!lumpinfo[i].fullname.compare(0, strlen(name), name)) //TODO: V814 https://www.viva64.com/en/w/v814/ Decreased performance. The 'strlen' function was called multiple times inside the body of a loop.
 			return i;
 	}
 	return -1;

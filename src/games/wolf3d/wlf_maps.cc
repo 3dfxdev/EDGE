@@ -58,12 +58,12 @@ static raw_maphead_t map_head;
 
 static inline void FROM_LE_U16(u16_t& val)
 {
-	val = EPI_LE_U16(val);
+	val = EPI_LE_U16(val); //TODO: V570 https://www.viva64.com/en/w/v570/ The 'val' variable is assigned to itself.
 }
 
 static inline void FROM_LE_U32(u32_t& val)
 {
-	val = EPI_LE_U32(val);
+	val = EPI_LE_U32(val); //TODO: V570 https://www.viva64.com/en/w/v570/ The 'val' variable is assigned to itself.
 }
 
 static void MapsReadHeaders()
@@ -77,10 +77,12 @@ static void MapsReadHeaders()
 
 	memset(&map_head, 0, sizeof(map_head));
 
-	if (fread(&map_head, 1, sizeof(map_head), fp) < 6)
-		throw "MapsReadHeaders: fucked";
+	if (fread(&map_head, 1, sizeof(map_head), fp) < 6) //TODO: V1004 https://www.viva64.com/en/w/v1004/ The 'fp' pointer was used unsafely after it was verified against nullptr. Check lines: 72, 80.
+		throw "MapsReadHeaders: fucked"; 
+	//TODO: V773 https://www.viva64.com/en/w/v773/ The exception was thrown without closing the file referenced by the 'fp' handle. A resource leak is possible.
 
-	map_head.rlew_tag = EPI_LE_U16(map_head.rlew_tag);
+	map_head.rlew_tag = EPI_LE_U16(map_head.rlew_tag); 
+	//TODO: V570 https://www.viva64.com/en/w/v570/ The 'map_head.rlew_tag' variable is assigned to itself.
 
 	for (int i = 0; i < 100; i++)
 	{
@@ -131,7 +133,8 @@ static void LoadMapInfo(FILE *fp, int offset, raw_gamemap_t *gmp)
 		gmp->plane_length[0], gmp->plane_length[1], gmp->plane_length[2]);
 
 	// ensure string is terminated
-	gmp->name[16] = 0;
+	gmp->name[16] = 0; 
+	//TODO: V557 https://www.viva64.com/en/w/v557/ Array overrun is possible. The '16' index is pointing beyond array bound.
 }
 
 static u16_t *LoadMapPlane(FILE *fp, int offset, int complen, int width, int height)
@@ -157,7 +160,7 @@ static u16_t *LoadMapPlane(FILE *fp, int offset, int complen, int width, int hei
 
 	delete[] buf1;
 
-	int size_r = buf2[0] | ((int)buf2[1] << 8);
+	int size_r = buf2[0] | ((int)buf2[1] << 8); //TODO: V557 https://www.viva64.com/en/w/v557/ Array overrun is possible. The '1' index is pointing beyond array bound.
 
 	SYS_ASSERT(size_r == expected);
 
@@ -205,7 +208,7 @@ void WF_LoadMap(int map_num)
 	// load in info
 	raw_gamemap_t gmp;
 
-	LoadMapInfo(fp, map_head.offsets[map_num], &gmp);
+	LoadMapInfo(fp, map_head.offsets[map_num], &gmp); //TODO: V1004 https://www.viva64.com/en/w/v1004/ The 'fp' pointer was used unsafely after it was verified against nullptr. Check lines: 205, 211.
 
 	// load in plane #0 (MAP)
 	wlf_map_tiles = LoadMapPlane(fp, gmp.plane_offset[0],

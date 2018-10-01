@@ -565,7 +565,8 @@ static void DrawTime(float x, float y, int t)
 			div *= 60;
 
 			// draw
-			if (div == 60 || t / div)
+			if (div == 60 || t / div) 
+				//TODO: V793 https://www.viva64.com/en/w/v793/ It is odd that the result of the 't / div' statement is a part of the condition. Perhaps, this statement should have been compared with something else.
 				HUD_DrawImage(x, y, colon);
 		}
 		while (t / div);

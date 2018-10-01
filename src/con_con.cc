@@ -701,7 +701,7 @@ static void TabComplete(void)
 		input_line[input_pos] = save_ch;
 
 		const char *name = (num_var > 0) ? match_vars[0] :
-		                   (num_key > 0) ? match_keys[0] : match_cmds[0];
+		                   (num_key > 0) ? match_keys[0] : match_cmds[0]; //TODO: V547 https://www.viva64.com/en/w/v547/ Expression 'num_key > 0' is always false.
 
 		SYS_ASSERT((int)strlen(name) >= input_pos);
 
@@ -734,7 +734,7 @@ static void TabComplete(void)
 		ListCompletions(match_vars, input_pos, 7, RGB_MAKE(0,208,72));
 	}
 
-	if (match_keys.size() > 0)
+	if (match_keys.size() > 0) //TODO: V547 https://www.viva64.com/en/w/v547/ Expression 'match_keys.size() > 0' is always false.
 	{
 		CON_Printf("%lu Possible keys:\n", match_keys.size());
 
@@ -754,7 +754,8 @@ static void TabComplete(void)
 	// begin by lumping all completions into one list
 	unsigned int i;
 
-	for (i = 0; i < match_keys.size(); i++)
+	//TODO: V621 https://www.viva64.com/en/w/v621/ Consider inspecting the 'for' operator. It's possible that the loop will be executed incorrectly or won't be executed at all.
+	for (i = 0; i < match_keys.size(); i++) //TODO: V654 https://www.viva64.com/en/w/v654/ The condition 'i < match_keys.size()' of loop is always false. 
 		match_vars.push_back(match_keys[i]);
 
 	for (i = 0; i < match_cmds.size(); i++)
@@ -1113,14 +1114,14 @@ void CON_Ticker(void)
 			conwipepos--;
 			if (conwipepos <= 0)
 				conwipeactive = false;
-				paused = false;
+				paused = false; //TODO: V640 https://www.viva64.com/en/w/v640/ The code's operational logic does not correspond with its formatting. The statement is indented to the right, but it is always executed. It is possible that curly brackets are missing.
 		}
 		else
 		{
 			conwipepos++;
 			if (conwipepos >= CON_WIPE_TICS)
 				conwipeactive = false;
-				paused = true;
+				paused = true; //TODO: V640 https://www.viva64.com/en/w/v640/ The code's operational logic does not correspond with its formatting. The statement is indented to the right, but it is always executed. It is possible that curly brackets are missing.
 		}
 	}
 }

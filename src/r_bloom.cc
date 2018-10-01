@@ -1,6 +1,4 @@
-// 
-//---------------------------------------------------------------------------
-//
+// EDGE BLOOM BACKEND
 // Copyright(C) 2016 Magnus Norddahl
 // All rights reserved.
 //

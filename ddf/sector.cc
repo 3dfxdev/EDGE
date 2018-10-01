@@ -539,7 +539,7 @@ void sectortype_c::Default()
 	ambient_sfx = NULL;
 	splash_sfx = NULL;
 
-	appear = DEFAULT_APPEAR;
+	appear = DEFAULT_APPEAR; //TODO: V1016 https://www.viva64.com/en/w/v1016/ The value '(0xFFFF)' is out of range of enum values. This causes unspecified or undefined behavior.
 
 	push_speed = 0.0f;
 	push_zspeed = 0.0f;

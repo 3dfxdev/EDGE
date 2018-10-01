@@ -1432,7 +1432,7 @@ int P_BulletContact(mobj_t * source, mobj_t * target,
 	{
 		if (source->currentattack == target->info->rangeattack)
 			return 0;
-		if (source->currentattack == target->info->closecombat)
+		if (source->currentattack == target->info->closecombat) //TODO: V595 https://www.viva64.com/en/w/v595/ The 'source' pointer was utilized before it was verified against nullptr. Check lines: 1435, 1446.
 			return 0;
 	}
 
@@ -1693,9 +1693,9 @@ static void LaunchOrderedSpread(mobj_t * mo)
 
 	// object or projectile?
 	// true --> the object, false --> the projectile.
-	if (spreadorder[count + 1])
+	if (spreadorder[count + 1]) //TODO: V557 https://www.viva64.com/en/w/v557/ Array overrun is possible. The value of 'count + 1' index could reach 13.
 	{
-		mo->angle += spreadorder[count];
+		mo->angle += spreadorder[count]; //TODO: V557 https://www.viva64.com/en/w/v557/ Array overrun is possible. The value of 'count' index could reach 12.
 
 		LaunchProjectile(mo, mo->target, attack->atk_mobj);
 	}
@@ -1706,7 +1706,7 @@ static void LaunchOrderedSpread(mobj_t * mo)
 		if (projectile == NULL)
 			return;
 
-		projectile->angle += spreadorder[count];
+		projectile->angle += spreadorder[count]; //TODO: V557 https://www.viva64.com/en/w/v557/ Array overrun is possible. The value of 'count' index could reach 12.
 
 		projectile->mom.x = projectile->speed * M_Cos(projectile->angle);
 		projectile->mom.y = projectile->speed * M_Sin(projectile->angle);
@@ -3027,7 +3027,7 @@ void P_ActStandardLook(mobj_t * object)
 		object->vis_target = VISIBLE;
 
 	if (g_aggression.d)
-		if (CreateAggression(object) || CreateAggression(object))
+		if (CreateAggression(object) || CreateAggression(object)) //TODO: V501 https://www.viva64.com/en/w/v501/ There are identical sub-expressions 'CreateAggression(object)' to the left and to the right of the '||' operator.
 			return;
 
 	if (targ && (targ->flags & MF_SHOOTABLE))

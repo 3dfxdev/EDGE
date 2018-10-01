@@ -528,7 +528,7 @@ type_t * real_vm_c::FindType(type_t *type)
 {
 	for (int k = 0; k < (int)comp.all_types.size(); k++)
 	{
-		type_t *check = comp.all_types[k];
+		type_t *check = comp.all_types[k]; //TODO: V108 https://www.viva64.com/en/w/v108/ Incorrect index type: comp.all_types[not a memsize-type]. Use memsize type instead.
 
 		if (check->type != type->type
 			|| check->aux_type != type->aux_type
@@ -567,8 +567,8 @@ type_t * real_vm_c::ParseType()
 		type = &type_float;
 	else if (!strcmp(comp.token_buf, "vector") )
 		type = &type_vector;
-	else if (!strcmp(comp.token_buf, "float") )
-		type = &type_float;
+//else if (!strcmp(comp.token_buf, "float") )
+//		type = &type_float;
 //	else if (!strcmp(comp.token_buf, "entity") )
 //		type = &type_entity;
 	else if (!strcmp(comp.token_buf, "string") )
@@ -692,7 +692,8 @@ def_t * real_vm_c::NewTemporary(type_t *type)
 
 	std::vector<def_t *>::iterator TI;
 
-	for (TI = comp.temporaries.begin(); TI != comp.temporaries.end(); TI++)
+	for (TI = comp.temporaries.begin(); TI != comp.temporaries.end(); TI++)  
+	//TODO: V803 https://www.viva64.com/en/w/v803/ Decreased performance. In case 'TI' is iterator it's more effective to use prefix form of increment. Replace iterator++ with ++iterator.
 	{
 		var = *TI;
 
@@ -723,7 +724,8 @@ void real_vm_c::FreeTemporaries()
 {
 	std::vector<def_t *>::iterator TI;
 
-	for (TI = comp.temporaries.begin(); TI != comp.temporaries.end(); TI++)
+	for (TI = comp.temporaries.begin(); TI != comp.temporaries.end(); ++TI) 
+	//TODO: V803 https://www.viva64.com/en/w/v803/ Decreased performance. In case 'TI' is iterator it's more effective to use prefix form of increment. Replace iterator++ with ++iterator. 
 	{
 		def_t *tvar = *TI;
 
@@ -1330,7 +1332,9 @@ void real_vm_c::STAT_ForLoop()
 	EmitCode(OP_GOTO, 0, begin);
 
 	REF_OP(patch)->b = EmitCode(OP_NULL);
-}
+
+
+} //TODO: V773 https://www.viva64.com/en/w/v773/ Visibility scope of the 'target' pointer was exited without releasing the memory. A memory leak is possible.
 
 
 void real_vm_c::STAT_Assignment(def_t *e)

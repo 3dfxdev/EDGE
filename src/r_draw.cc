@@ -211,7 +211,7 @@ void RGL_DrawProgress(int perc, int glbsp_perc)
 			glbsp_last_prog_time = tim;
 		else
 		{
-			alpha = 1.0f - float(tim - glbsp_last_prog_time) / (TICRATE*3/2);
+			alpha = 1.0f - float(tim - glbsp_last_prog_time) / (TICRATE*3/2); //TODO: V636 https://www.viva64.com/en/w/v636/ The '35 * 3 / 2' expression was implicitly cast from 'int' type to 'float' type. Consider utilizing an explicit type cast to avoid the loss of a fractional part. An example: double A = (double)(X) / Y;.
 
 			if (alpha < 0)
 			{

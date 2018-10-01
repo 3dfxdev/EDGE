@@ -370,7 +370,8 @@ void RGL_DrawSkyBox(void)
 
 	float col[4];
 
-	col[0] = LT_RED(255);
+	//TODO: V583 https://www.viva64.com/en/w/v583/ The '?:' operator, regardless of its conditional expression, always returns one and the same value: (255).
+	col[0] = LT_RED(255); 
 	col[1] = LT_GRN(255);
 	col[2] = LT_BLU(255);
 	col[3] = 1.0f;

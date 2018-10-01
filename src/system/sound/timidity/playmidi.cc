@@ -651,7 +651,7 @@ static void clone_voice(Instrument *ip, int v, MidiEvent *e, int clone_type, int
 	{
 		played_note = e->a & 0x7f;
 		if (variationbank == 35) played_note += 12;
-		else if (variationbank == 36) played_note -= 12;
+		else if (variationbank == 36) played_note -= 12; //TODO: V517 https://www.viva64.com/en/w/v517/ The use of 'if (A) {...} else if (A) {...}' pattern was detected. There is a probability of logical error presence. Check lines: 654, 656.
 		else if (variationbank == 37) played_note += 7;
 		else if (variationbank == 36) played_note -= 7;
 	}
@@ -1114,7 +1114,7 @@ static void note_on(MidiEvent *e)
 	}
 
 	/* Look for the decaying note with the lowest volume */
-	if (lowest==-1)
+	if (lowest==-1) //TODO: V547 https://www.viva64.com/en/w/v547/ Expression 'lowest == - 1' is always true.
 	{
 		for (i=0; i < MAX_VOICES; i++)
 		{

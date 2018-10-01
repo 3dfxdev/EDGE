@@ -95,7 +95,8 @@ void HUD_SetAlpha(float alpha)
 void HUD_FadeAlpha(float alpha)
 {
 	cur_alpha = alpha;
-	alpha-=TICRATE*0.01;
+	alpha-=TICRATE*0.01; 
+	//TODO: V1001 https://www.viva64.com/en/w/v1001/ The 'alpha' variable is assigned but is not used by the end of the function.
 }
 
 void HUD_SetAlignment(int xa, int ya)

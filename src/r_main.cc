@@ -330,7 +330,7 @@ void RGL_LoadExtensions()
 
 		const char *glslversion = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
 
-		if (glslversion && strlen(glslversion) > 18 && memcmp(glslversion, "OpenGL ES GLSL ES ", 10) == 0)
+		if (glslversion && strlen(glslversion) > 18 && memcmp(glslversion, "OpenGL ES GLSL ES ", 10) == 0) //TODO: V512 https://www.viva64.com/en/w/v512/ A call of the 'memcmp' function will lead to underflow of the buffer '"OpenGL ES GLSL ES "'.
 		{
 			glslversion += 18;
 		}
@@ -469,7 +469,7 @@ void RGL_LoadExtensions()
 	{
 		// fudge a bit with the framebuffer stuff to avoid redundancies in the main code. 
 		// Some of the older cards do not have the ARB stuff but the calls are nearly identical.
-		FUDGE_FUNC(glGenerateMipmap, EXT);
+		FUDGE_FUNC(glGenerateMipmap, EXT); //TODO: V760 https://www.viva64.com/en/w/v760/ Two identical blocks of text were found. The second block begins from line 477.
 		FUDGE_FUNC(glGenFramebuffers, EXT);
 		FUDGE_FUNC(glBindFramebuffer, EXT);
 		FUDGE_FUNC(glDeleteFramebuffers, EXT);

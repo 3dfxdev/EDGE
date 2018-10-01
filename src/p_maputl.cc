@@ -384,7 +384,7 @@ static int GAP_RemoveSolid(vgap_t * dest, int d_num, float z1, float z2)
 		}
 	}
 
-	Z_MoveData(dest, new_gaps, vgap_t, new_num);
+	Z_MoveData(dest, new_gaps, vgap_t, new_num); //TODO: V782 https://www.viva64.com/en/w/v782/ There is no sense in evaluating the distance between elements from different arrays: '(new_gaps) - (vgap_t *)(new_gaps)'.
 
 	return new_num;
 }
@@ -483,7 +483,7 @@ static int GAP_Restrict(vgap_t * dest, int d_num, vgap_t * src, int s_num)
 		}
 	}
 
-	Z_MoveData(dest, new_gaps, vgap_t, new_num);
+	Z_MoveData(dest, new_gaps, vgap_t, new_num); //TODO: V782 https://www.viva64.com/en/w/v782/ There is no sense in evaluating the distance between elements from different arrays: '(new_gaps) - (vgap_t *)(new_gaps)'.
 
 	return new_num;
 }
@@ -945,7 +945,7 @@ void P_FloodExtraFloors(sector_t *sector)
 			continue;
 		}
 
-		C->p = last_p = flood_p ? flood_p : props;
+		C->p = last_p = flood_p ? flood_p : props; //TODO: V699 https://www.viva64.com/en/w/v699/ Consider inspecting the 'C->p = last_p = flood_p ? flood_p : props' expression. It is possible that 'C->p = last_p == flood_p ? flood_p : props' should be used here instead.
 	}
 }
 

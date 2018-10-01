@@ -3734,7 +3734,7 @@ static void *stbi__jpeg_load(stbi__context *s, int *x, int *y, int *comp, int re
    unsigned char* result;
    stbi__jpeg* j = (stbi__jpeg*) stbi__malloc(sizeof(stbi__jpeg));
    STBI_NOTUSED(ri);
-   j->s = s;
+   j->s = s; //TODO: V522 https://www.viva64.com/en/w/v522/ There might be dereferencing of a potential null pointer 'j'.
    stbi__setup_jpeg(j);
    result = load_jpeg_image(j, x,y,comp,req_comp);
    STBI_FREE(j);
@@ -6206,7 +6206,7 @@ static int stbi__gif_info_raw(stbi__context *s, int *x, int *y, int *comp)
       stbi__rewind( s );
       return 0;
    }
-   if (x) *x = g->w;
+   if (x) *x = g->w; //TODO: V522 https://www.viva64.com/en/w/v522/ There might be dereferencing of a potential null pointer 'g'.
    if (y) *y = g->h;
    STBI_FREE(g);
    return 1;
@@ -6356,7 +6356,7 @@ static stbi_uc *stbi__gif_load_next(stbi__context *s, stbi__gif *g, int *comp, i
       // background colour is only used for pixels that are not rendered first frame, after that "background"
       // color refers to teh color that was there the previous frame. 
       memset( g->out, 0x00, 4 * g->w * g->h ); 
-      memset( g->background, 0x00, 4 * g->w * g->h ); // state of the background (starts transparent)
+      memset( g->background, 0x00, 4 * g->w * g->h ); // state of the background (starts transparent) //TODO: V575 https://www.viva64.com/en/w/v575/ The potential null pointer is passed into 'memset' function. Inspect the first argument.
       memset( g->history, 0x00, g->w * g->h );        // pixels that were affected previous frame
       first_frame = 1; 
    } else {
@@ -6523,7 +6523,7 @@ static void *stbi__load_gif_main(stbi__context *s, int **delays, int *x, int *y,
             stride = g.w * g.h * 4; 
          
             if (out) {
-               out = (stbi_uc*) STBI_REALLOC( out, layers * stride ); 
+               out = (stbi_uc*) STBI_REALLOC( out, layers * stride );  //TODO: V701 https://www.viva64.com/en/w/v701/ realloc() possible leak: when realloc() fails in allocating memory, original pointer 'out' is lost. Consider assigning realloc() to a temporary pointer.
                if (delays) {
                   *delays = (int*) STBI_REALLOC( *delays, sizeof(int) * layers ); 
                }
@@ -6533,7 +6533,7 @@ static void *stbi__load_gif_main(stbi__context *s, int **delays, int *x, int *y,
                   *delays = (int*) stbi__malloc( layers * sizeof(int) ); 
                }
             }
-            memcpy( out + ((layers - 1) * stride), u, stride ); 
+            memcpy( out + ((layers - 1) * stride), u, stride );  //TODO: V769 https://www.viva64.com/en/w/v769/ The 'out' pointer in the 'out + ((layers - 1) * stride)' expression could be nullptr. In such case, resulting value will be senseless and it should not be used.
             if (layers >= 2) {
                two_back = out - 2 * stride; 
             }

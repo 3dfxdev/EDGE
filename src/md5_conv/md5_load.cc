@@ -397,7 +397,7 @@ void md5_get_unique_weights(MD5model *m)
 			int match = find_matching_weightgroup(*nw);
 			if (match == -1) 
 			{
-				allweightgroups[weightgroupcnt] = *nw;
+				allweightgroups[weightgroupcnt] = *nw; //TODO: V1002 https://www.viva64.com/en/w/v1002/ The 'MD5weightgroup' class, containing pointers, constructor and destructor, is copied by the automatically generated operator=.
 				vertexidx_to_weightgroup[i][j] = weightgroupcnt++;
 				totalweights += nw->weightcnt;
 			} 
@@ -553,7 +553,7 @@ MD5umodel * md5_assemble_unified_model(MD5model *m)
 		}
 	}
 	
-	delete weightgroupmap;
+	delete [] weightgroupmap; //supresses V611: memory allocated with new but released with delete operator.
 	return umodel;
 }
 

@@ -108,7 +108,7 @@ namespace epi
         f->Seek(0,  epi::file_c::SEEKPOINT_START);
 		f->Read(sig_buf, 4);
         if (!PNG_IsDataPNG(sig_buf, 4))
-            false;
+            false; //TODO: V606 https://www.viva64.com/en/w/v606/ Ownerless token 'false'.
 
         return epimg_info(f, width, height, solid);
 	}

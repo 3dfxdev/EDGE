@@ -235,7 +235,8 @@ static bool WeaponCouldAutoFire(player_t *p, int idx, int ATK)
 	// Returns true when weapon will either fire or reload
 	// (assuming the button is held down).
 
-	weapondef_c *info = p->weapons[idx].info;
+	weapondef_c *info = p->weapons[idx].info; 
+	//TODO: V557 https://www.viva64.com/en/w/v557/ Array overrun is possible. The 'WeaponCouldAutoFire' function processes value '-2'. Inspect the second argument. Check lines: 238, 696.
 
 	if (! info->attack_state[ATK])
 		return false;
@@ -425,7 +426,8 @@ static void P_BringUpWeapon(player_t * p)
 		return;
 	}
 
-	weapondef_c *info = p->weapons[sel].info;
+	weapondef_c *info = p->weapons[sel].info; 
+	//TODO: V557 https://www.viva64.com/en/w/v557/ Array underrun is possible. The 'sel' index is pointing beyond array bound.
 
 	// update current key choice
 	if (info->bind_key >= 0)

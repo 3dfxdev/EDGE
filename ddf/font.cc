@@ -20,8 +20,13 @@
 //
 
 #include "local.h"
+#include "../src/system/i_defs_gl.h" //unwanted engine link?
 
+#include "image.h" //con_font
 #include "font.h"
+
+#include "../src/r_image.h" //unwanted engine link?
+#include "../src/r_modes.h" //Unwanted engine link?
 
 static fontdef_c *dynamic_font;
 
@@ -30,6 +35,8 @@ static void DDF_FontGetPatch(const char *info, void *storage);
 
 #define DDF_CMD_BASE  dummy_font
 static fontdef_c dummy_font;
+
+static const  imagedef_c *ddf_font;
 
 static const commandlist_t font_commands[] =
 {
@@ -99,7 +106,8 @@ static void FontFinishEntry(void)
 	if (dynamic_font->type == FNTYP_Patch && !dynamic_font->patches)
 		DDF_Error("Missing font patch list.\n");
 
-	// FIXME: check FNTYP_Image
+		if (dynamic_font->type == FNTYP_Image && !dynamic_font->image_name)
+		DDF_Error("Missing font image.\n");
 }
 
 static void FontClearAll(void)
@@ -199,6 +207,116 @@ static int FontParseCharacter(const char *buf)
 	return 0;
 #endif
 }
+
+static int FNSZ;
+static int XMUL;
+static int YMUL;
+
+static void Image_CalcSizes()
+{
+	// determine font sizing and spacing
+	if (SCREENWIDTH < 400)
+	{
+		FNSZ = 10; XMUL = 7; YMUL = 12;
+	}
+	else if (SCREENWIDTH < 700)
+	{
+		FNSZ = 13; XMUL = 9; YMUL = 15;
+	}
+	else
+	{
+		FNSZ = 16; XMUL = 11; YMUL = 19;
+	}
+}
+
+void DDF_SetupFont(void)
+{
+	if (!imagedefs.Lookup("DDF_FONT_2", INS_Graphic))
+	{
+		imagedef_c *def = new imagedef_c;
+
+		def->name = "DDF_FONT_2";
+		def->belong = INS_Graphic;
+
+		def->info.Set("DDFFONT2");
+
+		def->type = IMGDT_Lump;
+		def->format = LIF_PNG;
+		def->special = (image_special_e)(IMGSP_Clamp | IMGSP_Smooth | IMGSP_NoMip);
+
+		imagedefs.Insert(def);
+	}
+
+	Image_CalcSizes();
+}
+
+static void DDF_DrawChar(int x, int y, char ch, rgbcol_t col)
+{
+	if (x + FNSZ < 0)
+		return;
+
+	float alpha = 1.0f;
+
+	glColor4f(RGB_RED(col)/255.0f, RGB_GRN(col)/255.0f, 
+	          RGB_BLU(col)/255.0f, alpha);
+
+	int px =      int((byte)ch) % 16;
+	int py = 15 - int((byte)ch) / 16;
+
+	float tx1 = (px  ) / 16.0;
+	float tx2 = (px+1) / 16.0;
+
+	float ty1 = (py  ) / 16.0;
+	float ty2 = (py+1) / 16.0;
+
+	glBegin(GL_POLYGON);
+  
+	glTexCoord2f(tx1, ty1);
+	glVertex2i(x, y);
+
+	glTexCoord2f(tx1, ty2); 
+	glVertex2i(x, y + FNSZ);
+  
+	glTexCoord2f(tx2, ty2);
+	glVertex2i(x + FNSZ, y + FNSZ);
+  
+	glTexCoord2f(tx2, ty1);
+	glVertex2i(x + FNSZ, y);
+  
+	glEnd();
+}
+
+// writes the text on coords (x,y) of the console
+#if 0
+static void DDF_DrawText(int x, int y, const char *s, rgbcol_t col)
+{
+	GLuint tex_id = W_ImageCache(ddf_font);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, tex_id);
+
+	glEnable(GL_BLEND);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0);
+
+	for (; *s; s++)
+	{
+		DDF_DrawChar(x, y, *s, col);
+
+		x += XMUL;
+
+		if (x >= SCREENWIDTH)
+			break;
+	}
+
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_BLEND);
+}
+#endif // 0
+
+
+
 
 //
 // DDF_FontGetPatch
@@ -309,7 +427,7 @@ fontdef_c* fontdef_container_c::Lookup(const char *refname)
 	if (!refname || !refname[0])
 		return NULL;
 
-	for (epi::array_iterator_c it = GetIterator(0); it.IsValid(); it++)
+	for (epi::array_iterator_c it = GetIterator(0); it.IsValid(); it++) //TODO: V803 https://www.viva64.com/en/w/v803/ Decreased performance. In case 'it' is iterator it's more effective to use prefix form of increment. Replace iterator++ with ++iterator.
 	{
 		fontdef_c *f = ITERATOR_TO_TYPE(it, fontdef_c*);
 		if (DDF_CompareName(f->name.c_str(), refname) == 0)

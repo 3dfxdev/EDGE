@@ -496,7 +496,7 @@ void DDF_LinedefCleanUp(void)
 	epi::array_iterator_c it;
 	linetype_c *l;
 
-	for (it = linetypes.GetBaseIterator(); it.IsValid(); it++)
+	for (it = linetypes.GetBaseIterator(); it.IsValid(); it++) //TODO: V803 https://www.viva64.com/en/w/v803/ Decreased performance. In case 'it' is iterator it's more effective to use prefix form of increment. Replace iterator++ with ++iterator.
 	{
 		l = ITERATOR_TO_TYPE(it, linetype_c*);
 
@@ -1717,7 +1717,7 @@ void linetype_c::Default(void)
 	ef.Default();
 
 	translucency = PERCENT_MAKE(100);
-	appear = DEFAULT_APPEAR;
+	appear = DEFAULT_APPEAR; //TODO: V1016 https://www.viva64.com/en/w/v1016/ The value '(0xFFFF)' is out of range of enum values. This causes unspecified or undefined behavior.
 	special_flags = LINSP_None;
 	trigger_effect = 0;
 	line_effect = LINEFX_NONE;
@@ -1781,7 +1781,7 @@ linetype_c* linetype_container_c::Lookup(const int id)
 
 	epi::array_iterator_c it;
 
-	for (it = GetTailIterator(); it.IsValid(); it--)
+	for (it = GetTailIterator(); it.IsValid(); it--) //TODO: V803 https://www.viva64.com/en/w/v803/ Decreased performance. In case 'it' is iterator it's more effective to use prefix form of decrement. Replace iterator-- with --iterator.
 	{
 		linetype_c *l = ITERATOR_TO_TYPE(it, linetype_c*);
 

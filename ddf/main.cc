@@ -916,7 +916,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 
 		case command_read:
 			if (!token.empty())
-				current_cmd = token.c_str();
+				current_cmd = token.c_str(); //TODO: V811 https://www.viva64.com/en/w/v811/ Decreased performance. Excessive type casting: string -> char * -> string. Consider inspecting the 'token.c_str()' expression. //TODO: V811 https://www.viva64.com/en/w/v811/ Decreased performance. Excessive type casting: string -> char * -> string. Consider inspecting the 'token.c_str()' expression.
 			else
 				current_cmd.clear();
 
@@ -1496,7 +1496,7 @@ void DDF_MainGetRGB(const char *info, void *storage)
 		return;
 	}
 
-	if (sscanf(info, " #%2x%2x%2x ", &r, &g, &b) != 3)
+	if (sscanf(info, " #%2x%2x%2x ", &r, &g, &b) != 3) //TODO: V576 https://www.viva64.com/en/w/v576/ Incorrect format. Consider checking the third actual argument of the 'sscanf' function. A pointer to the unsigned int type is expected. //TODO: V576 https://www.viva64.com/en/w/v576/ Incorrect format. Consider checking the fourth actual argument of the 'sscanf' function. A pointer to the unsigned int type is expected. //TODO: V576 https://www.viva64.com/en/w/v576/ Incorrect format. Consider checking the fifth actual argument of the 'sscanf' function. A pointer to the unsigned int type is expected.
 		DDF_Error("Bad RGB colour value: %s\n", info);
 
 	*result = (r << 16) | (g << 8) | b;
@@ -1527,7 +1527,7 @@ void DDF_MainGetWhenAppear(const char *info, void *storage)
 
 	bool negate = (info[0] == '!');
 
-	const char *range = strstr(info, "-");
+	const char *range = strstr(info, "-"); //TODO: V817 https://www.viva64.com/en/w/v817/ It is more efficient to seek '-' character rather than a string.
 
 	if (range)
 	{
@@ -1546,19 +1546,19 @@ void DDF_MainGetWhenAppear(const char *info, void *storage)
 	}
 	else
 	{
-		if (strstr(info, "1"))
+		if (strstr(info, "1")) //TODO: V817 https://www.viva64.com/en/w/v817/ It is more efficient to seek '1' character rather than a string.
 			*result = (when_appear_e)(*result | WNAP_SkillLevel1);
 
-		if (strstr(info, "2"))
+		if (strstr(info, "2")) //TODO: V817 https://www.viva64.com/en/w/v817/ It is more efficient to seek '2' character rather than a string.
 			*result = (when_appear_e)(*result | WNAP_SkillLevel2);
 
-		if (strstr(info, "3"))
+		if (strstr(info, "3")) //TODO: V817 https://www.viva64.com/en/w/v817/ It is more efficient to seek '3' character rather than a string.
 			*result = (when_appear_e)(*result | WNAP_SkillLevel3);
 
-		if (strstr(info, "4"))
+		if (strstr(info, "4")) //TODO: V817 https://www.viva64.com/en/w/v817/ It is more efficient to seek '4' character rather than a string.
 			*result = (when_appear_e)(*result | WNAP_SkillLevel4);
 
-		if (strstr(info, "5"))
+		if (strstr(info, "5")) //TODO: V817 https://www.viva64.com/en/w/v817/ It is more efficient to seek '5' character rather than a string.
 			*result = (when_appear_e)(*result | WNAP_SkillLevel5);
 	}
 

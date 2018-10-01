@@ -197,7 +197,8 @@ long oggplayer_ftell(void *datasource)
 //----------------------------------------------------------------------------
 
 
-oggplayer_c::oggplayer_c() : status(NOT_LOADED), vorbis_inf(NULL)
+oggplayer_c::oggplayer_c() : status(NOT_LOADED), vorbis_inf(NULL) 
+//TODO: V730 https://www.viva64.com/en/w/v730/ Not all members of a class are initialized inside the constructor. Consider inspecting: looping, ogg_stream, is_stereo.
 {
 	ogg_file = NULL;
 

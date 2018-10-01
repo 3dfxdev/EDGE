@@ -175,7 +175,7 @@ static void AttackDoTemplate(const char *contents)
 	if (!other || other == dynamic_atk)
 		DDF_Error("Unknown attack template: '%s'\n", contents);
 
-	dynamic_atk->CopyDetail(*other);
+	dynamic_atk->CopyDetail(*other); //TODO: V1004 https://www.viva64.com/en/w/v1004/ The 'other' pointer was used unsafely after it was verified against nullptr. Check lines: 175, 178.
 	dynamic_atk->atk_mobj = NULL;
 
 	dynamic_mobj = NULL;
@@ -611,7 +611,7 @@ atkdef_c* atkdef_container_c::Lookup(const char *refname)
 	if (!refname || !refname[0])
 		return NULL;
 
-	for (it = GetIterator(0); it.IsValid(); it++)
+	for (it = GetIterator(0); it.IsValid(); it++) //TODO: V803 https://www.viva64.com/en/w/v803/ Decreased performance. In case 'it' is iterator it's more effective to use prefix form of increment. Replace iterator++ with ++iterator.
 	{
 		a = ITERATOR_TO_TYPE(it, atkdef_c*);
 		if (DDF_CompareName(a->name.c_str(), refname) == 0)

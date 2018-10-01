@@ -1719,7 +1719,7 @@ bool DDF_MainParseCondition(const char *info, condition_check_t *cond)
 
 // ---> mobjdef class
 
-mobjtype_c::mobjtype_c() : name(), state_grp()
+mobjtype_c::mobjtype_c() : name(), state_grp() //TODO: V730 https://www.viva64.com/en/w/v730/ It is possible that not all members of a class are initialized inside the constructor. Consider inspecting: number, secretsound, falling_sound, gloopsound.
 {
 	Default();
 }

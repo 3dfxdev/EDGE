@@ -97,7 +97,7 @@ void Storage::RememberMod(int *target, int value)
 	{
 		storagebox_t *box = new storagebox_t;
 
-		if (! box)
+		if (! box) //TODO: V668 https://www.viva64.com/en/w/v668/ There is no sense in testing the 'box' pointer against null, as the memory was allocated using the 'new' operator. The exception will be generated in the case of memory allocation error.
 			FatalError("Out of memory (%d storage bytes)\n",
 				(int)sizeof(storagebox_t));
 

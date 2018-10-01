@@ -20,6 +20,7 @@
 #define __RAD_MAIN_H__
 
 #include "../ddf/main.h"
+//#include "system/i_cinematic.h"
 
 #include "r_defs.h"
 #include "hu_stuff.h"

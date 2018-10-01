@@ -220,7 +220,7 @@ abstract_music_c * S_PlayOPL(byte *data, int length, float volume, bool loop)
 		I_Error("OPL player: couldn't load song.\n");
 	}
 
-	delete[] data;
+	delete[] data; //TODO: V586 https://www.viva64.com/en/w/v586/ The 'delete' operator is called twice for deallocation of the same memory space.
 
 	opl_config conf = { dev_freq, var_opl_opl3mode, dev_stereo };
 

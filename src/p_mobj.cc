@@ -995,8 +995,8 @@ static void P_XYMovement(mobj_t * mo, const region_properties_t *props)
 					// CA 8.7.17: 
 					//reflect momentum away from wall (try to fix sticky walls physics?)
 					// Seems to work in making things less "sticky".
-					mo->mom.x = mo->x * 2 - mo->mom.x;
-					mo->mom.y = mo->y * 2 - mo->mom.y;
+					//mo->mom.x = mo->x * 2 - mo->mom.x;
+					//mo->mom.y = mo->y * 2 - mo->mom.y;
 
 					if (!P_TryMove(mo, ptryx, ptryy))
 					{
@@ -1301,7 +1301,8 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				}
 			}
 
-			if (mo->player && gravity > 0 && -zmove > ! OOF_SPEED && ! fly_or_swim)
+			if (mo->player && gravity > 0 && -zmove > ! OOF_SPEED && ! fly_or_swim) 
+			//TODO: V562 https://www.viva64.com/en/w/v562/ It's odd to compare a bool type value with a value of float type: - zmove >!20.0f.
 			{
 
 				if (image_array_contains(names, image) && (mo->z <= mo->subsector->sector->f_h))

@@ -243,8 +243,8 @@ static inline void Unlink(cached_image_t *rc)
 //
 //  IMAGE CREATION
 //
-
-image_c::image_c() : actual_w(0), actual_h(0), total_w(0), total_h(0),
+//TODO: V730 https://www.viva64.com/en/w/v730/ Not all members of a class are initialized inside the constructor. Consider inspecting: offset_x, offset_y, scale_x, scale_y, opacity.
+image_c::image_c() : actual_w(0), actual_h(0), total_w(0), total_h(0), 
 source_type(IMSRC_Dummy),
 source_palette(-1),
 cache()
@@ -392,7 +392,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	else  // DOOM/ROTT GRAPHICS/PATCHES/RAW
 	{
 		patch_t *pat = (patch_t *)buffer;
-		rottpatch_t *rpat = (rottpatch_t *)buffer;
+		rottpatch_t *rpat = (rottpatch_t *)buffer; //TODO: V641 https://www.viva64.com/en/w/v641/ The size of the 'buffer' buffer is not a multiple of the element size of the type 'rottpatch_t'.
 
 		lpic_t *lpic = (lpic_t *)buffer; //raw ROTT pics
 
@@ -422,7 +422,8 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 			ABS(offset_x) > 2048 || ABS(offset_y) > 1024)
 		{
 			// check for Heretic/Hexen/ROTT images, which are raw 320x200
-			if (lump_len == 320 * 200 && type == IMSRC_Graphic || IMSRC_ROTTGFX)
+			if (lump_len == 320 * 200 && type == IMSRC_Graphic || IMSRC_ROTTGFX)  //TODO: V560 https://www.viva64.com/en/w/v560/ A part of conditional expression is always true: IMSRC_ROTTGFX.
+			//TODO: V768 https://www.viva64.com/en/w/v768/ The enumeration constant 'IMSRC_ROTTGFX' is used as a variable of a Boolean-type.
 			{
 				I_Printf("Graphic '%s' seems to be a flat, 320x200 it..\n", name);
 				image_c *rim = NewImage(320, 200, OPAC_Solid);

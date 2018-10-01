@@ -42,11 +42,14 @@ void WF_Carmack_Expand(const byte *source, byte *dest, int length)
 			SYS_ASSERT(copyptr >= dest);
 
 			length -= (int)count;
-			if (length < 0)
-				I_Printf("WOLF: CARMACK_EXPAND: OVERFLOW, breaking instead. . .\n");
-			break;//I_Error("CARMACK_EXPAND: OVERFLOW\n");
 
-			for (; count > 0; count--)
+			if (length < 0)
+			{
+				I_Printf("WOLF: CARMACK_EXPAND: OVERFLOW, breaking instead. . .\n");
+				break;//I_Error("CARMACK_EXPAND: OVERFLOW\n");
+			}
+
+			for (; count > 0; count--) //TODO: V779 https://www.viva64.com/en/w/v779/ Unreachable code detected. It is possible that an error is present.
 			{
 				*outptr++ = *copyptr++;
 				*outptr++ = *copyptr++;

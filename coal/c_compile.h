@@ -47,7 +47,7 @@ type_t;
 
 
 typedef struct def_s
-{
+{ //TODO: V802 https://www.viva64.com/en/w/v802/ On 64-bit platform, structure size can be reduced from 48 to 40 bytes by rearranging the fields according to their sizes in decreasing order.
 	type_t	*type;
 	const char *name;
 

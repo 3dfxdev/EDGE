@@ -1255,7 +1255,7 @@ static void RoundOffSubsector(subsec_t *sub)
 #   endif
 
     // create a new vertex for this baby
-    last_real_degen->end = NewVertexDegenerate(last_real_degen->start,
+    last_real_degen->end = NewVertexDegenerate(last_real_degen->start, //TODO: V1004 https://www.viva64.com/en/w/v1004/ The 'last_real_degen' pointer was used unsafely after it was verified against nullptr. Check lines: 1247, 1258.
         last_real_degen->end);
 
 #   if DEBUG_SUBSEC

@@ -901,7 +901,7 @@ namespace Things
 		WAD::Printf("CASTORDER = %d;\n", order);
 
 		if (target_version >= 128)
-			WAD::Printf("CAST_TITLE = %s;\n", cast_titles[pos - 1]);
+			WAD::Printf("CAST_TITLE = %s;\n", cast_titles[pos - 1]); //TODO: V557 https://www.viva64.com/en/w/v557/ Array overrun is possible. The value of 'pos - 1' index could reach 18.
 	}
 
 	void HandleDropItem(const mobjinfo_t *info, int mt_num)
@@ -1237,7 +1237,7 @@ namespace Things
 			}
 		}
 
-		if (new_val < min_obj || new_val > max_obj)
+		if (new_val < min_obj || new_val > max_obj) //TODO: V560 https://www.viva64.com/en/w/v560/ A part of conditional expression is always false: new_val < min_obj.
 		{
 			PrintWarn("Line %d: bad value '%d' for %s\n",
 				Patch::line_num, new_val, ref->deh_name);

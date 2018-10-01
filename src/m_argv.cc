@@ -59,7 +59,7 @@ static void AddArgument(const char *s, int pos)
 
 	SYS_ASSERT(pos >= 0 && pos <= myargc);
 
-	if (s[0] == '@')
+	if (s[0] == '@') //TODO: V522 https://www.viva64.com/en/w/v522/ Dereferencing of the null pointer 's' might take place. The potential null pointer is passed into 'AddArgument' function. Inspect the first argument. Check lines: 62, 206, 206.
 	{  // add it as a response file
 		M_ApplyResponseFile(&s[1], pos);
 		return;
@@ -201,7 +201,8 @@ void M_ApplyResponseFile(const char *name, int position)
 	if (!f)
 		I_Error("Couldn't open \"%s\" for reading!", name);
 
-	for (; EOF != ParseOneFilename(f, buf); position++)
+	for (; EOF != ParseOneFilename(f, buf); position++) 
+		//TODO: V1004 https://www.viva64.com/en/w/v1004/ The 'f' pointer was used unsafely after it was verified against nullptr. Check lines: 201, 204.
 		// we must use strdup: Z_Init might not have been called
 		AddArgument(strdup(buf), position);
 

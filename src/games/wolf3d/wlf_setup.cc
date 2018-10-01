@@ -413,7 +413,7 @@ static void BuildSectors(void)
 
 	sectors = new sector_t[numsectors];
 
-	Z_Clear(sectors, sector_t, numsectors);
+	Z_Clear(sectors, sector_t, numsectors); //TODO: V782 https://www.viva64.com/en/w/v782/ There is no sense in evaluating the distance between elements from different arrays: '(sectors) - ((sector_t *)(sectors))'.
 
 	//data = W_CacheLumpNum(lump);
 	//mapsector_CRC.AddBlock((const byte*)data, W_LumpLength(lump));
@@ -925,7 +925,7 @@ static void AnalyseMap(void)
 		num_analysis_points--;
 
 		ax = analysis_points[num_analysis_points].x;
-		ay = analysis_points[num_analysis_points].y;
+		ay = analysis_points[num_analysis_points].y; //TODO: V595 https://www.viva64.com/en/w/v595/ The 'analysis_points' pointer was utilized before it was verified against nullptr. Check lines: 928, 956.
 
 		// check if already processed
 		if (sector_matrix[M_INDEX(ax, ay)] > 0)

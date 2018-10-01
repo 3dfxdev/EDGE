@@ -283,7 +283,8 @@ static void BlitToU8(const int *src, u8_t *dest, int length)
 		     if (val >  CLIP_THRESHHOLD) val =  CLIP_THRESHHOLD;
 		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
 
-		*dest++ = (u8_t) ((val >> (24-SAFE_BITS)) ^ 0x80);
+		*dest++ = (u8_t) ((val >> (24-SAFE_BITS)) ^ 0x80); 
+		//TODO: V610 https://www.viva64.com/en/w/v610/ Unspecified behavior. Check the shift operator '>>'. The left operand is negative ('val' = [-134217727..134217727]).
 	}
 }
 

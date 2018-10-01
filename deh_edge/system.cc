@@ -438,6 +438,7 @@ void Endian_Startup(void)
 	int size_16 = sizeof(unsigned short);
 	int size_32 = sizeof(unsigned int);
 
+	//TODO: Expression sizes below (Sanity Checking) are ALWAYS false, so is this needed..?
 	if (size_8 != 1)
 		FatalError("Sanity check failed: sizeof(uint8) = %d\n", size_8);
 

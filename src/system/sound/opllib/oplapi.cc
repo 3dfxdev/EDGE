@@ -706,7 +706,7 @@ bool OPL_Player::MIDI_LoadSong(void *data)
         midi_track *track = (midi_track*)midi_data;
         if (memcmp(track->header, mtrkh, 4) != 0)
         {
-            free(mid_tracks);
+            free(mid_tracks); //TODO: V611 https://www.viva64.com/en/w/v611/ The memory was allocated using 'new' operator but was released using the 'free' function. Consider inspecting operation logics behind the 'mid_tracks' variable.
             return 1;
         }
         mid_tracks[i].length = MISC_Read32BE(track->length);

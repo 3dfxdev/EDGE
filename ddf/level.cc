@@ -254,7 +254,7 @@ void DDF_LevelCleanUp(void)
 
 	epi::array_iterator_c it;
 
-	for (it = mapdefs.GetTailIterator(); it.IsValid(); it--)
+	for (it = mapdefs.GetTailIterator(); it.IsValid(); it--) //TODO: V803 https://www.viva64.com/en/w/v803/ Decreased performance. In case 'it' is iterator it's more effective to use prefix form of decrement. Replace iterator-- with --iterator.
 	{
 		mapdef_c *m = ITERATOR_TO_TYPE(it, mapdef_c*);
 
@@ -487,7 +487,7 @@ mapdef_c* mapdef_container_c::Lookup(const char *refname)
 
 	epi::array_iterator_c it;
 
-	for (it = GetTailIterator(); it.IsValid(); it--)
+	for (it = GetTailIterator(); it.IsValid(); it--) //TODO: V803 https://www.viva64.com/en/w/v803/ Decreased performance. In case 'it' is iterator it's more effective to use prefix form of decrement. Replace iterator-- with --iterator.
 	{
 		mapdef_c *m = ITERATOR_TO_TYPE(it, mapdef_c*);
 

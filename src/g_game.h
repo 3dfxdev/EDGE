@@ -67,7 +67,7 @@ extern gameaction_e gameaction;
 //    ga_finale      : nextmap, players
 
 
-class newgame_params_c
+class newgame_params_c //TODO: V690 https://www.viva64.com/en/w/v690/ The 'newgame_params_c' class implements a copy constructor, but lacks the '=' operator. It is dangerous to use such a class.
 {
 public:
 	skill_t skill;

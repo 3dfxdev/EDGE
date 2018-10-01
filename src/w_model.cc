@@ -158,8 +158,8 @@ modeldef_c *LoadModelFromLump(int model_num)
 			
 			for (int i=0; i < def->md5u->model.meshcnt; i++) 
 			{
-				char* file_normal=new char[strlen(def->md5u->model.meshes[i].shader)+strlen("_l")+1];
-				char* file_specular=new char[strlen(def->md5u->model.meshes[i].shader)+strlen("_s")+1];
+				char* file_normal=new char[strlen(def->md5u->model.meshes[i].shader)+strlen("_l")+1]; //TODO: V814 https://www.viva64.com/en/w/v814/ Decreased performance. The 'strlen' function was called multiple times inside the body of a loop.
+				char* file_specular=new char[strlen(def->md5u->model.meshes[i].shader)+strlen("_s")+1]; //TODO: V814 https://www.viva64.com/en/w/v814/ Decreased performance. The 'strlen' function was called multiple times inside the body of a loop.
 
 				sprintf(file_normal,"%s%s",def->md5u->model.meshes[i].shader,"_l");
 				sprintf(file_specular,"%s%s",def->md5u->model.meshes[i].shader,"_s");

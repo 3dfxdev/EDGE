@@ -589,7 +589,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 		return;
 
 	// -KM- 1998/09/27 Sounds.ddf
-	sfx_t *sound = special->info->activesound;
+	sfx_t *sound = special->info->activesound; //TODO: V595 https://www.viva64.com/en/w/v595/ The 'special' pointer was utilized before it was verified against nullptr. Check lines: 592, 598.
 
 	pickup_info_t info;
 

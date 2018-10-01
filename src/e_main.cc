@@ -543,7 +543,8 @@ static void M_DisplayPause(void)
 
 	if (heretic_mode)
 	{
-		float x = 160 - 3 / 2;
+		float x = 160 - 3 / 2; 
+		//TODO: V636 https://www.viva64.com/en/w/v636/ The '3 / 2' expression was implicitly cast from 'int' type to 'float' type. Consider utilizing an explicit type cast to avoid the loss of a fractional part. An example: double A = (double)(X) / Y;.
 		float y = 3;
 		HUD_StretchImage(x, y, w, h, pause_image);
 		return;
@@ -1227,7 +1228,7 @@ static void IdentifyWolfenstein(void)
 
 											// Should the Wolfenstein directory not be set by now, then we
 											// use our standby option of the current directory.
-	if (wolf_dir.empty())
+	if (wolf_dir.empty()) //TODO: V547 https://www.viva64.com/en/w/v547/ Expression 'wolf_dir.empty()' is always true.
 		wolf_dir = ".";
 
 	// Should the Wolf Parameter not be empty then it means
@@ -1317,7 +1318,7 @@ static void IdentifyWolfenstein(void)
 	}
 
 	//Brute this out -- make sure the fucking thing is even trying to be opened..
-	if (wolf_file.empty())
+	if (wolf_file.empty()) //TODO: V547 https://www.viva64.com/en/w/v547/ Expression 'wolf_file.empty()' is always true.
 		I_Printf("Wolfenstein -- brute force all WL6 files!\n");
 
 	if (wolf3d_mode)

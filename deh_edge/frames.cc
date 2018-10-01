@@ -726,7 +726,7 @@ namespace Frames
 			attack_slot[kind1] = atk1;
 
 			if (atk2)
-				attack_slot[kind2] = atk2;
+				attack_slot[kind2] = atk2; //TODO: V557 https://www.viva64.com/en/w/v557/ Array underrun is possible. The value of 'kind2' index could reach -1.
 
 			return;
 		}

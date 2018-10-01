@@ -1,6 +1,4 @@
-// 
-//---------------------------------------------------------------------------
-//
+// EDGE LensDistortion Backend
 // Copyright(C) 2016 Magnus Norddahl
 // All rights reserved.
 //

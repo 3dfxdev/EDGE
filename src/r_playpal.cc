@@ -477,7 +477,7 @@ void CreatePlaypal(void)
 	{
 		for (int j = 0; j < src[0]; j++)
 		{
-			dest[0] = dest[1] = dest[2] = src[1];
+			dest[0] = dest[1] = dest[2] = src[1]; //TODO: V767 https://www.viva64.com/en/w/v767/ Suspicious access to element of 'src' array by a constant index inside a loop.
 			dest += 3;
 		}
 	}
@@ -501,7 +501,7 @@ void CreateROTTpal(void)
 	{
 		for (int j = 0; j < src[0]; j++)
 		{
-			dest[0] = dest[1] = dest[2] = src[1];
+			dest[0] = dest[1] = dest[2] = src[1]; //TODO: V767 https://www.viva64.com/en/w/v767/ Suspicious access to element of 'src' array by a constant index inside a loop.
 			dest += 3;
 		}
 	}

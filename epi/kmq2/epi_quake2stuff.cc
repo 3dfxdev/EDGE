@@ -37,13 +37,13 @@ int FS_LoadFile (const char *path, void **buffer)
 	if (inf != NULL) {
 		while(!feof(inf)) {	//resize buffer until it all fits
 			//TODO check success
-			buff = (char*)realloc(buff,len+resize_step+1);
-			len += fread(buff+len,sizeof(char),resize_step, inf);
+			buff = (char*)realloc(buff,len+resize_step+1); //TODO: V701 https://www.viva64.com/en/w/v701/ realloc() possible leak: when realloc() fails in allocating memory, original pointer 'buff' is lost. Consider assigning realloc() to a temporary pointer.
+			len += fread(buff+len,sizeof(char),resize_step, inf); //TODO: V769 https://www.viva64.com/en/w/v769/ The 'buff' pointer in the 'buff + len' expression could be nullptr. In such case, resulting value will be senseless and it should not be used. Check lines: 41, 40.
 		}
 		fclose(inf);
 		buff[len] = 0;
 		//TODO check success
-		buff = (char*)realloc(buff,len+1);	//trim excess
+		buff = (char*)realloc(buff,len+1);	//trim excess //TODO: V701 https://www.viva64.com/en/w/v701/ realloc() possible leak: when realloc() fails in allocating memory, original pointer 'buff' is lost. Consider assigning realloc() to a temporary pointer.
 	}
 	
 	if (buffer)

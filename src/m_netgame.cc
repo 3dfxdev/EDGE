@@ -484,7 +484,7 @@ static void HostChangeOption(int opt, int key)
 
 		case 3: // Skill
 			ng_params->skill = (skill_t)( (int)ng_params->skill + dir );
-			if ((int)ng_params->skill < (int)sk_baby || (int)ng_params->skill > 250)
+			if ((int)ng_params->skill < (int)sk_baby || (int)ng_params->skill > 250) //TODO: V560 https://www.viva64.com/en/w/v560/ A part of conditional expression is always false: (int) ng_params->skill > 250.
 				ng_params->skill = sk_nightmare;
 			else if ((int)ng_params->skill > (int)sk_nightmare)
 				ng_params->skill = sk_baby;
@@ -568,7 +568,7 @@ static void SplitChangeOption(int opt, int key)
 
 	case 3: // Skill
 		ng_params->skill = (skill_t)((int)ng_params->skill + dir);
-		if ((int)ng_params->skill < (int)sk_baby || (int)ng_params->skill > 250)
+		if ((int)ng_params->skill < (int)sk_baby || (int)ng_params->skill > 250) //TODO: V560 https://www.viva64.com/en/w/v560/ A part of conditional expression is always false: (int) ng_params->skill > 250.
 			ng_params->skill = sk_nightmare;
 		else if ((int)ng_params->skill > (int)sk_nightmare)
 			ng_params->skill = sk_baby;

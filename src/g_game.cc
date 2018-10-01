@@ -1053,7 +1053,7 @@ void newgame_params_c::SinglePlayer(int num_bots)
 
 void newgame_params_c::Splitscreen()
 {
-	bool splitscreen_mode = true; // removed bool netgame = true; for now. .
+	splitscreen_mode = true; // removed bool netgame = true; for now. .
 	total_players = 2;
 
 	players[0] = PFL_Console;

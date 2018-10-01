@@ -1255,7 +1255,7 @@ namespace Patch
 			return DEH_E_ParseError;
 		}
 
-		memset(idstr, 0, 4);
+		memset(idstr, 0, 4); //TODO: V512 https://www.viva64.com/en/w/v512/ A call of the 'memset' function will lead to underflow of the buffer 'idstr'.
 
 		pat_buf->read(idstr, 3);
 

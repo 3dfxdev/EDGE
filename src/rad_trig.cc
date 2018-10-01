@@ -838,7 +838,7 @@ static void RAD_MainCacheFile(const char *filename)
 		I_Error("\nRAD_MainReadFile: Unable to open: '%s'", filename);
 
 	// get to the end of the file
-	fseek(file, 0, SEEK_END);
+	fseek(file, 0, SEEK_END); //TODO: V1004 https://www.viva64.com/en/w/v1004/ The 'file' pointer was used unsafely after it was verified against nullptr. Check lines: 837, 841.
 
 	// get the size
 	rad_memfile_size = ftell(file);

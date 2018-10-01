@@ -28,7 +28,7 @@ public:
 	std::vector<raw_chunk_t> chunks;
 
 public:
-	vswap_info_c() : fp(NULL) { }
+	vswap_info_c() : fp(NULL) { } //TODO: V730 https://www.viva64.com/en/w/v730/ Not all members of a class are initialized inside the constructor. Consider inspecting: first_wall, num_walls, first_sprite, num_sprites, first_sound, num_sounds.
 	~vswap_info_c() { }
 };
 
@@ -74,7 +74,7 @@ void WF_VSwapOpen(void)
 		if (fread(&CK.offset, 4, 1, vswap.fp) != 1)
 			throw "FUCK3";
 
-		CK.offset = EPI_LE_U32(CK.offset);
+		CK.offset = EPI_LE_U32(CK.offset); //TODO: V570 https://www.viva64.com/en/w/v570/ The 'CK.offset' variable is assigned to itself.
 
 		vswap.chunks.push_back(CK);
 	}
@@ -86,7 +86,7 @@ void WF_VSwapOpen(void)
 		if (fread(&CK.length, 2, 1, vswap.fp) != 1)
 			throw "FUCK4";
 
-		CK.length = EPI_LE_U16(CK.length);
+		CK.length = EPI_LE_U16(CK.length); //TODO: V570 https://www.viva64.com/en/w/v570/ The 'CK.length' variable is assigned to itself.
 
 		L_WriteDebug("[%d] : offset %d, length %d\n", i, CK.offset, CK.length);
 	}
@@ -114,7 +114,7 @@ byte *VSwapReadChunk(int index, int *length)
 	byte *data = new byte[*length];
 
 	if (fread(data, *length, 1, vswap.fp) != 1)
-		throw "SHIT";
+		throw "SHIT"; //TODO: V773 https://www.viva64.com/en/w/v773/ The exception was thrown without releasing the 'data' pointer. A memory leak is possible.
 
 	return data;
 }

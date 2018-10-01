@@ -1018,7 +1018,7 @@ void CON_PlayerMessage(int plyr, const char *message, ...)
 	if (consoleplayer1 != plyr)
 		return;
 
-	Z_Clear(buffer, char, 256);
+	Z_Clear(buffer, char, 256); //TODO: V782 https://www.viva64.com/en/w/v782/ There is no sense in evaluating the distance between elements from different arrays: '(buffer) - ((char *)(buffer))'.
 
 	va_start(argptr, message);
 	vsprintf(buffer, message, argptr);
@@ -1044,7 +1044,7 @@ void CON_PlayerMessageLDF(int plyr, const char *lookup, ...)
 
 	lookup = language[lookup];
 
-	Z_Clear(buffer, char, 256);
+	Z_Clear(buffer, char, 256); //TODO: V782 https://www.viva64.com/en/w/v782/ There is no sense in evaluating the distance between elements from different arrays: '(buffer) - ((char *)(buffer))'.
 
 	va_start(argptr, lookup);
 	vsprintf(buffer, lookup, argptr);
