@@ -1885,8 +1885,9 @@ static void DoMeleeAttack(mobj_t * mo)
 		S_StartFX(attack->sound, AttackSfxCat(mo), mo);
 
 	//CA: Halved this so the effect isn't so extreme
+	//TODO: Move into COAL (PL_add_tactile)
 	if ((mo->player) && (melee_tactile.d > 0))
-		I_Tactile(10, (2 + (int)(damage / 4.0f)) * 5, mo->player->pnum);
+		I_Tactile(5, (2 + (int)(damage / 4.0f)) * 2, mo->player->pnum);
 
 	float slope;
 

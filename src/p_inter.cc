@@ -1167,8 +1167,10 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 		if (player->damagecount > DAMAGE_LIMIT)
 			player->damagecount = DAMAGE_LIMIT;
 
+		// Damage limit computation for I_Tactile
         int temp = damage < DAMAGE_LIMIT ? damage : DAMAGE_LIMIT;
 
+		//TODO: Move into COAL (PL_add_tactile)
 		if (m_tactile.d > 0)
 		I_Tactile(5, (1 + (temp >> 4)) * 10, player->pnum);
 	}

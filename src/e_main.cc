@@ -966,13 +966,20 @@ void InitDirectories(void)
 // Adding HERETIC.WAD to string 2.24.2013
 // Kept freedoom.wad for backward compatibility
 // 2016/02/07: Added Darkwar.wad for ROTT
-const char *wadname[] = { "doom2", "doom","hyper", "plutonia", "tnt", "hacx", "heretic", "freedoom", "freedm", "chex", "freedoom1", "freedoom2", "darkwar", "slave", "doom1", "strife1", NULL };
+// 9/2018: Added "strife1"
+const char *wadname[] = { "doom2", "doom","hyper", 
+						"plutonia", "tnt", "hacx", 
+						"heretic", "freedoom", "freedm", 
+						"chex", "freedoom1", "freedoom2", 
+						"darkwar", "slave", "doom1", 
+						"strife1", NULL };
 
 static void IdentifyVersion(void)
 {
 	I_Debugf("- Identify IWADS\n");
 
-	// Check -wolf3d param (which is the ONLY way to start Wolfenstein for now), if this is a Wolf3D map, drastically alter startupcode, and set a global bool to 'wolf3d_mode'.
+	// Check -wolf3d param (which is the ONLY way to start Wolfenstein for now), 
+	//TODO: if this is a Wolf3D map, drastically alter startupcode, and set a global bool to 'wolf3d_mode'? 
 
 	if (wolf3d_mode)
 	{

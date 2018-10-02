@@ -28,7 +28,7 @@
 
 // Misc. other strings.
 #define REQUIREDWAD    "edge"
-#define REQUIREDPAK    "edge2" // this will become edge2.epk
+#define REQUIREDPAK    "edge"
 #define EDGECONFIGFILE "EDGE.ini"
 #define EDGELOGFILE    "EDGE.log"
 #define REQHERETICPWAD "herfix" //Not needed anymore..?
@@ -66,7 +66,7 @@
 #define VERTEXT "vp"
 
 #ifdef WIN32 //TODO: Application Data (WinXP?), do we need this explicit?
-#define EDGEHOMESUBDIR  "Application Data\\EDGE2"
+#define EDGEHOMESUBDIR  "Application Data\\EDGE"
 #elif MACOSX
 #define EDGEHOMESUBDIR  "Library/Application Support/EDGE2"
 #else // Linux
