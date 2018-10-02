@@ -20,16 +20,12 @@
 #include "i_defs_gl.h"
 
 #ifdef WIN32
-//#include "GL/gl_load.h";//win32/wglext.h"
 #include "opengl/gledge_wgl.h"
 //#define WGL_WGLEXT_PROTOTYPES 1
 PFNWGLSWAPINTERVALEXTPROC myWglSwapIntervalExtProc;
 #endif
 
 #include "i_sdlinc.h"
-
-
-#include "system/i_sdlinc.h"
 
 #include <signal.h>
 
