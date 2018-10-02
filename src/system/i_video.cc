@@ -60,8 +60,6 @@ static int display_W, display_H;
 
 SDL_GLContext   glContext;
 
-// use OpenGL to brighten or dark the display instead of SDL
-#define GL_BRIGHTNESS
 
 #ifdef GL_BRIGHTNESS
 float gamma_settings = 0.0f;
@@ -176,7 +174,7 @@ void I_StartupGraphics(void)
 
 	// ~CA 5.7.2016:
 
-	flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_ALLOW_HIGHDPI;
+	flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
 
 	display_W = SCREENWIDTH;
 	display_H = SCREENHEIGHT;
@@ -298,9 +296,9 @@ bool I_SetScreenSize(scrmode_c *mode)
 		return false;
 	}
 
-	if (r_vsync.d == 1)
-		SDL_GL_SetSwapInterval(1);
-	else
+	//if (r_vsync.d == 1)
+	//	SDL_GL_SetSwapInterval(1);
+	//else
 		SDL_GL_SetSwapInterval(-1);
 
 	// -AJA- turn off cursor -- BIG performance increase.
@@ -314,8 +312,6 @@ bool I_SetScreenSize(scrmode_c *mode)
 
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
-
-	//RGL_InitRenderBuffers(); //recreate renderbuffers here!
 
 #ifdef MACOSX
 	//TODO: On Mac OS X make sure to bind 0 to the draw framebuffer before swapping the window, otherwise nothing will happen.
@@ -353,15 +349,14 @@ void I_FinishFrame(void)
 	glColor4f(1, 1, 1, 1);
 #endif
 
+
+	if (r_vsync.d > 0)
+		glFinish();
+
 	// I wonder if SDL_GL_SwapWindow is working properly (?)
 #ifdef WIN32
-
-		if (r_vsync.d > 0)
-			glFinish();
-
 		if (myWglSwapIntervalExtProc)
 			myWglSwapIntervalExtProc(r_vsync.d != 0);
-	
 #endif
 
 	/* 	Some systems allow specifying -1 for the interval,
@@ -390,9 +385,6 @@ void I_FinishFrame(void)
 		SDL_GL_SetSwapInterval(-1);
 
 	SDL_GL_SwapWindow(my_vis);
-
-	if (r_vsync.d > 0)
-		glFinish();
 
 	if (in_grab.CheckModified())
 		I_GrabCursor(grab_state);

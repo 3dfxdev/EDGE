@@ -53,6 +53,9 @@
 
 #define USING_GL_TYPES 1
 
+// use OpenGL to brighten or dark the display instead of SDL
+#define GL_BRIGHTNESS
+
 enum GLCompat
 {
 	CMPT_GL2,
