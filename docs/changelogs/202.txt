@@ -1,0 +1,26 @@
+CHANGELOG for EDGE 2.0.2 (since 2.0.1)
+====================================
+
+(DATE: 8/31/2015)
+
++ Finale screen bugfix: now, no more black screen when ending a DOOM 1 episode (currently non-skippable to match original game behavior)
+
++ DDF fixes: Chainsaw attack range was set incorrectly, now matches Punching logic; HOOF/METAL sfx audible again.
+
++ Further dehacked tweak to ignore duplicate entries in dehacked lump if it exists
+
++ Added Interpolation option under Video Options (default is ON).
+
++ Finally fixed the SSG appearing in DOOM 1 bug with IDFA/IDKFA cheat.
+
++ Toned down the red palette effect for pain to match Radiation Suit logic.
+
++ When the console is dropped down, the game now pauses.
+
++ When a screen wipe is called, the game will pause and start only after the screen is cleared.
+
+- Invulnerability method was removed from the Video Options menu. The major slowdown issue that was caused because of backface culling has
+  been eliminated when "COMPLEX" was selected. Because of the chance of someone messing with it, Invulnerability has been removed from the menu - 
+  it is *always* set to "Textured" now.
+
+- Small tweaks here and there, updated edge2.wad, removed unnecessary warning strings from console, etc etc.

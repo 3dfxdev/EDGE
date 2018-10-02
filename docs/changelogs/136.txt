@@ -1,0 +1,329 @@
+
+CHANGELOG for EDGE 1.36 (since 1.35)
+====================================
+
+(Date: July 2014)
+
+As per suggestion, this version executable is just named "3DGE.exe". 
+
++ Feature: Two NEW Action Buttons (ACTION3 and ACTION4).
+
++ Bugfix: Dehacked Strings now never run out of lines
+
++ Cosmetic: Options Drawer cleaned up, removed splitscreen controls menu (for now)
+
++ Cosmetic: disk-loading icon is now disabled by default (re-enable with m_diskicon)
+
++ Cosmetic: Game now lets player know in console and HUD when a game has been saved.
+
++ Cosmetic: New Default HUD replaces the old BOOM-style one from DosDoom 0.653
+
++ Heretic: To Run Heretic, run HERETIC.BAT. This will append herfix.wad, HDF, and
+           the Heretic IWAD.
+
+*****************************************************
+3DGE 1.36E
+*****************************************************
+(October 2013)
+
+* Author note:
+  I apologize for releasing so many versions of 1.36,
+  the promised "huge" update for 1.37 is still in
+  development and my recent newborn baby has eaten a lot
+  of my time and I haven't been able to give 1.37 proper
+  attention. This is why I'm releasing this now, so at least
+  you all can get an idea on how 3DGE supports HERETIC.
+  
+  Special thanks to 3DGE contributor Chris "Ceejay" Mullen
+  for writing the majority of the DDF code.
+                                             -3DGE Team
+
+***
+Release Notes (PLEASE READ BEFORE RUNNING HERETIC):
+***
+
+++ Added HERETIC support, though it's still WIP. You can
+   finish the game from start to end, but the inventory
+   support is not implemented. To start:
+  
+  1) Unzip 1.36E into your Heretic directory. 
+  2) Create a shortcut to 1.36E.exe
+  3) add the following: -file herfix.wad*
+  
+  * The Herfix.wad contains important state fixing for
+    some of the weapons and creatures. These changes will
+    eventually be integrated into edge2.wad.
+	
+  *!* If you unzip 1.36E into the same folder as DOOM.wad,
+	  you *MUST* specify which IWAD you want to use first.
+	  Use the -iwad parameter. Otherwise, 3DGE will try and
+	  load ALL of the data from HERETIC and DOOM together,
+	  which would probably lead to many problems. If you unzip
+	  this into a clean directory with only Heretic.wad, you
+	  do not need to use the IWAD parameter as 3DGE will
+	  pick this up automatically. As per usual, you must have
+	  a valid HERETIC IWAD.
+	  
+	   ++ IMPORTANT: you must rename the "doom_ddf" folder to
+	                 her_ddf and specify this in the shortcut
+			when running HERETIC, ONLY IF YOU PLAN on
+			 keeping both DOOM.wad and HERETIC.wad in
+			the same directory. Use the -ddf switch
+			for this.
+  
+  + Two-player support also works here, though the
+    input handling has NOT changed, but will be redone
+	for 1.37.
+
+  - HERETIC-specific CHEATS have not been implemented, so
+    if you plan on using them, you must use the DOOM cheat
+	strings. This will eventually be fixed. For instance, you
+	cannot warp into a pig (chicken?) yet.
+	
+  - The HERETIC HUD is not implemented yet, so you will see
+    lots of garbage data. I will be releasing a patch to
+	Herfix.wad to address this in the following weeks.
+	
+  - The menus are garbled, so you must navigate carefully. Load
+    up normal 3DGE+Doom to memorize the menu layout.
+	
++ Took first steps in integrating the MAIN loop from the 
+  Dreamcast version, though you cannot run this version on
+  the SEGA Dreamcast yet (use Dream3DGE 1.29 for that).
+  
+
+*****************************************************
+3DGE 1.36D
+*****************************************************
+(February 2013)
+
+Author Note:
+   This version will be the second-to-last before 1.36
+   final comes (with all promised fixes). I would like
+   to kindly ask that all current users of EDGE 1.35
+   to please upgrade to 1.36D - all major problems
+   have been taken care of except for the experimental
+   stuff defined below. This is so I can focus on all
+   future releases of EDGE rather than having diverted
+   attention to other versions. Thank you for your
+   continued support. Shout out to Andrew Apted for
+   generously supporting the authors of 3DGE and the
+   entire EDGE community - show all of us that this 
+   port can still compete with the big boys and that 
+   our work isn't going unnoticed!        -3DGE TEAM
+
+****
+Release Notes:
+****
+
+++  MAINTANENCE RELEASE. There are important bugfixes that
+    have been addressed! Previous fixes have been
+    retained from 1.36C EXCEPT as defined below:
+
++  HUD Memory Corruption has been resolved, and now
+   text correctly writes to the screen again. This was an
+   issue with old post-processing code that I have since
+   removed. All HUD errors have been fixed, except a
+   notable bug in splitscreen with the FACE images -
+   a simple fix is to keep the default HUD in splitmode
+   rather than choosing to see the full DOOM-style HUD.
+
++  Customizable styles.ddf (namely, background.image) 
+   has been added back and fixed (console image now
+   sizes correctly). By default, the menu graphic
+   is "CONSOL_P", but you can change this to represent
+   a cyan image for full translucency or whatever
+   you desire, really. STYLES support is working again
+   and was actually restored from 1.36A instead of
+   the butchered copy in 1.36C.
+ 
++  Compatibility between mods made before and after
+   1.35 should work fine now. I have chosen not to
+   update the savegame patch level so everything
+   should work as it did previously. Savegames should
+   also continue to work from before.
+   
+*    DDF "FALLING_SFX" has been renamed to
+     "FALLING_SOUND" - this can be used in THINGS.DDF
+	 for the player - alternatively, it can also be
+	 used for monsters. This will occur if the actor
+	 is falling off of something (after -35 units).
+   
+-  ZOOM bug is back, splitscreen bugs still exist
+   for now, and to start Splitscreen you still need
+   to define the switch before you start the port.
+   These will be fixed with 1.36 final.
+
+*****************************************************
+3DGE 1.36C -TEST2-
+*****************************************************
+(November 2011)
+
+Release Notes:
+
++ Bugfixes/Improvements for the following:
+    
+  * 3DGE has limited STYLES support now - the only
+     user-configurable DDF is the CONSOLE background
+	 image, which is default to the 3DGE logo. This
+	 image resides in EDGE2.WAD. The menu graphic
+	 is no longer supported.
+	
+  * Statically-linked EXE no longer needs output
+     MinGW DLLS, period. You still need SDL.DLL in
+	 the base directory.
+  
+  * EXE filesize has been greatly reduced.
+  
+  * NEW FEATURE - SPLITSCREEN MULTIPLAYER -
+    * Now, you can begin splitscreen mode simply by
+      clicking on the additional BATCH file called
+	  "splitscreen". It will ask if you want to play
+	  COOP or DM, and what level/difficulty you would
+	  like to start on. This is being integrated into
+	  the menu and will be available with the final
+	  release. You can still create a shortcut by
+	  using the -splitscreen parameter and select
+	  episode and difficulty. Cheats are disabled by
+	  default.
+	  
+	* Player 2's keys are forced to a joystick for
+	  now. The standard config is explained in the
+	  additional file, "joy_split.txt". The keys are
+	  still not bindable, which will be fixed in the
+	  next release. [this feature will actually
+	  be available in 1.36D]
+	  
+	* Second splitscreen now correctly shows palette
+	  flashes when picking up items and getting hurt
+	  by other enemies. [this feature will actually
+	  be available in 1.36D]
+	  
+	- The HUD is still a WIP and might not give correct
+	  counts or update fast enough. HUD message still
+	  do not appear in multiplayer (working on a fix).
+	  
+	- An oversight in RTS scripting gives a BENEFIT
+	  to both players instead of the one receiving, this
+	  is a known issue and will be corrected in the
+	  next release.
+	  
+  * DDF "SCREAM_SOUND" has been renamed to
+     "FALLING_SFX" - this can be used in THINGS.DDF
+	 for the player - alternatively, it can also be
+	 used for monsters. Added a switch so the sound
+	 doesn't automatically repeat after the first
+	 falling sound plays in SOUNDS.DDF.
+	
+  * Bugfix for the Weapon Selection if the player
+     had both modeled weapons and sprite weapons in
+	 a certain amount. Before, the weapons simply 
+	 wouldn't show up when selected.  (thanks AndrewJ)
+	
+  * Bugfix with ZOOM feature, has been restored to
+     an earlier version (now, no more using a weird
+	 number).
+	 
+  * Cleaned-up the source code. Added FBO and PBO for 
+    testing the inevitable post processing. Released source.
+	
+  * Updated and re-worked documentation - split up
+    the README into several smaller pieces.
+	
+  * Bumped edge2.wad version number to 7 due to the
+    inclusion of the new console graphic. Updated DDF
+	files to version 1.36. 
+	
+  - There is no more cross compatibility between 3DGE
+	and EDGE if mods were created -AFTER- EDGE 1.35. 
+	Likewise, mods created for 3DGE 1.36b and lower
+	might not function in 3DGE 1.36C.
+
+******************************************************
+hyper3DGE 1.36.3b  -NONPRACTICAL TEST ONLY-
+******************************************************
+(July 2011)
+
+Release Notes:
+
++  NEW FEATURE "SPLITSCREEN", for testing ONLY. See below.
+
++  Bugfixes and optimizations
+
+-  HUD may occasionally glitch, working on new things
+   in source.
+   
+-  New Paramter -splitscreen is heavily buggy, no
+   input support for player 2 (only the mouse), makes
+   playing impractical. Mostly to test the mode on
+   numerous systems with weak configurations, especially
+   the GPU side. This is not a viable means of multiplay!
+
+
+******************************************************
+hyper3DGE 1.36.3a  -TEST-
+******************************************************
+(June 2011)
+
+Release Notes:
+
++  DDF Additions: Added SCREAM_SOUND for the player
+   when they fall long distances, ala Hexen.
+
++  Customizable styles.ddf (namely, background.image) 
+   has been added back and fixed (console image now
+   sizes correctly).
+   
+   - Minor bug with STYLES.DDF - if the background
+     image or console images aren't defined first,
+	 there will be a translucent console screen and/or
+	 a black menu screen, etc. This was an oversight.
+
++  Bumped edge2.wad version number
+
++  Released Source.
+
++  Minor cleanups
+
+
+***********************************************
+Version 1.36.2 - TEST - 
+***********************************************
+(April 2011)
+
+Release Notes:
+
+-  FULL compatibility with EDGE mods now. 
+
+-  This version is a "clean" copy from the official
+   final 1.35 release. As such, some of the minor
+   additions from 0.35d are not working.
+
+-  Networking stuff has been added in for debugging. 
+   *All viable netcode has been disabled for this test!
+
+-  MD3 Support! Syntax is the same as MD2, with the
+   exception - lump/file name should be xMD3 instead
+   of xMD2 (where 'x' is the name).
+   Limitations: single-mesh support only, working on
+   full support.
+
+***********************************************
+hyper3DGE 1.35D
+***********************************************
+(February 2011)
+
+Release Notes:
+
++ restored EDGE splashscreen in main code from 1.32
+
++ restored customizable console graphics in styles.ddf
+
++ restored customizable menu graphics in styles.ddf
+
++ renamed a few menu options
+
++ updated many of the project libraries to new versions
+
++ changed EDGE icon to hypertension icon
+

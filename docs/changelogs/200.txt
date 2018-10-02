@@ -1,0 +1,22 @@
+
+CHANGELOG for EDGE 2.00 (since 1.36)
+====================================
+
+(March 2015)
+
++ Feature: Rendering Interpolation. You can control this with the following CVARS in the console:
+  r_lerp (disables/enables), r_maxfps, r_vsync (helps screen tearing)
+
++ Feature: MD5 model support (please see the 3DGE wiki for information on how to set this up)  
+  -this is still sort of incomplete, as there is no MD5 support for weapons (yet)
+  -the MD5 loader cannot process skin_img yet, but the engine will warn you about the skins
+  +MD2 and MD3 models are still supported as of this release!
+
++ Bugfixes: Hardcoded fog removed, vSYNC works, splashscreen restored
+
++ All changes/fixes from 2.0.1 incorporated
+
++ DDF: Added SECRET_SOUND entry for OUR_HERO in Things.DDF, and a lump in edge2.wad called DSSECRET.
+
+- The next version will include regulations that prevent older mods not designed for EDGE 1.35+
+  to fail, but with instructions on how to convert them to work with the 2.0 branch.

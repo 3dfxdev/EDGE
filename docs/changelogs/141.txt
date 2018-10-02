@@ -1,0 +1,19 @@
+
+CHANGELOG for EDGE 1.4 PROTOTYPE RELEASE (since 1.36)
+====================================
+
+(Date: September 2014)
+
+This release is a stopgap to show new features and is the last in the 1.x codebase:
+
+In the first step towards 3DGE 2.0, this release incorporates: 
++ rendering interpolation, though really unfinished (disable with r_lerp)
+ - Currently, doors/lifts/misc remain hard-capped at 35hz
+ -Interpolation throws as many frames up as possible, resulting in inconsistent framerate and no VSYNC
+- Hardcoded fog (cannot disable)
+- Splash screen is disabled
++ Almost all EDGE 1.32 code is removed
+- Headbob is disabled in this release
++ Incorporated Splines lib
++ MD5 backend code lib
++ Quaternion support in EPI: /epi (math_quaternions), used for interpolation, MD5, and Splines

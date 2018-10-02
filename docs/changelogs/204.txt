@@ -1,0 +1,27 @@
+CHANGELOG for EDGE 2.0.4 (since 2.0.3)
+====================================
+
+(DATE: 4/24/2016)
+
++ Two builds included with the package:
+  + 3DGE.exe, for older processors that cannot take advantage of instruction sets. Uses older statically-linked libs and older GL headers. Safe for
+    older hardware, and integrated Intel/etc GPUs. 
+
+  + 3DGE-SSE2.exe, recommended for newer AMD or Intels. Renders models, OpenGL instructions, and processes images much quicker, using SIMD instructions for
+    stuff. Eventually, the SSE build will superscede the older NOSSE binary. For now, we are happy to provide our userbase with both flavors ;)
+
++ Interpolation is 99% complete, additionally extending to RTS sector functions as well. HUD is interpolated.
+  Weapons and all of DDF are interpolated. Step ups (even on slopes) are interpolated: nearly everything _but_ texture scrolling and a few very minor things.
+
++ r_vsync can now be "0", "1", or "2", depending on hardware configuration. Check this value in the console by typing in r_vsync before changing this. 
+
++ Additional Bugs Fixed with original maps, logic, etc. Minor but annoying things.
+
++ Updated Heretic support, adds menu graphics and improved other things. To make it run with the SSE2 build, edit HERETIC.bat and rename the executable.
+
++ Updated libs for Windows versions. NOSSE uses older libraries, while SSE replaces some entirely. Adopted libjpeg-turbo, and MD5 sse2 calculations,
+  and integrated NOASM into some stuff, while upgrading to the brand-new GLEW 2.0.0 (replaced the ancient 1.5). Still planning on abandoning GLEW entirely
+  with 2.1.0 and SDL2. 
+
+- We had a Multiplayer menu working along with split and LAN play, but decided to hold off integrating it until 2.1.0 as there are still quite a few small
+  issues with connecting to a HOST, as well as input problems with split-screen. Our SDL2 branch has eleviated all control problems, FYI :-)

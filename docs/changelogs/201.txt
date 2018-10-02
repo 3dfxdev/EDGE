@@ -1,0 +1,72 @@
+
+CHANGELOG for EDGE 2.0.1 (since 2.0.0)
+====================================
+
+(Date: June 2015)
+
+
++ MD2/MD3/MD5/MDL models now display with Masked Blending (all of the time),
+  so now both sides of a 3D model can be viewed without the backface being
+  culled (front-face culling for mirrors is still active). Expensive, 
+  but now two-sided models can be rendered. This will eventually become 
+  a flag in DDF (MaskBlend in SPECIAL) to allow per-model control rather 
+  than the entire model rendering system, in case there are special models
+  that don't require two-sided faces.
+
++ Bobbing is restored in the source code. No need to tinker with the 
+  BOBBING= setting, though restoring Bobbing introduces hindered interpolation
+  (if r_lerp set to "1"). 2.0.2 will have interpolated head bob. You can adjust
+  the bobbing COMMAND to make it less or more severe, depending on your taste.
+
++ COAL: Added multiple HUDS for DOOM - now you can choose between the classic HUD,
+  no HUD, or the 3DGE HUD (improved with on-screen ammo counts). Just toggle between
+  them with the +/- keys.
+
++ Fixed classic DOOM HUD causing weapon to be vertically "squished".
+
++ Support for FreeDoom Phase 1 and 2 IWADS (freedoom1.wad and freedoom2.wad) and the Chex IWAD. 
+
++ DDF: Vastly improved Styles.DDF Support (allows MENU/OPTIONS/etc. customizations): can customize
+  RTS_MENU now with an animation or graphic. Able to call Anims.DDF through COAL and RTS, 
+  Anims.DDF has been improved.
+
++ DDF: Smoother weapon state ticrates (0.0f), however this is untested.
+
++ BOOM: Working on more generalised linetype compatibility issues. For now I am adding the linetypes into LINES.DDF as I go.
+
++ Fixed a bug with the Quit screen rendering all black instead of transparent.
+
++ Fixed a bug with SpiderDemon and CyberDemon's Walk sounds (METAL/HOOF) not being audible.
+
++ Removed Dehacked version checking in DEH_edge - now, any kind of DEH should load.
+
++ Splashscreen can be enabled with a commandline option (-showsplash); disabled by default.
+
++ HERETIC: New heads-up display, working on writing the default HUD, but for now Heretic users
+ can use the streamlined HUD overlay. Integrated patch graphics for the main menu (temporary 
+ until menu_strings get implemented). The HUD is not in herddf, but in HERFIX.WAD.
+
+Prototypes added:
+
+* Custom SWIM states for monsters
+
+* Custom ON_CONDITION states for MOBJS (to control through RTS)
+
+* Stencil Buffer added to 3DGE (drawplane reflections for water/etc)
+
+* Bounding Box Upgrades (simple directional physics using lightweight library)
+
+* Caustics on walls
+
++ Beginning of Half-Life MDL format support (bones, skeletal)
+
++ Restored DrawLaser in r_Render.cc for eventual laser rendering
+
++ Fixed MD5 scale and rotation, working on skin_img support
+
++ Player 2 Input (rework)
+
++ Start of Decal code (using the Stencil Buffer). 
+
+REMOVED:
++ Action keys 3 + 4 (debugging)

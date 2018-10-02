@@ -1,0 +1,25 @@
+CHANGELOG for EDGE 2.0.3 (since 2.0.2)
+====================================
+
+(DATE: 4/2/2016)
+
++ Bugs Fixed (too many to go over in this file)
+
++ Reworked menu:
+  + Split Video Options into two: Screen Options and Video Options.
+  + Added new, smaller menu font with much better colors.
+  + Re-Centered most text, including multiplayer stuff.
+  + Added more menu options from cvars as requested.
+  + Added translucent color alphas for menu background drawers for easier readability.
+
++ HUD text is now drawn to the center of the screen.
+
++ Win9X support is back, removed SSE2 compiler optimizations so engine can run on more builds
+
++ Interpolation is slightly improved from the last release, but still needs smooth stepping up.
+
++ Added OpenGL2 mode (though, sprites are not yet ran through this, so it is set to 1 for now)
+
+- Removed pause on screenwipe (didn't look pretty spawning on the floor, waiting for alternative)
+- Removed finale screen "bugfix" (got stuck forever on screens, now instead of black screen, it will just loop over again (this applies to DOOM 1 episodes)
+- Removed invulnerability option completely
