@@ -1,0 +1,247 @@
+
+CHANGELOG for EDGE 2.1.0-RC#1 (since 2.0.4 Final)
+====================================
+
+(Date: OCTOBER 2018)
+
+
+Bugs fixed
+----------
+
++ Fixed ghosting images when sizes were not exactly the same
+
++ Action Buttons work and are toggable again
+
++ Fixed 512x512 DOOM textures (tested with Zoon4.wad)
+
++ Recruse root subdir to TopLevel with PK3/PK7
+           https://github.com/3dfxdev/hyper3DGE/commit/733f2d
+
++ Fix rattling items stuck in wall (Doom Forever Redux, others)
+           https://github.com/3dfxdev/hyper3DGE/commit/d2a9130
+
++ Make origin 0,0 of grAb struct match 3DGE's origin
+	   https://github.com/3dfxdev/hyper3DGE/commit/0e564ba
+
++ Fixed brightness settings under Linux and Windows
+	   https://github.com/3dfxdev/hyper3DGE/issues/30
+
++ Disabled MD5 verticle rotation (for now)
+	   https://github.com/3dfxdev/hyper3DGE/commit/76ce3b2
+
++ Increased r_units vertex count limit and added an assertion for 3D models
+           https://github.com/3dfxdev/hyper3DGE/commit/46a80c4
+
++ Clear momentum if can't slide along wall
+           https://github.com/3dfxdev/hyper3DGE/commit/18bb710
+
++ Change wall bounce angle from random to perpendicular.
+	   https://github.com/3dfxdev/hyper3DGE/commit/090bc48
+
++ Fixed shifting animated sprites in THINGS.ddf (torches, barrells, etc)
+	   https://sourceforge.net/p/edge2/bugs/20/
+
++ Inverted wall tiles in mirror were showing wrong previously, and item floating on player crouch
+	   https://sourceforge.net/p/edge2/bugs/19/
+
++ Tile bug with certain wall textures, notable on 128x96 textures (patches and PNG/JPG/TGA)
+           https://sourceforge.net/p/edge2/bugs/21/
+
++ Verticle Attack Range (chainsaw/punch, etc) now being checked and calculated using slope float.
+           https://sourceforge.net/p/edge2/bugs/16/
+
++ grAb chunk for PNG sprites works properly now (see New Features for more information)
+           https://github.com/3dfxdev/hyper3DGE/commit/912a340c7051b6bc3ee7deffb10844a72c170442
+
++ Unload level on level exit to stop SFX
+           https://github.com/3dfxdev/hyper3DGE/commit/58ecfd10136693f9f9665a38cc26b1e1fdf8d2df
+
++ Warn the user if an image in DDF is missing, rather than exiting.
+	   https://sourceforge.net/p/edge/bugs/135/
+
++ fixed non-solid blend error/behavior for transparency. If your images are coming out WRONG, set r_oldblend to "1" and restart
+           https://github.com/3dfxdev/hyper3DGE/commit/7edea71e65a8d88de8ddcfd89e2f3d7fe412ddb5
+
++ Fixed Z Momentum clearing to fix jumping behavior
+           https://github.com/3dfxdev/hyper3DGE/commit/61cc95457ca90c219489edd7e0c2fac84187e470
+
++ Icon of Sin Finale in DOOM II working again
+
++ finales are now skippable in DOOM 1 episodes without the "black screen of death"
+           https://github.com/3dfxdev/hyper3DGE/commit/586212ffca37513f4202bd2b48c61571d8511a4a
+
++ Light-Amp Goggles/Nightvision graphics now show up properly in COAL_HUD.ec
+           http://www.tdgmods.net/smf/viewtopic.php?p=4357#p4357
+
++ DOOM 1 episode end maps will skip intermission screen instead of displaying stats screen (Added STATS=NONE;)
+
++ "Picked up a armor bonus" text changed to "Picked up an armour bonus" in DDFLANG (doom_ddf).
+
++ SDL2 Resolution Handling/Window Management has been fixed
+           https://sourceforge.net/p/edge2/bugs/8/
+
++ Brightness changes on dual-monitor setups no longer affect both screens
+           https://sourceforge.net/p/edge2/bugs/1/
+
++ 'Use Key' moved to second control page (the previous way prevented reliable changes to major key assignments)
+           http://forum.zdoom.org/viewtopic.php?p=912205#p912205
+
++ Behavior of volume control buttons in previous SDL1 builds is now fixed and works properly with SDL2
+           https://sourceforge.net/p/edge2/bugs/9/
+
++ OPL3 mode fixes.
+           https://github.com/3dfxdev/hyper3DGE/pull/17
+
++ Screen mode wipes correctly display in OPTIONS menu. 
+           https://sourceforge.net/p/edge2/bugs/7/
+
++ Interpolation fixes, and VSYNC is restored in the OPTIONS menu.
+ 	 - If you use VSYNC, make sure its value is set to '2' or higher in the console, using the r_vsync CVAR.
+         - Failing to do so will result in a poor framerate and a host of other issues.
+
++ Archivile's attack range was previously Unlimited - added ATTACKRANGE=1024; to mimick Vanilla behavior instead.
+           https://sourceforge.net/p/edge2/bugs/15/
+
++ Mancubus was invulnerable to Chainsaw damage - changed ATTACKRANGE from 63.9 to 96 (same as punch/Vanilla)
+           https://sourceforge.net/p/edge2/bugs/2/
+		   
++ Many more bugfixes that we have not documented here, but can be found in the Git commit history
+
+
+General Improvements
+--------------------
+
++ Interpolation and VSYNC are handled much better than they were previously
+
++ Engine: 64-bit support in EDGE has been added (those builds are labeled with x64) - for x64 your processor must support AVX. (Windows XP is not supported in this platform.)
+
++ Engine: 32-bit builds in EDGE require SSE/SSE2 support: if your processor is not SSE2 compliant, EDGE will not run. (Windows XP is supported on this platform.)
+
++ OpenGL: Send data to OpenGL using GL_TRIANGLES and in larger glBegin batches for speed increases.
+
++ Audio: OPL music player system added (using nukeyT's library) - can also use OPL3 mode. Removed baked Timidity GUS patches.
+
++ Renderer: GLSL Post Processing has been improved over earlier Devbuilds (FXAA has been added)
+
+* DDF: Episode selection screen does not show up if there's only one episode
+
++ new console var r_oldblend, which can help emulate the old way EDGE used to emulate blending mode, which was wrong, but added this cvar for backwards compatibility (you must restart EDGE for it to take effect)
+
++ Engine: Fullscreen now defaults to '0' (starts in a windowed mode), if using 1080p resolutions you will always get better results using Windowed mode - when switching to fullscreen there might be a small delay as instances are torn and re-created for OpenGL. This is widely system-specific as I've had other users report different results, so if this is still broken for you it is imperative you let me know (please)!
+
++ Engine: EDGE.EPK has been updated, in the next releases the EPK system will be broken down in a 'base_edge' folder, much the same way Eternity has their scripting system set up. If you are a new modder using EDGE or an existing one, take a look at edge.epk in SLADE to see an overview of how archive paths work.
+
++ Renderer: Allow shaders to be referenced in archives (/shaders/GLSL), must have .fp (frag) and .vp (vertex) shader files. You can make changes to what is included by copying the 'edge.epk/shaders/GLSL/' folder to your own archives. This will be further improved in the future by being able to specify shaders via 'shaders.ddf', or possibly 'shaders.ec', which will also do dynamic shader compiling, most likely using COAL as well.
+
++ Renderer: Swap Interval addition to i_video via SDL2 (smoother gameplay), figures this out at runtime in a platform-dependant way. Much improved VSYNC handling over 2.0.4.
+
+* Engine: Screen Shake can now be disabled in Screen Options - moved I_Tactile over to COAL
+
++ Renderer: ROQ Movie Support (currently only 'intro.roq' is supported), can be skipped on startup
+
+* Engine: Crash module from Eternity has been slightly reworked (this is being left out of the Devbuilds for now!)
+
++ Renderer: GLEW was completely removed in favor of GZDoom's GL extension handling
+
++ IWADS: Added shareware DOOM (doom1.wad), SLAVE (slave.wad), ROTT (darkwar.wad), and STRIFE (strife1.wad) - the latter two are works in progress!
+
++ Engine: OpenBSD and Raspberry PI support has been added
+
++ Audio: Support float32 audio devices (SDL2) for Windows 10
+
+* Renderer: Updated P_PointonDivlineSide to reference the original function instead of the faster function that was there in earlier devbuilds (will eventually work this out, but the original, slower version was stricter for certain DDF code checks and OpenGL compatibility)
+
+* Utility: glBSP has been updated and slightly reworked to allow processing of map WADS in archives now (as long as WADS are located in the archive subdirectory /maps0). Note that in the future, glBSP will be kept for node generation of IWADS, but all PWADS will be explicitly built with zdBSP.
+
++ better Multiplayer menu support system and handling
+
++ Detail slopes are now full slopes with physics
+
++ Use CMake for building the code, ditching Makefiles altogether
+
++ Limit amount of warnings in EDGE.log, all warnings will still show up in debug.txt
+
++ Recognize more IWAD types (Rise of the Triad, Strife, new phases of FreeDoom)
+
++ Fixed ACTION 3 and ACTION 4
+
++ Sprite scaling and world stretching is more improved if using Post-Processing (GLSL), you can find these in the Video Options menu
+
++ Revised dynamic lighting, much more natural to their attached objects, and vastly reduced surface areas.
+
+
+
+New Features
+------------
+
++ PAK/PK3/PK7/EPK archive support
+           http://3dfxdev.net/edgewiki/index.php/Using_ZIPs_as_WAD_replacement
+
++ UDMF Map Support (on-going)
+
++ Polyobject Support (though only a limited subset is supported, on-going)
+
++ GLSL Post Processing Shaders: EDGE now uses a system borrowed from GZDoom for screen-space shaders - use -norenderbuffers to disable them. You can find and customize these shaders in the EPK (./shaders/GLSL/)
+
++ DDF: Support has been added for several new image types via DDFIMAGE; must use 'EXT' as the 'type' - as well as supporting PNG and JPG, we now also support BMP, PSD, GIF, HDR, PIC, PNM, and animated GIFS. grAB is finally working 100%, but for grAb images you _must_ use :PNG: as the IMAGE_DATA= TYPE or grAb will not be recognized.
+
++ Sound Pitching (Options->Sound Options to disable) - per-sound entry for pitching will be available in the next RC
+
++ Added back shadow code (right now, uses simple shadows (blob), then Normal (sprite), then Complex -- the latter is not complete yet).
+
++ Weapons DDF now supports the DJNE weapon action for more robust weapon reloading
+	       (see http://3dfxdev.net/edgewiki/index.php/WEAPONS)
+
++ Force Feedback for screen and controller (for these builds, use -ffshake at the command line)
+
++ Teleportation effects are back - WARP IN is default, then there is Zoom In, or None.
+           Menu -> Options -> Screen Options
+
++ Implemented Optimus GPU switching.
+
+- DDF: Removed bobbing out of DDF and into COAL, which is more robust (no longer a percent, but a Float) - see the COAL Manual under Player Module for more information
+
++ Transparency and culling on MD2, MD3, and MD5 models has been improved
+
++ Models: Bump-Mapping, Specular, and Brightmap support has been added (see Wiki for more documentation)
+
++ NEW FEATURE: New -modpalette command, used to override PLAYPAL for modders who do not wish to use multiple palettes (the 'EDGE' system)
+
++ DDF: Added GLOOP_SOUND to Things.DDF (GLOOP_SOUND="DSGLOOP";) and in SOUNDS.DDF - it is played when the player steps on a liquid flat.
+
++ COAL/RTS: Added Camera-Man Module for full control of cameras (saves to doom_ddf/cameras) - this works with Radius Trigger Script (RTS) to set specific events for cinematic cameras. See Camera-Man tutorial on the Wiki for more information.
+
++ COAL: Added ability for player to set vertical bobbing and Camera Rolling values: cam.set_vert_bob(f) and cam.set_roll_bob(f)
+
++ COAL: Added player.get_side_move() to COAL for strafe detection (mostly for Camera-Rolling or other things like model animations)
+
++ COAL: Added player.add_tactile() to COAL for screen shaking events/etc
+
+- Utility: Added better detection of ROTT datas, still no BSP support (yet)
+
+- Engine: Screen shaking for melee attacks has been disabled for now
+
++ New CVARS added: r_oldblend, r_transfix, r_gl3_mode, r_vsync, m_tactile, r_stretchworld, r_spritescale
+
++ Added more options for the default HUD in DOOM
+
+
+Known Bugs
+------------
+
+- SDL2 Audio Support is still a mixed bag - later RC builds will replace the SDL2 audo sub-system with OpenAL, so we are not fixing this issue at the moment. If SDL2 2.0.8 gives you audio problems, try switching to SDL2 2.0.6 or lower - this has been reported to fix the sound anomolies for some.
+
+- Switching from Windowed mode to Fullscreen mode might leave your screen blank or black - please report this bug if this happens to you. Quick Fix: Simply restart EDGE and it will appear normally.
+
+- Sometimes menu navigation (especially Multiplayer) can be buggy - this will be improved in time
+
+- Controller/Mouse/Keyboard support is broken for two-player splitscreen - this will be improved in later RC builds
+
+- Traditional DOOM HUD bar is not scaled properly via coal_hud.ec - this will be fixed in a later RC
+
+- Rise of the Triad is not yet playable with the original RTL (TED) levels yet, very minimal work in scripting code for that gameplay
+
+- Wolfenstein3D is not yet playable (working on the BSP conversion) - this will be fixed in a later build
+
+If you encounter any other bugs, please report them on SourceForge.
+

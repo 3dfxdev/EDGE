@@ -50,6 +50,8 @@
 #include "m_math.h"
 #include "w_model.h"
 
+extern cvar_c r_oldblend;
+
 cvar_c debug_normals;
 
 extern float P_ApproxDistance(float dx, float dy, float dz);
@@ -1269,8 +1271,15 @@ void MD2_RenderModel(md2_model_c *md, const skindef_c *skin,bool is_weapon,
 	else
 		blending = BL_Less;
 
-	if (trans < 0.99f || skin->img->opacity != OPAC_Solid)
-		blending |= BL_Alpha;
+	if (r_oldblend.d > 0)
+	{
+		if (trans < 0.99f || skin->img->opacity != OPAC_Solid)
+			blending |= BL_Alpha;
+	}
+	else
+		if (trans < 0.99f || skin->img->opacity != OPAC_Complex)
+			blending |= BL_Alpha;
+
 
 	if (mo->hyperflags & HF_NOZBUFFER)
 		blending |= BL_NoZBuf;

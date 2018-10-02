@@ -92,6 +92,7 @@ static inline float ExFloorLerpedTop(extrafloor_t *exf)
 
 
 cvar_c debug_hom;
+cvar_c r_oldblend;
 extern cvar_c r_stretchworld;
 
 side_t *sidedef;
@@ -1733,8 +1734,13 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	else
 		blending = BL_Less;
 
-	if (trans < 0.99f || image->opacity != OPAC_Solid)
-		blending |= BL_Alpha;
+	if (r_oldblend.d > 0)
+	{
+		if (trans < 0.99f || image->opacity == OPAC_Complex)
+			blending |= BL_Alpha;
+		else if (trans < 0.99f || image->opacity != OPAC_Solid)
+			blending |= BL_Alpha;
+	}
 
 	// -AJA- 2006-06-22: fix for midmask wrapping bug
 	if (mid_masked)
@@ -3206,8 +3212,13 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	else
 		blending = BL_Less;
 
-	if (trans < 0.99f || surf->image->opacity != OPAC_Solid)
-		blending |= BL_Alpha;
+	if (r_oldblend.d > 0)
+	{
+		if (trans < 0.99f || surf->image->opacity == OPAC_Complex)
+			blending |= BL_Alpha;
+		else if (trans < 0.99f || surf->image->opacity != OPAC_Solid)
+			blending |= BL_Alpha;
+	}
 
 
 	plane_coord_data_t data;
