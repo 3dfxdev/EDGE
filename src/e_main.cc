@@ -1178,7 +1178,7 @@ static void IdentifyVersion(void)
 	}
 
 	if (iwad_file.empty())
-		I_Warning("IdentifyVersion: No IWADS found!\n");
+		I_Error("IdentifyVersion: No IWADS found!\n");
 
 		W_AddRawFilename(iwad_file.c_str(), FLKIND_IWad);
 
