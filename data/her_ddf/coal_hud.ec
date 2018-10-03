@@ -345,6 +345,14 @@ function draw_all() =
         heretic_status_bar()
 		heretic_chain_bar()
 		
+	
+	cam.set_vert_bob(1.0)
+	
+	if (player.get_side_move() != 0)
+	cam.set_roll_bob(0.25)
+	else
+	cam.set_roll_bob(0.0)
+	
 
     edge_air_bar()
 }

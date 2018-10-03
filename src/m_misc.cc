@@ -42,6 +42,7 @@
 #include "../epi/image_png.h"
 
 #include "con_main.h"
+#include "dstrings.h"
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "e_input.h"
@@ -268,6 +269,8 @@ static default_t defaults[] =
 void M_SaveDefaults(void)
 {
 	edge_version = EDGEVER;
+
+	cfgfile = EDGECONFIGFILE;
 
 	int numdefaults = sizeof(defaults) / sizeof(defaults[0]);
 

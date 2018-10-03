@@ -1,0 +1,31 @@
+//
+//    EDGE SHADERS.DDF -redefine or add new shaders.
+//    For documentation, see http://edge2.sourceforge.net/
+//    DDF Version 9
+//
+
+<SHADERS>
+
+#VERSION 2.1.0
+
+//=========
+//
+// Note to modders: The shaders contained between this block and the last are *required* for EDGE to start/run.
+//                  All other shaders listed after can be loaded as additional shaders.
+//                  Take note that you can indeed completely replace the shaders contained in EDGE.EPK, but it's
+//                  preferred to just put them in a new EPK (like shaders.epk).
+//
+//=========
+
+[vert:SCREENQUAD]
+SHADER_DATA=FILE:"/shaders/glsl/screenquad.vp";
+
+[vert:SCREENQUADSCALE]
+SHADER_DATA=FILE:"/shaders/glsl/screenquadscale.vp";
+
+[frag:LENSDISTORT]
+SHADER_DATA=FILE:"/shaders/glsl/lensdistortion.fp";
+
+{...}
+
+// -- EOF --

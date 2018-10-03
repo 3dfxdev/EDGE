@@ -472,10 +472,10 @@ ZombiemanName=       "ZOMBIEMAN";
 
 Notice=
  "_________________________________\n"
- "		3DGE Engine	           \n"
+ "		       EDGE 	           \n"
  "   (C) Isotope SoftWorks		   \n"
  "	http://3dfxdev.net/edgewiki	   \n"
- "____Licensed under the GPLv2____ \n";
+ "    Licensed under the GPLv2     \n";
 
 JoystickCentre= "CENTRE the joystick\n\npress a key.";
 JoystickTL=     "Push the joystick to the UPPER LEFT corner\n\npress a key.";
