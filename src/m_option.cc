@@ -127,6 +127,7 @@ extern cvar_c debug_joyaxis;
 extern cvar_c g_aggression;
 extern cvar_c m_busywait;
 extern cvar_c r_shadows;
+extern cvar_c r_textscale;
 extern cvar_c r_bloom;
 extern cvar_c r_lens;
 extern cvar_c sound_pitch;
@@ -429,22 +430,22 @@ static optmenuitem_t vidoptions[] =
 	{OPT_Switch ,  "Detail Level",   Details,  3, &detail_level, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Texture Filtering",     MipMaps,  3, &var_mipmapping, M_ChangeMipMap, NULL},
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	//{OPT_Slider,   "HUD Text Scale",  HudT, 20,  &r_textscale, M_ChangeHUDTextScale, "Set overall scale of HUD text" },
 	{OPT_Boolean, "Show Disk Icon",  YesNo, 1, &m_diskicon, NULL, NULL},
 	//{OPT_Slider,  "HUD Text Scale",  HudT,  20,  &r_textscale, NULL, "Experimental"},
-	{OPT_Boolean, "Screen Shake",  YesNo, 1, &m_tactile, NULL, NULL },
+	{OPT_Boolean, "Screen Shake",  YesNo, 1, &m_tactile, NULL, "Will also affect user-defined values in COAL!"},
 	{OPT_Switch,  "Crosshair",       CrossH, 10, &menu_crosshair, M_ChangeCrossHair, NULL},
 	{OPT_Slider, "Crosshair Scale",  NULL, 15, &menu_crosshair2, M_ChangeCrossHairSize, NULL }, /// -- New Crosshair Size Slider (like Global MD5 Scale), define this in LDF!
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Boolean, "Map Rotation",    YesNo,   2, &rotatemap, NULL, NULL},
-	{OPT_Switch,  "Teleport Flash",  YesNo,   2, &telept_flash, NULL, NULL},
+	{OPT_Switch,  "Teleport Flash",  YesNo,   2, &telept_flash, NULL, "Show a Teleport Flash?"},
 	{OPT_Switch,  "Teleport Effect",  TeleEff,   3, &telept_effect, NULL, NULL},
 	{OPT_Switch,  "Wipe method",     WIPE_EnumStr, WIPE_NUMWIPES, &wipe_method, NULL, NULL},
 };
 
 static optmenuitem_t advancedoptions[] =
 {
-	{OPT_Switch, "OpenGL 3 Mode",     YesNo, 2, &r_gl3_path, NULL, "OpenGL defaults to 1.x (off)"}, /// Change from GL1 to GL3
+	{OPT_Switch,  "GL3 Features",     YesNo, 2, &r_gl3_path, NULL, "Toggles advanced features (normals, per-pixel lighting, etc)"}, /// Change from GL1 to GL3
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Switch,   "Bloom Processing",  YesNo,  2,  &r_bloom, NULL, "Toggle Bloom Shader On or Off"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
@@ -469,7 +470,7 @@ static optmenuitem_t advancedoptions[] =
 
 static optmenuitem_t debuggingoptions[] =
 {
-	{ OPT_Plain,   "<---Debugging--->",  NULL, 0, NULL, NULL, NULL },
+	{ OPT_Plain,   "<---Debugging--->",  NULL, 0, NULL, NULL, "Various useful options for developers"},
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{ OPT_Switch,  "Framerate Info",    YesNo,  2,  &debug_fps, NULL, NULL },
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
@@ -531,7 +532,7 @@ static optmenuitem_t resoptions[] =
 	{OPT_Function, "New Mode",  NULL, 0, NULL, M_ChangeResFull, NULL},
 	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
 	{OPT_Function, "Set Resolution", NULL, 0, NULL, M_OptionSetResolution, NULL},
-	/*	{OPT_Function, "Test Resolution", NULL, 0, NULL, M_OptionTestResolution, NULL}, */
+	//{OPT_Function, "Test Resolution", NULL, 0, NULL, M_OptionTestResolution, NULL}, 
 		{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
 		{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
 		{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL}
@@ -607,7 +608,7 @@ static optmenuitem_t soundoptions[] =
 	//{OPT_Switch,  "Sample Rate",  SampleRates, 6, &var_sample_rate,  NULL, "NeedRestart"},
 	//{OPT_Switch,  "Sample Size",  SoundBits, 3,   &var_sound_bits,   NULL, "NeedRestart"},
 	{OPT_Switch,  "Stereo",       StereoNess, 3,  &var_sound_stereo, NULL, "NeedRestart"},
-	{ OPT_Switch,  "Music Device",    MusicDevs, 3, &var_music_dev, NULL, "Win32: SYSTEM will not work with Vista or higher!" },
+	{OPT_Switch,  "Music Device",    MusicDevs, 3, &var_music_dev, NULL, "Choose Music Device Playback [default OPL]" },
 
 	{ OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL },
 	{OPT_Boolean, "Sound Pitching",  SoundPitching, 2,  &sound_pitch, NULL, "Emulate Doom 1.2 Random SFX Pitching"},
@@ -672,13 +673,14 @@ static optmenuitem_t playoptions[] =
 	{OPT_Boolean, "Shoot-Through Scenery",   YesNo, 2,
 	 &global_flags.pass_missile, M_ChangePassMissile, NULL},
 
-	{OPT_Plain,   "Monster Aggression", YesNo, 2,
-	&g_aggression, NULL, "Aggressive Monsters (EDGE feature)!"},
+	{OPT_Boolean,   "Monster Aggression", YesNo, 2,
+	&global_flags.g_agression, NULL, "Aggressive Monsters (EDGE feature)!"},
+
+	{OPT_Boolean,   "Shadows", YesNo, 2,
+	&global_flags.shadows, M_ChangeShadows, NULL},
 
 	{OPT_Slider,  "Gravity",            NULL, 20,
 	 &global_flags.menu_grav, NULL, "Gravity"},
-
-	{OPT_Plain,   "", NULL, 0, NULL, NULL, NULL},
 
 	{OPT_Boolean, "Enemy Respawn Mode", Respw, 2,
 	 &global_flags.res_respawn, M_ChangeMonsterRespawn, NULL},
@@ -790,6 +792,8 @@ static optmenuitem_t other_keyconfig[] =
 	{OPT_KeyConfig, "Pause",            NULL, 0, &key_pause, NULL, NULL},
 	{OPT_KeyConfig, "Action 1",         NULL, 0, &key_action1, NULL, NULL},
 	{OPT_KeyConfig, "Action 2",         NULL, 0, &key_action2, NULL, NULL},
+	{OPT_KeyConfig, "Action 3",         NULL, 0, &key_action3, NULL, NULL},
+	{OPT_KeyConfig, "Action 4",         NULL, 0, &key_action4, NULL, NULL},
 
 	///	{OPT_KeyConfig, "Multiplayer Talk", NULL, 0, &key_talk, NULL, NULL},
 };
@@ -1873,14 +1877,19 @@ static void M_ChangeCrossHair(int keypressed)
 	r_crosshair = menu_crosshair;
 }
 
+static void M_ChangeAgression(int keypressed)
+{
+	g_aggression = global_flags.g_agression;
+}
+
 static void M_ChangeCrossHairSize(int keypressed)
 {
 	r_crosssize = menu_crosshair2;
 }
 
-#if 0
+#if 1
 // Trying new user-defined scaling code for Heads-Up Display Text.
-extern void HUD_SetScale(float scale);
+//extern void HUD_SetScale(float scale);
 static void M_ChangeHUDTextScale(int keypressed)
 {
 	float scale;

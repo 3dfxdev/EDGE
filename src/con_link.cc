@@ -152,7 +152,7 @@ cvar_link_t  all_cvars[] =
 
 	{ "soundpitch",      &sound_pitch,         "c",    "1" },
 
-	{ "r_oldblend",      &r_oldblend,           "c",    "1"},
+	{ "r_oldblend",      &r_oldblend,           "c",    "0"},
 
 	// If palette incorrectly remaps palette, this can be set.
 	{ "r_transfix",      &r_transfix,           "c",    "0" },
@@ -178,8 +178,8 @@ cvar_link_t  all_cvars[] =
 
 	/* Experimental Text Scaling Stuff*/
 	{ "r_textscale",    &r_textscale,   "c",   "0.7" }, //0.7f is the default for HUD_SetScale(). Sets HUD Text Scale. Dupliate for RTS tips.
-	{ "r_text_xpos",    &r_text_x,      "c",   "160" }, // THESE TWO VALUES, XPOS AND YPOS, ACTUALLY CENTER THE TEXT BY DEFAULT.
-	{ "r_text_ypos",    &r_text_y,      "c",   "3" }, // THESE TWO VALUES, XPOS AND YPOS, ACTUALLY CENTER THE TEXT BY DEFAULT.
+	{ "r_text_xpos",    &r_text_x,      "c",   "160" }, // Center text on the X Axis
+	{ "r_text_ypos",    &r_text_y,      "c",   "3" }, // Align text on the Y Axis
 
 	/* Rendering Stuff */
 
@@ -200,15 +200,15 @@ cvar_link_t  all_cvars[] =
 	{ "r_precache_sprite", &r_precache_sprite, "c", "1" },
 	{ "r_precache_model",  &r_precache_model,  "c", "1" },
 
-	{ "r_anisotropy",	&r_anisotropy,			"c",   "0" },
+	{ "r_anisotropy",	&r_anisotropy,	  "c",   "0" },
 	{ "r_colormaterial",&r_colormaterial, "",   "1"  },
 	{ "r_colorlighting",&r_colorlighting, "",   "1"  },
 	{ "r_dumbsky",      &r_dumbsky,       "",   "0"  },
 	{ "r_dumbmulti",    &r_dumbmulti,     "",   "0"  },
 	{ "r_dumbcombine",  &r_dumbcombine,   "",   "0"  },
 	{ "r_dumbclamp",    &r_dumbclamp,     "",   "0"  },
-	{ "r_gl3_path",     &r_gl3_path,      "c",   "0"  },
-	{ "r_swapinterval", &r_swapinterval,  "",   "1" },
+	{ "r_gl3_path",     &r_gl3_path,      "c",   "0" },
+	{ "r_swapinterval", &r_swapinterval,  "",   "1"  },
 
 	{ "r_gpuswitch",    &r_gpuswitch,     "c",   "0"  }, // notebook optimus gpu selector
 
@@ -231,7 +231,7 @@ cvar_link_t  all_cvars[] =
 	{ "debug_fps",        &debug_fps,        "c", "0" },
 	{ "debug_lerp",       &debug_testlerp,   "c", "0"},
 
-	{ "r_md5scale",        &r_md5scale,        "c", "5" },
+	{ "r_md5scale",        &r_md5scale,        "c", "0" },
 	{ "r_lerp",			   &r_lerp,        "c", "1" },
 	{ "r_maxfps",          &r_maxfps,        "c", "0" }, //experimental. . .
 	{ "r_vsync",           &r_vsync,        "c", "1" },

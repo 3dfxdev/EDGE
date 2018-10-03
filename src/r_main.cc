@@ -86,8 +86,8 @@ driver_bug_t;
 
 static const driver_bug_t driver_bugs[] =
 {
-	{ "Radeon",   NULL, NULL, PFT_LIGHTING | PFT_COLOR_MAT, 0 },
-	{ "RADEON",   NULL, NULL, PFT_LIGHTING | PFT_COLOR_MAT, 0 },
+	//{ "Radeon",   NULL, NULL, PFT_LIGHTING | PFT_COLOR_MAT, 0 },
+	//{ "RADEON",   NULL, NULL, PFT_LIGHTING | PFT_COLOR_MAT, 0 },
 
 	//	{ "R200",     NULL, "Mesa 6.4", PFT_VERTEX_ARRAY, 0 },
 	//	{ "R200",     NULL, "Mesa 6.5", PFT_VERTEX_ARRAY, 0 },

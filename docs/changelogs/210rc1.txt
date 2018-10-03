@@ -169,7 +169,7 @@ General Improvements
 
 + Revised dynamic lighting, much more natural to their attached objects, and vastly reduced surface areas.
 
-
++ Overall improvement of menu systems
 
 New Features
 ------------
@@ -221,9 +221,15 @@ New Features
 
 - Engine: Screen shaking for melee attacks has been disabled for now
 
-+ New CVARS added: r_oldblend, r_transfix, r_gl3_mode, r_vsync, m_tactile, r_stretchworld, r_spritescale
++ New CVARS added: r_oldblend, r_transfix, r_gl3_mode, r_vsync, m_tactile, r_stretchworld, r_spritescale, r_bloom, r_bloom_amount, r_fxaa, r_fxaa_quality, r_crosscolor, r_crosssize, r_crossbright, r_spriteflip
 
 + Added more options for the default HUD in DOOM
+
++ NEW CVARS to control on-screen HUD scaling and pos (values listed are the default): 	
+	{ "r_textscale" "0.7" }, //0.7f is the default for HUD_SetScale(). Sets HUD Text Scale. Dupliate for RTS tips.
+	{ "r_text_xpos" "160" }, // Center text on the X Axis
+	{ "r_text_ypos"3" }, // Align text on the Y Axis
+	
 
 
 Known Bugs

@@ -123,6 +123,8 @@ typedef struct gameflags_s
 	bool shadows;
 	bool halos;
 
+	int g_agression;
+
 	bool edge_compat;
 	bool kicking;
 	bool weapon_switch;
