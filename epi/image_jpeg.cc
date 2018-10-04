@@ -52,6 +52,8 @@ namespace epi
     {
         SYS_ASSERT(img->bpp == 3);
 
+        stbi_flip_vertically_on_write(1);
+
         if (epimg_write_jpg(fp, img->width, img->height, img->bpp, img->PixelAt(0, 0), quality))
             return true;
 
