@@ -121,8 +121,9 @@ namespace epi
 		SYS_ASSERT(img->bpp >= 3);
 
         stbi_write_png_compression_level = compress;
+        stbi_flip_vertically_on_write(1);
 
-        if (epimg_write_png(fp, img->used_w, img->used_h, img->bpp, img->PixelAt(0, 0), (int)img->width))
+        if (epimg_write_png(fp, img->used_w, img->used_h, img->bpp, img->PixelAt(0, 0), (int)img->width*img->bpp))
             return true;
 
         return false;
