@@ -162,6 +162,7 @@ static std::list<drawsub_c *> drawsubs;
 
 enum {
 	E_NONE,
+	E_POSDIR_GIZMO,
 	E_CAMERA_GIZMO,
 };
 
@@ -170,11 +171,11 @@ struct gizmo_t
 	int type;
 };
 
-struct camera_gizmo_t : public gizmo_t
+struct posdir_gizmo_t : public gizmo_t
 {
-	camera_gizmo_t()
+	posdir_gizmo_t()
 	{
-		type = E_CAMERA_GIZMO;
+		type = E_POSDIR_GIZMO;
 	}
 
 	float x, y, z, ax, ay, az, scale;
@@ -186,9 +187,9 @@ static void RGL_DrawGizmo(const gizmo_t *gizmo)
 	{
 		switch (gizmo->type)
 		{
-			case E_CAMERA_GIZMO:
+			case E_POSDIR_GIZMO:
 			{
-				const camera_gizmo_t *camera = (const camera_gizmo_t *)gizmo;
+				const posdir_gizmo_t *camera = (const posdir_gizmo_t *)gizmo;
 
 				glLineWidth(4.0f);
 				glTranslatef(camera->x, camera->y, camera->z);
@@ -213,6 +214,13 @@ static void RGL_DrawGizmo(const gizmo_t *gizmo)
 				}
 				glEnd();
 				glLineWidth(1.0f);
+			}
+			break;
+
+			case E_CAMERA_GIZMO:
+			{
+				//TODO: Render a MD3 model
+				// LOad it via modeldef_c *LoadModelFromLump(int model_num) somewhere and draw how it is done in r_md2.cc...
 			}
 			break;
 
@@ -689,7 +697,7 @@ namespace cameraman
 				float ay = (float)(sin(vav) * sin(va));
 				float az = (float)cos(vav);
 
-				camera_gizmo_t gizmo;
+				posdir_gizmo_t gizmo;
 				gizmo.x = cam->x;
 				gizmo.y = cam->y;
 				gizmo.z = cam->z;
