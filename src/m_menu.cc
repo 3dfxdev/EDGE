@@ -1556,8 +1556,10 @@ void M_DrawEpisode(void)
 	if (!EpisodeMenu)
 		CreateEpisodeMenu();
 	
-	if (EpiDef.numitems == 1)
-		M_Episode(0);
+	// Below fix from usernameak indeed works, but for modifiations that do not use the normal DOOM episode style (QDOOM), this breaks that system.
+	// Needs review, or at least a hack for EDGE-specific mods that use the episodic structure. .
+	//if (EpiDef.numitems == 1) 
+	//	M_Episode(0);
 
 	HUD_DrawImage(54, 38, menu_episode);
 }
