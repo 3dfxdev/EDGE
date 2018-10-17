@@ -528,7 +528,7 @@ static void M_DisplayPause(void)
 
 		if (!pause_image)
 		{
-			if ((heretic_mode) || (rott_mode))
+			if (heretic_mode)// || (rott_mode))
 			{
 				pause_image = W_ImageLookup("PAUSED");
 			}
@@ -787,7 +787,6 @@ void E_AdvanceTitle(void)
 		}
 
 		// found one !!
-
 		if (title_pic == 0 && g->titlemusic > 0)
 			S_ChangeMusic(g->titlemusic, false);
 
