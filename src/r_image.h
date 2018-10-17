@@ -43,7 +43,7 @@ struct texturedef_s;
 #define ALPHA_SHIFT 24
 
 // Post end marker
-#define P_SENTINEL  0xFF
+#define POST_END_0xFF  0xFF
 
 // dynamic light sizing factor
 #define DL_OUTER       64.0f
@@ -110,6 +110,9 @@ public:
 
 		// case IMSRC_ROTTRAW:
 		struct { int lump; } lpic;
+
+		// case IMSRC_ROTTLBM:
+		struct { int lump; }  lbm;
 
 		// case IMSRC_Texture:
 		struct { struct texturedef_s *tdef; } texture;

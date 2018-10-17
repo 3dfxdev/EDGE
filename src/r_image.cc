@@ -203,6 +203,7 @@ static real_image_container_c real_graphics;
 static real_image_container_c real_textures;
 static real_image_container_c real_flats;
 static real_image_container_c real_sprites;
+static real_image_container_c raw_graphics;
 
 const image_c *skyflatimage;
 
@@ -308,9 +309,12 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	epi::file_c *f = W_OpenLump(lump);
 	SYS_ASSERT(f);
 
+	//byte *array;
 	byte buffer[32];
+	//byte buffer2[32];
 
 	f->Read(buffer, sizeof(buffer));
+	//f->Read(buffer, sizeof(buffer2));
 
 	f->Seek(0, epi::file_c::SEEKPOINT_START);
 
@@ -322,6 +326,11 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	// determine RAW ROTT picture info (!!!)
 	int picwidth = 0, picheight = 0;
 	int picorg_x = 0, picorg_y = 0;
+
+	int lbmwidth = 320; //EXPRESSLY SET!
+	int lbmheight = 200; //EXPRESSLY SET!
+
+
 
 
 	bool is_png = false;
@@ -392,26 +401,44 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	else  // DOOM/ROTT GRAPHICS/PATCHES/RAW
 	{
 		patch_t *pat = (patch_t *)buffer;
-		rottpatch_t *rpat = (rottpatch_t *)buffer; //TODO: V641 https://www.viva64.com/en/w/v641/ The size of the 'buffer' buffer is not a multiple of the element size of the type 'rottpatch_t'.
 
+		// Setup variables
+		size_t hdr_size = sizeof(rottpatch_t);
+		short translevel = 255;
+		if (solid)
+		{
+			translevel = EPI_LE_S16(buffer, hdr_size);
+			hdr_size += 2;
+		}
+
+		//ROTT RAW PICS
 		lpic_t *lpic = (lpic_t *)buffer; //raw ROTT pics
+		lbm_t *lbm = (lbm_t *)buffer; //LBM 
 
-		origsize = EPI_LE_S16(rpat->origsize); // ROTT (rottpatch_t is in *rpat via the rottpatch_t header)
+		origsize = EPI_LE_S16((rottpatch_t *)origsize); // ROTT (rottpatch_t is in *rpat via the rottpatch_t header)
 		width = EPI_LE_S16(pat->width);
 		height = EPI_LE_S16(pat->height);
 		offset_x = EPI_LE_S16(pat->leftoffset);
 		offset_y = EPI_LE_S16(pat->topoffset);
 
+		//ROTT RAW LPICS
+		// there is an additional decoder (byte data!)
 		picwidth = EPI_LE_S16(lpic->width);
 		picheight = EPI_LE_S16(lpic->height);
 		picorg_x = EPI_LE_S16(lpic->orgx);
 		picorg_y = EPI_LE_S16(lpic->orgy);
+
+		//ROTT PICTURE FORMAT
+		lbmwidth = EPI_LE_S16(lbm->width); //0
+		lbmheight = EPI_LE_S16(lbm->height); //2?
+		//lbmpal = PALMASK;
 
 #if 0
 		L_WriteDebug("DOOM GETINFO [%s] : size %dx%d\n", W_GetLumpName(lump), pat->width, pat->height);
 		if (rott_mode)
 		L_WriteDebug("ROTT GETINFO [%s] : size %dx%d\n", W_GetLumpName(lump), rpat->origsize, pat->width, pat->height);
 #endif
+
 
 		delete f;
 
@@ -421,12 +448,25 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 			height <= 0 || height > 512 ||
 			ABS(offset_x) > 2048 || ABS(offset_y) > 1024)
 		{
-			// check for Heretic/Hexen/ROTT images, which are raw 320x200
-			if (lump_len == 320 * 200 && type == IMSRC_Graphic || IMSRC_ROTTGFX)  //TODO: V560 https://www.viva64.com/en/w/v560/ A part of conditional expression is always true: IMSRC_ROTTGFX.
-			//TODO: V768 https://www.viva64.com/en/w/v768/ The enumeration constant 'IMSRC_ROTTGFX' is used as a variable of a Boolean-type.
+			// do checking for ROTT Graphics _FIRST_
+
+			if (lump_len == 320 * 200 && type == IMSRC_ROTTRAW)
 			{
-				I_Printf("Graphic '%s' seems to be a flat, 320x200 it..\n", name);
-				image_c *rim = NewImage(320, 200, OPAC_Solid);
+				I_Printf("ROTT: Graphic '%s' seems to be a raw graphic or image, 320x200 it..\n", name);
+				image_c *rim = NewImage(320, 200, OPAC_Solid); //!!! remember: width/height were previously 320x200
+				strcpy(rim->name, name);
+
+				rim->source_type = IMSRC_Raw320x200;
+				rim->source.lpic.lump = lump;
+				rim->source_palette = W_GetPaletteForLump(lump);
+				return rim;
+			}
+
+			// check for Heretic/Hexen, which are raw 320x200
+			if (lump_len == 320 * 200 && type == IMSRC_Graphic || IMSRC_ROTTGFX)
+			{
+				I_Printf("Heretic/Hexen: '%s' seems to be a raw image, 320x200 it..\n", name);
+				image_c *rim = NewImage(320, 200, OPAC_Solid); //!!! remember: width/height were previously 320x200
 				strcpy(rim->name, name);
 
 				rim->source_type = IMSRC_Raw320x200;
@@ -435,36 +475,52 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 				return rim;
 
 			}
+
+			if (lump_len == 320 * 200 && type == IMSRC_ROTTLBM)
+			{
+				I_Printf("Graphic '%s' seems to be a LBM, 320x200 it..\n", name);
+				image_c *rim = NewImage(320, 200, OPAC_Solid); //!!! remember: width/height were previously 320x200
+				strcpy(rim->name, name);
+
+				rim->source_type = IMSRC_Raw320x200;
+				rim->source.flat.lump = lump;
+				rim->source_palette = W_GetPaletteForLump(lump);
+				return rim;
+			}
+
 			//(origsize > 320 || width <= 0 || width > 320 ||
-			if (picwidth <= 0 || picwidth > 2048 ||
+		if (picwidth <= 0 || picwidth > 2048 ||
 				picheight <= 0 || picheight > 512 ||
 				ABS(picorg_x) > 2048 || ABS(picorg_y) > 1024)
-			{
-				if ((lump_len == 288 * 158 && type == IMSRC_ROTTRAW) || (lump_len == 320 * 200 && type == IMSRC_ROTTRAW))
+		{
+				if ((lump_len == 288 * 158 && type == IMSRC_ROTTLBM) || (lump_len == 320 * 200 && type == IMSRC_ROTTLBM))
 				{
-					I_Printf("Graphic '%s' seems to be a raw ROTT picture..\n", name);
-					image_c *rim = NewImage(picheight, picwidth, OPAC_Solid);
+					I_Printf("ROTTLBM: Graphic '%s' seems to be a raw ROTT picture..\n", name);
+					image_c *rim = NewImage(320, 200, OPAC_Solid);
 
 					rim->offset_x = picorg_x;
 					rim->offset_y = picorg_y;
 
 					strcpy(rim->name, name);
 
-					rim->source_type = IMSRC_ROTTRAW;
+					rim->source_type = IMSRC_ROTTLBM;
 					rim->source.lpic.lump = lump;
 					rim->source_palette = W_GetPaletteForLump(lump);
 					return rim;
 				}
 
 			}
+
 			if (lump_len == 64 * 64 || lump_len == 64 * 65 || lump_len == 64 * 128)
-				I_Warning("Graphic '%s' seems to be a flat.\n", name);
+				I_Warning("Graphic '%s' seems to be a flat, RETURNING NULL.\n", name);
 			else
 				I_Warning("Graphic '%s' does not seem to be a graphic.\n", name);
 
 			return NULL;
 		}
 	}
+
+
 
 	// create new image
 	image_c *rim = NewImage(width, height, solid ? OPAC_Solid : OPAC_Unknown);
@@ -546,7 +602,7 @@ static image_c *AddImageFlat(const char *name, int lump)
 
 	switch (len)
 	{
-	case 64 * 64: size = 64; break;
+	case 64 * 64: size = 64; break; // Wolf3D/et al
 
 		// support for odd-size Heretic flats
 	case 64 * 65: size = 64; break;
@@ -554,7 +610,7 @@ static image_c *AddImageFlat(const char *name, int lump)
 		// support for odd-size Hexen flats
 	case 64 * 128: size = 64; break;
 
-		// support for ROTT flats
+		// support for ROTT "flats"
 	case 128 * 128: size = 128; break;
 
 		// -- EDGE2 feature: bigger than normal flats --
@@ -585,6 +641,25 @@ static image_c *AddImageFlat(const char *name, int lump)
 	return rim;
 }
 
+static image_c *AddLBMImage(const char *name, int lump)
+{
+	image_c *rim;
+	//int len, size;
+
+	//len = W_LumpLength(lump);
+
+	rim = NewImage(320, 200, OPAC_Solid);
+
+	strcpy(rim->name, name);
+
+	rim->source_type = IMSRC_ROTTLBM;
+	rim->source.flat.lump = lump;
+	rim->source_palette = W_GetPaletteForLump(lump);
+
+	raw_graphics.push_back(rim);
+
+	return rim;
+}
 
 static image_c *AddImageUser(imagedef_c *def)
 {
@@ -712,6 +787,21 @@ void W_ImageCreateFlats(int *lumps, int number)
 	}
 }
 
+void W_ImageCreateLBM(int *lumps, int number)
+{
+	int i;
+
+	SYS_ASSERT(lumps);
+
+	for (i = 0; i < number; i++)
+	{
+		if (lumps[i] < 0)
+			continue;
+
+		AddLBMImage(W_GetLumpName(lumps[i]), lumps[i]);
+	}
+}
+
 //
 // Used to fill in the image array with textures from the WAD.  The
 // list of texture definitions comes from each TEXTURE1/2 lump in each
@@ -756,10 +846,6 @@ const image_c *W_ImageCreateSprite(const char *name, int lump, bool is_weapon)
 		return NULL;
 
 	// adjust sprite offsets so that (0,0) is normal
-
-	//need to check grAb much earlier for is_weapon. . .
-	//epi::image_data_c *grAb = ReadAsEpiBlock(rim);
-	//need to check grAb much earlier for is_weapon. . .
 	epi::image_data_c *offsets = ReadAsEpiBlock(rim);
 
 	if (is_weapon)
@@ -772,18 +858,6 @@ const image_c *W_ImageCreateSprite(const char *name, int lump, bool is_weapon)
 		rim->offset_x -= rim->actual_w / 2;   // loss of accuracy
 		rim->offset_y -= rim->actual_h;
 	}
-
-//	if (offsets->grAb != nullptr)
-	//{
-		//if (grAb->grAb->x)
-		//rim->offset_x += is_weapon ? offsets->grAb->x + (160 - rim->actual_w / 2) : offsets->grAb->x = rim->actual_w / 2 - offsets->grAb->x;
-
-		//if (grAb->grAb->y)
-		//rim->offset_y += is_weapon ? offsets->grAb->y + (200 - 32 - rim->actual_w) : offsets->grAb->y = rim->actual_h - offsets->grAb->y;
-
-	//}
-	//TODO: THIS NEEDS TO HONOR THE grAb struct, _nothing more_, and EXCLUDE 3D MODELS!
-
 	return rim;
 }
 
@@ -933,6 +1007,8 @@ static bool IM_ShouldClamp(const image_c *rim)
 	case IMSRC_ROTTGFX:
 	case IMSRC_Raw320x200:
 	case IMSRC_Sprite:
+	case IMSRC_ROTTRAW:
+	case IMSRC_ROTTLBM:
 		return true;
 
 	case IMSRC_User:
@@ -1489,6 +1565,8 @@ void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf)
 	case IMSRC_ROTTRAW:
 	case IMSRC_ROTTGFX:
 	case IMSRC_Graphic: (*type) = 'P'; return;
+
+	case IMSRC_ROTTLBM: (*type) = 'L'; return;
 
 	case IMSRC_TX_HI:
 	case IMSRC_Texture: (*type) = 'T'; return;
