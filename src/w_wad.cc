@@ -145,6 +145,7 @@ public:
 	epi::u32array_c tx_lumps;
 	epi::u32array_c hires_lumps;
 	epi::u32array_c shader_lumps;
+	epi::u32array_c lbm_lumps;
 
 	// level markers and skin markers
 	epi::u32array_c level_markers;
@@ -190,7 +191,7 @@ public:
 public:
 	data_file_c(const char *_fname, int _kind, epi::file_c* _file) :
 		file_name(_fname), kind(_kind), file(_file),
-		sprite_lumps(), flat_lumps(), patch_lumps(),
+		sprite_lumps(), flat_lumps(), patch_lumps(), lbm_lumps(),
 		colmap_lumps(), tx_lumps(), hires_lumps(),
 		level_markers(), skin_markers(),
 		wadtex(), vv(), deh_lump(-1), coal_huds(-1),
@@ -244,7 +245,8 @@ typedef enum
 	LMKIND_Patch = 18,
 	LMKIND_HiRes = 19,
 	LMKIND_Shaders = 20,
-	LMKIND_ROQ = 21
+	LMKIND_ROQ = 21,
+	LMKIND_LBM = 22
 }
 lump_kind_e;
 
@@ -324,6 +326,7 @@ bool modpalette = false;
 static bool within_sprite_list;
 static bool within_flat_list;
 static bool within_patch_list;
+static bool within_lbm_list;
 static bool within_colmap_list;
 static bool within_tex_list;
 static bool within_hires_list;
@@ -399,12 +402,12 @@ static bool IsS_END(char *name)
 //
 static bool IsF_START(char *name)
 {
-#if 0
+#if 1
 	if (strncmp(name, "WALLSTRT", 8) == 0)
 	{
 		// fix up flag to standard syntax
 		I_Printf("ROTT: WALLSTRT -> flats\n");
-		strncpy(name, "PP_START", 8);
+		strncpy(name, "F_START", 8);
 		return 1;
 	}
 
@@ -412,7 +415,7 @@ static bool IsF_START(char *name)
 	{
 		// fix up flag to standard syntax
 		I_Printf("ROTT: WALLSTRT -> flats\n");
-		strncpy(name, "PP_START", 8);
+		strncpy(name, "F_START", 8);
 		return 1;
 	}
 
@@ -421,7 +424,7 @@ static bool IsF_START(char *name)
 	{
 		I_Printf("ROTT: DOORSTRT -> flats\n");
 		// fix up flag to standard syntax
-		strncpy(name, "PP_START", 8);
+		strncpy(name, "F_START", 8);
 		return 1;
 	}
 
@@ -430,7 +433,7 @@ static bool IsF_START(char *name)
 	{
 		I_Printf("ROTT: EXITSTRT -> flats\n");
 		// fix up flag to standard syntax
-		strncpy(name, "PP_START", 8);
+		strncpy(name, "F_START", 8);
 		return 1;
 	}
 
@@ -439,7 +442,7 @@ static bool IsF_START(char *name)
 	{
 		I_Printf("ROTT: ELEVSTRT -> flats\n");
 		// fix up flag to standard syntax
-		strncpy(name, "PP_START", 8);
+		strncpy(name, "F_START", 8);
 		return 1;
 	}
 
@@ -448,19 +451,21 @@ static bool IsF_START(char *name)
 	{
 		I_Printf("ROTT: SIDESTRT -> flats\n");
 		// fix up flag to standard syntax
-		strncpy(name, "PP_START", 8);
-		return 1;
-	}
-
-	//Check DARKWAR first
-	if (strncmp(name, "UPDNSTRT", 8) == 0)
-	{
-		I_Printf("ROTT: UPDNSTRT -> Flats...\n");
-		// fix up flag to standard syntax
 		strncpy(name, "F_START", 8);
 		return 1;
 	}
+
 #endif // 0
+
+	//Check DARKWAR first
+//	if (strncmp(name, "UPDNSTRT", 8) == 0)
+//	{
+//		I_Printf("ROTT: UPDNSTRT -> Flats...\n");
+		// fix up flag to standard syntax
+//		strncpy(name, "FF_START", 8);
+//		return 1;
+//	}
+
 
 
 	//if (strncmp(name, "ORNGMAP", 8) == 0)
@@ -471,7 +476,7 @@ static bool IsF_START(char *name)
 	//	return 1;
 	//}
 
-	if (strncmp(name, "FF_START", 8) == 0)
+	if ((strncmp(name, "FF_START", 8) == 0) || (strncmp(name, "UPDNSTRT", 8) == 0))
 	{
 		// fix up flag to standard syntax
 		strncpy(name, "F_START", 8);
@@ -487,7 +492,7 @@ static bool IsF_START(char *name)
 //
 static bool IsF_END(char *name)
 {
-#if 0
+#if 1
 	if (strncmp(name, "WALLSTOP", 8) == 0)
 	{
 		// fix up flag to standard syntax
@@ -540,6 +545,8 @@ static bool IsF_END(char *name)
 		return 1;
 	}
 
+
+
 	//Check DARKWAR first
 	if (strncmp(name, "UPDNSTOP", 8) == 0)
 	{
@@ -550,7 +557,6 @@ static bool IsF_END(char *name)
 	}
 #endif // 0
 
-
 	//if (strncmp(name, "FINDRPAL", 8) == 0)
 	//{
 		// fix up flag to standard syntax
@@ -559,23 +565,22 @@ static bool IsF_END(char *name)
 	//	return 1;
 	//}
 
-	if (strncmp(name, "FF_END", 8) == 0) //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
+	if ((strncmp(name, "FF_END", 8) == 0) || (strncmp(name, "UPDNSTOP", 8) == 0))
 	{
 		// fix up flag to standard syntax
 		strncpy(name, "F_END", 8);
 		return 1;
 	}
 
-	return (strncmp(name, "F_END", 8) == 0); //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
+	return (strncmp(name, "F_END", 8) == 0);
 }
-
 //
 // Is the name a patch list start flag?
 // If lax syntax match, fix up to standard syntax.
 //
 static bool IsP_START(char *name)
 {
-#if 0
+#if 1
 	if (strncmp(name, "MASKSTRT", 8) == 0)
 	{
 		I_Printf("ROTT: MASKSTRT -> Patches\n");
@@ -716,14 +721,17 @@ static bool IsDummySF(const char *name)
 		strncmp(name, "P1_START", 8) == 0 ||
 		strncmp(name, "P2_START", 8) == 0 ||
 		strncmp(name, "P3_START", 8) == 0 ||
-		strncmp(name, "GUNSTART", 8) == 0 ||
-		strncmp(name, "GUNSTOP", 7) == 0  ||
-		strncmp(name, "MASKSTRT", 8) == 0 ||
-		strncmp(name, "MASKSTOP", 8) == 0 ||
-		strncmp(name, "SKYSTART", 8) == 0 ||
-		strncmp(name, "SKYSTOP", 7) == 0  ||
+		//strncmp(name, "GUNSTART", 8) == 0 ||
+		//strncmp(name, "WALLSTRT", 8) == 0 ||
+		//strncmp(name, "WALLSTOP", 8) == 0 ||
+		//strncmp(name, "GUNSTOP", 7) == 0  ||
+		//strncmp(name, "MASKSTRT", 8) == 0 ||
+		//strncmp(name, "MASKSTOP", 8) == 0 ||
+		//strncmp(name, "SKYSTART", 8) == 0 ||
+		//strncmp(name, "SKYSTOP", 7) == 0  ||
 		strncmp(name, "ADLSTART", 8) == 0 ||
-		strncmp(name, "DIGISTRT", 8) == 0);
+		strncmp(name, "DIGISTRT", 8) == 0 ||
+		strncmp(name, "DIGISTOP", 8) == 0);
 }
 
 
@@ -741,6 +749,8 @@ static bool IsROTTFlat_Start(const char *name)
 		strncmp(name, "ELEVSTRT", 8) == 0 ||
 		strncmp(name, "SIDESTRT", 8) == 0 ||
 		strncmp(name, "UPDNSTRT", 8) == 0);
+
+	return (strncmp(name, "FF_START", 8) == 0);
 }
 
 static bool IsROTTFlat_End(const char *name)
@@ -752,6 +762,8 @@ static bool IsROTTFlat_End(const char *name)
 		strncmp(name, "ELEVSTOP", 8) == 0 ||
 		strncmp(name, "SIDESTOP", 8) == 0 ||
 		strncmp(name, "UPDNSTOP", 8) == 0);
+
+	return (strncmp(name, "FF_END", 8) == 0);
 }
 
 
@@ -775,8 +787,8 @@ static bool IsROTTMask_End(const char *name)
 
 static bool IsROTTRaw(const char *name)
 {
-	return (strncmp(name, "TRILOGO", 8) == 0);
-	return (strncmp(name, "PLANE", 8) == 0);
+	return (strncmp(name, "TRILOGO", 8) == 0) ||
+	(strncmp(name, "PLANE", 8) == 0);
 }
 
 //
@@ -1014,6 +1026,16 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		return;
 	}
 
+	else if ((strncmp(lump_p->name, "BOOTBLOD", 8) == 0) || 
+		(strncmp(lump_p->name, "IMFREE", 8) == 0) || 
+		(strncmp(lump_p->name, "BOOTNORM", 8) == 0) ||
+		 (strncmp(lump_p->name, "DEADBOSS", 8) == 0))
+	{
+		lump_p->kind = LMKIND_LBM;
+		df->wadtex.pnames = lump;
+		return;
+	}
+
 	else if (strncmp(lump_p->name, "PNAMES", 8) == 0)
 	{
 		lump_p->kind = LMKIND_WadTex;
@@ -1115,12 +1137,6 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		within_flat_list = true;
 		return;
 	}
-	//else if (IsROTTRaw(lump_p->name))
-	//{
-		//lump_p->kind = LMKIND_Flat;
-	//	within_flat_list = true;
-	//	return;
-	//}
 	else if (IsF_END(lump_p->name))
 	{
 		if (!within_flat_list)
@@ -1230,6 +1246,12 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		{
 			lump_p->kind = LMKIND_Patch;
 			df->patch_lumps.Insert(lump);
+		}
+
+		if (within_lbm_list)
+		{
+			lump_p->kind = LMKIND_LBM;
+			df->lbm_lumps.Insert(lump);
 		}
 
 		if (within_colmap_list)
@@ -1854,8 +1876,19 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 		{	// Checks for Global ROTT palette (PLAYPAL) instead of palette-byte translation (from SLADE.pk3)
 			if (stricmp(fname, "rott") == 0)
 			{
-				// enumerate all entries in placebo ROTT Directory (inside edge2.pak)
+		//		// enumerate all entries in placebo ROTT Directory (inside edge2.pak)
 				PHYSFS_enumerate(path, LumpNamespace, userData);
+#if 0
+				I_Printf("  adding fake lump TEXTURE1\n");
+				numlumps++;
+				Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+				AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "TEXTURE1", 0);
+				I_Printf("  adding fake lump PNAMES\n");
+				numlumps++;
+				Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+				AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "PNAMES", 0);
+#endif // 0
+
 			}
 		}
 		//Startup IWAD?
@@ -3126,6 +3159,7 @@ epi::u32array_c& W_GetListLumps(int file, lumplist_e which)
 	case LMPLST_Sprites: return df->sprite_lumps;
 	case LMPLST_Flats:   return df->flat_lumps;
 	case LMPLST_Patches: return df->patch_lumps;
+	case LMPLST_LBM:     return df->lbm_lumps;
 
 	default: break;
 	}

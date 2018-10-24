@@ -74,9 +74,16 @@ public:
 	unsigned short total_w;
 	unsigned short total_h;
 
+	// Value for the 'origsize' field for Rise of the Triad patches.
+	short origsize; 
+
     // offset values.  Only used for sprites and on-screen patches.
 	short offset_x;
 	short offset_y;
+
+	// ROTT offset values. Only used for Rise of the Triad data that needs them.
+	//short roffset_x;
+	//short roffset_y;
 
 
     // scale values, where 1.0f is normal.  Higher values stretch the
@@ -112,7 +119,7 @@ public:
 		struct { int lump; } lpic;
 
 		// case IMSRC_ROTTLBM:
-		struct { int lump; }  lbm;
+		//struct { int lump; }  lbm;
 
 		// case IMSRC_Texture:
 		struct { struct texturedef_s *tdef; } texture;
@@ -292,6 +299,24 @@ typedef enum
 }
 image_source_e;
 
+
+#pragma pack(push,1)
+typedef struct {//__attribute__((packed)) {
+	unsigned __int16 transused, trans[4];
+	unsigned __int32 * pal;
+	byte colorsused[11];
+}texauxinfo_t;
+#pragma pack(pop)
+
+#pragma pack(push,2)//size = 28
+typedef struct {//__attribute__((packed)) {
+	unsigned __int16 w, h;
+	unsigned __int16 rw, rh;
+	__int16 lofs, tofs;
+	__int16 osize;
+	unsigned __int32 rep;
+} texbufinfo_t;
+#pragma pack(pop) 
 
 #endif  // __R_IMAGE__
 

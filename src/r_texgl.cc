@@ -421,7 +421,7 @@ void R_BlackenClearAreas(epi::image_data_c *img)
 		{
 			if (rott_mode)
 			{
-				if (*dest == ROTT_TRANSPIXEL)
+				if (*dest == TRANS_PIXEL)
 					*dest = pal_black;
 			}
 			else if (*dest == TRANS_PIXEL)
@@ -452,7 +452,7 @@ void R_DumpImage(epi::image_data_c *img)
 		{
 			u8_t pixel = img->PixelAt(x, y)[0];
 
-			// L_WriteDebug("%02x", pixel);
+			L_WriteDebug("%02x", pixel);
 			L_WriteDebug("%c", 'A' + (pixel % 26));
 		}
 

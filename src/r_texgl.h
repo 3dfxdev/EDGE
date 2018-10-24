@@ -19,6 +19,7 @@
 #ifndef __RGL_TEXGL_H__
 #define __RGL_TEXGL_H__
 
+#include "system/GL/gl_load.h"
 #include "../epi/image_data.h"
 
 typedef enum

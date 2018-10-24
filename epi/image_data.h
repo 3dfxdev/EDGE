@@ -35,6 +35,7 @@ struct png_grAb_t
     int32_t x, y;
 };
 
+
 class image_data_c
 {
 public:
@@ -56,6 +57,9 @@ public:
 	u8_t *pixels;
 
     png_grAb_t *grAb;
+
+	// Needed for access to origsize for determination of offsets.
+	// rottpatch_t *origsize;
 
 	// TODO: color_c *palette;
 

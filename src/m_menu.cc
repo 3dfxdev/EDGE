@@ -1555,10 +1555,8 @@ void M_DrawEpisode(void)
 {
 	if (!EpisodeMenu)
 		CreateEpisodeMenu();
-	
-	// Below fix from usernameak indeed works, but for modifiations that do not use the normal DOOM episode style (QDOOM), this breaks that system.
-	// Needs review, or at least a hack for EDGE-specific mods that use the episodic structure. .
-	if (EpiDef.numitems == 1) 
+
+	if (EpiDef.numitems == 1)
 		M_Episode(0);
 
 	HUD_DrawImage(54, 38, menu_episode);
@@ -2477,6 +2475,91 @@ static void DrawMessage(void)
 	}
 }
 
+static void ROTTMessage(void)
+{
+	short x, y;
+
+	const image_c *MESSAGEBOX = W_ImageLookup("M_BOX");
+	float w = IM_TOTAL_WIDTH(MESSAGEBOX);
+	float h = IM_TOTAL_HEIGHT(MESSAGEBOX);
+
+	HUD_SetAlpha(0.64f);
+	HUD_StretchImage(0, 0, 320, 200, MESSAGEBOX);
+	dialog_style->DrawBackground();
+	// disable for test : dialog_style->DrawBackground(); //to replace above call
+	HUD_SetAlpha();
+
+	// FIXME: HU code should support center justification: this
+	// would remove the code duplication below...
+
+	std::string msg(msg_string);
+
+	std::string input(input_string);
+
+	if (msg_mode == 2)
+		input += "_";
+
+	// Calc required height
+	SYS_ASSERT(dialog_style);
+
+	std::string s = msg + input;
+
+	y = 100 - (dialog_style->fonts[0]->StringLines(s.c_str()) *
+		dialog_style->fonts[0]->NominalHeight() / 2);
+
+	if (!msg.empty())
+	{
+		int oldpos = 0;
+		int pos;
+
+		do
+		{
+			pos = FindChar(msg, '\n', oldpos);
+
+			if (pos < 0)
+				s = std::string(msg, oldpos);
+			else
+				s = GetMiddle(msg, oldpos, pos - oldpos);
+
+			if (s.size() > 0)
+			{
+				x = 160 - (dialog_style->fonts[0]->StringWidth(s.c_str()) / 2);
+				HL_WriteText(dialog_style, 0, x, y, s.c_str());
+			}
+
+			y += dialog_style->fonts[0]->NominalHeight();
+
+			oldpos = pos + 1;
+		} while (pos >= 0 && oldpos < (int)msg.size());
+	}
+
+	if (!input.empty())
+	{
+		int oldpos = 0;
+		int pos;
+
+		do
+		{
+			pos = FindChar(input, '\n', oldpos);
+
+			if (pos < 0)
+				s = std::string(input, oldpos);
+			else
+				s = GetMiddle(input, oldpos, pos - oldpos);
+
+			if (s.size() > 0)
+			{
+				x = 160 - (dialog_style->fonts[1]->StringWidth(s.c_str()) / 2);
+				HL_WriteText(dialog_style, 1, x, y, s.c_str());
+			}
+
+			y += dialog_style->fonts[1]->NominalHeight();
+
+			oldpos = pos + 1;
+		} while (pos >= 0 && oldpos < (int)input.size());
+	}
+}
+
 //
 // Called after the view has been rendered,
 // but before it has been blitted.
@@ -2494,6 +2577,12 @@ void M_Drawer(void)
 	if (heretic_mode)
 	{
 		H_Drawer();
+		return;
+	}
+
+	if (rott_mode)
+	{
+		ROTT_Drawer();
 		return;
 	}
 
@@ -2574,111 +2663,192 @@ void M_Drawer(void)
 		int sy = currentMenu->y - 5 + itemOn * LINEHEIGHT;
 
 		//HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
-		
-		if (rott_mode)
-		{
-			HUD_DrawImage(sx, sy, rott_skull);
-		}
-		else
-			HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
-}
-
-	void H_Drawer(void)
-	{
-		short x, y;
-
-		unsigned int i;
-		unsigned int max;
-
-		if (!menuactive)
-			return;
-
-		// Horiz. & Vertically center string and print it.
-		if (msg_mode)
-		{
-			DrawMessage();
-			return;
-		}
-
-		// new options menu enable, use that drawer instead
-		if (option_menuon)
-		{
-			M_OptDrawer();
-			return;
-		}
-
-		if (netgame_menuon)
-		{
-			M_NetGameDrawer();
-			return;
-		}
-
-		if (splitgame_menuon)
-		{
-			M_SplitGameDrawer();
-			return;
-		}
-
-		style_c *style = currentMenu->style_var[0];
-		SYS_ASSERT(style);
-		HUD_SetAlpha(0.64f);
-		HUD_SolidBox(0, 0, 320, 200, T_BLACK);
-		HUD_SetAlpha();
-
-		// call Draw routine
-		if (currentMenu->draw_func)
-			(*currentMenu->draw_func)();
-
-		// DRAW MENU
-		x = currentMenu->x;
-		y = currentMenu->y;
-		max = currentMenu->numitems;
-
-		for (i = 0; i < max; i++, y += HLINEHEIGHT)
-		{
-			// ignore blank lines
-			if (!currentMenu->menuitems[i].patch_name[0])
-				continue;
-
-			if (!currentMenu->menuitems[i].image)
-				currentMenu->menuitems[i].image = W_ImageLookup(
-					currentMenu->menuitems[i].patch_name);
-
-			const image_c *image = currentMenu->menuitems[i].image;
-
-			HUD_DrawImage(x, y, image);
-		}
-
-		// DRAW SKULL
-
-		int sx = x + HSKULLXOFF;
-		int sy = currentMenu->y - 5 + itemOn * HLINEHEIGHT;
 
 		HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
-		//}
-	}
+}
 
-	void M_ClearMenus(void)
+//
+// Called after the view has been rendered,
+// but before it has been blitted.
+//
+void ROTT_Drawer(void)
+{
+	short x, y;
+
+	unsigned int i;
+	unsigned int max;
+
+	if (!menuactive)
+		return;
+
+	// Horiz. & Vertically center string and print it.
+	if (msg_mode)
 	{
-		// -AJA- 2007/12/24: save user changes ASAP (in case of crash)
-		if (menuactive)
-		{
-			M_SaveDefaults();
-		}
-
-		menuactive = false;
-		save_screenshot_valid = false;
+		ROTTMessage();
+		return;
 	}
 
-	void M_SetupNextMenu(menu_t * menudef)
+	// new options menu enable, use that drawer instead
+	if (option_menuon)
 	{
-		currentMenu = menudef;
-		itemOn = currentMenu->lastOn;
+		M_OptDrawer();
+		return;
 	}
 
-	//
-	// M_MenuFadeIn / M_MenuFadeOut
-	//
+	if (netgame_menuon)
+	{
+		M_NetGameDrawer();
+		return;
+	}
+
+	if (splitgame_menuon)
+	{
+		M_SplitGameDrawer();
+		return;
+	}
+
+	const image_c *plane_flip = W_ImageLookup("PLANE2");
+	float w = IM_TOTAL_WIDTH(plane_flip);
+	float h = IM_TOTAL_HEIGHT(plane_flip);
+
+	style_c *style = currentMenu->style_var[0];
+	SYS_ASSERT(style);
+	HUD_SetAlpha(0.64f);
+	HUD_StretchImage(w,h, w, h, plane_flip); //w,h should probably be...0, 0? second w/h should probably also be 288x158
+	HUD_SetAlpha();
+
+	// call Draw routine
+	if (currentMenu->draw_func)
+		(*currentMenu->draw_func)();
+
+	// DRAW MENU
+	x = currentMenu->x;
+	y = currentMenu->y;
+	max = currentMenu->numitems;
+
+	for (i = 0; i < max; i++, y += LINEHEIGHT)
+	{
+		// ignore blank lines
+		if (!currentMenu->menuitems[i].patch_name[0])
+			continue;
+
+		if (!currentMenu->menuitems[i].image)
+			currentMenu->menuitems[i].image = W_ImageLookup(
+				currentMenu->menuitems[i].patch_name);
+
+		const image_c *image = currentMenu->menuitems[i].image;
+
+		HUD_DrawImage(x, y, image);
+	}
+
+	// DRAW SKULL
+
+	int sx = x + SKULLXOFF;
+	int sy = currentMenu->y - 5 + itemOn * LINEHEIGHT;
+
+
+
+	HUD_DrawImage(sx, sy, rott_skull);
+
+	//}
+}
+
+void H_Drawer(void)
+{
+	short x, y;
+
+	unsigned int i;
+	unsigned int max;
+
+	if (!menuactive)
+		return;
+
+	// Horiz. & Vertically center string and print it.
+	if (msg_mode)
+	{
+		DrawMessage();
+		return;
+	}
+
+	// new options menu enable, use that drawer instead
+	if (option_menuon)
+	{
+		M_OptDrawer();
+		return;
+	}
+
+	if (netgame_menuon)
+	{
+		M_NetGameDrawer();
+		return;
+	}
+
+	if (splitgame_menuon)
+	{
+		M_SplitGameDrawer();
+		return;
+	}
+
+	style_c *style = currentMenu->style_var[0];
+	SYS_ASSERT(style);
+	HUD_SetAlpha(0.64f);
+	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
+	HUD_SetAlpha();
+
+	// call Draw routine
+	if (currentMenu->draw_func)
+		(*currentMenu->draw_func)();
+
+	// DRAW MENU
+	x = currentMenu->x;
+	y = currentMenu->y;
+	max = currentMenu->numitems;
+
+	for (i = 0; i < max; i++, y += HLINEHEIGHT)
+	{
+		// ignore blank lines
+		if (!currentMenu->menuitems[i].patch_name[0])
+			continue;
+
+		if (!currentMenu->menuitems[i].image)
+			currentMenu->menuitems[i].image = W_ImageLookup(
+				currentMenu->menuitems[i].patch_name);
+
+		const image_c *image = currentMenu->menuitems[i].image;
+
+		HUD_DrawImage(x, y, image);
+	}
+
+	// DRAW SKULL
+
+	int sx = x + HSKULLXOFF;
+	int sy = currentMenu->y - 5 + itemOn * HLINEHEIGHT;
+
+	HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
+	//}
+}
+
+void M_ClearMenus(void)
+{
+	// -AJA- 2007/12/24: save user changes ASAP (in case of crash)
+	if (menuactive)
+	{
+		M_SaveDefaults();
+	}
+
+	menuactive = false;
+	save_screenshot_valid = false;
+}
+
+void M_SetupNextMenu(menu_t * menudef)
+{
+	currentMenu = menudef;
+	itemOn = currentMenu->lastOn;
+}
+
+//
+// M_MenuFadeIn / M_MenuFadeOut
+//
 
 #if 0
 	void M_MenuFadeIn(void)
@@ -2726,371 +2896,370 @@ void M_Drawer(void)
 	}
 #endif // 0
 
-	void M_Ticker(void)
+void M_Ticker(void)
+{
+	// update language if it changed
+	if (m_language.CheckModified())
+		if (!language.Select(m_language.str))
+			I_Printf("Unknown language: %s\n", m_language.str);
+
+	if (option_menuon)
 	{
-		// update language if it changed
-		if (m_language.CheckModified())
-			if (!language.Select(m_language.str))
-				I_Printf("Unknown language: %s\n", m_language.str);
-
-		if (option_menuon)
-		{
-			M_OptTicker();
-			return;
-		}
-
-		if (netgame_menuon)
-		{
-			M_NetGameTicker();
-			return;
-		}
-
-		if (splitgame_menuon)
-		{
-			M_NetGameTicker();
-			return;
-		}
-
-		if (--skullAnimCounter <= 0)
-		{
-			whichSkull ^= 1;
-			skullAnimCounter = 8;
-		}
-
-		if (--goldskullAnimCounter <= 0)
-		{
-			whichgoldSkull ^= 1;
-			goldskullAnimCounter = 17;
-		}
+		M_OptTicker();
+		return;
 	}
 
-	void H_Init(void)
+	if (netgame_menuon)
 	{
-		if (!heretic_mode)
-		{
-			I_Printf("Heretic mode not detected, breaking into M_Init!\n");
-			return;
-		}
+		M_NetGameTicker();
+		return;
+	}
 
-		I_Printf("- Heretic Main Menu Init\n");
+	if (splitgame_menuon)
+	{
+		M_NetGameTicker();
+		return;
+	}
 
-		E_ProgressMessage(language["MiscInfo"]);
+	if (--skullAnimCounter <= 0)
+	{
+		whichSkull ^= 1;
+		skullAnimCounter = 8;
+	}
 
-		currentMenu = &HereticMainDef;
-		menuactive = false;
-		itemOn = currentMenu->lastOn;
-		whichSkull = 0;
-		skullAnimCounter = 10;
-		whichgoldSkull = 0;
+	if (--goldskullAnimCounter <= 0)
+	{
+		whichgoldSkull ^= 1;
 		goldskullAnimCounter = 17;
-		msg_mode = 0;
-		msg_string.clear();
-		msg_lastmenu = menuactive;
-		quickSaveSlot = -1;
+	}
+}
 
-		// lookup styles
-		styledef_c *def;
-
-		def = styledefs.Lookup("MENU");
-		if (!def) def = default_style;
-		menu_def_style = hu_styles.Lookup(def);
-
-		def = styledefs.Lookup("MULTIPLAYER");
-		if (!def) def = default_style;
-		menu_def_style = hu_styles.Lookup(def);
-
-		def = styledefs.Lookup("OPTIONS");
-		if (!def) def = default_style;
-		menu_def_style = hu_styles.Lookup(def);
-
-		def = styledefs.Lookup("MAIN MENU");
-		main_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
-
-		def = styledefs.Lookup("CHOOSE EPISODE");
-		episode_style = def ? hu_styles.Lookup(def) : menu_def_style;
-
-		def = styledefs.Lookup("CHOOSE SKILL");
-		skill_style = def ? hu_styles.Lookup(def) : menu_def_style;
-
-		def = styledefs.Lookup("GAME FILES");
-		files_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
-
-		def = styledefs.Lookup("LOAD MENU");
-		load_style = def ? hu_styles.Lookup(def) : menu_def_style;
-
-		def = styledefs.Lookup("SAVE MENU");
-		save_style = def ? hu_styles.Lookup(def) : menu_def_style;
-
-		def = styledefs.Lookup("DIALOG");
-		dialog_style = def ? hu_styles.Lookup(def) : menu_def_style;
-
-		def = styledefs.Lookup("SOUND VOLUME");
-		if (!def) def = styledefs.Lookup("OPTIONS");
-		if (!def) def = default_style;
-		sound_vol_style = hu_styles.Lookup(def);
-
-		// lookup required images
-
-		therm_l = W_ImageLookup("H_THERML");
-
-		therm_m = W_ImageLookup("H_THERMM");
-
-		therm_r = W_ImageLookup("H_THERMR");
-
-		therm_o = W_ImageLookup("H_THERMO"); //Heretic: M_SLDKB */
-
-		menu_loadg = W_ImageLookup("H_LOADG");
-		menu_saveg = W_ImageLookup("H_SAVEG");
-		menu_svol = W_ImageLookup("H_SNDOPT");
-		menu_newgame = W_ImageLookup("H_NGAME");
-		menu_multiplayer = W_ImageLookup("H_MULTI");
-		///menu_skill = W_ImageLookup("H_SKILL");
-		menu_skill = W_ImageLookup("NULL");
-		menu_episode = W_ImageLookup("H_EPISOD");
-
-		menu_doom = W_ImageLookup("M_HTIC");
-
-		// Menu Skull code. Notice the int is [2], but this holds [0] and [1], which as in integer = 2!
-		// Heretic logic: int is [17], but should go from [0] to [16], which as an intereger = 17!
-		menu_skull[0] = W_ImageLookup("M_SLCTR1");
-		menu_skull[1] = W_ImageLookup("M_SLCTR2");
-
-		SkullBaseLump[0] = W_ImageLookup("M_SKL00"); // iterate to 18
-		SkullBaseLump[1] = W_ImageLookup("M_SKL01");
-		SkullBaseLump[2] = W_ImageLookup("M_SKL02");
-		SkullBaseLump[3] = W_ImageLookup("M_SKL03");
-		SkullBaseLump[4] = W_ImageLookup("M_SKL04");
-		SkullBaseLump[5] = W_ImageLookup("M_SKL05");
-		SkullBaseLump[6] = W_ImageLookup("M_SKL06");
-		SkullBaseLump[7] = W_ImageLookup("M_SKL07");
-		SkullBaseLump[8] = W_ImageLookup("M_SKL08");
-		SkullBaseLump[9] = W_ImageLookup("M_SKL09");
-		SkullBaseLump[10] = W_ImageLookup("M_SKL10");
-		SkullBaseLump[11] = W_ImageLookup("M_SKL11");
-		SkullBaseLump[12] = W_ImageLookup("M_SKL12");
-		SkullBaseLump[13] = W_ImageLookup("M_SKL13");
-		SkullBaseLump[14] = W_ImageLookup("M_SKL14");
-		SkullBaseLump[15] = W_ImageLookup("M_SKL15");
-		SkullBaseLump[16] = W_ImageLookup("M_SKL16");
-		SkullBaseLump[17] = W_ImageLookup("M_SKL17");
-
-		// Further code switches out DOOM -> Heretic graphics
-
-		// Here we could catch other version dependencies,
-		//  like HELP1/2, and four episodes.
-		//    if (W_CheckNumForName("M_EPI4") < 0)
-		//      EpiDef.numitems -= 2;
-		//    else if (W_CheckNumForName("M_EPI5") < 0)
-		//      EpiDef.numitems--;
-
-		if (W_CheckNumForName("HELP") >= 0)
-			menu_readthis[0] = W_ImageLookup("HELP");
-		else
-			menu_readthis[0] = W_ImageLookup("HELP1");
-
-		if (W_CheckNumForName("HELP2") >= 0)
-			menu_readthis[1] = W_ImageLookup("HELP2");
-		else
-		{
-			menu_readthis[1] = W_ImageLookup("CREDIT");
-
-			// This is used because DOOM 2 had only one HELP
-			//  page. I use CREDIT as second page now, but
-			//  kept this hack for educational purposes.
-
-			HereticMainMenu[hreadthis] = HereticMainMenu[quitheretic];
-			HereticMainDef.numitems--;
-			HereticMainDef.y += 8; // FIXME
-			SkillDef.prevMenu = &HereticMainDef;
-			HReadDef1.draw_func = M_DrawReadThis1;
-			HReadDef1.x = 330;
-			HReadDef1.y = 165;
-			HReadMenu1[0].select_func = H_FinishReadThis;
-		}
-
-		sfx_swtchn = sfxdefs.GetEffect("SWTCHN");
-		sfx_tink = sfxdefs.GetEffect("TINK");
-		sfx_radio = sfxdefs.GetEffect("RADIO");
-		sfx_oof = sfxdefs.GetEffect("OOF");
-		sfx_pstop = sfxdefs.GetEffect("PSTOP");
-		sfx_stnmov = sfxdefs.GetEffect("STNMOV");
-		sfx_pistol = sfxdefs.GetEffect("PISTOL");
-		sfx_swtchx = sfxdefs.GetEffect("SWTCHX");
-		sfx_network = sfxdefs.GetEffect("DSSECRET");
-
-		M_OptMenuInit();
-		M_NetGameInit();
-
-		M_InitShiftXForm();
+void H_Init(void)
+{
+	if (!heretic_mode)
+	{
+		I_Printf("Heretic mode not detected, breaking into M_Init!\n");
+		return;
 	}
 
-	void M_Init(void)
+	I_Printf("- Heretic Main Menu Init\n");
+
+	E_ProgressMessage(language["MiscInfo"]);
+
+	currentMenu = &HereticMainDef;
+	menuactive = false;
+	itemOn = currentMenu->lastOn;
+	whichSkull = 0;
+	skullAnimCounter = 10;
+	whichgoldSkull = 0;
+	goldskullAnimCounter = 17;
+	msg_mode = 0;
+	msg_string.clear();
+	msg_lastmenu = menuactive;
+	quickSaveSlot = -1;
+
+	// lookup styles
+	styledef_c *def;
+
+	def = styledefs.Lookup("MENU");
+	if (!def) def = default_style;
+	menu_def_style = hu_styles.Lookup(def);
+
+	def = styledefs.Lookup("MULTIPLAYER");
+	if (!def) def = default_style;
+	menu_def_style = hu_styles.Lookup(def);
+
+	def = styledefs.Lookup("OPTIONS");
+	if (!def) def = default_style;
+	menu_def_style = hu_styles.Lookup(def);
+
+	def = styledefs.Lookup("MAIN MENU");
+	main_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("CHOOSE EPISODE");
+	episode_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("CHOOSE SKILL");
+	skill_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("GAME FILES");
+	files_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("LOAD MENU");
+	load_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("SAVE MENU");
+	save_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("DIALOG");
+	dialog_style = def ? hu_styles.Lookup(def) : menu_def_style;
+
+	def = styledefs.Lookup("SOUND VOLUME");
+	if (!def) def = styledefs.Lookup("OPTIONS");
+	if (!def) def = default_style;
+	sound_vol_style = hu_styles.Lookup(def);
+
+	// lookup required images
+
+	therm_l = W_ImageLookup("H_THERML");
+
+	therm_m = W_ImageLookup("H_THERMM");
+
+	therm_r = W_ImageLookup("H_THERMR");
+
+	therm_o = W_ImageLookup("H_THERMO"); //Heretic: M_SLDKB */
+
+	menu_loadg = W_ImageLookup("H_LOADG");
+	menu_saveg = W_ImageLookup("H_SAVEG");
+	menu_svol = W_ImageLookup("H_SNDOPT");
+	menu_newgame = W_ImageLookup("H_NGAME");
+	menu_multiplayer = W_ImageLookup("H_MULTI");
+	///menu_skill = W_ImageLookup("H_SKILL");
+	menu_skill = W_ImageLookup("NULL");
+	menu_episode = W_ImageLookup("H_EPISOD");
+
+	menu_doom = W_ImageLookup("M_HTIC");
+
+	// Menu Skull code. Notice the int is [2], but this holds [0] and [1], which as in integer = 2!
+	// Heretic logic: int is [17], but should go from [0] to [16], which as an intereger = 17!
+	menu_skull[0] = W_ImageLookup("M_SLCTR1");
+	menu_skull[1] = W_ImageLookup("M_SLCTR2");
+
+	SkullBaseLump[0] = W_ImageLookup("M_SKL00"); // iterate to 18
+	SkullBaseLump[1] = W_ImageLookup("M_SKL01");
+	SkullBaseLump[2] = W_ImageLookup("M_SKL02");
+	SkullBaseLump[3] = W_ImageLookup("M_SKL03");
+	SkullBaseLump[4] = W_ImageLookup("M_SKL04");
+	SkullBaseLump[5] = W_ImageLookup("M_SKL05");
+	SkullBaseLump[6] = W_ImageLookup("M_SKL06");
+	SkullBaseLump[7] = W_ImageLookup("M_SKL07");
+	SkullBaseLump[8] = W_ImageLookup("M_SKL08");
+	SkullBaseLump[9] = W_ImageLookup("M_SKL09");
+	SkullBaseLump[10] = W_ImageLookup("M_SKL10");
+	SkullBaseLump[11] = W_ImageLookup("M_SKL11");
+	SkullBaseLump[12] = W_ImageLookup("M_SKL12");
+	SkullBaseLump[13] = W_ImageLookup("M_SKL13");
+	SkullBaseLump[14] = W_ImageLookup("M_SKL14");
+	SkullBaseLump[15] = W_ImageLookup("M_SKL15");
+	SkullBaseLump[16] = W_ImageLookup("M_SKL16");
+	SkullBaseLump[17] = W_ImageLookup("M_SKL17");
+
+	// Further code switches out DOOM -> Heretic graphics
+
+	// Here we could catch other version dependencies,
+	//  like HELP1/2, and four episodes.
+	//    if (W_CheckNumForName("M_EPI4") < 0)
+	//      EpiDef.numitems -= 2;
+	//    else if (W_CheckNumForName("M_EPI5") < 0)
+	//      EpiDef.numitems--;
+
+	if (W_CheckNumForName("HELP") >= 0)
+		menu_readthis[0] = W_ImageLookup("HELP");
+	else
+		menu_readthis[0] = W_ImageLookup("HELP1");
+
+	if (W_CheckNumForName("HELP2") >= 0)
+		menu_readthis[1] = W_ImageLookup("HELP2");
+	else
 	{
-		if (heretic_mode)
-		{
-			H_Init();
-			return;
-		}
+		menu_readthis[1] = W_ImageLookup("CREDIT");
 
-		E_ProgressMessage(language["MiscInfo"]);
+		// This is used because DOOM 2 had only one HELP
+		//  page. I use CREDIT as second page now, but
+		//  kept this hack for educational purposes.
 
-		currentMenu = &MainDef;
-		menuactive = false;
-		itemOn = currentMenu->lastOn;
-		whichSkull = 0;
-		skullAnimCounter = 15;
-		msg_mode = 0;
-		msg_string.clear();
-		msg_lastmenu = menuactive;
-		quickSaveSlot = -1;
+		HereticMainMenu[hreadthis] = HereticMainMenu[quitheretic];
+		HereticMainDef.numitems--;
+		HereticMainDef.y += 8; // FIXME
+		SkillDef.prevMenu = &HereticMainDef;
+		HReadDef1.draw_func = M_DrawReadThis1;
+		HReadDef1.x = 330;
+		HReadDef1.y = 165;
+		HReadMenu1[0].select_func = H_FinishReadThis;
+	}
 
-		// lookup styles
-		styledef_c *def;
+	sfx_swtchn = sfxdefs.GetEffect("SWTCHN");
+	sfx_tink = sfxdefs.GetEffect("TINK");
+	sfx_radio = sfxdefs.GetEffect("RADIO");
+	sfx_oof = sfxdefs.GetEffect("OOF");
+	sfx_pstop = sfxdefs.GetEffect("PSTOP");
+	sfx_stnmov = sfxdefs.GetEffect("STNMOV");
+	sfx_pistol = sfxdefs.GetEffect("PISTOL");
+	sfx_swtchx = sfxdefs.GetEffect("SWTCHX");
+	sfx_network = sfxdefs.GetEffect("DSSECRET");
 
-		def = styledefs.Lookup("MENU");
-		if (!def) def = default_style;
-		menu_def_style = hu_styles.Lookup(def);
+	M_OptMenuInit();
+	M_NetGameInit();
 
-		def = styledefs.Lookup("MULTIPLAYER");
-		if (!def) def = default_style;
-		menu_def_style = hu_styles.Lookup(def);
+	M_InitShiftXForm();
+}
 
-		def = styledefs.Lookup("OPTIONS");
-		if (!def) def = default_style;
-		menu_def_style = hu_styles.Lookup(def);
+void M_Init(void)
+{
+	if (heretic_mode)
+	{
+		H_Init();
+		return;
+	}
 
-		def = styledefs.Lookup("MAIN MENU");
-		main_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
+	E_ProgressMessage(language["MiscInfo"]);
 
-		def = styledefs.Lookup("CHOOSE EPISODE");
-		episode_style = def ? hu_styles.Lookup(def) : menu_def_style;
+	currentMenu = &MainDef;
+	menuactive = false;
+	itemOn = currentMenu->lastOn;
+	whichSkull = 0;
+	skullAnimCounter = 15;
+	msg_mode = 0;
+	msg_string.clear();
+	msg_lastmenu = menuactive;
+	quickSaveSlot = -1;
 
-		def = styledefs.Lookup("CHOOSE SKILL");
-		skill_style = def ? hu_styles.Lookup(def) : menu_def_style;
+	// lookup styles
+	styledef_c *def;
 
-		def = styledefs.Lookup("LOAD MENU");
-		load_style = def ? hu_styles.Lookup(def) : menu_def_style;
+	def = styledefs.Lookup("MENU");
+	if (!def) def = default_style;
+	menu_def_style = hu_styles.Lookup(def);
 
-		def = styledefs.Lookup("SAVE MENU");
-		save_style = def ? hu_styles.Lookup(def) : menu_def_style;
+	def = styledefs.Lookup("MULTIPLAYER");
+	if (!def) def = default_style;
+	menu_def_style = hu_styles.Lookup(def);
 
-		def = styledefs.Lookup("DIALOG");
-		dialog_style = def ? hu_styles.Lookup(def) : menu_def_style;
+	def = styledefs.Lookup("OPTIONS");
+	if (!def) def = default_style;
+	menu_def_style = hu_styles.Lookup(def);
 
-		def = styledefs.Lookup("SOUND VOLUME");
-		if (!def) def = styledefs.Lookup("OPTIONS");
-		if (!def) def = default_style;
-		sound_vol_style = hu_styles.Lookup(def);
+	def = styledefs.Lookup("MAIN MENU");
+	main_menu_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-		// lookup required images
-		therm_l = W_ImageLookup("M_THERML");
-		therm_m = W_ImageLookup("M_THERMM");
-		therm_r = W_ImageLookup("M_THERMR");
-		therm_o = W_ImageLookup("M_THERMO");
+	def = styledefs.Lookup("CHOOSE EPISODE");
+	episode_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-		//if (W_CheckNumForName("TRESTORE") >= 0)
-		//	menu_loadg = W_ImageLookup("TRESTORE");
-		//else
-			menu_loadg = W_ImageLookup("M_LOADG");
+	def = styledefs.Lookup("CHOOSE SKILL");
+	skill_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-		//if (W_CheckNumForName("TSAVE") >= 0)
-		//	menu_saveg = W_ImageLookup("TSAVE");
-		//else
-			menu_saveg = W_ImageLookup("M_SAVEG");
+	def = styledefs.Lookup("LOAD MENU");
+	load_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-		menu_svol = W_ImageLookup("M_SVOL");
+	def = styledefs.Lookup("SAVE MENU");
+	save_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
-		if (W_CheckNumForName("TNGAME") >= 0)
-			menu_newgame = W_ImageLookup("TNGAME");
-		else
-			menu_newgame = W_ImageLookup("M_NEWG");
+	def = styledefs.Lookup("DIALOG");
+	dialog_style = def ? hu_styles.Lookup(def) : menu_def_style;
 
+	def = styledefs.Lookup("SOUND VOLUME");
+	if (!def) def = styledefs.Lookup("OPTIONS");
+	if (!def) def = default_style;
+	sound_vol_style = hu_styles.Lookup(def);
 
-		menu_multiplayer = W_ImageLookup("M_MULTI");
+	// lookup required images
+	therm_l = W_ImageLookup("M_THERML");
+	therm_m = W_ImageLookup("M_THERMM");
+	therm_r = W_ImageLookup("M_THERMR");
+	therm_o = W_ImageLookup("M_THERMO");
 
-		menu_skill = W_ImageLookup("M_SKILL");
+	//if (W_CheckNumForName("TRESTORE") >= 0)
+	//	menu_loadg = W_ImageLookup("TRESTORE");
+	//else
+	menu_loadg = W_ImageLookup("M_LOADG");
 
-		menu_episode = W_ImageLookup("M_EPISOD");
+	//if (W_CheckNumForName("TSAVE") >= 0)
+	//	menu_saveg = W_ImageLookup("TSAVE");
+	//else
+	menu_saveg = W_ImageLookup("M_SAVEG");
 
-		menu_skull[0] = W_ImageLookup("M_SKULL1");
-		menu_skull[1] = W_ImageLookup("M_SKULL2");
+	menu_svol = W_ImageLookup("M_SVOL");
 
-		if (rott_mode)
+	if (rott_mode)//(W_CheckNumForName("TNGAME") >= 0)
+		menu_newgame = W_ImageLookup("TNGAME");
+	else
+		menu_newgame = W_ImageLookup("M_NEWG");
+
+	menu_multiplayer = W_ImageLookup("M_MULTI");
+
+	menu_skill = W_ImageLookup("M_SKILL");
+
+	menu_episode = W_ImageLookup("M_EPISOD");
+
+	menu_skull[0] = W_ImageLookup("M_SKULL1");
+	menu_skull[1] = W_ImageLookup("M_SKULL2");
+
+	if (rott_mode)
 		rott_skull = W_ImageLookup("CURSOR01");
 
-		//	if (W_CheckNumForName("M_NEWG") >= 0)
-		//	    DrawKeyword("NEW GAME");//HL_WriteText(style,2, 80, 30, "NEW GAME");//HUD_DrawText(0, 0, "NEW GAME");//HL_WriteText(style,2, LoadDef.x - 4, y, "NEW GAME");
-		//or
-		// menu_doom = HL_WriteText(style,2,LoadDef.x,y, "NEW GAME");
-		if (W_CheckNumForName("M_HTIC") >= 0)
-			menu_doom = W_ImageLookup("M_HTIC");
-		else if (W_CheckNumForName("TMAIN") >= 0)
-			menu_doom = W_ImageLookup("TMAIN");
-		else
-			if (W_CheckNumForName("M_DOOM") >= 0)
-				menu_doom = W_ImageLookup("M_DOOM");
+	//	if (W_CheckNumForName("M_NEWG") >= 0)
+	//	    DrawKeyword("NEW GAME");//HL_WriteText(style,2, 80, 30, "NEW GAME");//HUD_DrawText(0, 0, "NEW GAME");//HL_WriteText(style,2, LoadDef.x - 4, y, "NEW GAME");
+	//or
+	// menu_doom = HL_WriteText(style,2,LoadDef.x,y, "NEW GAME");
+	if (W_CheckNumForName("M_HTIC") >= 0)
+		menu_doom = W_ImageLookup("M_HTIC");
+	else if (W_CheckNumForName("TMAIN") >= 0)
+		menu_doom = W_ImageLookup("TMAIN");
+	else
+		if (W_CheckNumForName("M_DOOM") >= 0)
+			menu_doom = W_ImageLookup("M_DOOM");
 
-		//code below switches out skull
-		if (W_CheckNumForName("M_SLCTR1") >= 0)
-			menu_skull[0] = W_ImageLookup("M_SLCTR1");
-		//else if (W_CheckNumForName("CURSOR01") >= 0)
-			//menu_skull[0] = W_ImageLookup("CURSOR01");
-		else
-			menu_skull[0] = W_ImageLookup("M_SKULL1");
+	//code below switches out skull
+	if (W_CheckNumForName("M_SLCTR1") >= 0)
+		menu_skull[0] = W_ImageLookup("M_SLCTR1");
+	//else if (W_CheckNumForName("CURSOR01") >= 0)
+		//menu_skull[0] = W_ImageLookup("CURSOR01");
+	else
+		menu_skull[0] = W_ImageLookup("M_SKULL1");
 
-		if (W_CheckNumForName("M_SLCTR2") >= 0)
-			menu_skull[1] = W_ImageLookup("M_SLCTR2");
-		else
-			menu_skull[1] = W_ImageLookup("M_SKULL2");
+	if (W_CheckNumForName("M_SLCTR2") >= 0)
+		menu_skull[1] = W_ImageLookup("M_SLCTR2");
+	else
+		menu_skull[1] = W_ImageLookup("M_SKULL2");
 
-		// Further code switches out DOOM -> Heretic graphics
+	// Further code switches out DOOM -> Heretic graphics
 
-		// Here we could catch other version dependencies,
-		//  like HELP1/2, and four episodes.
-		//    if (W_CheckNumForName("M_EPI4") < 0)
-		//      EpiDef.numitems -= 2;
-		//    else if (W_CheckNumForName("M_EPI5") < 0)
-		//      EpiDef.numitems--;
+	// Here we could catch other version dependencies,
+	//  like HELP1/2, and four episodes.
+	//    if (W_CheckNumForName("M_EPI4") < 0)
+	//      EpiDef.numitems -= 2;
+	//    else if (W_CheckNumForName("M_EPI5") < 0)
+	//      EpiDef.numitems--;
 
-		if (W_CheckNumForName("HELP") >= 0)
-			menu_readthis[0] = W_ImageLookup("HELP");
-		else
-			menu_readthis[0] = W_ImageLookup("HELP1");
+	if (W_CheckNumForName("HELP") >= 0)
+		menu_readthis[0] = W_ImageLookup("HELP");
+	else
+		menu_readthis[0] = W_ImageLookup("HELP1");
 
-		if (W_CheckNumForName("HELP2") >= 0)
-			menu_readthis[1] = W_ImageLookup("HELP2");
-		else
-		{
-			menu_readthis[1] = W_ImageLookup("CREDIT");
+	if (W_CheckNumForName("HELP2") >= 0)
+		menu_readthis[1] = W_ImageLookup("HELP2");
+	else
+	{
+		menu_readthis[1] = W_ImageLookup("CREDIT");
 
-			// This is used because DOOM 2 had only one HELP
-			//  page. I use CREDIT as second page now, but
-			//  kept this hack for educational purposes.
+		// This is used because DOOM 2 had only one HELP
+		//  page. I use CREDIT as second page now, but
+		//  kept this hack for educational purposes.
 
-			MainMenu[readthis] = MainMenu[quitdoom];
-			MainDef.numitems--;
-			MainDef.y += 8; // FIXME
-			SkillDef.prevMenu = &MainDef;
-			ReadDef1.draw_func = M_DrawReadThis1;
-			ReadDef1.x = 330;
-			ReadDef1.y = 165;
-			ReadMenu1[0].select_func = M_FinishReadThis;
-		}
-
-		sfx_swtchn = sfxdefs.GetEffect("SWTCHN");
-		sfx_tink = sfxdefs.GetEffect("TINK");
-		sfx_radio = sfxdefs.GetEffect("RADIO");
-		sfx_oof = sfxdefs.GetEffect("OOF");
-		sfx_pstop = sfxdefs.GetEffect("PSTOP");
-		sfx_stnmov = sfxdefs.GetEffect("STNMOV");
-		sfx_pistol = sfxdefs.GetEffect("PISTOL");
-		sfx_swtchx = sfxdefs.GetEffect("SWTCHX");
-
-		M_OptMenuInit();
-		M_NetGameInit();
-
-		M_InitShiftXForm();
+		MainMenu[readthis] = MainMenu[quitdoom];
+		MainDef.numitems--;
+		MainDef.y += 8; // FIXME
+		SkillDef.prevMenu = &MainDef;
+		ReadDef1.draw_func = M_DrawReadThis1;
+		ReadDef1.x = 330;
+		ReadDef1.y = 165;
+		ReadMenu1[0].select_func = M_FinishReadThis;
 	}
 
-	//--- editor settings ---
-	// vi:ts=4:sw=4:noexpandtab
+	sfx_swtchn = sfxdefs.GetEffect("SWTCHN");
+	sfx_tink = sfxdefs.GetEffect("TINK");
+	sfx_radio = sfxdefs.GetEffect("RADIO");
+	sfx_oof = sfxdefs.GetEffect("OOF");
+	sfx_pstop = sfxdefs.GetEffect("PSTOP");
+	sfx_stnmov = sfxdefs.GetEffect("STNMOV");
+	sfx_pistol = sfxdefs.GetEffect("PISTOL");
+	sfx_swtchx = sfxdefs.GetEffect("SWTCHX");
+
+	M_OptMenuInit();
+	M_NetGameInit();
+
+	M_InitShiftXForm();
+}
+
+//--- editor settings ---
+// vi:ts=4:sw=4:noexpandtab

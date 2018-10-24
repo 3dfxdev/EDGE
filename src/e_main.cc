@@ -179,6 +179,7 @@ bool autoquickload = false;
 std::string cfgfile;
 std::string ewadfile;
 std::string epakfile; //<---- EDGE PAK FILE
+std::string rottepak; //<---- ROTT PAK FILE
 std::string iwad_base;
 std::string wolf_base; //<--- Wolfenstein file?
 
@@ -188,6 +189,7 @@ std::string game_dir;
 std::string home_dir;
 std::string save_dir;
 std::string shot_dir;
+std::string base_dir;
 
 extern cvar_c m_language;
 extern cvar_c g_aggression;
@@ -936,6 +938,9 @@ void InitDirectories(void)
 	{
 	epakfile = epi::PATH_Join(home_dir.c_str(), "edge.epk");
 	}
+
+	//if (rott_mode)
+	//	rottepak = epi::PATH_Join(base_dir.c_str(), "/base/rott.epk"); //home dir, game dir, or base dir?
 
 	// cache directory
 	cache_dir = epi::PATH_Join(home_dir.c_str(), CACHEDIR);
@@ -1986,7 +1991,7 @@ void E_Main(int argc, const char **argv)
 
 //		E_PlayMovie("/pack0/video/intro.roq", 1);
 		if (rott_mode)
-			E_PlayMovie("/pack0/rott/video/intro.roq", 1);
+			E_PlayMovie("/pack0/video/intro.roq", 1);
 		else
 			E_PlayMovie("/pack0/video/intro.roq", 1);
 

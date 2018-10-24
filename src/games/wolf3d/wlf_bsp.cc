@@ -167,8 +167,10 @@ static seg_t *CreateSegs(void)
 	for (i=0; i < numsegs - 1; i++)
 		segs[i].sub_next = &segs[i+1];
 
-	return &segs[0];
 	I_Printf("WLF_BSP: Done creating Segs!\n"); //TODO: V779 https://www.viva64.com/en/w/v779/ Unreachable code detected. It is possible that an error is present.
+
+	return &segs[0];
+	
 }
 
 //

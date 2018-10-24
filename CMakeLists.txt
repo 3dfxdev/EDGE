@@ -53,8 +53,6 @@ endif()
 
 add_subdirectory( lzma )
 
-add_subdirectory( zdbsp )
-
 # Recursive function to place PK3 archive source files into a hierarchy of source file in the IDE
 function( assort_pk3_source_folder FOLDER_NAME PK3_DIR )
 	# Assort source files into folders in the IDE
@@ -271,8 +269,8 @@ include_directories(${SDL_INCLUDE_DIR})
 #include_directories(${GLEW_INCLUDE_DIR})
 
 # OpenGL
-find_package(OpenGL REQUIRED)
-include_directories(${OPENGL_INCLUDE_DIR})
+# find_package(OpenGL REQUIRED)
+# include_directories(${OPENGL_INCLUDE_DIR})
 
 # libvorbis/libogg
 #find_package(ogg REQUIRED)
@@ -457,6 +455,7 @@ set(EDGE_SOURCES
 	src/vm_hud.cc
 	src/vm_player.cc
 
+	src/games/rott/rt_byteordr.cc
 	src/games/wolf3d/wlf_util.cc
 	src/games/wolf3d/wlf_vswap.cc
 	src/games/wolf3d/wlf_maps.cc
