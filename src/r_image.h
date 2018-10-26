@@ -34,6 +34,19 @@
 #include "r_defs.h"
 #include "r_state.h"
 
+#ifdef _MSC_VER
+typedef unsigned short __uint16;
+typedef   signed short __int16;
+typedef unsigned int   __uint32;
+typedef   signed int   __int32;
+#else
+#include <stdint.h>
+typedef uint16_t __uint16;
+typedef int16_t  __int16;
+typedef uint32_t __uint32;
+typedef int32_t  __int32;
+#endif
+
 struct texturedef_s;
 
 
@@ -302,19 +315,19 @@ image_source_e;
 
 #pragma pack(push,1)
 typedef struct {//__attribute__((packed)) {
-	unsigned __int16 transused, trans[4];
-	unsigned __int32 * pal;
+	__uint16 transused, trans[4];
+	__uint32 * pal;
 	byte colorsused[11];
 }texauxinfo_t;
 #pragma pack(pop)
 
 #pragma pack(push,2)//size = 28
 typedef struct {//__attribute__((packed)) {
-	unsigned __int16 w, h;
-	unsigned __int16 rw, rh;
+	__uint16 w, h;
+	__uint16 rw, rh;
 	__int16 lofs, tofs;
 	__int16 osize;
-	unsigned __int32 rep;
+	__uint32 rep;
 } texbufinfo_t;
 #pragma pack(pop) 
 

@@ -339,7 +339,7 @@ static void DrawROTTColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 	int h1 = rim->actual_h;
 
 	int w2 = rim->total_w;
-	int or = rim->origsize;
+	int o1 = rim->origsize;
 
 	//I_Printf("Patch %s: %dx%d, w2: %d\n", rim->name, rim->actual_h, rim->actual_w, rim->total_w);
 
