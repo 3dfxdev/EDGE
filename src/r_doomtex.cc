@@ -96,6 +96,7 @@ enum { FT_PATCH, LT_TPATCH, LT_LPIC, LT_WALL };
 /*
 * Rule for patches: patch->collumnofs[0] == patch->width*2 + 10
 */
+#if 0
 
 int getinfo_patch(u8_t* lump, int len, texbufinfo_t* ti)
 {
@@ -135,6 +136,8 @@ int getinfo_patch(u8_t* lump, int len, texbufinfo_t* ti)
 	}
 	return 1;
 }
+#endif // 0
+
 
 #if 0
 epi::image_data_c *convert_patch(image_c *rim, int len, u32_t* gampal3, const column_t *col)//, texbufinfo_t* ti)

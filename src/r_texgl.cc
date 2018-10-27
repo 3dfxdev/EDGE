@@ -379,7 +379,7 @@ int R_DetermineOpacity(epi::image_data_c *img)
 			{
 				u8_t pix = img->PixelAt(x, y)[0];
 
-				if ((pix == TRANS_PIXEL) || (pix == ROTT_TRANSPIXEL))
+				if (pix == TRANS_PIXEL)// || (pix == ROTT_TRANSPIXEL)) !!! 
 					return OPAC_Masked;
 			}
 

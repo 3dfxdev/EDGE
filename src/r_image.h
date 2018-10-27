@@ -39,7 +39,7 @@ struct texturedef_s;
 
 // the transparent pixel value we use
 #define TRANS_PIXEL  247
-#define ROTT_TRANSPIXEL 255
+//#define ROTT_TRANSPIXEL 255 !!!
 #define ALPHA_SHIFT 24
 
 // Post end marker
@@ -300,6 +300,7 @@ typedef enum
 image_source_e;
 
 
+#if 0
 #pragma pack(push,1)
 typedef struct {//__attribute__((packed)) {
 	unsigned __int16 transused, trans[4];
@@ -316,7 +317,9 @@ typedef struct {//__attribute__((packed)) {
 	__int16 osize;
 	unsigned __int32 rep;
 } texbufinfo_t;
-#pragma pack(pop) 
+#pragma pack(pop)   
+#endif // 0
+
 
 #endif  // __R_IMAGE__
 
