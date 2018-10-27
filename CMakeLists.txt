@@ -29,6 +29,9 @@ option(HYPERTENSION "Compile Hypertension Executable" OFF)
 
 find_package( ZLIB )
 find_package( BZip2 )
+if (UNIX)
+	find_package( PhysFS )
+endif()
 
 if( ZLIB_FOUND AND NOT FORCE_INTERNAL_ZLIB )
 	message( STATUS "Using system zlib, includes found at ${ZLIB_INCLUDE_DIR}" )
@@ -49,6 +52,18 @@ else()
 	set( BZIP2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bzip2" )
 	set( BZIP2_LIBRARIES bz2 )
 	set( BZIP2_LIBRARY bz2 )
+endif()
+
+if (UNIX)
+	if( PHYSFS_FOUND AND NOT FORCE_INTERNAL_PHYSFS )
+		message( STATUS "Using system physfs library, includes found at ${BZIP2_INCLUDE_DIR}" )
+	else()
+		message( STATUS "Using internal physfs library" )
+		add_subdirectory( physfs )
+		set( PHYSFS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/physfs" )
+		set( PHYSFS_LIBRARIES libphysfs )
+		set( PHYSFS_LIBRARY libphysfs )
+	endif()
 endif()
 
 add_subdirectory( lzma )
@@ -253,8 +268,10 @@ if(UNIX)
 endif(UNIX)
 
 # Phys
-#find_package(physfs REQUIRED)
-include_directories(${physfs_INCLUDE_DIR})
+if (MSVC)
+	#find_package(physfs REQUIRED)
+	include_directories(${physfs_INCLUDE_DIR})
+endif (MSVC)
 
 # SDL
 #find_package(SDL2 REQUIRED)
