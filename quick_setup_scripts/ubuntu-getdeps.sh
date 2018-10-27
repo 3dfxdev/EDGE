@@ -22,7 +22,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 then
 	apt-get install -y libsdl2-dev libsdl2-net-dev libogg-dev libvorbis-dev libghc-zlib-dev \
 		cmake cmake-gui libgl1-mesa-dev g++ make git zlib1g-dev
-	cd $0/../..
+	cd `dirname "$0"`/..
 	git clone https://github.com/criptych/physfs
 	#make
 	#make install
