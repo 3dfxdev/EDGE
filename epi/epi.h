@@ -23,29 +23,36 @@
 #include "types.h"
 #include "macros.h"
 #include "asserts.h"
+#include "epi/physfs/physfs.h"
 
 // 
 #endif /*__SYSTEM_SPECIFIC_DEFS__*/
 
 #ifdef LINUX
+#define HAVE_PHYSFS 1
 #include "epi_linux.h"
 #endif
 
 #ifdef WIN32
+#define HAVE_PHYSFS 1
 #include "epi_win32.h"
 #endif
 
 #ifdef MACOSX
+#define HAVE_PHYSFS 1
 #include "epi_macosx.h"
 #endif
 
 #ifdef BSD
+#define HAVE_PHYSFS 1
 #include "epi_macosx.h"
 #endif
 
 #ifdef DREAMCAST
 #include "epi_dreamcast.h"
 #endif
+
+
 
 // if we can't use C++11 or aren't using VS2015, resort to gross hacks
 #if __cplusplus < 201103L && (!defined(_MSC_VER) || _MSC_VER < 1900)

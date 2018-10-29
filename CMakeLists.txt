@@ -29,9 +29,6 @@ option(HYPERTENSION "Compile Hypertension Executable" OFF)
 
 find_package( ZLIB )
 find_package( BZip2 )
-if (UNIX)
-	find_package( PhysFS )
-endif()
 
 if( ZLIB_FOUND AND NOT FORCE_INTERNAL_ZLIB )
 	message( STATUS "Using system zlib, includes found at ${ZLIB_INCLUDE_DIR}" )
@@ -54,17 +51,6 @@ else()
 	set( BZIP2_LIBRARY bz2 )
 endif()
 
-if (UNIX)
-	if( PHYSFS_FOUND AND NOT FORCE_INTERNAL_PHYSFS )
-		message( STATUS "Using system physfs library, includes found at ${BZIP2_INCLUDE_DIR}" )
-	else()
-		message( STATUS "Using internal physfs library" )
-		add_subdirectory( physfs )
-		set( PHYSFS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/physfs" )
-		set( PHYSFS_LIBRARIES libphysfs )
-		set( PHYSFS_LIBRARY libphysfs )
-	endif()
-endif()
 
 add_subdirectory( lzma )
 
@@ -222,8 +208,6 @@ if (MSVC)
 		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg/lib/libogg_staticd.lib" )
 		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg/include" )
 		set( ogg_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg/lib/libogg_static.lib" )
-		set( physfs_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/physfs/include" )
-		set( physfs_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/physfs/lib/physfs.lib" )
 		set( SDL2MAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2main.lib" )
 		set( SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/include" )
 		set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2.lib" )
@@ -241,8 +225,6 @@ if (MSVC)
 		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libogg-1.3.3/lib/libogg_staticd.lib" )
 		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libogg-1.3.3/include" )
 		set( ogg_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libogg-1.3.3/lib/libogg_static.lib" )
-		set( physfs_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/physfs/include" )
-		set( physfs_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/physfs/lib/physfs-static.lib" )
 		set( SDL2MAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2/lib/x64/SDL2main.lib" )
 		set( SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2/include" )
 		set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2/lib/x64/SDL2.lib" )
@@ -263,15 +245,9 @@ if(UNIX)
 	set( SDL2_INCLUDE_DIR "/usr/include/SDL2" )
 	set( SDL2_LIBRARY "libSDL2.so" )
 	set( ogg_RELEASE_LIBRARY "libvorbisfile.so" )
-	set( physfs_LIBRARY "libphysfs.so" )
+#	set( PHYSFS_LIBRARY "libphysfs.so" )
 #	set( kitchensink_LIBRARY "libSDL_kitchensink.so")
 endif(UNIX)
-
-# Phys
-if (MSVC)
-	#find_package(physfs REQUIRED)
-	include_directories(${physfs_INCLUDE_DIR})
-endif (MSVC)
 
 # SDL
 #find_package(SDL2 REQUIRED)
@@ -281,17 +257,11 @@ include_directories(${SDL2_INCLUDE_DIR})
 #find_package(SDL2_net REQUIRED)
 include_directories(${SDL_INCLUDE_DIR})
 
-# GLEW
-#find_package(GLEW REQUIRED)
-#include_directories(${GLEW_INCLUDE_DIR})
-
 # OpenGL
 # find_package(OpenGL REQUIRED)
 # include_directories(${OPENGL_INCLUDE_DIR})
 
 # libvorbis/libogg
-#find_package(ogg REQUIRED)
-#find_package(Vorbis REQUIRED)
 include_directories(
 	${ogg_INCLUDE_DIR}
 	${vorbis_INCLUDE_DIR}
@@ -517,7 +487,21 @@ set(EDGE_SOURCES
 	epi/sound_wav.cc
 	epi/timestamp.cc
 	epi/utility.cc
-
+	
+	# Note we only support file formats from physFS in EDGE that will be used!
+	#- all others were stripped! 
+	epi/physfs/physfs.c
+    epi/physfs/physfs_byteorder.c
+    epi/physfs/physfs_unicode.c
+	#epi/physfs/physfs_platform_posix.c #// !!!
+    epi/physfs/physfs_archiver_dir.c
+    epi/physfs/physfs_archiver_unpacked.c
+    epi/physfs/physfs_archiver_grp.c
+    epi/physfs/physfs_archiver_7z.c
+    epi/physfs/physfs_archiver_qpak.c
+    epi/physfs/physfs_archiver_wad.c
+    epi/physfs/physfs_archiver_zip.c
+    epi/physfs/physfs_archiver_iso9660.c
 
 	glbsp/src/analyze.cc
 	glbsp/src/blockmap.cc
@@ -544,6 +528,7 @@ set(EDGE_SOURCES
 
 )
 
+
 set(EDGE_WIN32_SOURCES
 	src/system/win32/w32_music.cc
 	src/system/win32/w32_mus.cc
@@ -553,6 +538,7 @@ set(EDGE_WIN32_SOURCES
 	src/system/win32/i_exception.cc
 	epi/epi_win32.cc
 	epi/filesystem_win32.cc
+	epi/physfs/physfs_platform_windows.c
 )
 
 set(EDGE_UNIX_SOURCES
@@ -562,6 +548,7 @@ set(EDGE_UNIX_SOURCES
 	src/system/unx/unx_system.cc
 	epi/filesystem_linux.cc
 	epi/epi_linux.cc
+	epi/physfs/physfs_platform_unix.c
 )
 
 set(EDGE_DREAMCAST_SOURCES
@@ -570,12 +557,14 @@ set(EDGE_DREAMCAST_SOURCES
 	src/dc_system.cc
 	src/i_videodc.cc
 	src/i_main.cc
+	epi/physfs/physfs_platform_posix.c
 )
 
 if (APPLE)
 	set(EDGE_UNIX_SOURCES
 		${EDGE_UNIX_SOURCES}
 		src/system/unx/mac/mac_ui.mm
+		epi/physfs/physfs_platform_apple.m
 	)
 endif()
 
@@ -614,7 +603,6 @@ target_link_libraries(EDGE
 	${vorbis_RELEASE_LIBRARY}
 	${vorbisFILE_RELEASE_LIBRARY}
 	${ZLIB_LIBRARY_RELEASE}
-	${physfs_LIBRARY}
 )
 
 if (WIN32)

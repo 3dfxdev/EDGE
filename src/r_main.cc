@@ -698,12 +698,14 @@ void RGL_Init(void)
 		//I_Printf("GLEW_VERSION: %s\n", glewGetString(GLEW_VERSION));
 		I_Printf("GL_SHADING_LANGUAGE_VERSION: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-		I_GLf("GL_EXTENSIONS:");
-		for (unsigned i = 0; i < m_Extensions.Size(); i++)
+		if ((M_CheckParm("-debugopengl")))
 		{
-			I_GLf(" %s", m_Extensions[i].c_str());
+			I_GLf("GL_EXTENSIONS:");
+			for (unsigned i = 0; i < m_Extensions.Size(); i++)
+			{
+				I_GLf(" %s", m_Extensions[i].c_str());
+			}
 		}
-
 		I_Printf("OpenGL: Implementation limits:\n");
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &v);
 		I_Printf("-Maximum texture size: %d\n", v);

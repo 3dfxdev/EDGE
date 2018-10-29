@@ -24,8 +24,8 @@
 
 /** Eureka change: namespacing */
 
-#define GLBSP_VER  "2.27"
-#define GLBSP_VER_HEX  0x227
+#define GLBSP_VER  "2.28"
+#define GLBSP_VER_HEX  0x228
 
 
 // certain GCC attributes can be useful
@@ -34,6 +34,10 @@
 #define GCCATTR(xyz)  __attribute__ (xyz)
 #else
 #define GCCATTR(xyz)  /* nothing */
+#endif
+
+#ifdef HAVE_PHYSFS
+#include "epi/physfs/physfs.h"
 #endif
 
 

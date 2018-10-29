@@ -20,10 +20,6 @@
 
 #include "file_sub.h"
 
-#ifdef HAVE_PHYSFS
-#include <physfs.h>
-#endif
-
 namespace epi
 {
 

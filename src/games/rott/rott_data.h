@@ -22,8 +22,10 @@
 //  most of the data is loaded into different structures at run time
 //  some internal structures shared by many modules are here
 //
+#pragma once
 #ifndef __ROTT_DATA_H__
 #define __ROTT_DATA_H__
+#include "rt_byteordr.h"
 
 /// TODO: Define lump order in ROTT WAD, define FL_ flags here as well (translated to 3DGE's MPF_ flags)
 
@@ -57,10 +59,10 @@ typedef struct {
 
 #define CONVERT_ENDIAN_lpic_t(lp)            \
     {                                        \
-        SwapIntelShort(&lp->width);          \
-        SwapIntelShort(&lp->height);         \
-        SwapIntelShort(&lp->orgx);           \
-        SwapIntelShort(&lp->orgy);           \
+        EPI_LE_S16(&lp->width);          \
+        EPI_LE_S16(&lp->height);         \
+        EPI_LE_S16(&lp->orgx);           \
+        EPI_LE_S16(&lp->orgy);           \
     }
 
 typedef struct {
@@ -73,9 +75,9 @@ typedef struct {
 #define CONVERT_ENDIAN_font_t(fp)            \
     {                                        \
         int i;                               \
-        SwapIntelShort(&fp->height);         \
+        EPI_LE_S16(&fp->height);         \
         for (i = 0; i < 256; i++) {          \
-            SwapIntelShort(&fp->charofs[i]); \
+            EPI_LE_S16(&fp->charofs[i]); \
         }                                    \
     }
 
@@ -88,8 +90,8 @@ typedef struct {
 
 #define CONVERT_ENDIAN_lbm_t(lp)             \
     {                                        \
-        SwapIntelShort(&lp->width);          \
-        SwapIntelShort(&lp->height);         \
+        EPI_LE_S16(&lp->width);          \
+        EPI_LE_S16(&lp->height);         \
     }
 
 typedef struct {
@@ -104,13 +106,13 @@ typedef struct {
 #define CONVERT_ENDIAN_patch_t(pp)           \
     {                                        \
         int i;                               \
-        SwapIntelShort(&pp->origsize);       \
-        SwapIntelShort(&pp->width);          \
-        SwapIntelShort(&pp->height);         \
-        SwapIntelShort(&pp->leftoffset);     \
-        SwapIntelShort(&pp->topoffset);      \
+        EPI_LE_S16(&pp->origsize);       \
+        EPI_LE_S16(&pp->width);          \
+        EPI_LE_S16(&pp->height);         \
+        EPI_LE_S16(&pp->leftoffset);     \
+        EPI_LE_S16(&pp->topoffset);      \
         for (i = 0; i < pp->width; i++) {          \
-            SwapIntelShort((short*)&pp->collumnofs[i]); \
+            EPI_LE_S16((short*)&pp->collumnofs[i]); \
         }                                    \
     }
 
@@ -127,14 +129,14 @@ typedef struct {
 #define CONVERT_ENDIAN_transpatch_t(pp)      \
     {                                        \
         int i;                               \
-        SwapIntelShort(&pp->origsize);       \
-        SwapIntelShort(&pp->width);          \
-        SwapIntelShort(&pp->height);         \
-        SwapIntelShort(&pp->leftoffset);     \
-        SwapIntelShort(&pp->topoffset);      \
-        SwapIntelShort(&pp->translevel);     \
+        EPI_LE_S16(&pp->origsize);       \
+        EPI_LE_S16(&pp->width);          \
+        EPI_LE_S16(&pp->height);         \
+        EPI_LE_S16(&pp->leftoffset);     \
+        EPI_LE_S16(&pp->topoffset);      \
+        EPI_LE_S16(&pp->translevel);     \
         for (i = 0; i < pp->width; i++) {          \
-            SwapIntelShort((short*)&pp->collumnofs[i]); \
+            EPI_LE_S16((short*)&pp->collumnofs[i]); \
         }                                    \
     }
 
@@ -150,9 +152,9 @@ typedef struct {
 #define CONVERT_ENDIAN_cfont_t(pp)           \
     {                                        \
         int i;                               \
-        SwapIntelShort(&pp->height);         \
+        EPI_LE_S16(&pp->height);         \
         for (i = 0; i < 256; i++) {          \
-            SwapIntelShort(&pp->charofs[i]); \
+            EPI_LE_S16(&pp->charofs[i]); \
         }                                    \
     }
 

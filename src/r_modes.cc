@@ -232,6 +232,8 @@ void R_SoftInitResolution(void)
 
 static bool DoExecuteChangeResolution(scrmode_c *mode)
 {
+	//delete FGLRenderBuffers::Instance(); // delete the renderbuffer instance!
+
 	RGL_StopWipe();  // delete any wipe texture too
 
 	W_DeleteAllImages();
@@ -251,6 +253,8 @@ static bool DoExecuteChangeResolution(scrmode_c *mode)
 	// gfx card doesn't like to switch too rapidly
 	I_Sleep(250);
 	I_Sleep(250);
+
+	RGL_InitRenderBuffers(); //!!!
 
 	return true;
 }

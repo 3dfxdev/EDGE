@@ -32,8 +32,6 @@
 
 #include <zlib.h>
 
-#include <physfs.h>
-
 #include "blockmap.h"
 #include "level.h"
 #include "node.h"

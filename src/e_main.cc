@@ -37,9 +37,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
-#ifdef HAVE_PHYSFS
-#include <physfs.h>
-#endif
 
 #include "../epi/exe_path.h"
 #include "../epi/file.h"
@@ -1511,18 +1508,18 @@ static void SetupLogAndDebugFiles(void)
 	{
 		debugfile = fopen(debug_fn.c_str(), "w");
 
-		openglfile = fopen(gl_fn.c_str(), "w");
+		//openglfile = fopen(gl_fn.c_str(), "w");
 
-		shadercompilefile = fopen(glsl_fn.c_str(), "w");
+		//shadercompilefile = fopen(glsl_fn.c_str(), "w");
 
 		if (!debugfile)
 			I_Error("[E_Startup] Unable to create debugfile");
 
 		if (!openglfile)
-			I_Error("[E_Startup] Unable to create openglfile");
+			I_Warning("[E_Startup] Unable to create openglfile");
 
 		if (!shadercompilefile)
-			I_Error("[E_Startup] Unable to create shadercompilefile");
+			I_Warning("[E_Startup] Unable to create shadercompilefile");
 	}
 }
 

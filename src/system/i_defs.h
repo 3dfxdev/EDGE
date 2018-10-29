@@ -24,9 +24,7 @@
 #include "../con_var.h"
 #include "i_system.h"
 
-#ifdef HAVE_PHYSFS
-#include <physfs.h>
-#endif
+
 
 #endif
 //--- editor settings ---
