@@ -66,6 +66,7 @@
 #include "w_wad.h"
 #include "z_zone.h"
 #include "games/wolf3d/wlf_rawdef.h"
+#include "games/rott/rt_byteordr.h"
 
 // LIGHTING DEBUGGING
 // #define MAKE_TEXTURES_WHITE  1
@@ -448,18 +449,28 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	//ROTT PICTURE FORMAT
 	lbmwidth = EPI_LE_S16(lbm->width); //0
 	lbmheight = EPI_LE_S16(lbm->height); //2?
-		
-
-#if 0
-		//if (rott_mode)
-		//L_WriteDebug("ROTT GETINFO [%s] : size %dx%d\n", W_GetLumpName(lump), rpat->width, rpat->height);
-		//else
-		//L_WriteDebug("DOOM GETINFO [%s] : size %dx%d\n", W_GetLumpName(lump), pat->width, pat->height);
-		
-#endif
-
 
 		delete f;
+
+		if (picwidth <= 0 || picwidth > 2048 ||
+			picheight <= 0 || picheight > 512 ||
+			ABS(picorg_x) > 2048 || ABS(picorg_y) > 1024)
+		{
+			if (lump_len == 64008 && type == IMSRC_rottpic) //64008 = 320 * 200 + headr (8), must be a lpic_t
+			{
+				I_Printf("rottpic: '%s' seems to be a raw image + header (lpic_t)..\n", name);
+				image_c *rim = NewImage(320, 200, OPAC_Solid); //!!! remember: width/height were previously 320x200
+				strcpy(rim->name, name);
+				I_Printf("rottpic: Read lpic Image: '%s'\n", name);
+
+				rim->offset_x = picorg_x;
+				rim->offset_y = picorg_y;
+				rim->source_type = IMSRC_rottpic;
+				rim->source.lpic.lump = lump;
+				rim->source_palette = W_GetPaletteForLump(lump);
+				return rim;
+			}
+		}
 
 		// do some basic checks
 				// !!! FIXME: identify lump types in wad code.
@@ -469,19 +480,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 		{
 			// do checking for ROTT Graphics _FIRST_
 
-#if 0
-			if (lump_len == 320 * 200 && type == IMSRC_ROTTRAW)
-			{
-				I_Printf("ROTT: Graphic '%s' seems to be a raw graphic or image, 320x200 it..\n", name);
-				image_c *rim = NewImage(320, 200, OPAC_Solid); //!!! remember: width/height were previously 320x200
-				strcpy(rim->name, name);
-
-				rim->source_type = IMSRC_Raw320x200;
-				rim->source.lpic.lump = lump;
-				rim->source_palette = W_GetPaletteForLump(lump);
-				return rim;
-			}
-#endif // 0
+		// int expectlen = width * height + 8; if (lump_len != expectlen)
 
 
 			// check for Heretic/Hexen, which are raw 320x200
@@ -764,6 +763,7 @@ static image_c *AddImageUser(imagedef_c *def)
 	case INS_Texture: real_textures.push_back(rim); break;
 	case INS_Flat:    real_flats.push_back(rim); break;
 	case INS_Sprite:  real_sprites.push_back(rim); break;
+	case INS_rottpic: raw_graphics.push_back(rim); break;
 
 	default:
 		I_Error("INTERNAL ERROR: Bad belong value: %d\n", def->belong);
@@ -1374,7 +1374,7 @@ static const image_c *BackupGraphic(const char *gfx_name, int flags)
 		if (rim)
 			return rim;
 
-		rim = do_Lookup(real_graphics, gfx_name, IMSRC_ROTTRAW);
+		rim = do_Lookup(raw_graphics, gfx_name, IMSRC_rottpic);
 		if (rim)
 			return rim;
 
@@ -1469,6 +1469,11 @@ const image_c *W_ImageLookup(const char *name, image_namespace_e type, int flags
 	{
 		rim = do_Lookup(real_sprites, name);
 		return rim ? rim : BackupSprite(name, flags);
+	}
+	if (type == INS_rottpic)
+	{
+		rim = do_Lookup(raw_graphics, name);
+		return rim ? rim : BackupGraphic(name, flags);
 	}
 
 	/* INS_Graphic */
@@ -1565,7 +1570,7 @@ void W_ImageMakeSaveString(const image_c *image, char *type, char *namebuf)
 	{
 	case IMSRC_Raw320x200:
 	//case IMSRC_ROTTRAW:
-	//case IMSRC_ROTTGFX:
+	case IMSRC_ROTTGFX:
 	case IMSRC_Graphic: (*type) = 'P'; return;
 
 	//case IMSRC_ROTTLBM: (*type) = 'L'; return;
@@ -1780,6 +1785,7 @@ void W_UpdateImageAnims(void)
 	do_Animate(real_graphics);
 	do_Animate(real_textures);
 	do_Animate(real_flats);
+	do_Animate(raw_graphics);
 }
 
 void W_DeleteAllImages(void)

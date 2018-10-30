@@ -12,7 +12,7 @@ var w_message : string
 var text_float : float
 
 
-function SMALLFON_weapon_icon(slot, x, y, off_pic : string, on_pic : string) =
+function doom_weapon_icon(slot, x, y, off_pic : string, on_pic : string) =
 {
     if (player.has_weapon_slot(slot))
         hud.draw_image(x, y, on_pic)
@@ -21,7 +21,7 @@ function SMALLFON_weapon_icon(slot, x, y, off_pic : string, on_pic : string) =
 }
 
 
-function SMALLFON_key(x, y, card, skull,
+function doom_key(x, y, card, skull,
     card_pic : string, skull_pic : string, both_pic : string) =
 {
     var has_cd = player.has_key(card)
@@ -142,15 +142,16 @@ function select_new_face() =
     {
         // look left or right
         face_priority = 0
-        face_image = "STFST" + pain_digit() + turn_digit()
+        face_image = "PLAYER4" 
+		//+ pain_digit() + turn_digit()
         face_time = 17
     }
     face_time = face_time - hud.passed_time
 }
 
-function SMALLFONguy_face (x, y) =
+function doomguy_face (x, y) =
 {
-    //---| SMALLFONguy_face |---
+    //---|doomguy_face |---
     select_new_face()
 
     // FIXME faceback
@@ -158,7 +159,7 @@ function SMALLFONguy_face (x, y) =
     hud.draw_image(x - 1, y - 1, face_image)
 }
 
-function SMALLFON_little_ammo() =
+function doom_little_ammo() =
 {
     hud.text_font("YELLOW_DIGIT")
     hud.text_color(hud.NO_COLOR)
@@ -175,26 +176,26 @@ function SMALLFON_little_ammo() =
 }
 
 
-function SMALLFON_little_ammo2() = 
+function doom_little_ammo2() = 
 {
     hud.text_font("GREY_DIGIT")
     hud.text_color(hud.NO_COLOR)
 
-SMALLFON_weapon_icon(2, 277, 150, "STGNUM2", "STSMNUM2")
-SMALLFON_weapon_icon(3, 277, 156, "STGNUM3", "STSMNUM3")
-SMALLFON_weapon_icon(4, 277, 162, "STGNUM4", "STSMNUM4")
+doom_weapon_icon(2, 277, 150, "STGNUM2", "STSMNUM2")
+doom_weapon_icon(3, 277, 156, "STGNUM3", "STSMNUM3")
+doom_weapon_icon(4, 277, 162, "STGNUM4", "STSMNUM4")
 
-SMALLFON_weapon_icon(5, 299, 150, "STGNUM5", "STSMNUM5")
-SMALLFON_weapon_icon(6, 299, 156, "STGNUM6", "STSMNUM6")
-SMALLFON_weapon_icon(7, 299, 162, "STGNUM7", "STSMNUM7")
+doom_weapon_icon(5, 299, 150, "STGNUM5", "STSMNUM5")
+doom_weapon_icon(6, 299, 156, "STGNUM6", "STSMNUM6")
+doom_weapon_icon(7, 299, 162, "STGNUM7", "STSMNUM7")
 
-SMALLFON_weapon_icon(2, 280, 150, "STGNCOMA", "STSMCOMA")
-SMALLFON_weapon_icon(3, 280, 156, "STGNCOMA", "STSMCOMA")
-SMALLFON_weapon_icon(4, 280, 162, "STGNCOMA", "STSMCOMA")
+doom_weapon_icon(2, 280, 150, "STGNCOMA", "STSMCOMA")
+doom_weapon_icon(3, 280, 156, "STGNCOMA", "STSMCOMA")
+doom_weapon_icon(4, 280, 162, "STGNCOMA", "STSMCOMA")
 
-SMALLFON_weapon_icon(5, 302, 150, "STGNCOMA", "STSMCOMA")
-SMALLFON_weapon_icon(6, 302, 156, "STGNCOMA", "STSMCOMA")
-SMALLFON_weapon_icon(7, 302, 162, "STGNCOMA", "STSMCOMA")
+doom_weapon_icon(5, 302, 150, "STGNCOMA", "STSMCOMA")
+doom_weapon_icon(6, 302, 156, "STGNCOMA", "STSMCOMA")
+doom_weapon_icon(7, 302, 162, "STGNCOMA", "STSMCOMA")
 
 
     hud.draw_num2(295, 150, 3, player.ammo(1))
@@ -208,7 +209,7 @@ SMALLFON_weapon_icon(7, 302, 162, "STGNCOMA", "STSMCOMA")
 }
 
 
-function SMALLFON_status_bar() =
+function doom_status_bar() =
 {
     hud.draw_image(  0, 168, "STBAR")
     hud.draw_image( 90, 171, "STTPRCNT")
@@ -228,25 +229,25 @@ function SMALLFON_status_bar() =
     {
         hud.draw_image(104, 168, "STARMS")
 
-        SMALLFON_weapon_icon(2, 111, 172, "STGNUM2", "STYSNUM2")
-        SMALLFON_weapon_icon(3, 123, 172, "STGNUM3", "STYSNUM3")
-        SMALLFON_weapon_icon(4, 135, 172, "STGNUM4", "STYSNUM4")
+        doom_weapon_icon(2, 111, 172, "STGNUM2", "STYSNUM2")
+        doom_weapon_icon(3, 123, 172, "STGNUM3", "STYSNUM3")
+        doom_weapon_icon(4, 135, 172, "STGNUM4", "STYSNUM4")
 
-        SMALLFON_weapon_icon(5, 111, 182, "STGNUM5", "STYSNUM5")
-        SMALLFON_weapon_icon(6, 123, 182, "STGNUM6", "STYSNUM6")
-        SMALLFON_weapon_icon(7, 135, 182, "STGNUM7", "STYSNUM7")
+        doom_weapon_icon(5, 111, 182, "STGNUM5", "STYSNUM5")
+        doom_weapon_icon(6, 123, 182, "STGNUM6", "STYSNUM6")
+        doom_weapon_icon(7, 135, 182, "STGNUM7", "STYSNUM7")
     }
 
-    SMALLFONguy_face(144, 169)
+   doomguy_face(144, 169)
 
-    SMALLFON_key(239, 171, 1, 5, "STKEYS0", "STKEYS3", "STKEYS6")
-    SMALLFON_key(239, 181, 2, 6, "STKEYS1", "STKEYS4", "STKEYS7")
-    SMALLFON_key(239, 191, 3, 7, "STKEYS2", "STKEYS5", "STKEYS8")
+    doom_key(239, 171, 1, 5, "STKEYS0", "STKEYS3", "STKEYS6")
+    doom_key(239, 181, 2, 6, "STKEYS1", "STKEYS4", "STKEYS7")
+    doom_key(239, 191, 3, 7, "STKEYS2", "STKEYS5", "STKEYS8")
 
-    SMALLFON_little_ammo()
+    doom_little_ammo()
 }
 
-function SMALLFON_overlay_status() = 
+function doom_overlay_status() = 
     {
 	if (player.has_power(player.GOGGLES))
         hud.draw_image(247, 0, "STTPOWR6")
@@ -628,7 +629,7 @@ else
     if (player.power_left(player.GOGGLES) > 1)
         hud.draw_image(247, 0, "POWBAR20")
 
-    SMALLFONguy_face(0, 166)
+   doomguy_face(0, 166)
 
 if (player.has_key(1))
     hud.draw_image(  86, 170, "STKEYS0")
@@ -648,7 +649,7 @@ if (player.has_key(6))
 if (player.has_key(7))
     hud.draw_image(  96, 190, "STKEYS5")
 
-    SMALLFON_little_ammo2()
+    doom_little_ammo2()
 
     hud.set_alpha(0.1)
     if (player.has_power(player.ACID_SUIT))
@@ -736,7 +737,7 @@ hud.draw_num2(78, 179, 3, player.health()) // 100
 
 }
 
-function SMALLFON_splitscreen_status() = 
+function doom_splitscreen_status() = 
     {
 	if (player.has_power(player.GOGGLES))
         hud.draw_image(247, 0, "STTPOWR6")
@@ -1118,7 +1119,7 @@ else
     if (player.power_left(player.GOGGLES) > 1)
         hud.draw_image(247, 0, "POWBAR20")
 
-    // SMALLFONguy_face(0, 166)
+    //doomguy_face(0, 166)
 	hud.draw_image(0, 166, "MEDIA0")
 
 if (player.has_key(1))
@@ -1139,7 +1140,7 @@ if (player.has_key(6))
 if (player.has_key(7))
     hud.draw_image(  96, 190, "STKEYS5")
 
-    SMALLFON_little_ammo2()
+    doom_little_ammo2()
 
     hud.set_alpha(0.1)
     if (player.has_power(player.ACID_SUIT))
@@ -1228,7 +1229,7 @@ hud.draw_num2(78, 179, 3, player.health()) // 100
 }
 
 
-function zSMALLFON_overlay_status() = 
+function zdoom_overlay_status() = 
  {
 	if (player.has_power(player.GOGGLES))
         hud.draw_image(247, 0, "STTPOWR6")
@@ -1738,7 +1739,7 @@ hud.text_color(hud.NO_COLOR)
 
 }
 
-function SMALLFON_automap() =
+function doom_automap() =
 {
     // Background is already black, only need to use 'solid_box'
     // when we want a different color.
@@ -1751,7 +1752,7 @@ function SMALLFON_automap() =
     hud.draw_text(0, 200 - 32 - 10, hud.map_title())
     hud.draw_text(0, 200 - 32 - 10, hud.map_title())
 
-        SMALLFON_overlay_status()
+        doom_overlay_status()
 }
 
 
@@ -1790,7 +1791,7 @@ function draw_all() =
 
     if (hud.check_automap())
     {
-        SMALLFON_automap()
+        doom_automap()
         return
     }
 	
@@ -1805,11 +1806,11 @@ function draw_all() =
         hud.render_world(0, 0, 320, 200)
 
     if (which == 0)
-        SMALLFON_status_bar()
+        doom_status_bar()
     else if (which == 2)
-        SMALLFON_overlay_status()
+        doom_overlay_status()
 	else if (which == 3)
-		zSMALLFON_overlay_status()
+		zdoom_overlay_status()
 
     edge_air_bar()
 	// message_ticker()
@@ -1823,7 +1824,7 @@ function draw_split() =
 
     if (hud.check_automap())
     {
-        SMALLFON_automap()
+        doom_automap()
         return
     }
 	
@@ -1833,9 +1834,9 @@ function draw_split() =
         hud.render_world(0, 0, 320, 200)
 		
 		if (which == 0)
-        SMALLFON_splitscreen_status()
+        doom_splitscreen_status()
 		else if (which == 2)
-		zSMALLFON_overlay_status()
+		zdoom_overlay_status()
 
     edge_air_bar()
 	// message_ticker()

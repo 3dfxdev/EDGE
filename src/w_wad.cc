@@ -139,13 +139,15 @@ public:
 	epi::u32array_c colmap_lumps;
 	epi::u32array_c tx_lumps;
 	epi::u32array_c hires_lumps;
-	epi::u32array_c shader_lumps;
+	//epi::u32array_c shader_lumps;
 	epi::u32array_c lbm_lumps;
+	epi::u32array_c rottpic_lumps;
+	epi::u32array_c rottraw_flats;
 
 	// level markers and skin markers
 	epi::u32array_c level_markers;
 	epi::u32array_c skin_markers;
-	epi::u32array_c rottraw_markers;
+	//epi::u32array_c rottraw_markers;
 
 	// ddf lump list
 	int ddf_lumps[NUM_DDF_READERS];
@@ -155,6 +157,14 @@ public:
 
 	// Wolfenstein texture information (basic)
 	raw_vswap_t vv;
+
+	// Rise of the Triad LBM (only used for 5 images)
+	int lbm_pic;
+
+	int lpic_rott;
+
+	// Rise of the Triad RAW (only used for FLRCL flats and PLANE/TRILOGO)
+	int raw_flats;
 
 	// DeHackEd support
 	int deh_lump;
@@ -172,12 +182,18 @@ public:
 	// BOOM stuff
 	int animated, switches;
 
+	// rottpic LPIC RAW
+	//int rott_lpic;
+
+	// raw LBM lumps!
+	//int lbm_lumps;
+
 	// file containing the GL nodes for the levels in this WAD.
 	// -1 when none (usually when this WAD has no levels, but also
 	// temporarily before a new GWA files has been built and added).
 	int companion_gwa;
 
-	int wolf_maphead;
+	//int rottpic_lumps;
 
 	// MD5 hash of the contents of the WAD directory.
 	// This is used to disambiguate cached GWA/HWA filenames.
@@ -186,12 +202,13 @@ public:
 public:
 	data_file_c(const char *_fname, int _kind, epi::file_c* _file) :
 		file_name(_fname), kind(_kind), file(_file),
-		sprite_lumps(), flat_lumps(), patch_lumps(), lbm_lumps(),
+		sprite_lumps(), flat_lumps(), patch_lumps(), 
 		colmap_lumps(), tx_lumps(), hires_lumps(),
+		lbm_lumps(), rottpic_lumps(), rottraw_flats(),
 		level_markers(), skin_markers(),
-		wadtex(), vv(), deh_lump(-1), coal_huds(-1),
+		wadtex(), vv(), lbm_pic(-1), lpic_rott(-1), raw_flats(-1), deh_lump(-1), coal_huds(-1),
 		coal_api(-1), shader_files(-1), roq_videos(-1), animated(-1), switches(-1),
-		wolf_maphead(-1), companion_gwa(-1), dir_hash()
+		companion_gwa(-1), dir_hash()
 	{
 		file_name = strdup(_fname);
 
@@ -241,7 +258,9 @@ typedef enum
 	LMKIND_HiRes = 19,
 	LMKIND_Shaders = 20,
 	LMKIND_ROQ = 21,
-	LMKIND_LBM = 22
+	LMKIND_LBM = 22,
+	LMKIND_LPIC = 23, //imsrc_rottpic
+	LMKIND_RAWFLATS = 24
 }
 lump_kind_e;
 
@@ -322,6 +341,8 @@ static bool within_sprite_list;
 static bool within_flat_list;
 static bool within_patch_list;
 static bool within_lbm_list;
+static bool within_rottpic_list; //lpic_t
+static bool within_rawflats_list;
 static bool within_colmap_list;
 static bool within_tex_list;
 static bool within_hires_list;
@@ -338,14 +359,6 @@ byte *W_ReadLumpAlloc(int lump, int *length);
 //
 static bool IsS_START(char *name)
 {
-	if ((strncmp(name, "GUNSTART", 8) == 0) && (strncmp(name, "SHAPSTART", 8) == 0)) //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
-	{
-		 //fix up flag to standard syntax
-		 //Note: strncpy will pad will nulls
-		strncpy(name, "S_START", 8);
-		return 1;
-	}
-
 	if (strncmp(name, "SS_START", 8) == 0)
 	{
 		// fix up flag to standard syntax
@@ -363,32 +376,16 @@ static bool IsS_START(char *name)
 //
 static bool IsS_END(char *name)
 {
-	if ((strncmp(name, "GUNSTOP", 8) == 0) || (strncmp(name, "SHAPSTOP", 8) == 0))
-	{
-		 //fix up flag to standard syntax
-		// Note: strncpy will pad will nulls
-		I_Printf("ROTT: SPRITES END PROCESSING...\n");
-		strncpy(name, "S_END", 8);
-		return 1;
-	}
 
-	if (strncmp(name, "SHAPSTOP", 8) == 0)
-	{
-		 //fix up flag to standard syntax
-		 //Note: strncpy will pad will nulls
-		I_Printf("ROTT: SHAPSTOP -> Sprites list end...\n");
-		strncpy(name, "S_START", 8);
-		return 1;
-	}
 
-	if (strncmp(name, "SS_END", 8) == 0) //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
+	if (strncmp(name, "SS_END", 8) == 0) 
 	{
 		// fix up flag to standard syntax
 		strncpy(name, "S_END", 8);
 		return 1;
 	}
 
-	return (strncmp(name, "S_END", 8) == 0); //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
+	return (strncmp(name, "S_END", 8) == 0); 
 }
 
 //
@@ -451,25 +448,6 @@ static bool IsF_START(char *name)
 	}
 
 #endif // 0
-
-	//Check DARKWAR first
-//	if (strncmp(name, "UPDNSTRT", 8) == 0)
-//	{
-//		I_Printf("ROTT: UPDNSTRT -> Flats...\n");
-		// fix up flag to standard syntax
-//		strncpy(name, "FF_START", 8);
-//		return 1;
-//	}
-
-
-
-	//if (strncmp(name, "ORNGMAP", 8) == 0)
-	//{
-	//	I_Printf("ROTT: ORNGMAP -> RAW FLATS\n");
-		// fix up flag to standard syntax
-	//	strncpy(name, "F_START", 8);
-	//	return 1;
-	//}
 
 	if ((strncmp(name, "FF_START", 8) == 0) || (strncmp(name, "UPDNSTRT", 8) == 0))
 	{
@@ -576,6 +554,13 @@ static bool IsF_END(char *name)
 static bool IsP_START(char *name)
 {
 #if 1
+	if ((strncmp(name, "GUNSTART", 8) == 0) && (strncmp(name, "SHAPSTART", 8) == 0)) //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
+	{
+		//fix up flag to standard syntax
+		//Note: strncpy will pad will nulls
+		strncpy(name, "PP_START", 8);
+		return 1;
+	}
 	if (strncmp(name, "MASKSTRT", 8) == 0)
 	{
 		I_Printf("ROTT: MASKSTRT -> Patches\n");
@@ -610,26 +595,19 @@ static bool IsP_START(char *name)
 //
 static bool IsP_END(char *name)
 {
-	//if (strncmp(name, "MASKSTOP", 8) == 0)
-	//{
-	//	I_Printf("ROTT: MASKSTOP -> PP_END\n");
-		// fix up flag to standard syntax
-	//	strncpy(name, "P_END", 8);
-	//	return 1;
-	//}
-
-	//if (strncmp(name, "SMALLFON", 8) == 0)
-	//{
-		// fix up flag to standard syntax
-	//	I_Printf("ROTT: SMALLFON -> Patches\n");
-	//	strncpy(name, "P_END", 8);
-	//	return 1;
-	//}
+	if (strncmp(name, "GUNSTOP", 8) == 0) //|| (strncmp(name, "SHAPSTOP", 8) == 0))
+	{
+		//fix up flag to standard syntax
+	   // Note: strncpy will pad will nulls
+	//	I_Printf("ROTT: SPRITES END PROCESSING...\n");
+		strncpy(name, "PP_END", 8);
+		return 1;
+	}
 
 	if (strncmp(name, "SHAPSTOP", 8) == 0)
 	{
 		// fix up flag to standard syntax
-		strncpy(name, "P_END", 8);
+		strncpy(name, "PP_END", 8);
 		return 1;
 	}
 
@@ -701,12 +679,220 @@ static bool IsHI_END(char *name)
 	return (strncmp(name, "HI_END", 8) == 0); //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
 }
 
+// This is ugly, but this will list every single ROTT RAW picture (lpic_t) so they can be sorted properly
+static bool IsLPIC(char *name)
+{
+	return (strncmp(name, "AMMO18", 8) == 0 ||
+		strncmp(name, "AMMO1C", 8) == 0 ||
+		strncmp(name, "AMMO2B", 8) == 0 ||
+		strncmp(name, "AMMO2C", 8) == 0 ||
+		strncmp(name, "AMMO3B", 8) == 0 ||
+		strncmp(name, "AMMO3C", 8) == 0 ||
+		strncmp(name, "AMMO4B", 8) == 0 ||
+		strncmp(name, "AMMO4C", 8) == 0 ||
+		strncmp(name, "AMMO5B", 8) == 0 ||
+		strncmp(name, "AMMO5C", 8) == 0 ||
+		strncmp(name, "AMMO6B", 8) == 0 ||
+		strncmp(name, "AMMO6C", 8) == 0 ||
+		strncmp(name, "AMMO7B", 8) == 0 ||
+		strncmp(name, "AMMO7C", 8) == 0 ||
+		strncmp(name, "AMMO8B", 8) == 0 ||
+		strncmp(name, "AMMO8C", 8) == 0 ||
+		strncmp(name, "AMMO9B", 8) == 0 ||
+		strncmp(name, "AMMO9C", 8) == 0 ||
+		strncmp(name, "AMMO10B", 8) == 0 ||
+		strncmp(name, "AMMO10C", 8) == 0 ||
+		strncmp(name, "ARMORP", 8) == 0 ||
+		strncmp(name, "BACKTILE", 8) == 0 ||
+		strncmp(name, "BATTP", 8) == 0 ||
+		strncmp(name, "BOTNPIC1", 8) == 0 ||
+		strncmp(name, "BOTNPIC2", 8) == 0 ||
+		strncmp(name, "BOTNPIC3", 8) == 0 ||
+		strncmp(name, "BOTNPIC4", 8) == 0 ||
+		strncmp(name, "BOTNPIC5", 8) == 0 ||
+		strncmp(name, "BOTOPIC1", 8) == 0 ||
+		strncmp(name, "BOTOPIC2", 8) == 0 ||
+		strncmp(name, "BOTOPIC3", 8) == 0 ||
+		strncmp(name, "BOTOPIC4", 8) == 0 ||
+		strncmp(name, "BOTOPIC5", 8) == 0 ||
+		strncmp(name, "BOTPIC0", 8) == 0 ||
+		strncmp(name, "BOTPIC1", 8) == 0 ||
+		strncmp(name, "BOTPIC2", 8) == 0 ||
+		strncmp(name, "BOTPIC3", 8) == 0 ||
+		strncmp(name, "BOTPIC4", 8) == 0 ||
+		strncmp(name, "BOTPIC5", 8) == 0 ||
+		strncmp(name, "BOTTBAR", 8) == 0 ||
+		strncmp(name, "DEMO", 8) == 0 ||
+		strncmp(name, "DGMODEP", 8) == 0 ||
+		strncmp(name, "DSTRIP", 8) == 0 ||
+		strncmp(name, "ELMODEP", 8) == 0 ||
+		strncmp(name, "ERASE", 8) == 0 ||
+		strncmp(name, "ERASEB", 8) == 0 ||
+		strncmp(name, "FFMODEP", 8) == 0 ||
+		strncmp(name, "FIREP", 8) == 0 ||
+		strncmp(name, "GASMKP", 8) == 0 ||
+		strncmp(name, "GDMODEP", 8) == 0 ||
+		strncmp(name, "HEALTH1B", 8) == 0 ||
+		strncmp(name, "HEALTH1C", 8) == 0 ||
+		strncmp(name, "HEALTH2B", 8) == 0 ||
+		strncmp(name, "HEALTH2C", 8) == 0 ||
+		strncmp(name, "HEALTH3B", 8) == 0 ||
+		strncmp(name, "HEALTH3C", 8) == 0 ||
+		strncmp(name, "INF_B", 8) == 0 ||
+		strncmp(name, "INF_C", 8) == 0 ||
+		strncmp(name, "KEY1", 8) == 0 ||
+		strncmp(name, "KEY2", 8) == 0 ||
+		strncmp(name, "KEY3", 8) == 0 ||
+		strncmp(name, "KEY4", 8) == 0 ||
+		strncmp(name, "KILNUM0", 8) == 0 ||
+		strncmp(name, "KILNUM1", 8) == 0 ||
+		strncmp(name, "KILNUM2", 8) == 0 ||
+		strncmp(name, "KILNUM3", 8) == 0 ||
+		strncmp(name, "KILNUM4", 8) == 0 ||
+		strncmp(name, "KILNUM5", 8) == 0 ||
+		strncmp(name, "KILNUM6", 8) == 0 ||
+		strncmp(name, "KILNUM7", 8) == 0 ||
+		strncmp(name, "KILNUM8", 8) == 0 ||
+		strncmp(name, "KILNUM9", 8) == 0 ||
+		strncmp(name, "LFNUM0", 8) == 0 ||
+		strncmp(name, "LFNUM1", 8) == 0 ||
+		strncmp(name, "LFNUM2", 8) == 0 ||
+		strncmp(name, "LFNUM3", 8) == 0 ||
+		strncmp(name, "LFNUM4", 8) == 0 ||
+		strncmp(name, "LFNUM5", 8) == 0 ||
+		strncmp(name, "LFNUM6", 8) == 0 ||
+		strncmp(name, "LFNUM7", 8) == 0 ||
+		strncmp(name, "LFNUM8", 8) == 0 ||
+		strncmp(name, "LFNUM9", 8) == 0 ||
+		strncmp(name, "LVNUM0", 8) == 0 ||
+		strncmp(name, "LVNUM1", 8) == 0 ||
+		strncmp(name, "LVNUM2", 8) == 0 ||
+		strncmp(name, "LVNUM3", 8) == 0 ||
+		strncmp(name, "LVNUM4", 8) == 0 ||
+		strncmp(name, "LVNUM5", 8) == 0 ||
+		strncmp(name, "LVNUM6", 8) == 0 ||
+		strncmp(name, "LVNUM7", 8) == 0 ||
+		strncmp(name, "LVNUM8", 8) == 0 ||
+		strncmp(name, "LVNUM9", 8) == 0 ||
+		strncmp(name, "MAN1", 8) == 0 ||
+		strncmp(name, "MAN2", 8) == 0 ||
+		strncmp(name, "MAN3", 8) == 0 ||
+		strncmp(name, "MAN4", 8) == 0 ||
+		strncmp(name, "MAN5", 8) == 0 ||
+		strncmp(name, "MINUS", 8) == 0 ||
+		strncmp(name, "NEGMAN1", 8) == 0 ||
+		strncmp(name, "NEGMAN2", 8) == 0 ||
+		strncmp(name, "NEGMAN3", 8) == 0 ||
+		strncmp(name, "NEGMAN4", 8) == 0 ||
+		strncmp(name, "NEGMAN5", 8) == 0 ||
+		strncmp(name, "NEWG1", 8) == 0 ||
+		strncmp(name, "NEWG2", 8) == 0 ||
+		strncmp(name, "NEWG3", 8) == 0 ||
+		strncmp(name, "NEWG4", 8) == 0 ||
+		strncmp(name, "NEWG5", 8) == 0 ||
+		strncmp(name, "NEWG6", 8) == 0 ||
+		strncmp(name, "NEWG7", 8) == 0 ||
+		strncmp(name, "NEWG8", 8) == 0 ||
+		strncmp(name, "NEWG9", 8) == 0 ||
+		strncmp(name, "NEWG10", 8) == 0 ||
+		strncmp(name, "NEWG11", 8) == 0 ||
+		strncmp(name, "NEWG12", 8) == 0 ||
+		strncmp(name, "PAUSED", 8) == 0 ||
+		strncmp(name, "PLAYER1", 8) == 0 ||
+		strncmp(name, "PLAYER2", 8) == 0 ||
+		strncmp(name, "PLAYER3", 8) == 0 ||
+		strncmp(name, "PLAYER4", 8) == 0 ||
+		strncmp(name, "PLAYER5", 8) == 0 ||
+		strncmp(name, "QUIT01", 8) == 0 ||
+		strncmp(name, "QUIT02", 8) == 0 ||
+		strncmp(name, "QUIT03", 8) == 0 ||
+		strncmp(name, "QUIT04", 8) == 0 ||
+		strncmp(name, "QUIT05", 8) == 0 ||
+		strncmp(name, "QUIT06", 8) == 0 ||
+		strncmp(name, "QUIT07", 8) == 0 ||
+		strncmp(name, "QUITPIC", 8) == 0 ||
+		strncmp(name, "SCNUM0", 8) == 0 ||
+		strncmp(name, "SCNUM1", 8) == 0 ||
+		strncmp(name, "SCNUM2", 8) == 0 ||
+		strncmp(name, "SCNUM3", 8) == 0 ||
+		strncmp(name, "SCNUM4", 8) == 0 ||
+		strncmp(name, "SCNUM5", 8) == 0 ||
+		strncmp(name, "SCNUM6", 8) == 0 ||
+		strncmp(name, "SCNUM7", 8) == 0 ||
+		strncmp(name, "SCNUM8", 8) == 0 ||
+		strncmp(name, "SCNUM9", 8) == 0 ||
+		strncmp(name, "SMALLTRI", 8) == 0 ||
+		strncmp(name, "SMMODEP", 8) == 0 ||
+		strncmp(name, "STAT_BAR", 8) == 0 ||
+		strncmp(name, "T_BAR", 8) == 0 ||
+		strncmp(name, "T_BLNK", 8) == 0 ||
+		strncmp(name, "T_ENEMY", 8) == 0 ||
+		strncmp(name, "T_FRIEND", 8) == 0 ||
+		strncmp(name, "T_KCOUNT", 8) == 0 ||
+		strncmp(name, "T_KILPER", 8) == 0 ||
+		strncmp(name, "T_NAME", 8) == 0 ||
+		strncmp(name, "T_PERKIL", 8) == 0 ||
+		strncmp(name, "T_SCORE", 8) == 0 ||
+		strncmp(name, "T_SUICID", 8) == 0 ||
+		strncmp(name, "TEAMNPIC", 8) == 0 ||
+		strncmp(name, "TEAMPIC", 8) == 0 ||
+		strncmp(name, "TMNUM0", 8) == 0 ||
+		strncmp(name, "TMNUM1", 8) == 0 ||
+		strncmp(name, "TMNUM2", 8) == 0 ||
+		strncmp(name, "TMNUM3", 8) == 0 ||
+		strncmp(name, "TMNUM4", 8) == 0 ||
+		strncmp(name, "TMNUM5", 8) == 0 ||
+		strncmp(name, "TMNUM6", 8) == 0 ||
+		strncmp(name, "TMNUM7", 8) == 0 ||
+		strncmp(name, "TMNUM8", 8) == 0 ||
+		strncmp(name, "TMNUM9", 8) == 0 ||
+		strncmp(name, "TNUMB",  8) == 0 ||
+		strncmp(name, "TOPPIC1", 8) == 0 ||
+		strncmp(name, "TOPPIC2", 8) == 0 ||
+		strncmp(name, "TOPPIC3", 8) == 0 ||
+		strncmp(name, "TOPPIC4", 8) == 0 ||
+		strncmp(name, "TOPPIC5", 8) == 0 ||
+		strncmp(name, "TRI1PIC", 8) == 0 ||
+		strncmp(name, "TRI2PIC", 8) == 0 ||
+		strncmp(name, "WAIT",	 8) == 0 ||
+		strncmp(name, "WINDOW1", 8) == 0 ||
+		strncmp(name, "WINDOW2", 8) == 0 ||
+		strncmp(name, "WINDOW3", 8) == 0 ||
+		strncmp(name, "WINDOW4", 8) == 0 ||
+		strncmp(name, "WINDOW5", 8) == 0 ||
+		strncmp(name, "WINDOW6", 8) == 0 ||
+		strncmp(name, "WINDOW7", 8) == 0 ||
+		strncmp(name, "WINDOW8", 8) == 0 ||
+		strncmp(name, "WINDOW9", 8) == 0);
+}
+
+static bool IsRawROTT(const char *name)
+{
+	return (strncmp(name, "AP_WLRD", 8) == 0 ||
+		strncmp(name, "FLRCL1", 8) == 0 ||
+		strncmp(name, "FLRCL2", 8) == 0 ||
+		strncmp(name, "FLRCL3", 8) == 0 ||
+		strncmp(name, "FLRCL4", 8) == 0 ||
+		strncmp(name, "FLRCL5", 8) == 0 ||
+		strncmp(name, "FLRCL6", 8) == 0 ||
+		strncmp(name, "FLRCL7", 8) == 0 ||
+		strncmp(name, "FLRCL8", 8) == 0 ||
+		strncmp(name, "FLRCL9", 8) == 0 ||
+		strncmp(name, "FLRCL10", 8) == 0 ||
+		strncmp(name, "FLRCL11", 8) == 0 ||
+		strncmp(name, "FLRCL12", 8) == 0 ||
+		strncmp(name, "FLRCL13", 8) == 0 ||
+		strncmp(name, "FLRCL14", 8) == 0 ||
+		strncmp(name, "FLRCL15", 8) == 0 ||
+		strncmp(name, "FLRCL16", 8) == 0 ||
+		strncmp(name, "PLANE", 8) == 0 ||
+		strncmp(name, "TRILOGO", 8) == 0);
+}
 //
 // Is the name a dummy sprite/flat/patch marker ?
 //
 static bool IsDummySF(const char *name)
 {
-	//TODO: V501 https://www.viva64.com/en/w/v501/ There are identical sub-expressions 'strncmp(name, "S3_START", 8) == 0' to the left and to the right of the '||' operator.
 	return (strncmp(name, "S1_START", 8) == 0 ||  
 		strncmp(name, "S2_START", 8) == 0 ||
 		strncmp(name, "S3_START", 8) == 0 ||
@@ -716,17 +902,17 @@ static bool IsDummySF(const char *name)
 		strncmp(name, "P1_START", 8) == 0 ||
 		strncmp(name, "P2_START", 8) == 0 ||
 		strncmp(name, "P3_START", 8) == 0 ||
-		//strncmp(name, "GUNSTART", 8) == 0 ||
-		//strncmp(name, "WALLSTRT", 8) == 0 ||
+		strncmp(name, "GUNSTART", 8) == 0 ||
+		strncmp(name, "WALLSTRT", 8) == 0 ||
 		//strncmp(name, "WALLSTOP", 8) == 0 ||
 		//strncmp(name, "GUNSTOP", 7) == 0  ||
-		//strncmp(name, "MASKSTRT", 8) == 0 ||
+		strncmp(name, "MASKSTRT", 8) == 0 ||
 		//strncmp(name, "MASKSTOP", 8) == 0 ||
-		//strncmp(name, "SKYSTART", 8) == 0 ||
+		strncmp(name, "SKYSTART", 8) == 0 ||
 		//strncmp(name, "SKYSTOP", 7) == 0  ||
 		strncmp(name, "ADLSTART", 8) == 0 ||
-		strncmp(name, "DIGISTRT", 8) == 0 ||
-		strncmp(name, "DIGISTOP", 8) == 0);
+		strncmp(name, "DIGISTRT", 8) == 0);
+		//strncmp(name, "DIGISTOP", 8) == 0);
 }
 
 
@@ -740,7 +926,6 @@ static bool IsROTTFlat_Start(const char *name)
 		strncmp(name, "ANIMSTRT", 8) == 0 ||
 		strncmp(name, "DOORSTRT", 8) == 0 ||
 		strncmp(name, "EXITSTRT", 8) == 0 ||
-		strncmp(name, "ABVWSTRT", 8) == 0 ||
 		strncmp(name, "ELEVSTRT", 8) == 0 ||
 		strncmp(name, "SIDESTRT", 8) == 0 ||
 		strncmp(name, "UPDNSTRT", 8) == 0);
@@ -754,6 +939,7 @@ static bool IsROTTFlat_End(const char *name)
 		strncmp(name, "ANIMSTOP", 8) == 0 ||
 		strncmp(name, "DOORSTOP", 8) == 0 ||
 		strncmp(name, "EXITSTOP", 8) == 0 ||
+		strncmp(name, "ABVWSTRT", 8) == 0 ||
 		strncmp(name, "ELEVSTOP", 8) == 0 ||
 		strncmp(name, "SIDESTOP", 8) == 0 ||
 		strncmp(name, "UPDNSTOP", 8) == 0);
@@ -761,30 +947,6 @@ static bool IsROTTFlat_End(const char *name)
 	return (strncmp(name, "FF_END", 8) == 0);
 }
 
-
-
-static bool IsROTTMask_Start(const char *name)
-{
-	return (strncmp(name, "MASKSTRT", 8) == 0 ||
-		strncmp(name, "HMSKSTRT", 8) == 0 ||
-		strncmp(name, "ABVMSTRT", 8) == 0);
-}
-
-
-static bool IsROTTMask_End(const char *name)
-{
-	return (strncmp(name, "MASKEND", 8) == 0 ||
-		strncmp(name, "HMSKSTRT", 8) == 0 || //Switches
-		strncmp(name, "GUNSTART", 8) == 0);
-}
-
-//static bool IsROTTSprite_Start(const char *name)
-
-static bool IsROTTRaw(const char *name)
-{
-	return (strncmp(name, "TRILOGO", 8) == 0) ||
-	(strncmp(name, "PLANE", 8) == 0);
-}
 
 //
 // Is the name a skin specifier ?
@@ -1021,13 +1183,232 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		return;
 	}
 
+	// -CA- 10.29.18:
+	// UGLY HACKS INBOUND! Basically this looks up a table of entries from the wad since ROTT doesn't always
+	// have matching start and end markers. TODO: in the markers code, make an end marker -1 of current entry. Eh,
+	// since they are scattered all over the place, this will take some thought if we want it done nicer. 
+
 	else if ((strncmp(lump_p->name, "BOOTBLOD", 8) == 0) || 
 		(strncmp(lump_p->name, "IMFREE", 8) == 0) || 
 		(strncmp(lump_p->name, "BOOTNORM", 8) == 0) ||
 		 (strncmp(lump_p->name, "DEADBOSS", 8) == 0))
 	{
 		lump_p->kind = LMKIND_LBM;
-		df->wadtex.pnames = lump;
+		df->lbm_pic = lump;
+		return;
+	}
+
+	
+	else if ((strncmp(lump_p->name, "AMMO18", 8) == 0) ||
+		(strncmp(name, "AMMO1C", 8) == 0) ||
+		(strncmp(name, "AMMO2B", 8) == 0) ||
+		(strncmp(name, "AMMO2C", 8) == 0) ||
+		(strncmp(name, "AMMO3B", 8) == 0) ||
+		(strncmp(name, "AMMO3C", 8) == 0) ||
+		(strncmp(name, "AMMO4B", 8) == 0) ||
+		(strncmp(name, "AMMO4C", 8) == 0) ||
+		(strncmp(name, "AMMO5B", 8) == 0) ||
+		(strncmp(name, "AMMO5C", 8) == 0) ||
+		(strncmp(name, "AMMO6B", 8) == 0) ||
+		(strncmp(name, "AMMO6C", 8) == 0) ||
+		(strncmp(name, "AMMO7B", 8) == 0) ||
+		(strncmp(name, "AMMO7C", 8) == 0) ||
+		(strncmp(name, "AMMO8B", 8) == 0) ||
+		(strncmp(name, "AMMO8C", 8) == 0) ||
+		(strncmp(name, "AMMO9B", 8) == 0) ||
+		(strncmp(name, "AMMO9C", 8) == 0) ||
+		(strncmp(name, "AMMO10B", 8) == 0) ||
+		(strncmp(name, "AMMO10C", 8) == 0) ||
+		(strncmp(name, "ARMORP", 8) == 0) ||
+		(strncmp(name, "BACKTILE", 8) == 0) ||
+		(strncmp(name, "BATTP", 8) == 0) ||
+		(strncmp(name, "BOTNPIC1", 8) == 0) ||
+		(strncmp(name, "BOTNPIC2", 8) == 0) ||
+		(strncmp(name, "BOTNPIC3", 8) == 0) ||
+		(strncmp(name, "BOTNPIC4", 8) == 0) ||
+		(strncmp(name, "BOTNPIC5", 8) == 0) ||
+		(strncmp(name, "BOTOPIC1", 8) == 0) ||
+		(strncmp(name, "BOTOPIC2", 8) == 0) ||
+		(strncmp(name, "BOTOPIC3", 8) == 0) ||
+		(strncmp(name, "BOTOPIC4", 8) == 0) ||
+		(strncmp(name, "BOTOPIC5", 8) == 0) ||
+		(strncmp(name, "BOTPIC0", 8) == 0) ||
+		(strncmp(name, "BOTPIC1", 8) == 0) ||
+		(strncmp(name, "BOTPIC2", 8) == 0) ||
+		(strncmp(name, "BOTPIC3", 8) == 0) ||
+		(strncmp(name, "BOTPIC4", 8) == 0) ||
+		(strncmp(name, "BOTPIC5", 8) == 0) ||
+		(strncmp(name, "BOTTBAR", 8) == 0) ||
+		(strncmp(name, "DEMO", 8) == 0) ||
+		(strncmp(name, "DGMODEP", 8) == 0) ||
+		(strncmp(name, "DSTRIP", 8) == 0) ||
+		(strncmp(name, "ELMODEP", 8) == 0) ||
+		(strncmp(name, "ERASE", 8) == 0) ||
+		(strncmp(name, "ERASEB", 8) == 0) ||
+		(strncmp(name, "FFMODEP", 8) == 0) ||
+		(strncmp(name, "FIREP", 8) == 0) ||
+		(strncmp(name, "GASMKP", 8) == 0) ||
+		(strncmp(name, "GDMODEP", 8) == 0) ||
+		(strncmp(name, "HEALTH1B", 8) == 0) ||
+		(strncmp(name, "HEALTH1C", 8) == 0) ||
+		(strncmp(name, "HEALTH2B", 8) == 0) ||
+		(strncmp(name, "HEALTH2C", 8) == 0) ||
+		(strncmp(name, "HEALTH3B", 8) == 0) ||
+		(strncmp(name, "HEALTH3C", 8) == 0) ||
+		(strncmp(name, "INF_B", 8) == 0) ||
+		(strncmp(name, "INF_C", 8) == 0) ||
+		(strncmp(name, "KEY1", 8) == 0) ||
+		(strncmp(name, "KEY2", 8) == 0) ||
+		(strncmp(name, "KEY3", 8) == 0) ||
+		(strncmp(name, "KEY4", 8) == 0) ||
+		(strncmp(name, "KILNUM0", 8) == 0) ||
+		(strncmp(name, "KILNUM1", 8) == 0) ||
+		(strncmp(name, "KILNUM2", 8) == 0) ||
+		(strncmp(name, "KILNUM3", 8) == 0) ||
+		(strncmp(name, "KILNUM4", 8) == 0) ||
+		(strncmp(name, "KILNUM5", 8) == 0) ||
+		(strncmp(name, "KILNUM6", 8) == 0) ||
+		(strncmp(name, "KILNUM7", 8) == 0) ||
+		(strncmp(name, "KILNUM8", 8) == 0) ||
+		(strncmp(name, "KILNUM9", 8) == 0) ||
+		(strncmp(name, "LFNUM0", 8) == 0) ||
+		(strncmp(name, "LFNUM1", 8) == 0) ||
+		(strncmp(name, "LFNUM2", 8) == 0) ||
+		(strncmp(name, "LFNUM3", 8) == 0) ||
+		(strncmp(name, "LFNUM4", 8) == 0) ||
+		(strncmp(name, "LFNUM5", 8) == 0) ||
+		(strncmp(name, "LFNUM6", 8) == 0) ||
+		(strncmp(name, "LFNUM7", 8) == 0) ||
+		(strncmp(name, "LFNUM8", 8) == 0) ||
+		(strncmp(name, "LFNUM9", 8) == 0) ||
+		(strncmp(name, "LVNUM0", 8) == 0) ||
+		(strncmp(name, "LVNUM1", 8) == 0) ||
+		(strncmp(name, "LVNUM2", 8) == 0) ||
+		(strncmp(name, "LVNUM3", 8) == 0) ||
+		(strncmp(name, "LVNUM4", 8) == 0) ||
+		(strncmp(name, "LVNUM5", 8) == 0) ||
+		(strncmp(name, "LVNUM6", 8) == 0) ||
+		(strncmp(name, "LVNUM7", 8) == 0) ||
+		(strncmp(name, "LVNUM8", 8) == 0) ||
+		(strncmp(name, "LVNUM9", 8) == 0) ||
+		(strncmp(name, "MAN1", 8) == 0) ||
+		(strncmp(name, "MAN2", 8) == 0) ||
+		(strncmp(name, "MAN3", 8) == 0) ||
+		(strncmp(name, "MAN4", 8) == 0) ||
+		(strncmp(name, "MAN5", 8) == 0) ||
+		(strncmp(name, "MINUS", 8) == 0) ||
+		(strncmp(name, "NEGMAN1", 8) == 0) ||
+		(strncmp(name, "NEGMAN2", 8) == 0) ||
+		(strncmp(name, "NEGMAN3", 8) == 0) ||
+		(strncmp(name, "NEGMAN4", 8) == 0) ||
+		(strncmp(name, "NEGMAN5", 8) == 0) ||
+		(strncmp(name, "NEWG1", 8) == 0) ||
+		(strncmp(name, "NEWG2", 8) == 0) ||
+		(strncmp(name, "NEWG3", 8) == 0) ||
+		(strncmp(name, "NEWG4", 8) == 0) ||
+		(strncmp(name, "NEWG5", 8) == 0) ||
+		(strncmp(name, "NEWG6", 8) == 0) ||
+		(strncmp(name, "NEWG7", 8) == 0) ||
+		(strncmp(name, "NEWG8", 8) == 0) ||
+		(strncmp(name, "NEWG9", 8) == 0) ||
+		(strncmp(name, "NEWG10", 8) == 0) ||
+		(strncmp(name, "NEWG11", 8) == 0) ||
+		(strncmp(name, "NEWG12", 8) == 0) ||
+		(strncmp(name, "PAUSED", 8) == 0) ||
+		(strncmp(name, "PLAYER1", 8) == 0) ||
+		(strncmp(name, "PLAYER2", 8) == 0) ||
+		(strncmp(name, "PLAYER3", 8) == 0) ||
+		(strncmp(name, "PLAYER4", 8) == 0) ||
+		(strncmp(name, "PLAYER5", 8) == 0) ||
+		(strncmp(name, "QUIT01", 8) == 0) ||
+		(strncmp(name, "QUIT02", 8) == 0) ||
+		(strncmp(name, "QUIT03", 8) == 0) ||
+		(strncmp(name, "QUIT04", 8) == 0) ||
+		(strncmp(name, "QUIT05", 8) == 0) ||
+		(strncmp(name, "QUIT06", 8) == 0) ||
+		(strncmp(name, "QUIT07", 8) == 0) ||
+		(strncmp(name, "QUITPIC", 8) == 0) ||
+		(strncmp(name, "SCNUM0", 8) == 0) ||
+		(strncmp(name, "SCNUM1", 8) == 0) ||
+		(strncmp(name, "SCNUM2", 8) == 0) ||
+		(strncmp(name, "SCNUM3", 8) == 0) ||
+		(strncmp(name, "SCNUM4", 8) == 0) ||
+		(strncmp(name, "SCNUM5", 8) == 0) ||
+		(strncmp(name, "SCNUM6", 8) == 0) ||
+		(strncmp(name, "SCNUM7", 8) == 0) ||
+		(strncmp(name, "SCNUM8", 8) == 0) ||
+		(strncmp(name, "SCNUM9", 8) == 0) ||
+		(strncmp(name, "SMALLTRI", 8) == 0) ||
+		(strncmp(name, "SMMODEP", 8) == 0) ||
+		(strncmp(name, "STAT_BAR", 8) == 0) ||
+		(strncmp(name, "T_BAR", 8) == 0) ||
+		(strncmp(name, "T_BLNK", 8) == 0) ||
+		(strncmp(name, "T_ENEMY", 8) == 0) ||
+		(strncmp(name, "T_FRIEND", 8) == 0) ||
+		(strncmp(name, "T_KCOUNT", 8) == 0) ||
+		(strncmp(name, "T_KILPER", 8) == 0) ||
+		(strncmp(name, "T_NAME", 8) == 0) ||
+		(strncmp(name, "T_PERKIL", 8) == 0) ||
+		(strncmp(name, "T_SCORE", 8) == 0) ||
+		(strncmp(name, "T_SUICID", 8) == 0) ||
+		(strncmp(name, "TEAMNPIC", 8) == 0) ||
+		(strncmp(name, "TEAMPIC", 8) == 0) ||
+		(strncmp(name, "TMNUM0", 8) == 0) ||
+		(strncmp(name, "TMNUM1", 8) == 0) ||
+		(strncmp(name, "TMNUM2", 8) == 0) ||
+		(strncmp(name, "TMNUM3", 8) == 0) ||
+		(strncmp(name, "TMNUM4", 8) == 0) ||
+		(strncmp(name, "TMNUM5", 8) == 0) ||
+		(strncmp(name, "TMNUM6", 8) == 0) ||
+		(strncmp(name, "TMNUM7", 8) == 0) ||
+		(strncmp(name, "TMNUM8", 8) == 0) ||
+		(strncmp(name, "TMNUM9", 8) == 0) ||
+		(strncmp(name, "TNUMB", 8) == 0) ||
+		(strncmp(name, "TOPPIC1", 8) == 0) ||
+		(strncmp(name, "TOPPIC2", 8) == 0) ||
+		(strncmp(name, "TOPPIC3", 8) == 0) ||
+		(strncmp(name, "TOPPIC4", 8) == 0) ||
+		(strncmp(name, "TOPPIC5", 8) == 0) ||
+		(strncmp(name, "TRI1PIC", 8) == 0) ||
+		(strncmp(name, "TRI2PIC", 8) == 0) ||
+		(strncmp(name, "WAIT", 8) == 0) ||
+		(strncmp(name, "WINDOW1", 8) == 0) ||
+		(strncmp(name, "WINDOW2", 8) == 0) ||
+		(strncmp(name, "WINDOW3", 8) == 0) ||
+		(strncmp(name, "WINDOW4", 8) == 0) ||
+		(strncmp(name, "WINDOW5", 8) == 0) ||
+		(strncmp(name, "WINDOW6", 8) == 0) ||
+		(strncmp(name, "WINDOW7", 8) == 0) ||
+		(strncmp(name, "WINDOW8", 8) == 0) ||
+		(strncmp(name, "WINDOW9", 8) == 0))
+	{
+			lump_p->kind = LMKIND_LPIC;
+			df->lpic_rott = lump;
+			return;
+	}
+
+	else if ((strncmp(lump_p->name, "FLRCL1",  8) == 0) ||
+		(strncmp(lump_p->name, "FLRCL2",  8) == 0) ||
+		(strncmp(lump_p->name, "FLRCL3",  8) == 0) ||
+		(strncmp(lump_p->name, "FLRCL4",  8) == 0) ||
+		(strncmp(lump_p->name, "FLRCL5",  8) == 0) ||
+		(strncmp(lump_p->name, "FLRCL6",  8) == 0) ||
+		(strncmp(lump_p->name, "FLRCL7",  8) == 0) ||
+		(strncmp(lump_p->name, "FLRCL8",  8) == 0) ||
+		(strncmp(lump_p->name, "FLRCL9",  8) == 0) ||
+		(strncmp(lump_p->name, "FLRCL10", 8) == 0) ||
+		(strncmp(lump_p->name, "FLRCL11", 8) == 0) ||
+		(strncmp(lump_p->name, "FLRCL12", 8) == 0) ||
+		(strncmp(lump_p->name, "FLRCL13", 8) == 0) ||
+		(strncmp(lump_p->name, "FLRCL14", 8) == 0) ||
+		(strncmp(lump_p->name, "FLRCL15", 8) == 0) ||
+		(strncmp(lump_p->name, "FLRCL16", 8) == 0) ||
+		(strncmp(lump_p->name, "PLANE",   7) == 0) ||
+		(strncmp(lump_p->name, "TRILOGO", 8) == 0) ||
+		(strncmp(lump_p->name, "AP_WRLD", 9) == 0))
+	{
+		lump_p->kind = LMKIND_RAWFLATS;
+		df->raw_flats = lump;
 		return;
 	}
 
@@ -1125,13 +1506,13 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		within_flat_list = true;
 		return;
 	}
-	else if (IsROTTFlat_Start(lump_p->name))
-	{
-		I_Printf("Parsing ROTT Flat Lumps by array\n");
-		lump_p->kind = LMKIND_Marker;
-		within_flat_list = true;
-		return;
-	}
+//	else if (IsROTTFlat_Start(lump_p->name))
+//	{
+//		I_Printf("Parsing ROTT Flat Lumps by array\n");
+//		lump_p->kind = LMKIND_Marker;
+//		within_flat_list = true;
+//		return;
+//	}
 	else if (IsF_END(lump_p->name))
 	{
 		if (!within_flat_list)
@@ -1141,25 +1522,25 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		within_flat_list = false;
 		return;
 	}
-	else if (IsROTTFlat_End(lump_p->name))
-	{
-		lump_p->kind = LMKIND_Marker;
-		within_flat_list = false;
-		return;
-	}
+//	else if (IsROTTFlat_End(lump_p->name))
+//	{
+//		lump_p->kind = LMKIND_Marker;
+//		within_flat_list = false;
+//		return;
+//	}
 	else if (IsP_START(lump_p->name))
 	{
 		lump_p->kind = LMKIND_Marker;
 		within_patch_list = true;
 		return;
 	}
-	else if (IsROTTMask_Start(lump_p->name))
-	{
-		I_Printf("Parsing ROTT Masked Lumps by array\n");
-		lump_p->kind = LMKIND_Marker;
-		within_patch_list = true;
-		return;
-	}
+	//else if (IsROTTMask_Start(lump_p->name))
+	//{
+	//	I_Printf("Parsing ROTT Masked Lumps by array\n");
+	//	lump_p->kind = LMKIND_Marker;
+	//	within_patch_list = true;
+	//	return;
+	//}
 	else if (IsP_END(lump_p->name))
 	{
 		if (!within_patch_list)
@@ -1169,13 +1550,13 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		within_patch_list = false;
 		return;
 	}
-	else if (IsROTTMask_End(lump_p->name))
-	{
-		I_Printf("Parsing ROTT Masked Lumps by array\n");
-		lump_p->kind = LMKIND_Marker;
-		within_patch_list = false;
-		return;
-	}
+	//else if (IsROTTMask_End(lump_p->name))
+	//{
+	//	I_Printf("Parsing ROTT Masked Lumps by array\n");
+	//	lump_p->kind = LMKIND_Marker;
+	//	within_patch_list = false;
+	//	return;
+	//}
 	else if (IsC_START(lump_p->name))
 	{
 		lump_p->kind = LMKIND_Marker;
@@ -1222,9 +1603,24 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		return;
 	}
 
+	else if (IsLPIC(lump_p->name))
+	{
+		lump_p->kind = LMKIND_LPIC;
+		within_rottpic_list = true;
+		return;
+	}
+
+	else if (IsRawROTT(lump_p->name))
+	{
+		lump_p->kind = LMKIND_RAWFLATS;
+		within_rawflats_list = true;
+		return;
+	}
+
 	// ignore zero size lumps or dummy markers
 	if (lump_p->size > 0 && !IsDummySF(lump_p->name))
 	{
+
 		if (within_sprite_list)
 		{
 			lump_p->kind = LMKIND_Sprite;
@@ -1243,18 +1639,6 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 			df->patch_lumps.Insert(lump);
 		}
 
-		if (within_lbm_list)
-		{
-			lump_p->kind = LMKIND_LBM;
-			df->lbm_lumps.Insert(lump);
-		}
-
-		if (within_colmap_list)
-		{
-			lump_p->kind = LMKIND_Colmap;
-			df->colmap_lumps.Insert(lump);
-		}
-
 		if (within_tex_list)
 		{
 			lump_p->kind = LMKIND_TX;
@@ -1265,6 +1649,18 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		{
 			lump_p->kind = LMKIND_HiRes;
 			df->hires_lumps.Insert(lump);
+		}
+
+		if (within_rottpic_list)// || (lump_p->size == 64008))
+		{
+			lump_p->kind = LMKIND_LPIC;
+			df->rottpic_lumps.Insert(lump);
+		}
+
+		if (within_rawflats_list)
+		{
+			lump_p->kind = LMKIND_RAWFLATS;
+			df->rottraw_flats.Insert(lump);
 		}
 	}
 }
@@ -2042,6 +2438,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	within_sprite_list = within_flat_list = false;
 	within_patch_list = within_colmap_list = false;
 	within_tex_list = within_hires_list = false;
+	within_lbm_list = within_rottpic_list = within_rawflats_list = false;
 
 	// handle pak/pk3/pk7 files before default file handling
 	if ((kind == FLKIND_PAK) || (kind == FLKIND_PK3) || (kind == FLKIND_PK7) || (kind == FLKIND_EPK))
@@ -2208,6 +2605,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 			// Load it (using good ol' recursion again).
 			AddFile(hwa_filename.c_str(), FLKIND_HWad, -1);
 		}
+
 
 		return;
 #else
@@ -2925,7 +3323,10 @@ int W_CheckNumForName_GFX(const char *name)
 	{
 		if (lumpinfo[i].kind == LMKIND_Normal ||
 			lumpinfo[i].kind == LMKIND_Sprite ||
-			lumpinfo[i].kind == LMKIND_Patch)
+			lumpinfo[i].kind == LMKIND_Patch  ||
+			lumpinfo[i].kind == LMKIND_LBM ||
+			lumpinfo[i].kind == LMKIND_LPIC   ||
+			lumpinfo[i].kind == LMKIND_RAWFLATS)
 		{
 			if (strncmp(lumpinfo[i].name, buf, 8) == 0)
 				return i;
@@ -3057,7 +3458,7 @@ int W_CheckNumForTexPatch(const char *name)
 	{
 		lumpinfo_t *L = lumpinfo + lumpmap[i];
 
-		if (L->kind == LMKIND_Patch || L->kind == LMKIND_Sprite || // L->kind == LMKIND_ROTTPatch || L->kind == LMKIND_ROTTPic ||
+		if (L->kind == LMKIND_Patch || L->kind == LMKIND_Sprite || L->kind == LMKIND_LPIC || // L->kind == LMKIND_ROTTPatch || L->kind == LMKIND_ROTTPic ||
 			L->kind == LMKIND_Normal)
 		{
 			// allow LMKIND_Normal to support patches outside of the
@@ -3155,6 +3556,8 @@ epi::u32array_c& W_GetListLumps(int file, lumplist_e which)
 	case LMPLST_Flats:   return df->flat_lumps;
 	case LMPLST_Patches: return df->patch_lumps;
 	case LMPLST_LBM:     return df->lbm_lumps;
+	case LMPLST_LPIC:    return df->rottpic_lumps;
+	case LMPLST_RAW:     return df->rottraw_flats; //FLATS!
 
 	default: break;
 	}
@@ -3463,15 +3866,16 @@ static const char *FileKind_Strings[] =
 	"epk", "pk7"
 };
 
+
 static const char *LumpKind_Strings[] =
 {
-	"normal", "???", "???",
-	"marker", "???", "???",
-	"wadtex", "???", "???", "???",
-	"ddf",    "???", "???", "???",
+	"normal", "???", "???", //0-2
+	"marker", "???", "???", //3-5
+	"wadtex", "???", "???", "???", //6-9
+	"ddf",    "???", "???", "???", //10-13
 
-	"tx", "colmap", "flat", "sprite", "patch",
-	"vp", "fp", "ROTT Patch", "ROTT Pic"
+	"tx", "colmap", "flat", "sprite", "patch", //14-18
+	"???", "???", "roq", "lbm", "lpic", "rawflats", "???" //24
 };
 
 void W_ShowLumps(int for_file, const char *match)

@@ -64,7 +64,7 @@ static rgbcol_t current_color;
 #define T_GREY176  RGB_MAKE(176,176,176)
  
 // TODO: console var
-#define MAX_CON_LINES  160
+#define MAX_CON_LINES  560
 
 class console_line_c
 {

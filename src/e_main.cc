@@ -1515,11 +1515,11 @@ static void SetupLogAndDebugFiles(void)
 		if (!debugfile)
 			I_Error("[E_Startup] Unable to create debugfile");
 
-		if (!openglfile)
-			I_Warning("[E_Startup] Unable to create openglfile");
+		//if (!openglfile)
+			//I_Warning("[E_Startup] Unable to create openglfile");
 
-		if (!shadercompilefile)
-			I_Warning("[E_Startup] Unable to create shadercompilefile");
+		//if (!shadercompilefile)
+			//I_Warning("[E_Startup] Unable to create shadercompilefile");
 	}
 }
 
@@ -1537,8 +1537,8 @@ static void AddSingleCmdLineFile(const char *name)
 		kind = FLKIND_GWad;
 	else if (stricmp(ext.c_str(), "wad") == 0)
 		kind = FLKIND_PWad;
-	else if (stricmp(ext.c_str(), "wl6") == 0)
-		kind = FLKIND_WL6;
+	//else if (stricmp(ext.c_str(), "wl6") == 0)
+		//kind = FLKIND_WL6;
 #ifdef HAVE_PHYSFS
 	else if (stricmp(ext.c_str(), "pak") == 0) /// ~CA~ 5.7.2016 - new PAK class file
 		kind = FLKIND_PAK;

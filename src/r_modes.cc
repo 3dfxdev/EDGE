@@ -221,7 +221,6 @@ void R_SoftInitResolution(void)
 	// re-initialise various bits of GL state
 	RGL_SoftInit();
 	RGL_SoftInitUnits();	// -ACB- 2004/02/15 Needed to sort vars lost in res change
-
 	//HUD_Reset(); // Reset COAL
 
 	L_WriteDebug("-  returning true.\n");
@@ -254,7 +253,7 @@ static bool DoExecuteChangeResolution(scrmode_c *mode)
 	I_Sleep(250);
 	I_Sleep(250);
 
-	RGL_InitRenderBuffers(); //!!!
+	//RGL_InitRenderBuffers(); //!!!
 
 	return true;
 }

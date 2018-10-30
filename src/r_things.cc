@@ -99,7 +99,7 @@ static const image_c *shadow_image = NULL;
 static float GetHoverDZ(mobj_t *mo)
 {
 	// compute a different phase for different objects
-	angle_t phase = (angle_t)(long)mo;
+	angle_t phase = (angle_t)(long)mo; //TODO: warning C4311: 'type cast': pointer truncation from 'mobj_t *' to 'long'
 	phase ^= (angle_t)(phase << 19);
 	phase += (angle_t)(leveltime << (ANGLEBITS-6));
 

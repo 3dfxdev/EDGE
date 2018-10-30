@@ -42,7 +42,7 @@ typedef enum
 	FLKIND_EWad,      // EDGE2.wad
 	FLKIND_GWad,      // glbsp node wad
 	FLKIND_SWad,      // startup.wad (from Eternity)
-
+	/*
 	FLKIND_WL6,      // .wl6 Wolfenstein datas (needed for mods maybe)
 	FLKIND_VGADICT,   // Wolfenstein VGA Dictionary
 	FLKIND_VSWAP,     // Wolfenstein VSWAP
@@ -52,7 +52,7 @@ typedef enum
 	FLKIND_GAMEMAPS,  // Wolfenstein GAMEMAPS 
 	FLKIND_MAPHEAD,   // Wolfenstein MAPHEAD
 	FLKIND_RTLMAPS,   // Rise of the Triad DARKWAR.rtl, similar to maphead
-
+	*/
 	FLKIND_HWad,      // deHacked wad
 	FLKIND_EPK,       // EDGE EPK (zip) file
 	FLKIND_PAK,       // Quake PAK
@@ -107,7 +107,9 @@ typedef enum
 	LMPLST_Sprites,
 	LMPLST_Flats,
 	LMPLST_Patches,
-	LMPLST_LBM,
+	LMPLST_LBM, // lbm 320x200
+	LMPLST_LPIC, //rott_pic
+	LMPLST_RAW //rottraw flats!
 }
 lumplist_e;
 

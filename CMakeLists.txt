@@ -493,7 +493,7 @@ set(EDGE_SOURCES
 	epi/physfs/physfs.c
     epi/physfs/physfs_byteorder.c
     epi/physfs/physfs_unicode.c
-	#epi/physfs/physfs_platform_posix.c #// !!!
+	epi/physfs/physfs_platform_posix.c #// !!!
     epi/physfs/physfs_archiver_dir.c
     epi/physfs/physfs_archiver_unpacked.c
     epi/physfs/physfs_archiver_grp.c
@@ -557,7 +557,6 @@ set(EDGE_DREAMCAST_SOURCES
 	src/dc_system.cc
 	src/i_videodc.cc
 	src/i_main.cc
-	epi/physfs/physfs_platform_posix.c
 )
 
 if (APPLE)

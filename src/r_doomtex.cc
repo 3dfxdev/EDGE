@@ -575,7 +575,7 @@ static epi::image_data_c *ReadROTTAsRAWBlock(image_c *rim)
 static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
 {
 	SYS_ASSERT(rim->source_type == IMSRC_Flat ||
-		rim->source_type == IMSRC_Raw320x200 || IMSRC_ROTTRAW);
+		rim->source_type == IMSRC_Raw320x200 || IMSRC_rottpic);
 
 	int tw = MAX(rim->total_w, 1);
 	int th = MAX(rim->total_h, 1);
@@ -1287,7 +1287,7 @@ epi::image_data_c *ReadAsEpiBlock(image_c *rim)
 	{
 	case IMSRC_Flat:
 	case IMSRC_Raw320x200:
-	case IMSRC_ROTTRAW:
+	//case IMSRC_ROTTRAW:
 		return ReadFlatAsEpiBlock(rim);
 
 	// LBM

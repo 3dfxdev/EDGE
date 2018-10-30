@@ -43,11 +43,14 @@
 #include "../../z_zone.h"
 #include "../../vm_coal.h"
 
+#if 0
 namespace
 {
-const char *wlf_extension = "maphead.wl6";
-const char *wlf_maptemp = "maptemp.wl6";
+	const char *wlf_extension = "wlf_maphead.wl6";
+	const char *wlf_maptemp = "wlf_maptemp.wl6";
 }
+#endif // 0
+
 
 u16_t *wlf_map_tiles;
 u16_t *wlf_obj_tiles;

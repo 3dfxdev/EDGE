@@ -263,7 +263,7 @@ typedef struct {
 	short leftoffset;		// pixels to the left of origin
 	short topoffset;		// pixels above the origin
 	short translevel;
-	short collumnofs[320];	// only [width] used, the [0] is &collumnofs[width]
+	short columnofs[320];	// only [width] used, the [0] is &collumnofs[width]
 } transpatch_t;
 
 #define CONVERT_ENDIAN_transpatch_t(pp)      \

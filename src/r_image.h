@@ -81,11 +81,6 @@ public:
 	short offset_x;
 	short offset_y;
 
-	// ROTT offset values. Only used for Rise of the Triad data that needs them.
-	//short roffset_x;
-	//short roffset_y;
-
-
     // scale values, where 1.0f is normal.  Higher values stretch the
     // image (on the wall/floor), lower values shrink it.
 	float scale_x;
@@ -115,11 +110,9 @@ public:
 		// case IMSRC_Raw320x200:
 		struct { int lump; } flat;
 
-		// case IMSRC_ROTTRAW:
+		// case IMSRC_rottpic:
 		struct { int lump; } lpic;
 
-		// case IMSRC_ROTTLBM:
-		//struct { int lump; }  lbm;
 
 		// case IMSRC_Texture:
 		struct { struct texturedef_s *tdef; } texture;
@@ -267,8 +260,8 @@ typedef enum
 	// INTERNAL ONLY: Source was a raw LBM block (Rise of the Triad)
 	IMSRC_ROTTLBM,
 
-	// INTERNAL ONLY: Source was a raw block (Rise of the Triad)
-	IMSRC_ROTTRAW,
+	// Rise of the Triad LPIC, which is raw with a small header
+	IMSRC_rottpic, 
 
 	// INTERNAL ONLY: Source was a raw block of 320x200 bytes (Heretic/Hexen)
 	IMSRC_Raw320x200,
@@ -300,7 +293,7 @@ typedef enum
 image_source_e;
 
 
-#if 0
+#if 1
 #pragma pack(push,1)
 typedef struct {//__attribute__((packed)) {
 	unsigned __int16 transused, trans[4];
