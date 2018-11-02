@@ -353,7 +353,7 @@ static void DrawROTTColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 	while (patchcol->topdelta != 0xFF) //time to read posts
 	{
 		//int top = EPI_LE_U16((int)patchcol->topdelta <= y) ? y + (int)patchcol->topdelta : (int)patchcol->topdelta;
-		int top = ((int)patchcol->topdelta <= y) ? y + (int)patchcol->topdelta : (int)patchcol->topdelta;
+		int top =  patchcol->topdelta;
 		//int count = EPI_LE_U16(patchcol->length);
 		int count = patchcol->length;
 		y = top;
@@ -365,13 +365,16 @@ static void DrawROTTColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 
 		if (top < 0)
 		{
+			I_Printf("TOP < 0\n");
 			count += top;
 			top = 0;
 		}
 
 		if (top + count > h1)
+		{
+			I_Printf("TOP + count is greater than actual height\n");
 			count = h1 - top;
-
+		}
 		
 
 		// copy the pixels, remapping any TRANS_PIXEL values
@@ -478,8 +481,8 @@ static epi::image_data_c *ReadROTTPatchAsEpiBlock(image_c *rim)
 
 	//int realsize = W_LumpLength(lump);
 
-	SYS_ASSERT(rim->actual_w = EPI_LE_S16(rottpatch->width));
-	SYS_ASSERT(rim->actual_h = EPI_LE_S16(rottpatch->height));
+	rim->actual_w = EPI_LE_S16(rottpatch->width + 2 / 10);
+	rim->actual_h = EPI_LE_S16(rottpatch->height);
 
 	for (int x = 0; x < rim->actual_w; x++)
 	{
@@ -821,6 +824,7 @@ static epi::image_data_c *ReadTextureAsEpiBlock(image_c *rim)
 
 epi::image_data_c *ROTT_LoadWall(int lump)
 {
+	I_Printf("ROTT_LOADWALL:\n");
 	int length;
 	byte *data = W_ReadLumpAlloc(lump, &length);
 

@@ -29,7 +29,7 @@ typedef enum
 	INS_Texture,
 	INS_Flat,
 	INS_Sprite,
-	//INS_LBM,
+	INS_rottpic,
 }
 image_namespace_e;
 

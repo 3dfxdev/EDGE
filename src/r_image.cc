@@ -357,6 +357,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	bool is_png = false;
 	bool solid = false;
 	bool is_rott = false;
+	bool is_lpic = false;
 
 	if (epi::PNG_IsDataPNG(buffer, lump_len))
 	{
@@ -445,6 +446,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	picheight = EPI_LE_S16(lpic->height);
 	picorg_x = EPI_LE_S16(lpic->orgx);
 	picorg_y = EPI_LE_S16(lpic->orgy);
+	//int expectlen = picwidth * picwidth + 8;
 
 	//ROTT PICTURE FORMAT
 	lbmwidth = EPI_LE_S16(lbm->width); //0
@@ -1359,6 +1361,7 @@ static const image_c *BackupFlat(const char *flat_name, int flags)
 	real_flats.push_back(dummy);
 	return dummy;
 }
+
 
 //
 // BackupGraphic

@@ -1912,7 +1912,7 @@ static PHYSFS_EnumerateCallbackResult LumpNamespace(void *userData, const char *
 			return PHYSFS_ENUM_OK;
 		}
 	}
-	else
+	//else
 		// add lump
 		I_Debugf("    opening lump %s\n", fname);
 	PHYSFS_File *file = PHYSFS_openRead(path);
@@ -2255,33 +2255,6 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "VX_END", 0);
 		}
-		else if (wolf3d_mode)
-		{	// Checks for Global Wolfenstein3D palette (PLAYPAL) instead of palette-byte translation (from SLADE.pk3)
-			if (stricmp(fname, "wolf3d") == 0)
-			{
-				// enumerate all entries in placebo Wolf3d Directory (inside edge2.pak)
-				PHYSFS_enumerate(path, LumpNamespace, userData);
-			}
-		}
-		else if (rott_mode)
-		{	// Checks for Global ROTT palette (PLAYPAL) instead of palette-byte translation (from SLADE.pk3)
-			if (stricmp(fname, "rott") == 0)
-			{
-		//		// enumerate all entries in placebo ROTT Directory (inside edge2.pak)
-				PHYSFS_enumerate(path, LumpNamespace, userData);
-#if 0
-				I_Printf("  adding fake lump TEXTURE1\n");
-				numlumps++;
-				Z_Resize(lumpinfo, lumpinfo_t, numlumps);
-				AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "TEXTURE1", 0);
-				I_Printf("  adding fake lump PNAMES\n");
-				numlumps++;
-				Z_Resize(lumpinfo, lumpinfo_t, numlumps);
-				AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "PNAMES", 0);
-#endif // 0
-
-			}
-		}
 		//Startup IWAD?
 #if 0
 		else if (stricmp(fname, "startup") == 0)
@@ -2336,6 +2309,23 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// enumerate scripts subdirectory
 			PHYSFS_enumerate(path, LumpNamespace, userData);
 		}
+		else if (wolf3d_mode)
+		{	// Checks for Global Wolfenstein3D palette (PLAYPAL) instead of palette-byte translation (from SLADE.pk3)
+			if (stricmp(fname, "wolf3d") == 0)
+			{
+				// enumerate all entries in placebo Wolf3d Directory (inside edge2.pak)
+				PHYSFS_enumerate(path, LumpNamespace, userData);
+			}
+		}
+		else if (rott_mode)
+			// Checks for Global ROTT palette (PLAYPAL) instead of palette-byte translation (from SLADE.pk3)
+			if (stricmp(fname, "rott") == 0)
+			{
+				{
+					//		// enumerate all entries in placebo ROTT Directory (inside edge2.pak)
+					PHYSFS_enumerate(path, LumpNamespace, userData);
+				}
+			}
 		else if (strncasecmp(fname, "root", 4) == 0)
 		{
 			// recurse root subdirectory to TopLevel
@@ -3588,9 +3578,9 @@ static void W_ReadLump(int lump, void *dest)
 		I_Error("W_ReadLump: %i >= numlumps", lump);
 
 	lumpinfo_t *L = lumpinfo + lump;
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	I_Debugf("W_ReadLump: %d (%s)\n", lump, L->name);
-#endif
+//#endif
 
 	data_file_c *df = data_files[L->file];
 
@@ -3626,6 +3616,7 @@ static void W_ReadLump(int lump, void *dest)
 // FIXME !!! merge W_ReadLumpAlloc and W_LoadLumpNum into one good function
 byte *W_ReadLumpAlloc(int lump, int *length)
 {
+	//I_Printf("ReadLumpAlloc: %s\n", W_GetLumpName(lump));
 	*length = W_LumpLength(lump);
 
 	byte *data = new byte[*length + 1];
