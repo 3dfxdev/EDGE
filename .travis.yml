@@ -62,7 +62,6 @@ before_install:
       brew install sdl2_net libvorbis;
       ln -s /usr/local/bin/glibtoolize /usr/local/bin/libtoolize;
     fi
-  - quick_setup_scripts/unix-getphysfs.sh
   - if [ -n "$GCC_VERSION" ]; then export CC="gcc-${GCC_VERSION}" CXX="g++-${GCC_VERSION}"; fi
   - if [ -n "$CLANG_VERSION" ]; then export CC="clang-${CLANG_VERSION}" CXX="clang++-${CLANG_VERSION}"; fi
   - $CC --version
