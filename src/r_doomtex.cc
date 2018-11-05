@@ -436,7 +436,9 @@ static epi::image_data_c *ReadROTTPatchAsEpiBlock(image_c *rim)
 #endif // 0
 
 	SYS_ASSERT(rim->source_type == IMSRC_ROTTGFX ||
-		rim->source_type == IMSRC_ROTTSprite);
+		rim->source_type == IMSRC_ROTTSprite ||
+		rim->source_type == IMSRC_Sprite ||
+		rim->source_type == IMSRC_Graphic);
 
 	int lump = rim->source.graphic.lump;
 
@@ -462,6 +464,10 @@ static epi::image_data_c *ReadROTTPatchAsEpiBlock(image_c *rim)
 	int tw = rim->total_w;
 	int th = rim->total_h;
 
+	int offset_x = rim->offset_x;
+	int offset_y = rim->offset_y;
+
+
 	epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
 
 	// Clear initial pixels to either totally transparent, or totally
@@ -483,6 +489,10 @@ static epi::image_data_c *ReadROTTPatchAsEpiBlock(image_c *rim)
 
 	rim->actual_w = EPI_LE_S16(rottpatch->width + 2 / 10);
 	rim->actual_h = EPI_LE_S16(rottpatch->height);
+
+	// Set actual offsets for anything detected as a ROTT Patch Image! Maybe should force an assertion...
+	//rim->offset_x = EPI_LE_S16(rottpatch->leftoffset) + (EPI_LE_S16(rottpatch->origsize) / 2);
+	//rim->offset_y = EPI_LE_S16(rottpatch->topoffset) + EPI_LE_S16(rottpatch->origsize);
 
 	for (int x = 0; x < rim->actual_w; x++)
 	{
@@ -526,7 +536,7 @@ static epi::image_data_c *ReadROTTPatchAsEpiBlock(image_c *rim)
 // ReadROTTAsRAWBlock
 static epi::image_data_c *ReadROTTAsRAWBlock(image_c *rim)
 {
-	SYS_ASSERT(rim->source_type == IMSRC_ROTTRAW);
+	SYS_ASSERT(rim->source_type == IMSRC_ROTTRaw128x128);
 	I_Printf("DETECTING SOURCE TYPE: ROTTRAW. . . !!!\n");
 
 	int w = rim->actual_w;
@@ -546,7 +556,7 @@ static epi::image_data_c *ReadROTTAsRAWBlock(image_c *rim)
 	byte *dest = img->pixels;
 
 	// read in pixels
-	const byte *src = (const byte*)W_CacheLumpNum(rim->source.lpic.lump);
+	const byte *src = (const byte*)W_CacheLumpNum(rim->source.flat.lump);
 	// clear initial image to black
 	//img->Clear(pal_black);
 	int qt = w * h / 4;
@@ -578,13 +588,14 @@ static epi::image_data_c *ReadROTTAsRAWBlock(image_c *rim)
 static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
 {
 	SYS_ASSERT(rim->source_type == IMSRC_Flat ||
-		rim->source_type == IMSRC_Raw320x200 || IMSRC_rottpic);
+		rim->source_type == IMSRC_Raw320x200 || IMSRC_ROTTRaw128x128);
 
 	int tw = MAX(rim->total_w, 1);
 	int th = MAX(rim->total_h, 1);
 
 	int w = rim->actual_w;
 	int h = rim->actual_h;
+	int len = W_LumpLength(rim->source.flat.lump);
 
 	epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
 
@@ -600,6 +611,35 @@ static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
 
 	// read in pixels
 	const byte *src = (const byte*)W_CacheLumpNum(rim->source.flat.lump);
+#if 0
+
+	switch (len)
+	{
+	case 128 * 128 + 8: // ROTT FLATS ONLY!!
+	{
+		I_Printf("ROTT: Converting image to column major order...\n");
+		// read in pixels
+		for (int y = 0; y < 128; y++)
+			for (int x = 0; x < 128; x++)
+			{
+				byte src_pix = src[x * 128 + 127 - y];  // column-major order!!
+
+				byte *pix = img->PixelAt(x, y);
+
+				pix[0] = rott_palette[src_pix * 3 + 0];
+				pix[1] = rott_palette[src_pix * 3 + 1];
+				pix[2] = rott_palette[src_pix * 3 + 2];
+			}
+
+		W_DoneWithLump(src);
+
+		return img;
+	}
+	I_Printf("ROTT: Done with image, breaking out of flats loop\n");
+	break;
+
+	default:
+#endif // 0
 
 	for (int y = 0; y < h; y++)
 		for (int x = 0; x < w; x++)
@@ -610,15 +650,35 @@ static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
 
 			// make sure TRANS_PIXEL values (which do not occur naturally in
 			// Doom images) are properly remapped.
-			if (src_pix == TRANS_PIXEL)
-				dest_pix[0] = TRANS_REPLACE;
-			else
+			//if (src_pix == TRANS_PIXEL)
+			//	dest_pix[0] = TRANS_REPLACE;
+			//else
 				dest_pix[0] = src_pix;
 		}
 
-	W_DoneWithLump(src);
+		W_DoneWithLump(src);
+
+
+		// CW: Textures MUST tile! If actual size not total size, manually tile
+	if (rim->actual_w != rim->total_w)
+		{
+			// tile horizontally
+			byte *buf = img->pixels;
+			for (int x = 0; x < (rim->total_w - rim->actual_w); x++)
+				for (int y = 0; y < rim->total_h; y++)
+					buf[y*rim->total_w + rim->actual_w + x] = buf[y*rim->total_w + x];
+		}
+	if (rim->actual_h != rim->total_h)
+		{
+			// tile vertically
+			byte *buf = img->pixels;
+			for (int y = 0; y < (rim->total_h - rim->actual_h); y++)
+				for (int x = 0; x < rim->total_w; x++)
+					buf[(rim->actual_h + y)*rim->total_w + x] = buf[y*rim->total_w + x];
+		}
 
 	return img;
+	
 }
 
 //
@@ -683,7 +743,7 @@ static epi::image_data_c *ReadROTTtextureAsEpiBlock(image_c *rim)
 
 			if (offset < 0 || offset >= realsize)
 			{
-				I_Warning("Bad texture patch image offset 0x%08x in image [%s]\n", offset, rim->name);
+				I_Warning("Bad texture patch offset 0x%08x in image [%s]\n", offset, rim->name);
 				//I_Warning("TexPatch %s might be a ROTT patch! \n", rim->name);
 				//delete img;
 				//return ReadROTTPatchAsEpiBlock(rim); //this makes sure any texture that has bad offsets but is a ROTT texture gets passed,
@@ -1293,6 +1353,9 @@ epi::image_data_c *ReadAsEpiBlock(image_c *rim)
 	case IMSRC_Raw320x200:
 	//case IMSRC_ROTTRAW:
 		return ReadFlatAsEpiBlock(rim);
+
+	case IMSRC_ROTTRaw128x128:
+		return ReadROTTAsRAWBlock(rim);
 
 	// LBM
 	//case IMSRC_ROTTLBM:

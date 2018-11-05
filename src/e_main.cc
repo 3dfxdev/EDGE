@@ -1988,7 +1988,7 @@ void E_Main(int argc, const char **argv)
 
 //		E_PlayMovie("/pack0/video/intro.roq", 1);
 		if (rott_mode)
-			E_PlayMovie("/pack0/video/intro.roq", 1);
+			E_PlayMovie("/pack0/video/apogee.roq", 1);
 		else
 			E_PlayMovie("/pack0/video/intro.roq", 1);
 

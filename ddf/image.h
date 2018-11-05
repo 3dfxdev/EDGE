@@ -30,6 +30,7 @@ typedef enum
 	INS_Flat,
 	INS_Sprite,
 	INS_rottpic,
+	INS_rottFlat,
 }
 image_namespace_e;
 

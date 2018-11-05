@@ -187,6 +187,15 @@ static void do_DebugDump(real_image_container_c& bucket)
 }
 #endif
 
+bool ROTT_IsDataFLRCL(const byte *data, int length)
+{
+	static byte rott_flat[4] = { 0x80, 0x00, 0x80, 0x80 };
+	if (length < 4)
+		return false;
+
+	return memcmp(data, rott_flat, 4) == 0;
+}
+
 // mipmapping enabled ?
 // 0 off, 1 bilinear, 2 trilinear
 int var_mipmapping = 1;
@@ -357,6 +366,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	bool is_png = false;
 	bool solid = false;
 	bool is_rott = false;
+	bool is_rottflat;
 	bool is_lpic = false;
 
 	if (epi::PNG_IsDataPNG(buffer, lump_len))
@@ -372,6 +382,8 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 		// close it
 		delete f;
 	}
+
+
 #if 0
 
 	else
@@ -425,6 +437,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	// Interpret raw on-disk data to set up for image loading
 	patch_t *pat = (patch_t *)buffer;
 	rottpatch_t *rpat = (rottpatch_t *)buffer;
+	pic_t *rottflat = (pic_t *)buffer;
 
 	//ROTT RAW PICS
 	lpic_t *lpic = (lpic_t *)buffer; //raw ROTT pics
@@ -454,24 +467,39 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 
 		delete f;
 
-		if (picwidth <= 0 || picwidth > 2048 ||
-			picheight <= 0 || picheight > 512 ||
-			ABS(picorg_x) > 2048 || ABS(picorg_y) > 1024)
+#if 0
+		if (type == IMSRC_rottpic) //64008 = 320 * 200 + headr (8), must be a lpic_t
 		{
-			if (lump_len == 64008 && type == IMSRC_rottpic) //64008 = 320 * 200 + headr (8), must be a lpic_t
-			{
-				I_Printf("rottpic: '%s' seems to be a raw image + header (lpic_t)..\n", name);
-				image_c *rim = NewImage(320, 200, OPAC_Solid); //!!! remember: width/height were previously 320x200
-				strcpy(rim->name, name);
-				I_Printf("rottpic: Read lpic Image: '%s'\n", name);
+			I_Printf("rottpic: '%s' seems to be a raw image + header (lpic_t)..\n", name);
+			image_c *rim = NewImage(320, 200, OPAC_Solid); //!!! remember: width/height were previously 320x200
+			strcpy(rim->name, name);
+			I_Printf("rottpic: Read lpic Image: '%s'\n", name);
 
-				rim->offset_x = picorg_x;
-				rim->offset_y = picorg_y;
-				rim->source_type = IMSRC_rottpic;
-				rim->source.lpic.lump = lump;
+			rim->offset_x = picorg_x;
+			rim->offset_y = picorg_y;
+			rim->source_type = IMSRC_rottpic;
+			rim->source.lpic.lump = lump;
+			rim->source_palette = W_GetPaletteForLump(lump);
+			return rim;
+		}
+#endif // 0
+		if (ROTT_IsDataFLRCL(buffer, lump_len))
+		{
+			I_Printf("ROTT: Data '%s' is floor or ceiling, get more information\n", name);
+
+			if ((lump_len == 128 * 128) + 8 && type == IMSRC_Graphic)
+			{
+				is_rottflat = true;
+				I_Printf("ROTT: '%s' header is a ROTT flat, 128x128 it...\n", name);
+				image_c *rim = NewImage(128, 128, OPAC_Solid); //!!! remember: width/height were previously 320x200
+				strcpy(rim->name, name);
+
+				rim->source_type = IMSRC_Graphic;
+				rim->source.flat.lump = lump;
 				rim->source_palette = W_GetPaletteForLump(lump);
 				return rim;
 			}
+			else I_Printf("Data lump_len/type loop is invalid, returning nothing!\n");
 		}
 
 		// do some basic checks
@@ -486,7 +514,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 
 
 			// check for Heretic/Hexen, which are raw 320x200
-			if (lump_len == 320 * 200 && type == IMSRC_Graphic)// || IMSRC_ROTTGFX)
+			if (lump_len == 320 * 200 && type == IMSRC_Graphic)
 			{
 				I_Printf("Heretic/Hexen: '%s' seems to be a raw image, 320x200 it..\n", name);
 				image_c *rim = NewImage(320, 200, OPAC_Solid); //!!! remember: width/height were previously 320x200
@@ -500,14 +528,14 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 			}
 
 
-			// check for ROTT, which are raw 320x200
-			if (lump_len == 320 * 200 && type == IMSRC_Graphic)// || IMSRC_ROTTGFX)
+			// check for ROTT, which are raw 128x128
+			if (lump_len == 128 * 128 && type == IMSRC_ROTTRaw128x128)// || IMSRC_ROTTGFX)
 			{
-				I_Printf("Heretic/Hexen: '%s' seems to be a raw image, 320x200 it..\n", name);
-				image_c *rim = NewROTTImage(320, 200, OPAC_Solid); //!!! remember: width/height were previously 320x200
+				I_Printf("ROTT RawFlat: '%s' seems to be a raw image, 320x200 it..\n", name);
+				image_c *rim = NewImage(128, 128, OPAC_Solid); //!!! remember: width/height were previously 320x200
 				strcpy(rim->name, name);
 
-				rim->source_type = IMSRC_Raw320x200;
+				rim->source_type = IMSRC_ROTTRaw128x128;
 				rim->source.flat.lump = lump;
 				rim->source_palette = W_GetPaletteForLump(lump);
 				return rim;
@@ -515,7 +543,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 			}
 
 
-			if (lump_len == 64 * 64 || lump_len == 64 * 65 || lump_len == 64 * 128)
+			if (lump_len == 64 * 64 || lump_len == 64 * 65 || lump_len == 64 * 128 || lump_len == 128 * 128)
 				I_Warning("Graphic '%s' seems to be a flat, RETURNING NULL.\n", name);
 			else
 				I_Warning("Graphic '%s' does not seem to be a graphic.\n", name);
@@ -531,6 +559,8 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	strcpy(rim->name, name);
 	rim->offset_x = offset_x;//!!! || roffset_x;
 	rim->offset_y = offset_y;//!!! || roffset_y;
+
+	//if (offset_x != roffset_x)
 	//I_Printf("IMAGE [%s]: offset x = [%s], offset y = [%s]\n", rim->name, rim->offset_x, rim->offset_y);
 
 	
@@ -617,7 +647,7 @@ static image_c *AddImageFlat(const char *name, int lump)
 	case 64 * 128: size = 64; break;
 
 		// support for ROTT "flats"
-	case 128 * 128: size = 128; break;
+	case 128 * 128 + 8: size = 128; break;
 
 		// -- EDGE2 feature: bigger than normal flats --
 	
@@ -646,6 +676,41 @@ static image_c *AddImageFlat(const char *name, int lump)
 
 	return rim;
 }
+
+static image_c *AddROTTFlat(const char *name, int lump)
+{
+	I_Printf("ROTT: AddROTTFlat. . .\n");
+	image_c *rim = new image_c;
+	//const char *name = W_GetLumpName(lump);
+	//pic_t
+	int length;
+	byte *data = W_ReadLumpAlloc(lump, &length);
+
+	if (!data || length != 16392)
+		I_Printf("Data/Length does not match 16392 bytes for ROTT flat!\n");
+
+	epi::image_data_c *img = new epi::image_data_c(128, 128, 3); //!!!! PAL
+
+	byte *dest = img->pixels;
+
+	// read in pixels
+	for (int y = 0; y < 128; y++)
+		for (int x = 0; x < 128; x++)
+		{
+			byte src = data[x * 128 + 127 - y];  // column-major order
+
+			byte *pix = img->PixelAt(x, y);
+
+			pix[0] = rott_palette[src * 3 + 0];
+			pix[1] = rott_palette[src * 3 + 1];
+			pix[2] = rott_palette[src * 3 + 2];
+		}
+
+	delete[] data;
+
+	return rim;
+}
+
 
 static image_c *AddLBMImage(const char *name, int lump)
 {
@@ -682,8 +747,8 @@ static image_c *AddImageUser(imagedef_c *def)
 	case IMGDT_Builtin:
 		//(detail_level == 2) ? 512 : 256;
 		// If this breaks from upping width/height, implement detail_level from DC code!
-		w = 512;
-		h = 512;
+		w = 256;
+		h = 256;
 		solid = false;
 		break;
 

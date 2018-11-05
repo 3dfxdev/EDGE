@@ -110,6 +110,9 @@ public:
 		// case IMSRC_Raw320x200:
 		struct { int lump; } flat;
 
+		// case IMSRC_ROTTRaw128x128
+		struct { int lump; } rawflat;
+
 		// case IMSRC_rottpic:
 		struct { int lump; } lpic;
 
@@ -268,6 +271,9 @@ typedef enum
 
 	// INTERNAL ONLY: Source was a raw block of 64x64 bytes (Wolfenstein3D)
 	IMSRC_WolfRaw64x64,
+
+	// INTERNAL ONLY: Source was a raw block of 128x128 bytes (Rise of the Triad FLATS)
+	IMSRC_ROTTRaw128x128,
 
 	// Source was a sprite name
 	IMSRC_Sprite,

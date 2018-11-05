@@ -359,6 +359,15 @@ byte *W_ReadLumpAlloc(int lump, int *length);
 //
 static bool IsS_START(char *name)
 {
+	if (strncmp(name, "GUNSTART", 8) == 0) //|| (strncmp(name, "SHAPSTOP", 8) == 0))
+	{
+		//fix up flag to standard syntax
+	   // Note: strncpy will pad will nulls
+		I_Printf("ROTT: GUNSTART Weapon Sprites...\n");
+		strncpy(name, "S_START", 8);
+		return 1;
+	}
+
 	if (strncmp(name, "SS_START", 8) == 0)
 	{
 		// fix up flag to standard syntax
@@ -377,6 +386,14 @@ static bool IsS_START(char *name)
 static bool IsS_END(char *name)
 {
 
+	if (strncmp(name, "PAL", 8) == 0) //|| (strncmp(name, "SHAPSTOP", 8) == 0))
+	{
+		//fix up flag to standard syntax
+	   // Note: strncpy will pad will nulls
+		I_Printf("ROTT: End of Weapon Sprites (stops at entry PAL)...\n");
+		strncpy(name, "S_END", 8);
+		return 1;
+	}
 
 	if (strncmp(name, "SS_END", 8) == 0) 
 	{
@@ -449,9 +466,17 @@ static bool IsF_START(char *name)
 
 #endif // 0
 
-	if ((strncmp(name, "FF_START", 8) == 0) || (strncmp(name, "UPDNSTRT", 8) == 0))
+	if (strncmp(name, "FF_START", 8) == 0)// || (strncmp(name, "UPDNSTRT", 8) == 0))
 	{
 		// fix up flag to standard syntax
+		strncpy(name, "F_START", 8);
+		return 1;
+	}
+
+	if (strncmp(name, "UPDNSTRT", 9) == 0)// || (strncmp(name, "UPDNSTRT", 8) == 0))
+	{
+		// fix up flag to standard syntax
+		I_Printf("Found UPDNSTRT!!\n");
 		strncpy(name, "F_START", 8);
 		return 1;
 	}
@@ -518,29 +543,27 @@ static bool IsF_END(char *name)
 		return 1;
 	}
 
-
-
-	//Check DARKWAR first
-	if (strncmp(name, "UPDNSTOP", 8) == 0)
-	{
-		I_Printf("ROTT: UPDNSTOP -> Flats...\n");
-		// fix up flag to standard syntax
-		strncpy(name, "FF_END", 8);
-		return 1;
-	}
 #endif // 0
 
-	//if (strncmp(name, "FINDRPAL", 8) == 0)
-	//{
-		// fix up flag to standard syntax
-	//	I_Printf("ROTT: FINDRPAL -> flats\n");
-	//	strncpy(name, "F_END", 8);
-	//	return 1;
-	//}
-
-	if ((strncmp(name, "FF_END", 8) == 0) || (strncmp(name, "UPDNSTOP", 8) == 0))
+	if (strncmp(name, "FINDRPAL", 8) == 0)
 	{
 		// fix up flag to standard syntax
+		I_Printf("ROTT: FINDRPAL -> flats\n");
+		strncpy(name, "F_END", 8);
+		return 1;
+	}
+
+	if (strncmp(name, "FF_END", 8) == 0)// || (strncmp(name, "UPDNSTOP", 8) == 0))
+	{
+		// fix up flag to standard syntax
+		strncpy(name, "F_END", 8);
+		return 1;
+	}
+
+	if (strncmp(name, "UPDNSTOP", 8) == 0)// || (strncmp(name, "UPDNSTRT", 8) == 0))
+	{
+		// fix up flag to standard syntax
+		I_Printf("Found UPDNSTOP...\n");
 		strncpy(name, "F_END", 8);
 		return 1;
 	}
@@ -554,7 +577,7 @@ static bool IsF_END(char *name)
 static bool IsP_START(char *name)
 {
 #if 1
-	if ((strncmp(name, "GUNSTART", 8) == 0) && (strncmp(name, "SHAPSTART", 8) == 0)) //TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
+	if (strncmp(name, "SHAPSTART", 8) == 0)//TODO: V666 https://www.viva64.com/en/w/v666/ Consider inspecting third argument of the function 'strncmp'. It is possible that the value does not correspond with the length of a string which was passed with the second argument.
 	{
 		//fix up flag to standard syntax
 		//Note: strncpy will pad will nulls
@@ -595,17 +618,18 @@ static bool IsP_START(char *name)
 //
 static bool IsP_END(char *name)
 {
-	if (strncmp(name, "GUNSTOP", 8) == 0) //|| (strncmp(name, "SHAPSTOP", 8) == 0))
+
+
+	if (strncmp(name, "SHAPSTOP", 8) == 0)
 	{
-		//fix up flag to standard syntax
-	   // Note: strncpy will pad will nulls
-	//	I_Printf("ROTT: SPRITES END PROCESSING...\n");
+		// fix up flag to standard syntax
 		strncpy(name, "PP_END", 8);
 		return 1;
 	}
 
-	if (strncmp(name, "SHAPSTOP", 8) == 0)
+	if (strncmp(name, "MASKSTOP", 8) == 0)
 	{
+		I_Printf("ROTT: MASKSTRT -> Patches\n");
 		// fix up flag to standard syntax
 		strncpy(name, "PP_END", 8);
 		return 1;
@@ -868,8 +892,7 @@ static bool IsLPIC(char *name)
 
 static bool IsRawROTT(const char *name)
 {
-	return (strncmp(name, "AP_WLRD", 8) == 0 ||
-		strncmp(name, "FLRCL1", 8) == 0 ||
+	return (strncmp(name, "FLRCL1", 8) == 0 ||
 		strncmp(name, "FLRCL2", 8) == 0 ||
 		strncmp(name, "FLRCL3", 8) == 0 ||
 		strncmp(name, "FLRCL4", 8) == 0 ||
@@ -884,9 +907,7 @@ static bool IsRawROTT(const char *name)
 		strncmp(name, "FLRCL13", 8) == 0 ||
 		strncmp(name, "FLRCL14", 8) == 0 ||
 		strncmp(name, "FLRCL15", 8) == 0 ||
-		strncmp(name, "FLRCL16", 8) == 0 ||
-		strncmp(name, "PLANE", 8) == 0 ||
-		strncmp(name, "TRILOGO", 8) == 0);
+		strncmp(name, "FLRCL16", 8) == 0);
 }
 //
 // Is the name a dummy sprite/flat/patch marker ?
@@ -927,8 +948,8 @@ static bool IsROTTFlat_Start(const char *name)
 		strncmp(name, "DOORSTRT", 8) == 0 ||
 		strncmp(name, "EXITSTRT", 8) == 0 ||
 		strncmp(name, "ELEVSTRT", 8) == 0 ||
-		strncmp(name, "SIDESTRT", 8) == 0 ||
-		strncmp(name, "UPDNSTRT", 8) == 0);
+		strncmp(name, "SIDESTRT", 8) == 0);// ||
+		//strncmp(name, "UPDNSTRT", 8) == 0);
 
 	return (strncmp(name, "FF_START", 8) == 0);
 }
@@ -941,11 +962,36 @@ static bool IsROTTFlat_End(const char *name)
 		strncmp(name, "EXITSTOP", 8) == 0 ||
 		strncmp(name, "ABVWSTRT", 8) == 0 ||
 		strncmp(name, "ELEVSTOP", 8) == 0 ||
-		strncmp(name, "SIDESTOP", 8) == 0 ||
-		strncmp(name, "UPDNSTOP", 8) == 0);
+		strncmp(name, "SIDESTOP", 8) == 0);// ||
+		//strncmp(name, "UPDNSTOP", 8) == 0);
 
 	return (strncmp(name, "FF_END", 8) == 0);
 }
+
+#if 0
+static bool IsROTTFLRCL(const char *name)
+{
+	return 	(strncmp(name, "FLRCL1", 8) == 0 ||
+		strncmp(name, "FLRCL2", 8) == 0 ||
+		strncmp(name, "FLRCL3", 8) == 0 ||
+		strncmp(name, "FLRCL4", 8) == 0 ||
+		strncmp(name, "FLRCL5", 8) == 0 ||
+		strncmp(name, "FLRCL6", 8) == 0 ||
+		strncmp(name, "FLRCL7", 8) == 0 ||
+		strncmp(name, "FLRCL8", 8) == 0 ||
+		strncmp(name, "FLRCL9", 8) == 0 ||
+		strncmp(name, "FLRCL10", 8) == 0 ||
+		strncmp(name, "FLRCL11", 8) == 0 ||
+		strncmp(name, "FLRCL12", 8) == 0 ||
+		strncmp(name, "FLRCL13", 8) == 0 ||
+		strncmp(name, "FLRCL14", 8) == 0 ||
+		strncmp(name, "FLRCL15", 8) == 0 ||
+		strncmp(name, "FLRCL16", 8) == 0);
+
+	return (strncmp(name, "F_"))
+}
+#endif // 0
+
 
 
 //
@@ -1145,6 +1191,7 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 {
 	int j;
 	lumpinfo_t *lump_p = lumpinfo + lump;
+	image_c *rim;
 
 	lump_p->position = pos;
 	lump_p->size = size;
@@ -1166,14 +1213,14 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 
 	Z_StrNCpy(lump_p->path, path, 255);
 
-#ifdef DEVELOPERS
-	I_Debugf("AddLumpEx: %p, %d, %d, %d, %d, %d, %s, %d, %s\n",
-		df, lump, pos, size, file, sort_index, lump_p->name, allow_ddf, lump_p->path);
-#endif
+//#ifdef DEVELOPERS
+//	I_Debugf("AddLumpEx: %p, %d, %d, %d, %d, %d, %s, %d, %s\n",
+//		df, lump, pos, size, file, sort_index, lump_p->name, allow_ddf, lump_p->path);
+//#endif
 
 	// -- handle special names --
 
-	if ((strncmp(lump_p->name, "PLAYPAL", 8) == 0) || (strncmp(lump_p->name, "PAL", 8) == 0))
+	if ((strncmp(lump_p->name, "PLAYPAL", 8) == 0) || (strncmp(lump_p->name, "PAL", 4) == 0))
 	{
 		lump_p->kind = LMKIND_WadTex;
 		df->wadtex.palette = lump;
@@ -1194,6 +1241,7 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		 (strncmp(lump_p->name, "DEADBOSS", 8) == 0))
 	{
 		lump_p->kind = LMKIND_LBM;
+		SYS_ASSERT(rim->source_type == IMSRC_ROTTLBM);
 		df->lbm_pic = lump;
 		return;
 	}
@@ -1383,34 +1431,39 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		(strncmp(name, "WINDOW9", 8) == 0))
 	{
 			lump_p->kind = LMKIND_LPIC;
+			SYS_ASSERT(rim->source_type == IMSRC_rottpic);
 			df->lpic_rott = lump;
 			return;
 	}
 
-	else if ((strncmp(lump_p->name, "FLRCL1",  8) == 0) ||
-		(strncmp(lump_p->name, "FLRCL2",  8) == 0) ||
-		(strncmp(lump_p->name, "FLRCL3",  8) == 0) ||
-		(strncmp(lump_p->name, "FLRCL4",  8) == 0) ||
-		(strncmp(lump_p->name, "FLRCL5",  8) == 0) ||
-		(strncmp(lump_p->name, "FLRCL6",  8) == 0) ||
-		(strncmp(lump_p->name, "FLRCL7",  8) == 0) ||
-		(strncmp(lump_p->name, "FLRCL8",  8) == 0) ||
-		(strncmp(lump_p->name, "FLRCL9",  8) == 0) ||
-		(strncmp(lump_p->name, "FLRCL10", 8) == 0) ||
-		(strncmp(lump_p->name, "FLRCL11", 8) == 0) ||
-		(strncmp(lump_p->name, "FLRCL12", 8) == 0) ||
-		(strncmp(lump_p->name, "FLRCL13", 8) == 0) ||
-		(strncmp(lump_p->name, "FLRCL14", 8) == 0) ||
-		(strncmp(lump_p->name, "FLRCL15", 8) == 0) ||
-		(strncmp(lump_p->name, "FLRCL16", 8) == 0) ||
-		(strncmp(lump_p->name, "PLANE",   7) == 0) ||
-		(strncmp(lump_p->name, "TRILOGO", 8) == 0) ||
-		(strncmp(lump_p->name, "AP_WRLD", 9) == 0))
+#if 0
+					else if ((strncmp(lump_p->name, "FLRCL1", 8) == 0) ||
+					(strncmp(lump_p->name, "FLRCL2", 8) == 0) ||
+					(strncmp(lump_p->name, "FLRCL3", 8) == 0) ||
+					(strncmp(lump_p->name, "FLRCL4", 8) == 0) ||
+					(strncmp(lump_p->name, "FLRCL5", 8) == 0) ||
+					(strncmp(lump_p->name, "FLRCL6", 8) == 0) ||
+					(strncmp(lump_p->name, "FLRCL7", 8) == 0) ||
+					(strncmp(lump_p->name, "FLRCL8", 8) == 0) ||
+					(strncmp(lump_p->name, "FLRCL9", 8) == 0) ||
+					(strncmp(lump_p->name, "FLRCL10", 8) == 0) ||
+					(strncmp(lump_p->name, "FLRCL11", 8) == 0) ||
+					(strncmp(lump_p->name, "FLRCL12", 8) == 0) ||
+					(strncmp(lump_p->name, "FLRCL13", 8) == 0) ||
+					(strncmp(lump_p->name, "FLRCL14", 8) == 0) ||
+					(strncmp(lump_p->name, "FLRCL15", 8) == 0) ||
+					(strncmp(lump_p->name, "FLRCL16", 8) == 0))// ||
+					//(strncmp(lump_p->name, "PLANE",   8) == 0) ||
+					//(strncmp(lump_p->name, "TRILOGO", 8) == 0) ||
+					//(strncmp(lump_p->name, "AP_WRLD", 8) == 0))
 	{
-		lump_p->kind = LMKIND_RAWFLATS;
-		df->raw_flats = lump;
-		return;
+	lump_p->kind = LMKIND_Flat;
+	SYS_ASSERT(rim->source_type == IMSRC_ROTTRaw128x128);
+	df->raw_flats = lump;
+	return;
 	}
+#endif // 0
+
 
 	else if (strncmp(lump_p->name, "PNAMES", 8) == 0)
 	{
@@ -1506,28 +1559,37 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		within_flat_list = true;
 		return;
 	}
-//	else if (IsROTTFlat_Start(lump_p->name))
-//	{
-//		I_Printf("Parsing ROTT Flat Lumps by array\n");
-//		lump_p->kind = LMKIND_Marker;
-//		within_flat_list = true;
-//		return;
-//	}
-	else if (IsF_END(lump_p->name))
+	else if (IsROTTFlat_Start(lump_p->name))
+	{
+		I_Printf("Parsing ROTT Flat Lumps by ROTTFlat_Start array\n");
+		lump_p->kind = LMKIND_Marker;
+		within_flat_list = true;
+		return;
+	}
+	else if (IsRawROTT(lump_p->name))
+	{
+		lump_p->kind = LMKIND_Flat;
+		within_flat_list = true;
+		return;
+	}
+
+	else if (IsROTTFlat_End(lump_p->name))
 	{
 		if (!within_flat_list)
-			I_Warning("Unexpected F_END marker in wad.\n");
-
+			I_Warning("Unexpected F_END marker in DARKWAR.wad (check ROTTFLat_End!).\n");
 		lump_p->kind = LMKIND_Marker;
 		within_flat_list = false;
 		return;
 	}
-//	else if (IsROTTFlat_End(lump_p->name))
-//	{
-//		lump_p->kind = LMKIND_Marker;
-//		within_flat_list = false;
-//		return;
-//	}
+	else if (IsF_END(lump_p->name))
+	{
+		if (!within_flat_list)
+			I_Warning("Unexpected F_END marker in wad.\n");
+		lump_p->kind = LMKIND_Marker;
+		within_flat_list = false;
+		return;
+	}
+
 	else if (IsP_START(lump_p->name))
 	{
 		lump_p->kind = LMKIND_Marker;
@@ -1610,12 +1672,12 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		return;
 	}
 
-	else if (IsRawROTT(lump_p->name))
-	{
-		lump_p->kind = LMKIND_RAWFLATS;
-		within_rawflats_list = true;
-		return;
-	}
+	//else if (IsRawROTT(lump_p->name))
+	//{
+	//	lump_p->kind = LMKIND_RAWFLATS;
+	//	within_flat_list = true;
+	//	return;
+	//}
 
 	// ignore zero size lumps or dummy markers
 	if (lump_p->size > 0 && !IsDummySF(lump_p->name))
@@ -3315,7 +3377,7 @@ int W_CheckNumForName_GFX(const char *name)
 			lumpinfo[i].kind == LMKIND_Sprite ||
 			lumpinfo[i].kind == LMKIND_Patch  ||
 			lumpinfo[i].kind == LMKIND_LBM ||
-			lumpinfo[i].kind == LMKIND_LPIC   ||
+			lumpinfo[i].kind == LMKIND_LPIC ||
 			lumpinfo[i].kind == LMKIND_RAWFLATS)
 		{
 			if (strncmp(lumpinfo[i].name, buf, 8) == 0)
