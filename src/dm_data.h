@@ -166,31 +166,18 @@ typedef struct patch_s
 }
 patch_t;
 
-/// TODO: Define lump order in ROTT WAD, define FL_ flags here as well (translated to 3DGE's MPF_ flags)
-
-/// WALLS - Walls are stored in the WAD between the two labels "WALLSTRT" and
-/// "WALLSTOP".  The format of each wall is a 4,096 block of data with no
-/// header.  The bitmaps are grabbed in vertical posts so that drawing in
-/// modex is more straight format.  All walls must be 64 x 64. The walls must
-/// be the first few lumps in the WAD.
-
-
-/// SKYS, FLOORS and CEILINGS - Skys are larger than the screen and are made
-/// up of two 256X200 grabs in posts similar to the walls.  The first grab
-/// represents the bottom part of the sky and the second part the top of the
-/// sky.  The skys are denoted by the labels SKYSTRT and SKYSTOP.  Floors and
-/// ceilings use the following structure as desribed below. This will eventually
-/// be converted to use 3DGE's internal system for flats and skys.
-
-/// !!! ///
-typedef struct {
+// ROTT Picture Format (rottpic)
+typedef struct 
+{
 	byte width, height;
 	byte data;
 } pic_t;
 
 #define CONVERT_ENDIAN_pic_t(pp) { }
 
-typedef struct {
+//Rise of the Triad FLATS FORMAT
+typedef struct 
+{
 	short width, height;
 	short orgx, orgy;
 	byte data;
@@ -204,7 +191,9 @@ typedef struct {
         EPI_LE_S16(&lp->orgy);           \
     }
 
-typedef struct {
+//ROTT Fonts
+typedef struct 
+{
 	short height;
 	char width[256];
 	short charofs[256];
@@ -219,8 +208,9 @@ typedef struct {
             EPI_LE_S16(&fp->charofs[i]); \
         }                                    \
     }
-
-typedef struct {
+// LBM ROTT 320x200 images (only used a few times in Darkwar)
+typedef struct 
+{
 	short width;
 	short height;
 	byte palette[768];
@@ -232,7 +222,7 @@ typedef struct {
         EPI_LE_S16(&lp->width);          \
         EPI_LE_S16(&lp->height);         \
     }
-
+// Rise of the Triad Patches
 typedef struct rottpatch_s
 {
 	short origsize;		// the orig size of "grabbed" gfx
@@ -255,8 +245,9 @@ typedef struct rottpatch_s
             EPI_LE_S16((short*)&pp->columnofs[i]); \
         }                                    \
     }
-
-typedef struct {
+// Rise of the Triad Masked Patches
+typedef struct
+{
 	short origsize;		// the orig size of "grabbed" gfx
 	short width;		// bounding box size
 	short height;
@@ -279,8 +270,9 @@ typedef struct {
             EPI_LE_S16((short*)&pp->collumnofs[i]); \
         }                                    \
     }
-
-typedef struct {
+//ROTT Fonts
+typedef struct 
+{
 	byte color;
 	short height;
 	char width[256];

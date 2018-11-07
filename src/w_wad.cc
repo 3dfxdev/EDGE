@@ -161,7 +161,7 @@ public:
 	// Rise of the Triad LBM (only used for 5 images)
 	int lbm_pic;
 
-	int lpic_rott;
+	int pic_rott;
 
 	// Rise of the Triad RAW (only used for FLRCL flats and PLANE/TRILOGO)
 	int raw_flats;
@@ -206,7 +206,7 @@ public:
 		colmap_lumps(), tx_lumps(), hires_lumps(),
 		lbm_lumps(), rottpic_lumps(), rottraw_flats(),
 		level_markers(), skin_markers(),
-		wadtex(), vv(), lbm_pic(-1), lpic_rott(-1), raw_flats(-1), deh_lump(-1), coal_huds(-1),
+		wadtex(), vv(), lbm_pic(-1), pic_rott(-1), raw_flats(-1), deh_lump(-1), coal_huds(-1),
 		coal_api(-1), shader_files(-1), roq_videos(-1), animated(-1), switches(-1),
 		companion_gwa(-1), dir_hash()
 	{
@@ -259,7 +259,7 @@ typedef enum
 	LMKIND_Shaders = 20,
 	LMKIND_ROQ = 21,
 	LMKIND_LBM = 22,
-	LMKIND_LPIC = 23, //imsrc_rottpic
+	LMKIND_PIC = 23, //imsrc_rottpic
 	LMKIND_RAWFLATS = 24
 }
 lump_kind_e;
@@ -704,7 +704,7 @@ static bool IsHI_END(char *name)
 }
 
 // This is ugly, but this will list every single ROTT RAW picture (lpic_t) so they can be sorted properly
-static bool IsLPIC(char *name)
+static bool IsRottPic(char *name)
 {
 	return (strncmp(name, "AMMO18", 8) == 0 ||
 		strncmp(name, "AMMO1C", 8) == 0 ||
@@ -1430,9 +1430,9 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		(strncmp(name, "WINDOW8", 8) == 0) ||
 		(strncmp(name, "WINDOW9", 8) == 0))
 	{
-			lump_p->kind = LMKIND_LPIC;
+			lump_p->kind = LMKIND_PIC;
 			SYS_ASSERT(rim->source_type == IMSRC_rottpic);
-			df->lpic_rott = lump;
+			df->pic_rott = lump;
 			return;
 	}
 
@@ -1665,9 +1665,9 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		return;
 	}
 
-	else if (IsLPIC(lump_p->name))
+	else if (IsRottPic(lump_p->name))
 	{
-		lump_p->kind = LMKIND_LPIC;
+		lump_p->kind = LMKIND_PIC;
 		within_rottpic_list = true;
 		return;
 	}
@@ -1715,7 +1715,7 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 
 		if (within_rottpic_list)// || (lump_p->size == 64008))
 		{
-			lump_p->kind = LMKIND_LPIC;
+			lump_p->kind = LMKIND_PIC;
 			df->rottpic_lumps.Insert(lump);
 		}
 
@@ -3377,7 +3377,7 @@ int W_CheckNumForName_GFX(const char *name)
 			lumpinfo[i].kind == LMKIND_Sprite ||
 			lumpinfo[i].kind == LMKIND_Patch  ||
 			lumpinfo[i].kind == LMKIND_LBM ||
-			lumpinfo[i].kind == LMKIND_LPIC ||
+			lumpinfo[i].kind == LMKIND_PIC ||
 			lumpinfo[i].kind == LMKIND_RAWFLATS)
 		{
 			if (strncmp(lumpinfo[i].name, buf, 8) == 0)
@@ -3510,7 +3510,7 @@ int W_CheckNumForTexPatch(const char *name)
 	{
 		lumpinfo_t *L = lumpinfo + lumpmap[i];
 
-		if (L->kind == LMKIND_Patch || L->kind == LMKIND_Sprite || L->kind == LMKIND_LPIC || // L->kind == LMKIND_ROTTPatch || L->kind == LMKIND_ROTTPic ||
+		if (L->kind == LMKIND_Patch || L->kind == LMKIND_Sprite || L->kind == LMKIND_PIC || // L->kind == LMKIND_ROTTPatch || L->kind == LMKIND_ROTTPic ||
 			L->kind == LMKIND_Normal)
 		{
 			// allow LMKIND_Normal to support patches outside of the

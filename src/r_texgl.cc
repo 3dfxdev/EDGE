@@ -137,7 +137,7 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 
 	SYS_ASSERT(img->bpp == 3 || img->bpp == 4);
 	//DREAMCAST DEBUG
-	//I_Printf("R_UploadTexture: Loading %ix%i %i bpp texture\n", img->width, img->height, img->bpp);
+	I_Printf("R_UploadTexture: Loading %ix%i %i bpp texture\n", img->width, img->height, img->bpp);
 
 	bool clamp = (flags & UPL_Clamp) ? true : false;
 	bool nomip = (flags & UPL_MipMap) ? false : true;
@@ -419,12 +419,7 @@ void R_BlackenClearAreas(epi::image_data_c *img)
 	{
 		for (; count > 0; count--, dest++)
 		{
-			if (rott_mode)
-			{
-				if (*dest == TRANS_PIXEL)
-					*dest = pal_black;
-			}
-			else if (*dest == TRANS_PIXEL)
+			if (*dest == TRANS_PIXEL)
 				*dest = pal_black;
 		}
 	}

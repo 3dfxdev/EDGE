@@ -26,6 +26,7 @@
 #include "system/i_defs.h"
 #include "system/i_defs_gl.h"
 #include "system/i_sdlinc.h"
+#include "m_misc.h"
 #include "r_shaderprogram.h"
 #include "w_wad.h"
 #include "z_zone.h"
@@ -94,10 +95,11 @@ void FShaderProgram::Compile(ShaderType type, const char *lumpname, const char *
 {
 	int lump = W_FindLumpFromPath(lumpname);
 
-	int length = 0;
+	int length;
 	byte *code = W_ReadLumpAlloc(lump, &length);
+	//I_Printf("Compiling %s lump\n", lumpname);
 
-	Compile(type, lumpname, (const char *)code, defines, maxGlslVersion);
+	Compile(type, lumpname, (char *)code, defines, maxGlslVersion);
 
 	//Free it!
 	delete[] code;

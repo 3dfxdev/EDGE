@@ -63,6 +63,20 @@ void image_data_c::Whiten()
 	}
 }
 
+void image_data_c::Rotate90()
+{
+	//SYS_ASSERT(bpp >= 1);
+	for (int y = 0, dest_col = height - 1; y < height; ++y, --dest_col)
+	for (int x = 0; x < width; x++)
+	{
+		//u8_t *dest_pix = pixels + (dy * new_w + dx) * 3;
+		u8_t *src = PixelAt(x, y);
+		u8_t *dest = pixels;
+		dest[(x * height) + dest_col] = src[y*width + x];
+	}
+	
+}
+
 void image_data_c::Invert()
 {
 	int line_size = used_w * bpp;

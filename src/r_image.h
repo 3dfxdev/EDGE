@@ -114,7 +114,7 @@ public:
 		struct { int lump; } rawflat;
 
 		// case IMSRC_rottpic:
-		struct { int lump; } lpic;
+		struct { int lump; } pic;
 
 
 		// case IMSRC_Texture:

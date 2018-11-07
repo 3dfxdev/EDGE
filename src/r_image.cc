@@ -298,14 +298,15 @@ static image_c *NewROTTImage(int width, int height, int opacity = OPAC_Unknown)
 {
 	image_c *rim = new image_c;
 
-	rim->actual_w = width;
+	rim->actual_w = width * 4;
 	rim->actual_h = height;
 	rim->total_w = W_MakeValidSize(width);
 	rim->total_h = W_MakeValidSize(height);
 	//rim->roffset_x = rim->roffset_y = 0;
 	rim->scale_x = rim->scale_y = 1.0f;
 	rim->opacity = opacity;
-	rim->origsize = 0; //Not every patch will have this!
+
+	rim->source_type = IMSRC_rottpic;
 
 	// set initial animation info
 	rim->anim.cur = rim;
@@ -357,8 +358,13 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	int roffset_x = 0, roffset_y = 0;
 
 	// determine RAW ROTT picture info (!!!)
-	int picwidth = 0, picheight = 0;
+	int picwidth = 0;// = 0;
+	int	picheight = 0;// = 0;
 	int picorg_x = 0, picorg_y = 0;
+
+	// set ROTT FLATS data (UPDN/SKY)
+	int flatheight = 0;
+	int flatwidth = 0;
 
 	int lbmwidth = 320; //EXPRESSLY SET!
 	int lbmheight = 200; //EXPRESSLY SET!
@@ -435,54 +441,45 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	else  // DOOM/ROTT GRAPHICS/PATCHES/RAW
 	{
 	// Interpret raw on-disk data to set up for image loading
-	patch_t *pat = (patch_t *)buffer;
-	rottpatch_t *rpat = (rottpatch_t *)buffer;
-	pic_t *rottflat = (pic_t *)buffer;
+	patch_t *pat = (patch_t *)buffer; // Normal DOOM Patch
+	rottpatch_t *rpat = (rottpatch_t *)buffer; // Rise of the Triad Patch
 
-	//ROTT RAW PICS
-	lpic_t *lpic = (lpic_t *)buffer; //raw ROTT pics
-	lbm_t *lbm = (lbm_t *)buffer; //LBM 
-
-	// Setup variables for both patch types, DOOM -> *pat, ROTT -> *rpat //!!!
 	width = EPI_LE_S16(pat->width);
 	height = EPI_LE_S16(pat->height);
 	offset_x = EPI_LE_S16(pat->leftoffset);
 	offset_y = EPI_LE_S16(pat->topoffset);
-
 	origsize = EPI_LE_S16(rpat->origsize); // ROTT (rottpatch_t is in *rpat via the rottpatch_t header)
 	roffset_x = EPI_LE_S16(rpat->leftoffset) + (EPI_LE_S16(rpat->origsize) / 2); //according to Icculus/WinROTT, leftoffset needs modification beforehand
 	roffset_y = EPI_LE_S16(rpat->topoffset) + EPI_LE_S16(rpat->origsize); //according to Icculus/WinROTT, topoffset needs modification beforehand
 
-	//ROTT RAW LPICS
-	// there is an additional decoder (byte data!)
-	picwidth = EPI_LE_S16(lpic->width);
-	picheight = EPI_LE_S16(lpic->height);
-	picorg_x = EPI_LE_S16(lpic->orgx);
-	picorg_y = EPI_LE_S16(lpic->orgy);
+	//---------------------------------------------------------------------------------------
+	// Rise of the Triad FLATS FORMAT
+	lpic_t *rottflat = (lpic_t *)buffer; 
+	flatwidth = EPI_LE_S16(rottflat->width);
+	flatheight = EPI_LE_S16(rottflat->height);
+	picorg_x = EPI_LE_S16(rottflat->orgx);
+	picorg_y = EPI_LE_S16(rottflat->orgy);
 	//int expectlen = picwidth * picwidth + 8;
+	//--------------------------------------------------------------------------------------
 
-	//ROTT PICTURE FORMAT
+	//--------------------------------------------------------------------------------------
+	// LBM ROTT 320x200 images (only used a few times in Darkwar)
+	lbm_t *lbm = (lbm_t *)buffer; 
 	lbmwidth = EPI_LE_S16(lbm->width); //0
 	lbmheight = EPI_LE_S16(lbm->height); //2?
+	//--------------------------------------------------------------------------------------
+
+	//--------------------------------------------------------------------------------------
+	// ROTT Picture Format (rottpic)
+	pic_t *rottpic = (pic_t *)buffer;
+	picwidth = rottpic->width;
+	picheight = rottpic->height;
+	//--------------------------------------------------------------------------------------
 
 		delete f;
 
+		
 #if 0
-		if (type == IMSRC_rottpic) //64008 = 320 * 200 + headr (8), must be a lpic_t
-		{
-			I_Printf("rottpic: '%s' seems to be a raw image + header (lpic_t)..\n", name);
-			image_c *rim = NewImage(320, 200, OPAC_Solid); //!!! remember: width/height were previously 320x200
-			strcpy(rim->name, name);
-			I_Printf("rottpic: Read lpic Image: '%s'\n", name);
-
-			rim->offset_x = picorg_x;
-			rim->offset_y = picorg_y;
-			rim->source_type = IMSRC_rottpic;
-			rim->source.lpic.lump = lump;
-			rim->source_palette = W_GetPaletteForLump(lump);
-			return rim;
-		}
-#endif // 0
 		if (ROTT_IsDataFLRCL(buffer, lump_len))
 		{
 			I_Printf("ROTT: Data '%s' is floor or ceiling, get more information\n", name);
@@ -501,6 +498,8 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 			}
 			else I_Printf("Data lump_len/type loop is invalid, returning nothing!\n");
 		}
+#endif // 0
+
 
 		// do some basic checks
 				// !!! FIXME: identify lump types in wad code.
@@ -508,9 +507,32 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 			height <= 0 || height > 512 ||
 			ABS(offset_x) > 2048 || ABS(offset_y) > 1024)
 		{
-			// do checking for ROTT Graphics _FIRST_
 
-		// int expectlen = width * height + 8; if (lump_len != expectlen)
+			// do checking for ROTT Graphics _FIRST_
+			int expectlen = width * height + 8; //if (lump_len != expectlen)
+//#if 1
+			if ((lump_len != expectlen) && (type == IMSRC_Graphic || IMSRC_rottpic))
+			{
+				//I_Printf("rottpic: '%s' seems to be a raw image + header (lpic_t)..lump_len = '%d'\n", name, lump_len);
+			//	I_Printf("rottpic: '%s' width: '%d' height: '%d'\n", name, rottpic->width, rottpic->height);
+				//I_Printf("rottpic: '%s': [%s]x[%s]..\n", name, picwidth, picheight);
+
+				int width =  picwidth * 4;
+				int height = picheight;
+
+				image_c *rim = NewImage(width, height, OPAC_Solid);// solid ? OPAC_Solid : OPAC_Unknown); //!!! remember: width/height were previously 320x200
+				I_Printf("rottpic: '%s' width: '%d' height: '%d'", name, rottpic->width, rottpic->height);
+				//epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
+
+				strcpy(rim->name, name);
+				//I_Printf("rottpic: Read lpic Image: '%s'\n", name);
+
+				rim->source_type = IMSRC_rottpic;
+				rim->source.flat.lump = lump;
+				rim->source_palette = W_GetPaletteForLump(lump);
+				return rim;
+			}
+//#endif // 1
 
 
 			// check for Heretic/Hexen, which are raw 320x200
@@ -524,7 +546,6 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 				rim->source.flat.lump = lump;
 				rim->source_palette = W_GetPaletteForLump(lump);
 				return rim;
-
 			}
 
 
@@ -539,7 +560,6 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 				rim->source.flat.lump = lump;
 				rim->source_palette = W_GetPaletteForLump(lump);
 				return rim;
-
 			}
 
 
@@ -547,7 +567,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 				I_Warning("Graphic '%s' seems to be a flat, RETURNING NULL.\n", name);
 			else
 				I_Warning("Graphic '%s' does not seem to be a graphic.\n", name);
-
+				//L_WriteDebug("ROTT PIC_T [%s] : size %dx%d\n", W_GetLumpName(lump), rottpic->width, rottpic->height);
 			return NULL;
 		}
 	}
@@ -1310,7 +1330,7 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans2)
 	return tex_id;
 }
 
-#if 0
+#if 1
 static
 void UnloadImageOGL(cached_image_t *rc, image_c *rim)
 {
@@ -1442,7 +1462,7 @@ static const image_c *BackupGraphic(const char *gfx_name, int flags)
 		if (rim)
 			return rim;
 
-		rim = do_Lookup(raw_graphics, gfx_name, IMSRC_rottpic);
+		rim = do_Lookup(real_graphics, gfx_name, IMSRC_rottpic);
 		if (rim)
 			return rim;
 
@@ -1540,7 +1560,7 @@ const image_c *W_ImageLookup(const char *name, image_namespace_e type, int flags
 	}
 	if (type == INS_rottpic)
 	{
-		rim = do_Lookup(raw_graphics, name);
+		rim = do_Lookup(real_graphics, name);
 		return rim ? rim : BackupGraphic(name, flags);
 	}
 

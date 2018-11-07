@@ -96,6 +96,12 @@ public:
 
 	void Whiten();
 	// convert all RGB(A) pixels to a greyscale equivalent.
+
+	void Rotate90();
+	// flip the image 90 degrees to the right.
+
+	void RotatePicture();
+	// flip the image 90 degrees to the right.
 	
 	void Invert();
 	// turn the image up-side-down.

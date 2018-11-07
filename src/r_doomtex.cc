@@ -365,14 +365,14 @@ static void DrawROTTColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 
 		if (top < 0)
 		{
-			I_Printf("TOP < 0\n");
+			//I_Printf("TOP < 0\n");
 			count += top;
 			top = 0;
 		}
 
 		if (top + count > h1)
 		{
-			I_Printf("TOP + count is greater than actual height\n");
+			//I_Printf("TOP + count is greater than actual height\n");
 			count = h1 - top;
 		}
 		
@@ -577,27 +577,29 @@ static epi::image_data_c *ReadROTTAsRAWBlock(image_c *rim)
 	W_DoneWithLump(src);
 
 	return img;
-
 }
 //
-// ReadFlatAsBlock
+// ReadROTTPicAsEpiBlock
 //
-// Loads a flat from the wad and returns the image block for it.
+// Loads a Rise of the Triad lpic_t from the wad and returns the image block for it.
 // Doesn't do any mipmapping (this is too "raw" if you follow).
 //
-static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
+static epi::image_data_c *ReadROTTPICAsEpiBlock(image_c *rim)
 {
-	SYS_ASSERT(rim->source_type == IMSRC_Flat ||
-		rim->source_type == IMSRC_Raw320x200 || IMSRC_ROTTRaw128x128);
+	I_Printf("ReadROTTPICAsEpiBlock: Reached!\n");
+	SYS_ASSERT(rim->source_type == IMSRC_rottpic);
 
-	int tw = MAX(rim->total_w, 1);
-	int th = MAX(rim->total_h, 1);
+	//int tw = MAX(rim->total_w, 1);
+	//int th = MAX(rim->total_h, 1);
+	pic_t *pic;
+	int lump = rim->source.pic.lump;
 
-	int w = rim->actual_w;
-	int h = rim->actual_h;
-	int len = W_LumpLength(rim->source.flat.lump);
+	int w = rim->actual_w;// *4;// = rim->total_w = lpic->width;
+	int h = rim->actual_h;// = rim->total_h = lpic->height;
+	int len = W_LumpLength(rim->source.pic.lump);
 
-	epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
+	epi::image_data_c *img = new epi::image_data_c(w, h, 1); //PAL?
+	img->Rotate90();
 
 	byte *dest = img->pixels;
 
@@ -607,79 +609,132 @@ static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
 #endif
 
 	// clear initial image to black
-	img->Clear(pal_black);
+	//img->Clear(pal_black);
+	const byte *src = (const byte*)W_CacheLumpNum(rim->source.pic.lump);
+	
+
+	//SYS_ASSERT(rim->actual_w == EPI_LE_S16(pic->width * 4));
+	//SYS_ASSERT(rim->actual_h == EPI_LE_S16(pic->height));
+	
 
 	// read in pixels
-	const byte *src = (const byte*)W_CacheLumpNum(rim->source.flat.lump);
-#if 0
-
-	switch (len)
-	{
-	case 128 * 128 + 8: // ROTT FLATS ONLY!!
-	{
-		I_Printf("ROTT: Converting image to column major order...\n");
-		// read in pixels
-		for (int y = 0; y < 128; y++)
-			for (int x = 0; x < 128; x++)
-			{
-				byte src_pix = src[x * 128 + 127 - y];  // column-major order!!
-
-				byte *pix = img->PixelAt(x, y);
-
-				pix[0] = rott_palette[src_pix * 3 + 0];
-				pix[1] = rott_palette[src_pix * 3 + 1];
-				pix[2] = rott_palette[src_pix * 3 + 2];
-			}
-
-		W_DoneWithLump(src);
-
-		return img;
-	}
-	I_Printf("ROTT: Done with image, breaking out of flats loop\n");
-	break;
-
-	default:
-#endif // 0
-
+	I_Printf("ROTT PIC: Reading in pixels for [%s]\n", W_GetLumpName(lump));
 	for (int y = 0; y < h; y++)
 		for (int x = 0; x < w; x++)
 		{
 			byte src_pix = src[y * w + x];
 
-			byte *dest_pix = &dest[(h - 1 - y) * tw + x];
+			byte *dest_pix = &dest[(h - 1 - y) * w + x];
+			//byte *dest_pix = img->pixels + x;
 
 			// make sure TRANS_PIXEL values (which do not occur naturally in
 			// Doom images) are properly remapped.
-			//if (src_pix == TRANS_PIXEL)
-			//	dest_pix[0] = TRANS_REPLACE;
-			//else
+			if (src_pix == TRANS_PIXEL)
+				dest_pix[0] = TRANS_REPLACE;
+			else
 				dest_pix[0] = src_pix;
 		}
-
-		W_DoneWithLump(src);
-
-
-		// CW: Textures MUST tile! If actual size not total size, manually tile
-	if (rim->actual_w != rim->total_w)
-		{
-			// tile horizontally
-			byte *buf = img->pixels;
-			for (int x = 0; x < (rim->total_w - rim->actual_w); x++)
-				for (int y = 0; y < rim->total_h; y++)
-					buf[y*rim->total_w + rim->actual_w + x] = buf[y*rim->total_w + x];
-		}
-	if (rim->actual_h != rim->total_h)
-		{
-			// tile vertically
-			byte *buf = img->pixels;
-			for (int y = 0; y < (rim->total_h - rim->actual_h); y++)
-				for (int x = 0; x < rim->total_w; x++)
-					buf[(rim->actual_h + y)*rim->total_w + x] = buf[y*rim->total_w + x];
-		}
+	W_DoneWithLump_Flushable(src);
 
 	return img;
-	
 }
+
+
+static epi::image_data_c *ReadFlatAsEpiBlock(image_c *rim)
+	{
+		SYS_ASSERT(rim->source_type == IMSRC_Flat ||
+			rim->source_type == IMSRC_Raw320x200 || IMSRC_ROTTRaw128x128);
+
+		int tw = MAX(rim->total_w, 1);
+		int th = MAX(rim->total_h, 1);
+
+		int w = rim->actual_w;
+		int h = rim->actual_h;
+		int len = W_LumpLength(rim->source.flat.lump);
+
+		epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
+
+		byte *dest = img->pixels;
+
+#ifdef MAKE_TEXTURES_WHITE
+		img->Clear(pal_white);
+		return img;
+#endif
+
+		// clear initial image to black
+		img->Clear(pal_black);
+
+		// read in pixels
+		const byte *src = (const byte*)W_CacheLumpNum(rim->source.flat.lump);
+#if 0
+
+		switch (len)
+		{
+		case 128 * 128 + 8: // ROTT FLATS ONLY!!
+		{
+			I_Printf("ROTT: Converting image to column major order...\n");
+			// read in pixels
+			for (int y = 0; y < 128; y++)
+				for (int x = 0; x < 128; x++)
+				{
+					byte src_pix = src[x * 128 + 127 - y];  // column-major order!!
+
+					byte *pix = img->PixelAt(x, y);
+
+					pix[0] = rott_palette[src_pix * 3 + 0];
+					pix[1] = rott_palette[src_pix * 3 + 1];
+					pix[2] = rott_palette[src_pix * 3 + 2];
+				}
+
+			W_DoneWithLump(src);
+
+			return img;
+		}
+		I_Printf("ROTT: Done with image, breaking out of flats loop\n");
+		break;
+
+		default:
+#endif // 0
+
+			for (int y = 0; y < h; y++)
+				for (int x = 0; x < w; x++)
+				{
+					byte src_pix = src[y * w + x];
+
+					byte *dest_pix = &dest[(h - 1 - y) * tw + x];
+
+					// make sure TRANS_PIXEL values (which do not occur naturally in
+					// Doom images) are properly remapped.
+					//if (src_pix == TRANS_PIXEL)
+					//	dest_pix[0] = TRANS_REPLACE;
+					//else
+					dest_pix[0] = src_pix;
+				}
+
+			W_DoneWithLump(src);
+
+
+			// CW: Textures MUST tile! If actual size not total size, manually tile
+			if (rim->actual_w != rim->total_w)
+			{
+				// tile horizontally
+				byte *buf = img->pixels;
+				for (int x = 0; x < (rim->total_w - rim->actual_w); x++)
+					for (int y = 0; y < rim->total_h; y++)
+						buf[y*rim->total_w + rim->actual_w + x] = buf[y*rim->total_w + x];
+			}
+			if (rim->actual_h != rim->total_h)
+			{
+				// tile vertically
+				byte *buf = img->pixels;
+				for (int y = 0; y < (rim->total_h - rim->actual_h); y++)
+					for (int x = 0; x < rim->total_w; x++)
+						buf[(rim->actual_h + y)*rim->total_w + x] = buf[y*rim->total_w + x];
+			}
+
+			return img;
+
+		}
 
 //
 // ReadTextureAsBlock
@@ -1357,10 +1412,6 @@ epi::image_data_c *ReadAsEpiBlock(image_c *rim)
 	case IMSRC_ROTTRaw128x128:
 		return ReadROTTAsRAWBlock(rim);
 
-	// LBM
-	//case IMSRC_ROTTLBM:
-		//return ROTT_LoadLBM(rim);
-
 	case IMSRC_Texture:
 		return ReadTextureAsEpiBlock(rim);
 
@@ -1369,6 +1420,9 @@ epi::image_data_c *ReadAsEpiBlock(image_c *rim)
 	case IMSRC_Sprite:
 	case IMSRC_TX_HI:
 		return ReadPatchAsEpiBlock(rim);
+
+	case IMSRC_rottpic:
+		return ReadROTTPICAsEpiBlock(rim);
 
 	case IMSRC_Dummy:
 		return ReadDummyAsEpiBlock(rim);
