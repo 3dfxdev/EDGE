@@ -167,11 +167,14 @@ typedef struct patch_s
 patch_t;
 
 // ROTT Picture Format (rottpic)
-typedef struct 
+
+typedef struct pic_s
 {
 	byte width, height;
 	byte data;
-} pic_t;
+} 
+pic_t;
+
 
 #define CONVERT_ENDIAN_pic_t(pp) { }
 
