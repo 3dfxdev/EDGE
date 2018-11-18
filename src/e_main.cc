@@ -1116,7 +1116,7 @@ static void IdentifyVersion(void)
 				DDF_SetWhere(ddf_dir);
 				rott_mode = true;
 				printf("ROTT mode TRUE\n");
-				CreateROTTpal();
+				//CreateROTTpal();
 			}
 
 		}
@@ -1173,7 +1173,7 @@ static void IdentifyVersion(void)
 						ddf_dir = epi::PATH_Join(game_dir.c_str(), "rott_ddf");
 						DDF_SetWhere(ddf_dir);
 						rott_mode = true;
-						CreateROTTpal();
+						//CreateROTTpal();
 					}
 					iwad_file = fn;
 					done = true;

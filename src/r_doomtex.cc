@@ -596,10 +596,13 @@ static epi::image_data_c *ReadROTTPICAsEpiBlock(image_c *rim)
 
 	int w = rim->actual_w;// *4;// = rim->total_w = lpic->width;
 	int h = rim->actual_h;// = rim->total_h = lpic->height;
+	int hw = w * h;
+	//int new_w = pic->width * 4;
+	//int new_h = pic->height;
 	int len = W_LumpLength(rim->source.pic.lump);
 
 	epi::image_data_c *img = new epi::image_data_c(w, h, 1); //PAL?
-	img->Rotate90();
+	//img->Grow(new_w, new_h);
 
 	byte *dest = img->pixels;
 
@@ -611,11 +614,13 @@ static epi::image_data_c *ReadROTTPICAsEpiBlock(image_c *rim)
 	// clear initial image to black
 	//img->Clear(pal_black);
 	const byte *src = (const byte*)W_CacheLumpNum(rim->source.pic.lump);
-	
 
+	//size_t length = sizeof(rim->source.pic.lump);
+
+	//I_Printf("ROTT PIC: Total Size of length of lump: %lu,\n", sizeof(pic));
 	//SYS_ASSERT(rim->actual_w == EPI_LE_S16(pic->width * 4));
 	//SYS_ASSERT(rim->actual_h == EPI_LE_S16(pic->height));
-	
+	//int phasesize = w * h / 4;
 
 	// read in pixels
 	I_Printf("ROTT PIC: Reading in pixels for [%s]\n", W_GetLumpName(lump));
@@ -629,12 +634,15 @@ static epi::image_data_c *ReadROTTPICAsEpiBlock(image_c *rim)
 
 			// make sure TRANS_PIXEL values (which do not occur naturally in
 			// Doom images) are properly remapped.
-			if (src_pix == TRANS_PIXEL)
-				dest_pix[0] = TRANS_REPLACE;
-			else
-				dest_pix[0] = src_pix;
+		//	if (src_pix == TRANS_PIXEL)
+			//	dest_pix[0] = TRANS_REPLACE;
+			//else
+			//	dest_pix[0] = src_pix;
+			dest_pix[0] = src_pix * 3 + 0;
+			dest_pix[1] = src_pix * 3 + 1;
+			dest_pix[2] = src_pix * 3 + 2;
 		}
-	W_DoneWithLump_Flushable(src);
+	W_DoneWithLump(src);
 
 	return img;
 }

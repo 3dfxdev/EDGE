@@ -25,8 +25,8 @@ typedef signed short s16_t;
 typedef signed int   s32_t;
 typedef long int l32_t;
  
-typedef unsigned char  u8_t;
-typedef unsigned short u16_t;
+typedef unsigned char  u8_t; //BYTE
+typedef unsigned short u16_t; //WORD
 typedef unsigned int   u32_t;
 typedef unsigned long long int u64_t;
 //typedef unsigned int   u64_t;

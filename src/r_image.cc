@@ -517,23 +517,24 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 			//	I_Printf("rottpic: '%s' width: '%d' height: '%d'\n", name, rottpic->width, rottpic->height);
 				//I_Printf("rottpic: '%s': [%s]x[%s]..\n", name, picwidth, picheight);
 
-				int width =  picwidth * 4;
+				int width = picwidth * 4;
 				int height = picheight;
 
-				image_c *rim = NewImage(width, height, OPAC_Solid);// solid ? OPAC_Solid : OPAC_Unknown); //!!! remember: width/height were previously 320x200
-				I_Printf("rottpic: '%s' width: '%d' height: '%d'", name, rottpic->width, rottpic->height);
+				image_c *rim = NewImage(width, height, OPAC_Solid);// solid ? OPAC_Solid : OPAC_Unknown);
+				I_Printf("rottpic: '%s' width: '%d' height: '%d'\n", name, width, height);
 				//epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
+
 
 				strcpy(rim->name, name);
 				//I_Printf("rottpic: Read lpic Image: '%s'\n", name);
 
 				rim->source_type = IMSRC_rottpic;
-				rim->source.flat.lump = lump;
+				rim->source.pic.lump = lump; //!!!
 				rim->source_palette = W_GetPaletteForLump(lump);
 				return rim;
 			}
 //#endif // 1
-
+			else
 
 			// check for Heretic/Hexen, which are raw 320x200
 			if (lump_len == 320 * 200 && type == IMSRC_Graphic)
@@ -1330,7 +1331,7 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans2)
 	return tex_id;
 }
 
-#if 1
+#if 0
 static
 void UnloadImageOGL(cached_image_t *rc, image_c *rim)
 {
