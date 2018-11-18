@@ -1,7 +1,7 @@
 Welcome to EDGE!
 ---------------------
 
-![](http://a.fsdn.com/con/app/proj/edge2/screenshots/327069.jpg)
+![](https://a.fsdn.com/con/app/proj/edge2/screenshots/edgelogo6.png)
 
 [![Build status](https://ci.appveyor.com/api/projects/status/ghevag13p9ue60no?svg=true)](https://ci.appveyor.com/project/raa-eruanna/hyper3dge) [![Build Status](https://travis-ci.org/3dfxdev/hyper3DGE.svg?branch=master)](https://travis-ci.org/3dfxdev/hyper3DGE)
 
