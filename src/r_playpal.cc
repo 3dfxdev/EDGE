@@ -202,7 +202,7 @@ const byte blake_palette[256*3] =
 	154,  0,138
 };
 
-BYTE Rott_Doom_Pal_Converter[] = {
+const byte Rott_Doom_Pal_Converter[] = {
 1,4,134,146,148,75,76,151,78,79,1,1,2,7,8,0,
 
 80,85,90,94,97,99,102,3,107,109,110,111,5,6,6,7,
