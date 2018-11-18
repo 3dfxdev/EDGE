@@ -298,28 +298,6 @@ typedef enum
 }
 image_source_e;
 
-
-#if 1
-#pragma pack(push,1)
-typedef struct {//__attribute__((packed)) {
-	unsigned __int16 transused, trans[4];
-	unsigned __int32 * pal;
-	byte colorsused[11];
-}texauxinfo_t;
-#pragma pack(pop)
-
-#pragma pack(push,2)//size = 28
-typedef struct {//__attribute__((packed)) {
-	unsigned __int16 w, h;
-	unsigned __int16 rw, rh;
-	__int16 lofs, tofs;
-	__int16 osize;
-	unsigned __int32 rep;
-} texbufinfo_t;
-#pragma pack(pop)   
-#endif // 0
-
-
 #endif  // __R_IMAGE__
 
 //--- editor settings ---
