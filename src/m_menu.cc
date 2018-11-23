@@ -69,6 +69,7 @@
 extern void R_StartFading(int start, int range); //For Menu Fading
 
 extern bool heretic_mode; //that's why this never worked right. . .
+extern bool rott_mode;
 //
 // defaulted values
 //
@@ -703,8 +704,8 @@ static menuitem_t HReadMenu2[] =
 static menu_t ReadDef2 =
 {
 	1,
-	&HReadDef1,
-	HReadMenu2,
+	&ReadDef1,
+	ReadMenu2,
 	&menu_def_style,  // FIXME: maybe have READ_1 and READ_2 styles ??
 	M_DrawReadThis2,
 	330, 175,
@@ -1068,8 +1069,7 @@ void M_DrawSaveLoadBorder(float x, float y, int len)
 
 		HUD_DrawImage(x, y + 7, R);
 	}
-	else if (!heretic_mode)
-	{
+
 		const image_c *L = W_ImageLookup("M_LSLEFT");
 		const image_c *C = W_ImageLookup("M_LSCNTR");
 		const image_c *R = W_ImageLookup("M_LSRGHT");
@@ -1080,7 +1080,7 @@ void M_DrawSaveLoadBorder(float x, float y, int len)
 			HUD_DrawImage(x, y + 7, C);
 
 		HUD_DrawImage(x, y + 7, R);
-	}
+	
 }
 
 //
@@ -1449,7 +1449,7 @@ void M_Multiplayer(int choice)
 	{
 		M_SetupNextMenu(&HMultiDef);
 	}
-	else if (!heretic_mode)
+	else
 	{
 		M_SetupNextMenu(&MultiDef);
 	}
@@ -2586,6 +2586,7 @@ void M_Drawer(void)
 		return;
 	}
 
+
 	// Horiz. & Vertically center string and print it.
 	if (msg_mode)
 	{
@@ -2661,8 +2662,6 @@ void M_Drawer(void)
 
 		int sx = x + SKULLXOFF;
 		int sy = currentMenu->y - 5 + itemOn * LINEHEIGHT;
-
-		//HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
 
 		HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
 }

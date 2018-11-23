@@ -699,7 +699,7 @@ void E_Display(void)
 	{
 	}
 #endif // 0
-		M_Drawer();  // menu is drawn even on top of everything (except console)
+	M_Drawer();  // menu is drawn even on top of everything (except console)
 
 
 	N_NetUpdate(false);  // send out any new accumulation

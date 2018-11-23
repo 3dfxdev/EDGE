@@ -941,7 +941,7 @@ void M_OptMenuInit()
 	{
 		curr_menu = &hereticmain_optmenu;
 	}
-	else if (!heretic_mode)
+	else
 	{
 		curr_menu = &main_optmenu;
 	}
@@ -1506,7 +1506,7 @@ bool M_OptResponder(event_t * ev, int ch)
 			S_StartFX(sfx_swtchx);
 			return true;
 		}
-		else if (!heretic_mode)
+		else
 		{
 			if (curr_menu == &main_optmenu)
 			{
@@ -1536,7 +1536,7 @@ static void M_VideoOptions(int keypressed)
 	{
 		curr_menu = &hereticvideo_optmenu;
 	}
-	else if (!heretic_mode)
+	else
 	{
 		curr_menu = &video_optmenu;
 	}
@@ -1550,7 +1550,7 @@ static void M_AdvancedOptions(int keypressed)
 	{
 		curr_menu = &hereticadvanced_optmenu;
 	}
-	else if (!heretic_mode)
+	else
 	{
 		curr_menu = &advanced_optmenu;
 	}
@@ -1563,7 +1563,7 @@ static void M_DebugMenu(int keypressed)
 	{
 		curr_menu = &debug_optmenu;
 	}
-	else if (!heretic_mode)
+	else
 	{
 		curr_menu = &debug_optmenu;
 	}
@@ -1591,7 +1591,7 @@ static void M_ResolutionOptions(int keypressed)
 	{
 		curr_menu = &hereticres_optmenu;
 	}
-	else if (!heretic_mode)
+	else
 	{
 		curr_menu = &res_optmenu;
 	}
@@ -1607,7 +1607,7 @@ static void M_AnalogueOptions(int keypressed)
 	{
 		curr_menu = &hereticanalogue_optmenu;
 	}
-	else if (!heretic_mode)
+	else
 	{
 		curr_menu = &analogue_optmenu;
 	}
@@ -1623,7 +1623,7 @@ static void M_SoundOptions(int keypressed)
 	{
 		curr_menu = &hereticsound_optmenu;
 	}
-	else if (!heretic_mode)
+	else
 	{
 		curr_menu = &sound_optmenu;
 	}
@@ -1645,7 +1645,7 @@ static void M_GameplayOptions(int keypressed)
 	{
 		curr_menu = &hereticgameplay_optmenu;
 	}
-	else if (!heretic_mode)
+	else
 	{
 		curr_menu = &gameplay_optmenu;
 	}
@@ -1662,7 +1662,7 @@ static void M_KeyboardOptions(int keypressed)
 	{
 		curr_menu = heretic_key_menus[curr_key_menu];
 	}
-	else if (!heretic_mode)
+	else
 	{
 		curr_menu = all_key_menus[curr_key_menu];
 	}
