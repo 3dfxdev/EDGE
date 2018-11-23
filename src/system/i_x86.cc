@@ -33,6 +33,20 @@
 **
 */
 #include "i_defs.h"
+#include "i_sdlinc.h"
+
+//!SDL: This function returns true if the CPU has AVX features.
+inline bool cpu_has_avx() { return (SDL_HasAVX); }
+
+//!SDL: This function returns true if the CPU has AVX2 features.
+inline bool cpu_has_avx2() { return (SDL_HasAVX2); }
+
+//MSVC complains about comparing a real bool with an SDL_bool, so use this to shut it up
+static inline SDL_bool sbool(bool b) 
+{
+	return b ? SDL_TRUE : SDL_FALSE;
+}
+
 
 #define MAKE_ID(a,b,c,d)	((u32_t)((a)|((b)<<8)|((c)<<16)|((d)<<24)))
 #include "i_x86.h"
@@ -253,6 +267,8 @@ void DumpCPUInfo(const CPUInfo *cpu)
 		if (cpu->bSSE42)		I_Printf(" SSE4.2");
 		if (cpu->b3DNow)		I_Printf(" 3DNow!");
 		if (cpu->b3DNowPlus)	I_Printf(" 3DNow!+");
+		if (cpu_has_avx)        I_Printf(" AVX");
+		if (cpu_has_avx2)       I_Printf(" AVX2");
 		I_Printf ("\n");
 	}
 }
