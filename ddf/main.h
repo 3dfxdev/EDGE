@@ -25,7 +25,7 @@
 #include "types.h"
 
 
-#define DEBUG_DDF 1
+#define DEBUG_DDF 0
 
 
 /// `CA- 6.5.2016: quick hacks to change these in Visual Studio (less warnings). 

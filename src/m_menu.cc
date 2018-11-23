@@ -2713,7 +2713,7 @@ void ROTT_Drawer(void)
 	style_c *style = currentMenu->style_var[0];
 	SYS_ASSERT(style);
 	HUD_SetAlpha(0.64f);
-	HUD_StretchImage(w,h, w, h, plane_flip); //w,h should probably be...0, 0? second w/h should probably also be 288x158
+	HUD_DrawImage(288, 158, plane_flip); //w,h should probably be...0, 0? second w/h should probably also be 288x158
 	HUD_SetAlpha();
 
 	// call Draw routine
