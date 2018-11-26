@@ -2003,7 +2003,7 @@ void E_Main(int argc, const char **argv)
 
 		CON_MessageColor(RGB_MAKE(255, 255, 0));
 
-		I_Printf("EDGE2 v" GIT_DESCRIPTION " system ready.\n");
+		I_Printf("EDGE2 " GIT_DESCRIPTION " system ready.\n");
 		I_Printf("Platform Arch:" EDGEPLATFORM " \n");
 
 		I_Debugf("- Entering game loop...\n");
