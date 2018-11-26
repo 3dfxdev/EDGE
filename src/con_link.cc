@@ -112,6 +112,7 @@ extern cvar_c camera_subdir;
 extern cvar_c sound_pitch;
 
 extern cvar_c i_skipsplash;
+extern cvar_c nocheats;
 
 
 
@@ -142,6 +143,8 @@ cvar_link_t  all_cvars[] =
 	{ "ddf_quiet",      &ddf_quiet,      "c",   "0"  },
 
 	{ "aggression",     &g_aggression,   "c",   "0"  },
+
+	{ "nocheats",     &nocheats,   "c",   "0"  },
 
 	{ "spriteflip",      &r_spriteflip,  "c",   "0"  },
 

@@ -53,6 +53,7 @@
 
 extern cvar_c debug_fps;
 extern cvar_c debug_pos;
+cvar_c nocheats;
 
 //
 // CHEAT SEQUENCE PACKAGE
@@ -201,6 +202,8 @@ bool M_CheatResponder(event_t * ev)
 #ifdef NOCHEATS
 	return false;
 #endif
+	if (nocheats.d > 0)
+		return false;
 
 	int i;
 	player_t *pl = players[consoleplayer1];
