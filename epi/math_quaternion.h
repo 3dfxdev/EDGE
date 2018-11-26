@@ -18,7 +18,8 @@
 
 #ifndef __EPI_MATH_QUATERNION__
 #define __EPI_MATH_QUATERNION__
-
+#pragma warning(push)
+#pragma warning(disable: 4244) // possible loss of data
 #include <math.h>
 #include "macros.h"
 #include "math_angle.h"
@@ -100,7 +101,7 @@ inline quat_c& quat_c::MakeUnit()
 }
 
 }  // namespace epi
-
+#pragma warning( pop )
 #endif  /* __EPI_MATH_QUATERNION__ */
 
 //--- editor settings ---

@@ -37,10 +37,6 @@
 #include "r_modes.h"
 #include "r_wipe.h"
 
-
-#include "system/i_sdlinc.h"
-
-
 #define CON_WIPE_TICS  12
 
 

@@ -248,9 +248,9 @@ static void STRINGS_sub(coal::vm_c *vm, int argc)
 {
 	const char * s = vm->AccessParamString(0);
 
-	int start = (int) *vm->AccessParam(1);
-	int end   = (int) *vm->AccessParam(2);
-	int len   = strlen(s);
+	size_t start = (int) *vm->AccessParam(1);
+	size_t end   = (int) *vm->AccessParam(2);
+	size_t len   = strlen(s);
 
 	// negative values are relative to END of the string (-1 = last character)
 	if (start < 0) start += len + 1;
@@ -271,7 +271,7 @@ static void STRINGS_sub(coal::vm_c *vm, int argc)
 	start--;
 	end--;
 
-	int new_len = (end - start + 1);
+	size_t new_len = (end - start + 1);
 
 	vm->ReturnString(s + start, new_len);
 }

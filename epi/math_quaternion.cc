@@ -112,12 +112,13 @@ static float SinZeroHalfPI( float a ) {
 	return t;
 }
 
-static float ATanPositive( float y, float x ) {
+static float ATanPositive( float y, float x ) 
+{
 	// both inputs must be positive
 	float a, d, s, t;
 	if ( y > x ) {
 		a = -x / y;
-		d = M_PI / 2;
+		d = static_cast<float>(M_PI) / 2; //wrap to surpress C4305
 	} else {
 		a = y / x;
 		d = 0.0f;

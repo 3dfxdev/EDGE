@@ -201,44 +201,43 @@ add_custom_target(revision_check ALL
    DEPENDS updaterevision
 )
 
+SET (BIN_DIR bin)
+SET (SHARE_DIR share/edge)
+IF (WIN32)
+        SET (LIB_DIR ${BIN_DIR})
+        SET (SHARE_DIR ${BIN_DIR})
+ELSE (WIN32)
+        SET (LIB_DIR lib)
+ENDIF (WIN32)
+
+################################################################################
+######################### Find Needed Libs #####################################
+
 # See /VSLibs/lib_versions.txt
-# Download VSLibs for MSVC - http://tdgmods.net/VSLibs.7z (up to date as of listing below)
+# MSVC: Libs are no longer required to be downloaded seperately, they now exist in /libs/msvc/ 
 if (MSVC)
 	if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
-		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg/lib/libogg_staticd.lib" )
-		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg/include" )
-		set( ogg_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg/lib/libogg_static.lib" )
-		set( SDL2MAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2main.lib" )
-		set( SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/include" )
-		set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2.lib" )
-		set( SDL_NET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2_net-2.0.1/include" )
-		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2_net-2.0.1/lib/x86/SDL2_net.lib" )
-		set( vorbisFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/lib/libvorbisfile_static.lib" )
-		set( vorbisFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/lib/libvorbisfile_static.lib" )
-		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/lib/libvorbis_static.lib" )
-		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/include" )
-		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/lib/libvorbis_static.lib" )
-		set( ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.11/include" )
-		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.11/lib/zlibstatic.lib" )
-		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.11/lib/zlibstatic.lib" )
+		set( SDLMAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x86/SDL2main.lib" )		
+		set( SDL_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x86/SDL2.lib" )
+		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/lib/x86/SDL2_net.lib" )
 	else()
-		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libogg-1.3.3/lib/libogg_staticd.lib" )
-		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libogg-1.3.3/include" )
-		set( ogg_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libogg-1.3.3/lib/libogg_static.lib" )
-		set( SDL2MAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2/lib/x64/SDL2main.lib" )
-		set( SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2/include" )
-		set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2/lib/x64/SDL2.lib" )
-		set( SDL_NET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2_net-2.0.1/include" )
-		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2_net-2.0.1/lib/x64/SDL2_net.lib" )
-		set( vorbisFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.6/lib/libvorbisfile_static.lib" )
-		set( vorbisFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.6/lib/libvorbisfile_static.lib" )
-		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.6/lib/libvorbis_static.lib" )
-		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.6/include" )
-		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.6/lib/libvorbis_static.lib" )
-		set( ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/zlib-1.2.11/include" )
-		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/zlib-1.2.11/lib/zlibstatic.lib" )
-		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/zlib-1.2.11/lib/zlibstatic.lib" )
+		set( SDLMAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x64/SDL2main.lib" )
+		set( SDL_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x64/SDL2.lib" )
+		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/lib/x64/SDL2_net.lib" )
 	endif()
+		set( SDL_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/include" )
+		set( SDLNET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/include" )
+		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/libogg_staticd.lib" )
+		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/include" )
+		set( ogg_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/libogg_static.lib" )
+		set( vorbisFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/libvorbisfile_static.lib" )
+		set( vorbisFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/libvorbisfile_static.lib" )
+		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/libvorbis_static.lib" )
+		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/include" )
+		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/libvorbis_static.lib" )
+		set( ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/include" )
+		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/zlibstatic.lib" )
+		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/zlibstatic.lib" )
 endif(MSVC)
 
 if(UNIX)
@@ -249,17 +248,36 @@ if(UNIX)
 #	set( kitchensink_LIBRARY "libSDL_kitchensink.so")
 endif(UNIX)
 
-# SDL
-#find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIR})
+## SDL2
+## FIND_PACKAGE (SDL REQUIRED)
+INCLUDE_DIRECTORIES (${SDL_INCLUDE_DIR})
 
-# SDL_net
-#find_package(SDL2_net REQUIRED)
-include_directories(${SDL_INCLUDE_DIR})
+## FIND_PACKAGE (SDL_net REQUIRED)
+INCLUDE_DIRECTORIES (${SDLNET_INCLUDE_DIR})
+
+## FIXME: This is an inelegant hack to find, and grab all needed
+## .dll support files on windows. It works by looking for SDL.dll
+## then taking every .dll file found in that directory from your SDK.
+## This ensures you get sdl and all of it's needed .dll files, but may
+## also grab unneeded .dll files.
+IF (WIN32)
+	 #  set ( SDL_SUPPORT_LIBS "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL2/lib")
+       FIND_PATH (SDL_SUPPORT_LIBS_DIR SDL.dll
+               HINTS
+               $ENV{SDLDIR}
+               PATH_SUFFIXES lib64 lib
+               PATHS)
+			   
+	  if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")   
+       FILE (GLOB SDL_SUPPORT_LIBS ${SDL_SUPPORT_LIBS_DIR}/x86/*.dll)
+	   else()
+	   FILE (GLOB SDL_SUPPORT_LIBS ${SDL_SUPPORT_LIBS_DIR}/x64/*.dll)
+	   endif()
+	   
+ENDIF (WIN32)
 
 # OpenGL
-# find_package(OpenGL REQUIRED)
-# include_directories(${OPENGL_INCLUDE_DIR})
+FIND_PACKAGE (OpenGL)
 
 # libvorbis/libogg
 include_directories(
@@ -595,9 +613,9 @@ if(MSVC)
 endif()
 
 target_link_libraries(EDGE
-	${SDL2MAIN_LIBRARY}
-	${SDL2_LIBRARY}
-	${SDL2_NET_LIBRARY}
+	${SDLMAIN_LIBRARY}
+	${SDL_LIBRARY}
+	${SDL_NET_LIBRARY}
 	${ogg_RELEASE_LIBRARY}
 	${vorbis_RELEASE_LIBRARY}
 	${vorbisFILE_RELEASE_LIBRARY}
@@ -616,3 +634,28 @@ elseif(APPLE)
 elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "(Free|Open)BSD")
 	target_link_libraries(EDGE GL dl)
 endif()
+
+
+## FIXME: This is a continuation of the Windows SDL inelegant hack. This does
+## the actual installation of those support libraries.
+IF (WIN32)
+        INSTALL (PROGRAMS ${SDL_SUPPORT_LIBS}
+                DESTINATION ${LIB_DIR})
+ENDIF (WIN32)
+
+if(MSVC)
+   target_link_libraries(EDGE rpcrt4)
+endif()
+
+INSTALL (TARGETS EDGE
+        RUNTIME DESTINATION ${BIN_DIR}
+        LIBRARY DESTINATION ${LIB_DIR}
+        ARCHIVE DESTINATION ${LIB_DIR})
+
+INSTALL (DIRECTORY ${CMAKE_SOURCE_DIR}/data/base
+        DESTINATION ${BIN_DIR}
+        PATTERN "delete.me" EXCLUDE
+        PATTERN ".svn" EXCLUDE)
+
+## EOF
+

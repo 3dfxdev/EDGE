@@ -35,6 +35,8 @@
 
 #define Debug_Printf I_Debugf
 
+#define DEBUG_LUMPS 0
+
 typedef enum
 {
 	FLKIND_IWad = 0,  // iwad file

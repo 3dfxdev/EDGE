@@ -2108,7 +2108,7 @@ static PHYSFS_EnumerateCallbackResult ScriptNamespace(void *userData, const char
 		// check for supported namespace directory
 		if (wolf3d_mode)
 		{
-			if ((stricmp(fname, "wolf3d") == 0) || (stricmp(fname, "wolf_ddf") == 0))
+			if ((stricmp(fname, "wolf3d") == 0) || (stricmp(fname, "wolf3d") == 0))
 			{
 				// recurse wolf3d subdirectory to TopLevel
 				PHYSFS_enumerate(path, TopLevel, userData);
@@ -2125,7 +2125,7 @@ static PHYSFS_EnumerateCallbackResult ScriptNamespace(void *userData, const char
 		}
 		else if (heretic_mode)
 		{
-			if ((stricmp(fname, "heretic") == 0) || (stricmp(fname, "her_ddf") == 0))
+			if ((stricmp(fname, "heretic") == 0) || (stricmp(fname, "heretic_ddf") == 0))
 			{
 				// recurse heretic subdirectory to TopLevel
 				PHYSFS_enumerate(path, TopLevel, userData);
@@ -3640,9 +3640,9 @@ static void W_ReadLump(int lump, void *dest)
 		I_Error("W_ReadLump: %i >= numlumps", lump);
 
 	lumpinfo_t *L = lumpinfo + lump;
-//#ifdef _DEBUG
+#if (DEBUG_LUMPS)
 	I_Debugf("W_ReadLump: %d (%s)\n", lump, L->name);
-//#endif
+#endif
 
 	data_file_c *df = data_files[L->file];
 

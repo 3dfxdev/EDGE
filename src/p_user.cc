@@ -1002,8 +1002,11 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 	int upgrade_slot = -1;
 
 	// cannot own weapons if sprites are missing
-	if (! P_CheckWeaponSprite(info))
+	if (!P_CheckWeaponSprite(info))
+	{
+		I_Warning("CANNOT OWN WEAPONS IF SPRITES ARE MISSING!\n");
 		return false;
+	}
 
 	for (int i=0; i < MAXWEAPONS; i++)
 	{

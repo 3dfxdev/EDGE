@@ -4111,7 +4111,7 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 		k = fabs(k);
 
 		// d is just the distance horizontally forward from the eye to
-		// the top/bottom EDGE2 of the view rectangle.
+		// the top/bottom edge of the view rectangle.
 		d = cos(k) - sin(k) * view_y_slope;
 
 		oned_side_angle = (d <= 0.01f) ? ANG180 : M_ATan(view_x_slope / d);

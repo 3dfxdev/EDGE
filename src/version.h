@@ -39,11 +39,11 @@ const char *GetVersionString();
 #ifdef _M_X64
 #define EDGEPLATFORM "x64"
 #define EDGEPRINTBIT "64-bit"
-#define E_TITLE "EDGE (64-bit)" "v" EDGEVERSTR
+#define E_TITLE "EDGE (64-bit)" EDGEVERSTR
 #elif _M_IX86
 #define EDGEPLATFORM "x86"
 #define EDGEPRINTBIT "32-bit"
-#define E_TITLE "EDGE (32-bit)" "v" EDGEVERSTR
+#define E_TITLE "EDGE (32-bit)" EDGEVERSTR
 #endif
 #endif
 
@@ -52,11 +52,11 @@ const char *GetVersionString();
 #ifdef __i386__
 #define EDGEPLATFORM "x86"
 #define EDGEPRINTBIT "32-bit"
-#define E_TITLE "EDGE (32-bit)" "v" EDGEVERSTR
+#define E_TITLE "EDGE (32-bit)"  EDGEVERSTR
 #elif __x86_64__
 #define EDGEPLATFORM "x64"
 #define EDGEPRINTBIT "64-bit"
-#define E_TITLE "EDGE (64-bit)" "v" EDGEVERSTR
+#define E_TITLE "EDGE (64-bit)"  EDGEVERSTR
 #else
 #error "No platform defined"
 #endif

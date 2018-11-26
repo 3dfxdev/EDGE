@@ -186,7 +186,8 @@ std::string game_dir;
 std::string home_dir;
 std::string save_dir;
 std::string shot_dir;
-std::string base_dir;
+std::string base_dir = "base";
+
 
 extern cvar_c m_language;
 extern cvar_c g_aggression;
@@ -836,6 +837,7 @@ void E_TitleTicker(void)
 void InitDirectories(void)
 {
 	std::string path;
+	std::size_t botDirPos = base_dir.find_last_of("/");
 
 	const char *s = M_GetParm("-home");
 	if (s)
@@ -874,6 +876,7 @@ void InitDirectories(void)
 
 	// add parameter file "gamedir/parms" if it exists.
 	std::string parms = epi::PATH_Join(game_dir.c_str(), "parms");
+	std::string base_ddf = epi::PATH_Join(game_dir.c_str(), base_dir.c_str());
 
 	if (epi::FS_Access(parms.c_str(), epi::file_c::ACCESS_READ))
 	{
@@ -885,20 +888,24 @@ void InitDirectories(void)
 	if (s)
 	{
 		ddf_dir = std::string(s);
+		//I_Printf("DDF Directory; [%s]\n", ddf_dir);
 	}
-
 	else if (heretic_mode)
 	{
-		ddf_dir = epi::PATH_Join(game_dir.c_str(), "her_ddf");
+		ddf_dir = epi::PATH_Join(base_ddf.c_str(), "heretic");
+		//I_Printf("DDF Directory; [%s]\n", ddf_dir);
 	}
 	else if (rott_mode)
 	{
-		ddf_dir = epi::PATH_Join(game_dir.c_str(), "rott_ddf");
+		ddf_dir = epi::PATH_Join(base_ddf.c_str(), "rott");
+		//I_Printf("DDF Directory; [%s]\n", ddf_dir);
 	}
 	else
 	{
-		ddf_dir = epi::PATH_Join(game_dir.c_str(), "doom_ddf");
+		ddf_dir = epi::PATH_Join(base_ddf.c_str(), "doom");
+		//I_Printf("DDF Directory; [%s]\n", ddf_dir);
 	}
+
 
 
 	DDF_SetWhere(ddf_dir);
@@ -1444,7 +1451,7 @@ static void ShowDateAndVersion(void)
 	I_Debugf("[Debug file created at %s]\n\n", timebuf);
 
 	// 23-6-98 KM Changed to hex to allow versions such as 0.65a etc
-	I_Printf("EDGE (" EDGEPLATFORM ") v" EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
+	I_Printf("EDGE (" EDGEPLATFORM ") " EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
 
 
 	I_Printf("EDGE homepage is at http://edge2.sourceforge.net/\n");

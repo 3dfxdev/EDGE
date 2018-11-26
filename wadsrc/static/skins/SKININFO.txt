@@ -1,0 +1,11 @@
+{
+name = Crash
+sprite = CRSH
+dsnoway = dsinoway
+dsoof = dsioof
+dspldeth = dsideth
+dspdiehi = dsidiehi
+dsplpain = dsipain
+dstaunt = dsitaunt
+gender = female
+}

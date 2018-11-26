@@ -89,7 +89,7 @@ namespace epi
     	
     	// Reset the pointers in the table to look at new data
     	int i;
-    	int offset = data - src.data;
+    	size_t offset = data - src.data;
     	for (i=0; i<numstrs; i++)
     	{
     		if (strs[i])
