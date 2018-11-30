@@ -27,10 +27,10 @@ environment:
       
 
 build_script:
-  - appveyor DownloadFile http://tdgmods.net/VSLibs.7z
-  - appveyor DownloadFile http://tdgmods.net/vsLibsx64.7z
-  - 7z x VSLibs.7z
-  - 7z x vsLibsx64.7z
+#  - appveyor DownloadFile http://tdgmods.net/VSLibs.7z
+#  - appveyor DownloadFile http://tdgmods.net/vsLibsx64.7z
+#  - 7z x VSLibs.7z
+#  - 7z x vsLibsx64.7z
   - md build
   - cd build
   - cmake -G "%GENERATOR%" -T "%TOOLSET%" -DPK3_QUIET_ZIPDIR=YES ..
