@@ -213,31 +213,43 @@ ENDIF (WIN32)
 ################################################################################
 ######################### Find Needed Libs #####################################
 
-# See /VSLibs/lib_versions.txt
-# MSVC: Libs are no longer required to be downloaded seperately, they now exist in /libs/msvc/ 
+# See /VSLibs/lib_versions.txt [libs have been compiled with MSVC 2017!]
+# CA: 11/30/18 - For MSVC, libs are no longer required to be downloaded seperately, they now exist in /libs/msvc/
 if (MSVC)
 	if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
 		set( SDLMAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x86/SDL2main.lib" )		
 		set( SDL_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x86/SDL2.lib" )
 		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/lib/x86/SDL2_net.lib" )
+		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x86/libogg_staticd.lib" )
+		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/include" )
+		set( ogg_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x86/libogg_static.lib" )
+		set( vorbisFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x86/libvorbisfile_static.lib" )
+		set( vorbisFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x86/libvorbisfile_static.lib" )
+		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x86/libvorbis_static.lib" )
+		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/include" )
+		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x86/libvorbis_static.lib" )
+		set( ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/include" )
+		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x86/zlibstatic.lib" )
+		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x86/zlibstatic.lib" )
 	else()
 		set( SDLMAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x64/SDL2main.lib" )
 		set( SDL_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x64/SDL2.lib" )
 		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/lib/x64/SDL2_net.lib" )
+		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x64/libogg_staticd.lib" )
+		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/include" )
+		set( ogg_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x64/libogg_static.lib" )
+		set( vorbisFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x64/libvorbisfile_static.lib" )
+		set( vorbisFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x64/libvorbisfile_static.lib" )
+		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x64/libvorbis_static.lib" )
+		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/include" )
+		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x64/libvorbis_static.lib" )
+		set( ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/include" )
+		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x64/zlibstatic.lib" )
+		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x64/zlibstatic.lib" )
 	endif()
 		set( SDL_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/include" )
 		set( SDLNET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/include" )
-		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/libogg_staticd.lib" )
-		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/include" )
-		set( ogg_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/libogg_static.lib" )
-		set( vorbisFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/libvorbisfile_static.lib" )
-		set( vorbisFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/libvorbisfile_static.lib" )
-		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/libvorbis_static.lib" )
-		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/include" )
-		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/libvorbis_static.lib" )
-		set( ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/include" )
-		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/zlibstatic.lib" )
-		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/zlibstatic.lib" )
+
 endif(MSVC)
 
 if(UNIX)
@@ -653,7 +665,7 @@ INSTALL (TARGETS EDGE
         ARCHIVE DESTINATION ${LIB_DIR})
 
 INSTALL (DIRECTORY ${CMAKE_SOURCE_DIR}/data/base
-        DESTINATION ${BIN_DIR}
+        DESTINATION ${LIB_DIR}
         PATTERN "delete.me" EXCLUDE
         PATTERN ".svn" EXCLUDE)
 
