@@ -33,6 +33,7 @@
 #include <SDL2/SDL_thread.h>
 #include <SDL2/SDL_surface.h>
 #include <SDL2/SDL_mutex.h>
+#include <SDL2/SDL_cpuinfo.h>
 
 #else
 
