@@ -25,22 +25,9 @@
 // it so we can come up with another solution. Just open up an ISSUE or a PR via Github if
 // it does not work and/or you have a better way.
 
-#ifndef WIN32
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_keycode.h> /// Keys
-#include <SDL2/SDL_opengl.h> // opengl
-#include <SDL2/SDL_surface.h>
-#else
-
 #include <SDL.h>
 #include <SDL_keycode.h> /// Keys
 #include <SDL_opengl.h> // opengl
-#include <SDL_render.h> // kitchensink
-#include <SDL_thread.h>
-#include <SDL_surface.h>
-#include <SDL_mutex.h>
-
-#endif
 
 
 
