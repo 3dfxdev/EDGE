@@ -47,10 +47,6 @@
 
 #endif
 
-static inline SDL_bool sbool(bool b)
-{
-	return b ? SDL_TRUE : SDL_FALSE;
-}
 
 
 //#include "i_local.h"  // FIXME: remove
