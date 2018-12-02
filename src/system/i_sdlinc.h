@@ -29,12 +29,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_keycode.h> /// Keys
 #include <SDL2/SDL_opengl.h> // opengl
-#include <SDL2/SDL_render.h> // kitchensink
-#include <SDL2/SDL_thread.h>
 #include <SDL2/SDL_surface.h>
-#include <SDL2/SDL_mutex.h>
-#include <SDL2/SDL_cpuinfo.h>
-
 #else
 
 #include <SDL.h>
