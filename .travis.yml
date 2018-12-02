@@ -57,7 +57,7 @@ matrix:
         - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release -DSDL2_LIBRARY=/usr/local/lib/libSDL2.dylib"
 
 before_install:  
-  - ./quick_setup_scripts/install-sdl2-travis-ci.sh
+  - chmod +x ./quick_setup_scripts/install-sdl2-travis-ci.sh
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
       brew update;
       brew install sdl2_net libvorbis;
