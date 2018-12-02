@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Player User Code
+//  EDGE Player User Code
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -307,7 +307,7 @@ static void MovePlayer(player_t * player)
 		player->mo->vertangle = 0;
 	}
 
-	// EDGE2 Feature: Vertical Centering
+	// EDGE Feature: Vertical Centering
 	//
 	// -ACB- 1998/07/02 Re-routed via Ticcmd
 	//
@@ -410,7 +410,7 @@ static void MovePlayer(player_t * player)
 		}
 	}
 
-	// EDGE2 Feature: Jump Code
+	// EDGE Feature: Jump Code
 	//
 	// -ACB- 1998/08/09 Check that jumping is allowed in the currmap
 	//                  Make player pause before jumping again
@@ -425,7 +425,7 @@ static void MovePlayer(player_t * player)
 		}
 	}
 
-	// EDGE2 Feature: Crouching
+	// EDGE Feature: Crouching
 
 	if (level_flags.crouch && mo->info->crouchheight > 0 &&
 		(player->cmd.upwardmove < -4) &&

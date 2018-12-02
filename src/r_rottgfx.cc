@@ -1,9 +1,9 @@
 #if 0
 //----------------------------------------------------------------------------
-//  EDGE2 Rise of the Triad Graphics Conversion Routines
+//  EDGE Rise of the Triad Graphics Conversion Routines
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2017  The EDGE2 Team.
+//  Copyright (c) 2017  The EDGE Team.
 //  Copyright  ©  2007, 2008  Birger N. Andreasen  
 //
 //  This program is free software; you can redistribute it and/or

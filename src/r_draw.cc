@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 2D DRAWING STUFF
+//  EDGE 2D DRAWING STUFF
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -182,7 +182,7 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 
 void RGL_DrawProgress(int perc, int glbsp_perc)
 {
-	/* show EDGE2 logo and a progress indicator */
+	/* show EDGE logo and a progress indicator */
 	//printf("Drawing progress %i %i\n",perc,glbsp_perc);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);

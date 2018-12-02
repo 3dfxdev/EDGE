@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Console Interface code.
+//  EDGE Console Interface code.
 //----------------------------------------------------------------------------
 //  Copyright (c) 2011-2016  Isotope SoftWorks
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 //  Copyright (c) 1998       Marisa Heit
 // 
 //  This program is free software; you can redistribute it and/or

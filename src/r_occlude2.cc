@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 OpenGL Rendering (Occlusion testing)
+//  EDGE OpenGL Rendering (Occlusion testing)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2017  The EDGE2 Team.
+//  Copyright (c) 1999-2017  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License

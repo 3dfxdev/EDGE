@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Generalised Image Handling
+//  EDGE Generalised Image Handling
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -671,7 +671,7 @@ static image_c *AddImageFlat(const char *name, int lump)
 		// support for ROTT "flats"
 	case 128 * 128 + 8: size = 128; break;
 
-		// -- EDGE2 feature: bigger than normal flats --
+		// -- EDGE feature: bigger than normal flats --
 	
 	case 256 * 256: size = 256; break;
 	case 512 * 512: size = 512; break;

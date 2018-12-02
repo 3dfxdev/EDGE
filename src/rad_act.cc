@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Radius Trigger Actions
+//  EDGE Radius Trigger Actions
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -905,7 +905,7 @@ void RAD_ActUnblockLines(rad_trigger_t *R, void *param)
 		// clear standard flags
 		ld->flags &= ~(MLF_Blocking | MLF_BlockMonsters);
 
-		// clear EDGE2's extended lineflags too
+		// clear EDGE's extended lineflags too
 		ld->flags &= ~(MLF_SightBlock | MLF_ShootBlock);
 	}
 }

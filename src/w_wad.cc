@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Packed Data Support Code
+//  EDGE Packed Data Support Code
 //  WAD, PAK, ZIP, WL6 (Wolfenstein) Handler
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -1737,7 +1737,7 @@ static void AddLump(data_file_c *df, int lump, int pos, int size, int file,
 // CheckForLevel
 //
 // Tests whether the current lump is a level marker (MAP03, E1M7, etc).
-// Because EDGE2 supports arbitrary names (via DDF), we look at the
+// Because EDGE supports arbitrary names (via DDF), we look at the
 // sequence of lumps _after_ this one, which works well since their
 // order is fixed (e.g. THINGS is always first).
 //
@@ -2375,7 +2375,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 		{	// Checks for Global Wolfenstein3D palette (PLAYPAL) instead of palette-byte translation (from SLADE.pk3)
 			if (stricmp(fname, "wolf3d") == 0)
 			{
-				// enumerate all entries in placebo Wolf3d Directory (inside edge2.pak)
+				// enumerate all entries in placebo Wolf3d Directory (inside EDGE.pak)
 				PHYSFS_enumerate(path, LumpNamespace, userData);
 			}
 		}
@@ -2384,7 +2384,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			if (stricmp(fname, "rott") == 0)
 			{
 				{
-					//		// enumerate all entries in placebo ROTT Directory (inside edge2.pak)
+					//		// enumerate all entries in placebo ROTT Directory (inside EDGE.pak)
 					PHYSFS_enumerate(path, LumpNamespace, userData);
 				}
 			}
@@ -2870,7 +2870,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 	if (within_hires_list)
 		I_Warning("Missing HI_END marker in %s.\n", filename);
 
-	// -AJA- 1999/12/25: What did Santa bring EDGE2 ?  Just some support
+	// -AJA- 1999/12/25: What did Santa bring EDGE ?  Just some support
 	//       for "GWA" files (part of the "GL-Friendly Nodes" specs).
 
 	if (kind <= FLKIND_EWad && df->level_markers.GetSize() > 0)
@@ -3913,7 +3913,7 @@ void W_ProcessTX_HI(void)
 
 static const char *FileKind_Strings[] =
 {
-	"iwad", "pwad", "EDGE2", "gwa", "hwa",
+	"iwad", "pwad", "EDGE", "gwa", "hwa",
 	"lump", "ddf",  "demo", "rts", "deh",
 	"pak",  "wl6",  "rtl",  "fp", "vp", "pk3",
 	"epk", "pk7"

@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------
-//  EDGE2 Main Init + Program Loop Code
+//  EDGE Main Init + Program Loop Code
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@
 //----------------------------------------------------------------------------
 //
 // DESCRIPTION:
-//      EDGE2 main program (E_Main),
+//      EDGE main program (E_Main),
 //      game loop (E_Loop) and startup functions.
 //
 // -MH- 1998/07/02 "shootupdown" --> "true3dgameplay"
@@ -437,7 +437,7 @@ static void SpecialPAKVerify(void)
 {
 	int lump = W_CheckNumForName("EDGEVER");
 	if (lump < 0)
-		I_Error("EDGEVER lump not found. Get EDGE.EPK at http://edge2.sourceforge.net/");
+		I_Error("EDGEVER lump not found. Get EDGE.EPK at http://EDGE.sourceforge.net/");
 
 	const void *data = W_CacheLumpNum(lump);
 
@@ -921,7 +921,7 @@ void InitDirectories(void)
 		cfgfile = epi::PATH_Join(home_dir.c_str(), EDGECONFIGFILE);
 	}
 
-	// EDGE2.wad file
+	// EDGE.wad file
 	s = M_GetParm("-ewad");
 	if (s)
 	{
@@ -929,10 +929,10 @@ void InitDirectories(void)
 	}
 	else
 	{
-		ewadfile = epi::PATH_Join(home_dir.c_str(), "edge2.wad");
+		ewadfile = epi::PATH_Join(home_dir.c_str(), "EDGE.wad");
 	}
 
-	// EDGE2.pak file
+	// EDGE.pak file
 	s = M_GetParm("-epak");
 	if (s)
 	{
@@ -969,7 +969,7 @@ void InitDirectories(void)
 
 
 //
-// Adds an IWAD and EDGE2.WAD. -ES-  2000/01/01 Rewritten.
+// Adds an IWAD and EDGE.WAD. -ES-  2000/01/01 Rewritten.
 //
 // Adding HERETIC.WAD to string 2.24.2013
 // Kept freedoom.wad for backward compatibility
@@ -1388,7 +1388,7 @@ static void IdentifyWolfenstein(void)
 
 														   // Emulate this behaviour?
 
-	//All this function below does is add EDGE2.WAD to whatever the fuck we are adding as well.
+	//All this function below does is add EDGE.WAD to whatever the fuck we are adding as well.
 
 	std::string reqwad(epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEEPKEXT));
 
@@ -1454,7 +1454,7 @@ static void ShowDateAndVersion(void)
 	I_Printf("EDGE (" EDGEPLATFORM ") " EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
 
 
-	I_Printf("EDGE homepage is at http://edge2.sourceforge.net/\n");
+	I_Printf("EDGE homepage is at http://EDGE.sourceforge.net/\n");
 	I_Printf("EDGE Wiki is at http://3dfxdev.net/edgewiki/\n");
 	I_Printf("EDGE forums are located at http://tdgmods.net/smf\n");
 	I_Printf("EDGE problems should be reported via https://github.com/3dfxdev/hyper3DGE/issues\n");
@@ -2003,7 +2003,7 @@ void E_Main(int argc, const char **argv)
 
 		CON_MessageColor(RGB_MAKE(255, 255, 0));
 
-		I_Printf("EDGE2 " GIT_DESCRIPTION " system ready.\n");
+		I_Printf("EDGE " GIT_DESCRIPTION " system ready.\n");
 		I_Printf("Platform Arch:" EDGEPLATFORM " \n");
 
 		I_Debugf("- Entering game loop...\n");

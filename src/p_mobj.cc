@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Moving Object Handling Code
+//  EDGE Moving Object Handling Code
 //----------------------------------------------------------------------------
 //
 //  Mainfile Copyright (c) 1999-2018  The EDGE Team.
@@ -22,7 +22,7 @@
 //    Copyright (C) 1993-1996 by id Software, Inc.
 //
 //
-//  Some code based on the Hexen source, adapted by the EDGE2 Team.
+//  Some code based on the Hexen source, adapted by The EDGE Team.
 //
 //    Copyright (C) 2008 Activison, Inc.
 //

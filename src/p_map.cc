@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Moving, Aiming, Shooting & Collision code
+//  EDGE Moving, Aiming, Shooting & Collision code
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -2019,7 +2019,7 @@ static bool PIT_RadiusAttack(mobj_t * thing, void *data)
 	dy = (float)fabs(thing->y - bomb_I.spot->y);
 	dz = (float)fabs(MO_MIDZ(thing) - MO_MIDZ(bomb_I.spot));
 
-	// dist is the distance to the *EDGE2* of the thing
+	// dist is the distance to the *EDGE* of the thing
 	dist = MAX(dx, dy) - thing->radius;
 
 	if (bomb_I.use_3d)

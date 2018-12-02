@@ -1,10 +1,10 @@
 #if 0
 //----------------------------------------------------------------------------
-//  EDGE2 Packed Data Support Code
+//  EDGE Packed Data Support Code
 //  Rise of the Triad IWAD handler
 //----------------------------------------------------------------------------
 //
-//  Copyright © 1999-2017  The EDGE2 Team.
+//  Copyright © 1999-2017  The EDGE Team.
 //  Copyright © 2008, 2017 Birger N. Andreasen 
 //
 //  This program is free software; you can redistribute it and/or
@@ -44,7 +44,7 @@
 // -CA- 2017/28/10
 //		 TODO: 
 //       All of the HWND and Windows specific stuff needs to be replaced by platform-agnostic
-//       sprintf instead (the universal EDGE2 console window). Also, this needs to be all automated
+//       sprintf instead (the universal EDGE console window). Also, this needs to be all automated
 //       and the created IWAD needs to be stored and cached inside of the /cache folder
 //
 
@@ -2587,7 +2587,7 @@ void Break_listinfo(char*txt1)
 }
 
 // EDGE:
-// This should be absorbed by a standard sprintf (the EDGE2 console window class), and by I_Debugf() for the console logger!
+// This should be absorbed by a standard sprintf (the EDGE console window class), and by I_Debugf() for the console logger!
 void Assem_listinfo(char*txt1)
 {
 	int x;

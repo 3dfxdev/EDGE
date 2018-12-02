@@ -3,7 +3,7 @@
 // EDGE Engine Win32 Exception Handler
 //
 // Copyright (C) 2013 James Haley et al. Originally written for Eternity Engine.
-// Adapted to EDGE (C) EDGE2 Team
+// Adapted to EDGE (C) EDGE Team
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by

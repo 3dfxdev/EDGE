@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Console Main
+//  EDGE Console Main
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -382,7 +382,7 @@ int CMD_ShowJoysticks(char **argv, int argc)
 
 int CMD_Help(char **argv, int argc)
 {
-	I_Printf("Welcome to the EDGE2 Console.\n");
+	I_Printf("Welcome to the EDGE Console.\n");
 	I_Printf("\n");
 	I_Printf("Use the 'showcmds' command to list all commands.\n");
 	I_Printf("The 'showvars' command will list all variables.\n");

@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Arguments/Parameters Code
+//  EDGE Arguments/Parameters Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -224,8 +224,8 @@ void M_InitArguments(int argc, const char **argv)
 	// argv[0] should always be placed before the response file.
 	AddArgument(argv[0], 0);
 
-	if (epi::FS_Access("EDGE2.cmd", epi::file_c::ACCESS_READ))
-		M_ApplyResponseFile("EDGE2.cmd", 1);
+	if (epi::FS_Access("EDGE.cmd", epi::file_c::ACCESS_READ))
+		M_ApplyResponseFile("EDGE.cmd", 1);
 
 	// scan through the arguments
 	for (i = 1; i < argc; i++)

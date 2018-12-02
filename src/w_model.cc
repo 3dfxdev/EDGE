@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Model Management
+//  EDGE Model Management
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -89,7 +89,7 @@ static void FindModelFrameNames(md2_model_c *md, int model_num)
 	}
 
 	if (missing > 0)
-		I_Error("Failed to find %d frames for model '%sMDx' (see EDGE2.LOG)\n",
+		I_Error("Failed to find %d frames for model '%sMDx' (see EDGE.LOG)\n",
 				missing, ddf_model_names[model_num].c_str());
 }
 

@@ -1,9 +1,9 @@
 
 //----------------------------------------------------------------------------
-//  EDGE2 Cheating and Debugging Code
+//  EDGE Cheating and Debugging Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2017  The EDGE2 Team.
+//  Copyright (c) 1999-2017  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
