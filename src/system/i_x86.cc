@@ -4,7 +4,7 @@
 // 
 ** Copyright 2005-2016 Randy Heit
 ** Copyright 2005-2016 Christoph Oelckers
-** Modified by Rachael Alexanderson for use with 3DGE
+** Copyright 2018 The EDGE Team
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without

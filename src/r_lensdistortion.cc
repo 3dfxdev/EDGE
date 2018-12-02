@@ -1,4 +1,5 @@
-// EDGE LensDistortion Backend
+//--------------------------------------------------------------------------
+// EDGE Lens Distortion Shader Buffer
 // Copyright(C) 2016 Magnus Norddahl
 // All rights reserved.
 //
@@ -14,9 +15,8 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/
-//
 //--------------------------------------------------------------------------
-//
+
 
 #include "system/i_defs.h"
 #include "system/i_defs_gl.h"

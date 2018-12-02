@@ -1333,7 +1333,7 @@ void real_vm_c::STAT_ForLoop()
 
 	REF_OP(patch)->b = EmitCode(OP_NULL);
 
-
+	delete[] target;
 } //TODO: V773 https://www.viva64.com/en/w/v773/ Visibility scope of the 'target' pointer was exited without releasing the memory. A memory leak is possible.
 
 
