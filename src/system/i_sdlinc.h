@@ -25,9 +25,9 @@
 // it so we can come up with another solution. Just open up an ISSUE or a PR via Github if
 // it does not work and/or you have a better way.
 #ifndef WIN32
-#include "SDL2\SDL.h"
-#include "SDL2\SDL_keycode.h" /// Keys
-#include "SDL2\SDL_opengl.h" // opengl
+#include <SDL2\SDL.h>
+#include <SDL2\SDL_keycode.h> /// Keys
+#include <SDL2\SDL_opengl.h> // opengl
 #else
 
 #include "SDL.h"
