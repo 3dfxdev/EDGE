@@ -33,7 +33,7 @@
 #include "SDL.h"
 #include "SDL_keycode.h" /// Keys
 #include "SDL_opengl.h" // opengl
-
+#endif
 
 #include "i_local.h"  // FIXME: remove
 
