@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
-//  EDGE2 FXAA Shader (OpenGL)
+//  EDGE FXAA Shader
 //----------------------------------------------------------------------------
 //
-// Copyright(C) 2016 The EDGE2 TEAM
-// All rights reserved.
+//  Copyright (c) 2016 Magnus Norddahl
+//  Copyright (c) 2018 The EDGE Team
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -21,10 +21,11 @@
 //--------------------------------------------------------------------------
 //
 
-#include "../epi/str_format.h"
 #include "system/i_defs.h"
 #include "system/i_defs_gl.h"
-#include "system/i_sdlinc.h"
+
+#include "../epi/str_format.h"
+
 #include "r_fxaa.h"
 #include "r_renderbuffers.h"
 #include "r_postprocessstate.h"

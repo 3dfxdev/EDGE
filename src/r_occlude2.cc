@@ -20,23 +20,20 @@
 
 #include "../ddf/types.h"
 
+#include "r_occlude2.h"
+#include "m_bbox.h"
+#include "r_misc.h"
+#include "r_defs.h"
+#include "z_zone.h"
+
+#include <math.h>
 
 #define ANGLE_MAX ANG_MAX
 #define ANGLE_90 ANG90
 #define ANGLE_180 ANG180
 #define ANGLE_270 ANG270
 
-#include "r_occlude2.h"
-#include "m_bbox.h"
 
-#include "system/i_sdlinc.h"
-#include <math.h>
-#include "system/i_video.h"
-#include "r_misc.h"
-#include "r_defs.h"
-#include "z_zone.h"
-
-#define dboolean bool
 float frustum[6][4];
 
 typedef struct clipnode_s
@@ -51,7 +48,7 @@ clipnode_t *cliphead;
 
 static clipnode_t * gld_clipnode_GetNew(void);
 static clipnode_t * gld_clipnode_NewRange(angle_t start, angle_t end);
-static dboolean gld_clipper_IsRangeVisible(angle_t startAngle, angle_t endAngle);
+static bool gld_clipper_IsRangeVisible(angle_t startAngle, angle_t endAngle);
 static void gld_clipper_AddClipRange(angle_t start, angle_t end);
 static void gld_clipper_RemoveRange(clipnode_t * range);
 static void gld_clipnode_Free(clipnode_t *node);
@@ -79,7 +76,7 @@ static clipnode_t * gld_clipnode_NewRange(angle_t start, angle_t end)
   return c;
 }
 
-dboolean gld_clipper_SafeCheckRange(angle_t startAngle, angle_t endAngle)
+bool gld_clipper_SafeCheckRange(angle_t startAngle, angle_t endAngle)
 {
   if(startAngle > endAngle)
   {
@@ -89,7 +86,7 @@ dboolean gld_clipper_SafeCheckRange(angle_t startAngle, angle_t endAngle)
   return gld_clipper_IsRangeVisible(startAngle, endAngle);
 }
 
-static dboolean gld_clipper_IsRangeVisible(angle_t startAngle, angle_t endAngle)
+static bool gld_clipper_IsRangeVisible(angle_t startAngle, angle_t endAngle)
 {
   clipnode_t *ci;
   ci = cliphead;
@@ -412,7 +409,7 @@ void gld_FrustrumSetup(void)
 	NORMALIZE_PLANE(5);
 }
 
-dboolean gld_SphereInFrustum(float x, float y, float z, float radius)
+bool gld_SphereInFrustum(float x, float y, float z, float radius)
 {
 	int p;
 

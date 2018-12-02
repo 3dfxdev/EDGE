@@ -84,108 +84,19 @@ int powerof2(int in)
 #define REPEAT_BOTH 3
 #define REPEAT_AUTO 4
 
-enum { FT_PATCH, LT_TPATCH, LT_LPIC, LT_WALL };
+//ROTT stuff
+typedef enum 
+{ 
+	FT_PATCH, 
+	LT_TPATCH, 
+	LT_LPIC, 
+	LT_WALL 
+};
 
 
 /*
-* ROTT stores no information about type in the
-* WAD file, so we have to guess. Luckily, it's not that
-* hard.
+* Rule for ROTT patches: patch->collumnofs[0] == patch->width*2 + 10
 */
-
-/*
-* Rule for patches: patch->collumnofs[0] == patch->width*2 + 10
-*/
-#if 0
-
-int getinfo_patch(u8_t* lump, int len, texbufinfo_t* ti)
-{
-	rottpatch_t *ppat = (rottpatch_t *)lump; // Also use rottpatch_t
-	if (len <= 10) return 0; // Too short for a patch
-	int cofs = EPI_LE_U16(ppat->columnofs[0]);
-	int width = EPI_LE_U16(ppat->width);
-
-	if (cofs != (10 + width * 2))
-	{
-		return 0;
-	}
-
-	// Manually run the converter on it
-	Cvt_rottpatch_t(ppat, 1);
-
-	int rw, rh, w, h, lo, to;
-
-	ti->rw = rw = ppat->width;
-	ti->rh = rh = ppat->height;
-	ti->w = w = W_MakeValidSize(rw);
-	ti->h = h = W_MakeValidSize(rh);
-	ti->lofs = lo = -ppat->leftoffset;
-	ti->tofs = to = -ppat->topoffset;
-	ti->osize = ppat->origsize;
-
-	if (ti->rep == REPEAT_AUTO)
-	{
-		ti->rep = 0;
-
-		if (lo == 0 && rw == ppat->origsize)
-			ti->rep |= REPEAT_X;
-
-		if (to == 0 && rh == ppat->origsize)
-			ti->rep |= REPEAT_Y;
-
-	}
-	return 1;
-}
-#endif // 0
-
-
-#if 0
-epi::image_data_c *convert_patch(image_c *rim, int len, u32_t* gampal3, const column_t *col)//, texbufinfo_t* ti)
-{
-	rottpatch_t *ppat = (rottpatch_t *)rim;
-
-	int memsize = (rim->total_w * rim->total_h * 4);
-
-	epi::image_data_c *img = new epi::image_data_c(rim->actual_w * rim->actual_h * 4); //!!!! PAL
-	//u32_t *pic = (u32_t *)Z_Malloc(memsize);
-	//memset(pic, 0, ti->w * ti->h * 4);
-
-	int i, j, ofs, rlen;
-	u32_t *idpos = img;
-	u8_t *spos;
-	u32_t *dpos;
-
-	unsigned short *ccolofs = ppat->columnofs;
-
-	for (i = 0; i < ti->rw; i++, ccolofs++)
-	{
-		spos = (((u8_t *)ppat) + (*ccolofs));
-
-		while (1)
-		{
-			if ((ofs = *(spos++)) == 0xFF)
-			{
-				break;
-			}
-			else
-			{
-				rlen = *(spos++);
-				dpos = (idpos + (i + (ti->w * ofs)));
-
-				for (j = 0; j < rlen; j++, spos++, dpos += ti->w)
-				{
-					if ((dpos >= pic) && (dpos <= (pic + memsize)))
-					{//bna++ make sure we dont exxed mem area
-						*dpos = gampal3[col[*spos]] | (255 << ALPHA_SHIFT);
-					}
-				}
-			}
-		}
-	}
-	return pic;
-}
-#endif // 0
-
 
 cvar_c r_transfix;
 
