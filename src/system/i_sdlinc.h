@@ -49,7 +49,7 @@
 
 
 
-//#include "i_local.h"  // FIXME: remove
+#include "i_local.h"  // FIXME: remove
 
 #endif /* __SDL_SYSTEM_INTERNAL_H__ */
 
