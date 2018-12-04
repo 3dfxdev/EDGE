@@ -56,8 +56,13 @@ matrix:
         # CMake has some issues locating SDL2 library installed by Homebrew 
         - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release -DSDL2_LIBRARY=/usr/local/lib/libSDL2.dylib"
 
-before_install:  
-#  - chmod +x ./quick_setup_scripts/install-sdl2-travis-ci.sh
+before_install:
+- |
+  travis_retry curl -L https://www.libsdl.org/release/SDL2-2.0.9.tar.gz | tar xz
+ - cd SDL2-2.0.9
+ - ./configure
+ - make
+ - sudo make install
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
       brew update;
       brew install sdl2_net libvorbis;
@@ -67,7 +72,7 @@ before_install:
   - if [ -n "$CLANG_VERSION" ]; then export CC="clang-${CLANG_VERSION}" CXX="clang++-${CLANG_VERSION}"; fi
   - $CC --version
   - $CXX --version
-  fi
+
 
 script:
   - echo ${TRAVIS_BUILD_DIR}
