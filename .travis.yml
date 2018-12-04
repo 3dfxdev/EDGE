@@ -67,20 +67,6 @@ before_install:
   - if [ -n "$CLANG_VERSION" ]; then export CC="clang-${CLANG_VERSION}" CXX="clang++-${CLANG_VERSION}"; fi
   - $CC --version
   - $CXX --version
-
-install: |
-  if [[ "$HOST" == linux-* ]]; then
-      docker exec bc apt update
-      docker exec bc apt -y install git cmake zip wget libfuse2 build-essential libsdl2-dev libgl1-mesa-dev libopenal-dev libjpeg-dev libpng-dev libminizip-dev
-#  else
-#      cd ~
-#      curl -O https://www.libsdl.org/release/SDL2-2.0.9.tar.gz
-#      tar xzf SDL2-2.0.9.tar.gz
-#      cd SDL2-2.0.9/
-#      sed -i -e 's/@rpath//g' SDL.xcodeproj/project.pbxproj
-#      xcodebuild -configuration Release
-#      mkdir -p ~/Library/Frameworks/
-#      ln -s `pwd`/build/Release/SDL2.framework ~/Library/Frameworks/
   fi
 
 script:

@@ -217,8 +217,8 @@ ENDIF (WIN32)
 # CA: 11/30/18 - For MSVC, libs are no longer required to be downloaded seperately, they now exist in /libs/msvc/
 if (MSVC)
 	if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
-		set( SDLMAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x86/SDL2main.lib" )		
-		set( SDL_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x86/SDL2.lib" )
+		set( SDL2MAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x86/SDL2main.lib" )		
+		set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x86/SDL2.lib" )
 		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/lib/x86/SDL2_net.lib" )
 		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x86/libogg_staticd.lib" )
 		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/include" )
@@ -232,8 +232,8 @@ if (MSVC)
 		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x86/zlibstatic.lib" )
 		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x86/zlibstatic.lib" )
 	else()
-		set( SDLMAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x64/SDL2main.lib" )
-		set( SDL_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x64/SDL2.lib" )
+		set( SDL2MAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x64/SDL2main.lib" )
+		set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x64/SDL2.lib" )
 		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/lib/x64/SDL2_net.lib" )
 		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x64/libogg_staticd.lib" )
 		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/include" )
@@ -247,14 +247,14 @@ if (MSVC)
 		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x64/zlibstatic.lib" )
 		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x64/zlibstatic.lib" )
 	endif()
-		set( SDL_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/include" )
+		set( SDL2_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/include" )
 		set( SDLNET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/include" )
 
 endif(MSVC)
 
 if(UNIX)
-	set( SDL2_INCLUDE_DIR "/usr/include/SDL2" )
-	set( SDL2_LIBRARY "libSDL2.so" )
+	find_package(SDL2 REQUIRED)
+	include_directories(${SDL2_INCLUDE_DIRS})
 	set( ogg_RELEASE_LIBRARY "libvorbisfile.so" )
 #	set( PHYSFS_LIBRARY "libphysfs.so" )
 #	set( kitchensink_LIBRARY "libSDL_kitchensink.so")
@@ -262,7 +262,7 @@ endif(UNIX)
 
 ## SDL2
 ## FIND_PACKAGE (SDL REQUIRED)
-INCLUDE_DIRECTORIES (${SDL_INCLUDE_DIR})
+INCLUDE_DIRECTORIES (${SDL2_INCLUDE_DIRS})
 
 ## FIND_PACKAGE (SDL_net REQUIRED)
 INCLUDE_DIRECTORIES (${SDLNET_INCLUDE_DIR})
@@ -625,8 +625,8 @@ if(MSVC)
 endif()
 
 target_link_libraries(EDGE
-	${SDLMAIN_LIBRARY}
-	${SDL_LIBRARY}
+	${SDL2MAIN_LIBRARY}
+	${SDL2_LIBRARY}
 	${SDL_NET_LIBRARY}
 	${ogg_RELEASE_LIBRARY}
 	${vorbis_RELEASE_LIBRARY}
