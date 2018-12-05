@@ -1,6 +1,7 @@
 EDGE Coding Conventions, v1.11
 
 By the EDGE Team, 1999/09/18.
+Slightly revised, 2018/11/30.
 
 A consistent coding style is important for big projects like EDGE, since
 it makes the code more readable and nice-looking.
@@ -53,16 +54,20 @@ end with _e. For example:
     bar_e;
 
 Names of static functions should generally be written without underscores,
-words should instead start with capital letters. Like
+words should instead start with capital letters. Like:
+
 static void FooBar(void)
+
 Global functions should in addition have a prefix, showing which module they
 come from. Each module or group of modules has its own prefix. For example,
 functions in the r_* (rendering) modules should start with R_, and functions
 in the DDF modules should start with the module name (e.g. DDF_Main for all
 functions in ddf_main.c).
-Functions that unique for a certain colour depth, like the V_CopyRect
+
+Functions that are unique for a certain colour depth, like the V_CopyRect
 routines, should be suffixed by the colour depth, in bits. E.g., the two
 versions of V_CopyRect are named V_CopyRect8 and CopyRect16.
+
 When there are sets of functions that do the same task, and in some way
 the one that best does the task in the current context is chosen, then the
 function should be suffixed by an underscore followed by a brief
@@ -81,10 +86,13 @@ Indentation and spaces
 The file indent.pro in the EDGE Source Distribution defines most of our
 spacing conventions. It's a setting file for GNU Indent 1.9.1. A brief
 description of the most important ones:
+
 -i4 -ts0
 Use an indentation of 4 spaces. Don't use tabs in the source files.
+
 -bap
 Always have at least one blank line between functions.
+
 -nbc -nip -npsl
 Declarations of functions, function parameters, and variables should look
 like in this example:
@@ -230,7 +238,7 @@ E.g., the first lines of foo_bar.c could look like
     #include "ddf_main.h"
     #include "r_main.h"
 
-    #include <stdio.h>
+    #include <iostream>
 
 Inlines
 ---------

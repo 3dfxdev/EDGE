@@ -186,7 +186,7 @@ std::string game_dir;
 std::string home_dir;
 std::string save_dir;
 std::string shot_dir;
-std::string base_dir = "base";
+std::string base_dir;
 
 
 extern cvar_c m_language;
@@ -836,8 +836,8 @@ void E_TitleTicker(void)
 //
 void InitDirectories(void)
 {
-	std::string path;
-	std::size_t botDirPos = base_dir.find_last_of("/");
+	//std::string path;
+	//std::size_t botDirPos = base_dir.find_last_of("/");
 
 	const char *s = M_GetParm("-home");
 	if (s)
@@ -876,7 +876,7 @@ void InitDirectories(void)
 
 	// add parameter file "gamedir/parms" if it exists.
 	std::string parms = epi::PATH_Join(game_dir.c_str(), "parms");
-	std::string base_ddf = epi::PATH_Join(game_dir.c_str(), base_dir.c_str());
+	std::string base_ddf = epi::PATH_Join(game_dir.c_str(), "base");
 
 	if (epi::FS_Access(parms.c_str(), epi::file_c::ACCESS_READ))
 	{

@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Heads-up-display Style code
+//  EDGE Heads-up-display Style code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2009  The EDGE2 Team.
+//  Copyright (c) 2004-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -117,46 +117,6 @@ void style_c::DrawBackground(int x, int y, int w, int h, int align)
 					  right, top, NULL, alpha);
 	}
 }
-
-
-// void style_c::DrawCONSBK(int x, int y, int w, int h, int align)
-// {
-	// if (w == 0)
-		// x = 0, w = SCREENWIDTH;
-
-	// if (h == 0)
-		// y = 0, h = SCREENHEIGHT;
-	// float alpha = PERCENT_2_FLOAT(def->bg.translucency);
-
-	// if (alpha < 0.02)
-		// return;
-
-//	HUD_SetAlpha(alpha);
-
-	// if (! bg_image)
-	// {
-		// if (def->bg.colour != RGB_NO_VALUE)
-			// RGL_SolidBox(x, y, w, h, def->bg.colour, alpha);
-
-//		HUD_SetAlpha();
-		// return;
-	// }
-
-	// if (def->special & (SYLSP_Tiled | SYLSP_TiledNoScale))
-	// {
-		// HUD_SetScale(def->bg.scale);
-
-		// HUD_TileImage(0, 0, 320, 200, bg_image);
-
-		// HUD_SetScale();
-	// }
-	// else
-	// {
-		// HUD_StretchImage(0, 0, 320, 200, bg_image);
-	// }
-
-//	HUD_SetAlpha();
-// }
 
 // ---> style_container_c class
 

@@ -110,6 +110,10 @@ fflush(stdout);
 	system("compile_hod_pk3.bat");
 #endif  
 
+#if defined(DAIKATANA)
+	system("compile_daikatana2_pk3.bat");
+#endif 
+
 	fflush(stdout);
 
 #if defined(_DEBUG) && defined(_MSC_VER)

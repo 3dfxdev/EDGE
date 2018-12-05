@@ -35,6 +35,8 @@ public:
 
 	font_c *fonts[styledef_c::NUM_TXST];
 
+	soundstyle_c *sounds;
+
 	const image_c *bg_image;
 
 public:
