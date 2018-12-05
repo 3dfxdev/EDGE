@@ -3,9 +3,7 @@ Welcome to EDGE!
 
 ![](https://a.fsdn.com/con/app/proj/edge2/screenshots/edgelogo6.png)
 
-[![Build status](https://ci.appveyor.com/api/projects/status/ghevag13p9ue60no?svg=true)](https://ci.appveyor.com/project/raa-eruanna/hyper3dge) [![Build Status](https://travis-ci.org/3dfxdev/EDGE.svg?branch=master)](https://travis-ci.org/3dfxdev/EDGE)
-
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/cf7282627d254b89aa466d3291e8b8fe)](https://www.codacy.com/app/Corbachu/EDGE?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=3dfxdev/EDGE&amp;utm_campaign=Badge_Grade)
+[![Build status](https://ci.appveyor.com/api/projects/status/ghevag13p9ue60no?svg=true)](https://ci.appveyor.com/project/raa-eruanna/hyper3dge) [![Build Status](https://travis-ci.org/3dfxdev/EDGE.svg?branch=master)](https://travis-ci.org/3dfxdev/EDGE) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/cf7282627d254b89aa466d3291e8b8fe)](https://www.codacy.com/app/Corbachu/EDGE?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=3dfxdev/EDGE&amp;utm_campaign=Badge_Grade)
 
 #### EDGE is an advanced OpenGL source port spawned from the DOOM engine, with focus on easy development and expansion for modders and end-users.
 

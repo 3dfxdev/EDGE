@@ -227,8 +227,6 @@ ENDIF (WIN32)
 # CA: 11/30/18 - For MSVC, libs are no longer required to be downloaded seperately, they now exist in /libs/msvc/
 if (MSVC)
 	if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
-		set( SDL2MAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x86/SDL2main.lib" )		
-		set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x86/SDL2.lib" )
 		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/lib/x86/SDL2_net.lib" )
 		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x86/libogg_staticd.lib" )
 		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/include" )
@@ -242,8 +240,6 @@ if (MSVC)
 		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x86/zlibstatic.lib" )
 		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x86/zlibstatic.lib" )
 	else()
-		set( SDL2MAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x64/SDL2main.lib" )
-		set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/lib/x64/SDL2.lib" )
 		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/lib/x64/SDL2_net.lib" )
 		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x64/libogg_staticd.lib" )
 		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/include" )
@@ -257,48 +253,30 @@ if (MSVC)
 		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x64/zlibstatic.lib" )
 		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x64/zlibstatic.lib" )
 	endif()
-		set( SDL2_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL/include" )
+		include("${CMAKE_CURRENT_SOURCE_DIR}/SDL2-2.0.9/sdl-config.cmake")
+		set( SDL2_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SDL2-2.0.9")
 		set( SDLNET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/include" )
 
 endif(MSVC)
 
 if(UNIX)
 	set( ogg_RELEASE_LIBRARY "libvorbisfile.so" )
+	INCLUDE(FindPkgConfig)
+	PKG_SEARCH_MODULE(SDL2 REQUIRED SDL2)
+	find_package(SDL2 REQUIRED)
+	INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${SDL2_INCLUDE_DIRS})
 #	set( PHYSFS_LIBRARY "libphysfs.so" )
 #	set( kitchensink_LIBRARY "libSDL_kitchensink.so")
 endif(UNIX)
 
-INCLUDE(FindPkgConfig)
-PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${SDL2_INCLUDE_DIRS})
+
+#INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${SDL2_INCLUDE_DIRS})
 
 ## SDL2
-## FIND_PACKAGE (SDL REQUIRED)
-#INCLUDE_DIRECTORIES (${SDL2_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES (${SDL2_INCLUDE_DIRS})
 
 ## FIND_PACKAGE (SDL_net REQUIRED)
 INCLUDE_DIRECTORIES (${SDLNET_INCLUDE_DIR})
-
-## FIXME: This is an inelegant hack to find, and grab all needed
-## .dll support files on windows. It works by looking for SDL.dll
-## then taking every .dll file found in that directory from your SDK.
-## This ensures you get sdl and all of it's needed .dll files, but may
-## also grab unneeded .dll files.
-IF (WIN32)
-	 #  set ( SDL_SUPPORT_LIBS "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL2/lib")
-       FIND_PATH (SDL_SUPPORT_LIBS_DIR SDL.dll
-               HINTS
-               $ENV{SDLDIR}
-               PATH_SUFFIXES lib64 lib
-               PATHS)
-			   
-	  if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")   
-       FILE (GLOB SDL_SUPPORT_LIBS ${SDL_SUPPORT_LIBS_DIR}/x86/*.dll)
-	   else()
-	   FILE (GLOB SDL_SUPPORT_LIBS ${SDL_SUPPORT_LIBS_DIR}/x64/*.dll)
-	   endif()
-	   
-ENDIF (WIN32)
 
 # OpenGL
 FIND_PACKAGE (OpenGL)
@@ -629,18 +607,13 @@ add_executable(EDGE
 	${EDGE_SOURCES}
 )
 
-
-
-
-
 add_dependencies( EDGE revision_check )
 if(MSVC)
 	add_dependencies( EDGE eecrashreport )
 endif()
 
 target_link_libraries(EDGE
-	${SDL2MAIN_LIBRARY}
-	${SDL2_LIBRARY}
+	${SDL2_LIBRARIES}
 	${SDL_NET_LIBRARY}
 	${ogg_RELEASE_LIBRARY}
 	${vorbis_RELEASE_LIBRARY}
@@ -660,14 +633,6 @@ elseif(APPLE)
 elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "(Free|Open)BSD")
 	target_link_libraries(EDGE GL dl)
 endif()
-
-
-## FIXME: This is a continuation of the Windows SDL inelegant hack. This does
-## the actual installation of those support libraries.
-IF (WIN32)
-        INSTALL (PROGRAMS ${SDL_SUPPORT_LIBS}
-                DESTINATION ${LIB_DIR})
-ENDIF (WIN32)
 
 if(MSVC)
    target_link_libraries(EDGE rpcrt4)
