@@ -193,12 +193,6 @@ elseif(UNIX)
 endif()
 
 # Module Paths
-if (NOT MSVC)
-list(APPEND CMAKE_MODULE_PATH
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}/modules
-)
-endif()
 SET(CMAKE_MODULE_PATH ${CMAKE_ROOT}/Modules  "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 
 #message(${CMAKE_MODULE_PATH})
@@ -609,6 +603,7 @@ if(MSVC)
 	add_dependencies( EDGE eecrashreport )
 endif()
 
+
 target_link_libraries(EDGE
 	${SDL2_LIBRARIES}
 	${SDL_NET_LIBRARY}
@@ -628,7 +623,7 @@ if (WIN32)
 elseif(APPLE)
 	set_target_properties(EDGE PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa")
 elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "(Free|Open)BSD")
-	target_link_libraries(EDGE GL dl)
+	target_link_libraries(EDGE SDL2 GL dl)
 endif()
 
 if(MSVC)
