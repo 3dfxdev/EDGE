@@ -53,7 +53,6 @@ else()
 endif()
 
 
-
 add_subdirectory( lzma )
 
 # Recursive function to place PK3 archive source files into a hierarchy of source file in the IDE
@@ -194,10 +193,12 @@ elseif(UNIX)
 endif()
 
 # Module Paths
-#list(APPEND CMAKE_MODULE_PATH
-	#${CMAKE_CURRENT_SOURCE_DIR}
-	#${CMAKE_CURRENT_SOURCE_DIR}/modules
-#)
+if (NOT MSVC)
+list(APPEND CMAKE_MODULE_PATH
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/modules
+)
+endif()
 SET(CMAKE_MODULE_PATH ${CMAKE_ROOT}/Modules  "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 
 #message(${CMAKE_MODULE_PATH})
@@ -260,12 +261,9 @@ if (MSVC)
 endif(MSVC)
 
 if(UNIX)
-	set( ogg_RELEASE_LIBRARY "libvorbisfile.so" )
-	INCLUDE(FindPkgConfig)
-	PKG_SEARCH_MODULE(SDL2 REQUIRED SDL2)
-	INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${SDL2_INCLUDE_DIRS})
-#	set( PHYSFS_LIBRARY "libphysfs.so" )
-#	set( kitchensink_LIBRARY "libSDL_kitchensink.so")
+	set(ogg_RELEASE_LIBRARY "libvorbisfile.so" )
+	set(SDL2_INCLUDE_DIR /usr/include/SDL2)
+	set(SDL2_LIBRARIES /usr/lib/libSDL2.so)
 endif(UNIX)
 
 
