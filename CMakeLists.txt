@@ -193,7 +193,7 @@ elseif(UNIX)
 endif()
 
 # Module Paths
-SET(CMAKE_MODULE_PATH ${CMAKE_ROOT}/Modules  "${CMAKE_CURRENT_SOURCE_DIR}/modules")
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/modules)
 
 #message(${CMAKE_MODULE_PATH})
 
@@ -258,12 +258,14 @@ if(UNIX)
 	set(ogg_RELEASE_LIBRARY "libvorbisfile.so" )
 	set(SDL2_INCLUDE_DIR /usr/include/SDL2)
 	set(SDL2_LIBRARIES /usr/lib/libSDL2.so)
+	find_package(SDL2 REQUIRED)
 endif(UNIX)
 
 
 #INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${SDL2_INCLUDE_DIRS})
 
 ## SDL2
+#set(SDL2_PATH "${CMAKE_CURRENT_SOURCE_DIR/SDL2-2.0.9}" CACHE PATH “The location to search for SDL2”)
 INCLUDE_DIRECTORIES (${SDL2_INCLUDE_DIRS})
 
 ## FIND_PACKAGE (SDL_net REQUIRED)
