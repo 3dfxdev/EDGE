@@ -27,7 +27,6 @@
 #define __SYSTEM_SPECIFIC_DEFS_OPENGL__
 
 #include "GL/gl_load.h"
-#include "i_sdlinc.h"
 
 #if defined(LINUX) || defined(BSD)
 #include <GL/gl.h>
