@@ -14,7 +14,7 @@ matrix:
       compiler: gcc
       env:
         - GCC_VERSION=4.9
-        - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release -DSDL2_INCLUDE_DIR=/SDL2-2.0.9/include -DSDL2_LIBRARY=/usr/local/lib/libSDL2.so"
+        - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release -DSDL2_INCLUDE_DIR=/libs/msvc/SDL2/include -DSDL2_LIBRARY=/usr/local/lib/libSDL2.so"
         
       addons:
         apt:
@@ -35,7 +35,7 @@ matrix:
       compiler: gcc
       env:
         - GCC_VERSION=7
-        - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Debug -DSDL2_INCLUDE_DIR=/SDL2-2.0.9/include -DSDL2_LIBRARY=/usr/local/lib/libSDL2.so"
+        - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Debug -DSDL2_INCLUDE_DIR=/libs/msvc/SDL2/include -DSDL2_LIBRARY=/usr/local/lib/libSDL2.so"
       addons:
         apt:
           sources:
