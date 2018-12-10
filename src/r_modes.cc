@@ -239,6 +239,9 @@ static bool DoExecuteChangeResolution(scrmode_c *mode)
 
 	HUD_Reset();
 
+	RGL_Init();
+	R_SoftInitResolution();
+
 	bool was_ok = I_SetScreenSize(mode);
 
 	if (! was_ok)

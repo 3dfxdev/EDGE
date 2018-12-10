@@ -1997,8 +1997,13 @@ static void M_OptionSetResolution(int keypressed)
 {
 	if (R_ChangeResolution(&new_scrmode))
 	{
-		HUD_Reset(); // Reset COAL
-		//RGL_InitRenderBuffers(); //this is already inited in the HUD code, so maybe we need to shut the HUD down?
+		RGL_StopWipe();  // delete any wipe texture too
+
+		W_DeleteAllImages();
+
+		HUD_Reset();
+
+		RGL_Init();
 		R_SoftInitResolution();
 		//FGLRenderBuffers* renderbuffers = FGLRenderBuffers::Instance(); //Recreates the HUD 
 	}
