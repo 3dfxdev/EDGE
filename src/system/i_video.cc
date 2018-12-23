@@ -100,15 +100,15 @@ void I_GrabCursor(bool enable)
 
 	if (grab_state && in_grab.d)
 	{
-		SDL_ShowCursor(0);
-//		SDL_WM_GrabInput(SDL_GRAB_ON);
-		SDL_SetWindowGrab(my_vis, SDL_TRUE); //TODO: grab which window??
+		SDL_ShowCursor(SDL_FALSE);
+		SDL_SetRelativeMouseMode(SDL_TRUE);
+		SDL_SetWindowGrab(my_vis, SDL_TRUE);
 	}
 	else
 	{
-		SDL_ShowCursor(1);
-//		SDL_WM_GrabInput(SDL_GRAB_OFF);
-		SDL_SetWindowGrab(my_vis, SDL_FALSE); //TODO: grab which window??
+		SDL_SetRelativeMouseMode(SDL_FALSE);
+		SDL_SetWindowGrab(my_vis, SDL_FALSE);
+		SDL_ShowCursor(SDL_FALSE);
 	}
 }
 
@@ -321,7 +321,7 @@ bool I_SetScreenSize(scrmode_c *mode)
 	// ~CA~  TODO:  Eventually we will want to turn on the cursor
 	//				when we get Doom64-style mouse control for
 	//				the options drawer.
-	I_GrabCursor(true);
+	I_GrabCursor(false);
 
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
