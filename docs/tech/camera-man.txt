@@ -1,7 +1,8 @@
 Camera-man System readme
 
  1. What is Camera-man
-	Camera-man system governs setup and handling of [TODO]
+	Camera-man system governs setup and handling of configurable camras that can be triggered via scripts and console commands. User can setup positions and view angels of camera and store
+	them with a set	of commands given below. The setup is stored per level basis, i.e. each game lavel has it's own 'camdata' file.
 	
  2. Basics
 	2.1 Console Commands
@@ -25,8 +26,19 @@ Camera-man System readme
 		 - 'tghelp' - toggles rendering of helper gizmos in the engine (e.g. gizmos showing where cameras were set up).
 		 
 	2.2 COAL Interface
-		Camera-man system is also controlable via COAL scripts, via the following procedures:
-		 - [TODO]
+		Camera-man system is also controlable via COAL scripts, through the following procedures (some functions from command console are not used though):
+		 - 'cameraman.activate(1|0)' - same as 'actcam',
+		 - 'cameraman.is_active()' - return indication whether the systm is active,
+		 - 'cameraman.set_start_id(id [, name])' - same as 'strcam',
+		 - 'cameraman.set_end_id(id [, name])' - same as 'endcam',
+		 - 'cameraman.get_start_id()' - returns the identifier of the start camera (set with 'set_start_id'),
+		 - 'cameraman.get_end_id()' - returns the identifier of the end camera (set with 'set_end_id'),
+		 - 'cameraman.set_step(time_step)' - sets the interpolation value with which the interpolated position and view angles are taken from start and end cameras (interpolation is linear),
+		 - 'cameraman.switch_to(id [, name])' - same as 'swtcam',
+		 - 'cameraman.load()' - same as 'lddcam'.
 		 
 	2.3 RTS Interface
-		[TODO]
+		Camera-man system is also controlable via RTS scripts, though the set of calls is very basic:
+		 - 'LOAD_CAMERAS map_name' - activates the system and loads 'camdata' for current level,
+		 - 'ACTIVATE_CAMERA cam_id|cam_name' - switches view to the camera given by the identifier or name provided.
+		 

@@ -342,6 +342,7 @@ static void CAM_Remove(coal::vm_c *vm, int argc)
 }
 
 // cameraman.set_position(id, [name,] pos.x, pos.y, pos.z)
+// NOT USED
 static void CAM_SetPosition(coal::vm_c *vm, int argc)
 {
 	int done = -1, idx = 0;
@@ -361,6 +362,7 @@ static void CAM_SetPosition(coal::vm_c *vm, int argc)
 }
 
 // cameraman.set_angles(id, [name,] viewvertangle, viewangle)
+// NOT USED
 static void CAM_SetAngles(coal::vm_c *vm, int argc)
 {
 	int done = -1, idx = 0;
@@ -379,6 +381,7 @@ static void CAM_SetAngles(coal::vm_c *vm, int argc)
 }
 
 // cameraman.set_fov(id, [name,] fov)
+// NOT USED
 static void CAM_SetFov(coal::vm_c *vm, int argc)
 {
 	int done = -1, idx = 0;
@@ -534,9 +537,9 @@ void VM_RegisterCameraMan(coal::vm_c *vm)
 	vm->AddNativeFunction("cameraman.activate", CAM_Activate);
 //	vm->AddNativeFunction("cameraman.add", CAM_Add);
 //	vm->AddNativeFunction("cameraman.remove", CAM_Remove);
-	vm->AddNativeFunction("cameraman.set_position", CAM_SetPosition);
-	vm->AddNativeFunction("cameraman.set_angles", CAM_SetAngles);
-	vm->AddNativeFunction("cameraman.set_fov", CAM_SetFov);
+//	vm->AddNativeFunction("cameraman.set_position", CAM_SetPosition);
+//	vm->AddNativeFunction("cameraman.set_angles", CAM_SetAngles);
+//	vm->AddNativeFunction("cameraman.set_fov", CAM_SetFov);
 	vm->AddNativeFunction("cameraman.is_active", CAM_IsActive);
 	vm->AddNativeFunction("cameraman.get_start_id", CAM_GetStartId);
 	vm->AddNativeFunction("cameraman.get_end_id", CAM_GetEndId);
