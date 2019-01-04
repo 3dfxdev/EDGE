@@ -576,7 +576,7 @@ static void DeathThink(player_t * player)
 	if (player->cmd.buttons & BT_USE)
 		player->playerstate = PST_REBORN;
 
-	if (!player->isBot())
+	if ((!player->isBot()) && (!splitscreen_mode)) //Disable for splitscreen mode since it affects all players :S
 		cameraroll = 70.0f;//TODO: lerp it!
 }
 

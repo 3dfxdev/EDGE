@@ -1354,7 +1354,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 				{
 					//DEBUG:
 					//CON_Message("Detected FWATER FLAT!");
-					if (!splash)
+					if ((!splash) && (!splitscreen_mode))
 					{
 						//I_Printf("z: %f, fz: %f, sz: %f\n", mo->z, mo->floorz, mo->subsector->sector->f_h);
 						mo->player->deltaviewheight = zmove / 8.0f;
@@ -1362,6 +1362,10 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 						S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo);
 						splash = true;
 						//CA: Need to set a cooldown, and not have zmove go so far downward over time (or at all!)
+					}
+					else if (splitscreen_mode)
+					{
+						splash = false;
 					}
 				}
 				else
