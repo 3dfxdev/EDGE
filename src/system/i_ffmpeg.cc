@@ -17,7 +17,6 @@
 //----------------------------------------------------------------------------
 
 #ifdef USE_FFMPEG
-{
 #include "../../epi/epi.h"
 #include "../../epi/bytearray.h"
 #include "../../epi/file.h"
@@ -69,6 +68,43 @@ extern SDL_Window *my_vis;
 extern SDL_Renderer *my_rndrr;
 extern SDL_GLContext glContext;
 extern cvar_c r_vsync;
+
+typedef int cinHandle_t;
+cinHandle_t cinematicHandle;
+
+typedef enum
+{
+	CIN_SYSTEM = BIT(0),
+	CIN_LOOPING = BIT(1),
+	CIN_SILENT = BIT(2)
+} cinFlags_t;
+
+// Plays a cinematic
+cinHandle_t     CIN_PlayCinematic(const char *name, int flags);
+
+// Runs a cinematic frame
+void            CIN_UpdateCinematic(cinHandle_t handle);
+
+// Update audio stream from cinematic buffer
+int             CIN_UpdateAudio(cinHandle_t handle, int need, SDL_AudioDeviceID audio_dev);
+
+// Resets a cinematic
+void            CIN_ResetCinematic(cinHandle_t handle);
+
+// Stops a cinematic
+void            CIN_StopCinematic(cinHandle_t handle);
+
+// Checks if cinematic playing - handles looping
+bool            CIN_CheckCinematic(cinHandle_t handle);
+
+// Initializes the cinematic module
+void            CIN_Init(void);
+
+// Shuts down the cinematic module
+void            CIN_Shutdown(void);
+
+void            E_PlayMovie(const char *name, int flags);
+
 
 
 // ============================================================================

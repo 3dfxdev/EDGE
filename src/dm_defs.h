@@ -248,6 +248,8 @@ gameflags_t;
 #define SPLITSCREEN
 #define MAXSPLITSCREENPLAYERS	2
 
+#define NUM_KEYS				0x19A
+
 #endif // __DEFINITIONS__
 
 

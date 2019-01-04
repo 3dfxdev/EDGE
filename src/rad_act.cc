@@ -20,7 +20,8 @@
 //
 
 #include "system/i_defs.h"
-#include "system/i_cinematic.h"
+//#include "system/i_ffmpeg.h"
+//#include "system/i_cinematic.h"
 
 #include <limits.h>
 
@@ -664,12 +665,12 @@ void RAD_ActChangeMusic(rad_trigger_t *R, void *param)
 
 void RAD_ActPlayCinematic(rad_trigger_t *R, void *param)
 {
-	cinematic_t *cin = (cinematic_t *) param;
+	//cinematic_t *cin = (cinematic_t *) param;
 
 	//cin->playing = true;
 
-	E_PlayMovie("/pack0/video/intro.roq", 1);
-	cin->playing = true;
+	//E_PlayMovie("/pack0/video/intro.roq", 1);
+	//cin->playing = true;
 }
 
 void RAD_ActChangeTex(rad_trigger_t *R, void *param)

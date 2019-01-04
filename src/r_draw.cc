@@ -19,6 +19,7 @@
 #include "system/i_defs.h"
 #include "system/i_defs_gl.h"
 
+#include "hu_draw.h"
 #include "g_game.h"
 #include "r_misc.h"
 #include "r_gldefs.h"
@@ -34,12 +35,13 @@ static int glbsp_last_prog_time = 0;
 
 void RGL_NewScreenSize(int width, int height, int bits)
 {
+	HUD_Reset();
 	//!!! quick hack
 	RGL_SetupMatrices2D();
 
 	// prevent a visible border with certain cards/drivers
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	//glClear(GL_COLOR_BUFFER_BIT);
 }
 
 

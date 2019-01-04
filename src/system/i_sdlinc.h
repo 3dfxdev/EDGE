@@ -24,9 +24,9 @@
 // GCC/Linux/OSX and this does not work or invalidates your build, please promptly report
 // it so we can come up with another solution. Just open up an ISSUE or a PR via Github if
 // it does not work and/or you have a better way.
-#include "SDL.h"
-#include "SDL_keycode.h" // Keys
-#include "SDL_opengl.h" // opengl
+#include <SDL.h>
+#include <SDL_keycode.h>// Keys
+#include <SDL_opengl.h>// opengl
 
 
 #include "i_local.h"  // FIXME: remove

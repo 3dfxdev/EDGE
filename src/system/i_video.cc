@@ -162,7 +162,7 @@ void I_StartupGraphics(void)
 	// anti-aliasing
 	if (r_anisotropy.d > 1)
 	{
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 4);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, r_anisotropy.d);
 	}
 	else 
@@ -179,7 +179,7 @@ void I_StartupGraphics(void)
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    8);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   16);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 2);
+//	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 2);
 
 	// ~CA 5.7.2016:
 
@@ -195,8 +195,10 @@ void I_StartupGraphics(void)
                               display_W,
                               display_H,
                               flags);
-	my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_PRESENTVSYNC);
+	my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_TARGETTEXTURE);
+
 	glContext = SDL_GL_CreateContext( my_vis );
+
     SDL_GL_MakeCurrent( my_vis, glContext );
     if(my_vis == NULL)
 	{
@@ -279,7 +281,7 @@ void I_StartupGraphics(void)
 
 bool I_SetScreenSize(scrmode_c *mode)
 {
-	I_Printf("I_SetScreenSize = reached");
+	I_Printf("I_SetScreenSize = reached\n");
 	I_GrabCursor(false);
 
 	SDL_GL_DeleteContext(glContext);
@@ -291,8 +293,8 @@ bool I_SetScreenSize(scrmode_c *mode)
 			 mode->full ? "fullscreen" : "windowed");
 
 	my_vis = SDL_CreateWindow("EDGE",
-					SDL_WINDOWPOS_UNDEFINED,
-                    SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_CENTERED,
+		SDL_WINDOWPOS_CENTERED,
                     mode->width, mode->height,
                     SDL_WINDOW_OPENGL | //SDL2 is double-buffered by default
                     (mode->full ? SDL_WINDOW_FULLSCREEN :0));

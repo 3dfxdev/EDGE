@@ -30,6 +30,10 @@ option(DAIKATANA "Compile Daikatana2 Executable" OFF)
 
 find_package( ZLIB )
 find_package( BZip2 )
+#find_package ( FFMPEG )
+#find_package ( SDLKitchensink )
+#set (SDL_kitchensink_static "Statically link SDLKitchensink" ON)
+#set (SDL_kitchensink "Do not Statically link SDLKitchensink" OFF)
 
 if( ZLIB_FOUND AND NOT FORCE_INTERNAL_ZLIB )
 	message( STATUS "Using system zlib, includes found at ${ZLIB_INCLUDE_DIR}" )
@@ -154,6 +158,7 @@ endif()
 add_definitions(
 	-DDEH_EDGE_PLUGIN
 	-DHAVE_PHYSFS
+#	-DUSE_FFMPEG
 )
 
 # For the Hypertension team, we must continue using SSE2 and _not_ AVX, since not everyone has an AVX-compatible processor.
@@ -235,6 +240,8 @@ if (MSVC)
 		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x86/zlibstatic.lib" )
 		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x86/zlibstatic.lib" )
 	else()
+		#set (kitchensink_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/kitchensink/include")
+		#set (kitchensink_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/kitchensink/lib/SDL_kitchensink_static.lib")
 		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/lib/x64/SDL2_net.lib" )
 		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x64/libogg_staticd.lib" )
 		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/include" )
@@ -270,6 +277,10 @@ INCLUDE_DIRECTORIES (${SDL2_INCLUDE_DIRS})
 
 ## FIND_PACKAGE (SDL_net REQUIRED)
 INCLUDE_DIRECTORIES (${SDLNET_INCLUDE_DIR})
+
+## FIND FFMPEG AND KITCHENSINK INCLUDES
+##INCLUDE_DIRECTORIES (${FFMPEG_INCLUDE_DIR})
+##INCLUDE_DIRECTORIES (${SDLKitchensink_INCLUDE_DIRS})
 
 # OpenGL
 FIND_PACKAGE (OpenGL)
@@ -346,6 +357,9 @@ set(EDGE_SOURCES
 	src/con_main.cc
 	src/con_link.cc
 	src/con_var.cc
+	src/dem_chunk.cc
+	src/dem_glob.cc
+	src/e_demo.cc
 	src/e_input.cc
 	src/e_main.cc
 	src/e_player.cc
@@ -613,6 +627,7 @@ target_link_libraries(EDGE
 	${vorbis_RELEASE_LIBRARY}
 	${vorbisFILE_RELEASE_LIBRARY}
 	${ZLIB_LIBRARY_RELEASE}
+#	${SDLKitchensink_STATIC_LIBRARY}
 )
 
 if (WIN32)
