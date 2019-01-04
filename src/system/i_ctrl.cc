@@ -217,8 +217,8 @@ static int I_SDLtoDoomMouseState(Uint8 buttonstate)
 void HandleKeyEvent(SDL_Event* ev)
 {
 	SDL_PumpEvents();
-//	if (ev->type != SDL_KEYDOWN && ev->type != SDL_KEYUP)
-//		return;
+	if (ev->type != SDL_KEYDOWN && ev->type != SDL_KEYUP)
+		return;
 
 	// For SDL2, we no longer require the SYM codes.
 	///int sym = (int)ev->key.keysym.sym;
@@ -240,7 +240,7 @@ void HandleKeyEvent(SDL_Event* ev)
         E_PostEvent(&event);
         break;
 
-	/*case SDL_MOUSEBUTTONDOWN:
+	case SDL_MOUSEBUTTONDOWN:
 	case SDL_MOUSEBUTTONUP:
 		 if (!window_focused)
 			break;
@@ -251,9 +251,9 @@ void HandleKeyEvent(SDL_Event* ev)
 		event.data2 = event.data3 = 0;
 
 		E_PostEvent(&event);
-		break;*/
+		break;
 
-	/*case SDL_WINDOWEVENT:
+	case SDL_WINDOWEVENT:
 		switch (ev->window.event)
 		{
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
@@ -279,13 +279,13 @@ void HandleKeyEvent(SDL_Event* ev)
 
     case SDL_QUIT:
          I_CloseProgram(-1);
-        break; */
+        break;
 
     default:
         break;
     }
 
-   /* if(mwheeluptic && mwheeluptic + 1 < tic) {
+    /*if(mwheeluptic && mwheeluptic + 1 < tic) {
         event.type = ev_keyup;
         event.data1 = KEYD_MWHEELUP;
         E_PostEvent(&event);
@@ -301,8 +301,8 @@ void HandleKeyEvent(SDL_Event* ev)
 	*/
 
 
-//	E_PostEvent(&event);
-return;
+	//E_PostEvent(&event);
+//return;
 }
 
 
@@ -520,7 +520,7 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 //
 void InactiveEventProcess(SDL_Event *sdl_ev)
 {
-	/* switch(sdl_ev->type)
+	 switch(sdl_ev->type)
 	{
 		case SDL_WINDOWEVENT:
 			if (app_state & APP_STATE_PENDING_QUIT)
@@ -529,8 +529,8 @@ void InactiveEventProcess(SDL_Event *sdl_ev)
 			 if (!sdl_ev->window.event)
 				break;
 
-			if (sdl_ev->window.event & SDL_APPACTIVE ||
-                sdl_ev->window.event & SDL_APPINPUTFOCUS)
+			if (sdl_ev->window.event & SDL_WINDOWEVENT_SHOWN ||
+                sdl_ev->window.event & SDL_WINDOWEVENT_FOCUS_GAINED)
 				window_focused = true;
 			break;
 
@@ -542,7 +542,7 @@ void InactiveEventProcess(SDL_Event *sdl_ev)
 
 		default:
 			break; // Don't care
-	} */
+	} 
 }
 
 
