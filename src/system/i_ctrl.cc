@@ -89,7 +89,7 @@ int TranslateSDLKey(int key)
 	// if keypad is not wanted, convert to normal keys
 	if (! in_keypad.d)
 	{
-		if (SDLK_KP_0 <= key && key <= SDLK_KP_9) //TODO: V560 https://www.viva64.com/en/w/v560/ A part of conditional expression is always false: key <= SDLK_KP_9.
+		if (SDLK_KP_0 <= key && key <= SDLK_KP_9) 
 			return '0' + (key - SDLK_KP_0);
 
 		switch (key)
@@ -221,7 +221,6 @@ void HandleKeyEvent(SDL_Event* ev)
 		return;
 
 	// For SDL2, we no longer require the SYM codes.
-	///int sym = (int)ev->key.keysym.sym;
 	event_t event;
 
     switch(ev->type)
@@ -300,9 +299,6 @@ void HandleKeyEvent(SDL_Event* ev)
     }
 	*/
 
-
-	//E_PostEvent(&event);
-//return;
 }
 
 
@@ -312,11 +308,15 @@ void HandleMouseButtonEvent(SDL_Event * ev)
 	SDL_PumpEvents();
 
 	if (ev->type == SDL_MOUSEBUTTONDOWN)
-//		event.type = ev_mousedown;
+	{
+		event.type = ev_mousedown;
 		event.type = ev_keydown;
+	}
 	else if (ev->type == SDL_MOUSEBUTTONUP)
-//		event.type = ev_mouseup;
+	{
+		event.type = ev_mouseup;
 		event.type = ev_keyup;
+	}
 	else
 		return;
 
@@ -369,11 +369,13 @@ void HandleMouseWheelEvent(SDL_Event * ev)
 	event_t event;
 	SDL_PumpEvents();
 
-	if (ev->wheel.y > 0) {
+	if (ev->wheel.y > 0) 
+	{
 		event.type = ev_keydown;
 		event.data1 = KEYD_WHEEL_UP;
 	}
-	else if (ev->wheel.y < 0) {
+	else if (ev->wheel.y < 0) 
+	{
 		event.type = ev_keydown;
 		event.data1 = KEYD_WHEEL_DN;
 	}
