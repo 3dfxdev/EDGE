@@ -1847,5 +1847,7 @@ function draw_split() =
 		zdoom_overlay_status()
 
     edge_air_bar()
+	cam.set_vert_bob(1.0)
+	cam.set_roll_bob(0.0)
 	// message_ticker()
 }

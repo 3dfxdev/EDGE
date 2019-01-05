@@ -406,10 +406,20 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 
 	int m_speed = speed;
 
-	if (fabs(ball_deltas[AXIS_MLOOK]) > 0.2f)
-		mlookheld++;
+	if (splitscreen_mode)
+	{
+		if (fabs(ball_deltas[AXIS_MLOOK]) > 0.2f)
+			mlookheld++;
+		else
+			mlookheld = 0;
+	}
 	else
-		mlookheld = 0;
+	{
+		if (fabs(joy_forces[AXIS_MLOOK]) > 0.2f)
+			mlookheld++;
+		else
+			mlookheld = 0;
+	}
 
 	// slow mlook ?
 	if (mlookheld < SLOWTURNTICS && in_stageturn.d)

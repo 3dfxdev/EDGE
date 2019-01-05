@@ -1203,7 +1203,6 @@ static void IdentifyVersion(void)
 						ddf_dir = epi::PATH_Join(game_dir.c_str(), "rott_ddf");
 						DDF_SetWhere(ddf_dir);
 						rott_mode = true;
-						//CreateROTTpal();
 					}
 					iwad_file = fn;
 					done = true;
@@ -1216,7 +1215,15 @@ static void IdentifyVersion(void)
 	}
 
 	if (iwad_file.empty())
-		I_Error("IdentifyVersion: No IWADS found!\n");
+	{
+		I_Error("Cannot find a game IWAD (doom.wad, doom2.wad, heretic.wad, etc.).\n"
+			"Did you install EDGE properly? You can do either of the following:\n"
+			"\n"
+			"1. Place one or more of these wads in the same directory as EDGE.\n"
+			"2. Edit your PATH settings to point to your desired IWAD\n"
+			"as per DOOMWADDIR and/or DOOMWADPATH.\n"
+			"3. Create a batch file or supply IWAD with the -iwad parameter.\n");
+	}
 
 		W_AddRawFilename(iwad_file.c_str(), FLKIND_IWad);
 

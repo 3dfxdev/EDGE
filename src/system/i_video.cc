@@ -29,6 +29,7 @@ PFNWGLSWAPINTERVALEXTPROC myWglSwapIntervalExtProc;
 
 #include <signal.h>
 
+#include "../hu_draw.h"
 #include "../m_argv.h"
 #include "../m_misc.h"
 #include "../r_modes.h"
@@ -304,6 +305,7 @@ bool I_SetScreenSize(scrmode_c *mode)
 	glContext = SDL_GL_CreateContext( my_vis );
 
     SDL_GL_MakeCurrent( my_vis, glContext );
+	HUD_Reset(); // Make doubly sure the HUD module is reset to counter the 640x480 white-box ghosting bug upon mode change.
 
 	if (my_vis == NULL)
 	{
