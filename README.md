@@ -7,7 +7,7 @@ Welcome to EDGE!
 
 #### EDGE is an advanced OpenGL source port spawned from the DOOM engine, with focus on easy development and expansion for modders and end-users.
 
-# (C) 1999-2018 [Isotope SoftWorks](https://www.facebook.com/IsotopeSoftWorks/) & [Contributors](https://github.com/3dfxdev/hyper3DGE/blob/master/AUTHORS.md) (The EDGE Team)
+# (C) 1999-2019 [Isotope SoftWorks](https://www.facebook.com/IsotopeSoftWorks/) & [Contributors](https://github.com/3dfxdev/hyper3DGE/blob/master/AUTHORS.md) (The EDGE Team)
 ##### Uses GPL-licensed technology from id Tech 1-4 (C) 1997-2011 id Software, LLC
 ##### DOSDoom originally developed by Chi Hoang and the DOSDoom Team, (C) 1997-1999
 #### Licensed under the GPLv2 (or greater)
@@ -36,4 +36,4 @@ community and the various projects for the engine.
 * The [EDGEWiki](http://3dfxdev.net/edgewiki) is also a great resource for
 editing documentation and other information related to the engine.
 
-(C) 1999 - 2018 Isotope SoftWorks and Contributors (The EDGE Team). All Rights Reserved.
+(C) 1999 - 2019 Isotope SoftWorks and Contributors (The EDGE Team). All Rights Reserved.
