@@ -5,10 +5,13 @@
  ==============================================================================
 */
 
-#ifdef USE_FFMPEG
-{
-#include <kitchensink/kitchensink.h>
-#include <SDL2/SDL.h>
+#ifndef __I_FFMPEG__
+#define __I_FFMPEG__
+/*
+#include "..\libs\msvc\kitchensink\include\kitchensink\kitchensink.h"
+#include <epi\file.h>
+
+#include "i_sdlinc.h"
 
 #define MAX_CINEMATICS      16
 #define PLAYER_NAME_MAX_LEN 256
@@ -18,6 +21,7 @@
 #define ATLAS_MAX           1024
 
 #define BIT(num)            (1 << (num))
+
 
 typedef struct
 {
@@ -54,43 +58,8 @@ typedef struct
     int                 got;
 
 } cinematic_t;
+*/
 
-typedef int                 cinHandle_t;
 
-cinHandle_t cinematicHandle;
 
-typedef enum
-{
-    CIN_SYSTEM              = BIT(0),
-    CIN_LOOPING             = BIT(1),
-    CIN_SILENT              = BIT(2)
-} cinFlags_t;
-
-// Plays a cinematic
-cinHandle_t     CIN_PlayCinematic (const char *name, int flags);
-
-// Runs a cinematic frame
-void            CIN_UpdateCinematic (cinHandle_t handle);
-
-// Update audio stream from cinematic buffer
-int             CIN_UpdateAudio (cinHandle_t handle, int need, SDL_AudioDeviceID audio_dev);
-
-// Resets a cinematic
-void            CIN_ResetCinematic (cinHandle_t handle);
-
-// Stops a cinematic
-void            CIN_StopCinematic (cinHandle_t handle);
-
-// Checks if cinematic playing - handles looping
-bool            CIN_CheckCinematic (cinHandle_t handle);
-
-// Initializes the cinematic module
-void            CIN_Init (void);
-
-// Shuts down the cinematic module
-void            CIN_Shutdown (void);
-
-void            E_PlayMovie(const char *name, int flags);
-}
-}
-#endif
+#endif // I__FFMPEG__

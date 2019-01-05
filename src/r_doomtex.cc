@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Generalised Image Handling
+//  EDGE Generalised Image Handling
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -84,108 +84,19 @@ int powerof2(int in)
 #define REPEAT_BOTH 3
 #define REPEAT_AUTO 4
 
-enum { FT_PATCH, LT_TPATCH, LT_LPIC, LT_WALL };
+//ROTT stuff
+typedef enum 
+{ 
+	FT_PATCH, 
+	LT_TPATCH, 
+	LT_LPIC, 
+	LT_WALL 
+};
 
 
 /*
-* ROTT stores no information about type in the
-* WAD file, so we have to guess. Luckily, it's not that
-* hard.
+* Rule for ROTT patches: patch->collumnofs[0] == patch->width*2 + 10
 */
-
-/*
-* Rule for patches: patch->collumnofs[0] == patch->width*2 + 10
-*/
-#if 0
-
-int getinfo_patch(u8_t* lump, int len, texbufinfo_t* ti)
-{
-	rottpatch_t *ppat = (rottpatch_t *)lump; // Also use rottpatch_t
-	if (len <= 10) return 0; // Too short for a patch
-	int cofs = EPI_LE_U16(ppat->columnofs[0]);
-	int width = EPI_LE_U16(ppat->width);
-
-	if (cofs != (10 + width * 2))
-	{
-		return 0;
-	}
-
-	// Manually run the converter on it
-	Cvt_rottpatch_t(ppat, 1);
-
-	int rw, rh, w, h, lo, to;
-
-	ti->rw = rw = ppat->width;
-	ti->rh = rh = ppat->height;
-	ti->w = w = W_MakeValidSize(rw);
-	ti->h = h = W_MakeValidSize(rh);
-	ti->lofs = lo = -ppat->leftoffset;
-	ti->tofs = to = -ppat->topoffset;
-	ti->osize = ppat->origsize;
-
-	if (ti->rep == REPEAT_AUTO)
-	{
-		ti->rep = 0;
-
-		if (lo == 0 && rw == ppat->origsize)
-			ti->rep |= REPEAT_X;
-
-		if (to == 0 && rh == ppat->origsize)
-			ti->rep |= REPEAT_Y;
-
-	}
-	return 1;
-}
-#endif // 0
-
-
-#if 0
-epi::image_data_c *convert_patch(image_c *rim, int len, u32_t* gampal3, const column_t *col)//, texbufinfo_t* ti)
-{
-	rottpatch_t *ppat = (rottpatch_t *)rim;
-
-	int memsize = (rim->total_w * rim->total_h * 4);
-
-	epi::image_data_c *img = new epi::image_data_c(rim->actual_w * rim->actual_h * 4); //!!!! PAL
-	//u32_t *pic = (u32_t *)Z_Malloc(memsize);
-	//memset(pic, 0, ti->w * ti->h * 4);
-
-	int i, j, ofs, rlen;
-	u32_t *idpos = img;
-	u8_t *spos;
-	u32_t *dpos;
-
-	unsigned short *ccolofs = ppat->columnofs;
-
-	for (i = 0; i < ti->rw; i++, ccolofs++)
-	{
-		spos = (((u8_t *)ppat) + (*ccolofs));
-
-		while (1)
-		{
-			if ((ofs = *(spos++)) == 0xFF)
-			{
-				break;
-			}
-			else
-			{
-				rlen = *(spos++);
-				dpos = (idpos + (i + (ti->w * ofs)));
-
-				for (j = 0; j < rlen; j++, spos++, dpos += ti->w)
-				{
-					if ((dpos >= pic) && (dpos <= (pic + memsize)))
-					{//bna++ make sure we dont exxed mem area
-						*dpos = gampal3[col[*spos]] | (255 << ALPHA_SHIFT);
-					}
-				}
-			}
-		}
-	}
-	return pic;
-}
-#endif // 0
-
 
 cvar_c r_transfix;
 
@@ -548,6 +459,7 @@ static epi::image_data_c *ReadROTTAsRAWBlock(image_c *rim)
 	int th = MAX(rim->total_h, 1);
 
 	SYS_ASSERT(w > 0 && h > 0);
+	int lump = rim->source.graphic.lump;
 
 	//if (w * h > length) throw "GraphReadChunk: image data too small";
 
@@ -557,6 +469,22 @@ static epi::image_data_c *ReadROTTAsRAWBlock(image_c *rim)
 
 	// read in pixels
 	const byte *src = (const byte*)W_CacheLumpNum(rim->source.flat.lump);
+
+	if (rim->source.graphic.is_png)
+	{
+		epi::file_c * f = W_OpenLump(lump);
+
+		epi::image_data_c *img = epi::PNG_Load(f, epi::IRF_Round_POW2);
+
+		// close it
+		delete f;
+
+		if (!img)
+			I_Error("Error loading PNG image in lump: %s\n", W_GetLumpName(lump));
+
+		return img;
+	}
+
 	// clear initial image to black
 	//img->Clear(pal_black);
 	int qt = w * h / 4;
@@ -586,23 +514,21 @@ static epi::image_data_c *ReadROTTAsRAWBlock(image_c *rim)
 //
 static epi::image_data_c *ReadROTTPICAsEpiBlock(image_c *rim)
 {
-	I_Printf("ReadROTTPICAsEpiBlock: Reached!\n");
+	//I_Printf("ReadROTTPICAsEpiBlock: Reached!\n");
 	SYS_ASSERT(rim->source_type == IMSRC_rottpic);
 
-	//int tw = MAX(rim->total_w, 1);
-	//int th = MAX(rim->total_h, 1);
-	pic_t *pic;
+	int tw = MAX(rim->total_w, 1);
+	int th = MAX(rim->total_h, 1);
+	//pic_t *pic;
 	int lump = rim->source.pic.lump;
 
 	int w = rim->actual_w;// *4;// = rim->total_w = lpic->width;
 	int h = rim->actual_h;// = rim->total_h = lpic->height;
-	int hw = w * h;
-	//int new_w = pic->width * 4;
-	//int new_h = pic->height;
+	int hw = w * h; //!!
+
 	int len = W_LumpLength(rim->source.pic.lump);
 
 	epi::image_data_c *img = new epi::image_data_c(w, h, 1); //PAL?
-	//img->Grow(new_w, new_h);
 
 	byte *dest = img->pixels;
 
@@ -611,10 +537,29 @@ static epi::image_data_c *ReadROTTPICAsEpiBlock(image_c *rim)
 	return img;
 #endif
 
+
 	// clear initial image to black
 	//img->Clear(pal_black);
+	// Setup variables
+	size_t hdr_size = sizeof(pic_t);
+	hdr_size += 2;
+
 	const byte *src = (const byte*)W_CacheLumpNum(rim->source.pic.lump);
 
+	if (rim->source.graphic.is_png)
+	{
+		epi::file_c * f = W_OpenLump(lump);
+
+		epi::image_data_c *img = epi::PNG_Load(f, epi::IRF_Round_POW2);
+
+		// close it
+		delete f;
+
+		if (!img)
+			I_Error("Error loading PNG image in lump: %s\n", W_GetLumpName(lump));
+
+		return img;
+	}
 	//size_t length = sizeof(rim->source.pic.lump);
 
 	//I_Printf("ROTT PIC: Total Size of length of lump: %lu,\n", sizeof(pic));
@@ -623,24 +568,22 @@ static epi::image_data_c *ReadROTTPICAsEpiBlock(image_c *rim)
 	//int phasesize = w * h / 4;
 
 	// read in pixels
-	I_Printf("ROTT PIC: Reading in pixels for [%s]\n", W_GetLumpName(lump));
+	//I_Printf("ROTT PIC: Reading in pixels for [%s]\n", W_GetLumpName(lump));
 	for (int y = 0; y < h; y++)
 		for (int x = 0; x < w; x++)
 		{
-			byte src_pix = src[y * w + x];
+			byte src_pix = src[y * w + x + hdr_size];
 
 			byte *dest_pix = &dest[(h - 1 - y) * w + x];
-			//byte *dest_pix = img->pixels + x;
 
-			// make sure TRANS_PIXEL values (which do not occur naturally in
-			// Doom images) are properly remapped.
-		//	if (src_pix == TRANS_PIXEL)
-			//	dest_pix[0] = TRANS_REPLACE;
-			//else
-			//	dest_pix[0] = src_pix;
-			dest_pix[0] = src_pix * 3 + 0;
-			dest_pix[1] = src_pix * 3 + 1;
-			dest_pix[2] = src_pix * 3 + 2;
+			// make sure TRANS_PIXEL values are properly remapped.
+			if (src_pix == TRANS_PIXEL)
+				dest_pix[0] = TRANS_REPLACE;
+			else
+				dest_pix[0] = src_pix;
+			//dest_pix[0] = src_pix * 3 + 0;
+			//dest_pix[1] = src_pix * 3 + 1;
+			//dest_pix[2] = src_pix * 3 + 2;
 		}
 	W_DoneWithLump(src);
 

@@ -19,6 +19,12 @@
 #ifndef __EPI_ANGLE_CLASS__
 #define __EPI_ANGLE_CLASS__
 
+
+#pragma warning(push)
+#pragma warning(disable: 4244) // possible loss of data
+
+
+
 namespace epi
 {
 
@@ -53,7 +59,10 @@ public:
 
 	/* ---- read-only operations ---- */
 
-	inline float Sin() const { return sin(Radians()); }
+	inline float Sin() const 
+	{ 
+		return sin(Radians()); 
+	}
 	inline float Cos() const { return cos(Radians()); }
 	inline float Tan() const { return tan(Radians()); }
 
@@ -229,7 +238,7 @@ inline angle_c& angle_c::operator= (const angle_c& rhs)
 }
 
 }  // namespace epi
-
+#pragma warning(pop)
 #endif  /* __EPI_ANGLE_CLASS__ */
 
 //--- editor settings ---

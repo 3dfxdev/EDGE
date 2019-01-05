@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------
-//  EDGE2 Main Init + Program Loop Code
+//  EDGE Main Init + Program Loop Code
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -24,16 +24,16 @@
 //----------------------------------------------------------------------------
 //
 // DESCRIPTION:
-//      EDGE2 main program (E_Main),
+//      EDGE main program (E_Main),
 //      game loop (E_Loop) and startup functions.
 //
 // -MH- 1998/07/02 "shootupdown" --> "true3dgameplay"
 // -MH- 1998/08/19 added up/down movement variables
 //
 
-#include "system/i_defs.h"
-#include "e_main.h"
+#include <system\i_defs.h>
 
+#include "e_main.h"
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
@@ -53,6 +53,7 @@
 #include "games/wolf3d/wlf_local.h"
 //#include "games/rott/rott_local.h"
 #include "dstrings.h"
+#include "e_demo.h"
 #include "e_input.h"
 #include "f_finale.h"
 #include "f_interm.h"
@@ -89,6 +90,7 @@
 #include "vm_coal.h"
 #include "z_zone.h"
 
+#include "system/i_cinematic.h"
 #include "system/i_x86.h"
 
 //CA: 6/11/2018
@@ -186,7 +188,8 @@ std::string game_dir;
 std::string home_dir;
 std::string save_dir;
 std::string shot_dir;
-std::string base_dir;
+
+static std::string dragged_demo;
 
 extern cvar_c m_language;
 extern cvar_c g_aggression;
@@ -436,7 +439,7 @@ static void SpecialPAKVerify(void)
 {
 	int lump = W_CheckNumForName("EDGEVER");
 	if (lump < 0)
-		I_Error("EDGEVER lump not found. Get EDGE.EPK at http://edge2.sourceforge.net/");
+		I_Error("EDGEVER lump not found. Get EDGE.EPK at http://EDGE.sourceforge.net/");
 
 	const void *data = W_CacheLumpNum(lump);
 
@@ -797,6 +800,28 @@ void E_AdvanceTitle(void)
 
 	title_image = NULL;
 	title_countdown = TICRATE;
+
+#if 0
+				default:  // Play Demo
+				{
+					char buffer[9];
+
+					sprintf(buffer, "DEMO%x", demo_num++);
+
+					if (W_CheckNumForName(buffer) < 0)
+					{
+						demo_num = 1;
+						sprintf(buffer, "DEMO1");
+					}
+
+					// -AJA- FIXME: demos in lumps not yet supported
+					// G_DeferredPlayDemo(buffer);
+
+					break;
+
+
+	}
+#endif // 0
 }
 
 
@@ -874,6 +899,7 @@ void InitDirectories(void)
 
 	// add parameter file "gamedir/parms" if it exists.
 	std::string parms = epi::PATH_Join(game_dir.c_str(), "parms");
+	std::string base_ddf = epi::PATH_Join(game_dir.c_str(), "base");
 
 	if (epi::FS_Access(parms.c_str(), epi::file_c::ACCESS_READ))
 	{
@@ -885,20 +911,24 @@ void InitDirectories(void)
 	if (s)
 	{
 		ddf_dir = std::string(s);
+		//I_Printf("DDF Directory; [%s]\n", ddf_dir);
 	}
-
 	else if (heretic_mode)
 	{
-		ddf_dir = epi::PATH_Join(game_dir.c_str(), "her_ddf");
+		ddf_dir = epi::PATH_Join(base_ddf.c_str(), "heretic");
+		//I_Printf("DDF Directory; [%s]\n", ddf_dir);
 	}
 	else if (rott_mode)
 	{
-		ddf_dir = epi::PATH_Join(game_dir.c_str(), "rott_ddf");
+		ddf_dir = epi::PATH_Join(base_ddf.c_str(), "rott");
+		//I_Printf("DDF Directory; [%s]\n", ddf_dir);
 	}
 	else
 	{
-		ddf_dir = epi::PATH_Join(game_dir.c_str(), "doom_ddf");
+		ddf_dir = epi::PATH_Join(base_ddf.c_str(), "doom");
+		//I_Printf("DDF Directory; [%s]\n", ddf_dir);
 	}
+
 
 
 	DDF_SetWhere(ddf_dir);
@@ -914,7 +944,7 @@ void InitDirectories(void)
 		cfgfile = epi::PATH_Join(home_dir.c_str(), EDGECONFIGFILE);
 	}
 
-	// EDGE2.wad file
+	// EDGE.wad file
 	s = M_GetParm("-ewad");
 	if (s)
 	{
@@ -922,10 +952,10 @@ void InitDirectories(void)
 	}
 	else
 	{
-		ewadfile = epi::PATH_Join(home_dir.c_str(), "edge2.wad");
+		ewadfile = epi::PATH_Join(home_dir.c_str(), "EDGE.wad");
 	}
 
-	// EDGE2.pak file
+	// EDGE.pak file
 	s = M_GetParm("-epak");
 	if (s)
 	{
@@ -962,7 +992,7 @@ void InitDirectories(void)
 
 
 //
-// Adds an IWAD and EDGE2.WAD. -ES-  2000/01/01 Rewritten.
+// Adds an IWAD and EDGE.WAD. -ES-  2000/01/01 Rewritten.
 //
 // Adding HERETIC.WAD to string 2.24.2013
 // Kept freedoom.wad for backward compatibility
@@ -1173,7 +1203,6 @@ static void IdentifyVersion(void)
 						ddf_dir = epi::PATH_Join(game_dir.c_str(), "rott_ddf");
 						DDF_SetWhere(ddf_dir);
 						rott_mode = true;
-						//CreateROTTpal();
 					}
 					iwad_file = fn;
 					done = true;
@@ -1186,7 +1215,15 @@ static void IdentifyVersion(void)
 	}
 
 	if (iwad_file.empty())
-		I_Error("IdentifyVersion: No IWADS found!\n");
+	{
+		I_Error("Cannot find a game IWAD (doom.wad, doom2.wad, heretic.wad, etc.).\n"
+			"Did you install EDGE properly? You can do either of the following:\n"
+			"\n"
+			"1. Place one or more of these wads in the same directory as EDGE.\n"
+			"2. Edit your PATH settings to point to your desired IWAD\n"
+			"as per DOOMWADDIR and/or DOOMWADPATH.\n"
+			"3. Create a batch file or supply IWAD with the -iwad parameter.\n");
+	}
 
 		W_AddRawFilename(iwad_file.c_str(), FLKIND_IWad);
 
@@ -1381,7 +1418,7 @@ static void IdentifyWolfenstein(void)
 
 														   // Emulate this behaviour?
 
-	//All this function below does is add EDGE2.WAD to whatever the fuck we are adding as well.
+	//All this function below does is add EDGE.WAD to whatever the fuck we are adding as well.
 
 	std::string reqwad(epi::PATH_Join(game_dir.c_str(), REQUIREDWAD "." EDGEEPKEXT));
 
@@ -1444,10 +1481,10 @@ static void ShowDateAndVersion(void)
 	I_Debugf("[Debug file created at %s]\n\n", timebuf);
 
 	// 23-6-98 KM Changed to hex to allow versions such as 0.65a etc
-	I_Printf("EDGE (" EDGEPLATFORM ") v" EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
+	I_Printf("EDGE (" EDGEPLATFORM ") " EDGEVERSTR " compiled on " __DATE__ " at " __TIME__ "\n");
 
 
-	I_Printf("EDGE homepage is at http://edge2.sourceforge.net/\n");
+	I_Printf("EDGE homepage is at http://EDGE.sourceforge.net/\n");
 	I_Printf("EDGE Wiki is at http://3dfxdev.net/edgewiki/\n");
 	I_Printf("EDGE forums are located at http://tdgmods.net/smf\n");
 	I_Printf("EDGE problems should be reported via https://github.com/3dfxdev/hyper3DGE/issues\n");
@@ -1532,7 +1569,11 @@ static void AddSingleCmdLineFile(const char *name)
 	// cw - check for GWA... need to add manually for pak/pk3/pk7
 
 	if (stricmp(ext.c_str(), "edm") == 0)
-		I_Error("Demos are no longer supported\n");
+	{
+		//I_Error("Demos are no longer supported\n");
+		dragged_demo = std::string(name);
+		return;
+	}
 	else if (stricmp(ext.c_str(), "gwa") == 0)
 		kind = FLKIND_GWad;
 	else if (stricmp(ext.c_str(), "wad") == 0)
@@ -1687,6 +1728,10 @@ static void InitDDF(void)
 
 void E_EngineShutdown(void)
 {
+
+	if (demorecording)
+		G_FinishDemo();
+
 	N_QuitNetGame();
 
 	S_StopMusic();
@@ -1861,10 +1906,26 @@ static void E_InitialState(void)
 	// do demos and loadgames first, as they contain all of the
 	// necessary state already (in the demo file / savegame).
 
-	if (M_CheckParm("-playdemo") || M_CheckParm("-timedemo") ||
-		M_CheckParm("-record"))
+	ps = M_GetParm("-playdemo");
+	if (ps)
 	{
-		I_Error("Demos are no longer supported\n");
+		// quit after one demo
+		singledemo = true;
+		G_DeferredPlayDemo(ps);
+		return;
+	}
+	else if (dragged_demo.length() > 0)
+	{
+		singledemo = true;
+		G_DeferredPlayDemo(dragged_demo.c_str());
+		return;
+	}
+
+	ps = M_GetParm("-timedemo");
+	if (ps)
+	{
+		G_DeferredTimeDemo(ps);
+		return;
 	}
 
 	ps = M_GetParm("-loadgame");
@@ -1953,7 +2014,11 @@ static void E_InitialState(void)
 	else
 		params.SinglePlayer(bots);
 
-	G_DeferredNewGame(params);
+	ps = M_GetParm("-record");
+	if (ps)
+		G_DeferredRecordDemo(params, ps);
+	else
+		G_DeferredNewGame(params);
 }
 
 
@@ -1996,7 +2061,7 @@ void E_Main(int argc, const char **argv)
 
 		CON_MessageColor(RGB_MAKE(255, 255, 0));
 
-		I_Printf("EDGE2 v" GIT_DESCRIPTION " system ready.\n");
+		I_Printf("EDGE " GIT_DESCRIPTION " system ready.\n");
 		I_Printf("Platform Arch:" EDGEPLATFORM " \n");
 
 		I_Debugf("- Entering game loop...\n");

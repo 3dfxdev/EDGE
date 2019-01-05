@@ -26,9 +26,14 @@ set( LZMA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lzma/C" )
 option(FORCE_INTERNAL_ZLIB "Use internal zlib")
 option(FORCE_INTERNAL_BZIP2 "Use internal bzip2")
 option(HYPERTENSION "Compile Hypertension Executable" OFF)
+option(DAIKATANA "Compile Daikatana2 Executable" OFF)
 
 find_package( ZLIB )
 find_package( BZip2 )
+#find_package ( FFMPEG )
+#find_package ( SDLKitchensink )
+#set (SDL_kitchensink_static "Statically link SDLKitchensink" ON)
+#set (SDL_kitchensink "Do not Statically link SDLKitchensink" OFF)
 
 if( ZLIB_FOUND AND NOT FORCE_INTERNAL_ZLIB )
 	message( STATUS "Using system zlib, includes found at ${ZLIB_INCLUDE_DIR}" )
@@ -153,6 +158,7 @@ endif()
 add_definitions(
 	-DDEH_EDGE_PLUGIN
 	-DHAVE_PHYSFS
+#	-DUSE_FFMPEG
 )
 
 # For the Hypertension team, we must continue using SSE2 and _not_ AVX, since not everyone has an AVX-compatible processor.
@@ -162,6 +168,14 @@ if(HYPERTENSION)
 		-DSSE2
 	)
 endif(HYPERTENSION)
+
+# For the Daikatana team, we must continue using SSE2 and _not_ AVX, since not everyone has an AVX-compatible processor.
+if(DAIKATANA)
+	add_definitions(
+		-DDAIKATANA
+		-DSSE2
+	)
+endif(DAIKATANA)
 
 # Removed HAVE_STDINT_H on Visual Studio/Win32 machines (Caused problems, so I Shoved it into UNIX define)
 if(APPLE)
@@ -184,11 +198,7 @@ elseif(UNIX)
 endif()
 
 # Module Paths
-#list(APPEND CMAKE_MODULE_PATH
-	#${CMAKE_CURRENT_SOURCE_DIR}
-	#${CMAKE_CURRENT_SOURCE_DIR}/modules
-#)
-SET(CMAKE_MODULE_PATH ${CMAKE_ROOT}/Modules  "${CMAKE_CURRENT_SOURCE_DIR}/modules")
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/modules)
 
 #message(${CMAKE_MODULE_PATH})
 
@@ -201,65 +211,79 @@ add_custom_target(revision_check ALL
    DEPENDS updaterevision
 )
 
-# See /VSLibs/lib_versions.txt
-# Download VSLibs for MSVC - http://tdgmods.net/VSLibs.7z (up to date as of listing below)
+SET (BIN_DIR bin)
+SET (SHARE_DIR share/edge)
+IF (WIN32)
+        SET (LIB_DIR ${BIN_DIR})
+        SET (SHARE_DIR ${BIN_DIR})
+ELSE (WIN32)
+        SET (LIB_DIR lib)
+ENDIF (WIN32)
+
+################################################################################
+######################### Find Needed Libs #####################################
+
+# See /VSLibs/lib_versions.txt [libs have been compiled with MSVC 2017!]
+# CA: 11/30/18 - For MSVC, libs are no longer required to be downloaded seperately, they now exist in /libs/msvc/
 if (MSVC)
 	if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
-		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg/lib/libogg_staticd.lib" )
-		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg/include" )
-		set( ogg_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libogg/lib/libogg_static.lib" )
-		set( SDL2MAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2main.lib" )
-		set( SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/include" )
-		set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2/lib/x86/SDL2.lib" )
-		set( SDL_NET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2_net-2.0.1/include" )
-		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/SDL2_net-2.0.1/lib/x86/SDL2_net.lib" )
-		set( vorbisFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/lib/libvorbisfile_static.lib" )
-		set( vorbisFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/lib/libvorbisfile_static.lib" )
-		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/lib/libvorbis_static.lib" )
-		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/include" )
-		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/libvorbis/lib/libvorbis_static.lib" )
-		set( ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.11/include" )
-		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.11/lib/zlibstatic.lib" )
-		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibs/zlib-1.2.11/lib/zlibstatic.lib" )
+		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/lib/x86/SDL2_net.lib" )
+		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x86/libogg_staticd.lib" )
+		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/include" )
+		set( ogg_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x86/libogg_static.lib" )
+		set( vorbisFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x86/libvorbisfile_staticd.lib" )
+		set( vorbisFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x86/libvorbisfile_static.lib" )
+		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x86/libvorbis_staticd.lib" )
+		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/include" )
+		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x86/libvorbis_static.lib" )
+		set( ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/include" )
+		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x86/zlibstatic.lib" )
+		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x86/zlibstatic.lib" )
 	else()
-		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libogg-1.3.3/lib/libogg_staticd.lib" )
-		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libogg-1.3.3/include" )
-		set( ogg_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libogg-1.3.3/lib/libogg_static.lib" )
-		set( SDL2MAIN_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2/lib/x64/SDL2main.lib" )
-		set( SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2/include" )
-		set( SDL2_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2/lib/x64/SDL2.lib" )
-		set( SDL_NET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2_net-2.0.1/include" )
-		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/SDL2_net-2.0.1/lib/x64/SDL2_net.lib" )
-		set( vorbisFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.6/lib/libvorbisfile_static.lib" )
-		set( vorbisFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.6/lib/libvorbisfile_static.lib" )
-		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.6/lib/libvorbis_static.lib" )
-		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.6/include" )
-		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/libvorbis-1.3.6/lib/libvorbis_static.lib" )
-		set( ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/zlib-1.2.11/include" )
-		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/zlib-1.2.11/lib/zlibstatic.lib" )
-		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/VSLibsx64/zlib-1.2.11/lib/zlibstatic.lib" )
+		#set (kitchensink_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/kitchensink/include")
+		#set (kitchensink_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/kitchensink/lib/SDL_kitchensink_static.lib")
+		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/lib/x64/SDL2_net.lib" )
+		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x64/libogg_staticd.lib" )
+		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/include" )
+		set( ogg_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x64/libogg_static.lib" )
+		set( vorbisFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x64/libvorbisfile_static.lib" )
+		set( vorbisFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x64/libvorbisfile_static.lib" )
+		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x64/libvorbis_static.lib" )
+		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/include" )
+		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x64/libvorbis_static.lib" )
+		set( ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/include" )
+		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x64/zlibstatic.lib" )
+		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x64/zlibstatic.lib" )
 	endif()
+		include("${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL2/sdl-config.cmake")
+		set( SDL2_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL2")
+		set( SDLNET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/include" )
+
 endif(MSVC)
 
 if(UNIX)
-	set( SDL2_INCLUDE_DIR "/usr/include/SDL2" )
-	set( SDL2_LIBRARY "libSDL2.so" )
-	set( ogg_RELEASE_LIBRARY "libvorbisfile.so" )
-#	set( PHYSFS_LIBRARY "libphysfs.so" )
-#	set( kitchensink_LIBRARY "libSDL_kitchensink.so")
+	set(ogg_RELEASE_LIBRARY "libvorbisfile.so" )
+	set(SDL2_INCLUDE_DIR /usr/include/SDL2)
+	set(SDL2_LIBRARIES /usr/lib/libSDL2.so)
+	find_package(SDL2 REQUIRED)
 endif(UNIX)
 
-# SDL
-#find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIR})
 
-# SDL_net
-#find_package(SDL2_net REQUIRED)
-include_directories(${SDL_INCLUDE_DIR})
+#INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${SDL2_INCLUDE_DIRS})
+
+## SDL2
+#set(SDL2_PATH "${CMAKE_CURRENT_SOURCE_DIR/SDL2-2.0.9}" CACHE PATH “The location to search for SDL2”)
+INCLUDE_DIRECTORIES (${SDL2_INCLUDE_DIRS})
+
+## FIND_PACKAGE (SDL_net REQUIRED)
+INCLUDE_DIRECTORIES (${SDLNET_INCLUDE_DIR})
+
+## FIND FFMPEG AND KITCHENSINK INCLUDES
+##INCLUDE_DIRECTORIES (${FFMPEG_INCLUDE_DIR})
+##INCLUDE_DIRECTORIES (${SDLKitchensink_INCLUDE_DIRS})
 
 # OpenGL
-# find_package(OpenGL REQUIRED)
-# include_directories(${OPENGL_INCLUDE_DIR})
+FIND_PACKAGE (OpenGL)
 
 # libvorbis/libogg
 include_directories(
@@ -333,6 +357,9 @@ set(EDGE_SOURCES
 	src/con_main.cc
 	src/con_link.cc
 	src/con_var.cc
+	src/dem_chunk.cc
+	src/dem_glob.cc
+	src/e_demo.cc
 	src/e_input.cc
 	src/e_main.cc
 	src/e_player.cc
@@ -587,21 +614,20 @@ add_executable(EDGE
 	${EDGE_SOURCES}
 )
 
-
-
 add_dependencies( EDGE revision_check )
 if(MSVC)
 	add_dependencies( EDGE eecrashreport )
 endif()
 
+
 target_link_libraries(EDGE
-	${SDL2MAIN_LIBRARY}
-	${SDL2_LIBRARY}
-	${SDL2_NET_LIBRARY}
+	${SDL2_LIBRARIES}
+	${SDL_NET_LIBRARY}
 	${ogg_RELEASE_LIBRARY}
 	${vorbis_RELEASE_LIBRARY}
 	${vorbisFILE_RELEASE_LIBRARY}
 	${ZLIB_LIBRARY_RELEASE}
+#	${SDLKitchensink_STATIC_LIBRARY}
 )
 
 if (WIN32)
@@ -614,5 +640,22 @@ if (WIN32)
 elseif(APPLE)
 	set_target_properties(EDGE PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa")
 elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "(Free|Open)BSD")
-	target_link_libraries(EDGE GL dl)
+	target_link_libraries(EDGE SDL2 GL dl)
 endif()
+
+if(MSVC)
+   target_link_libraries(EDGE rpcrt4)
+endif()
+
+INSTALL (TARGETS EDGE
+        RUNTIME DESTINATION ${BIN_DIR}
+        LIBRARY DESTINATION ${LIB_DIR}
+        ARCHIVE DESTINATION ${LIB_DIR})
+
+INSTALL (DIRECTORY ${CMAKE_SOURCE_DIR}/data/base
+        DESTINATION ${LIB_DIR}
+        PATTERN "delete.me" EXCLUDE
+        PATTERN ".svn" EXCLUDE)
+
+## EOF
+

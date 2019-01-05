@@ -35,7 +35,7 @@ extern float M_Tan(angle_t ang)  GCCATTR((const));
 // FIXME: CA: Trying to use angle_c via EPI::
 //float M_Tan(epi::angle_c *ang)  GCCATTR((const));// = epi::angle_c::ATan
 
-#define DEBUG_DDFREAD  0
+
 
 static int engine_version;
 static std::string ddf_where;

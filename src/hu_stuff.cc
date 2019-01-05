@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Heads-Up-Display Code
+//  EDGE Heads-Up-Display Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License

@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Texture Upload
+//  EDGE Texture Upload
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -136,8 +136,10 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 	 */
 
 	SYS_ASSERT(img->bpp == 3 || img->bpp == 4);
-	//DREAMCAST DEBUG
+
+#if (IMAGE_DEBUG)
 	I_Printf("R_UploadTexture: Loading %ix%i %i bpp texture\n", img->width, img->height, img->bpp);
+#endif
 
 	bool clamp = (flags & UPL_Clamp) ? true : false;
 	bool nomip = (flags & UPL_MipMap) ? false : true;

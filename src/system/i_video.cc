@@ -1,5 +1,5 @@
  //----------------------------------------------------------------------------
-//  EDGE2 SDL Video Code
+//  EDGE SDL Video Code
 //----------------------------------------------------------------------------
 //
 //  Copyright (c) 2016  Isotope SoftWorks.
@@ -29,6 +29,7 @@ PFNWGLSWAPINTERVALEXTPROC myWglSwapIntervalExtProc;
 
 #include <signal.h>
 
+#include "../hu_draw.h"
 #include "../m_argv.h"
 #include "../m_misc.h"
 #include "../r_modes.h"
@@ -37,7 +38,7 @@ PFNWGLSWAPINTERVALEXTPROC myWglSwapIntervalExtProc;
 SDL_version compiled;
 SDL_version linked;
 
-extern cvar_c r_width, r_height, r_depth, r_fullscreen, r_vsync;
+extern cvar_c r_width, r_height, r_depth, r_fullscreen, r_vsync, r_anisotropy;
 
 //The window we'll be rendering to
 SDL_Window *my_vis;
@@ -83,6 +84,7 @@ static struct { int w, h; } possible_modes[] =
 	{ 1440,1080, },
 	{ 1600,1000, },
 	{ 1600,1200, },
+	{ 1680,1050, },
 	{ 1920,1080, },
 	{ 1920,1200, },
 
@@ -99,15 +101,15 @@ void I_GrabCursor(bool enable)
 
 	if (grab_state && in_grab.d)
 	{
-		SDL_ShowCursor(0);
-//		SDL_WM_GrabInput(SDL_GRAB_ON);
-		SDL_SetWindowGrab(my_vis, SDL_TRUE); //TODO: grab which window??
+		SDL_ShowCursor(SDL_FALSE);
+		SDL_SetRelativeMouseMode(SDL_TRUE);
+		SDL_SetWindowGrab(my_vis, SDL_TRUE);
 	}
 	else
 	{
-		SDL_ShowCursor(1);
-//		SDL_WM_GrabInput(SDL_GRAB_OFF);
-		SDL_SetWindowGrab(my_vis, SDL_FALSE); //TODO: grab which window??
+		SDL_SetRelativeMouseMode(SDL_FALSE);
+		SDL_SetWindowGrab(my_vis, SDL_FALSE);
+		SDL_ShowCursor(SDL_FALSE);
 	}
 }
 
@@ -158,6 +160,18 @@ void I_StartupGraphics(void)
 	if (M_CheckParm("-nograb"))
 		in_grab = 0;
 
+	// anti-aliasing
+	if (r_anisotropy.d > 1)
+	{
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 4);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, r_anisotropy.d);
+	}
+	else 
+	{
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+	}
+
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     8);
@@ -166,11 +180,11 @@ void I_StartupGraphics(void)
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    8);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   16);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 2);
+//	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 2);
 
 	// ~CA 5.7.2016:
 
-	flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
+	flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS | SDL_WINDOW_INPUT_FOCUS;
 
 	display_W = SCREENWIDTH;
 	display_H = SCREENHEIGHT;
@@ -182,8 +196,10 @@ void I_StartupGraphics(void)
                               display_W,
                               display_H,
                               flags);
-	my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_ACCELERATED);
+	my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_TARGETTEXTURE);
+
 	glContext = SDL_GL_CreateContext( my_vis );
+
     SDL_GL_MakeCurrent( my_vis, glContext );
     if(my_vis == NULL)
 	{
@@ -266,7 +282,7 @@ void I_StartupGraphics(void)
 
 bool I_SetScreenSize(scrmode_c *mode)
 {
-	///I_Printf("I_SetScreenSize = reached");
+	I_Printf("I_SetScreenSize = reached\n");
 	I_GrabCursor(false);
 
 	SDL_GL_DeleteContext(glContext);
@@ -278,14 +294,19 @@ bool I_SetScreenSize(scrmode_c *mode)
 			 mode->full ? "fullscreen" : "windowed");
 
 	my_vis = SDL_CreateWindow("EDGE",
-					SDL_WINDOWPOS_UNDEFINED,
-                    SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_CENTERED,
+		SDL_WINDOWPOS_CENTERED,
                     mode->width, mode->height,
                     SDL_WINDOW_OPENGL | //SDL2 is double-buffered by default
                     (mode->full ? SDL_WINDOW_FULLSCREEN :0));
+
 	my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_ACCELERATED);
+
 	glContext = SDL_GL_CreateContext( my_vis );
+
     SDL_GL_MakeCurrent( my_vis, glContext );
+	HUD_Reset(); // Make doubly sure the HUD module is reset to counter the 640x480 white-box ghosting bug upon mode change.
+
 	if (my_vis == NULL)
 	{
 		I_Printf("I_SetScreenSize: (mode not possible)\n");
@@ -295,7 +316,7 @@ bool I_SetScreenSize(scrmode_c *mode)
 	//if (r_vsync.d == 1)
 	//	SDL_GL_SetSwapInterval(1);
 	//else
-		SDL_GL_SetSwapInterval(-1);
+		//SDL_GL_SetSwapInterval(-1);
 
 	// -AJA- turn off cursor -- BIG performance increase.
 	//       Plus, the combination of no-cursor + grab gives
@@ -304,7 +325,7 @@ bool I_SetScreenSize(scrmode_c *mode)
 	// ~CA~  TODO:  Eventually we will want to turn on the cursor
 	//				when we get Doom64-style mouse control for
 	//				the options drawer.
-	I_GrabCursor(true);
+	I_GrabCursor(false);
 
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT);

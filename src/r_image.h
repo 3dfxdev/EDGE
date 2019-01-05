@@ -34,6 +34,8 @@
 #include "r_defs.h"
 #include "r_state.h"
 
+#define IMAGE_DEBUG  0
+
 struct texturedef_s;
 
 

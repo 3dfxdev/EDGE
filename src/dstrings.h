@@ -32,6 +32,7 @@
 #define EDGECONFIGFILE "EDGE.ini"
 #define EDGELOGFILE    "EDGE.log"
 #define REQHERETICPWAD "herfix" //Not needed anymore..?
+#define BASEDDFDIR     "base"
 
 #define EDGEGWAEXT     "gwa"
 #define EDGEHWAEXT     "hwa"
@@ -55,6 +56,7 @@
 #define SAVEGAMEEXT    "esg"
 #define SAVEGAMEMODE   0755
 
+//#define BASEDDFDIR     "base"
 #define CACHEDIR       "cache"
 #define SAVEGAMEDIR    "savegame"
 #define SCRNSHOTDIR    "screenshots"
@@ -72,6 +74,7 @@
 #else // Linux
 #define EDGEHOMESUBDIR  ".EDGE2"
 #endif
+
 
 #endif // __DOOM_STRINGS__
 

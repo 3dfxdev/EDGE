@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Generalised Image Handling
+//  EDGE Generalised Image Handling
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -511,7 +511,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 			// do checking for ROTT Graphics _FIRST_
 			int expectlen = width * height + 8; //if (lump_len != expectlen)
 //#if 1
-			if ((lump_len != expectlen) && (type == IMSRC_Graphic || IMSRC_rottpic))
+			if ((lump_len != expectlen) && (type == IMSRC_Graphic ^ IMSRC_rottpic))
 			{
 				//I_Printf("rottpic: '%s' seems to be a raw image + header (lpic_t)..lump_len = '%d'\n", name, lump_len);
 			//	I_Printf("rottpic: '%s' width: '%d' height: '%d'\n", name, rottpic->width, rottpic->height);
@@ -521,7 +521,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 				int height = picheight;
 
 				image_c *rim = NewImage(width, height, OPAC_Solid);// solid ? OPAC_Solid : OPAC_Unknown);
-				I_Printf("rottpic: '%s' width: '%d' height: '%d'\n", name, width, height);
+				//I_Printf("rottpic: '%s' width: '%d' height: '%d'\n", name, width, height);
 				//epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
 
 
@@ -584,8 +584,9 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	//if (offset_x != roffset_x)
 	//I_Printf("IMAGE [%s]: offset x = [%s], offset y = [%s]\n", rim->name, rim->offset_x, rim->offset_y);
 
-	
+#if (IMAGE_DEBUG)
 	I_Printf("IMAGE: Creating new image [%s].\n", name);
+#endif
 
 
 	rim->source_type = type;
@@ -670,7 +671,7 @@ static image_c *AddImageFlat(const char *name, int lump)
 		// support for ROTT "flats"
 	case 128 * 128 + 8: size = 128; break;
 
-		// -- EDGE2 feature: bigger than normal flats --
+		// -- EDGE feature: bigger than normal flats --
 	
 	case 256 * 256: size = 256; break;
 	case 512 * 512: size = 512; break;

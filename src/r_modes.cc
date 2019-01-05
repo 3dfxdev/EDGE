@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Resolution Handling
+//  EDGE Resolution Handling
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -221,7 +221,7 @@ void R_SoftInitResolution(void)
 	// re-initialise various bits of GL state
 	RGL_SoftInit();
 	RGL_SoftInitUnits();	// -ACB- 2004/02/15 Needed to sort vars lost in res change
-	//HUD_Reset(); // Reset COAL
+	HUD_Reset(); // Reset COAL
 
 	L_WriteDebug("-  returning true.\n");
 
@@ -237,6 +237,10 @@ static bool DoExecuteChangeResolution(scrmode_c *mode)
 
 	W_DeleteAllImages();
 
+	HUD_Reset();
+
+	RGL_Init();
+	R_SoftInitResolution();
 	HUD_Reset();
 
 	bool was_ok = I_SetScreenSize(mode);

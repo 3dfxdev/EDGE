@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Player User Code
+//  EDGE Player User Code
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -307,7 +307,7 @@ static void MovePlayer(player_t * player)
 		player->mo->vertangle = 0;
 	}
 
-	// EDGE2 Feature: Vertical Centering
+	// EDGE Feature: Vertical Centering
 	//
 	// -ACB- 1998/07/02 Re-routed via Ticcmd
 	//
@@ -410,7 +410,7 @@ static void MovePlayer(player_t * player)
 		}
 	}
 
-	// EDGE2 Feature: Jump Code
+	// EDGE Feature: Jump Code
 	//
 	// -ACB- 1998/08/09 Check that jumping is allowed in the currmap
 	//                  Make player pause before jumping again
@@ -425,7 +425,7 @@ static void MovePlayer(player_t * player)
 		}
 	}
 
-	// EDGE2 Feature: Crouching
+	// EDGE Feature: Crouching
 
 	if (level_flags.crouch && mo->info->crouchheight > 0 &&
 		(player->cmd.upwardmove < -4) &&
@@ -576,7 +576,7 @@ static void DeathThink(player_t * player)
 	if (player->cmd.buttons & BT_USE)
 		player->playerstate = PST_REBORN;
 
-	if (!player->isBot())
+	if ((!player->isBot()) && (!splitscreen_mode)) //Disable for splitscreen mode since it affects all players :S
 		cameraroll = 70.0f;//TODO: lerp it!
 }
 
@@ -1002,8 +1002,11 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 	int upgrade_slot = -1;
 
 	// cannot own weapons if sprites are missing
-	if (! P_CheckWeaponSprite(info))
+	if (!P_CheckWeaponSprite(info))
+	{
+		I_Warning("CANNOT OWN WEAPONS IF SPRITES ARE MISSING!\n");
 		return false;
+	}
 
 	for (int i=0; i < MAXWEAPONS; i++)
 	{

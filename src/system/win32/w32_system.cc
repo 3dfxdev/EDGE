@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Win32 Misc System Interface Code
+//  EDGE Win32 Misc System Interface Code
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2008  The EDGE2 Team.
+//  Copyright (c) 1999-2008  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -104,7 +104,7 @@ void I_CheckAlreadyRunning(void)
 		DWORD lasterror = GetLastError();
 		if (lasterror == ERROR_ALREADY_EXISTS)
 		{
-			I_MessageBox("EDGE2 is already running!", "EDGE2 Error");
+			I_MessageBox("EDGE is already running!", "EDGE Error");
 			I_CloseProgram(9);
 		}
 	}
@@ -210,7 +210,7 @@ void I_Error(const char *error,...)
 
 	I_SystemShutdown();
 
-	I_MessageBox(msgbuf, "EDGE2 Error");
+	I_MessageBox(msgbuf, "EDGE Error");
 
 	I_CloseProgram(-1);
 }

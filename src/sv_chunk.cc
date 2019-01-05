@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 New SaveGame Handling (Chunks)
+//  EDGE New SaveGame Handling (Chunks)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2008  The EDGE2 Team.
+//  Copyright (c) 1999-2008  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -37,7 +37,7 @@
 #define DEBUG_COMPRESS 0
 
 
-#define XOR_STRING  "EDGE2!"
+#define XOR_STRING  "EDGE!"
 #define XOR_LEN     5
 
 

@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-//  EDGE2 MD5 Library
+//  EDGE MD5 Library
 //----------------------------------------------------------------------------
 // 
 //  Copyright (c) 2015-2017 Isotope SoftWorks and Contributors.
@@ -464,8 +464,8 @@ void md5_create_normals(MD5model *model)
 			int c = vertexidx_to_weightgroup[i][tri->vidx[2]];
 			
 			epi::vec3_c edge1 = groupbindpose[a] - groupbindpose[b];
-			epi::vec3_c edge2 = groupbindpose[c] - groupbindpose[b];
-			epi::vec3_c norm = edge1.Cross(edge2);
+			epi::vec3_c EDGE = groupbindpose[c] - groupbindpose[b];
+			epi::vec3_c norm = edge1.Cross(EDGE);
 			
 			groupnormals[a] += norm;
 			groupnormals[b] += norm;

@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Player Handling
+//  EDGE Player Handling
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -35,6 +35,7 @@
 
 #include "con_main.h"
 #include "dstrings.h"
+#include "e_demo.h"
 #include "e_input.h"
 #include "e_main.h"
 #include "f_finale.h"
@@ -331,7 +332,8 @@ void G_DoLoadLevel(void)
 bool G_Responder(event_t * ev)
 {
 	// any other key pops up menu if in demos
-	if (gameaction == ga_nothing && (gamestate == GS_TITLESCREEN))
+	if (gameaction == ga_nothing && !singledemo &&
+		(demoplayback || gamestate == GS_TITLESCREEN))
 	{
 		if (ev->type == ev_keydown)
 		{
@@ -346,7 +348,7 @@ bool G_Responder(event_t * ev)
 	if (ev->type == ev_keydown && ev->data1 == KEYD_F12)
 	{
 		// 25-6-98 KM Allow spy mode for demos even in deathmatch
-		if (gamestate == GS_LEVEL) //!!!! && !DEATHMATCH())
+		if (gamestate == GS_LEVEL && (demoplayback || true || !DEATHMATCH())) //!!!! DEBUGGING
 		{
 			G_ToggleDisplayPlayer();
 			return true;
@@ -460,11 +462,11 @@ void G_BigStuff(void)
 				break;
 
 			case ga_playdemo:
-				// G_DoPlayDemo();
+				 G_DoPlayDemo();
 				break;
 
 			case ga_recorddemo:
-				// G_DoRecordDemo();
+				 G_DoRecordDemo();
 				break;
 
 			case ga_intermission:

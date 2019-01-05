@@ -387,7 +387,7 @@ static void LanguageParseField(const char *field, const char *contents,
 	int index, bool is_last)
 {
 #if (DEBUG_DDF)
-	//I_Debugf("LANGUAGE_PARSE: %s = %s;\n", field, contents);
+	I_Debugf("LANGUAGE_PARSE: %s = %s;\n", field, contents);
 #endif
 
 	if (!is_last)
@@ -621,7 +621,8 @@ bool language_c::Select(const char *name)
 bool language_c::Select(int idx)
 {
 	if (idx < 0 || idx >= choices.GetSize())
-		return false;	// FIXME!! Throw error
+		I_Error("DDFLANG: Cannot select [idx] Index!\n");
+		//return false;	// FIXME!! Throw error
 
 	current = idx;
 	return true;

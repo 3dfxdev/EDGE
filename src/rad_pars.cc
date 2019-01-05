@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Radius Trigger Parsing
+//  EDGE Radius Trigger Parsing
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -17,7 +17,8 @@
 //----------------------------------------------------------------------------
 
 #include "system/i_defs.h"
-#include "system/i_cinematic.h"
+//#include "system/i_ffmpeg.h"
+//#include "system/i_cinematic.h"
 
 #include <limits.h>
 
@@ -1641,16 +1642,16 @@ static void RAD_ParseChangeMusic(int pnum, const char **pars)
 
 static void RAD_ParseChangeCinematic(int pnum, const char **pars)
 {
-	cinematic_t *cin = Z_New(cinematic_t, 1);
+	//cinematic_t *cin = Z_New(cinematic_t, 1);
 
-	Z_Clear(cin, cinematic_t, 1);
+	//Z_Clear(cin, cinematic_t, 1);
 
 	//cin->name = Z_StrDup(pars[1]);
 
 	//cin->playing = true;
 	//RAD_CheckForInt(pars[1], &cin->file);
 
-	AddStateToScript(this_rad, 0, RAD_ActPlayCinematic, cin);
+	//AddStateToScript(this_rad, 0, RAD_ActPlayCinematic, cin);
 }
 
 static void RAD_ParseDamagePlayer(int pnum, const char **pars)

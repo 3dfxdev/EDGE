@@ -2,7 +2,7 @@
 //  COAL HUD module
 //------------------------------------------------------------------------
 //
-//  Copyright (c) 2006-2009  The EDGE2 Team.
+//  Copyright (c) 2006-2009  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License

@@ -25,6 +25,7 @@
 
 class fontdef_c;
 class colourmap_c;
+class sfx_s; 
 
 //
 // -AJA- 2004/11/14 Styles.ddf
@@ -81,6 +82,8 @@ public:
 
 	void Default();
 	soundstyle_c& operator= (const soundstyle_c& rhs);
+
+	epi::strent_c sfx_name;
 
 	struct sfx_s *begin;
 	struct sfx_s *end;

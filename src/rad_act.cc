@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Radius Trigger Actions
+//  EDGE Radius Trigger Actions
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -20,7 +20,8 @@
 //
 
 #include "system/i_defs.h"
-#include "system/i_cinematic.h"
+//#include "system/i_ffmpeg.h"
+//#include "system/i_cinematic.h"
 
 #include <limits.h>
 
@@ -664,12 +665,12 @@ void RAD_ActChangeMusic(rad_trigger_t *R, void *param)
 
 void RAD_ActPlayCinematic(rad_trigger_t *R, void *param)
 {
-	cinematic_t *cin = (cinematic_t *) param;
+	//cinematic_t *cin = (cinematic_t *) param;
 
 	//cin->playing = true;
 
-	E_PlayMovie("/pack0/video/intro.roq", 1);
-	cin->playing = true;
+	//E_PlayMovie("/pack0/video/intro.roq", 1);
+	//cin->playing = true;
 }
 
 void RAD_ActChangeTex(rad_trigger_t *R, void *param)
@@ -905,7 +906,7 @@ void RAD_ActUnblockLines(rad_trigger_t *R, void *param)
 		// clear standard flags
 		ld->flags &= ~(MLF_Blocking | MLF_BlockMonsters);
 
-		// clear EDGE2's extended lineflags too
+		// clear EDGE's extended lineflags too
 		ld->flags &= ~(MLF_SightBlock | MLF_ShootBlock);
 	}
 }

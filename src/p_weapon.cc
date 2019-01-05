@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Weapon (player sprites) Action Code
+//  EDGE Weapon (player sprites) Action Code
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -138,7 +138,9 @@ bool P_CheckWeaponSprite(weapondef_c *info)
 	if (info->up_state == S_NULL)
 		return false;
 
-	return W_CheckSpritesExist(info->state_grp);
+	return true;
+
+	//return W_CheckSpritesExist(info->state_grp);
 
 	///Hypertension (and 3D projects need this fix):
 #ifdef HYPERTENSION

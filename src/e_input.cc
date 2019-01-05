@@ -2,7 +2,7 @@
 //  EDGE2 Input handling
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2009  The EDGE2 Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -112,12 +112,12 @@ int key_weapons[10];
 
 #define MAXPLMOVE  (forwardmove[1])
 
-static int forwardmove[2] = {25, 50};
-static int sidemove[2]    = {24, 40};
-static int upwardmove[2]  = {20, 30};
+static int forwardmove[2] = { 25, 50 };
+static int sidemove[2] = { 24, 40 };
+static int upwardmove[2] = { 20, 30 };
 
-static int angleturn[3] = {640, 1280, 320};  // + slow turn 
-static int mlookturn[3] = {400,  800, 200};
+static int angleturn[3] = { 640, 1280, 320 };  // + slow turn 
+static int mlookturn[3] = { 400,  800, 200 };
 
 #define SLOWTURNTICS    6
 
@@ -151,8 +151,8 @@ static int joy_last_raw[6];
 static int mouse_ss_hack = 0;
 
 // The last one is ignored (AXIS_DISABLE)
-static float ball_deltas[6] = {0, 0, 0, 0, 0, 0};
-static float  joy_forces[6] = {0, 0, 0, 0, 0, 0};
+static float ball_deltas[6] = { 0, 0, 0, 0, 0, 0 };
+static float  joy_forces[6] = { 0, 0, 0, 0, 0, 0 };
 
 cvar_c joy_dead;
 cvar_c joy_peak;
@@ -194,7 +194,7 @@ float JoyAxisFromRaw(int raw)
 	SYS_ASSERT(abs(raw) <= 32768);
 
 	float v = raw / 32768.0f;
-	
+
 	if (fabs(v) <= joy_dead.f + 0.01)
 		return 0;
 
@@ -213,7 +213,7 @@ float JoyAxisFromRaw(int raw)
 	else
 	{
 		v = (-v - joy_dead.f) / (joy_peak.f - joy_dead.f);
-		return - pow(v, 1.0f / t);
+		return -pow(v, 1.0f / t);
 	}
 }
 
@@ -233,15 +233,15 @@ static void UpdateJoyAxis(int n)
 	float force = JoyAxisFromRaw(cooked);
 
 	// perform inversion
-	if ((joy_axis[n]+1) & 1)
+	if ((joy_axis[n] + 1) & 1)
 		force = -force;
 
-	if (debug_joyaxis.d == n+1)
+	if (debug_joyaxis.d == n + 1)
 	{
-		I_Printf("Axis%d : raw %+05d --> %+7.3f\n", n+1, raw, force);
+		I_Printf("Axis%d : raw %+05d --> %+7.3f\n", n + 1, raw, force);
 	}
 
-	int axis = (joy_axis[n]+1) >> 1;
+	int axis = (joy_axis[n] + 1) >> 1;
 
 	joy_forces[axis] += force;
 }
@@ -250,7 +250,7 @@ static void UpdateJoyAxis(int n)
 bool E_MatchesKey(int keyvar, int key)
 {
 	return ((keyvar >> 16) == key) ||
-	       ((keyvar & 0xffff) == key);
+		((keyvar & 0xffff) == key);
 }
 
 bool E_IsKeyPressed(int keyvar)
@@ -282,26 +282,6 @@ static inline void AddKeyForce(int axis, int upkeys, int downkeys, float qty = 1
 	{
 		joy_forces[axis] -= qty;
 	}
-}
-
-static void UpdateForces1(void)
-{
-	for (int k = 0; k < 6; k++)
-		joy_forces[k] = 0;
-
-	// ---Keyboard---
-
-	AddKeyForce(AXIS_TURN, key_right, key_left);
-	AddKeyForce(AXIS_MLOOK, key_lookup, key_lookdown);
-	AddKeyForce(AXIS_FORWARD, key_up, key_down);
-	// -MH- 1998/08/18 Fly down
-	AddKeyForce(AXIS_FLY, key_flyup, key_flydown);
-	AddKeyForce(AXIS_STRAFE, key_straferight, key_strafeleft);
-
-	// ---Joystick---
-
-	for (int j = 0; j < 6; j++)
-		UpdateJoyAxis(j);
 }
 
 static void UpdateForces(void)
@@ -396,19 +376,13 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 		return;
 	}
 
-	if (splitscreen_mode && cmd->player_idx == consoleplayer1)
-	{
-		UpdateForces();
-		return;
-	}
-	else
-		UpdateForces1();
+	UpdateForces();
 
 	Z_Clear(cmd, ticcmd_t, 1);
 
 	bool strafe = E_IsKeyPressed(key_strafe);
-	int  speed  = E_IsKeyPressed(key_speed) ? 1 : 0;
-	
+	int  speed = E_IsKeyPressed(key_speed) ? 1 : 0;
+
 
 	if (in_running.d)
 		speed = !speed;
@@ -421,7 +395,6 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 	//
 	int t_speed = speed;
 
-
 	if (fabs(joy_forces[AXIS_TURN]) > 0.2f)
 		turnheld++;
 	else
@@ -433,7 +406,7 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 
 	int m_speed = speed;
 
-	if (splitscreen_mode && cmd->player_idx == consoleplayer1)
+	if (splitscreen_mode)
 	{
 		if (fabs(ball_deltas[AXIS_MLOOK]) > 0.2f)
 			mlookheld++;
@@ -454,10 +427,10 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 
 
 	// Turning
-	if (! strafe)
+	if (!strafe)
 	{
 		float turn = angleturn[t_speed] * joy_forces[AXIS_TURN];
-		
+
 		turn *= speed_factors[var_turnspeed];
 
 		// -ACB- 1998/09/06 Angle Turn Speed Control
@@ -477,6 +450,8 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 
 		cmd->mlookturn = I_ROUND(mlook);
 	}
+
+
 
 	// Forward
 	{
@@ -545,7 +520,7 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 
 	if (E_IsKeyPressed(key_action2))
 		cmd->extbuttons |= EBT_ACTION2;
-		
+
 	if (E_IsKeyPressed(key_action3))
 		cmd->extbuttons |= EBT_ACTION3;
 
@@ -600,7 +575,7 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 	}
 	else
 		allowzoom = true;
-	
+
 	// -AJA- 2000/04/14: Autorun toggle
 	if (E_IsKeyPressed(key_autorun))
 	{
@@ -783,73 +758,73 @@ bool INP_Responder(event_t * ev)
 
 	switch (ev->type)
 	{
-		case ev_keydown:
-			if (splitscreen_mode && sym >= KEYD_JOY1 && sym <= KEYD_JOY6)
-			{
-				mouse_ss_hack |= (1 << (sym - KEYD_JOY1));
-				return true;
-			}
-		case ev_mousedown:
-			if (ev->data1 < NUMKEYS)
-			{
-				gamekeydown[ev->data1] &= ~GK_UP;
-				gamekeydown[ev->data1] |=  GK_DOWN;
-			}
-
-			// eat key down events 
+	case ev_keydown:
+		if (splitscreen_mode && sym >= KEYD_JOY1 && sym <= KEYD_JOY6)
+		{
+			mouse_ss_hack |= (1 << (sym - KEYD_JOY1));
 			return true;
+		}
+	case ev_mousedown:
+		if (ev->data1 < NUMKEYS)
+		{
+			gamekeydown[ev->data1] &= ~GK_UP;
+			gamekeydown[ev->data1] |= GK_DOWN;
+		}
+
+		// eat key down events 
+		return true;
 
 		//case ev_gamepad:
 
 
-		case ev_keyup:
-			 if (splitscreen_mode && sym >= KEYD_JOY1 && sym <= KEYD_JOY6)
-			 {
-				mouse_ss_hack &= ~(1 << (sym - KEYD_JOY1));
-				return false;
-			 }
-		case ev_mouseup:
-			if (ev->data1 < NUMKEYS)
-			{
-				gamekeydown[ev->data1] |= GK_UP;
-			}
-
-			// always let key up events filter down 
-			return false;
-
-		case ev_mouse:
+	case ev_keyup:
+		if (splitscreen_mode && sym >= KEYD_JOY1 && sym <= KEYD_JOY6)
 		{
-			float dx = ev->data2;
-			float dy = ev->data3;
-
-			// perform inversion
-			if ((mouse_xaxis+1) & 1) dx = -dx;
-			if ((mouse_yaxis+1) & 1) dy = -dy;
-
-			dx *= sensitivities[mouse_xsens];
-			dy *= sensitivities[mouse_ysens];
-
-			if (debug_mouse.d)
-				I_Printf("Mouse %+04d %+04d --> %+7.2f %+7.2f\n",
-				         ev->data2, ev->data3, dx, dy);
-
-			// -AJA- 1999/07/27: Mlook key like quake's.
-			if (E_IsKeyPressed(key_mlook))
-			{
-				ball_deltas[AXIS_TURN]  += dx;
-				ball_deltas[AXIS_MLOOK] += dy;
-			}
-			else
-			{
-				ball_deltas[(mouse_xaxis+1) >> 1] += dx;
-				ball_deltas[(mouse_yaxis+1) >> 1] += dy;
-			}
-
-			return true;  // eat events
+			mouse_ss_hack &= ~(1 << (sym - KEYD_JOY1));
+			return false;
+		}
+	case ev_mouseup:
+		if (ev->data1 < NUMKEYS)
+		{
+			gamekeydown[ev->data1] |= GK_UP;
 		}
 
-		default:
-			break;
+		// always let key up events filter down 
+		return false;
+
+	case ev_mouse:
+	{
+		float dx = ev->data2;
+		float dy = ev->data3;
+
+		// perform inversion
+		if ((mouse_xaxis + 1) & 1) dx = -dx;
+		if ((mouse_yaxis + 1) & 1) dy = -dy;
+
+		dx *= sensitivities[mouse_xsens];
+		dy *= sensitivities[mouse_ysens];
+
+		if (debug_mouse.d)
+			I_Printf("Mouse %+04d %+04d --> %+7.2f %+7.2f\n",
+				ev->data2, ev->data3, dx, dy);
+
+		// -AJA- 1999/07/27: Mlook key like quake's.
+		if (E_IsKeyPressed(key_mlook))
+		{
+			ball_deltas[AXIS_TURN] += dx;
+			ball_deltas[AXIS_MLOOK] += dy;
+		}
+		else
+		{
+			ball_deltas[(mouse_xaxis + 1) >> 1] += dx;
+			ball_deltas[(mouse_yaxis + 1) >> 1] += dy;
+		}
+
+		return true;  // eat events
+	}
+
+	default:
+		break;
 	}
 
 	return false;
@@ -863,8 +838,8 @@ void E_SetTurboScale(int scale)
 	forwardmove[0] = 25 * scale / 100;
 	forwardmove[1] = 50 * scale / 100;
 
-	sidemove[0]    = 24 * scale / 100;
-	sidemove[1]    = 40 * scale / 100;
+	sidemove[0] = 24 * scale / 100;
+	sidemove[1] = 40 * scale / 100;
 }
 
 
@@ -872,7 +847,7 @@ void E_ClearInput(void)
 {
 	Z_Clear(gamekeydown, byte, NUMKEYS);
 
-	turnheld  = 0;
+	turnheld = 0;
 	mlookheld = 0;
 
 	mouse_ss_hack = 0;
@@ -904,7 +879,7 @@ void E_ReleaseAllKeys(void)
 		if (gamekeydown[i] & GK_DOWN)
 		{
 			event_t ev;
-			
+
 			ev.type = ev_keyup;
 			ev.data1 = i;
 			///ev.value.key.unicode = 0;
@@ -923,20 +898,20 @@ void E_PostEvent(event_t * ev)
 	eventhead = ++eventhead % MAXEVENTS;
 
 #ifdef DEBUG_KEY_EV  //!!!!
-if (ev->type == ev_keydown || ev->type == ev_keyup)
-{
-	L_WriteDebug("EVENT @ %08x %d %s\n",
-		I_ReadMicroSeconds()/1000,
-		ev->data1,
-		(ev->type == ev_keyup) ? "keyup" : "keydown");
-}
-else if (ev->type == ev_mousedown || ev->type == ev_mouseup)
-{
-	L_WriteDebug("EVENT @ %08x %d %s\n",
-		I_ReadMicroSeconds()/1000,
-		ev->data1,
-		(ev->type == ev_mouseup) ? "mouseup" : "mousedown");
-}
+	if (ev->type == ev_keydown || ev->type == ev_keyup)
+	{
+		L_WriteDebug("EVENT @ %08x %d %s\n",
+			I_ReadMicroSeconds() / 1000,
+			ev->data1,
+			(ev->type == ev_keyup) ? "keyup" : "keydown");
+	}
+	else if (ev->type == ev_mousedown || ev->type == ev_mouseup)
+	{
+		L_WriteDebug("EVENT @ %08x %d %s\n",
+			I_ReadMicroSeconds() / 1000,
+			ev->data1,
+			(ev->type == ev_mouseup) ? "mouseup" : "mousedown");
+	}
 #endif
 }
 
@@ -977,48 +952,48 @@ specialkey_t;
 
 static specialkey_t special_keys[] =
 {
-    { KEYD_RIGHTARROW, "Right Arrow" },
-    { KEYD_LEFTARROW, "Left Arrow" },
-    { KEYD_UPARROW, "Up Arrow" },
-    { KEYD_DOWNARROW, "Down Arrow" },
-    { KEYD_ESCAPE, "Escape" },
-    { KEYD_ENTER, "Enter" },
-    { KEYD_TAB, "Tab" },
+	{ KEYD_RIGHTARROW, "Right Arrow" },
+	{ KEYD_LEFTARROW, "Left Arrow" },
+	{ KEYD_UPARROW, "Up Arrow" },
+	{ KEYD_DOWNARROW, "Down Arrow" },
+	{ KEYD_ESCAPE, "Escape" },
+	{ KEYD_ENTER, "Enter" },
+	{ KEYD_TAB, "Tab" },
 
-    { KEYD_BACKSPACE, "Backspace" },
-    { KEYD_EQUALS, "Equals" },
-    { KEYD_MINUS, "Minus" },
-    { KEYD_RSHIFT, "Shift" },
-    { KEYD_RCTRL, "Ctrl" },
-    { KEYD_RALT, "Alt" },
-    { KEYD_INSERT, "Insert" },
-    { KEYD_DELETE, "Delete" },
-    { KEYD_PGDN, "PageDown" },
-    { KEYD_PGUP, "PageUp" },
-    { KEYD_HOME, "Home" },
-    { KEYD_END, "End" },
-    { KEYD_SCRLOCK,  "ScrollLock" },
-    { KEYD_NUMLOCK,  "NumLock" },
-    { KEYD_CAPSLOCK, "CapsLock" },
-    { KEYD_END, "End" },
-    { '\'', "\'" },
-    { KEYD_SPACE, "Space" },
-    { KEYD_TILDE, "Tilde" },
-    { KEYD_PAUSE, "Pause" },
+	{ KEYD_BACKSPACE, "Backspace" },
+	{ KEYD_EQUALS, "Equals" },
+	{ KEYD_MINUS, "Minus" },
+	{ KEYD_RSHIFT, "Shift" },
+	{ KEYD_RCTRL, "Ctrl" },
+	{ KEYD_RALT, "Alt" },
+	{ KEYD_INSERT, "Insert" },
+	{ KEYD_DELETE, "Delete" },
+	{ KEYD_PGDN, "PageDown" },
+	{ KEYD_PGUP, "PageUp" },
+	{ KEYD_HOME, "Home" },
+	{ KEYD_END, "End" },
+	{ KEYD_SCRLOCK,  "ScrollLock" },
+	{ KEYD_NUMLOCK,  "NumLock" },
+	{ KEYD_CAPSLOCK, "CapsLock" },
+	{ KEYD_END, "End" },
+	{ '\'', "\'" },
+	{ KEYD_SPACE, "Space" },
+	{ KEYD_TILDE, "Tilde" },
+	{ KEYD_PAUSE, "Pause" },
 
 	// function keys
-    { KEYD_F1,  "F1" },
-    { KEYD_F2,  "F2" },
-    { KEYD_F3,  "F3" },
-    { KEYD_F4,  "F4" },
-    { KEYD_F5,  "F5" },
-    { KEYD_F6,  "F6" },
-    { KEYD_F7,  "F7" },
-    { KEYD_F8,  "F8" },
-    { KEYD_F9,  "F9" },
-    { KEYD_F10, "F10" },
-    { KEYD_F11, "F11" },
-    { KEYD_F12, "F12" },
+	{ KEYD_F1,  "F1" },
+	{ KEYD_F2,  "F2" },
+	{ KEYD_F3,  "F3" },
+	{ KEYD_F4,  "F4" },
+	{ KEYD_F5,  "F5" },
+	{ KEYD_F6,  "F6" },
+	{ KEYD_F7,  "F7" },
+	{ KEYD_F8,  "F8" },
+	{ KEYD_F9,  "F9" },
+	{ KEYD_F10, "F10" },
+	{ KEYD_F11, "F11" },
+	{ KEYD_F12, "F12" },
 
 	// numeric keypad
 	{ KEYD_KP0, "KP_0" },
@@ -1031,7 +1006,7 @@ static specialkey_t special_keys[] =
 	{ KEYD_KP7, "KP_7" },
 	{ KEYD_KP8, "KP_8" },
 	{ KEYD_KP9, "KP_9" },
-	
+
 	{ KEYD_KP_DOT,   "KP_DOT" },
 	{ KEYD_KP_PLUS,  "KP_PLUS" },
 	{ KEYD_KP_MINUS, "KP_MINUS" },
@@ -1041,34 +1016,34 @@ static specialkey_t special_keys[] =
 	{ KEYD_KP_ENTER, "KP_ENTER" },
 
 	// mouse buttons
-    { KEYD_MOUSE1, "Mouse1" },
-    { KEYD_MOUSE2, "Mouse2" },
-    { KEYD_MOUSE3, "Mouse3" },
-    { KEYD_MOUSE4, "Mouse4" },
-    { KEYD_MOUSE5, "Mouse5" },
-    { KEYD_MOUSE6, "Mouse6" },
-    { KEYD_WHEEL_UP, "Wheel Up" },
-    { KEYD_WHEEL_DN, "Wheel Down" },
+	{ KEYD_MOUSE1, "Mouse1" },
+	{ KEYD_MOUSE2, "Mouse2" },
+	{ KEYD_MOUSE3, "Mouse3" },
+	{ KEYD_MOUSE4, "Mouse4" },
+	{ KEYD_MOUSE5, "Mouse5" },
+	{ KEYD_MOUSE6, "Mouse6" },
+	{ KEYD_WHEEL_UP, "Wheel Up" },
+	{ KEYD_WHEEL_DN, "Wheel Down" },
 
 	// joystick buttons
-    { KEYD_JOY1,  "Joy1" },
-    { KEYD_JOY2,  "Joy2" },
-    { KEYD_JOY3,  "Joy3" },
-    { KEYD_JOY4,  "Joy4" },
-    { KEYD_JOY5,  "Joy5" },
-    { KEYD_JOY6,  "Joy6" },
-    { KEYD_JOY7,  "Joy7" },
-    { KEYD_JOY8,  "Joy8" },
-    { KEYD_JOY9,  "Joy9" },
-    { KEYD_JOY10, "Joy10" },
-    { KEYD_JOY11, "Joy11" },
-    { KEYD_JOY12, "Joy12" },
-    { KEYD_JOY13, "Joy13" },
-    { KEYD_JOY14, "Joy14" },
-    { KEYD_JOY15, "Joy15" },
+	{ KEYD_JOY1,  "Joy1" },
+	{ KEYD_JOY2,  "Joy2" },
+	{ KEYD_JOY3,  "Joy3" },
+	{ KEYD_JOY4,  "Joy4" },
+	{ KEYD_JOY5,  "Joy5" },
+	{ KEYD_JOY6,  "Joy6" },
+	{ KEYD_JOY7,  "Joy7" },
+	{ KEYD_JOY8,  "Joy8" },
+	{ KEYD_JOY9,  "Joy9" },
+	{ KEYD_JOY10, "Joy10" },
+	{ KEYD_JOY11, "Joy11" },
+	{ KEYD_JOY12, "Joy12" },
+	{ KEYD_JOY13, "Joy13" },
+	{ KEYD_JOY14, "Joy14" },
+	{ KEYD_JOY15, "Joy15" },
 
 	// THE END
-    { -1, NULL }
+	{ -1, NULL }
 };
 
 
@@ -1084,7 +1059,7 @@ const char *E_GetKeyName(int key)
 		return buffer;
 	}
 
-	for (int i = 0 ; special_keys[i].name ; i++)
+	for (int i = 0; special_keys[i].name; i++)
 	{
 		if (special_keys[i].key == key)
 			return special_keys[i].name;

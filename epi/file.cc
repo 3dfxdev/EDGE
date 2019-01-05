@@ -55,7 +55,7 @@ namespace epi
 		return (int)ftell(fp);
 	}
 
-	unsigned int ansi_file_c::Read(void *dest, unsigned int size)
+	unsigned int ansi_file_c::Read(void *dest, size_t size)
 	{
 		SYS_ASSERT(fp);
 		SYS_ASSERT(dest);
@@ -74,7 +74,7 @@ namespace epi
 		return result;
 	}
 
-	unsigned int ansi_file_c::Write(const void *src, unsigned int size)
+	unsigned int ansi_file_c::Write(const void *src, size_t size)
 	{
 		SYS_ASSERT(fp);
 		SYS_ASSERT(src);

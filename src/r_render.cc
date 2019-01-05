@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 OpenGL Rendering (BSP Traversal)
+//  EDGE OpenGL Rendering (BSP Traversal)
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2010  The EDGE2 Team.
+//  Copyright (c) 1999-2010  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -1228,13 +1228,13 @@ static inline void Color_Black(local_gl_vert_t *v)
 	v->col[3] = 1.0;
 }
 
-static inline void Vertex_Std(local_gl_vert_t *v, const vec3_t *src, GLboolean EDGE2)
+static inline void Vertex_Std(local_gl_vert_t *v, const vec3_t *src, GLboolean EDGE)
 {
 	v->x = src->x;
 	v->y = src->y;
 	v->z = src->z;
 
-	v->EDGE2 = EDGE2;
+	v->EDGE = EDGE;
 }
 
 static inline void Normal_Std(local_gl_vert_t *v, float nx, float ny, float nz)
@@ -3039,7 +3039,7 @@ bool RGL_CheckBBox(float *bspcoord)
 
 		if (tspan1 > clip_scope)
 		{
-			// Totally off the left EDGE2?
+			// Totally off the left EDGE?
 			if (tspan2 >= ANG180)
 				return false;
 
@@ -3048,7 +3048,7 @@ bool RGL_CheckBBox(float *bspcoord)
 
 		if (tspan2 > clip_scope)
 		{
-			// Totally off the right EDGE2?
+			// Totally off the right EDGE?
 			if (tspan1 >= ANG180)
 				return false;
 
@@ -4111,7 +4111,7 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 		k = fabs(k);
 
 		// d is just the distance horizontally forward from the eye to
-		// the top/bottom EDGE2 of the view rectangle.
+		// the top/bottom edge of the view rectangle.
 		d = cos(k) - sin(k) * view_y_slope;
 
 		oned_side_angle = (d <= 0.01f) ? ANG180 : M_ATan(view_x_slope / d);

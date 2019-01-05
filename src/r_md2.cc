@@ -439,7 +439,7 @@ raw_md3_frame_t;
 
 
 
-/*============== EDGE2 REPRESENTATION ====================*/
+/*============== EDGE REPRESENTATION ====================*/
 
 struct mod_vertex_c
 {

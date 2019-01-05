@@ -1,5 +1,5 @@
 //
-// EDGE2 RESOURCES
+// EDGE RESOURCES
 //
 
 #define MAIN_MENU            100
@@ -33,10 +33,10 @@ BEGIN
       VALUE "CompanyName",      "Isotope SoftWorks\0"
       VALUE "FileDescription",  "Hyper3DGE\0"
       VALUE "FileVersion",      "2.1.0\0"
-      VALUE "InternalName",     "EDGE210\0"
+      VALUE "InternalName",     "EDGE10\0"
       VALUE "LegalCopyright",   "\251 Hyper3DGE, GNU General Public License\0"
       VALUE "OriginalFilename", "3DGE210.EXE\0"
-      VALUE "ProductName",      "EDGE2\0"
+      VALUE "ProductName",      "EDGE\0"
       VALUE "ProductVersion",   "2.1.0\0"
     END
   END

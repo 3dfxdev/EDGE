@@ -2,7 +2,7 @@
 //  LIST OF ALL CVARS
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2007-2009  The EDGE2 Team.
+//  Copyright (c) 2007-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -112,6 +112,7 @@ extern cvar_c camera_subdir;
 extern cvar_c sound_pitch;
 
 extern cvar_c i_skipsplash;
+extern cvar_c nocheats;
 
 
 
@@ -143,19 +144,21 @@ cvar_link_t  all_cvars[] =
 
 	{ "aggression",     &g_aggression,   "c",   "0"  },
 
-	{ "spriteflip",      &r_spriteflip,       "c",   "0"  },
+	{ "nocheats",     &nocheats,   "c",   "0"  },
 
-	{ "screen_shake",    &m_tactile,       "c",   "1" },
-	{ "melee_tactile",   &melee_tactile,   "c",   "0" },
+	{ "spriteflip",      &r_spriteflip,  "c",   "0"  },
 
-	{ "shadows",         &r_shadows,          "c",   "1" },
+	{ "screen_shake",    &m_tactile,     "c",   "1"  },
+	{ "melee_tactile",   &melee_tactile, "c",   "0"  },
 
-	{ "soundpitch",      &sound_pitch,         "c",    "1" },
+	{ "shadows",         &r_shadows,     "c",   "1"  },
 
-	{ "r_oldblend",      &r_oldblend,           "c",    "0"},
+	{ "soundpitch",      &sound_pitch,   "c",    "1" },
+
+	{ "r_oldblend",      &r_oldblend,    "c",    "1" },
 
 	// If palette incorrectly remaps palette, this can be set.
-	{ "r_transfix",      &r_transfix,           "c",    "0" },
+	{ "r_transfix",      &r_transfix,    "c",    "0" },
 
 	/* Input Stuff */
 
@@ -200,24 +203,24 @@ cvar_link_t  all_cvars[] =
 	{ "r_precache_sprite", &r_precache_sprite, "c", "1" },
 	{ "r_precache_model",  &r_precache_model,  "c", "1" },
 
-	{ "r_anisotropy",	&r_anisotropy,	  "c",   "0" },
+	{ "r_anisotropy",	&r_anisotropy,	  "c",  "0"  },
 	{ "r_colormaterial",&r_colormaterial, "",   "1"  },
 	{ "r_colorlighting",&r_colorlighting, "",   "1"  },
 	{ "r_dumbsky",      &r_dumbsky,       "",   "0"  },
 	{ "r_dumbmulti",    &r_dumbmulti,     "",   "0"  },
 	{ "r_dumbcombine",  &r_dumbcombine,   "",   "0"  },
 	{ "r_dumbclamp",    &r_dumbclamp,     "",   "0"  },
-	{ "r_gl3_path",     &r_gl3_path,      "c",   "0" },
+	{ "r_gl3_path",     &r_gl3_path,      "c",  "0"  },
 	{ "r_swapinterval", &r_swapinterval,  "",   "1"  },
 
-	{ "r_gpuswitch",    &r_gpuswitch,     "c",   "0"  }, // notebook optimus gpu selector
+	{ "r_gpuswitch",    &r_gpuswitch,     "c",   "0" }, // notebook optimus gpu selector
 
 	{ "r_stretchworld", &r_stretchworld, "c",   "1"  },
-	{ "r_fixspritescale", &r_fixspritescale, "c", "1" },
-	{ "r_renderprecise", &r_renderprecise, "c", "0" },
+	{ "r_fixspritescale", &r_fixspritescale, "c", "1"},
+	{ "r_renderprecise", &r_renderprecise, "c", "0"  },
 
 	{ "am_smoothing",   &am_smoothing,   "c",   "1"  },
-	{ "am_gridsize",    &am_gridsize,    "c",   "128" },
+	{ "am_gridsize",    &am_gridsize,    "c",   "128"},
 
 	/* Sound Stuff */
 
@@ -231,7 +234,7 @@ cvar_link_t  all_cvars[] =
 	{ "debug_fps",        &debug_fps,        "c", "0" },
 	{ "debug_lerp",       &debug_testlerp,   "c", "0"},
 
-	{ "r_md5scale",        &r_md5scale,        "c", "0" },
+	{ "r_md5scale",        &r_md5scale,        "c", "0"},
 	{ "r_lerp",			   &r_lerp,        "c", "1" },
 	{ "r_maxfps",          &r_maxfps,        "c", "0" }, //experimental. . .
 	{ "r_vsync",           &r_vsync,        "c", "1" },
@@ -245,8 +248,6 @@ cvar_link_t  all_cvars[] =
 	{ "r_exposure_base",   &r_exposure_base, "c", "0.1" },
 	{ "r_exposure_speed",  &r_exposure_speed, "c", "0.05" },
 #endif // 0
-
-
 
 	{ "r_lens",		       &r_lens,			"c", "1" },
 	{ "r_fxaa",            &r_fxaa,         "c", "0" },

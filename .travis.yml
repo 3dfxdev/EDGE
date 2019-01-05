@@ -14,7 +14,8 @@ matrix:
       compiler: gcc
       env:
         - GCC_VERSION=4.9
-        - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release"
+        - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release -DSDL2_INCLUDE_DIR=/libs/msvc/SDL2/include -DSDL2_LIBRARY=/usr/local/lib/libSDL2.so"
+        
       addons:
         apt:
           sources:
@@ -34,7 +35,7 @@ matrix:
       compiler: gcc
       env:
         - GCC_VERSION=7
-        - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Debug"
+        - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Debug -DSDL2_INCLUDE_DIR=/libs/msvc/SDL2/include -DSDL2_LIBRARY=/usr/local/lib/libSDL2.so"
       addons:
         apt:
           sources:
@@ -54,7 +55,7 @@ matrix:
       osx_image: xcode9.1
       env:
         # CMake has some issues locating SDL2 library installed by Homebrew 
-        - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release -DSDL2_LIBRARY=/usr/local/lib/libSDL2.dylib"
+        - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release -DSDL2_INCLUDE_DIR=/usr/include/SDL2 -DSDL2_LIBRARY=/usr/local/lib/libSDL2.dylib"
 
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
@@ -66,7 +67,7 @@ before_install:
   - if [ -n "$CLANG_VERSION" ]; then export CC="clang-${CLANG_VERSION}" CXX="clang++-${CLANG_VERSION}"; fi
   - $CC --version
   - $CXX --version
-
+  
 script:
   - echo ${TRAVIS_BUILD_DIR}
   - mkdir build

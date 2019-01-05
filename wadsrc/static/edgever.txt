@@ -3,14 +3,14 @@
 
 ===========================
 |                         |
-|  EDGE2.PAK VERSION 8    |
+|  EDGE.PAK VERSION 8    |
 |                         |
 ===========================
 
 LICENSE
 -------
 
-The material in EDGE2.PAK is:
+The material in EDGE.PAK is:
     Copyright (C) 1998-2017 the Edge Team.
     Copyright (C) 1993-1996 id Software, Inc.
 

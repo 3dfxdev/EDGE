@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Main
+//  EDGE Main
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2018  The EDGE2 Team.
+//  Copyright (c) 1999-2018  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -110,6 +110,10 @@ fflush(stdout);
 	system("compile_hod_pk3.bat");
 #endif  
 
+#if defined(DAIKATANA)
+	system("compile_daikatana2_pk3.bat");
+#endif 
+
 	fflush(stdout);
 
 #if defined(_DEBUG) && defined(_MSC_VER)
@@ -130,7 +134,7 @@ fflush(stdout);
 
 
 #ifdef WIN32
-	// Run EDGE2. it never returns
+	// Run EDGE. it never returns
 	_try
 	{
 		//I_TweakConsole();
