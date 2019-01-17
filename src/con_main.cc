@@ -402,7 +402,7 @@ int CMD_Help(char **argv, int argc)
 
 int CMD_Version(char **argv, int argc)
 {
-	I_Printf("EDGE (" EDGEPRINTBIT ") v" EDGEVERSTR "\n");
+	I_Printf("EDGE v" EDGEVERSTR "\n");
 	I_Printf("Platform: " EDGEPRINTBIT "\n");
 	return 0;
 }
