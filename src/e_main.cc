@@ -31,7 +31,7 @@
 // -MH- 1998/08/19 added up/down movement variables
 //
 
-#include <system\i_defs.h>
+#include "system/i_defs.h"
 
 #include "e_main.h"
 #include <sys/stat.h>
