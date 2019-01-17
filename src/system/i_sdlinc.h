@@ -25,7 +25,7 @@
 // it so we can come up with another solution. Just open up an ISSUE or a PR via Github if
 // it does not work and/or you have a better way.
 
-#ifdef LINUX
+#ifndef WIN32
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_keycode.h"
 #include "SDL2/SDL_opengl.h"
