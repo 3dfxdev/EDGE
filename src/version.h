@@ -48,7 +48,7 @@ const char *GetVersionString();
 #endif
 
 // Build Platform Strings (GCC/Linux, et al)
-#ifdef LINUX
+#if defined LINUX || defined __APPLE__
 #ifdef __i386__
 #define EDGEPLATFORM "x86"
 #define EDGEPRINTBIT "32-bit"
