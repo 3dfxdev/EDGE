@@ -52,7 +52,7 @@ matrix:
             - libtool
             
     - os: osx
-      osx_image: xcode9.1
+      osx_image: xcode10.1
       env:
         # CMake has some issues locating SDL2 library installed by Homebrew 
         - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release -DSDL2_INCLUDE_DIR=/usr/include/SDL2 -DSDL2_LIBRARY=/usr/local/lib/libSDL2.dylib"
