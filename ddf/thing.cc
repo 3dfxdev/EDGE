@@ -31,7 +31,7 @@
 
 #include "../src/p_action.h"
 
-//#undef  DF
+#undef  DF
 #define DF  DDF_FIELD
 
 #define DDF_MobjHashFunc(x)  (((x) + LOOKUP_CACHESIZE) % LOOKUP_CACHESIZE)

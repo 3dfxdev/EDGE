@@ -27,7 +27,7 @@
 #include "states.h"
 
 // defines for parser stuff.
-#define BUFFERSIZE 2048 //previously 1024
+#define BUFFERSIZE 1024 //previously 1024
 
 // enum thats gives the parser's current status
 typedef enum

@@ -58,8 +58,8 @@ public:
 	virtual int GetLength() = 0;
 	virtual int GetPosition() = 0;
 
-	virtual unsigned int Read(void *dest, size_t size) = 0; //C4244
-	virtual unsigned int Write(const void *src, size_t size) = 0; //C4244
+	virtual unsigned int Read(void *dest, unsigned int size) = 0; //C4244
+	virtual unsigned int Write(const void *src, unsigned int size) = 0; //C4244
 
 	virtual bool Seek(int offset, int seekpoint) = 0;
 
@@ -87,8 +87,8 @@ public:
     int GetLength();
     int GetPosition();
 
-    unsigned int Read(void *dest, size_t size); //C4267 - uint -> size_t
-    unsigned int Write(const void *src, size_t size); //C4267 - uint -> size_t
+    unsigned int Read(void *dest, unsigned int size); //C4267 - uint -> unsigned int
+    unsigned int Write(const void *src, unsigned int size); //C4267 - uint -> unsigned int
 
     bool Seek(int offset, int seekpoint);
 };

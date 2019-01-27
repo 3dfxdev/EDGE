@@ -40,8 +40,8 @@ public:
     int GetLength()   { return length; }
     int GetPosition() { return pos; }
 
-    unsigned int Read(void *dest, size_t size);
-    unsigned int Write(const void *src, size_t size);
+    unsigned int Read(void *dest, unsigned int size);
+    unsigned int Write(const void *src, unsigned int size);
 
     bool Seek(int offset, int seekpoint);
 };
