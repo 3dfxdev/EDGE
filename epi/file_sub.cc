@@ -72,7 +72,7 @@ int sub_file_c::GetPosition()
 	return length - remain;
 }
 
-unsigned int sub_file_c::Read(void *dest, size_t size)
+unsigned int sub_file_c::Read(void *dest, unsigned int size)
 {
 	if ((int)size > remain)
 		size = remain;
@@ -131,7 +131,7 @@ bool sub_file_c::Seek(int offset, int seekpoint)
 	return parent->Seek(start + new_pos, SEEKPOINT_START);
 }
 
-unsigned int sub_file_c::Write(const void *src, size_t size)
+unsigned int sub_file_c::Write(const void *src, unsigned int size)
 {
 	I_Error("sub_file_c::Write called.\n");
 

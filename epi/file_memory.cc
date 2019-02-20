@@ -70,7 +70,7 @@ mem_file_c::~mem_file_c()
 	length = 0;
 }
 
-unsigned int mem_file_c::Read(void *dest, size_t size)
+unsigned int mem_file_c::Read(void *dest, unsigned int size)
 {
 	SYS_ASSERT(dest);
 	SYS_ASSERT(size >= 0);
@@ -113,7 +113,7 @@ bool mem_file_c::Seek(int offset, int seekpoint)
 	return true;
 }
 
-unsigned int mem_file_c::Write(const void *src, size_t size)
+unsigned int mem_file_c::Write(const void *src, unsigned int size)
 {
 	// FIXME
 
