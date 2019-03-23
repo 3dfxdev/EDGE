@@ -46,3 +46,4 @@ OGGVorbis
 /ffmpeg
 ffmpeg
 stash
+/cmake-build-debug
