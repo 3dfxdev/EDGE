@@ -244,9 +244,22 @@ angle_t R_GetVertexViewAngle(vertex_t *v)
 
 float R_PointToDist(float x1, float y1, float x2, float y2)
 {
-	return sqrt(pow((x1-x2), 2)+pow((y1-y2), 2)); //pythagorean distance formula. Wow, wasn't that easier?
+	//return sqrt(pow((x1-x2), 2)+pow((y1-y2), 2)); //pythagorean distance formula. Wow, wasn't that easier?
+	return sqrtf((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 }
 
+double invsqrtQuake(double number)
+{
+	double y = number;
+	double x2 = y * 0.5;
+	std::int64_t i = *(std::int64_t*) & y;
+	// The magic number is for doubles is from https://cs.uwaterloo.ca/~m32rober/rsqrt.pdf
+	i = 0x5fe6eb50c7b537a9 - (i >> 1);
+	y = *(double*)& i;
+	y = y * (1.5 - (x2 * y * y));   // 1st iteration
+	//      y  = y * ( 1.5 - ( x2 * y * y ) );   // 2nd iteration, this can be removed
+	return y;
+}
 
 
 //
