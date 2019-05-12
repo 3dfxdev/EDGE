@@ -212,14 +212,8 @@ elseif(UNIX)
 			-DBSD
 			-DHAVE_STDINT_H
 		)
-	else()
-		add_definitions(
-			-DLINUX
-			-DHAVE_STDINT_H
-		)
-	endif()
-elseif(VITA)
-	add_definitions(
+		else()
+			add_definitions(
 			-DLINUX
 			-DVITA
 			-DHAVE_STDINT_H
@@ -715,7 +709,6 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
   FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
   FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
 )
-endif()
 endif()
 ## EOF
 
