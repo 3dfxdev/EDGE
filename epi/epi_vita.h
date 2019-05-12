@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 LINUX System Specific header
+//  Vita EPI System Specifics
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 2003-2008  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -15,27 +15,45 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
+//
+#ifndef __VITA_EPI_HEADER__
+#define __VITA_EPI_HEADER__
 
-#ifndef __UNIX_SYSTEM_INTERNAL_H__
-#define __UNIX_SYSTEM_INTERNAL_H__
-
-#include "system/i_defs.h"
-
-#include <sys/ioctl.h>
-
-#ifdef LINUX
-#include <linux/cdrom.h>
+// Sanity checking...
+#ifdef __EPI_HEADER_SYSTEM_SPECIFIC__
+#error "Two different system specific EPI headers included"
+#else
+#define __EPI_HEADER_SYSTEM_SPECIFIC__
 #endif
 
-#ifdef VITA
-#include <vitasdk.h>
-#include <vita2d.h>
+#define DIRSEPARATOR '/'
+
+#define BIGSTACK_SIZE 20 * 1024 * 1024
+byte sys_bigstack[BIGSTACK_SIZE];
+
+#define PLATFORM_PSVITA	0x00010000
+
+#define MAX_HANDLES             10
+
+#define GCCATTR(xyz) __attribute__ (xyz)
+
+#define stricmp   strcasecmp
+#define strnicmp  strncasecmp
+
+#ifndef O_BINARY
+#define O_BINARY  0
 #endif
 
-#include "system/i_local.h"  // FIXME: remove
+#ifndef D_OK
+#define D_OK  X_OK
+#endif
+
+void strupr(char *str);
 
 
-#endif // __UNIX_SYSTEM_INTERNAL_H__
+#define ALIGN_STRUCT(x)    __attribute__((aligned(x)))
+
+#endif /* __VITA_EPI_HEADER__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

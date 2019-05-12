@@ -1,5 +1,26 @@
 cmake_minimum_required(VERSION 3.2.2)
+
+if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+  if(DEFINED ENV{VITASDK})
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{VITASDK}/share/vita.toolchain.cmake" CACHE PATH "toolchain file")
+  else()
+    message(STATUS "Please define VITASDK to point to your SDK path if you want to build for VITA!")
+  endif()
+  if(DEFINED ENV{VCPKG_ROOT})
+	 set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+     CACHE STRING "")
+  else()
+	message(STATUS "Please define VCPKG_ROOT to point to your cmake script if you want to use VCPKG!")
+  endif()
+endif()
+
 project(EDGE)
+if(VITA)
+	include("${VITASDK}/share/vita.cmake" REQUIRED)
+	set(VITA_APP_NAME "vitaEDGE")
+	set(VITA_TITLEID  "VSDK00017")
+	set(VITA_VERSION  "01.00")
+endif()
 
 if( COMMAND cmake_policy )
 	if( POLICY CMP0011 )
@@ -271,7 +292,6 @@ if(UNIX)
 	#set(SDL2_LIBRARIES /usr/lib/libSDL2.so)
 	find_package(SDL2 REQUIRED)
 endif(UNIX)
-
 
 #INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src ${SDL2_INCLUDE_DIRS})
 
@@ -590,6 +610,16 @@ set(EDGE_DREAMCAST_SOURCES
 	src/i_main.cc
 )
 
+set(EDGE_VITA_SOURCES
+	src/system/vita/neon_math.cc
+	src/system/unx/unx_music.cc
+	src/system/unx/unx_net.cc
+	src/system/unx/unx_system.cc
+	epi/filesystem_linux.cc
+	epi/epi_linux.cc
+	epi/physfs/physfs_platform_unix.c
+)
+
 if (APPLE)
 	set(EDGE_UNIX_SOURCES
 		${EDGE_UNIX_SOURCES}
@@ -611,6 +641,10 @@ elseif(UNIX)
 elseif(DREAMCAST)
 	set(EDGE_SOURCES ${EDGE_SOURCES}
 		${EDGE_DREAMCAST_SOURCES}
+	)
+elseif(VITA)
+	set(EDGE_SOURCES ${EDGE_SOURCES}
+		${EDGE_VITA_SOURCES}
 	)
 endif()
 
@@ -644,6 +678,8 @@ if (WIN32)
 elseif(APPLE)
 	target_link_libraries(EDGE SDL2)
 	set_target_properties(EDGE PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa -framework IOKit")
+elseif(VITA)
+	target_link_libraries(EDGE SDL2 vitaGL SceDisplay_stub SceCtrl_stub SceAudio_stub SceSysmodule_stub SceGxm_stub SceCommonDialog_stub SceTouch_stub SceHid_stub m)
 elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "(Free|Open)BSD")
 	target_link_libraries(EDGE SDL2 GL dl)
 endif()
@@ -662,5 +698,16 @@ INSTALL (DIRECTORY ${CMAKE_SOURCE_DIR}/data/base
         PATTERN "delete.me" EXCLUDE
         PATTERN ".svn" EXCLUDE)
 
+if (VITA)
+vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME})
+vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
+  VERSION ${VITA_VERSION}
+  NAME ${VITA_APP_NAME}
+  FILE sce_sys/icon0.png sce_sys/icon0.png
+  FILE sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
+  FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
+  FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+)
+endif()
 ## EOF
 

@@ -52,6 +52,9 @@
 #include "epi_dreamcast.h"
 #endif
 
+#ifdef VITA
+#include "epi_vita.h"
+#endif
 
 
 // if we can't use C++11 or aren't using VS2015, resort to gross hacks
