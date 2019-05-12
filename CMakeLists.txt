@@ -222,9 +222,10 @@ endif()
 # Module Paths
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/modules)
 
+set(TOOLS_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/tools)
 #message(${CMAKE_MODULE_PATH})
 
-add_subdirectory( ${PROJECT_SOURCE_DIR}/zipdir )
+add_subdirectory( ${TOOLS_INCLUDE_DIR}/zipdir )
 
 # Gitinfo Puller thingy
 add_custom_target(revision_check ALL
