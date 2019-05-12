@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.2.2)
 if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   if(DEFINED ENV{VITASDK})
     set(CMAKE_TOOLCHAIN_FILE "$ENV{VITASDK}/share/vita.toolchain.cmake" CACHE PATH "toolchain file")
+	message(STATUS "VitaSDK found! Configuring to use VitaSDK")
   else()
     message(STATUS "Please define VITASDK to point to your SDK path if you want to build for VITA!")
   endif()
@@ -223,7 +224,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/modules)
 
 #message(${CMAKE_MODULE_PATH})
 
-add_subdirectory( tools/zipdir )
+add_subdirectory( ${PROJECT_SOURCE_DIR}/zipdir )
 
 # Gitinfo Puller thingy
 add_custom_target(revision_check ALL
