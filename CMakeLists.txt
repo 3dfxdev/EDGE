@@ -308,7 +308,11 @@ INCLUDE_DIRECTORIES (${SDLNET_INCLUDE_DIR})
 ##INCLUDE_DIRECTORIES (${SDLKitchensink_INCLUDE_DIRS})
 
 # OpenGL
+if (NOT VITA)
 FIND_PACKAGE (OpenGL)
+elseif(VITA)
+FIND_PACKAGE (VitaGL)
+endif()
 
 # libvorbis/libogg
 include_directories(
