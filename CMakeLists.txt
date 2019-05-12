@@ -80,6 +80,7 @@ endif()
 
 
 add_subdirectory( lzma )
+add_subdirectory( zipdir )
 
 # Recursive function to place PK3 archive source files into a hierarchy of source file in the IDE
 function( assort_pk3_source_folder FOLDER_NAME PK3_DIR )
@@ -223,8 +224,6 @@ endif()
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/modules)
 
 #message(${CMAKE_MODULE_PATH})
-
-add_subdirectory( zipdir )
 
 # Gitinfo Puller thingy
 add_custom_target(revision_check ALL
