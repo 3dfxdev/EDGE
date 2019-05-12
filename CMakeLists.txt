@@ -218,6 +218,13 @@ elseif(UNIX)
 			-DHAVE_STDINT_H
 		)
 	endif()
+elseif(VITA)
+	add_definitions(
+			-DLINUX
+			-DVITA
+			-DHAVE_STDINT_H
+		)
+	endif()
 endif()
 
 # Module Paths
