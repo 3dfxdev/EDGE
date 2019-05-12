@@ -53,6 +53,8 @@
 #endif
 
 #ifdef VITA
+#define HAVE_PHYSFS 1
+#include "epi_linux.h"
 #include "epi_vita.h"
 #endif
 
