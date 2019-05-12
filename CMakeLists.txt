@@ -695,6 +695,7 @@ if(MSVC)
    target_link_libraries(EDGE rpcrt4)
 endif()
 
+if (NOT VITA)
 INSTALL (TARGETS EDGE
         RUNTIME DESTINATION ${BIN_DIR}
         LIBRARY DESTINATION ${LIB_DIR}
@@ -704,8 +705,7 @@ INSTALL (DIRECTORY ${CMAKE_SOURCE_DIR}/data/base
         DESTINATION ${LIB_DIR}
         PATTERN "delete.me" EXCLUDE
         PATTERN ".svn" EXCLUDE)
-
-if (VITA)
+elseif(VITA)
 vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME})
 vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
   VERSION ${VITA_VERSION}
@@ -715,6 +715,7 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
   FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
   FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
 )
+endif()
 endif()
 ## EOF
 
