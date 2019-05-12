@@ -657,7 +657,9 @@ add_executable(EDGE
 	${EDGE_SOURCES}
 )
 
+if (NOT VITA)
 add_dependencies( EDGE revision_check )
+endif()
 if(MSVC)
 	add_dependencies( EDGE eecrashreport )
 endif()
