@@ -313,10 +313,10 @@ bool I_SetScreenSize(scrmode_c *mode)
 		return false;
 	}
 
-	//if (r_vsync.d == 1)
-	//	SDL_GL_SetSwapInterval(1);
-	//else
-		//SDL_GL_SetSwapInterval(-1);
+	if (r_vsync.d == 1)
+		SDL_GL_SetSwapInterval(1);
+	else
+		SDL_GL_SetSwapInterval(-1);
 
 	// -AJA- turn off cursor -- BIG performance increase.
 	//       Plus, the combination of no-cursor + grab gives

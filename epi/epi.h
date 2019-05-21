@@ -52,6 +52,11 @@
 #include "epi_dreamcast.h"
 #endif
 
+#ifdef VITA
+#define HAVE_PHYSFS 1
+#include "epi_linux.h"
+#include "epi_vita.h"
+#endif
 
 
 // if we can't use C++11 or aren't using VS2015, resort to gross hacks

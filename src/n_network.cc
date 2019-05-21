@@ -97,8 +97,8 @@ static void GetPackets(bool do_delay)
 	if (! netgame)
 	{
 		// -AJA- This can make everything a bit "jerky" :-(
-		//if (do_delay && ! m_busywait.d)
-		//	I_Sleep(10 /* millis */);
+		if (do_delay && ! m_busywait.d)
+			I_Sleep(10 /* millis */);
 		return;
 	}
 
@@ -246,14 +246,14 @@ bool N_BuildTiccmds(void)
 
  //    L_WriteDebug("N_BuildTiccmds: pnum %d netgame %c\n", pnum, netgame ? 'Y' : 'n');
 
-			//if (false) // FIXME: temp hack!!!  if (netgame)
-			//	cmd = &p->out_cmds[maketic % (MP_SAVETICS*2)];
-			//else
-			//	cmd = &p->in_cmds[maketic % (MP_SAVETICS*2)];
+			if (false) // FIXME: temp hack!!!  if (netgame)
+				cmd = &p->out_cmds[maketic % (MP_SAVETICS*2)];
+			else
+				cmd = &p->in_cmds[maketic % (MP_SAVETICS*2)];
 
 			p->builder(p, p->build_data, cmd);
 			
-			//cmd->consistency = p->consistency[maketic % (MP_SAVETICS*2)];
+			cmd->consistency = p->consistency[maketic % (MP_SAVETICS*2)];
 		}
 	}
 

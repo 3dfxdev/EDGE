@@ -1997,13 +1997,13 @@ static void M_OptionSetResolution(int keypressed)
 {
 	if (R_ChangeResolution(&new_scrmode))
 	{
-		RGL_StopWipe();  // delete any wipe texture too
+		//RGL_StopWipe();  // delete any wipe texture too
 
-		W_DeleteAllImages();
+		//W_DeleteAllImages();
 
-		HUD_Reset();
+		//HUD_Reset();
 
-		RGL_Init();
+		//RGL_Init();
 		R_SoftInitResolution();
 		//FGLRenderBuffers* renderbuffers = FGLRenderBuffers::Instance(); //Recreates the HUD 
 	}

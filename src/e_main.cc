@@ -51,7 +51,6 @@
 #include "dm_defs.h"
 #include "dm_state.h"
 #include "games/wolf3d/wlf_local.h"
-//#include "games/rott/rott_local.h"
 #include "dstrings.h"
 #include "e_demo.h"
 #include "e_input.h"
@@ -609,7 +608,7 @@ void E_Display(void)
 
 	//CA 9.27.17:
 	//Interpolator is now set in P_Tick (which should improve rendering hitches)
-	//N_SetInterpolater();
+	N_SetInterpolater();
 #if 0
 	//tapamn check interpolater value
 	I_Printf("I: %f\n", N_GetInterpolater());

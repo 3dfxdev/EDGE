@@ -44,9 +44,9 @@
 
 
 
-extern bool CON_Responder(event_t *ev);
-extern bool   M_Responder(event_t *ev);
-extern bool   G_Responder(event_t *ev);
+extern bool CON_Responder(event_t* ev);
+extern bool   M_Responder(event_t* ev);
+extern bool   G_Responder(event_t* ev);
 
 extern int I_JoyGetAxis(int n);
 
@@ -284,6 +284,26 @@ static inline void AddKeyForce(int axis, int upkeys, int downkeys, float qty = 1
 	}
 }
 
+static void UpdateForces1(void)
+{
+	for (int k = 0; k < 6; k++)
+		joy_forces[k] = 0;
+
+	// ---Keyboard---
+
+	AddKeyForce(AXIS_TURN, key_right, key_left);
+	AddKeyForce(AXIS_MLOOK, key_lookup, key_lookdown);
+	AddKeyForce(AXIS_FORWARD, key_up, key_down);
+	// -MH- 1998/08/18 Fly down
+	AddKeyForce(AXIS_FLY, key_flyup, key_flydown);
+	AddKeyForce(AXIS_STRAFE, key_straferight, key_strafeleft);
+
+	// ---Joystick---
+
+	for (int j = 0; j < 6; j++)
+		UpdateJoyAxis(j);
+}
+
 static void UpdateForces(void)
 {
 	for (int k = 0; k < 6; k++)
@@ -328,7 +348,7 @@ static int CmdChecksum(ticcmd_t * cmd)
 	int sum = 0;
 
 	for (i = 0; i < (int)sizeof(ticcmd_t) / 4 - 1; i++)
-		sum += ((int *)cmd)[i];
+		sum += ((int*)cmd)[i];
 
 	return sum;
 }
@@ -376,7 +396,13 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 		return;
 	}
 
-	UpdateForces();
+	if (splitscreen_mode && cmd->player_idx == consoleplayer1)
+	{
+		UpdateForces();
+		return;
+	}
+	else
+		UpdateForces1();
 
 	Z_Clear(cmd, ticcmd_t, 1);
 
@@ -395,6 +421,7 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 	//
 	int t_speed = speed;
 
+
 	if (fabs(joy_forces[AXIS_TURN]) > 0.2f)
 		turnheld++;
 	else
@@ -406,7 +433,7 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 
 	int m_speed = speed;
 
-	if (splitscreen_mode)
+	if (splitscreen_mode && cmd->player_idx == consoleplayer1)
 	{
 		if (fabs(ball_deltas[AXIS_MLOOK]) > 0.2f)
 			mlookheld++;
@@ -450,8 +477,6 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 
 		cmd->mlookturn = I_ROUND(mlook);
 	}
-
-
 
 	// Forward
 	{
@@ -920,7 +945,7 @@ void E_PostEvent(event_t * ev)
 //
 void E_ProcessEvents(void)
 {
-	event_t *ev;
+	event_t* ev;
 
 	for (; eventtail != eventhead; eventtail = (eventtail + 1) % MAXEVENTS)
 	{
@@ -946,7 +971,7 @@ typedef struct specialkey_s
 {
 	int key;
 
-	const char *name;
+	const char* name;
 }
 specialkey_t;
 
@@ -1047,7 +1072,7 @@ static specialkey_t special_keys[] =
 };
 
 
-const char *E_GetKeyName(int key)
+const char* E_GetKeyName(int key)
 {
 	static char buffer[32];
 

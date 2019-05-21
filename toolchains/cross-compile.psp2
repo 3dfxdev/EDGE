@@ -1,0 +1,16 @@
+set(CMAKE_TOOLCHAIN_FILE "$ENV{VITASDK}/share/vita.toolchain.cmake" CACHE PATH "toolchain file")
+message(STATUS "VitaSDK found! Configuring to use VitaSDK")
+
+set(CMAKE_SYSTEM_NAME PSP2)
+message(STATUS "Setting to PSP2 for vitaEDGE")
+set(CMAKE_SYSTEM_PROCESSOR arm-vita-eabi)
+message(STATUS "Setting Processor to arm-vita-eabi for vitaEDGE")
+
+
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+
+
+C:\Users\Cor\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc\LocalState\rootfs\usr\local\vitasdk\share
