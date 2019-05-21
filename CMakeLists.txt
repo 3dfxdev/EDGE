@@ -220,7 +220,6 @@ elseif(UNIX)
 		else()
 			add_definitions(
 			-DLINUX
-			-DVITA
 			-DHAVE_STDINT_H
 		)
 	endif()
@@ -620,13 +619,13 @@ set(EDGE_DREAMCAST_SOURCES
 )
 
 set(EDGE_VITA_SOURCES
-	src/system/vita/neon_math.cc
-	src/system/unx/unx_music.cc
-	src/system/unx/unx_net.cc
-	src/system/unx/unx_system.cc
-	epi/filesystem_linux.cc
-	epi/epi_linux.cc
-	epi/physfs/physfs_platform_unix.c
+	#src/system/vita/neon_math.cc
+	#src/system/unx/unx_music.cc
+	#src/system/unx/unx_net.cc
+	#src/system/unx/unx_system.cc
+	#epi/filesystem_linux.cc
+	#epi/epi_linux.cc
+	#epi/physfs/physfs_platform_unix.c
 )
 
 if (APPLE)
