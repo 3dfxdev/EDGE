@@ -686,7 +686,9 @@ void RGL_Init(void)
 	//if (!M_CheckParm("-oldGLchecks"))
 		//CA -1.21.2018- ~ New, smarter GL extension checker!
 	//{
+#ifndef VITA	
 	RGL_LoadExtensions();
+#endif
 	//}
 		int v = 0;
 		if (!gl.legacyMode)

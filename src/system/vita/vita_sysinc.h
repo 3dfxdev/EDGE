@@ -21,10 +21,10 @@
 
 #include "system/i_defs.h"
 
-#include <sys/ioctl.h>
+//#include <sys/ioctl.h>
 
 #ifdef LINUX
-#include <linux/cdrom.h>
+//#include <linux/cdrom.h>
 #endif
 
 #include "system/i_local.h"  // FIXME: remove
