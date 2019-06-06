@@ -238,6 +238,17 @@ E4M7Desc="E4M7: And Hell Followed";
 E4M8Desc="E4M8: Unto The Cruel";
 E4M9Desc="E4M9: Fear";
 
+
+E5M1Desc="E5M1: Baphomet's Demesne";
+E5M2Desc="E5M2: Sheol";
+E5M3Desc="E5M3: Cages of the Damned";
+E5M4Desc="E5M4: Paths of Wretchedness";
+E5M5Desc="E5M5: Abaddon's Void";
+E5M6Desc="E5M6: Unspeakable Persecution";
+E5M7Desc="E5M7: Nightmare Underworld";
+E5M8Desc="E5M8: Halls of Perdition";
+E5M9Desc="E5M9: Realm of Iblis";
+
 TALKTOSELF1="You mumble to yourself";
 TALKTOSELF2="Who's there?";
 TALKTOSELF3="You scare yourself";
@@ -365,6 +376,19 @@ Episode4Text="the spider mastermind must have sent forth\n"
 "of demons run amok among our cities.\n"
 "\n"
 "next stop, hell on earth!";
+
+Episode5Text="Baphomet was only doing Satan's bidding\n"
+"by bringing you back to Hell. Somehow they\n"
+"didn't understand that you're the reason\n"
+"they failed in the first place.\n"
+"\n"
+"After mopping up the place with your\n"
+"arsenal, you're ready to face the more\n"
+"advanced demons that were sent to Earth.\n"
+"\n"
+"\n"
+"Lock and load. Rip and tear.";
+
 
 Level7Text="YOU HAVE ENTERED DEEPLY INTO THE INFESTED\n"
            "STARPORT. BUT SOMETHING IS WRONG. THE\n"
@@ -1026,6 +1050,16 @@ E4M6Desc="E4M6: Against Thee Wickedly";
 E4M7Desc="E4M7: And Hell Followed";
 E4M8Desc="E4M8: Unto The Cruel";
 E4M9Desc="E4M9: Fear";
+
+E5M1Desc="E5M1: Baphomet's Demesne";
+E5M2Desc="E5M2: Sheol";
+E5M3Desc="E5M3: Cages of the Damned";
+E5M4Desc="E5M4: Paths of Wretchedness";
+E5M5Desc="E5M5: Abaddon's Void";
+E5M6Desc="E5M6: Unspeakable Persecution";
+E5M7Desc="E5M7: Nightmare Underworld";
+E5M8Desc="E5M8: Halls of Perdition";
+E5M9Desc="E5M9: Realm of Iblis";
 
 Level7Text = "VOUS ETES AU PLUS PROFOND DE L'ASTROPORT\n"
 	"INFESTE DE MONSTRES, MAIS QUELQUE CHOSE\n"

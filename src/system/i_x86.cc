@@ -42,11 +42,11 @@ static inline SDL_bool sbool(bool b)
 }
 
 
-
+#if 0
 //!SDL: This function returns true if the CPU has AVX features.
 inline bool cpu_has_avx() { return (SDL_HasAVX); }
 
-#ifdef WIN32
+//#ifdef WIN32
 inline bool cpu_has_neon() { return (SDL_HasNEON); }
 
 //!SDL: This function returns true if the CPU has AVX2 features.
@@ -275,13 +275,16 @@ void DumpCPUInfo(const CPUInfo *cpu)
 		if (cpu->b3DNow)		I_Printf(" 3DNow!");
 		if (cpu->b3DNowPlus)	I_Printf(" 3DNow!+");
 		//if (cpu_has_neon)       I_Printf(" NEON");
+#if 0
 #ifdef _M_X64
 		if (!cpu_has_avx)
-								I_Error("E_ShowCPU: EDGE requires AVX features to run in 64-bit mode.\n Please use the 32-bit build.\n");
+			I_Error("E_ShowCPU: EDGE requires AVX features to run in 64-bit mode.\n Please use the 32-bit build.\n");
 		else
-								I_Printf(" AVX");
+			I_Printf(" AVX");
 		//if (cpu_has_avx2)       I_Printf(" AVX2");
-#endif
+#endif  
+#endif // 0
+
 		I_Printf ("\n");
 	}
 }
