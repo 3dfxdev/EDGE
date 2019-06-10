@@ -84,16 +84,6 @@ int powerof2(int in)
 #define REPEAT_BOTH 3
 #define REPEAT_AUTO 4
 
-//ROTT stuff
-typedef enum 
-{ 
-	FT_PATCH, 
-	LT_TPATCH, 
-	LT_LPIC, 
-	LT_WALL 
-};
-
-
 /*
 * Rule for ROTT patches: patch->collumnofs[0] == patch->width*2 + 10
 */
