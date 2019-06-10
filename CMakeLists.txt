@@ -52,6 +52,7 @@ option(DAIKATANA "Compile Daikatana2 Executable" OFF)
 
 find_package( ZLIB )
 find_package( BZip2 )
+find_package (PHYSFS)
 #find_package ( FFMPEG )
 #find_package ( SDLKitchensink )
 #set (SDL_kitchensink_static "Statically link SDLKitchensink" ON)
@@ -306,6 +307,8 @@ INCLUDE_DIRECTORIES (${SDL2_INCLUDE_DIRS})
 ## FIND_PACKAGE (SDL_net REQUIRED)
 INCLUDE_DIRECTORIES (${SDLNET_INCLUDE_DIR})
 
+INCLUDE_DIRECTORIES (${PHYSFS_INCLUDE_DIR})
+
 ## FIND FFMPEG AND KITCHENSINK INCLUDES
 ##INCLUDE_DIRECTORIES (${FFMPEG_INCLUDE_DIR})
 ##INCLUDE_DIRECTORIES (${SDLKitchensink_INCLUDE_DIRS})
@@ -549,18 +552,18 @@ set(EDGE_SOURCES
 	
 	# Note we only support file formats from physFS in EDGE that will be used!
 	#- all others were stripped! 
-	epi/physfs/physfs.c
-    epi/physfs/physfs_byteorder.c
-    epi/physfs/physfs_unicode.c
-	epi/physfs/physfs_platform_posix.c #// !!!
-    epi/physfs/physfs_archiver_dir.c
-    epi/physfs/physfs_archiver_unpacked.c
-    epi/physfs/physfs_archiver_grp.c
-    epi/physfs/physfs_archiver_7z.c
-    epi/physfs/physfs_archiver_qpak.c
-    epi/physfs/physfs_archiver_wad.c
-    epi/physfs/physfs_archiver_zip.c
-    epi/physfs/physfs_archiver_iso9660.c
+	# epi/physfs/physfs.c
+    # epi/physfs/physfs_byteorder.c
+    # epi/physfs/physfs_unicode.c
+	# epi/physfs/physfs_platform_posix.c #// !!!
+    # epi/physfs/physfs_archiver_dir.c
+    # epi/physfs/physfs_archiver_unpacked.c
+    # epi/physfs/physfs_archiver_grp.c
+    # epi/physfs/physfs_archiver_7z.c
+    # epi/physfs/physfs_archiver_qpak.c
+    # epi/physfs/physfs_archiver_wad.c
+    # epi/physfs/physfs_archiver_zip.c
+    # epi/physfs/physfs_archiver_iso9660.c
 
 	glbsp/src/analyze.cc
 	glbsp/src/blockmap.cc
@@ -597,7 +600,7 @@ set(EDGE_WIN32_SOURCES
 	src/system/win32/i_exception.cc
 	epi/epi_win32.cc
 	epi/filesystem_win32.cc
-	epi/physfs/physfs_platform_windows.c
+	#epi/physfs/physfs_platform_windows.c
 )
 
 set(EDGE_UNIX_SOURCES
@@ -607,7 +610,7 @@ set(EDGE_UNIX_SOURCES
 	src/system/unx/unx_system.cc
 	epi/filesystem_linux.cc
 	epi/epi_linux.cc
-	epi/physfs/physfs_platform_unix.c
+	#epi/physfs/physfs_platform_unix.c
 )
 
 set(EDGE_DREAMCAST_SOURCES
@@ -632,7 +635,7 @@ if (APPLE)
 	set(EDGE_UNIX_SOURCES
 		${EDGE_UNIX_SOURCES}
 		src/system/unx/mac/mac_ui.mm
-		epi/physfs/physfs_platform_apple.m
+		#epi/physfs/physfs_platform_apple.m
 	)
 endif()
 
@@ -675,7 +678,8 @@ target_link_libraries(EDGE
 	${vorbis_RELEASE_LIBRARY}
 	${vorbisFILE_RELEASE_LIBRARY}
 	${ZLIB_LIBRARY_RELEASE}
-#	${SDLKitchensink_STATIC_LIBRARY}
+	${PHYSFS_LIBRARY}
+	#	${SDLKitchensink_STATIC_LIBRARY}
 )
 
 if (WIN32)

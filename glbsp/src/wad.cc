@@ -736,6 +736,7 @@ static void ReadLumpData(lump_t *lump)
 			PHYSFS_seek(file, lump->start);
 			len = PHYSFS_readBytes(file, lump->data, lump->length);
 			PHYSFS_close(file);
+			len = (len == lump->length) ? 1 : 0;
 		}
 	}
 	else

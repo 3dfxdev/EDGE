@@ -75,6 +75,9 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+#ifdef HAVE_PHYSFS
+#include <physfs.h>
+#endif
 
 extern void CreatePlaypal(); //Wolfenstein 3D 
 extern void CreateROTTpal(); // Rise of the Triad
