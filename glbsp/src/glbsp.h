@@ -37,7 +37,7 @@
 #endif
 
 #ifdef HAVE_PHYSFS
-#include "epi/physfs/physfs.h"
+#include <physfs.h>
 #endif
 
 
