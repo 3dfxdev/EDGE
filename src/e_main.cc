@@ -1662,7 +1662,7 @@ static void AddCommandLineFiles(void)
 
 			// sanity check...
 			if (stricmp(ext.c_str(), "wad") == 0 ||
-				stricmp(ext.c_str(), "wl6") == 0 ||
+				//stricmp(ext.c_str(), "wl6") == 0 ||
 				stricmp(ext.c_str(), "pak") == 0 ||
 				stricmp(ext.c_str(), "pk7") == 0 ||
 				stricmp(ext.c_str(), "pk3") == 0 ||
@@ -1699,7 +1699,7 @@ static void AddCommandLineFiles(void)
 
 			// sanity check...
 			if (stricmp(ext.c_str(), "wad") == 0 ||
-				stricmp(ext.c_str(), "wl6") == 0 ||
+				//stricmp(ext.c_str(), "wl6") == 0 ||
 				stricmp(ext.c_str(), "gwa") == 0 ||
 				stricmp(ext.c_str(), "hwa") == 0 ||
 				stricmp(ext.c_str(), "ddf") == 0 ||
