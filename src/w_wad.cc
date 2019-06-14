@@ -79,7 +79,7 @@
 #include <physfs.h>
 #endif
 
-extern void CreatePlaypal(); //Wolfenstein 3D 
+extern void CreatePlaypal(); //Wolfenstein 3D
 extern void CreateROTTpal(); // Rise of the Triad
 
 // -KM- 1999/01/31 Order is important, Languages are loaded before sfx, etc...
@@ -205,7 +205,7 @@ public:
 public:
 	data_file_c(const char *_fname, int _kind, epi::file_c* _file) :
 		file_name(_fname), kind(_kind), file(_file),
-		sprite_lumps(), flat_lumps(), patch_lumps(), 
+		sprite_lumps(), flat_lumps(), patch_lumps(),
 		colmap_lumps(), tx_lumps(), hires_lumps(),
 		lbm_lumps(), rottpic_lumps(), rottraw_flats(),
 		level_markers(), skin_markers(),
@@ -244,7 +244,7 @@ public:
 };
 
 static std::list<raw_filename_c *> wadfiles;
-static std::list<raw_filename_c *> r_pak_fp;
+//static std::list<raw_filename_c *> r_pak_fp;
 //static std::list<raw_filename_c *> raw_wl6;
 
 typedef enum
@@ -289,7 +289,7 @@ typedef struct
 #ifdef HAVE_PHYSFS
 	// pathname for PHYSFS file - wasteful, but no biggy on a PC
 	char path[256];
-	
+
 #endif
 }
 lumpinfo_t;
@@ -398,14 +398,14 @@ static bool IsS_END(char *name)
 		return 1;
 	}
 
-	if (strncmp(name, "SS_END", 8) == 0) 
+	if (strncmp(name, "SS_END", 8) == 0)
 	{
 		// fix up flag to standard syntax
 		strncpy(name, "S_END", 8);
 		return 1;
 	}
 
-	return (strncmp(name, "S_END", 8) == 0); 
+	return (strncmp(name, "S_END", 8) == 0);
 }
 
 //
@@ -917,7 +917,7 @@ static bool IsRawROTT(const char *name)
 //
 static bool IsDummySF(const char *name)
 {
-	return (strncmp(name, "S1_START", 8) == 0 ||  
+	return (strncmp(name, "S1_START", 8) == 0 ||
 		strncmp(name, "S2_START", 8) == 0 ||
 		strncmp(name, "S3_START", 8) == 0 ||
 		strncmp(name, "F1_START", 8) == 0 ||
@@ -1078,11 +1078,11 @@ static void SortLumps(void)
 	// file number, thirdly by the lump type.
 
 #define CMP(a, b)  \
-    (strncmp(lumpinfo[a].name, lumpinfo[b].name, 8) < 0 ||    \
-     (strncmp(lumpinfo[a].name, lumpinfo[b].name, 8) == 0 &&  \
-      (lumpinfo[a].sort_index > lumpinfo[b].sort_index ||     \
+	(strncmp(lumpinfo[a].name, lumpinfo[b].name, 8) < 0 ||    \
+	 (strncmp(lumpinfo[a].name, lumpinfo[b].name, 8) == 0 &&  \
+	  (lumpinfo[a].sort_index > lumpinfo[b].sort_index ||     \
 	   (lumpinfo[a].sort_index == lumpinfo[b].sort_index &&   \
-        lumpinfo[a].kind > lumpinfo[b].kind))))
+		lumpinfo[a].kind > lumpinfo[b].kind))))
 	QSORT(int, lumpmap, numlumps, CUTOFF);
 #undef CMP
 
@@ -1236,10 +1236,10 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 	// -CA- 10.29.18:
 	// UGLY HACKS INBOUND! Basically this looks up a table of entries from the wad since ROTT doesn't always
 	// have matching start and end markers. TODO: in the markers code, make an end marker -1 of current entry. Eh,
-	// since they are scattered all over the place, this will take some thought if we want it done nicer. 
+	// since they are scattered all over the place, this will take some thought if we want it done nicer.
 
-	else if ((strncmp(lump_p->name, "BOOTBLOD", 8) == 0) || 
-		(strncmp(lump_p->name, "IMFREE", 8) == 0) || 
+	else if ((strncmp(lump_p->name, "BOOTBLOD", 8) == 0) ||
+		(strncmp(lump_p->name, "IMFREE", 8) == 0) ||
 		(strncmp(lump_p->name, "BOOTNORM", 8) == 0) ||
 		 (strncmp(lump_p->name, "DEADBOSS", 8) == 0))
 	{
@@ -1249,7 +1249,7 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 		return;
 	}
 
-	
+
 	else if ((strncmp(lump_p->name, "AMMO18", 8) == 0) ||
 		(strncmp(name, "AMMO1C", 8) == 0) ||
 		(strncmp(name, "AMMO2B", 8) == 0) ||
@@ -1922,7 +1922,7 @@ static bool FindCacheFilename(std::string& out_name,
 //
 // File_Info
 //
-typedef struct 
+typedef struct
 {
 	data_file_c *dfile;
 	const char *name;
@@ -2960,7 +2960,7 @@ void W_AddRawFilename(const char *file, int kind)
 	I_Debugf("Added filename: %s\n", file);
 
 	wadfiles.push_back(new raw_filename_c(file, kind));
-	r_pak_fp.push_back(new raw_filename_c(file, kind));
+	//r_pak_fp.push_back(new raw_filename_c(file, kind));
 	//raw_wl6.push_back(new raw_filename_c(file, kind));
 }
 
@@ -3414,7 +3414,7 @@ int W_GetNumForName2(const char *name)
 // W_FindLumpFromPath
 //
 // Ignore 8 character limit and retrieve lump from path to use that instead.
-// 
+//
 //
 //==========================================================================
 
