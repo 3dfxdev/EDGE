@@ -31,12 +31,10 @@
 #include "r_image.h"
 #include "r_renderbuffers.h"
 
-#include "../epi/tarray.h"
-
 #include "m_argv.h"
 #define DEBUG  0
 
-static epi::TArray<std::string>  m_Extensions;
+static std::vector<std::string> m_Extensions;
 
 // implementation limits
 
@@ -67,8 +65,6 @@ typedef enum
 	PFT_MULTI_TEX = (1 << 3),
 }
 problematic_feature_e;
-
-
 
 
 typedef struct
@@ -211,7 +207,8 @@ void RGL_SetupMatrices3D(void)
 	else
 		glDisable(GL_COLOR_MATERIAL);
 
-	/* glBlendFunc(GL_SRC_ALPHA, GL_ONE);  // Additive lighting */
+	//!!!
+	 glBlendFunc(GL_SRC_ALPHA, GL_ONE);  // Additive lighting
 }
 
 static inline const char *SafeStr(const void *s)
@@ -244,7 +241,7 @@ static void RGL_CollectExtensions()
 
 			while (extension)
 			{
-				m_Extensions.Push(std::string(extension));
+				m_Extensions.push_back(std::string(extension));
 				extension = strtok(nullptr, " ");
 			}
 
@@ -257,14 +254,14 @@ static void RGL_CollectExtensions()
 		for (int i = 0; i < max; i++)
 		{
 			extension = (const char*)glGetStringi(GL_EXTENSIONS, i);
-			m_Extensions.Push(std::string(extension));
+			m_Extensions.push_back(std::string(extension));
 		}
 	}
 }
 
 static bool RGL_CheckExtension(const char *ext)
 {
-	for (unsigned int i = 0; i < m_Extensions.Size(); ++i)
+	for (unsigned int i = 0; i < m_Extensions.size(); ++i)
 	{
 		if (m_Extensions[i].compare(ext) == 0) return true;
 	}
@@ -314,7 +311,7 @@ void RGL_LoadExtensions()
 		double v1 = strtod(version, NULL);
 		double v2 = strtod(glversion, NULL);
 		if (v2 < v1) version = glversion;
-		else 
+		else
 			I_Printf("Emulating OpenGL v %s\n", version);
 	}
 
@@ -370,7 +367,7 @@ void RGL_LoadExtensions()
 			gl.flags |= RFL_SAMPLER_OBJECTS;
 		}
 
-		// The minimum requirement for the modern render path are GL 3.0 + uniform buffers. 
+		// The minimum requirement for the modern render path are GL 3.0 + uniform buffers.
 		// Also exclude the Linux Mesa driver at GL 3.0 because it errors out on shader compilation.
 		if (gl_version < 3.0f || (gl_version < 3.1f && (!RGL_CheckExtension("GL_ARB_uniform_buffer_object") || strstr(gl.vendorstring, "X.Org") != nullptr)))
 		{
@@ -430,7 +427,7 @@ void RGL_LoadExtensions()
 			//const char *lm = Args->CheckValue("-lightmethod");
 			//if (lm != NULL)
 			//{
-			//	if (!stricmp(lm, "deferred") && gl.lightmethod == LM_DIRECT) 
+			//	if (!stricmp(lm, "deferred") && gl.lightmethod == LM_DIRECT)
 			//		gl.lightmethod = LM_DEFERRED;
 			//}
 
@@ -467,7 +464,7 @@ void RGL_LoadExtensions()
 
 	if (gl.legacyMode)
 	{
-		// fudge a bit with the framebuffer stuff to avoid redundancies in the main code. 
+		// fudge a bit with the framebuffer stuff to avoid redundancies in the main code.
 		// Some of the older cards do not have the ARB stuff but the calls are nearly identical.
 		FUDGE_FUNC(glGenerateMipmap, EXT); //TODO: V760 https://www.viva64.com/en/w/v760/ Two identical blocks of text were found. The second block begins from line 477.
 		FUDGE_FUNC(glGenFramebuffers, EXT);
@@ -686,7 +683,7 @@ void RGL_Init(void)
 	//if (!M_CheckParm("-oldGLchecks"))
 		//CA -1.21.2018- ~ New, smarter GL extension checker!
 	//{
-#ifndef VITA	
+#ifndef VITA
 	RGL_LoadExtensions();
 #endif
 	//}
@@ -703,7 +700,7 @@ void RGL_Init(void)
 		if ((M_CheckParm("-debugopengl")))
 		{
 			I_GLf("GL_EXTENSIONS:");
-			for (unsigned i = 0; i < m_Extensions.Size(); i++)
+			for (unsigned i = 0; i < m_Extensions.size(); i++)
 			{
 				I_GLf(" %s", m_Extensions[i].c_str());
 			}

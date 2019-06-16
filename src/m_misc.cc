@@ -78,6 +78,11 @@ extern cvar_c r_vsync;
 extern cvar_c r_lerp;
 extern cvar_c r_shadows;
 extern cvar_c r_textscale;
+extern cvar_c r_bloom;
+extern cvar_c r_lens;
+extern cvar_c r_stretchworld;
+extern cvar_c r_fixspritescale;
+
 
 bool display_disk = false;
 int  display_desync = 0;
@@ -107,93 +112,99 @@ extern int joystick_device;
 
 static default_t defaults[] =
 {
-    {CFGT_Int,		"edge_version",		 &edge_version,	  0},
-    {CFGT_Int,		"screenwidth",		 &SCREENWIDTH,	  CFGDEF_SCREENWIDTH},
-    {CFGT_Int,		"screenheight",		 &SCREENHEIGHT,	  CFGDEF_SCREENHEIGHT},
-    {CFGT_Int,		"screendepth",		 &SCREENBITS,	  CFGDEF_SCREENBITS},
-    {CFGT_Boolean,	"fullscreen",		 &FULLSCREEN,	  CFGDEF_FULLSCREEN},
-    {CFGT_Boolean,	"directx",			 &force_directx,  0},
-    {CFGT_Boolean,	"waveout",			 &force_waveout,  0},
-    {CFGT_Int,      "usegamma",          &var_gamma,  CFGDEF_CURRENT_GAMMA},
+	{CFGT_Int,		"edge_version",		 &edge_version,	  0},
+	{CFGT_Int,		"screenwidth",		 &SCREENWIDTH,	  CFGDEF_SCREENWIDTH},
+	{CFGT_Int,		"screenheight",		 &SCREENHEIGHT,	  CFGDEF_SCREENHEIGHT},
+	{CFGT_Int,		"screendepth",		 &SCREENBITS,	  CFGDEF_SCREENBITS},
+	{CFGT_Boolean,	"fullscreen",		 &FULLSCREEN,	  CFGDEF_FULLSCREEN},
+	{CFGT_Boolean,	"directx",			 &force_directx,  0},
+	{CFGT_Boolean,	"waveout",			 &force_waveout,  0},
+	{CFGT_Int,      "usegamma",          &var_gamma,	  CFGDEF_CURRENT_GAMMA},
+	{CFGT_Boolean,  "m_diskicon",		 &m_diskicon,	  CFGDEF_DISK_ICON},
 
-    {CFGT_Int,      "sfx_volume",        &sfx_volume,     CFGDEF_SOUND_VOLUME},
-    {CFGT_Int,      "music_volume",      &mus_volume,     CFGDEF_MUSIC_VOLUME},
-    {CFGT_Int,      "music_device",      &var_music_dev,  CFGDEF_MUSIC_DEVICE},
-    {CFGT_Int,      "sample_rate",       &var_sample_rate,  CFGDEF_SAMPLE_RATE},
-    {CFGT_Int,      "sound_bits",        &var_sound_bits,   CFGDEF_SOUND_BITS},
-    {CFGT_Int,      "sound_stereo",      &var_sound_stereo, CFGDEF_SOUND_STEREO},
-    {CFGT_Int,      "mix_channels",      &var_mix_channels, CFGDEF_MIX_CHANNELS},
-    {CFGT_Int,      "quiet_factor",      &var_quiet_factor, CFGDEF_QUIET_FACTOR},
-    {CFGT_Int,      "timidity_quiet",    &var_timid_factor, CFGDEF_QUIET_FACTOR},
-    {CFGT_Boolean,  "opl_opl3mode",      &var_opl_opl3mode, CFGDEF_OPL_OPL3MODE},
+	{CFGT_Int,      "sfx_volume",        &sfx_volume,     CFGDEF_SOUND_VOLUME},
+	{CFGT_Int,      "music_volume",      &mus_volume,     CFGDEF_MUSIC_VOLUME},
+	{CFGT_Int,      "music_device",      &var_music_dev,  CFGDEF_MUSIC_DEVICE},
+	{CFGT_Int,      "sample_rate",       &var_sample_rate,  CFGDEF_SAMPLE_RATE},
+	{CFGT_Int,      "sound_bits",        &var_sound_bits,   CFGDEF_SOUND_BITS},
+	{CFGT_Int,      "sound_stereo",      &var_sound_stereo, CFGDEF_SOUND_STEREO},
+	{CFGT_Int,      "mix_channels",      &var_mix_channels, CFGDEF_MIX_CHANNELS},
+	{CFGT_Int,      "quiet_factor",      &var_quiet_factor, CFGDEF_QUIET_FACTOR},
+	{CFGT_Int,      "timidity_quiet",    &var_timid_factor, CFGDEF_QUIET_FACTOR},
+	{CFGT_Boolean,  "opl_opl3mode",      &var_opl_opl3mode, CFGDEF_OPL_OPL3MODE},
 
-    {CFGT_Int,      "show_messages",     &showMessages,   CFGDEF_SHOWMESSAGES},
+	{CFGT_Int,      "show_messages",     &showMessages,   CFGDEF_SHOWMESSAGES},
 
-    // -ES- 1998/11/28 Save fade settings
-    {CFGT_Int,      "telept_effect",     &telept_effect,  CFGDEF_TELEPT_EFFECT},
-    {CFGT_Int,      "telept_reverse",    &telept_reverse, CFGDEF_TELEPT_REVERSE},
-    {CFGT_Int,      "telept_flash",      &telept_flash,   CFGDEF_TELEPT_FLASH},
-    {CFGT_Int,      "invuln_fx",         &var_invul_fx,   CFGDEF_INVUL_FX},
-    {CFGT_Enum,     "wipe_method",       &wipe_method,    CFGDEF_WIPE_METHOD},
-    {CFGT_Int,      "wipe_reverse",      &wipe_reverse,   CFGDEF_WIPE_REVERSE},
-    {CFGT_Boolean,  "rotatemap",         &rotatemap,      CFGDEF_ROTATEMAP},
-    {CFGT_Boolean,  "respawnsetting",    &global_flags.res_respawn, CFGDEF_RES_RESPAWN},
-    {CFGT_Boolean,  "itemrespawn",       &global_flags.itemrespawn, CFGDEF_ITEMRESPAWN},
-    {CFGT_Boolean,  "respawn",           &global_flags.respawn, CFGDEF_RESPAWN},
-    {CFGT_Boolean,  "fastparm",          &global_flags.fastparm, CFGDEF_FASTPARM},
-    {CFGT_Int,      "grav",              &global_flags.menu_grav, CFGDEF_MENU_GRAV},
-    {CFGT_Boolean,  "true3dgameplay",    &global_flags.true3dgameplay, CFGDEF_TRUE3DGAMEPLAY},
-    {CFGT_Enum,     "autoaim",           &global_flags.autoaim, CFGDEF_AUTOAIM},
-    {CFGT_Int,      "doom_fading",       &doom_fading,    CFGDEF_DOOM_FADING},
-    {CFGT_Boolean,  "shootthru_scenery", &global_flags.pass_missile, CFGDEF_PASS_MISSILE},
+	// -ES- 1998/11/28 Save fade settings
+	{CFGT_Int,      "telept_effect",     &telept_effect,  CFGDEF_TELEPT_EFFECT},
+	{CFGT_Int,      "telept_reverse",    &telept_reverse, CFGDEF_TELEPT_REVERSE},
+	{CFGT_Int,      "telept_flash",      &telept_flash,   CFGDEF_TELEPT_FLASH},
+	{CFGT_Int,      "invuln_fx",         &var_invul_fx,   CFGDEF_INVUL_FX},
+	{CFGT_Enum,     "wipe_method",       &wipe_method,    CFGDEF_WIPE_METHOD},
+	{CFGT_Int,      "wipe_reverse",      &wipe_reverse,   CFGDEF_WIPE_REVERSE},
+	{CFGT_Boolean,  "rotatemap",         &rotatemap,      CFGDEF_ROTATEMAP},
+	{CFGT_Boolean,  "respawnsetting",    &global_flags.res_respawn, CFGDEF_RES_RESPAWN},
+	{CFGT_Boolean,  "itemrespawn",       &global_flags.itemrespawn, CFGDEF_ITEMRESPAWN},
+	{CFGT_Boolean,  "respawn",           &global_flags.respawn, CFGDEF_RESPAWN},
+	{CFGT_Boolean,  "fastparm",          &global_flags.fastparm, CFGDEF_FASTPARM},
+	{CFGT_Int,      "grav",              &global_flags.menu_grav, CFGDEF_MENU_GRAV},
+	{CFGT_Boolean,  "true3dgameplay",    &global_flags.true3dgameplay, CFGDEF_TRUE3DGAMEPLAY},
+	{CFGT_Enum,     "autoaim",           &global_flags.autoaim, CFGDEF_AUTOAIM},
+	{CFGT_Int,      "doom_fading",       &doom_fading,    CFGDEF_DOOM_FADING},
+	{CFGT_Boolean,  "shootthru_scenery", &global_flags.pass_missile, CFGDEF_PASS_MISSILE},
 
-    // -KM- 1998/07/21 Save the blood setting
-    {CFGT_Boolean,  "blood",             &global_flags.more_blood, CFGDEF_MORE_BLOOD},
-    {CFGT_Boolean,  "extra",             &global_flags.have_extra, CFGDEF_HAVE_EXTRA},
+	// -KM- 1998/07/21 Save the blood setting
+	{CFGT_Boolean,  "blood",             &global_flags.more_blood, CFGDEF_MORE_BLOOD},
+	{CFGT_Boolean,  "extra",             &global_flags.have_extra, CFGDEF_HAVE_EXTRA},
 	{CFGT_Int,      "r_shadows",         &r_shadows, CFGDEF_SHADOWS},
-    {CFGT_Boolean,  "halos",             &global_flags.halos, 0},
-    {CFGT_Boolean,  "weaponkick",        &global_flags.kicking, CFGDEF_KICKING},
-    {CFGT_Boolean,  "weaponswitch",      &global_flags.weapon_switch, CFGDEF_WEAPON_SWITCH},
-    {CFGT_Boolean,  "mlook",             &global_flags.mlook, CFGDEF_MLOOK},
-    {CFGT_Boolean,  "jumping",           &global_flags.jump, CFGDEF_JUMP},
-    {CFGT_Boolean,  "crouching",         &global_flags.crouch, CFGDEF_CROUCH},
-    {CFGT_Int,      "mipmapping",        &var_mipmapping, CFGDEF_USE_MIPMAPPING},
-    {CFGT_Int,      "smoothing",         &var_smoothing,  CFGDEF_USE_SMOOTHING},
-    {CFGT_Boolean,  "dither",            &var_dithering, 0},
-    {CFGT_Int,      "dlights",           &use_dlights,    CFGDEF_USE_DLIGHTS},
-    {CFGT_Int,      "detail_level",      &detail_level,   CFGDEF_DETAIL_LEVEL},
+	{CFGT_Boolean,  "halos",             &global_flags.halos, 0},
+	{CFGT_Boolean,  "weaponkick",        &global_flags.kicking, CFGDEF_KICKING},
+	{CFGT_Boolean,  "weaponswitch",      &global_flags.weapon_switch, CFGDEF_WEAPON_SWITCH},
+	{CFGT_Boolean,  "mlook",             &global_flags.mlook, CFGDEF_MLOOK},
+	{CFGT_Boolean,  "jumping",           &global_flags.jump, CFGDEF_JUMP},
+	{CFGT_Boolean,  "crouching",         &global_flags.crouch, CFGDEF_CROUCH},
+	{CFGT_Int,      "mipmapping",        &var_mipmapping, CFGDEF_USE_MIPMAPPING},
+	{CFGT_Int,      "smoothing",         &var_smoothing,  CFGDEF_USE_SMOOTHING},
+	{CFGT_Boolean,  "dither",            &var_dithering, 0},
+	{CFGT_Int,      "dlights",           &use_dlights,    CFGDEF_USE_DLIGHTS},
+	{CFGT_Int,      "detail_level",      &detail_level,   CFGDEF_DETAIL_LEVEL},
 	{CFGT_Int,      "hq2x_scaling",      &hq2x_scaling,   CFGDEF_HQ2X_SCALING},
 	{CFGT_Boolean,  "r_vsync",           &r_vsync,   	  CFGDEF_USE_VSYNC},
 	{CFGT_Boolean,  "r_lerp",            &r_lerp,   	  CFGDEF_INTERPOLATION},
 	{CFGT_Boolean,  "m_tactile",         &m_tactile,      CFGDEF_SCREENSHAKE},
 	{CFGT_Boolean,  "melee_tactile",     &melee_tactile,  CFGDEF_MELEESHAKE },
+	{CFGT_Boolean,  "r_bloom",			 &r_bloom,		CFGDEF_USEBLOOM },
+	{CFGT_Boolean,  "r_lens",			 &r_lens,		CFGDEF_LENSDISTORT },
+	{CFGT_Boolean,  "r_stretchworld",    &r_stretchworld, CFGDEF_STRETCHSCENE },
+	{CFGT_Boolean,  "r_fixspritescale",    &r_fixspritescale, CFGDEF_SPRITESCALE },
 
-    // -KM- 1998/09/01 Useless mouse/joy stuff removed,
-    //                 analogue binding added
-    {CFGT_Int,      "mouse_axis_x",      &mouse_xaxis,  CFGDEF_MOUSE_XAXIS},
-    {CFGT_Int,      "mouse_axis_y",      &mouse_yaxis,  CFGDEF_MOUSE_YAXIS},
-    {CFGT_Int,      "mouse_sens_x",      &mouse_xsens,  CFGDEF_MOUSESENSITIVITY},
-    {CFGT_Int,      "mouse_sens_y",      &mouse_ysens,  CFGDEF_MOUSESENSITIVITY},
 
-    // -ACB- 1998/09/06 Two-stage turning & Speed controls added
-    {CFGT_Int,      "var_turnspeed",     &var_turnspeed,    CFGDEF_TURNSPEED},
-    {CFGT_Int,      "var_mlookspeed",    &var_mlookspeed,   CFGDEF_MLOOKSPEED},
-    {CFGT_Int,      "var_forwardspeed",  &var_forwardspeed, CFGDEF_FORWARDMOVESPEED},
-    {CFGT_Int,      "var_sidespeed",     &var_sidespeed,    CFGDEF_SIDEMOVESPEED},
-    {CFGT_Int,      "var_flyspeed",      &var_flyspeed,     CFGDEF_SIDEMOVESPEED},
+	// -KM- 1998/09/01 Useless mouse/joy stuff removed,
+	//                 analogue binding added
+	{CFGT_Int,      "mouse_axis_x",      &mouse_xaxis,  CFGDEF_MOUSE_XAXIS},
+	{CFGT_Int,      "mouse_axis_y",      &mouse_yaxis,  CFGDEF_MOUSE_YAXIS},
+	{CFGT_Int,      "mouse_sens_x",      &mouse_xsens,  CFGDEF_MOUSESENSITIVITY},
+	{CFGT_Int,      "mouse_sens_y",      &mouse_ysens,  CFGDEF_MOUSESENSITIVITY},
 
-    {CFGT_Int,      "joystick_device",   &joystick_device, 0},
-    {CFGT_Int,      "joy_axis1",         &joy_axis[0],    CFGDEF_JOY_XAXIS},
-    {CFGT_Int,      "joy_axis2",         &joy_axis[1],    CFGDEF_JOY_YAXIS},
-    {CFGT_Int,      "joy_axis3",         &joy_axis[2],    AXIS_DISABLE},
-    {CFGT_Int,      "joy_axis4",         &joy_axis[3],    AXIS_DISABLE},
-    {CFGT_Int,      "joy_axis5",         &joy_axis[4],    AXIS_DISABLE},
-    {CFGT_Int,      "joy_axis6",         &joy_axis[5],    AXIS_DISABLE},
+	// -ACB- 1998/09/06 Two-stage turning & Speed controls added
+	{CFGT_Int,      "var_turnspeed",     &var_turnspeed,    CFGDEF_TURNSPEED},
+	{CFGT_Int,      "var_mlookspeed",    &var_mlookspeed,   CFGDEF_MLOOKSPEED},
+	{CFGT_Int,      "var_forwardspeed",  &var_forwardspeed, CFGDEF_FORWARDMOVESPEED},
+	{CFGT_Int,      "var_sidespeed",     &var_sidespeed,    CFGDEF_SIDEMOVESPEED},
+	{CFGT_Int,      "var_flyspeed",      &var_flyspeed,     CFGDEF_SIDEMOVESPEED},
 
-    {CFGT_Int,      "monitor_size",      &monitor_size,   1}, // Changed to always do 16:9 by default!
-    {CFGT_Int,      "screen_hud",        &screen_hud,     CFGDEF_SCREEN_HUD},
-    {CFGT_Int,      "save_page",         &save_page, 0},
-    {CFGT_Boolean,  "png_scrshots",      &png_scrshots,   CFGDEF_PNG_SCRSHOTS},
+	{CFGT_Int,      "joystick_device",   &joystick_device, 0},
+	{CFGT_Int,      "joy_axis1",         &joy_axis[0],    CFGDEF_JOY_XAXIS},
+	{CFGT_Int,      "joy_axis2",         &joy_axis[1],    CFGDEF_JOY_YAXIS},
+	{CFGT_Int,      "joy_axis3",         &joy_axis[2],    AXIS_DISABLE},
+	{CFGT_Int,      "joy_axis4",         &joy_axis[3],    AXIS_DISABLE},
+	{CFGT_Int,      "joy_axis5",         &joy_axis[4],    AXIS_DISABLE},
+	{CFGT_Int,      "joy_axis6",         &joy_axis[5],    AXIS_DISABLE},
+
+	{CFGT_Int,      "monitor_size",      &monitor_size,   1}, // Changed to always do 16:9 by default!
+	{CFGT_Int,      "screen_hud",        &screen_hud,     CFGDEF_SCREEN_HUD},
+	{CFGT_Int,      "save_page",         &save_page, 0},
+	{CFGT_Boolean,  "png_scrshots",      &png_scrshots,   CFGDEF_PNG_SCRSHOTS},
 
 	// -------------------- VARS --------------------
 
@@ -201,45 +212,45 @@ static default_t defaults[] =
 
 	// -------------------- KEYS --------------------
 
-    {CFGT_Key,      "key_right",         &key_right,      CFGDEF_KEY_RIGHT},
-    {CFGT_Key,      "key_left",          &key_left,       CFGDEF_KEY_LEFT},
-    {CFGT_Key,      "key_up",            &key_up,         CFGDEF_KEY_UP},
-    {CFGT_Key,      "key_down",          &key_down,       CFGDEF_KEY_DOWN},
-    {CFGT_Key,      "key_lookup",        &key_lookup,     CFGDEF_KEY_LOOKUP},
-    {CFGT_Key,      "key_lookdown",      &key_lookdown,   CFGDEF_KEY_LOOKDOWN},
-    {CFGT_Key,      "key_lookcenter",    &key_lookcenter, CFGDEF_KEY_LOOKCENTER},
+	{CFGT_Key,      "key_right",         &key_right,      CFGDEF_KEY_RIGHT},
+	{CFGT_Key,      "key_left",          &key_left,       CFGDEF_KEY_LEFT},
+	{CFGT_Key,      "key_up",            &key_up,         CFGDEF_KEY_UP},
+	{CFGT_Key,      "key_down",          &key_down,       CFGDEF_KEY_DOWN},
+	{CFGT_Key,      "key_lookup",        &key_lookup,     CFGDEF_KEY_LOOKUP},
+	{CFGT_Key,      "key_lookdown",      &key_lookdown,   CFGDEF_KEY_LOOKDOWN},
+	{CFGT_Key,      "key_lookcenter",    &key_lookcenter, CFGDEF_KEY_LOOKCENTER},
 
-    // -ES- 1999/03/28 Zoom Key
-    {CFGT_Key,      "key_zoom",          &key_zoom,        CFGDEF_KEY_ZOOM},
-    {CFGT_Key,      "key_strafeleft",    &key_strafeleft,  CFGDEF_KEY_STRAFELEFT},
-    {CFGT_Key,      "key_straferight",   &key_straferight, CFGDEF_KEY_STRAFERIGHT},
+	// -ES- 1999/03/28 Zoom Key
+	{CFGT_Key,      "key_zoom",          &key_zoom,        CFGDEF_KEY_ZOOM},
+	{CFGT_Key,      "key_strafeleft",    &key_strafeleft,  CFGDEF_KEY_STRAFELEFT},
+	{CFGT_Key,      "key_straferight",   &key_straferight, CFGDEF_KEY_STRAFERIGHT},
 
-    // -ACB- for -MH- 1998/07/02 Flying Keys
-    {CFGT_Key,      "key_flyup",         &key_flyup,      CFGDEF_KEY_FLYUP},
-    {CFGT_Key,      "key_flydown",       &key_flydown,    CFGDEF_KEY_FLYDOWN},
+	// -ACB- for -MH- 1998/07/02 Flying Keys
+	{CFGT_Key,      "key_flyup",         &key_flyup,      CFGDEF_KEY_FLYUP},
+	{CFGT_Key,      "key_flydown",       &key_flydown,    CFGDEF_KEY_FLYDOWN},
 
-    {CFGT_Key,      "key_fire",          &key_fire,       CFGDEF_KEY_FIRE},
-    {CFGT_Key,      "key_use",           &key_use,        CFGDEF_KEY_USE},
-    {CFGT_Key,      "key_strafe",        &key_strafe,     CFGDEF_KEY_STRAFE},
-    {CFGT_Key,      "key_speed",         &key_speed,      CFGDEF_KEY_SPEED},
-    {CFGT_Key,      "key_autorun",       &key_autorun,    CFGDEF_KEY_AUTORUN},
-    {CFGT_Key,      "key_nextweapon",    &key_nextweapon, CFGDEF_KEY_NEXTWEAPON},
-    {CFGT_Key,      "key_prevweapon",    &key_prevweapon, CFGDEF_KEY_PREVWEAPON},
+	{CFGT_Key,      "key_fire",          &key_fire,       CFGDEF_KEY_FIRE},
+	{CFGT_Key,      "key_use",           &key_use,        CFGDEF_KEY_USE},
+	{CFGT_Key,      "key_strafe",        &key_strafe,     CFGDEF_KEY_STRAFE},
+	{CFGT_Key,      "key_speed",         &key_speed,      CFGDEF_KEY_SPEED},
+	{CFGT_Key,      "key_autorun",       &key_autorun,    CFGDEF_KEY_AUTORUN},
+	{CFGT_Key,      "key_nextweapon",    &key_nextweapon, CFGDEF_KEY_NEXTWEAPON},
+	{CFGT_Key,      "key_prevweapon",    &key_prevweapon, CFGDEF_KEY_PREVWEAPON},
 
-    {CFGT_Key,      "key_180",           &key_180,        CFGDEF_KEY_180},
-    {CFGT_Key,      "key_map",           &key_map,        CFGDEF_KEY_MAP},
-    {CFGT_Key,      "key_talk",          &key_talk,       CFGDEF_KEY_TALK},
-    {CFGT_Key,      "key_console",       &key_console,    CFGDEF_KEY_CONSOLE},  // -AJA- 2007/08/15.
-    {CFGT_Key,      "key_pause",         &key_pause,      KEYD_PAUSE},          // -AJA- 2010/06/13.
+	{CFGT_Key,      "key_180",           &key_180,        CFGDEF_KEY_180},
+	{CFGT_Key,      "key_map",           &key_map,        CFGDEF_KEY_MAP},
+	{CFGT_Key,      "key_talk",          &key_talk,       CFGDEF_KEY_TALK},
+	{CFGT_Key,      "key_console",       &key_console,    CFGDEF_KEY_CONSOLE},  // -AJA- 2007/08/15.
+	{CFGT_Key,      "key_pause",         &key_pause,      KEYD_PAUSE},          // -AJA- 2010/06/13.
 
-    {CFGT_Key,      "key_mlook",         &key_mlook,      CFGDEF_KEY_MLOOK},  // -AJA- 1999/07/27.
-    {CFGT_Key,      "key_secondatk",     &key_secondatk,  CFGDEF_KEY_SECONDATK},  // -AJA- 2000/02/08.
-    {CFGT_Key,      "key_reload",        &key_reload,     CFGDEF_KEY_RELOAD},  // -AJA- 2004/11/11.
-    {CFGT_Key,      "key_action1",       &key_action1,    CFGDEF_KEY_ACTION1},  // -AJA- 2009/09/07
-    {CFGT_Key,      "key_action2",       &key_action2,    CFGDEF_KEY_ACTION2},  // -AJA- 2009/09/07
-    //tapamn key_action3/4 where added in revision 6, but never defined
+	{CFGT_Key,      "key_mlook",         &key_mlook,      CFGDEF_KEY_MLOOK},  // -AJA- 1999/07/27.
+	{CFGT_Key,      "key_secondatk",     &key_secondatk,  CFGDEF_KEY_SECONDATK},  // -AJA- 2000/02/08.
+	{CFGT_Key,      "key_reload",        &key_reload,     CFGDEF_KEY_RELOAD},  // -AJA- 2004/11/11.
+	{CFGT_Key,      "key_action1",       &key_action1,    CFGDEF_KEY_ACTION1},  // -AJA- 2009/09/07
+	{CFGT_Key,      "key_action2",       &key_action2,    CFGDEF_KEY_ACTION2},  // -AJA- 2009/09/07
+	//tapamn key_action3/4 where added in revision 6, but never defined
 	{CFGT_Key,      "key_action3",       &key_action3,    CFGDEF_KEY_ACTION3},  // -AJA- 2009/09/07
-    {CFGT_Key,      "key_action4",       &key_action4,    CFGDEF_KEY_ACTION4},  // -AJA- 2009/09/07
+	{CFGT_Key,      "key_action4",       &key_action4,    CFGDEF_KEY_ACTION4},  // -AJA- 2009/09/07
 
 	// -AJA- 2010/06/13: weapon and automap keys
 	{CFGT_Key,      "key_weapon1",       &key_weapons[1], '1'},
@@ -382,7 +393,7 @@ void M_LoadDefaults(void)
 		std::string newstr;
 		bool isstring = false;
 
-		if (fscanf(f, "%79s %[^\n]\n", def, strparm) != 2) 
+		if (fscanf(f, "%79s %[^\n]\n", def, strparm) != 2)
 			//TODO: V576 https://www.viva64.com/en/w/v576/ Incorrect format. Consider checking the fourth actual argument of the 'fscanf' function. It's dangerous to use string specifier without width specification. Buffer overflow is possible.
 			continue;
 
@@ -409,7 +420,7 @@ void M_LoadDefaults(void)
 			newstr = std::string(strparm + 1);
 		}
 		else if (strparm[0] == '0' && strparm[1] == 'x')
-			sscanf(strparm + 2, "%x", &parm); 
+			sscanf(strparm + 2, "%x", &parm);
 		//TODO: V576 https://www.viva64.com/en/w/v576/ Incorrect format. Consider checking the third actual argument of the 'sscanf' function. A pointer to the unsigned int type is expected.
 		else
 			sscanf(strparm, "%i", &parm);
@@ -487,7 +498,7 @@ void M_ScreenShot(bool show_msg)
 {
 	const char *extension;
 
-    if (png_scrshots)
+	if (png_scrshots)
 		extension = "png";
 	else
 		extension = "jpg";
@@ -502,9 +513,9 @@ void M_ScreenShot(bool show_msg)
 		fn = epi::PATH_Join(shot_dir.c_str(), base.c_str());
 
 		if (! epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
-        {
+		{
 			break; // file doesn't exist
-        }
+		}
 	}
 
 	FILE *fp = fopen(fn.c_str(), "wb");
@@ -521,10 +532,10 @@ void M_ScreenShot(bool show_msg)
 	RGL_ReadScreen(0, 0, SCREENWIDTH, SCREENHEIGHT, img->PixelAt(0,0));
 
 	bool result;
-    if (png_scrshots)
-        result = epi::PNG_Save(fp, img);
-    else
-        result = epi::JPEG_Save(fp, img);
+	if (png_scrshots)
+		result = epi::PNG_Save(fp, img);
+	else
+		result = epi::JPEG_Save(fp, img);
 
 	if (show_msg)
 	{

@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  LIST OF ALL CVARS
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 2007-2009  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -192,7 +192,7 @@ cvar_link_t  all_cvars[] =
 
 	{ "r_crosshair",    &r_crosshair,    "c",   "0"  },
 	{ "r_crosscolor",   &r_crosscolor,   "c",   "0"  },
-	{ "r_crosssize",    &r_crosssize,    "c",   "16" },
+	{ "r_crosssize",    &r_crosssize,    "c",   "15" },
 	{ "r_crossbright",  &r_crossbright,  "c",   "1.0" },
 
 	{ "r_nearclip",     &r_nearclip,     "c",   "4"  },
@@ -237,10 +237,10 @@ cvar_link_t  all_cvars[] =
 	{ "r_md5scale",        &r_md5scale,        "c", "0"},
 	{ "r_lerp",			   &r_lerp,        "c", "1" },
 	{ "r_maxfps",          &r_maxfps,        "c", "0" }, //experimental. . .
-	{ "r_vsync",           &r_vsync,        "c", "1" },
+	{ "r_vsync",           &r_vsync,        "c", "0" },
 
 
-	{ "r_bloom",           &r_bloom,        "c", "1" }, 
+	{ "r_bloom",           &r_bloom,        "c", "1" },
 	{ "r_bloom_amount",    &r_bloom_amount, "c", "1.5" },
 #if 0
 	{ "r_exposure_scale",  &r_exposure_scale, "c", "2.0" },
@@ -276,7 +276,7 @@ cvar_link_t  all_cvars[] =
     { "g_weaponswitch", &g_weaponswitch, "c",   "1"  },
 
 	{ "am_rotate",      &am_rotate,      "c",   "0"  },
-                                        
+
 	{ "m_messages",     &m_messages,     "c",   "1"  },
 	{ "m_obituaries",   &m_obituaries,   "c",   "1"  },
 	{ "m_screenhud",    &m_screenhud,    "c",   "0"  },
@@ -285,7 +285,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_height",       &r_height,       "c",   "480"   },
     { "r_depth",        &r_depth,        "c",   "32"    },
     { "r_fullscreen",   &r_fullscreen,   "c",   "0"     },
-												
+
 	{ "r_gamma",        &r_gamma,        "c",   "1"  },
 
 	{ "r_mipmapping",   &r_mipmapping,   "c",   "0"  },

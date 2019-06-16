@@ -1,9 +1,9 @@
 //------------------------------------------------------------------------
 //  Path to Executable
 //------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 2006-2008  The EDGE Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -56,7 +56,7 @@ const char *GetExecutablePath(const char *argv0)
 
 	if (length > 0 && length < PATH_MAX)
 	{
-		if (access(dir, 0) == 0)  // sanity check
+		if (_access(dir, 0) == 0)  // sanity check
 		{
 			std::string result = PATH_GetDir(dir);
 			delete[] dir;
@@ -131,12 +131,12 @@ const char *GetExecutablePath(const char *argv0)
 //
 // Get default path to resources
 //
-const char* GetResourcePath() 
+const char* GetResourcePath()
 {
 	std::string path = ".";
 
 #ifdef MACOSX
-	// Used infrequently, hence the code is not as brutally 
+	// Used infrequently, hence the code is not as brutally
 	// efficiently as it could. Clarity came first here.
 	const std::string appdir_suffix = ".app";
 	const std::string contents_subdir = "Contents";
@@ -147,7 +147,7 @@ const char* GetResourcePath()
 	dir_match += DIRSEPARATOR;
 	dir_match += contents_subdir;
 	dir_match += DIRSEPARATOR;
-	dir_match += exe_subdir; 
+	dir_match += exe_subdir;
 
     const char *ep = GetExecutablePath(NULL);
 	std::string exe_path = ep;
@@ -156,10 +156,10 @@ const char* GetResourcePath()
 	if (exe_path.size() > 0)
 	{
 		std::string::size_type pos = exe_path.rfind(dir_match);
-		if (pos != std::string::npos) // Found it 
+		if (pos != std::string::npos) // Found it
 		{
 			// Only alter if it is where it should be (i.e. at the end)
-			std::string::size_type expected_pos = 
+			std::string::size_type expected_pos =
 					exe_path.size() - dir_match.size();
 			if (pos == expected_pos)
 			{
@@ -170,8 +170,8 @@ const char* GetResourcePath()
 				// the resource sub directory
 				pos = exe_path.rfind(exe_subdir);
 
-				path.replace(exe_path.find(exe_subdir), 
-							 exe_subdir.size(), 
+				path.replace(exe_path.find(exe_subdir),
+							 exe_subdir.size(),
 							 res_subdir);
 			}
 		}

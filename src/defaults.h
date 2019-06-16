@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE2 Default Settings
 //----------------------------------------------------------------------------
-// 
+//
 //  Copyright (c) 1999-2009  The EDGE2 Team.
-// 
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -73,6 +73,7 @@
 // Misc
 #define CFGDEF_MENULANGUAGE     (0)
 #define CFGDEF_SHOWMESSAGES     (1)
+#define CFGDEF_DISK_ICON        (1)
 
 // Sound and Music
 #define CFGDEF_SOUND_VOLUME     (8)
@@ -114,6 +115,10 @@
 #define CFGDEF_INTERPOLATION    (1)
 #define CFGDEF_SCREENSHAKE      (1)
 #define CFGDEF_MELEESHAKE       (0)
+#define CFGDEF_USEBLOOM         (1)
+#define CFGDEF_LENSDISTORT      (1)
+#define CFGDEF_STRETCHSCENE     (1)
+#define CFGDEF_SPRITESCALE      (1)
 
 // Gameplay Options
 #define CFGDEF_AUTOAIM          (1)
@@ -127,7 +132,7 @@
 #define CFGDEF_TRUE3DGAMEPLAY   (1)
 #define CFGDEF_PASS_MISSILE     (1)
 #define CFGDEF_MENU_GRAV        (MENU_GRAV_NORMAL)
-#define CFGDEF_RES_RESPAWN      (1)       // Resurrect Mode 
+#define CFGDEF_RES_RESPAWN      (1)       // Resurrect Mode
 #define CFGDEF_ITEMRESPAWN      (0)
 #define CFGDEF_FASTPARM         (0)
 #define CFGDEF_RESPAWN          (0)

@@ -544,7 +544,7 @@ static void M_DisplayPause(void)
 
 	if (heretic_mode)
 	{
-		float x = 160 - 3 / 2; 
+		float x = 160 - 3 / 2;
 		//TODO: V636 https://www.viva64.com/en/w/v636/ The '3 / 2' expression was implicitly cast from 'int' type to 'float' type. Consider utilizing an explicit type cast to avoid the loss of a fractional part. An example: double A = (double)(X) / Y;.
 		float y = 3;
 		HUD_StretchImage(x, y, w, h, pause_image);
@@ -900,6 +900,11 @@ void InitDirectories(void)
 	std::string parms = epi::PATH_Join(game_dir.c_str(), "parms");
 	std::string base_ddf = epi::PATH_Join(game_dir.c_str(), "base");
 
+	if (base_ddf.empty())
+		I_Error("Error: /base root directory or contents missing, unable to find engine scripts!");
+	else
+		I_Printf("BASE Directory; [%s]\n", base_ddf);
+
 	if (epi::FS_Access(parms.c_str(), epi::file_c::ACCESS_READ))
 	{
 		// Insert it right after the game parameter
@@ -910,7 +915,7 @@ void InitDirectories(void)
 	if (s)
 	{
 		ddf_dir = std::string(s);
-		//I_Printf("DDF Directory; [%s]\n", ddf_dir);
+		I_Printf("BASE Directory; [%s]\n", ddf_dir);
 	}
 	else if (heretic_mode)
 	{
@@ -997,19 +1002,19 @@ void InitDirectories(void)
 // Kept freedoom.wad for backward compatibility
 // 2016/02/07: Added Darkwar.wad for ROTT
 // 9/2018: Added "strife1"
-const char *wadname[] = { "doom2", "doom","hyper", 
-						"plutonia", "tnt", "hacx", 
-						"heretic", "freedoom", "freedm", 
-						"chex", "freedoom1", "freedoom2", 
-						"darkwar", "slave", "doom1", 
+const char *wadname[] = { "doom2", "doom","hyper",
+						"plutonia", "tnt", "hacx",
+						"heretic", "freedoom", "freedm",
+						"chex", "freedoom1", "freedoom2",
+						"darkwar", "slave", "doom1",
 						"strife1", NULL };
 
 static void IdentifyVersion(void)
 {
 	I_Debugf("- Identify IWADS\n");
 
-	// Check -wolf3d param (which is the ONLY way to start Wolfenstein for now), 
-	//TODO: if this is a Wolf3D map, drastically alter startupcode, and set a global bool to 'wolf3d_mode'? 
+	// Check -wolf3d param (which is the ONLY way to start Wolfenstein for now),
+	//TODO: if this is a Wolf3D map, drastically alter startupcode, and set a global bool to 'wolf3d_mode'?
 
 	if (wolf3d_mode)
 	{
@@ -1147,6 +1152,9 @@ static void IdentifyVersion(void)
 				printf("ROTT mode TRUE\n");
 				//CreateROTTpal();
 			}
+			else
+			heretic_mode = false;
+			rott_mode = false;
 
 		}
 	}

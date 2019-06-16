@@ -2960,8 +2960,6 @@ void W_AddRawFilename(const char *file, int kind)
 	I_Debugf("Added filename: %s\n", file);
 
 	wadfiles.push_back(new raw_filename_c(file, kind));
-	//r_pak_fp.push_back(new raw_filename_c(file, kind));
-	//raw_wl6.push_back(new raw_filename_c(file, kind));
 }
 
 //
@@ -2991,15 +2989,6 @@ void W_InitMultipleFiles(void)
 		raw_filename_c *rf = *it;
 		AddFile(rf->filename.c_str(), rf->kind, -1);
 	}
-
-#if 0
-	for (it = raw_wl6.begin(); it != raw_wl6.end(); it++)
-	{
-		raw_filename_c* rf = *it;
-		AddFile(rf->filename.c_str(), rf->kind, -1);
-	}
-#endif // 0
-
 
 	if (numlumps == 0)
 		I_Error("W_InitMultipleFiles: no files found!\n");
@@ -3381,10 +3370,10 @@ int W_CheckNumForName_GFX(const char *name)
 	{
 		if (lumpinfo[i].kind == LMKIND_Normal ||
 			lumpinfo[i].kind == LMKIND_Sprite ||
-			lumpinfo[i].kind == LMKIND_Patch  ||
-			lumpinfo[i].kind == LMKIND_LBM ||
-			lumpinfo[i].kind == LMKIND_PIC ||
-			lumpinfo[i].kind == LMKIND_RAWFLATS)
+			lumpinfo[i].kind == LMKIND_Patch )// ||
+			//lumpinfo[i].kind == LMKIND_LBM ||
+			//lumpinfo[i].kind == LMKIND_PIC ||
+			//lumpinfo[i].kind == LMKIND_RAWFLATS)
 		{
 			if (strncmp(lumpinfo[i].name, buf, 8) == 0)
 				return i;
@@ -3437,7 +3426,7 @@ int W_FindLumpFromPath(const std::string &path)
 //==========================================================================
 int W_FindNameFromPath(const char *name)
 {
-	std::string fn; //TODO: V808 https://www.viva64.com/en/w/v808/ 'fn' object of 'basic_string' type was created but was not utilized.
+	//std::string fn; //TODO: V808 https://www.viva64.com/en/w/v808/ 'fn' object of 'basic_string' type was created but was not utilized.
 
 	for (int i = 0; i < numlumps; i++)
 	{
