@@ -67,6 +67,8 @@
 
 #include "defaults.h"
 
+#include <iostream> // TODO: remove
+
 //
 // DEFAULTS
 //
@@ -281,30 +283,30 @@ void M_SaveDefaults(void)
 {
 	edge_version = EDGEVER;
 
-	cfgfile = EDGECONFIGFILE;
+	// cfgfile = EDGECONFIGFILE;
+
+	I_Printf("M_SaveDefaults to %s\n", cfgfile.c_str());
 
 	int numdefaults = sizeof(defaults) / sizeof(defaults[0]);
 
 	// -ACB- 1999/09/24 idiot proof checking as required by MSVC
 	SYS_ASSERT(! cfgfile.empty());
 
-	FILE *f = fopen(cfgfile.c_str(), "w");
-	if (!f)
-	{
-		I_Warning("Couldn't open config file %s for writing.", cfgfile.c_str());
-		return;  // can't write the file, but don't complain
-	}
+	auto root = cpptoml::make_table();
 
-	// console variables
+	auto cvarRoot = cpptoml::make_table();
 	for (int k = 0; all_cvars[k].name; k++)
 	{
 		cvar_c *var = all_cvars[k].var;
 
-		if (strchr(all_cvars[k].flags, 'c'))
-			fprintf(f, "/%s\t\"%s\"\n", all_cvars[k].name, var->str);
-	}
+		I_Printf("save %s = %s\n", all_cvars[k].name, var->str);
 
-	// normal variables
+		if (strchr(all_cvars[k].flags, 'c'))
+			cvarRoot->insert(std::string(all_cvars[k].name), std::string(var->str));
+	}
+	root->insert("cvars", cvarRoot);
+
+	auto varRoot = cpptoml::make_table();
 	for (int i = 0; i < numdefaults; i++)
 	{
 		int v;
@@ -312,21 +314,32 @@ void M_SaveDefaults(void)
 		switch (defaults[i].type)
 		{
 			case CFGT_Int:
-				fprintf(f, "%s\t\t%i\n", defaults[i].name, *(int*)defaults[i].location);
+				varRoot->insert(std::string(defaults[i].name), *(int*)defaults[i].location);
 				break;
 
 			case CFGT_Boolean:
-				fprintf(f, "%s\t\t%i\n", defaults[i].name, *(bool*)defaults[i].location ?1:0);
+				varRoot->insert(std::string(defaults[i].name), *(bool*)defaults[i].location);
 				break;
 
 			case CFGT_Key:
 				v = *(int*)defaults[i].location;
-				fprintf(f,  "%s\t\t0x%X\n", defaults[i].name, v);
+				varRoot->insert(std::string(defaults[i].name), v);
 				break;
 		}
 	}
+	root->insert("vars", varRoot);
 
-	fclose(f);
+	std::ofstream f(cfgfile);
+	if (!f)
+	{
+		I_Warning("Couldn't open config file %s for writing.", cfgfile.c_str());
+		return;  // can't write the file, but don't complain
+	}
+	
+	std::cout << *root;
+	f << *root;
+
+	// no need to close. RAII will do it for us.
 }
 
 
@@ -373,17 +386,19 @@ void M_LoadDefaults(void)
 
 	I_Printf("M_LoadDefaults from %s\n", cfgfile.c_str());
 
+
+
 	// read the file in, overriding any set defaults
-	FILE *f = fopen(cfgfile.c_str(), "r");
+	/*FILE *f = fopen(cfgfile.c_str(), "r");
 
 	if (! f)
 	{
 		I_Warning("Couldn't open config file %s for reading.\n", cfgfile.c_str());
 		I_Warning("Resetting config to RECOMMENDED values...\n");
 		return;
-	}
+	}*/
 
-	while (!feof(f))
+	/*while (!feof(f))
 	{
 		char def[80];
 		char strparm[100];
@@ -434,7 +449,7 @@ void M_LoadDefaults(void)
 					*(bool*)defaults[i].location = parm?true:false;
 				}
 				else /* CFGT_Int and CFGT_Key */
-				{
+				/*{
 					*(int*)defaults[i].location = parm;
 				}
 				break;
@@ -442,7 +457,73 @@ void M_LoadDefaults(void)
 		}
 	}
 
-	fclose(f);
+	fclose(f);*/
+
+	try
+	{
+		auto root = cpptoml::parse_file(cfgfile);
+
+		auto cvarRoot = root->get_table("cvars");
+		if (cvarRoot)
+		{
+
+			I_Printf("debug load cvar_root\n");
+			for (auto &pair : *cvarRoot)
+			{
+				I_Printf("debug load pf: %s\n", pair.first.c_str());
+				auto asval = pair.second->as<std::string>();
+				if (asval)
+				{
+					std::stringstream con_line_s;
+
+					con_line_s << pair.first;
+					con_line_s << " ";
+					con_line_s << asval->get();
+
+					I_Printf("debug load cmd: %s\n", con_line_s.str().c_str());
+
+					CON_TryCommand(con_line_s.str().c_str());
+				}
+			}
+		}
+
+		auto varRoot = root->get_table("vars");
+		if (varRoot)
+		{
+			for (auto &pair : *varRoot)
+			{
+				for (i = 0; i < numdefaults; i++)
+				{
+					if (pair.first == defaults[i].name)
+					{
+						if (defaults[i].type == CFGT_Boolean)
+						{
+							auto asval = pair.second->as<bool>();
+							if (asval) *(bool*)defaults[i].location = asval->get();
+						}
+						else /* CFGT_Int and CFGT_Key */
+						{
+							auto asval = pair.second->as<int64_t>();
+							if (asval) *(int*)defaults[i].location = (int) asval->get();
+							
+						}
+						break;
+					}
+				}
+			}
+		}	
+	}
+	catch (cpptoml::parse_exception &e)
+	{
+		I_Warning("error parsing config file %s: %s\n", cfgfile.c_str(), e.what());
+		return;
+	}
+	catch (...)
+	{
+		I_Warning("error parsing config file %s: failed to read\n", cfgfile.c_str());
+		return;
+	}
+
 
 	if (edge_version == 0)
 	{
