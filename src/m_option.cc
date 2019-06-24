@@ -445,23 +445,23 @@ static optmenuitem_t vidoptions[] =
 
 static optmenuitem_t advancedoptions[] =
 {
-	{OPT_Switch,  "GL3 Features",     YesNo, 2, &r_gl3_path.d, NULL, "Toggles advanced features (normals, per-pixel lighting, etc)"}, /// Change from GL1 to GL3
+	{OPT_Switch,  "GL3 Features",     YesNo, 2, &r_gl3_path, NULL, "Toggles advanced features (normals, per-pixel lighting, etc)"}, /// Change from GL1 to GL3
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{OPT_Boolean,   "Bloom Processing",  YesNo,  2,  &r_bloom.d, NULL, "Toggle Bloom Shader On or Off"},
+	{OPT_Boolean,   "Bloom Processing",  YesNo,  2,  &r_bloom, NULL, "Toggle Bloom Shader On or Off"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{OPT_Boolean,   "Lens Distortion",  YesNo,  2,  &r_lens.d, NULL, "Toggle Lens Distortion Effect"},
+	{OPT_Boolean,   "Lens Distortion",  YesNo,  2,  &r_lens, NULL, "Toggle Lens Distortion Effect"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
-	{OPT_Boolean, "Video Sync",   YesNo,   2, &r_vsync.d, NULL, "Enable VSYNC"},
+	{OPT_Boolean, "Video Sync",   YesNo,   2, &r_vsync, NULL, "Enable VSYNC"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{OPT_Switch,  "Interpolation",    YesNo,   2, &r_lerp.d, NULL, "Frame Prediction"},
+	{OPT_Switch,  "Interpolation",    YesNo,   2, &r_lerp, NULL, "Frame Prediction"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{OPT_Switch,  "Shadows", Shadows, 3,  &r_shadows.d, NULL, "Simple, Sprite"},
+	{OPT_Switch,  "Shadows", Shadows, 3,  &r_shadows, NULL, "Simple, Sprite"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{OPT_Switch,  "Stretch World", YesNo, 2,  &r_stretchworld.d, NULL, "StretchWorld" }, //LDF Lookup
+	{OPT_Switch,  "Stretch World", YesNo, 2,  &r_stretchworld, NULL, "StretchWorld" }, //LDF Lookup
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{OPT_Switch,  "Fix Sprite Scale", YesNo, 2,  &r_fixspritescale.d, NULL, "SpriteScale" }, //LDF Lookup
+	{OPT_Switch,  "Fix Sprite Scale", YesNo, 2,  &r_fixspritescale, NULL, "SpriteScale" }, //LDF Lookup
 
 	{OPT_Switch,  "Invulnerability", Invuls, NUM_INVULFX,  &var_invul_fx, NULL, "Set GodMode Rendering"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
