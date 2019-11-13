@@ -36,8 +36,8 @@ const char *win32_exe_path = ".";
 
 //#undef HYPERTENSION
 
-static int		dcargc;
-static char*	dcargv[64];
+//static int		dcargc;
+//static char*	dcargv[64];
 
 
 #ifdef _MSC_VER
@@ -124,60 +124,19 @@ fflush(stdout);
 	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_CHECK_ALWAYS_DF);
 
 	// Enable leak checking at exit.
-	_CrtSetDbgFlag(_CrtSetDbgFlag(0) | _CRTDBG_LEAK_CHECK_DF);
+	//_CrtSetDbgFlag(_CrtSetDbgFlag(0) | _CRTDBG_LEAK_CHECK_DF);
 
 	// Use this to break at a specific allocation number.
 	//_crtBreakAlloc = 53039;
 #endif  
 #endif // 0
 
-
-
 #ifdef WIN32
 	// Run EDGE. it never returns
 	_try
 	{
 		//I_TweakConsole();
-
-		FILE *dcph;
-		int ix;
-
-		printf("Attempting to load settings from preset file...\n");
-
-#ifdef HYPERTENSION
-		dcph = fopen("hod.preset", "r");
-#else
-		dcph = fopen("edge.preset", "r");
-#endif
-
-		if (dcph == NULL)
-		{
-			printf("Error! Couldn't open preset. Using default args.\n\n");
-			fflush(stdout);
-			E_Main(argc, (const char **)argv);
-			//common_main(argc, argv);
-		}
-		else
-		printf("Found Preset:");
-
-		for (ix = 0; ix < 64; ix++)
-		{
-			char temp[256];
-			temp[0] = 0;
-			fgets(temp, 255, dcph);
-			if ((temp[0] == 0) || feof(dcph))
-				break;
-			temp[strlen(temp) - 1] = 0;
-			dcargv[ix] = strdup(temp);
-			I_Printf(" %s", dcargv[ix]);
-		}
-
-		fclose(dcph); //TODO: V1004 https://www.viva64.com/en/w/v1004/ The 'dcph' pointer was used unsafely after it was verified against nullptr. Check lines: 149, 171.
-		dcargc = ix;
-		I_Printf("\n");
-		fflush(stdout);
-
-	E_Main(dcargc, (const char **)dcargv);
+		E_Main(argc, (const char**)argv);
 	}
 	__except (I_W32ExceptionHandler(GetExceptionInformation()))
 	{
