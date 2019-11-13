@@ -189,6 +189,8 @@ void I_StartupGraphics(void)
 	display_W = SCREENWIDTH;
 	display_H = SCREENHEIGHT;
 
+
+
 	sprintf(title, "EDGE");
     my_vis = SDL_CreateWindow(title,
                               SDL_WINDOWPOS_CENTERED,
@@ -200,12 +202,19 @@ void I_StartupGraphics(void)
 
 	glContext = SDL_GL_CreateContext( my_vis );
 
+
     SDL_GL_MakeCurrent( my_vis, glContext );
     if(my_vis == NULL)
 	{
         I_Error("I_InitScreen: Failed to create window");
         return;
     }
+
+	if (r_vsync.d == 1 && r_swapinterval.d == 0)
+		SDL_GL_SetSwapInterval(1);		// SDL-based standard
+	else if (r_vsync.d == 1 && r_swapinterval.d == 1)
+		SDL_GL_SetSwapInterval(-1);
+
 
 	static bool first = true;
 
@@ -370,12 +379,6 @@ void I_FinishFrame(void)
 	if (r_vsync.d > 0)
 		glFinish();
 
-	// I wonder if SDL_GL_SwapWindow is working properly (?)
-#ifdef WIN32
-		if (myWglSwapIntervalExtProc)
-			myWglSwapIntervalExtProc(r_vsync.d != 0);
-#endif
-
 	/* 	Some systems allow specifying -1 for the interval,
 	to enable late swap tearing. Late swap tearing works
 	the same as vsync, but if you've already missed the
@@ -386,20 +389,6 @@ void I_FinishFrame(void)
 	it, this function will fail and return -1. In such a case,
 	you should probably retry the call with 1 for the interval. */
 
-#ifdef _WIN32
-	if (WGL_EXT_swap_control)
-	{
-		if (myWglSwapIntervalExtProc)
-			if (r_vsync.d == 1 && r_swapinterval.d == 0)
-				myWglSwapIntervalExtProc(1);
-			else if (r_vsync.d == 1 && r_swapinterval.d == 1)
-				myWglSwapIntervalExtProc(-1);
-	}
-#endif
-	if (r_vsync.d == 1 && r_swapinterval.d == 0)
-		SDL_GL_SetSwapInterval(1);		// SDL-based standard
-	else if (r_vsync.d == 1 && r_swapinterval.d == 1)
-		SDL_GL_SetSwapInterval(-1);
 
 	SDL_GL_SwapWindow(my_vis);
 
