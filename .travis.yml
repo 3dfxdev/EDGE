@@ -30,6 +30,7 @@ matrix:
             - autoconf
             - automake
             - libtool
+            - libphysfs-dev
 
     - os: linux
       compiler: gcc
