@@ -299,7 +299,7 @@ void M_SaveDefaults(void)
 	{
 		cvar_c *var = all_cvars[k].var;
 
-		I_Printf("save %s = %s\n", all_cvars[k].name, var->str);
+		//I_Printf("save %s = %s\n", all_cvars[k].name, var->str);
 
 		if (strchr(all_cvars[k].flags, 'c'))
 			cvarRoot->insert(std::string(all_cvars[k].name), std::string(var->str));
@@ -467,10 +467,10 @@ void M_LoadDefaults(void)
 		if (cvarRoot)
 		{
 
-			I_Printf("debug load cvar_root\n");
+			//I_Printf("debug load cvar_root\n");
 			for (auto &pair : *cvarRoot)
 			{
-				I_Printf("debug load pf: %s\n", pair.first.c_str());
+				//I_Printf("debug load pf: %s\n", pair.first.c_str());
 				auto asval = pair.second->as<std::string>();
 				if (asval)
 				{
@@ -480,7 +480,7 @@ void M_LoadDefaults(void)
 					con_line_s << " ";
 					con_line_s << asval->get();
 
-					I_Printf("debug load cmd: %s\n", con_line_s.str().c_str());
+					//I_Printf("debug load cmd: %s\n", con_line_s.str().c_str());
 
 					CON_TryCommand(con_line_s.str().c_str());
 				}
