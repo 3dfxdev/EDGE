@@ -36,10 +36,6 @@ const char *win32_exe_path = ".";
 
 //#undef HYPERTENSION
 
-//static int		dcargc;
-//static char*	dcargv[64];
-
-
 #ifdef _MSC_VER
 // (C) James Haley (From Eternity Engine)
 // I_TweakConsole 
@@ -145,41 +141,9 @@ fflush(stdout);
 #endif
 
 #if defined(LINUX) || defined(BSD)
-	try 
+	try
 	{
-		FILE *dcph;
-		int ix;
-
-		printf("Attempting to load settings from edge.preset...\n");
-
-		dcph = fopen("edge.preset", "r");
-
-		if (dcph == NULL)
-		{
-			printf("Error! Couldn't open preset. Using default args.\n\n");
-			fflush(stdout);
-			E_Main(argc, (const char **)argv);
-			//common_main(argc, argv);
-		}
-		else
-			printf("Found Preset:");
-		for (ix = 0; ix < 64; ix++)
-		{
-			char temp[256];
-			temp[0] = 0;
-			fgets(temp, 255, dcph);
-			if ((temp[0] == 0) || feof(dcph))
-				break;
-			temp[strlen(temp) - 1] = 0;
-			dcargv[ix] = strdup(temp);
-			I_Printf(" %s", dcargv[ix]);
-		}
-		fclose(dcph);
-		dcargc = ix;
-		I_Printf("\n");
-		fflush(stdout);
-
-		E_Main(dcargc, (const char **)dcargv);
+		E_Main(argc, (const char **)argv);
 		//common_main(argc, argv);
 	}
 	catch (int e) 
