@@ -1111,7 +1111,7 @@ void CON_Ticker(void)
 			if (conwipepos <= 0)
 			{
 				conwipeactive = false;
-				paused = false; //TODO: V640 https://www.viva64.com/en/w/v640/ The code's operational logic does not correspond with its formatting. The statement is indented to the right, but it is always executed. It is possible that curly brackets are missing.
+				paused = false; 
 			}
 		}
 		else
@@ -1120,7 +1120,7 @@ void CON_Ticker(void)
 			if (conwipepos >= CON_WIPE_TICS)
 			{ 
 				conwipeactive = false;
-				paused = true; //TODO: V640 https://www.viva64.com/en/w/v640/ The code's operational logic does not correspond with its formatting. The statement is indented to the right, but it is always executed. It is possible that curly brackets are missing.
+				paused = true; 
 			}
 		}
 	}
