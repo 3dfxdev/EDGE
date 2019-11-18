@@ -57,14 +57,11 @@ static int display_W, display_H;
 
 SDL_GLContext   glContext;
 
-
-#ifdef GL_BRIGHTNESS
 float gamma_settings = 0.0f;
 float fade_gamma;
 float fade_gdelta;
 extern int fade_starttic;
 extern bool fade_active;
-#endif
 
 // Possible Windowed Modes
 static struct { int w, h; } possible_modes[] =
@@ -336,14 +333,18 @@ bool I_SetScreenSize(scrmode_c *mode)
 	//				the options drawer.
 	I_GrabCursor(false);
 
-	//glClearColor(0, 0, 0, 0);
-	//glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	    // reset gamma to default
+        I_SetGamma(1.0f);
 
 #ifdef MACOSX
 	//TODO: On Mac OS X make sure to bind 0 to the draw framebuffer before swapping the window, otherwise nothing will happen.
 #endif
 	SDL_GL_SwapWindow(my_vis);
 
+	HUD_Reset();
 	return true;
 }
 
@@ -371,9 +372,9 @@ void I_FinishFrame(void)
 		fade_active ? 0.0f : 1.0f,
 		fade_active ? 1.0f - fade_gamma : gamma_settings);
 	glVertex3i(0, 0, 0);
-	glVertex3i(display_W, 0, 0);
-	glVertex3i(display_W, display_H, 0);
-	glVertex3i(0, display_H, 0);
+	glVertex3i(SCREENWIDTH, 0, 0);
+	glVertex3i(SCREENWIDTH, SCREENHEIGHT, 0);
+	glVertex3i(0, SCREENHEIGHT, 0);
 	glEnd();
 	glColor4f(1, 1, 1, 1);
 #endif
