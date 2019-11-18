@@ -309,12 +309,12 @@ bool I_SetScreenSize(scrmode_c *mode)
                     SDL_WINDOW_OPENGL | //SDL2 is double-buffered by default
                     (mode->full ? SDL_WINDOW_FULLSCREEN :0));
 
-	my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_ACCELERATED);
+	//my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_ACCELERATED);
 
 	glContext = SDL_GL_CreateContext( my_vis );
 
     SDL_GL_MakeCurrent( my_vis, glContext );
-	HUD_Reset(); // Make doubly sure the HUD module is reset to counter the 640x480 white-box ghosting bug upon mode change.
+	//HUD_Reset(); // Make doubly sure the HUD module is reset to counter the 640x480 white-box ghosting bug upon mode change.
 
 	if (my_vis == NULL)
 	{
@@ -322,9 +322,9 @@ bool I_SetScreenSize(scrmode_c *mode)
 		return false;
 	}
 
-	if (r_vsync.d == 1)
-		SDL_GL_SetSwapInterval(1);
-	else
+	if (r_vsync.d == 1 && r_swapinterval.d == 0)
+		SDL_GL_SetSwapInterval(1);		// SDL-based standard
+	else if (r_vsync.d == 1 && r_swapinterval.d == 1)
 		SDL_GL_SetSwapInterval(-1);
 
 	// -AJA- turn off cursor -- BIG performance increase.
@@ -336,8 +336,8 @@ bool I_SetScreenSize(scrmode_c *mode)
 	//				the options drawer.
 	I_GrabCursor(false);
 
-	glClearColor(0, 0, 0, 0);
-	glClear(GL_COLOR_BUFFER_BIT);
+	//glClearColor(0, 0, 0, 0);
+	//glClear(GL_COLOR_BUFFER_BIT);
 
 #ifdef MACOSX
 	//TODO: On Mac OS X make sure to bind 0 to the draw framebuffer before swapping the window, otherwise nothing will happen.
@@ -350,8 +350,11 @@ bool I_SetScreenSize(scrmode_c *mode)
 
 void I_StartFrame(void)
 {
-	glClearColor(0, 0, 0, 0);
-	glClear(GL_COLOR_BUFFER_BIT);
+	// CA 11/17/19:
+	// This wasn't needed here except for the letterboxing (this is mostly for image "borders"), so we need a better method. For now disabling this helps rendering overall.
+
+	//glClearColor(0, 0, 0, 0);
+	//glClear(GL_COLOR_BUFFER_BIT);
 }
 
 
