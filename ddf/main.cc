@@ -29,13 +29,7 @@
 
 #include "../src/p_action.h"
 
-// FIXME: unwanted link to engine code (switch to epi::angle_c)
-extern float M_Tan(angle_t ang)  GCCATTR((const));
-
-// FIXME: CA: Trying to use angle_c via EPI::
-//float M_Tan(epi::angle_c *ang)  GCCATTR((const));// = epi::angle_c::ATan
-
-
+//extern float M_Tan(angle_t ang)  GCCATTR((const));
 
 static int engine_version;
 static std::string ddf_where;
@@ -1341,12 +1335,7 @@ void DDF_MainGetSlope(const char *info, void *storage)
 	if (sscanf(info, "%f", &val) != 1)
 		DDF_Error("Bad slope value: %s\n", info);
 
-	if (val > +89.5f)
-		val = +89.5f;
-	if (val < -89.5f)
-		val = -89.5f;
-
-	*dest = M_Tan(FLOAT_2_ANG(val));
+	*dest = DDF_Tan(val);
 }
 
 static void DoGetFloat(const char *info, void *storage)
@@ -2154,6 +2143,13 @@ weakness_info_c& weakness_info_c::operator=(weakness_info_c &rhs)
 	Copy(rhs);
 
 	return *this;
+}
+
+float DDF_Tan(float degrees)
+{
+	degrees = CLAMP(-89.5f, degrees, 89.5f);
+
+	return (float)tan(degrees * M_PI / 180.0f);
 }
 
 //--- editor settings ---

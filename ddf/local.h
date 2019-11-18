@@ -382,6 +382,8 @@ void DDF_StyleCleanUp (void);
 void DDF_ImageInit (void);
 void DDF_ImageCleanUp (void);
 
+float DDF_Tan(float degrees);
+
 // Miscellaneous stuff needed here & there
 extern const commandlist_t floor_commands[];
 extern const commandlist_t damage_commands[];
