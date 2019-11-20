@@ -46,6 +46,7 @@
 #include "r_units.h"
 #include "w_wad.h"
 #include "z_zone.h"
+#include "defaults.h"
 
 // -AJA- 1999/06/30: added this
 byte playpal_data[14][256][3];
@@ -64,7 +65,7 @@ static bool loaded_playpal = false;
 #define RADIATION_PAL     13
 
 // -AJA- 1999/07/03: moved these here from v_res.c:
-int var_gamma;
+DEF_CVAR(r_gamma, int, "c", CFGDEF_CURRENT_GAMMA);
 
 static bool old_gamma = -1; //TODO: V786 https://www.viva64.com/en/w/v786/ It is odd that value '-1' is assigned to the 'old_gamma' variable. The value range of 'old_gamma' variable: [0, 1].
 
@@ -235,7 +236,7 @@ void V_InitColour(void)
 	const char *s = M_GetParm("-gamma");
 	if (s)
 	{
-		var_gamma = MAX(0, MIN(5, atoi(s)));
+		r_gamma = MAX(0, MIN(5, atoi(s)));
 	}
 
 	InitTranslationTables();
@@ -647,13 +648,13 @@ rgbcol_t V_ParseFontColor(const char *name, bool strict)
 //
 void V_ColourNewFrame(void)
 {
-	if (var_gamma != old_gamma)
+	if (r_gamma != old_gamma)
 	{
-		float gamma = 1.0 / (1.0 - var_gamma / 8.0);
+		float gamma = 1.0 / (1.0 - r_gamma / 8.0);
 
 		I_SetGamma(gamma);
 
-		old_gamma = var_gamma;
+		old_gamma = r_gamma;
 	}
 }
 

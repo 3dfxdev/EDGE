@@ -28,6 +28,8 @@
 
 #include "../ddf/main.h"
 
+#include "defaults.h"
+
 #include "dm_state.h"
 #include "s_sound.h"
 #include "s_music.h"
@@ -38,7 +40,7 @@
 #include "w_wad.h"
 
 // music slider value
-int mus_volume;
+DEF_CVAR(au_mus_volume, int, "c", CFGDEF_MUSIC_VOLUME);
 
 int var_music_dev;
 
@@ -82,7 +84,7 @@ void S_ChangeMusic(int entrynum, bool loop)
 		return;
 	}
 
-	float volume = slider_to_gain[mus_volume];
+	float volume = slider_to_gain[au_mus_volume];
 
 	if (play->type == MUS_MP3)
 	{
@@ -305,7 +307,7 @@ void S_MusicTicker(void)
 void S_ChangeMusicVolume(void)
 {
 	if (music_player)
-		music_player->Volume(slider_to_gain[mus_volume]);
+		music_player->Volume(slider_to_gain[au_mus_volume]);
 }
 
 

@@ -119,7 +119,7 @@ extern bool E_IsKeyPressed(int keyvar);
 #define AICA_VOL_LOW    128.0f
 #define AICA_VOL_HIGH   255.0f
 
-extern int mus_volume;
+extern int au_mus_volume;
 SDL_AudioSpec fmt;
 SDL_AudioDeviceID dev;
 extern u8_t pcm_buffer[]; // circular buffer of stereo pcm samples (wav buffer)
@@ -752,7 +752,7 @@ static int32_t decode_RoQ(u8_t *in, u32_t size)
 					I_Printf("%s\n", " snd_stream_alloc() failed");
 					return ROQ_NO_MEMORY;
 				}
-				int vol = (int)((float)mus_volume * (AICA_VOL_HIGH - AICA_VOL_LOW) / (float)(SND_SLIDER_NUM - 1) + AICA_VOL_LOW);
+				int vol = (int)((float)au_mus_volume * (AICA_VOL_HIGH - AICA_VOL_LOW) / (float)(SND_SLIDER_NUM - 1) + AICA_VOL_LOW);
 				snd_stream_reinit(stream_hnd, &stream_callback);
 				snd_stream_start(stream_hnd, strm_play_rate, 1);
 				snd_stream_volume(stream_hnd, vol);
@@ -763,7 +763,7 @@ static int32_t decode_RoQ(u8_t *in, u32_t size)
 				fmt.samples = 512;
 				fmt.callback = NULL;
 				fmt.userdata = (void *)do_movie;
-				int vol = (int)((float)mus_volume * (AICA_VOL_HIGH - AICA_VOL_LOW) / (float)(SND_SLIDER_NUM - 1) + AICA_VOL_LOW);
+				int vol = (int)((float)au_mus_volume * (AICA_VOL_HIGH - AICA_VOL_LOW) / (float)(SND_SLIDER_NUM - 1) + AICA_VOL_LOW);
 
 				if (SDL_OpenAudio(&fmt, NULL) < 0)
 				{
@@ -803,7 +803,7 @@ static int32_t decode_RoQ(u8_t *in, u32_t size)
 					I_Printf("%s\n", " snd_stream_alloc() failed");
 					return ROQ_NO_MEMORY;
 				}
-				int vol = (int)((float)mus_volume * (AICA_VOL_HIGH - AICA_VOL_LOW) / (float)(SND_SLIDER_NUM - 1) + AICA_VOL_LOW);
+				int vol = (int)((float)au_mus_volume * (AICA_VOL_HIGH - AICA_VOL_LOW) / (float)(SND_SLIDER_NUM - 1) + AICA_VOL_LOW);
 				SDL_realloc(stream_hnd, &stream_callback);
 				snd_stream_start(stream_hnd, strm_play_rate, 1);
 				snd_stream_volume(stream_hnd, vol);
@@ -814,7 +814,7 @@ static int32_t decode_RoQ(u8_t *in, u32_t size)
 				fmt.samples = 512;
 				fmt.callback = NULL;
 				fmt.userdata = (void *)do_movie;
-				int vol = (int)((float)mus_volume * (AICA_VOL_HIGH - AICA_VOL_LOW) / (float)(SND_SLIDER_NUM - 1) + AICA_VOL_LOW);
+				int vol = (int)((float)au_mus_volume * (AICA_VOL_HIGH - AICA_VOL_LOW) / (float)(SND_SLIDER_NUM - 1) + AICA_VOL_LOW);
 
 				if (SDL_OpenAudio(&fmt, NULL) < 0)
 				{

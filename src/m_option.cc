@@ -420,7 +420,7 @@ static menuinfo_t hereticmain_optmenu =
 
 static optmenuitem_t vidoptions[] =
 {
-	{OPT_Slider,  "Brightness",    NULL,  6,  &var_gamma, M_ChangeGamma, NULL},
+	{OPT_Slider,  "Brightness",    NULL,  6,  &r_gamma, M_ChangeGamma, NULL},
 
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 
@@ -602,8 +602,8 @@ static menuinfo_t hereticanalogue_optmenu =
 //
 static optmenuitem_t soundoptions[] =
 {
-	{OPT_Slider,  "Sound Volume", NULL, SND_SLIDER_NUM, &sfx_volume, M_ChangeSfxVol, NULL},
-	{OPT_Slider,  "Music Volume", NULL, SND_SLIDER_NUM, &mus_volume, M_ChangeMusVol, NULL},
+	{OPT_Slider,  "Sound Volume", NULL, SND_SLIDER_NUM, &au_sfx_volume, M_ChangeSfxVol, NULL},
+	{OPT_Slider,  "Music Volume", NULL, SND_SLIDER_NUM, &au_mus_volume, M_ChangeMusVol, NULL},
 	{OPT_Plain,   "",             NULL, 0,  NULL, NULL, NULL},
 	//{OPT_Switch,  "Sample Rate",  SampleRates, 6, &var_sample_rate,  NULL, "NeedRestart"},
 	//{OPT_Switch,  "Sample Size",  SoundBits, 3,   &var_sound_bits,   NULL, "NeedRestart"},

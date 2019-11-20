@@ -55,7 +55,7 @@
 #include "n_network.h"
 #include "p_spec.h"
 #include "r_gldefs.h"
-#include "s_music.h"  // mus_volume
+#include "s_music.h"  // au_mus_volume
 #include "s_sound.h"
 #include "am_map.h"
 #include "r_colormap.h"
@@ -121,11 +121,11 @@ static default_t defaults[] =
 	{CFGT_Boolean,	"fullscreen",		 &FULLSCREEN,	  CFGDEF_FULLSCREEN},
 	{CFGT_Boolean,	"directx",			 &force_directx,  0},
 	{CFGT_Boolean,	"waveout",			 &force_waveout,  0},
-	{CFGT_Int,      "usegamma",          &var_gamma,	  CFGDEF_CURRENT_GAMMA},
-	{CFGT_Boolean,  "m_diskicon",		 &m_diskicon,	  CFGDEF_DISK_ICON},
+	// {CFGT_Int,      "usegamma",          &r_gamma,	  CFGDEF_CURRENT_GAMMA},
+	// {CFGT_Boolean,  "m_diskicon",		 &m_diskicon,	  CFGDEF_DISK_ICON},
 
-	{CFGT_Int,      "sfx_volume",        &sfx_volume,     CFGDEF_SOUND_VOLUME},
-	{CFGT_Int,      "music_volume",      &mus_volume,     CFGDEF_MUSIC_VOLUME},
+	// {CFGT_Int,      "au_sfx_volume",        &au_sfx_volume,     CFGDEF_SOUND_VOLUME},
+	{CFGT_Int,      "music_volume",      &au_mus_volume,     CFGDEF_MUSIC_VOLUME},
 	{CFGT_Int,      "music_device",      &var_music_dev,  CFGDEF_MUSIC_DEVICE},
 	{CFGT_Int,      "sample_rate",       &var_sample_rate,  CFGDEF_SAMPLE_RATE},
 	{CFGT_Int,      "sound_bits",        &var_sound_bits,   CFGDEF_SOUND_BITS},
