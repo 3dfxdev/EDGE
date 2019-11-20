@@ -155,11 +155,17 @@ int CON_MatchAllVars(std::vector<const char *>& list,
 
 	cvar_link_t *link = all_cvars_list;
 	while(link) {
-		if (! CON_MatchPattern(link->name, pattern))
-			continue;
+		if (! CON_MatchPattern(link->name, pattern)) {
+			link = link->next;
 
-		if (! CON_MatchFlags(link->flags, flags))
 			continue;
+		}
+
+		if (! CON_MatchFlags(link->flags, flags)) {
+			link = link->next;
+
+			continue;
+		}
 
 		list.push_back(link->name);
 
