@@ -52,10 +52,8 @@ private:
 
 	enum bufsize_e { BUFSIZE = 24 };
 
-	// local buffer used for integers, floats and small strings.
-	// in use whenever (s == buffer).  Otherwise s is on the heap,
-	// using strdup() and free().
 	char buffer[BUFSIZE];
+	char defbuffer[BUFSIZE];
 
 public:
 
@@ -90,25 +88,25 @@ public:
 
 	inline const char * const get_casted_default_string() {
 		if(type == cvar_type_e::CVT_STRING) {
-			return str->c_str();
+			return defval.str.c_str();
 		} else if(type == cvar_type_e::CVT_INT) {
-			sprintf(buffer, "%d", *d);
-			return buffer;
+			sprintf(defbuffer, "%d", defval.d);
+			return defbuffer;
 		} else if(type == cvar_type_e::CVT_FLOAT) {
-			float ab = fabs(*f);
+			float ab = fabs(defval.f);
 
 			if (ab >= 1e10)  // handle huge numbers
-				sprintf(buffer, "%1.5e", *f);
+				sprintf(defbuffer, "%1.5e", defval.f);
 			else if (ab >= 1e5)
-				sprintf(buffer, "%1.1f", *f);
+				sprintf(defbuffer, "%1.1f", defval.f);
 			else if (ab >= 1e3)
-				sprintf(buffer, "%1.3f", *f);
+				sprintf(defbuffer, "%1.3f", defval.f);
 			else if (ab >= 1.0)
-				sprintf(buffer, "%1.5f", *f);
+				sprintf(defbuffer, "%1.5f", defval.f);
 			else
-				sprintf(buffer, "%1.7f", *f);
+				sprintf(defbuffer, "%1.7f", defval.f);
 
-			return buffer;
+			return defbuffer;
 		}
 		return NULL;
 	}

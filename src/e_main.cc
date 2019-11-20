@@ -370,8 +370,8 @@ static void SetGlobalVars(void)
 	if (M_CheckParm("-wolf3d_mode"))
 		wolf3d_mode = true;
 
-	//if (M_CheckParm("-rott_mode"))
-	//	rott_mode = true;
+	if (M_CheckParm("-rott_mode"))
+		rott_mode = true;
 
 	if (M_CheckParm("-infight"))
 		g_aggression = 1;
@@ -902,8 +902,8 @@ void InitDirectories(void)
 
 	if (base_ddf.empty())
 		I_Error("Error: /base root directory or contents missing, unable to find engine scripts!");
-	else
-		I_Printf("BASE Directory; [%s]\n", base_ddf);
+	//else
+	//	I_Printf("BASE Directory; [%s]\n", base_ddf);
 
 	if (epi::FS_Access(parms.c_str(), epi::file_c::ACCESS_READ))
 	{
@@ -915,7 +915,7 @@ void InitDirectories(void)
 	if (s)
 	{
 		ddf_dir = std::string(s);
-		I_Printf("BASE Directory; [%s]\n", ddf_dir);
+		//I_Printf("BASE Directory; [%s]\n", ddf_dir);
 	}
 	else if (heretic_mode)
 	{

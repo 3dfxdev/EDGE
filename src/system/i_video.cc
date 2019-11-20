@@ -57,14 +57,11 @@ static int display_W, display_H;
 
 SDL_GLContext   glContext;
 
-
-#ifdef GL_BRIGHTNESS
 float gamma_settings = 0.0f;
 float fade_gamma;
 float fade_gdelta;
 extern int fade_starttic;
 extern bool fade_active;
-#endif
 
 // Possible Windowed Modes
 static struct { int w, h; } possible_modes[] =
@@ -309,12 +306,12 @@ bool I_SetScreenSize(scrmode_c *mode)
                     SDL_WINDOW_OPENGL | //SDL2 is double-buffered by default
                     (mode->full ? SDL_WINDOW_FULLSCREEN :0));
 
-	my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_ACCELERATED);
+	//my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_ACCELERATED);
 
 	glContext = SDL_GL_CreateContext( my_vis );
 
     SDL_GL_MakeCurrent( my_vis, glContext );
-	HUD_Reset(); // Make doubly sure the HUD module is reset to counter the 640x480 white-box ghosting bug upon mode change.
+	//HUD_Reset(); // Make doubly sure the HUD module is reset to counter the 640x480 white-box ghosting bug upon mode change.
 
 	if (my_vis == NULL)
 	{
@@ -322,9 +319,9 @@ bool I_SetScreenSize(scrmode_c *mode)
 		return false;
 	}
 
-	if (r_vsync == 1)
-		SDL_GL_SetSwapInterval(1);
-	else
+	if (r_vsync == 1 && r_swapinterval == 0)
+		SDL_GL_SetSwapInterval(1);		// SDL-based standard
+	else if (r_vsync == 1 && r_swapinterval == 1)
 		SDL_GL_SetSwapInterval(-1);
 
 	// -AJA- turn off cursor -- BIG performance increase.
@@ -339,19 +336,26 @@ bool I_SetScreenSize(scrmode_c *mode)
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	    // reset gamma to default
+        I_SetGamma(1.0f);
+
 #ifdef MACOSX
 	//TODO: On Mac OS X make sure to bind 0 to the draw framebuffer before swapping the window, otherwise nothing will happen.
 #endif
 	SDL_GL_SwapWindow(my_vis);
 
+	HUD_Reset();
 	return true;
 }
 
 
 void I_StartFrame(void)
 {
-	glClearColor(0, 0, 0, 0);
-	glClear(GL_COLOR_BUFFER_BIT);
+	// CA 11/17/19:
+	// This wasn't needed here except for the letterboxing (this is mostly for image "borders"), so we need a better method. For now disabling this helps rendering overall.
+
+	//glClearColor(0, 0, 0, 0);
+	//glClear(GL_COLOR_BUFFER_BIT);
 }
 
 
@@ -367,9 +371,9 @@ void I_FinishFrame(void)
 		fade_active ? 0.0f : 1.0f,
 		fade_active ? 1.0f - fade_gamma : gamma_settings);
 	glVertex3i(0, 0, 0);
-	glVertex3i(display_W, 0, 0);
-	glVertex3i(display_W, display_H, 0);
-	glVertex3i(0, display_H, 0);
+	glVertex3i(SCREENWIDTH, 0, 0);
+	glVertex3i(SCREENWIDTH, SCREENHEIGHT, 0);
+	glVertex3i(0, SCREENHEIGHT, 0);
 	glEnd();
 	glColor4f(1, 1, 1, 1);
 #endif

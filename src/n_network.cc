@@ -78,8 +78,8 @@ void N_InitNetwork(void)
 
 	I_Printf("Network: base port is %d\n", base_port);
 
-	N_StartupReliableLink (base_port+0);
-	N_StartupBroadcastLink(base_port+1);
+///	N_StartupReliableLink (base_port+0);
+///	N_StartupBroadcastLink(base_port+1);
 }
 
 
@@ -241,8 +241,8 @@ bool N_BuildTiccmds(void)
 		if (p->builder)
 		{
 
-			ticcmd_t *cmd = &p->in_cmds[maketic % BACKUPTICS];
-			//ticcmd_t *cmd;
+			//ticcmd_t *cmd = &p->in_cmds[maketic % BACKUPTICS];
+			ticcmd_t *cmd;
 
  //    L_WriteDebug("N_BuildTiccmds: pnum %d netgame %c\n", pnum, netgame ? 'Y' : 'n');
 

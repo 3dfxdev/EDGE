@@ -52,7 +52,7 @@ static float ApproxATan(float x)
 
 angle_t M_ATan (float slope)
 {
-	return (angle_t) ((float) ANG180 * atan (slope) / M_PI);
+	return (s32_t)((float)ANG180 * atan(slope) / M_PI);
 	//return (angle_t) ((float) ANG180 * ApproxATan (slope) / M_PI);
 }
 

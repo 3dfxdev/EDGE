@@ -30,7 +30,6 @@ typedef enum
 	UPL_Clamp    = (1 << 1),
 	UPL_MipMap   = (1 << 2),
 	UPL_Thresh   = (1 << 3), // threshhold alpha (to 0 or 255)
-	UPL_AA       = (1 << 4),
 }
 upload_texture_flag_e;
 

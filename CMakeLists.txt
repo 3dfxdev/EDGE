@@ -159,7 +159,7 @@ add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
 
 if (MSVC)
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-	set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT /W1 ${CMAKE_CXX_FLAGS} /arch:AVX" )
+	set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT /W1 ${CMAKE_CXX_FLAGS}" )
 	add_definitions(-DSIMD_X64)
 	add_definitions(-DWIN64)
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -169,8 +169,8 @@ endif(MSVC)
 
 if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
 		set ( CMAKE_CXX_FLAGS "-mfpu=neon-vfpv4 -mtune=cortex-a7 -mhard-float ${CMAKE_CXX_FLAGS}" )
-	elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-		set ( CMAKE_CXX_FLAGS "-msse2 ${CMAKE_CXX_FLAGS}" )
+	elseif(CMAKE_SIZEOF_VOID_P EQUAL 4 AND NOT MSVC)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
 	endif()
 if(NOT MSVC)
 	if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
@@ -391,7 +391,6 @@ set(EDGE_SOURCES
 	src/am_map.cc
 	src/con_con.cc
 	src/con_main.cc
-	src/con_link.cc
 	src/con_var.cc
 	src/dem_chunk.cc
 	src/dem_glob.cc

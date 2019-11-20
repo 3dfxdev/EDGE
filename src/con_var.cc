@@ -115,8 +115,6 @@ void CON_ResetAllVars(bool initial)
 		if (initial)
 			link->var->modified = 0;
 
-		// TODO: default values
-
 		link = link->next;
 	}
 }
