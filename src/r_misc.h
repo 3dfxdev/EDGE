@@ -60,8 +60,8 @@ extern int linecount;
 extern angle_t normalfov, zoomedfov;
 extern bool viewiszoomed;
 
-extern cvar_c r_fov;
-extern cvar_c r_zoomfov;
+extern float r_fov;
+extern int r_zoomfov;
 
 extern int framecount;
 

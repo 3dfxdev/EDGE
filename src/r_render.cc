@@ -91,9 +91,9 @@ static inline float ExFloorLerpedTop(extrafloor_t *exf)
 // #define DEBUG_GREET_NEIGHBOUR
 
 
-cvar_c debug_hom;
-cvar_c r_oldblend;
-extern cvar_c r_stretchworld;
+DEF_CVAR(debug_hom, int, "h", 1);
+DEF_CVAR(r_oldblend, int, "c", 1);
+extern int r_stretchworld;
 
 side_t *sidedef;
 line_t *linedef;
@@ -231,7 +231,7 @@ static void RGL_DrawGizmo(const gizmo_t *gizmo)
 }
 
 // Camera-man system implementation.
-cvar_c camera_subdir;	// CVAR for camera-man system data files subdirectory.
+DEF_CVAR(camera_subdir, std::string, "c", "doom_ddf/cameras")	// CVAR for camera-man system data files subdirectory.
 
 namespace cameraman
 {
@@ -393,7 +393,7 @@ namespace cameraman
 		std::string fileName("./");
 		FILE *file = NULL;
 
-		fileName = fileName.append(camera_subdir.str);
+		fileName = fileName.append(camera_subdir);
 		fileName = fileName.append("/");
 		fileName = fileName.append(map ? map : currmap->name.c_str());
 		fileName = fileName.append(".camdata");
@@ -1742,7 +1742,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	else
 		blending = BL_Less;
 
-	if (r_oldblend.d > 0)
+	if (r_oldblend > 0)
 	{
 		if (trans < 0.99f || image->opacity == OPAC_Complex)
 			blending |= BL_Alpha;
@@ -2024,7 +2024,7 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 
 	if (! other)
 	{
-		if (! sd->middle.image && ! debug_hom.d)
+		if (! sd->middle.image && ! debug_hom)
 			return;
 
 		if (sec->f_slope || sec->c_slope)
@@ -2063,7 +2063,7 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 
 	if (slope_fh < otherfh)
 	{
-		if (! sd->bottom.image && ! debug_hom.d)
+		if (! sd->bottom.image && ! debug_hom)
 		{
 			lower_invis = true;
 		}
@@ -2091,7 +2091,7 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 	if (slope_ch > otherch &&
 		! (IS_SKY(sec->ceil) && IS_SKY(other->ceil)))
 	{
-		if (! sd->top.image && ! debug_hom.d)
+		if (! sd->top.image && ! debug_hom)
 		{
 			upper_invis = true;
 		}
@@ -2212,7 +2212,7 @@ static void ComputeWallTiles(seg_t *seg, drawfloor_t *dfloor, int sidenum, float
 					flags |= WTILF_ExtraY;
 			}
 
-			if (! surf->image && ! debug_hom.d)
+			if (! surf->image && ! debug_hom)
 				continue;
 
 			tex_z = (C->ef_line->flags & MLF_LowerUnpegged) ?
@@ -2554,7 +2554,7 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 
 
 	// -AJA- 2004/04/21: Emulate Flat-Flooding TRICK
-	if (! debug_hom.d && solid_mode && dfloor->is_lowest &&
+	if (! debug_hom && solid_mode && dfloor->is_lowest &&
 		sd->bottom.image == NULL && cur_seg->back_sub)
 	{
 		float frontf = SecLerpedFloor(cur_seg->front_sub->sector);
@@ -2570,7 +2570,7 @@ static void RGL_DrawSeg(drawfloor_t *dfloor, seg_t *seg)
 		}
 	}
 
-	if (! debug_hom.d && solid_mode && dfloor->is_highest &&
+	if (! debug_hom && solid_mode && dfloor->is_highest &&
 		sd->top.image == NULL && cur_seg->back_sub)
 	{
 		float frontc = SecLerpedCeil(cur_seg->front_sub->sector);
@@ -2837,7 +2837,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 		}
 	}
 	// -AJA- 2004/08/29: Emulate Sky-Flooding TRICK
-	else if (! debug_hom.d && backsector && IS_SKY(backsector->ceil) &&
+	else if (! debug_hom && backsector && IS_SKY(backsector->ceil) &&
 			 seg->sidedef->top.image == NULL &&
 			 backsector->c_h < frontsector->c_h)
 	{
@@ -3220,7 +3220,7 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	else
 		blending = BL_Less;
 
-	if (r_oldblend.d > 0)
+	if (r_oldblend > 0)
 	{
 		if (trans < 0.99f || surf->image->opacity == OPAC_Complex)
 			blending |= BL_Alpha;
@@ -3978,14 +3978,14 @@ static void InitCamera(mobj_t *mo, bool full_height, float expand_w)
 	pcman = cameraman::Update(&cman);
 
 	int t_fov = mo->player ? mo->player->telept_fov : 0;
-	float fov = pcman == NULL ? CLAMP(5, r_fov.f + t_fov, 175) : pcman->fov;
+	float fov = pcman == NULL ? CLAMP(5, r_fov + t_fov, 175) : pcman->fov;
 
 	if (splitscreen_mode)
 		fov = fov / 1.5;
 
 	view_x_slope = tan(fov * M_PI / 360.0);
 
-	view_y_slope = ((full_height) ? DOOM_YSLOPE_FULL : DOOM_YSLOPE) * ((r_stretchworld.d == 1) ? 1.2 : 1.0);
+	view_y_slope = ((full_height) ? DOOM_YSLOPE_FULL : DOOM_YSLOPE) * ((r_stretchworld == 1) ? 1.2 : 1.0);
 
 	viewiszoomed = false;
 

@@ -104,7 +104,7 @@ bool netgame = false;
 
 int base_port;
 
-cvar_c m_busywait;
+DEF_CVAR(m_busywait, int, "c", 1);
 
 
 int gametic;
@@ -482,9 +482,9 @@ int DetermineLowTic(void)
 	return lowtic;
 }
 
-cvar_c r_lerp;
-cvar_c r_maxfps;
-cvar_c r_vsync;
+DEF_CVAR(r_lerp, int, "c", 1);
+DEF_CVAR(r_maxfps, int, "c", 0);
+DEF_CVAR(r_vsync, int, "c", 0);
 static bool forwardinterpolate = false;
 static float interpolate_point = 1;
 

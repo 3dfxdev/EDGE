@@ -61,8 +61,8 @@ bool window_mouse;
 bool alt_is_down;
 bool eat_mouse_motion = true;
 
-cvar_c in_keypad;
-cvar_c in_warpmouse;
+DEF_CVAR(in_keypad, int, "c", 1);
+DEF_CVAR(in_warpmouse, int, "c", 1);
 
 
 bool nojoy;  // what a wowser, joysticks completely disabled
@@ -86,7 +86,7 @@ static int joy_num_balls;
 int TranslateSDLKey(int key)
 {
 	// if keypad is not wanted, convert to normal keys
-	if (! in_keypad.d)
+	if (! in_keypad)
 	{
 		if (SDLK_KP_0 <= key && key <= SDLK_KP_9) 
 			return '0' + (key - SDLK_KP_0);

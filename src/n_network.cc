@@ -45,7 +45,7 @@ bool netgame = false;
 
 int base_port;
 
-cvar_c m_busywait;
+DEF_CVAR(m_busywait, int, "c", 1);
 
 
 int gametic;
@@ -97,7 +97,7 @@ static void GetPackets(bool do_delay)
 	if (! netgame)
 	{
 		// -AJA- This can make everything a bit "jerky" :-(
-		if (do_delay && ! m_busywait.d)
+		if (do_delay && ! m_busywait)
 			I_Sleep(10 /* millis */);
 		return;
 	}
@@ -321,9 +321,9 @@ int DetermineLowTic(void)
 	return lowtic;
 }
 
-cvar_c r_lerp;
-cvar_c r_maxfps;
-cvar_c r_vsync;
+DEF_CVAR(r_lerp, int, "c", 1);
+DEF_CVAR(r_maxfps, int, "c", 0);
+DEF_CVAR(r_vsync, int, "c", 0);
 static bool forwardinterpolate = false;
 static float interpolate_point = 1;
 
@@ -359,7 +359,7 @@ void N_SetInterpolater(void)
 	if (paused || menuactive)
 		return;
 	
-	if (r_lerp.d)
+	if (r_lerp)
 	{
 		interpolate_point = N_CalculateCurrentSubTickPosition();
 		if (!forwardinterpolate && interpolate_point > 1)

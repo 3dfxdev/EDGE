@@ -112,8 +112,8 @@ int key_am_clear;
 
 bool automapactive = false;
 
-cvar_c am_smoothing;
-cvar_c am_gridsize;
+DEF_CVAR(am_smoothing, int, "c", 1);
+DEF_CVAR(am_gridsize, int, "c", 128);
 
 static int cheating = 0;
 static int grid = 0;
@@ -536,7 +536,7 @@ static inline angle_t GetRotatedAngle(angle_t src)
 //
 static void DrawMLine(mline_t * ml, rgbcol_t rgb, bool thick = true)
 {
-	if (! am_smoothing.d)
+	if (! am_smoothing)
 		thick = false;
 
 	float x1 = f_x + f_w*0.5 + MTOF(ml->a.x);
@@ -559,7 +559,7 @@ static void DrawGrid()
 {
 	mline_t ml;
 
-	int grid_size = MAX(4, am_gridsize.d);
+	int grid_size = MAX(4, am_gridsize);
 
 	int mx0 = int(m_cx);
 	int my0 = int(m_cy);

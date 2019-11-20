@@ -133,7 +133,7 @@ void HUD_FrameSetup(int split)
 	HUD_Reset();
 
 	// determine pixel_aspect
-	float aspect = CLAMP(0.2, r_aspect.f, 5.0);
+	float aspect = CLAMP(0.2, r_aspect, 5.0);
 
 	if (FULLSCREEN)
 	{

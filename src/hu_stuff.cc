@@ -44,12 +44,9 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-extern cvar_c m_centerem;
-
-cvar_c r_textscale;
-cvar_c r_text_x;
-cvar_c r_text_y;
-cvar_c r_text_alpha;
+DEF_CVAR(r_textscale, float, "c", 0.7f);
+DEF_CVAR(r_text_x, int, "c", 160);
+DEF_CVAR(r_text_y, int, "c", 3);
 //extern cvar_c r_textscale;
 //
 // Locally used constants, shortcuts.
@@ -134,10 +131,10 @@ void HU_Drawer(void)
 	if (message_on)
 	{
 		HUD_SetAlpha(1.0f); //r_textalpha, defaults to "1.0f";
-		HUD_SetScale(r_textscale.f);	 //TODO: Should make this user-definable in the Options Menu.
+		HUD_SetScale(r_textscale);	 //TODO: Should make this user-definable in the Options Menu.
 		HUD_SetAlignment(0, 0); //use this to set alignment?
 		//OLD. NON CENTERED. HUD_DrawText(HU_MSGX, HU_MSGY, w_message.c_str());
-		HUD_DrawText(r_text_x.d, r_text_y.d, w_message.c_str()); //r_text_x = 160 - 3/ 2 (keep this 160 int), r_text_y = 3;
+		HUD_DrawText(r_text_x, r_text_y, w_message.c_str()); //r_text_x = 160 - 3/ 2 (keep this 160 int), r_text_y = 3;
 		HUD_SetScale();
 		HUD_SetAlignment();
 		HUD_SetAlpha();

@@ -109,31 +109,31 @@
 
 int option_menuon = 0;
 
-extern cvar_c m_language;
-extern cvar_c r_crosshair;
-extern cvar_c r_crosssize;
-extern cvar_c r_lerp;
-extern cvar_c r_gl3_path;
-extern cvar_c r_md5scale;
-extern cvar_c debug_pos;
-extern cvar_c debug_fps;
-extern cvar_c debug_testlerp;
-extern cvar_c r_vsync;
-extern cvar_c m_goobers;
-extern cvar_c mouse_filter;
-extern cvar_c m_diskicon;
-extern cvar_c debug_mouse;
-extern cvar_c debug_joyaxis;
-extern cvar_c g_aggression;
-extern cvar_c m_busywait;
-extern cvar_c r_shadows;
-extern cvar_c r_textscale;
-extern cvar_c r_bloom;
-extern cvar_c r_lens;
-extern cvar_c sound_pitch;
-extern cvar_c r_stretchworld;
-extern cvar_c r_fixspritescale;
-extern cvar_c m_tactile;
+extern std::string m_language;
+extern int r_crosshair;
+extern float r_crosssize;
+extern int r_lerp;
+extern int r_gl3_path;
+extern int r_md5scale;
+extern int debug_pos;
+extern int debug_fps;
+extern int debug_testlerp;
+extern int r_vsync;
+extern int m_goobers;
+// extern cvar_c mouse_filter;
+extern int m_diskicon;
+extern int debug_mouse;
+extern int debug_joyaxis;
+extern int g_aggression;
+extern int m_busywait;
+extern int r_shadows;
+extern float r_textscale;
+extern int r_bloom;
+extern int r_lens;
+extern int sound_pitch;
+extern int r_stretchworld;
+extern int r_fixspritescale;
+extern int m_tactile;
 
 //extern cvar_c r_textscale; //temp hack for HUD text scaling size
 
@@ -564,7 +564,7 @@ static optmenuitem_t analogueoptions[] =
 	{OPT_Slider,   "X Sensitivity",      NULL, 16, &mouse_xsens, NULL, NULL},
 	{OPT_Slider,   "Y Sensitivity",      NULL, 16, &mouse_ysens, NULL, NULL},
 	//	{OPT_Slider,   "Mouse Acceleration", NULL, 20,  &mouse_accel, NULL, NULL},
-		{OPT_Boolean,  "Mouse Filtering",    YesNo, 0,  &mouse_filter, NULL, NULL},
+		// {OPT_Boolean,  "Mouse Filtering",    YesNo, 0,  &mouse_filter, NULL, NULL},
 		{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
 		{OPT_Switch,   "Joystick Device", JoyDevs, 7,  &joystick_device, NULL, NULL},
 		{OPT_Switch,   "First Axis",         Axis, 11, &joy_axis[0], NULL, NULL},
@@ -1895,7 +1895,7 @@ static void M_ChangeHUDTextScale(int keypressed)
 	float scale;
 
 	{
-		scale = CLAMP(0, r_textscale.f, 2); //from 0.1f -> 2.0f
+		scale = CLAMP(0, r_textscale, 2); //from 0.1f -> 2.0f
 		HUD_SetScale(scale);
 	}
 
@@ -2064,9 +2064,9 @@ void M_Options(int choice)
 	option_menuon = 1;
 
 	// hack
-	menu_crosshair = CLAMP(0, r_crosshair.d, 9);
+	menu_crosshair = CLAMP(0, r_crosshair, 9);
 
-	menu_crosshair2 = CLAMP(0, r_crosssize.f, 15);
+	menu_crosshair2 = CLAMP(0, r_crosssize, 15);
 
 	// continued
 }

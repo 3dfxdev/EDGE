@@ -49,16 +49,17 @@ extern int light_color;
 extern int fade_color;
 #endif
 
-cvar_c r_colorlighting;
-cvar_c r_colormaterial;
+DEF_CVAR(r_colorlighting, int, "", 1);
+DEF_CVAR(r_colormaterial, int, "", 1);
 
-cvar_c r_dumbsky;
-cvar_c r_dumbmulti;
-cvar_c r_dumbcombine;
-cvar_c r_dumbclamp;
-cvar_c r_anisotropy;
+DEF_CVAR(r_dumbsky, int, "", 0);
+DEF_CVAR(r_dumbmulti, int, "", 0);
+DEF_CVAR(r_dumbcombine, int, "", 0);
+DEF_CVAR(r_dumbclamp, int, "", 0);
 
-cvar_c r_gl3_path;
+DEF_CVAR(r_anisotropy, int, "c", 0);
+
+DEF_CVAR(r_gl3_path, int, "c", 0);
 
 static bump_map_shader bmap_shader;
 
@@ -120,7 +121,7 @@ static bool batch_sort;
 
 bool RGL_GL3Enabled() 
 {
-	return (r_gl3_path.d && bmap_shader.supported());
+	return (r_gl3_path && bmap_shader.supported());
 }
 
 void RGL_SetAmbientLight(short r,short g,short b) 
@@ -371,7 +372,7 @@ static void EnableCustomEnv(GLuint env, bool enable)
 static inline void RGL_SendRawVector(const local_gl_vert_t *V)
 {
 #ifndef DREAMCAST
-	if (r_colormaterial.d || ! r_colorlighting.d) {
+	if (r_colormaterial || ! r_colorlighting) {
 		glColor4fv(V->rgba);
 	}
 	else
@@ -398,7 +399,7 @@ static inline void RGL_SendRawVector2(const local_gl_vert_t *V)
 {
 	/*
 #ifndef DREAMCAST
-	if (r_colormaterial.d || ! r_colorlighting.d) {
+	if (r_colormaterial || ! r_colorlighting) {
 		glColor4fv(V->rgba);
 	}
 	else
@@ -649,7 +650,7 @@ void RGL_DrawUnits(void)
 			RGL_BatchShape(0);
 			glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &old_clamp);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-				r_dumbclamp.d ? GL_CLAMP : GL_CLAMP_TO_EDGE);
+				r_dumbclamp ? GL_CLAMP : GL_CLAMP_TO_EDGE);
 		}
 
 

@@ -47,9 +47,8 @@
 #include "r_units.h"
 
 
-cvar_c r_fov;
-cvar_c r_zoomfov;
-cvar_c r_renderprecise;
+DEF_CVAR(r_fov, float, "c", 90.0f);
+DEF_CVAR(r_zoomfov, int, "c", 10);
 
 int viewwindow_x;
 int viewwindow_y;
@@ -130,12 +129,12 @@ angle_t R_PointToAngleEx(float x, float y)
 	static uint64_t old_y_viewy;
 	static uint64_t old_x_viewx;
 	static int old_result;
-	cvar_c render_precise;
+	//cvar_c render_precise; // FIXME: WTF?	
 
 	uint64_t y_viewy = (uint64_t)y - viewy;
 	uint64_t x_viewx = (uint64_t)x - viewx;
 
-	if (!render_precise.d)
+	/*if (!render_precise.d)
 	{
 		// e6y: here is where "slime trails" can SOMETIMES occur
 
@@ -143,7 +142,7 @@ angle_t R_PointToAngleEx(float x, float y)
 			&& y_viewy > -INT_MAX / 4 && x_viewx > -INT_MAX / 4) //TODO: V605 https://www.viva64.com/en/w/v605/ Consider verifying the expression: y_viewy > - 2147483647 / 4. An unsigned value is compared to the number -536870911.
 
 			return R_PointToAngle(viewx, viewy, x, y);
-	}
+	}*/ 
 
 	if (old_y_viewy != y_viewy || old_x_viewx != x_viewx)
 	{

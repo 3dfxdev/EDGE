@@ -67,7 +67,7 @@ static md5_animation_handle_t animations[R_MAX_MD5_ANIMATIONS];
 
 static basevert vbuff[10000];
 
-cvar_c r_md5scale;
+DEF_CVAR(r_md5scale, int, "c", 0);
 
 short R_LoadMD5AnimationName(const char * lumpname)
 {
@@ -239,9 +239,9 @@ void MD5_RenderModel(modeldef_c *md, int last_anim, int last_frame,
 
 	//scale
 	tmp_mat=epi::mat4_c();
-	tmp_mat.m[0]*=r_md5scale.d*scale.x;
-	tmp_mat.m[5]*=r_md5scale.d*scale.y;
-	tmp_mat.m[10]*=r_md5scale.d*scale.z;
+	tmp_mat.m[0]*=r_md5scale*scale.x;
+	tmp_mat.m[5]*=r_md5scale*scale.y;
+	tmp_mat.m[10]*=r_md5scale*scale.z;
 	model_mat*=tmp_mat;
 
 	//bias (bias is translation after scale/rotation - ie: translation in model-space)

@@ -50,9 +50,9 @@
 #include "m_math.h"
 #include "w_model.h"
 
-extern cvar_c r_oldblend;
+extern int r_oldblend;
 
-cvar_c debug_normals;
+// cvar_c debug_normals; //FIXME:
 
 extern float P_ApproxDistance(float dx, float dy, float dz);
 
@@ -1271,7 +1271,7 @@ void MD2_RenderModel(md2_model_c *md, const skindef_c *skin,bool is_weapon,
 	else
 		blending = BL_Less;
 
-	if (r_oldblend.d > 0)
+	if (r_oldblend > 0)
 	{
 		if (trans < 0.99f || skin->img->opacity != OPAC_Solid)
 			blending |= BL_Alpha;
@@ -1446,7 +1446,7 @@ void MD2_RenderModel(md2_model_c *md, const skindef_c *skin,bool is_weapon,
 
 				dest->rgba[3] = trans;
 
-				if (debug_normals.d)
+				/*if (debug_normals.d)
 				{
 					glColor3f(1,1,0);
 					glBegin(GL_LINES);
@@ -1455,7 +1455,7 @@ void MD2_RenderModel(md2_model_c *md, const skindef_c *skin,bool is_weapon,
 							   dest->pos.y + dest->normal.y * 5,
 							   dest->pos.z + dest->normal.z * 5);
 					glEnd();
-				}
+				}*/
 			}
 
 			RGL_EndUnit(md->strips[i].count);

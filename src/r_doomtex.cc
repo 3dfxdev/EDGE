@@ -88,7 +88,7 @@ int powerof2(int in)
 * Rule for ROTT patches: patch->collumnofs[0] == patch->width*2 + 10
 */
 
-cvar_c r_transfix;
+DEF_CVAR(r_transfix, int, "c", 0);
 
 // posts are runs of non masked source pixels
 typedef struct
@@ -216,19 +216,19 @@ static void DrawColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 		// copy the pixels, remapping any TRANS_PIXEL values
 		for (; count > 0; count--, src++, top++)
 		{
-			if (r_transfix.d > 0)
+			if (r_transfix > 0)
 			{
 				//I_Printf("DoomTex: No transparent pixel remapping mode ENABLED\n");
 				dest[(h1 - 1 - top) * w2] = *src;
 			}
 
-			if (r_transfix.d > 1)
+			if (r_transfix > 1)
 			{
 				//I_Printf("DoomTex: No transparent pixel remapping mode ENABLED\n");
 				dest[(w2 - 1 - top) * h1] = *src;
 			}
 
-			if ((r_transfix.d == 0) && (*src == TRANS_PIXEL))
+			if ((r_transfix == 0) && (*src == TRANS_PIXEL))
 			{
 				//I_Debugf("DoomTex: Remapping trans_pixel 247 -> pal_black\n");
 				dest[(h1 - 1 - top) * w2] = TRANS_REPLACE;
@@ -297,19 +297,19 @@ static void DrawROTTColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 		// copy the pixels, remapping any TRANS_PIXEL values
 		for (; count > 0; count--, src++, top++)
 		{
-			if (r_transfix.d == 1)
+			if (r_transfix == 1)
 			{
 				//I_Printf("DoomTex: No transparent pixel remapping mode ENABLED\n");
 				dest[(h1 - 1 - top) * w2] = *src;
 			}
 
-			if (r_transfix.d > 1)
+			if (r_transfix > 1)
 			{
 				//I_Printf("DoomTex: No transparent pixel remapping mode ENABLED\n");
 				dest[(w2 - 1 - top) * h1] = *src;
 			}
 
-			if ((r_transfix.d == 0) && (*src == TRANS_PIXEL))
+			if ((r_transfix == 0) && (*src == TRANS_PIXEL))
 			{
 				//I_Debugf("DoomTex: Remapping trans_pixel 247 -> pal_black\n");
 				dest[(h1 - 1 - top) * w2] = TRANS_REPLACE;

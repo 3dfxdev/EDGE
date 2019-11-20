@@ -74,16 +74,16 @@
 //
 int monitor_size;
 
-cvar_c m_diskicon;
-extern cvar_c m_tactile, melee_tactile;
-extern cvar_c r_vsync;
-extern cvar_c r_lerp;
-extern cvar_c r_shadows;
-extern cvar_c r_textscale;
-extern cvar_c r_bloom;
-extern cvar_c r_lens;
-extern cvar_c r_stretchworld;
-extern cvar_c r_fixspritescale;
+DEF_CVAR(m_diskicon, int, "c", 1);
+extern int m_tactile, melee_tactile;
+extern int r_vsync;
+extern int r_lerp;
+extern int r_shadows;
+extern float r_textscale;
+extern int r_bloom;
+extern int r_lens;
+extern int r_stretchworld;
+extern int r_fixspritescale;
 
 
 bool display_disk = false;
@@ -295,14 +295,18 @@ void M_SaveDefaults(void)
 	auto root = cpptoml::make_table();
 
 	auto cvarRoot = cpptoml::make_table();
-	for (int k = 0; all_cvars[k].name; k++)
+
+	cvar_link_t *link = all_cvars_list;
+	while(link)
 	{
-		cvar_c *var = all_cvars[k].var;
+		cvar_c *var = link->var;
 
 		//I_Printf("save %s = %s\n", all_cvars[k].name, var->str);
 
-		if (strchr(all_cvars[k].flags, 'c'))
-			cvarRoot->insert(std::string(all_cvars[k].name), std::string(var->str));
+		if (strchr(link->flags, 'c'))
+			cvarRoot->insert(std::string(link->name), var->get_casted_string());
+		
+		link = link->next;
 	}
 	root->insert("cvars", cvarRoot);
 
@@ -554,7 +558,7 @@ void M_DisplayDisk(void)
 {
 	/* displays disk icon during loading... */
 
-	if (!m_diskicon.d || !display_disk)
+	if (!m_diskicon || !display_disk)
 		return;
 
 	if (!disk_image)

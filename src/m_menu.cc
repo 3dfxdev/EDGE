@@ -93,7 +93,7 @@ int showMessages;
 // This is the original cfg variable, now reintroduced.
 int traditional_menu;
 
-cvar_c m_language;
+DEF_CVAR(m_language, std::string, "c", "ENGLISH");
 
 int screen_hud;  // has default
 
@@ -2898,9 +2898,9 @@ void M_SetupNextMenu(menu_t * menudef)
 void M_Ticker(void)
 {
 	// update language if it changed
-	if (m_language.CheckModified())
-		if (!language.Select(m_language.str))
-			I_Printf("Unknown language: %s\n", m_language.str);
+	if (m_language_cv_.CheckModified())
+		if (!language.Select(m_language.c_str()))
+			I_Printf("Unknown language: %s\n", m_language.c_str());
 
 	if (option_menuon)
 	{

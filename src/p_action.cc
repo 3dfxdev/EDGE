@@ -57,8 +57,10 @@
 #include "z_zone.h"
 
 
-cvar_c g_aggression;
-cvar_c m_tactile, melee_tactile;
+DEF_CVAR(g_aggression, int, "c", 0);
+
+DEF_CVAR(m_tactile, int, "c", 1);
+DEF_CVAR(melee_tactile, int, "c", 0);
 
 static int AttackSfxCat(const mobj_t *mo)
 {
@@ -1886,7 +1888,7 @@ static void DoMeleeAttack(mobj_t * mo)
 
 	//CA: Halved this so the effect isn't so extreme
 	//TODO: Move into COAL (PL_add_tactile)
-	if ((mo->player) && (melee_tactile.d > 0))
+	if ((mo->player) && (melee_tactile > 0))
 		I_Tactile(5, (2 + (int)(damage / 4.0f)) * 2, mo->player->pnum);
 
 	float slope;
@@ -3027,7 +3029,7 @@ void P_ActStandardLook(mobj_t * object)
 	if (object->flags & MF_STEALTH)
 		object->vis_target = VISIBLE;
 
-	if (g_aggression.d)
+	if (g_aggression)
 		if (CreateAggression(object) || CreateAggression(object)) //TODO: V501 https://www.viva64.com/en/w/v501/ There are identical sub-expressions 'CreateAggression(object)' to the left and to the right of the '||' operator.
 			return;
 

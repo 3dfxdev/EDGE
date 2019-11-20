@@ -15,7 +15,7 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-
+/*
 #include "system/i_defs.h"
 
 #include "con_var.h"
@@ -135,7 +135,7 @@ extern cvar_c nocheats;
 cvar_link_t  all_cvars[] =
 {
 	/* General Stuff */
-
+/*
 	{ "language",       &m_language,     "c",   "ENGLISH" },
 
 	{ "ddf_strict",     &ddf_strict,     "c",   "0"  },
@@ -161,7 +161,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_transfix",      &r_transfix,    "c",    "0" },
 
 	/* Input Stuff */
-
+/*
 	{ "in_grab",        &in_grab,        "c",   "1"  },
 	{ "in_keypad",      &in_keypad,      "c",   "1"  },
 	{ "in_running",     &in_running,     "c",   "0"  },
@@ -179,13 +179,13 @@ cvar_link_t  all_cvars[] =
 	{ "m_busywait",     &m_busywait,     "c",   "1"  },
 	{ "camera_subdir",  &camera_subdir,  "c",   "doom_ddf/cameras" },
 
-	/* Experimental Text Scaling Stuff*/
+	/* Experimental Text Scaling Stuff*//*
 	{ "r_textscale",    &r_textscale,   "c",   "0.7" }, //0.7f is the default for HUD_SetScale(). Sets HUD Text Scale. Dupliate for RTS tips.
 	{ "r_text_xpos",    &r_text_x,      "c",   "160" }, // Center text on the X Axis
 	{ "r_text_ypos",    &r_text_y,      "c",   "3" }, // Align text on the Y Axis
 
 	/* Rendering Stuff */
-
+/*
 	{ "r_aspect",       &r_aspect,       "c",   "1.777" }, //Default to 16:9 mode!!
 	{ "r_fov",          &r_fov,          "c",   "90" },
 	{ "r_zoomfov",      &r_zoomfov,      "c",   "10" },
@@ -224,7 +224,7 @@ cvar_link_t  all_cvars[] =
 
 	/* Sound Stuff */
 
-	/* Debugging Stuff */
+	/* Debugging Stuff *//*
 
 	{ "debug_fullbright", &debug_fullbright, "h", "0" },
 	{ "debug_hom",        &debug_hom,        "h", "0" },
@@ -296,7 +296,7 @@ cvar_link_t  all_cvars[] =
 	{ "r_dynlight",     &r_dynlight,     "c",   "1"  },
 	{ "r_detaillevel",  &r_detaillevel,  "c",   "1"  },
 	{ "r_invultex",     &r_invultex,     "c",   "1"  },
-	{ "r_wipemethod",   &r_wipemethod,   "c",   "1" /* Melt */ },
+	{ "r_wipemethod",   &r_wipemethod,   "c",   "1" /* Melt *//* },
 	{ "r_wipereverse",  &r_wipereverse,  "c",   "0"  },
 	{ "r_teleportflash",&r_teleportflash,"c",   "1"  },
 
@@ -313,9 +313,9 @@ cvar_link_t  all_cvars[] =
 
 	{ "in_shiftlook",   &in_shiftlook,   "c",   "1"  },
 
-	{ "mouse_x.axis",   &mouse_x_axis,   "c",   "1" /* AXIS_TURN */  },
+	{ "mouse_x.axis",   &mouse_x_axis,   "c",   "1" /* AXIS_TURN *//*  },
 	{ "mouse_x.sens",   &mouse_x_sens,   "c",   "10"  },
-	{ "mouse_y.axis",   &mouse_y_axis,   "c",   "4" /* AXIS_MLOOK */ },
+	{ "mouse_y.axis",   &mouse_y_axis,   "c",   "4" /* AXIS_MLOOK */ /*},
 	{ "mouse_y.sens",   &mouse_y_sens,   "c",   "10" },
 //	{ "mouse_accel",    &mouse_accel,    "c",   "0"  },
 
@@ -327,6 +327,6 @@ cvar_link_t  all_cvars[] =
 
 	{ NULL, NULL, NULL, NULL }
 };
-
+*/
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

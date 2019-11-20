@@ -38,7 +38,7 @@ extern float listen_x;
 extern float listen_y;
 extern float listen_z;
 
-cvar_c sound_pitch;
+DEF_CVAR(sound_pitch, int, "c", 1);
 
 /* See m_option.cc for corresponding menu items */
 const int channel_counts[5] = { 8, 16, 32, 64, 96 };
@@ -347,7 +347,7 @@ static void S_PlaySound(int idx, sfxdef_c *def, int category, position_c *pos, i
 	}
 	// nukeyt added random pitch (like Doom 1.2)
 	// CA: Added CVAR for sound pitching as requested by CeeJay
-	if (sound_pitch.d > 0)
+	if (sound_pitch > 0)
 	{
 		chan->pitch = 128 + 16 - (M_Random() & 31);
 	}
