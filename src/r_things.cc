@@ -61,18 +61,18 @@
 #define SHADOW_PROTOTYPE 1
 #define DEBUG  0
 
-#define SCALE_FIX ((r_fixspritescale.d == 1) ? 1.1 : 1.0)
+#define SCALE_FIX ((r_fixspritescale == 1) ? 1.1 : 1.0)
 
-cvar_c r_spriteflip;
-cvar_c r_shadows;
-cvar_c r_fixspritescale;
+DEF_CVAR(r_spriteflip, int, "c", 0);
+DEF_CVAR(r_shadows, int, "c", 1);
+DEF_CVAR(r_fixspritescale, int, "c", 1);
 
-cvar_c r_crosshair;    // shape
-cvar_c r_crosscolor;   // 0 .. 7
-cvar_c r_crosssize;    // pixels on a 320x200 screen
-cvar_c r_crossbright;  // 1.0 is normal
+DEF_CVAR(r_crosshair, int, "c", 0);    // shape
+DEF_CVAR(r_crosscolor, int, "c", 0);   // 0 .. 7
+DEF_CVAR(r_crosssize, float, "c", 15.0f);    // pixels on a 320x200 screen
+DEF_CVAR(r_crossbright, float, "c", 1.0f);  // 1.0 is normal
 
-extern cvar_c r_oldblend;
+extern int r_oldblend;
 
 float sprite_skew;
 
@@ -259,7 +259,7 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	if (trans >= 0.11f && image->opacity != OPAC_Complex)
 		blending = BL_Less;
 
-	if (r_oldblend.d > 0)
+	if (r_oldblend > 0)
 	{
 		if (trans < 0.99f || image->opacity == OPAC_Complex)
 			blending |= BL_Alpha;
@@ -418,15 +418,15 @@ static const rgbcol_t crosshair_colors[8] =
 
 static void DrawStdCrossHair(void)
 {
-	if (r_crosshair.d <= 0 || r_crosshair.d > 9)
+	if (r_crosshair <= 0 || r_crosshair > 9)
 		return;
 
-	if (r_crosssize.f < 0.1 || r_crossbright.f < 0.1)
+	if (r_crosssize < 0.1 || r_crossbright < 0.1)
 		return;
 
-	if (! crosshair_image || crosshair_which != r_crosshair.d)
+	if (! crosshair_image || crosshair_which != r_crosshair)
 	{
-		crosshair_which = r_crosshair.d;
+		crosshair_which = r_crosshair;
 
 		char name[32];
 		sprintf(name, "STDCROSS%d", crosshair_which);
@@ -449,10 +449,10 @@ static void DrawStdCrossHair(void)
 	xh_count += xh_dir;
 
 
-	rgbcol_t color = crosshair_colors[r_crosscolor.d & 7];
+	rgbcol_t color = crosshair_colors[r_crosscolor & 7];
 	float intensity = 1.0f - xh_count / 100.0f;
 
-	intensity *= r_crossbright.f;
+	intensity *= r_crossbright;
 
 	float r = RGB_RED(color) * intensity / 255.0f;
 	float g = RGB_GRN(color) * intensity / 255.0f;
@@ -462,7 +462,7 @@ static void DrawStdCrossHair(void)
 	int x = viewwindow_x + viewwindow_w / 2;
 	int y = viewwindow_y + viewwindow_h / 2;
 
-	int w = I_ROUND(SCREENWIDTH * r_crosssize.f / 640.0f);
+	int w = I_ROUND(SCREENWIDTH * r_crosssize / 640.0f);
 
 
 	glEnable(GL_TEXTURE_2D);
@@ -674,7 +674,7 @@ static const image_c * R2_GetThingSprite2(mobj_t *mo, float mx, float my, bool *
 	int rot = 0;
 	// ~CA: 5.7.2016 - 3DGE feature to randomly decide to flip front-facing sprites in-game002
 
-	if (r_spriteflip.d > 0)
+	if (r_spriteflip > 0)
 	{
 		srand(M_RandomTest(*flip));	// value below in brackets would technically be "A0"
 		(*flip) = frame->flip[0] += true;
@@ -1256,26 +1256,26 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 	GLuint tex_id;
 
 #ifdef SHADOW_PROTOTYPE
-	if (r_shadows.d == 1 && !shadow_image)
+	if (r_shadows == 1 && !shadow_image)
 	{
 		// get simple shadow image
 		shadow_image = W_ImageLookup("SHADOWST");
 		if (!shadow_image)
 		{
 			I_Printf("Couldn't find SHADOWST image\n");
-			r_shadows.d = 0;
+			r_shadows = 0;
 			goto skip_shadow;
 		}
 	}
 
-	if (r_shadows.d > 0)
+	if (r_shadows > 0)
 	{
 		float tex_x1, tex_x2, tex_y1, tex_y2;
 
 		if (dthing->mo->info->shadow_trans <= 0 || dthing->mo->floorz >= viewz)
 			goto skip_shadow;
 
-		if (r_shadows.d == 1)
+		if (r_shadows == 1)
 		{
 			tex_id = W_ImageCache(shadow_image); // simple shadows
 			tex_x1 = 0.001f;
@@ -1283,7 +1283,7 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 			tex_y1 = 0.001f;
 			tex_y2 = 0.999f;
 		}
-		else if (r_shadows.d == 2)
+		else if (r_shadows == 2)
 		{
 			tex_id = W_ImageCache(image, false, (const colourmap_c *)-1); // sprite shadows
 
@@ -1309,9 +1309,9 @@ void RGL_DrawThing(drawfloor_t *dfloor, drawthing_t *dthing)
 			goto skip_shadow;
 
 		float offs = 0.1f;
-		float w1 = r_shadows.d == 1 ? w / 2.0f : w / 3.0f;
-		float h1 = r_shadows.d == 1 ? h / 2.0f : 0;
-		float h2 = r_shadows.d == 1 ? h / 2.0f : h;
+		float w1 = r_shadows == 1 ? w / 2.0f : w / 3.0f;
+		float h1 = r_shadows == 1 ? h / 2.0f : 0;
+		float h2 = r_shadows == 1 ? h / 2.0f : h;
 
 		data.vert[0].Set(dthing->mo->x + w1, dthing->mo->y - h1, dthing->mo->floorz + offs);
 		data.vert[1].Set(dthing->mo->x + w1, dthing->mo->y + h2, dthing->mo->floorz + offs);
@@ -1431,7 +1431,7 @@ skip_shadow:
 		blending = BL_Less;
 
 	
-	if (r_oldblend.d > 0)
+	if (r_oldblend > 0)
 	{
 		if (trans < 0.99f || image->opacity == OPAC_Complex)
 			blending |= BL_Alpha;

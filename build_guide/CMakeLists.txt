@@ -416,7 +416,6 @@ set(EDGE_SOURCES
 	src/am_map.cc
 	src/con_con.cc
 	src/con_main.cc
-	src/con_link.cc
 	src/con_var.cc
 	src/e_input.cc
 	src/e_main.cc

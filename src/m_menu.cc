@@ -93,7 +93,7 @@ int showMessages;
 // This is the original cfg variable, now reintroduced.
 int traditional_menu;
 
-cvar_c m_language;
+DEF_CVAR(m_language, std::string, "c", "ENGLISH");
 
 int screen_hud;  // has default
 
@@ -1319,16 +1319,16 @@ void M_DrawSound(void)
 {
 	HUD_DrawImage(60, 38, menu_svol);
 
-	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol + 1), SND_SLIDER_NUM, sfx_volume, 1);
-	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), SND_SLIDER_NUM, mus_volume, 1);
+	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol + 1), SND_SLIDER_NUM, au_sfx_volume, 1);
+	M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), SND_SLIDER_NUM, au_mus_volume, 1);
 }
 
 void M_DrawHereticSound(void)
 {
 	HUD_DrawImage(60, 38, menu_svol);
 
-	M_DrawThermo(SoundDef.x, SoundDef.y + HLINEHEIGHT * (sfx_vol + 1), SND_SLIDER_NUM, sfx_volume, 1);
-	M_DrawThermo(SoundDef.x, SoundDef.y + HLINEHEIGHT * (music_vol + 1), SND_SLIDER_NUM, mus_volume, 1);
+	M_DrawThermo(SoundDef.x, SoundDef.y + HLINEHEIGHT * (sfx_vol + 1), SND_SLIDER_NUM, au_sfx_volume, 1);
+	M_DrawThermo(SoundDef.x, SoundDef.y + HLINEHEIGHT * (music_vol + 1), SND_SLIDER_NUM, au_mus_volume, 1);
 }
 
 #if 0
@@ -1344,14 +1344,14 @@ void M_SfxVol(int choice)
 	switch (choice)
 	{
 	case SLIDERLEFT:
-		if (sfx_volume > 0)
-			sfx_volume--;
+		if (au_sfx_volume > 0)
+			au_sfx_volume--;
 
 		break;
 
 	case SLIDERRIGHT:
-		if (sfx_volume < SND_SLIDER_NUM - 1)
-			sfx_volume++;
+		if (au_sfx_volume < SND_SLIDER_NUM - 1)
+			au_sfx_volume++;
 
 		break;
 	}
@@ -1365,14 +1365,14 @@ void M_MusicVol(int choice)
 	switch (choice)
 	{
 	case SLIDERLEFT:
-		if (mus_volume > 0)
-			mus_volume--;
+		if (au_mus_volume > 0)
+			au_mus_volume--;
 
 		break;
 
 	case SLIDERRIGHT:
-		if (mus_volume < SND_SLIDER_NUM - 1)
-			mus_volume++;
+		if (au_mus_volume < SND_SLIDER_NUM - 1)
+			au_mus_volume++;
 
 		break;
 	}
@@ -2208,13 +2208,13 @@ bool M_Responder(event_t * ev)
 
 		case KEYD_F11:  // gamma toggle
 
-			var_gamma++;
-			if (var_gamma > 5)
-				var_gamma = 0;
+			r_gamma++;
+			if (r_gamma > 5)
+				r_gamma = 0;
 
 			const char *msg = NULL;
 
-			switch (var_gamma)
+			switch (r_gamma)
 			{
 			case 0: { msg = language["GammaOff"];  break; }
 			case 1: { msg = language["GammaLevelOne"];  break; }
@@ -2898,9 +2898,9 @@ void M_SetupNextMenu(menu_t * menudef)
 void M_Ticker(void)
 {
 	// update language if it changed
-	if (m_language.CheckModified())
-		if (!language.Select(m_language.str))
-			I_Printf("Unknown language: %s\n", m_language.str);
+	if (m_language_cv_.CheckModified())
+		if (!language.Select(m_language.c_str()))
+			I_Printf("Unknown language: %s\n", m_language.c_str());
 
 	if (option_menuon)
 	{

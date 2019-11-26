@@ -154,16 +154,16 @@ static int mouse_ss_hack = 0;
 static float ball_deltas[6] = { 0, 0, 0, 0, 0, 0 };
 static float  joy_forces[6] = { 0, 0, 0, 0, 0, 0 };
 
-cvar_c joy_dead;
-cvar_c joy_peak;
-cvar_c joy_tuning;
+DEF_CVAR(joy_dead, float, "c", 0.15f);
+DEF_CVAR(joy_peak, float, "c", 0.95f);
+DEF_CVAR(joy_tuning, float, "c", 1.0f);
 
-cvar_c in_running;
-cvar_c in_stageturn;
-cvar_c mouse_filter;
+DEF_CVAR(in_running, int, "c", 0);
+DEF_CVAR(in_stageturn, int, "c", 1);
+// DEF_CVAR(mouse_filter, int, "c", 0);
 
-cvar_c debug_mouse;
-cvar_c debug_joyaxis;
+DEF_CVAR(debug_mouse, int, "", 0);
+DEF_CVAR(debug_joyaxis, int, "", 0);
 
 // Speed controls
 int var_turnspeed;
@@ -195,24 +195,24 @@ float JoyAxisFromRaw(int raw)
 
 	float v = raw / 32768.0f;
 
-	if (fabs(v) <= joy_dead.f + 0.01)
+	if (fabs(v) <= joy_dead + 0.01)
 		return 0;
 
-	if (fabs(v) >= joy_peak.f - 0.01)
+	if (fabs(v) >= joy_peak - 0.01)
 		return (v < 0) ? -1.0f : +1.0f;
 
-	SYS_ASSERT(joy_peak.f > joy_dead.f);
+	SYS_ASSERT(joy_peak > joy_dead);
 
-	float t = CLAMP(0.2f, joy_tuning.f, 5.0f);
+	float t = CLAMP(0.2f, joy_tuning, 5.0f);
 
 	if (v >= 0)
 	{
-		v = (v - joy_dead.f) / (joy_peak.f - joy_dead.f);
+		v = (v - joy_dead) / (joy_peak - joy_dead);
 		return pow(v, 1.0f / t);
 	}
 	else
 	{
-		v = (-v - joy_dead.f) / (joy_peak.f - joy_dead.f);
+		v = (-v - joy_dead) / (joy_peak - joy_dead);
 		return -pow(v, 1.0f / t);
 	}
 }
@@ -236,7 +236,7 @@ static void UpdateJoyAxis(int n)
 	if ((joy_axis[n] + 1) & 1)
 		force = -force;
 
-	if (debug_joyaxis.d == n + 1)
+	if (debug_joyaxis == n + 1)
 	{
 		I_Printf("Axis%d : raw %+05d --> %+7.3f\n", n + 1, raw, force);
 	}
@@ -410,7 +410,7 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 	int  speed = E_IsKeyPressed(key_speed) ? 1 : 0;
 
 
-	if (in_running.d)
+	if (in_running)
 		speed = !speed;
 
 	//
@@ -428,7 +428,7 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 		turnheld = 0;
 
 	// slow turn ?
-	if (turnheld < SLOWTURNTICS && in_stageturn.d)
+	if (turnheld < SLOWTURNTICS && in_stageturn)
 		t_speed = 2;
 
 	int m_speed = speed;
@@ -449,7 +449,7 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 	}
 
 	// slow mlook ?
-	if (mlookheld < SLOWTURNTICS && in_stageturn.d)
+	if (mlookheld < SLOWTURNTICS && in_stageturn)
 		m_speed = 2;
 
 
@@ -606,7 +606,7 @@ void E_BuildTiccmd(ticcmd_t * cmd, int which_player)
 	{
 		if (allowautorun)
 		{
-			in_running = in_running.d ? 0 : 1;
+			in_running = in_running ? 0 : 1;
 			allowautorun = false;
 		}
 	}
@@ -636,7 +636,7 @@ void E_BuildTiccmd_Other(ticcmd_t * cmd)
 	int  speed = E_IsKeyPressed(key_speed) ? 1 : 0;
 
 
-	if (in_running.d)
+	if (in_running)
 		speed = !speed;
 
 	//
@@ -653,7 +653,7 @@ void E_BuildTiccmd_Other(ticcmd_t * cmd)
 		turnheld = 0;
 
 	// slow turn ?
-	if (turnheld < SLOWTURNTICS && in_stageturn.d)
+	if (turnheld < SLOWTURNTICS && in_stageturn)
 		t_speed = 2;
 
 	int m_speed = speed;
@@ -664,7 +664,7 @@ void E_BuildTiccmd_Other(ticcmd_t * cmd)
 		mlookheld = 0;
 
 	// slow mlook ?
-	if (mlookheld < SLOWTURNTICS && in_stageturn.d)
+	if (mlookheld < SLOWTURNTICS && in_stageturn)
 		m_speed = 2;
 
 	// Turning
@@ -761,7 +761,7 @@ void E_BuildTiccmd_Other(ticcmd_t * cmd)
 	{
 		if (allowautorun)
 		{
-			in_running = in_running.d ? 0 : 1;
+			in_running = in_running ? 0 : 1;
 			allowautorun = false;
 		}
 	}
@@ -829,7 +829,7 @@ bool INP_Responder(event_t * ev)
 		dx *= sensitivities[mouse_xsens];
 		dy *= sensitivities[mouse_ysens];
 
-		if (debug_mouse.d)
+		if (debug_mouse)
 			I_Printf("Mouse %+04d %+04d --> %+7.2f %+7.2f\n",
 				ev->data2, ev->data3, dx, dy);
 

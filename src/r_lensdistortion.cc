@@ -34,8 +34,8 @@
 #include "r_misc.h"
 #include "r_modes.h"
 
-cvar_c r_lens;
-#define gl_lens (bool)(r_lens.d != 0)
+DEF_CVAR(r_lens, int, "c", 1);
+#define gl_lens (bool)(r_lens != 0)
 
 namespace
 {

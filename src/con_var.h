@@ -20,46 +20,141 @@
 #define __CON_VAR_H__
 
 #include <vector>
+#include <cassert>
+#include <string>
+#include <cmath>
 
 class cvar_c
 {
 public:
-	// current value
-	int d;
-	float f;
-	const char *str;
-
 	// this is incremented each time a value is set.
 	// (Note: whether the value is different is not checked)
 	int modified;
 
 private:
+	union {
+		int *d;
+		float *f;
+		std::string *str;
+	};
+
+	struct { // FIXME: should be union, but struct because std::string doesn't work in union
+		int d;
+		float f;
+		std::string str;
+	} defval;
+
+	enum class cvar_type_e {
+		CVT_INT,
+		CVT_FLOAT,
+		CVT_STRING
+	} type;
+
 	enum bufsize_e { BUFSIZE = 24 };
 
-	// local buffer used for integers, floats and small strings.
-	// in use whenever (s == buffer).  Otherwise s is on the heap,
-	// using strdup() and free().
 	char buffer[BUFSIZE];
+	char defbuffer[BUFSIZE];
 
 public:
-	cvar_c() : d(0), f(0.0f), str(buffer), modified(0)
-	{
-		buffer[0] = '0';
-		buffer[1] =  0;
-	}
 
-	cvar_c(int value);
-	cvar_c(float value);
-	cvar_c(const char *value);
-	cvar_c(const cvar_c& other);
+	inline cvar_c(int *value) {
+		type = cvar_type_e::CVT_INT;
+		d = value;
+		defval.d = *value;
+	}
+	inline cvar_c(float *value) {
+		type = cvar_type_e::CVT_FLOAT;
+		f = value;
+		defval.f = *value;
+	}
+	inline cvar_c(std::string *value) {
+		type = cvar_type_e::CVT_STRING;
+		str = value;
+		defval.str = *value;
+	}
+	// cvar_c(const cvar_c& other);
 
 	~cvar_c();
+
+	inline void reset_to_default() {
+		if(type == cvar_type_e::CVT_STRING) {
+			*str = defval.str;
+		} else if(type == cvar_type_e::CVT_INT) {
+			*d = defval.d;
+		} else if(type == cvar_type_e::CVT_FLOAT) {
+			*f = defval.f;
+		}
+	}
+
+	inline const char * const get_casted_default_string() {
+		if(type == cvar_type_e::CVT_STRING) {
+			return defval.str.c_str();
+		} else if(type == cvar_type_e::CVT_INT) {
+			sprintf(defbuffer, "%d", defval.d);
+			return defbuffer;
+		} else if(type == cvar_type_e::CVT_FLOAT) {
+			float ab = fabs(defval.f);
+
+			if (ab >= 1e10)  // handle huge numbers
+				sprintf(defbuffer, "%1.5e", defval.f);
+			else if (ab >= 1e5)
+				sprintf(defbuffer, "%1.1f", defval.f);
+			else if (ab >= 1e3)
+				sprintf(defbuffer, "%1.3f", defval.f);
+			else if (ab >= 1.0)
+				sprintf(defbuffer, "%1.5f", defval.f);
+			else
+				sprintf(defbuffer, "%1.7f", defval.f);
+
+			return defbuffer;
+		}
+		return NULL;
+	}
 
 	cvar_c& operator= (int value);
 	cvar_c& operator= (float value);
 	cvar_c& operator= (const char *value);
 	cvar_c& operator= (std::string value);
-	cvar_c& operator= (const cvar_c& other);
+
+	inline int &get_int() {
+		assert(type == cvar_type_e::CVT_INT);
+		return *d;
+	}
+
+	inline float &get_float() {
+		assert(type == cvar_type_e::CVT_FLOAT);
+		return *f;
+	}
+
+	inline std::string &get_string() {
+		assert(type == cvar_type_e::CVT_STRING);
+		return *str;
+	}
+
+	inline const char * const get_casted_string() {
+		if(type == cvar_type_e::CVT_STRING) {
+			return str->c_str();
+		} else if(type == cvar_type_e::CVT_INT) {
+			sprintf(buffer, "%d", *d);
+			return buffer;
+		} else if(type == cvar_type_e::CVT_FLOAT) {
+			float ab = fabs(*f);
+
+			if (ab >= 1e10)  // handle huge numbers
+				sprintf(buffer, "%1.5e", *f);
+			else if (ab >= 1e5)
+				sprintf(buffer, "%1.1f", *f);
+			else if (ab >= 1e3)
+				sprintf(buffer, "%1.3f", *f);
+			else if (ab >= 1.0)
+				sprintf(buffer, "%1.5f", *f);
+			else
+				sprintf(buffer, "%1.7f", *f);
+
+			return buffer;
+		}
+		return NULL;
+	}
 
 	// this checks and clears the 'modified' value
 	inline bool CheckModified()
@@ -70,15 +165,6 @@ public:
 		}
 		return false;
 	}
-
-private:
-	inline bool Allocd()
-	{
-		return (str != NULL) && (str != buffer);
-	}
-
-	void FmtFloat(float value);
-	void DoStr(const char *value);
 };
 
 
@@ -93,13 +179,12 @@ typedef struct cvar_link_s
 	// flags (a combination of letters, "" for none)
 	const char *flags;
 
-	// default value
-	const char *def_val;
+	cvar_link_s *next;
 }
 cvar_link_t;
 
-
-extern cvar_link_t all_cvars[];
+extern cvar_link_t *all_cvars_list;
+// extern cvar_link_t all_cvars[];
 
 
 void CON_ResetAllVars(bool initial = false);
@@ -128,6 +213,17 @@ bool CON_SetVar(const char *name, const char *flags, const char *value);
 
 void CON_HandleProgramArgs(void);
 // scan the program arguments and set matching cvars
+
+#define DEF_CVAR(cvar_name, cvar_type, cvar_flags, ...) \
+	cvar_type cvar_name = (__VA_ARGS__);\
+	cvar_c cvar_name##_cv_(&cvar_name);\
+	cvar_link_s cvar_name##_cv_link_ {#cvar_name, &cvar_name##_cv_, cvar_flags, NULL};\
+	int cvar_name##_cv_setup_() {\
+		cvar_name##_cv_link_.next = ::all_cvars_list;\
+		::all_cvars_list = &cvar_name##_cv_link_;\
+		return 0;\
+	}\
+	int cvar_name##_cv_setup_hack_ = cvar_name##_cv_setup_();
 
 #endif // __CON_VAR_H__
 

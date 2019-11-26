@@ -248,9 +248,9 @@ static void RGL_SetupSkyMatrices(float dist)
 	glPushMatrix();
 
 	glLoadIdentity();
-	glFrustum(-view_x_slope * r_nearclip.f, view_x_slope * r_nearclip.f,
-			  -view_y_slope * r_nearclip.f, view_y_slope * r_nearclip.f,
-			  r_nearclip.f, r_farclip.f);
+	glFrustum(-view_x_slope * r_nearclip, view_x_slope * r_nearclip,
+			  -view_y_slope * r_nearclip, view_y_slope * r_nearclip,
+			  r_nearclip, r_farclip);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -324,7 +324,7 @@ void RGL_FinishSky(void)
 
 	if (level_flags.mlook || custom_sky_box)
 	{
-		if (! r_dumbsky.d)
+		if (! r_dumbsky)
 			glDepthFunc(GL_GREATER);
 
 		RGL_DrawSkyBox();
@@ -349,7 +349,7 @@ void RGL_FinishSky(void)
 
 void RGL_DrawSkyBox(void)
 {
-	float dist = r_farclip.f / 2.0f;
+	float dist = r_farclip / 2.0f;
 
 	int SK = RGL_UpdateSkyBoxTextures();
 
@@ -358,7 +358,7 @@ void RGL_DrawSkyBox(void)
 	float v0 = 0.0f;
 	float v1 = 1.0f;
 
-	if (r_dumbclamp.d)
+	if (r_dumbclamp)
 	{
 		float size = fake_box[SK].face_size;
 
@@ -377,7 +377,7 @@ void RGL_DrawSkyBox(void)
 	col[3] = 1.0f;
 
 #ifndef DREAMCAST
-	if (r_colormaterial.d || ! r_colorlighting.d)
+	if (r_colormaterial || ! r_colorlighting)
 		glColor4fv(col);
 	else
 	{
@@ -466,7 +466,7 @@ void RGL_DrawSkyOriginal(void)
 
 	float white[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 #ifndef DREAMCAST
-	if (r_colormaterial.d || ! r_colorlighting.d)
+	if (r_colormaterial || ! r_colorlighting)
 		glColor4fv(white);
 	else
 	{
@@ -485,7 +485,7 @@ void RGL_DrawSkyOriginal(void)
 	glBegin(GL_QUAD_STRIP);
  
 	// FIXME for widescreen
-	float FIELDOFVIEW = CLAMP(5, r_fov.f, 175);
+	float FIELDOFVIEW = CLAMP(5, r_fov, 175);
 
 	if (splitscreen_mode)
 		FIELDOFVIEW = FIELDOFVIEW / 1.5;
@@ -533,7 +533,7 @@ void RGL_DrawSkyPlane(subsector_t *sub, float h)
 {
 	need_to_draw_sky = true;
 
-	if (r_dumbsky.d)
+	if (r_dumbsky)
 		return;
 
 	MIR_Height(h);
@@ -579,7 +579,7 @@ void RGL_DrawSkyWall(seg_t *seg, float h1, float h2)
 {
 	need_to_draw_sky = true;
 
-	if (r_dumbsky.d)
+	if (r_dumbsky)
 		return;
 
 	float x1 = seg->v1->x;

@@ -44,9 +44,9 @@
 #include "w_texture.h"
 #include "z_zone.h"
 
-cvar_c r_precache_tex;
-cvar_c r_precache_sprite;
-cvar_c r_precache_model;
+DEF_CVAR(r_precache_tex, int, "c", 1);
+DEF_CVAR(r_precache_sprite, int, "c", 1);
+DEF_CVAR(r_precache_model, int, "c", 1);
 
 //
 // R_AddFlatAnim
@@ -418,13 +418,13 @@ void W_PrecacheTextures(void)
 //
 void W_PrecacheLevel(void)
 {
-	if (r_precache_sprite.d)
+	if (r_precache_sprite)
 		W_PrecacheSprites();
 
-	if (r_precache_tex.d)
+	if (r_precache_tex)
 		W_PrecacheTextures();
 
-	if (r_precache_model.d)
+	if (r_precache_model)
 		W_PrecacheModels();
 
 	RGL_PreCacheSky();

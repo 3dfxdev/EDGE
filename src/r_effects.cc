@@ -40,8 +40,8 @@ float ren_blu_mul;
 
 const colourmap_c *ren_fx_colmap;
 
-cvar_c r_fadepower;
-cvar_c debug_fullbright;
+DEF_CVAR(r_fadepower, int, "c", 1);
+DEF_CVAR(debug_fullbright, int, "h", 0);
 
 
 static inline float EffectStrength(player_t *player)
@@ -49,7 +49,7 @@ static inline float EffectStrength(player_t *player)
 	if (player->effect_left >= EFFECT_MAX_TIME)
 		return 1.0f;
 
-	if (r_fadepower.d)
+	if (r_fadepower)
 	{
 		return player->effect_left / (float)EFFECT_MAX_TIME;
 	}
@@ -64,7 +64,7 @@ static inline float EffectStrength(player_t *player)
 //
 void RGL_RainbowEffect(player_t *player)
 {
-	ren_extralight = debug_fullbright.d ? 255 : player ? player->extralight * 16 : 0;
+	ren_extralight = debug_fullbright ? 255 : player ? player->extralight * 16 : 0;
 
 	ren_red_mul = ren_grn_mul = ren_blu_mul = 1.0f;
 
@@ -96,7 +96,7 @@ void RGL_RainbowEffect(player_t *player)
 	}
 
 	if (s > 0 && player->powers[PW_NightVision] > 0 &&
-		player->effect_colourmap && !debug_fullbright.d)
+		player->effect_colourmap && !debug_fullbright)
 	{
 		float r, g, b;
 
@@ -110,7 +110,7 @@ void RGL_RainbowEffect(player_t *player)
 		return;
 	}
 
-	if (s > 0 && player->powers[PW_Infrared] > 0 && !debug_fullbright.d)
+	if (s > 0 && player->powers[PW_Infrared] > 0 && !debug_fullbright)
 	{
 		ren_extralight = int(s * 255);
 		return;

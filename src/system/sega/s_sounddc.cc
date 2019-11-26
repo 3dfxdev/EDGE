@@ -94,7 +94,7 @@ typedef struct sfx_channel_c {
 } sfx_channel_c;
 
 
-int sfx_volume, var_music_dev;
+int au_sfx_volume, var_music_dev;
 
 static sfx_channel_c sfx_chan[64];
 static sfxhnd_t *sfx_handles;
@@ -355,7 +355,7 @@ static int ComputeVol(int category, bool boss, mobj_t *listener, position_c *pos
 //  angle_t listen_angle = listener ? listener->angle : 0;
 
     float mul = 1.0f;
-    float vol = (float)sfx_volume * (AICA_VOL_HIGH - AICA_VOL_LOW) / (float)(SND_SLIDER_NUM - 1) + AICA_VOL_LOW;
+    float vol = (float)au_sfx_volume * (AICA_VOL_HIGH - AICA_VOL_LOW) / (float)(SND_SLIDER_NUM - 1) + AICA_VOL_LOW;
 
     if (pos && category >= SNCAT_Opponent)
     {

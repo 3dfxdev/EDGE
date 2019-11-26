@@ -51,9 +51,9 @@
 #include "w_wad.h"
 #include "p_cheats.h"
 
-extern cvar_c debug_fps;
-extern cvar_c debug_pos;
-cvar_c nocheats;
+extern int debug_fps;
+extern int debug_pos;
+DEF_CVAR(nocheats, int, "c", 0);
 
 //
 // CHEAT SEQUENCE PACKAGE
@@ -202,7 +202,7 @@ bool M_CheatResponder(event_t * ev)
 #ifdef NOCHEATS
 	return false;
 #endif
-	if (nocheats.d > 0)
+	if (nocheats > 0)
 		return false;
 
 	int i;

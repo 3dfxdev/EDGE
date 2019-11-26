@@ -127,7 +127,7 @@ FILE *debugfile = NULL;
 FILE *openglfile = NULL;
 FILE *shadercompilefile = NULL;
 
-cvar_c i_skipsplash;
+DEF_CVAR(i_skipsplash, int, "c", 0);
 
 gameflags_t default_gameflags =
 {
@@ -190,15 +190,15 @@ std::string shot_dir;
 
 static std::string dragged_demo;
 
-extern cvar_c m_language;
-extern cvar_c g_aggression;
+extern std::string m_language;
+extern int g_aggression;
 
-cvar_c debug_testlerp;
-cvar_c ddf_strict;
-cvar_c ddf_lax;
-cvar_c ddf_quiet;
+DEF_CVAR(debug_testlerp, int, "c", 0);
+DEF_CVAR(ddf_strict, int, "c", 0);
+DEF_CVAR(ddf_lax, int, "c", 0);
+DEF_CVAR(ddf_quiet, int, "c", 0);
 
-cvar_c r_gpuswitch;
+DEF_CVAR(r_gpuswitch, int, "c", 0);
 
 static void E_TitleDrawer(void);
 
@@ -398,13 +398,13 @@ static void SetGlobalVars(void)
 	}
 
 	// check for strict and no-warning options
-	M_CheckBooleanCVar("strict", &ddf_strict, false);
-	M_CheckBooleanCVar("lax", &ddf_lax, false);
-	M_CheckBooleanCVar("warn", &ddf_quiet, true);
+	M_CheckBooleanIntParm("strict", &ddf_strict, false);
+	M_CheckBooleanIntParm("lax", &ddf_lax, false);
+	M_CheckBooleanIntParm("warn", &ddf_quiet, true);
 
-	strict_errors = ddf_strict.d ? true : false;
-	lax_errors = ddf_lax.d ? true : false;
-	no_warnings = ddf_quiet.d ? true : false;
+	strict_errors = ddf_strict ? true : false;
+	lax_errors = ddf_lax ? true : false;
+	no_warnings = ddf_quiet ? true : false;
 }
 
 //
@@ -419,10 +419,10 @@ void SetLanguage(void)
 	if (want_lang)
 		m_language = want_lang;
 
-	if (language.Select(m_language.str))
+	if (language.Select(m_language.c_str()))
 		return;
 
-	I_Warning("Invalid language: '%s'\n", m_language.str);
+	I_Warning("Invalid language: '%s'\n", m_language);
 
 	if (!language.IsValid())
 		if (!language.Select(0))
@@ -1857,7 +1857,7 @@ static void E_Startup(void)
 
 	//Splash Screen Check
 	M_CheckBooleanParm("nosplash", &nosplash, false);
-	if (!nosplash && i_skipsplash.d == 0)
+	if (!nosplash && i_skipsplash == 0)
 	{
 		//E_SplashScreen();
 	}
@@ -2123,7 +2123,7 @@ void E_Tick(void)
 	static int ticker = 70;
 	ticker--;
 	if (ticker == 0) {
-		extern cvar_c r_lerp;
+		extern int r_lerp;
 
 		ticker = 70;
 		r_lerp.d = !r_lerp.d;
@@ -2138,9 +2138,9 @@ void E_Tick(void)
 	do {
 		interpstart += interpdiff;
 
-		extern cvar_c r_maxfps;
+		extern int r_maxfps;
 
-		if (r_maxfps.d > 0)
+		if (r_maxfps > 0)
 		{
 			while (I_GetMillies() < nextframe)
 			{
@@ -2148,7 +2148,7 @@ void E_Tick(void)
 				if ((nextframe - I_GetMillies()) > 1000)
 					break;
 			}
-			nextframe = I_GetMillies() + 1000.0f / r_maxfps.f;
+			nextframe = I_GetMillies() + 1000.0f / r_maxfps;
 		}
 
 		N_SetInterpolater();

@@ -33,10 +33,11 @@
 #include "r_modes.h"
 
 RenderContext gl;
-cvar_c r_fxaa;
-cvar_c r_fxaa_quality;
-#define gl_fxaa (bool)(r_fxaa.d != 0)
-#define gl_fxaa_quality (int)(r_fxaa_quality.d != 0)
+DEF_CVAR(r_fxaa, int, "c", 0);
+DEF_CVAR(r_fxaa_quality, int, "c", 0);
+
+#define gl_fxaa (bool)(r_fxaa != 0)
+#define gl_fxaa_quality (int)(r_fxaa_quality != 0)
 
 //-----------------------------------------------------------------------------
 //

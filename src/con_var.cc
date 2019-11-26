@@ -23,50 +23,26 @@
 
 #include "m_argv.h"
 
+#include <stdio.h>
+
 #include "z_zone.h"  // Noooooooooooooo!
 
-
-cvar_c::cvar_c(int value) : d(value), f(value), str(buffer), modified(0)
-{
-	sprintf(buffer, "%d", value);
-}
-
-cvar_c::cvar_c(float value) : d(I_ROUND(value)), f(value), str(buffer), modified(0)
-{
-	FmtFloat(value);
-}
-
-cvar_c::cvar_c(const char *value) : str(buffer), modified(0)
-{
-	DoStr(value);
-}
-
-cvar_c::cvar_c(const cvar_c& other) : str(buffer), modified(0)
-{
-	DoStr(other.str);
-}
+cvar_link_t *all_cvars_list = NULL;
 
 cvar_c::~cvar_c()
 {
-	if (Allocd())
-	{
-		Z_Free((void *) str);
-	}
-}
 
+}
 
 cvar_c& cvar_c::operator= (int value)
 {
-	if (Allocd())
-	{
-		Z_Free((void *) str);
+	if(type == cvar_type_e::CVT_FLOAT) {
+		*f = value;
+	} else if(type == cvar_type_e::CVT_INT) {
+		*d = value;		
+	} else if(type == cvar_type_e::CVT_STRING) {
+		*str = std::to_string(value);
 	}
-
-	d = value;
-	f = value;
-
-	str = buffer;
-	sprintf(buffer, "%d", value);
 
 	modified++;
 	return *this;
@@ -74,16 +50,13 @@ cvar_c& cvar_c::operator= (int value)
 
 cvar_c& cvar_c::operator= (float value)
 {
-	if (Allocd())
-	{
-		Z_Free((void *) str);
+	if(type == cvar_type_e::CVT_FLOAT) {
+		*f = value;
+	} else if(type == cvar_type_e::CVT_INT) {
+		*d = I_ROUND(value);		
+	} else if(type == cvar_type_e::CVT_STRING) {
+		*str = std::to_string(value);
 	}
-
-	d = I_ROUND(value);
-	f = value;
-
-	str = buffer;
-	FmtFloat(value);
 
 	modified++;
 	return *this;
@@ -91,7 +64,13 @@ cvar_c& cvar_c::operator= (float value)
 
 cvar_c& cvar_c::operator= (const char *value)
 {
-	DoStr(value);
+	if(type == cvar_type_e::CVT_STRING) {
+		*str = value;
+	} else if(type == cvar_type_e::CVT_INT) {
+		*d = atoi(value);
+	} else if(type == cvar_type_e::CVT_FLOAT) {
+		*f = atof(value);
+	}
 
 	modified++;
 	return *this;
@@ -99,62 +78,8 @@ cvar_c& cvar_c::operator= (const char *value)
 
 cvar_c& cvar_c::operator= (std::string value)
 {
-	DoStr(value.c_str());
-
-	modified++;
-	return *this;
+	return operator=(value.c_str());
 }
-
-cvar_c& cvar_c::operator= (const cvar_c& other)
-{
-	if (&other != this)
-	{
-		DoStr(other.str);
-	}
-
-	modified++;
-	return *this;
-}
-
-// private method
-void cvar_c::FmtFloat(float value)
-{
-	float ab = fabs(value);
-
-	if (ab >= 1e10)  // handle huge numbers
-		sprintf(buffer, "%1.5e", value);
-	else if (ab >= 1e5)
-		sprintf(buffer, "%1.1f", value);
-	else if (ab >= 1e3)
-		sprintf(buffer, "%1.3f", value);
-	else if (ab >= 1.0)
-		sprintf(buffer, "%1.5f", value);
-	else
-		sprintf(buffer, "%1.7f", value);
-}
-
-// private method
-void cvar_c::DoStr(const char *value)
-{
-	if (Allocd())
-	{
-		Z_Free((void *) str);
-	}
-
-	if (strlen(value)+1 <= BUFSIZE)
-	{
-		str = buffer;
-		strcpy(buffer, value);
-	}
-	else
-	{
-		str = Z_StrDup(value);
-	}
-
-	d = atoi(str);
-	f = atof(str);
-}
-
 
 //----------------------------------------------------------------------------
 
@@ -180,24 +105,28 @@ static bool CON_MatchFlags(const char *var_f, const char *want_f)
 
 void CON_ResetAllVars(bool initial)
 {
-	for (int i = 0; all_cvars[i].var; i++)
-	{
-		*all_cvars[i].var = all_cvars[i].def_val;
+	cvar_link_t *link = all_cvars_list;
+	while(link) {
+		link->var->reset_to_default();
+		/**all_cvars[i].var = all_cvars[i].def_val;*/
 
 		// this function is equivalent to construction,
 		// hence ensure the modified count is zero.
 		if (initial)
-			all_cvars[i].var->modified = 0;
+			link->var->modified = 0;
+
+		link = link->next;
 	}
 }
 
 
 cvar_link_t * CON_FindVar(const char *name)
 {
-	for (int i = 0; all_cvars[i].var; i++)
-	{
-		if (stricmp(all_cvars[i].name, name) == 0)
-			return &all_cvars[i];
+	cvar_link_t *link = all_cvars_list;
+	while(link) {
+		if (stricmp(link->name, name) == 0)
+			return link;
+		link = link->next;
 	}
 
 	return NULL;
@@ -224,15 +153,23 @@ int CON_MatchAllVars(std::vector<const char *>& list,
 {
 	list.clear();
 
-	for (int i = 0; all_cvars[i].var; i++)
-	{
-		if (! CON_MatchPattern(all_cvars[i].name, pattern))
-			continue;
+	cvar_link_t *link = all_cvars_list;
+	while(link) {
+		if (! CON_MatchPattern(link->name, pattern)) {
+			link = link->next;
 
-		if (! CON_MatchFlags(all_cvars[i].flags, flags))
 			continue;
+		}
 
-		list.push_back(all_cvars[i].name);
+		if (! CON_MatchFlags(link->flags, flags)) {
+			link = link->next;
+
+			continue;
+		}
+
+		list.push_back(link->name);
+
+		link = link->next;
 	}
 
 	return (int)list.size();

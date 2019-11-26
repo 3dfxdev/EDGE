@@ -43,7 +43,7 @@
 #include "dm_state.h"
 #include "p_cheats.h"
 // [SP] Externals
-extern cvar_c debug_fps, debug_pos;
+extern int debug_fps, debug_pos;
 
 #define MAX_CON_ARGS  64
 
@@ -294,20 +294,24 @@ int CMD_ShowVars(char **argv, int argc)
 
 	int total = 0;
 
-	for (int i = 0; all_cvars[i].name; i++)
-	{
+	cvar_link_t *link = all_cvars_list;
+
+	while(link) {
 		if (match && *match)
-			if (! strstr(all_cvars[i].name, match))
+			if (! strstr(link->name, match))
 				continue;
 
-		cvar_c *var = all_cvars[i].var;
+		cvar_c *var = link->var;
 
 		if (show_defaults)
-			I_Printf("  %-15s \"%s\" (%s)\n", all_cvars[i].name, var->str, all_cvars[i].def_val);
+			I_Printf("  %-15s \"%s\" (%s)\n", link->name, var->get_casted_string(), var->get_casted_default_string()); // TODO: def_val
 		else
-			I_Printf("  %-15s \"%s\"\n", all_cvars[i].name, var->str);
+			I_Printf("  %-15s \"%s\"\n", link->name, var->get_casted_string());
+
 
 		total++;
+
+		link = link->next;
 	}
 
 	if (total == 0)
@@ -946,7 +950,7 @@ void CON_TryCommand(const char *cmd)
 	if (link)
 	{
 		if (argc <= 1)
-			I_Printf("%s \"%s\"\n", argv[0], link->var->str);
+			I_Printf("%s \"%s\"\n", argv[0], link->var->get_casted_string());
 		else if (argc >= 3)
 			I_Printf("Can only assign one value (%d given).\n", argc-1);
 		else if (strchr(link->flags, 'r'))

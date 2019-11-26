@@ -49,8 +49,8 @@
 #include "w_wad.h"
 #include "p_cheats.h"
 
-extern cvar_c debug_fps;
-extern cvar_c debug_pos;
+extern int debug_fps;
+extern int debug_pos;
 
 
 bool CheckCheats(bool silent)
@@ -172,9 +172,9 @@ void Cheat_Unlock()
 
 void Cheat_HOM()
 {
-	debug_hom = debug_hom.d ? 0 : 1;
+	debug_hom = debug_hom ? 0 : 1;
 
-	if (debug_hom.d)
+	if (debug_hom)
 		CON_MessageLDF("HomDetectOn");
 	else
 		CON_MessageLDF("HomDetectOff");
@@ -229,6 +229,6 @@ void Cheat_KillAll()
 
 void Cheat_Info()
 {
-	debug_fps = debug_fps.d ? 0 : 1;
-	debug_pos = debug_fps.d;
+	debug_fps = debug_fps ? 0 : 1;
+	debug_pos = debug_pos ? 0 : 1;
 }

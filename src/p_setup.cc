@@ -147,7 +147,7 @@ static char *udmf_lump;
 // There is two values for every line: side0 and side1.
 static int *temp_line_sides;
 
-cvar_c m_goobers;
+DEF_CVAR(m_goobers, int, "", 0);
 
 typedef struct {
 	uint8_t *buffer;
@@ -899,7 +899,7 @@ static void LoadSectors(int lump)
 		ss->c_h = EPI_LE_S16(ms->ceil_h);
 
         // return to wolfenstein?
-        if (m_goobers.d)
+        if (m_goobers)
         {
             ss->f_h = 0;
             ss->c_h = (ms->floor_h == ms->ceil_h) ? 0 : 128.0f;
@@ -2264,7 +2264,7 @@ static void LoadUDMFSectors(parser_t *psr)
 			ss->c_h = cz;
 
 			// return to wolfenstein?
-			if (m_goobers.d)
+			if (m_goobers)
 			{
 				ss->f_h = 0;
 				ss->c_h = (fz == cz) ? 0 : 128.0f;
@@ -2508,7 +2508,7 @@ static void LoadUDMFSideDefs(parser_t *psr)
 
 			sd->top.image = W_ImageLookup(top_tex, INS_Texture, ILF_Null);
 
-			if (m_goobers.d && ! sd->top.image)
+			if (m_goobers && ! sd->top.image)
 			{
 				sd->top.image = W_ImageLookup(bottom_tex, INS_Texture);
 			}
@@ -3067,7 +3067,7 @@ static void TransferMapSideDef(const raw_sidedef_t *msd, side_t *sd,
 	Z_StrNCpy(buffer, msd->upper_tex, 8);
 	sd->top.image = W_ImageLookup(buffer, INS_Texture, ILF_Null);
 
-	if (m_goobers.d && ! sd->top.image)
+	if (m_goobers && ! sd->top.image)
 	{
 		Z_StrNCpy(buffer, msd->lower_tex, 8);
 		sd->top.image = W_ImageLookup(buffer, INS_Texture);

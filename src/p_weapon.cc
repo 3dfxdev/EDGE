@@ -445,7 +445,7 @@ static void P_BringUpWeapon(player_t * p)
 		else if (level_flags.limit_zoom)
 			p->zoom_fov = 0;
 		else
-			p->zoom_fov = r_zoomfov.d;
+			p->zoom_fov = r_zoomfov;
 	}
 
 	if (info->start)
@@ -1243,7 +1243,7 @@ void A_Lower(mobj_t * mo)
 		if (level_flags.limit_zoom)
 			p->zoom_fov = 0;
 		else
-			p->zoom_fov = r_zoomfov.d;
+			p->zoom_fov = r_zoomfov;
 	}
 
 	psp->sy += LOWERSPEED;

@@ -55,7 +55,7 @@
 #include "n_network.h"
 #include "p_spec.h"
 #include "r_gldefs.h"
-#include "s_music.h"  // mus_volume
+#include "s_music.h"  // au_mus_volume
 #include "s_sound.h"
 #include "am_map.h"
 #include "r_colormap.h"
@@ -74,16 +74,16 @@
 //
 int monitor_size;
 
-cvar_c m_diskicon;
-extern cvar_c m_tactile, melee_tactile;
-extern cvar_c r_vsync;
-extern cvar_c r_lerp;
-extern cvar_c r_shadows;
-extern cvar_c r_textscale;
-extern cvar_c r_bloom;
-extern cvar_c r_lens;
-extern cvar_c r_stretchworld;
-extern cvar_c r_fixspritescale;
+DEF_CVAR(m_diskicon, int, "c", 1);
+extern int m_tactile, melee_tactile;
+extern int r_vsync;
+extern int r_lerp;
+extern int r_shadows;
+extern float r_textscale;
+extern int r_bloom;
+extern int r_lens;
+extern int r_stretchworld;
+extern int r_fixspritescale;
 
 
 bool display_disk = false;
@@ -121,11 +121,11 @@ static default_t defaults[] =
 	{CFGT_Boolean,	"fullscreen",		 &FULLSCREEN,	  CFGDEF_FULLSCREEN},
 	{CFGT_Boolean,	"directx",			 &force_directx,  0},
 	{CFGT_Boolean,	"waveout",			 &force_waveout,  0},
-	{CFGT_Int,      "usegamma",          &var_gamma,	  CFGDEF_CURRENT_GAMMA},
-	{CFGT_Boolean,  "m_diskicon",		 &m_diskicon,	  CFGDEF_DISK_ICON},
+	// {CFGT_Int,      "usegamma",          &r_gamma,	  CFGDEF_CURRENT_GAMMA},
+	// {CFGT_Boolean,  "m_diskicon",		 &m_diskicon,	  CFGDEF_DISK_ICON},
 
-	{CFGT_Int,      "sfx_volume",        &sfx_volume,     CFGDEF_SOUND_VOLUME},
-	{CFGT_Int,      "music_volume",      &mus_volume,     CFGDEF_MUSIC_VOLUME},
+	// {CFGT_Int,      "au_sfx_volume",        &au_sfx_volume,     CFGDEF_SOUND_VOLUME},
+	{CFGT_Int,      "music_volume",      &au_mus_volume,     CFGDEF_MUSIC_VOLUME},
 	{CFGT_Int,      "music_device",      &var_music_dev,  CFGDEF_MUSIC_DEVICE},
 	{CFGT_Int,      "sample_rate",       &var_sample_rate,  CFGDEF_SAMPLE_RATE},
 	{CFGT_Int,      "sound_bits",        &var_sound_bits,   CFGDEF_SOUND_BITS},
@@ -295,14 +295,18 @@ void M_SaveDefaults(void)
 	auto root = cpptoml::make_table();
 
 	auto cvarRoot = cpptoml::make_table();
-	for (int k = 0; all_cvars[k].name; k++)
+
+	cvar_link_t *link = all_cvars_list;
+	while(link)
 	{
-		cvar_c *var = all_cvars[k].var;
+		cvar_c *var = link->var;
 
 		//I_Printf("save %s = %s\n", all_cvars[k].name, var->str);
 
-		if (strchr(all_cvars[k].flags, 'c'))
-			cvarRoot->insert(std::string(all_cvars[k].name), std::string(var->str));
+		if (strchr(link->flags, 'c'))
+			cvarRoot->insert(std::string(link->name), var->get_casted_string());
+		
+		link = link->next;
 	}
 	root->insert("cvars", cvarRoot);
 
@@ -554,7 +558,7 @@ void M_DisplayDisk(void)
 {
 	/* displays disk icon during loading... */
 
-	if (!m_diskicon.d || !display_disk)
+	if (!m_diskicon || !display_disk)
 		return;
 
 	if (!disk_image)

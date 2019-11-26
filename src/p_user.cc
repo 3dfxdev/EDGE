@@ -472,7 +472,7 @@ static void MovePlayer(player_t * player)
 
 			// In `LimitZoom' mode, only allow zooming if weapon supports it
 			if (fov <= 0 && !level_flags.limit_zoom)
-				fov = r_zoomfov.d;
+				fov = r_zoomfov;
 		}
 
 		player->zoom_fov = fov;

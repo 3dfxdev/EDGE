@@ -40,9 +40,9 @@
 #define CON_WIPE_TICS  12
 
 
-cvar_c debug_fps;
-cvar_c debug_pos;
-cvar_c debug_ticrate;
+DEF_CVAR(debug_fps, int, "c", 0);
+DEF_CVAR(debug_pos, int, "c", 0);
+DEF_CVAR(debug_ticrate, int, "c", 0);
 
 static visible_t con_visible;
 
@@ -1156,7 +1156,7 @@ void CON_ShowFPS(void)
 {
 	CON_SetupFont();
 
-	if (debug_fps.d <= 0 && debug_pos.d <= 0)
+	if (debug_fps <= 0 && debug_pos <= 0)
 		return;
 
 	static int numframes = 0, lasttime = 0;
@@ -1180,10 +1180,10 @@ void CON_ShowFPS(void)
 
 	int lcount = 2;
 
-	if (debug_fps.d >= 2)
+	if (debug_fps >= 2)
 		lcount++;
 
-	if (debug_pos.d)
+	if (debug_pos)
 		lcount += 7;
 
 	int x = SCREENWIDTH  - XMUL * 16;
@@ -1201,7 +1201,7 @@ void CON_ShowFPS(void)
 		y -= YMUL;
 	}
 
-	if (debug_fps.d >= 2)
+	if (debug_fps >= 2)
 	{
 		sprintf(textbuf, " ms/f: %1.1f", mspf);
 		DrawText(x, y, textbuf, T_GREY176);
@@ -1210,7 +1210,7 @@ void CON_ShowFPS(void)
 
 	y -= YMUL;
 
-	if (debug_pos.d)
+	if (debug_pos)
 	{
 		player_t *p = players[displayplayer];
 		SYS_ASSERT(p);

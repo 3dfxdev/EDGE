@@ -67,7 +67,7 @@ bool playing_movie = false;
 extern SDL_Window *my_vis;
 extern SDL_Renderer *my_rndrr;
 extern SDL_GLContext glContext;
-extern cvar_c r_vsync;
+extern int r_vsync;
 
 typedef int cinHandle_t;
 cinHandle_t cinematicHandle;

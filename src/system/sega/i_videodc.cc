@@ -274,7 +274,7 @@ vid_border_color(128,128,0);
 	glKosFinishFrame();
 	SDL_GL_SwapBuffers();
 vid_border_color(0,0,255);
-	if (in_grab.CheckModified())
+	if (in_grab_cv_.CheckModified())
 		I_GrabCursor(grab_state);
 }
 

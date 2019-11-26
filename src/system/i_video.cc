@@ -38,7 +38,7 @@ PFNWGLSWAPINTERVALEXTPROC myWglSwapIntervalExtProc;
 SDL_version compiled;
 SDL_version linked;
 
-extern cvar_c r_width, r_height, r_depth, r_fullscreen, r_vsync, r_anisotropy;
+extern int r_vsync, r_anisotropy;
 
 //The window we'll be rendering to
 SDL_Window *my_vis;
@@ -47,9 +47,9 @@ SDL_Renderer *my_rndrr;
 
 int graphics_shutdown = 0;
 
-cvar_c in_grab;
+DEF_CVAR(in_grab, int, "c", 1);
 
-cvar_c r_swapinterval;
+DEF_CVAR(r_swapinterval, int, "", 1);
 
 static bool grab_state;
 
@@ -96,7 +96,7 @@ void I_GrabCursor(bool enable)
 
 	grab_state = enable;
 
-	if (grab_state && in_grab.d)
+	if (grab_state && in_grab)
 	{
 		SDL_ShowCursor(SDL_FALSE);
 		SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -158,10 +158,10 @@ void I_StartupGraphics(void)
 		in_grab = 0;
 
 	// anti-aliasing
-	if (r_anisotropy.d > 1)
+	if (r_anisotropy > 1)
 	{
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 4);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, r_anisotropy.d);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, r_anisotropy);
 	}
 	else 
 	{
@@ -207,9 +207,9 @@ void I_StartupGraphics(void)
         return;
     }
 
-	if (r_vsync.d == 1 && r_swapinterval.d == 0)
+	if (r_vsync == 1 && r_swapinterval == 0)
 		SDL_GL_SetSwapInterval(1);		// SDL-based standard
-	else if (r_vsync.d == 1 && r_swapinterval.d == 1)
+	else if (r_vsync == 1 && r_swapinterval == 1)
 		SDL_GL_SetSwapInterval(-1);
 
 
@@ -319,9 +319,9 @@ bool I_SetScreenSize(scrmode_c *mode)
 		return false;
 	}
 
-	if (r_vsync.d == 1 && r_swapinterval.d == 0)
+	if (r_vsync == 1 && r_swapinterval == 0)
 		SDL_GL_SetSwapInterval(1);		// SDL-based standard
-	else if (r_vsync.d == 1 && r_swapinterval.d == 1)
+	else if (r_vsync == 1 && r_swapinterval == 1)
 		SDL_GL_SetSwapInterval(-1);
 
 	// -AJA- turn off cursor -- BIG performance increase.
@@ -361,7 +361,6 @@ void I_StartFrame(void)
 
 void I_FinishFrame(void)
 {
-	extern cvar_c r_vsync;
 
 #ifdef GL_BRIGHTNESS
 	glEnable(GL_BLEND);
@@ -380,7 +379,7 @@ void I_FinishFrame(void)
 #endif
 
 
-	if (r_vsync.d > 0)
+	if (r_vsync > 0)
 		glFinish();
 
 	/* 	Some systems allow specifying -1 for the interval,
@@ -396,7 +395,7 @@ void I_FinishFrame(void)
 
 	SDL_GL_SwapWindow(my_vis);
 
-	if (in_grab.CheckModified())
+	if (in_grab_cv_.CheckModified())
 		I_GrabCursor(grab_state);
 }
 

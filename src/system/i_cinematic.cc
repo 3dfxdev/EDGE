@@ -78,7 +78,7 @@ bool playing_movie = false;
 
 static SDL_AudioSpec mydev;
 
-extern int sfx_volume;
+extern int au_sfx_volume;
 extern float slider_to_gain[];
 
 #define DEBUG_ROQ_READER
@@ -1521,7 +1521,7 @@ void CIN_UpdateAudio(Uint8 *stream, int len)
 		if (wanted <= cin->nextSample)
 		{
 			for (j = 0; j < wanted; j++)
-				dst[j] = (float)cin->soundSamples[j] * slider_to_gain[sfx_volume] * 0.000030518f;
+				dst[j] = (float)cin->soundSamples[j] * slider_to_gain[au_sfx_volume] * 0.000030518f;
 			if (wanted < cin->nextSample)
 				memcpy(cin->soundSamples, &cin->soundSamples[wanted], (cin->nextSample - wanted) * 2);
 			cin->nextSample -= wanted;
@@ -1529,7 +1529,7 @@ void CIN_UpdateAudio(Uint8 *stream, int len)
 		else
 		{
 			for (j = 0; j < cin->nextSample; j++)
-				dst[j] = (float)cin->soundSamples[j] * slider_to_gain[sfx_volume] * 0.000030518f;
+				dst[j] = (float)cin->soundSamples[j] * slider_to_gain[au_sfx_volume] * 0.000030518f;
 			cin->nextSample = 0;
 
 			for (; j < wanted; j++)

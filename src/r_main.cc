@@ -44,18 +44,18 @@ int glmax_tex_size;
 int glmax_tex_units;
 extern float max_anisotropic;
 
-extern cvar_c r_bloom;
-extern cvar_c r_lens;
-extern cvar_c r_fxaa;
-extern cvar_c r_fxaa_quality;
-extern cvar_c r_gl3_path;
-extern cvar_c r_anisotropy;
-cvar_c r_aspect;
+extern int r_bloom;
+extern int r_lens;
+extern int r_fxaa;
+extern int r_fxaa_quality;
+extern int r_gl3_path;
+extern int r_anisotropy;
+DEF_CVAR(r_aspect, float, "c", 1.777f);
 
-cvar_c r_nearclip;
-cvar_c r_farclip;
+DEF_CVAR(r_nearclip, float, "c", 4.0f);
+DEF_CVAR(r_farclip, float, "c", 64000.0f);
 
-cvar_c r_stretchworld;
+DEF_CVAR(r_stretchworld, int, "c", 1);
 
 typedef enum
 {
@@ -148,9 +148,9 @@ void RGL_SetupMatrices3D(void)
 
 	glLoadIdentity();
 
-	glFrustum(-view_x_slope * r_nearclip.f, view_x_slope * r_nearclip.f,
-		-view_y_slope * r_nearclip.f, view_y_slope * r_nearclip.f,
-		r_nearclip.f, r_farclip.f);
+	glFrustum(-view_x_slope * r_nearclip, view_x_slope * r_nearclip,
+		-view_y_slope * r_nearclip, view_y_slope * r_nearclip,
+		r_nearclip, r_farclip);
 
 	// calculate look-at matrix
 
@@ -158,7 +158,7 @@ void RGL_SetupMatrices3D(void)
 
 	glLoadIdentity();
 
-	if (r_stretchworld.d == 1)
+	if (r_stretchworld == 1)
 	{
 		// We have to scale the pitch to account for the pixel stretching, because the playsim doesn't know about this and treats it as 1:1.
 		// This code taken from GZDoom.
@@ -187,7 +187,7 @@ void RGL_SetupMatrices3D(void)
 
 	// turn on lighting.  Some drivers (e.g. TNT2) don't work properly
 	// without it.
-	if (r_colorlighting.d)
+	if (r_colorlighting)
 	{
 		glEnable(GL_LIGHTING);
 #ifndef DREAMCAST
@@ -197,7 +197,7 @@ void RGL_SetupMatrices3D(void)
 	else
 		glDisable(GL_LIGHTING);
 
-	if (r_colormaterial.d)
+	if (r_colormaterial)
 	{
 		glEnable(GL_COLOR_MATERIAL);
 #ifndef DREAMCAST
@@ -551,10 +551,10 @@ void RGL_CheckExtensions_Old(void)
 	{
 		I_Warning("OpenGL: GLSLv%s is less than 2.1! Disabling GLSL\n", glstr_glsl.c_str());
 		no_render_buffers = true;
-		r_bloom.d = 0;
-		r_fxaa.d = 0;
-		r_lens.d = 0;
-		r_gl3_path.d = 0;
+		r_bloom = 0;
+		r_fxaa = 0;
+		r_lens = 0;
+		r_gl3_path = 0;
 	}
 
 	if (GLEW_VERSION_1_3 ||
@@ -760,11 +760,11 @@ void RGL_Init(void)
 	if ((M_CheckParm("-norenderbuffers")))
 	{
 		no_render_buffers = true;
-		r_bloom.d = 0;
-		r_fxaa.d = 0;
-		r_fxaa_quality.d = 0;
-		r_lens.d = 0;
-		r_gl3_path.d = 0;
+		r_bloom = 0;
+		r_fxaa = 0;
+		r_fxaa_quality = 0;
+		r_lens = 0;
+		r_gl3_path = 0;
 		I_Printf("OpenGL: RenderBuffers/GLSL disabled...\n");
 		I_Printf("==============================================================================\n");
 	}

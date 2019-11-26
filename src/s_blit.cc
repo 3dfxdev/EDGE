@@ -28,6 +28,8 @@
 
 #include <list>
 
+#include "defaults.h"
+
 #include "dm_state.h"  // splitscreen_mode
 #include "m_misc.h"
 #include "r_misc.h"   // R_PointToAngle
@@ -75,7 +77,7 @@ static std::list<epi::sound_data_c *> playing_qbufs;
 static mix_channel_c *queue_chan;
 
 
-int sfx_volume = 0;
+DEF_CVAR(au_sfx_volume, int, "c", CFGDEF_SOUND_VOLUME);
 
 static bool sfxpaused = false;
 
@@ -166,7 +168,7 @@ void mix_channel_c::ComputeVolume()
 
 	float MAX_VOL = (1 << (16 - SAFE_BITS - (var_quiet_factor-1))) - 3;
 
-	MAX_VOL = MAX_VOL * mul * slider_to_gain[sfx_volume];
+	MAX_VOL = MAX_VOL * mul * slider_to_gain[au_sfx_volume];
 
 	if (def)
 		MAX_VOL *= PERCENT_2_FLOAT(def->volume);
@@ -187,7 +189,7 @@ void mix_channel_c::ComputeVolume_Split()
 {
 	float MAX_VOL = (1 << (16 - SAFE_BITS - (var_quiet_factor-1))) - 3;
 
-	MAX_VOL = MAX_VOL * slider_to_gain[sfx_volume];
+	MAX_VOL = MAX_VOL * slider_to_gain[au_sfx_volume];
 
 	if (def)
 		MAX_VOL *= PERCENT_2_FLOAT(def->volume);
@@ -264,7 +266,7 @@ void mix_channel_c::ComputeMusicVolume()
 
 	float MAX_VOL = (1 << (16 - SAFE_BITS)) - 3;
 
- 	MAX_VOL = MAX_VOL * slider_to_gain[mus_volume];
+ 	MAX_VOL = MAX_VOL * slider_to_gain[au_mus_volume];
 
 	volume_L = (int) MAX_VOL;
 	volume_R = (int) MAX_VOL;

@@ -263,7 +263,7 @@ void M_CheckBooleanParm(const char *parm, bool *boolval, bool reverse)
 	}
 }
 
-void M_CheckBooleanCVar(const char *parm, cvar_c *var, bool reverse)
+void M_CheckBooleanIntParm(const char *parm, int *intval, bool reverse)
 {
 	char parmbuf[100];
 
@@ -271,7 +271,7 @@ void M_CheckBooleanCVar(const char *parm, cvar_c *var, bool reverse)
 
 	if (M_CheckParm(parmbuf) > 0)
 	{
-		*var = (reverse ? 0 : 1);
+		*intval = ! reverse;
 		return;
 	}
 
@@ -279,7 +279,7 @@ void M_CheckBooleanCVar(const char *parm, cvar_c *var, bool reverse)
 
 	if (M_CheckParm(parmbuf) > 0)
 	{
-		*var = (reverse ? 1 : 0);
+		*intval = ! reverse;
 		return;
 	}
 }
