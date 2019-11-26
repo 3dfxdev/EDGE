@@ -422,7 +422,7 @@ void SetLanguage(void)
 	if (language.Select(m_language.c_str()))
 		return;
 
-	I_Warning("Invalid language: '%s'\n", m_language);
+	I_Warning("Invalid language: '%s'\n", m_language.c_str());
 
 	if (!language.IsValid())
 		if (!language.Select(0))
