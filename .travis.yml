@@ -13,7 +13,7 @@ matrix:
     - os: linux
       compiler: gcc
       env:
-        - GCC_VERSION=4.9
+        - GCC_VERSION=7
         - CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release -DSDL2_INCLUDE_DIR=/libs/msvc/SDL2/include -DSDL2_LIBRARY=/usr/local/lib/libSDL2.so"
         
       addons:
@@ -21,7 +21,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-4.9
+            - g++-7
             - libsdl2-dev
             - libsdl2-net-dev
             - libogg-dev
@@ -51,6 +51,7 @@ matrix:
             - autoconf
             - automake
             - libtool
+            - libphysfs-dev
             
     - os: osx
       osx_image: xcode10.1
@@ -61,7 +62,7 @@ matrix:
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
       brew update;
-      brew install sdl2_net libvorbis;
+      brew install sdl2_net libvorbis physfs;
       ln -s /usr/local/bin/glibtoolize /usr/local/bin/libtoolize;
     fi
   - if [ -n "$GCC_VERSION" ]; then export CC="gcc-${GCC_VERSION}" CXX="g++-${GCC_VERSION}"; fi
