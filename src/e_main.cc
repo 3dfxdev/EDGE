@@ -487,12 +487,12 @@ static void DoSystemStartup(void)
 
 	// [SP] Set up Optimus to use desired GPU by setting environment variable before init.
 #ifdef WIN32
-	if (r_gpuswitch.d == 1)
+	if (r_gpuswitch == 1)
 	{
 		I_Debugf("* Setting Optimus High-Performance GPU.\n");
 		_putenv("SHIM_MCCOMPAT=0x800000001");
 	}
-	else if (r_gpuswitch.d == 2)
+	else if (r_gpuswitch == 2)
 	{
 		I_Debugf("* Setting Optimus Power-Saving GPU.\n");
 		_putenv("SHIM_MCCOMPAT=0x800000000");
@@ -1011,7 +1011,8 @@ const char *wadname[] = { "doom2", "doom","hyper",
 
 static void IdentifyVersion(void)
 {
-	I_Debugf("- Identify IWADS\n");
+	I_Printf("==============================================================================\n");
+	I_Printf("- IdentifyVersion()...\n");
 
 	// Check -wolf3d param (which is the ONLY way to start Wolfenstein for now),
 	//TODO: if this is a Wolf3D map, drastically alter startupcode, and set a global bool to 'wolf3d_mode'?
