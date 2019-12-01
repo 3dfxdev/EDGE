@@ -55,6 +55,7 @@ extern int glmax_tex_size;
 extern int glmax_tex_units;
 
 void RGL_Init(void);
+void RGL_ReInit(void);
 void RGL_SoftInit(void);
 void RGL_DrawProgress(int perc, int glbsp_perc);
 void RGL_SetupMatrices2D(void);

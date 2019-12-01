@@ -772,6 +772,32 @@ void RGL_Init(void)
 		RGL_InitRenderBuffers();
 }
 
+//Duplicate of above with less checks (for fullscreen mode swaps)
+void RGL_ReInit()
+{
+	I_Printf("RGL_ReInit!\n");
+
+	RGL_SoftInit();
+
+	R_SoftInitResolution();
+
+	RGL_SetupMatrices2D();
+
+	if ((M_CheckParm("-norenderbuffers")))
+	{
+		no_render_buffers = true;
+		r_bloom = 0;
+		r_fxaa = 0;
+		r_fxaa_quality = 0;
+		r_lens = 0;
+		r_gl3_path = 0;
+		I_Printf("OpenGL: RenderBuffers/GLSL disabled...\n");
+		I_Printf("==============================================================================\n");
+	}
+	else if ((!M_CheckParm("-norenderbuffers")))
+		RGL_InitRenderBuffers();
+}
+
 //void print_stack(int);
 
 #if 0
