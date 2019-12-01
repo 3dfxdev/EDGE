@@ -1,4 +1,25 @@
 cmake_minimum_required(VERSION 3.2.2)
+################################################################################
+################################################################################
+## Copyright (c) 1997-2019 The EDGE Team (see AUTHORS.md)
+##
+## This software is free software; you can redistribute it and/or
+## modify it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This software is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 51 Franklin St, Fifth Floor,
+## Boston, MA  02110-1301  USA
+##
+################################################################################
+######################### CMake Configuration ##################################
 
 if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   if(DEFINED ENV{VITASDK})
@@ -32,6 +53,10 @@ if( COMMAND cmake_policy )
 	endif()
 endif()
 
+IF (${CMAKE_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
+        MESSAGE( FATAL_ERROR "In-tree Builds are NOT supported.")
+ENDIF (${CMAKE_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
+
 list( APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 include( FindPackageHandleStandardArgs )
 
@@ -44,44 +69,57 @@ macro( make_release_only )
 	string( REPLACE "/MT " "/MTd " CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_RELEASE} )
 endmacro()
 
-set( LZMA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lzma/C" )
+set( LZMA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/lzma/C" )
 option(FORCE_INTERNAL_ZLIB "Use internal zlib")
 option(FORCE_INTERNAL_BZIP2 "Use internal bzip2")
+option(FORCE_INTERNAL_PHYSFS "Use internal physfs")
 option(HYPERTENSION "Compile Hypertension Executable" OFF)
-option(DAIKATANA "Compile Daikatana2 Executable" OFF)
 
 find_package( ZLIB )
 find_package( BZip2 )
-find_package (PHYSFS)
+find_package ( PHYSFS )
+
 #find_package ( FFMPEG )
 #find_package ( SDLKitchensink )
 #set (SDL_kitchensink_static "Statically link SDLKitchensink" ON)
 #set (SDL_kitchensink "Do not Statically link SDLKitchensink" OFF)
 
-if( ZLIB_FOUND AND NOT FORCE_INTERNAL_ZLIB )
-	message( STATUS "Using system zlib, includes found at ${ZLIB_INCLUDE_DIR}" )
+if(NOT ZLIB_FOUND OR INTERNAL_ZLIB)
+	message(STATUS "Using internal zlib")
+	set(ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib)
+	add_subdirectory(deps/zlib)
+	set(ZLIB_LIBRARIES ZLIB::ZLIB)
+	set(ZLIB_LIBRARY ZLIB::ZLIB)
 else()
-	message( STATUS "Using internal zlib" )
-	set( SKIP_INSTALL_ALL TRUE ) # Avoid installing zlib alongside 3dge
-	add_subdirectory( zlib )
-	set( ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/zlib )
-	set( ZLIB_LIBRARIES z )
-	set( ZLIB_LIBRARY z )
+	message(STATUS "Using system zlib, includes found at ${ZLIB_INCLUDE_DIR}")
 endif()
 
 if( BZIP2_FOUND AND NOT FORCE_INTERNAL_BZIP2 )
 	message( STATUS "Using system bzip2 library, includes found at ${BZIP2_INCLUDE_DIR}" )
 else()
 	message( STATUS "Using internal bzip2 library" )
-	add_subdirectory( bzip2 )
-	set( BZIP2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bzip2" )
+	add_subdirectory( deps/bzip2 )
+	set( BZIP2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/bzip2" )
 	set( BZIP2_LIBRARIES bz2 )
 	set( BZIP2_LIBRARY bz2 )
 endif()
 
+if( PHYSFS_FOUND AND NOT FORCE_INTERNAL_PHYSFS )
+	message( STATUS "Using system physfs library, includes found at ${PHYSFS_INCLUDE_DIR}" )
+else()
+	message( STATUS "Using internal physfs library" )
+	add_subdirectory( deps/physfs )
+	set (PHYSFS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/physfs/src")
+	set( PHYSFS_LIBRARIES physfs-static )
+	set( PHYSFS_LIBRARY physfs-static )
+endif()
 
-add_subdirectory( lzma )
+add_subdirectory( deps/lzma )
 add_subdirectory( zipdir )
+
+if(MSVC)
+	add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
+endif()
 
 # Recursive function to place PK3 archive source files into a hierarchy of source file in the IDE
 function( assort_pk3_source_folder FOLDER_NAME PK3_DIR )
@@ -162,8 +200,10 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT /W1 ${CMAKE_CXX_FLAGS}" )
 	add_definitions(-DSIMD_X64)
 	add_definitions(-DWIN64)
+	add_definitions(/W1)
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
 	set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT /W1 ${CMAKE_CXX_FLAGS} /arch:SSE2" )
+	add_definitions(/W1)
 endif()
 endif(MSVC)
 
@@ -263,9 +303,6 @@ if (MSVC)
 		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x64/libvorbis_static.lib" )
 		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/include" )
 		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x64/libvorbis_static.lib" )
-		set( ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/include" )
-		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x64/zlibstatic.lib" )
-		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x64/zlibstatic.lib" )
 	elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
 		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/lib/x86/SDL2_net.lib" )
 		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x86/libogg_staticd.lib" )
@@ -276,9 +313,6 @@ if (MSVC)
 		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x86/libvorbis_staticd.lib" )
 		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/include" )
 		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x86/libvorbis_static.lib" )
-		set( ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/include" )
-		set( ZLIB_LIBRARY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x86/zlibstatic.lib" )
-		set( ZLIB_LIBRARY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/zlib-1.2.11/lib/x86/zlibstatic.lib" )
 		#set (kitchensink_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/kitchensink/include")
 		#set (kitchensink_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/kitchensink/lib/SDL_kitchensink_static.lib")
 	endif()
@@ -670,6 +704,10 @@ if(MSVC)
 	add_dependencies( EDGE eecrashreport )
 endif()
 
+#copy base folder to build root
+add_custom_command(TARGET EDGE POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_SOURCE_DIR}/data/base $<TARGET_FILE_DIR:${PROJECT_NAME}>/base)
 
 target_link_libraries(EDGE
 	${SDL2_LIBRARIES}
@@ -677,7 +715,7 @@ target_link_libraries(EDGE
 	${ogg_RELEASE_LIBRARY}
 	${vorbis_RELEASE_LIBRARY}
 	${vorbisFILE_RELEASE_LIBRARY}
-	${ZLIB_LIBRARY_RELEASE}
+	ZLIB::ZLIB
 	${PHYSFS_LIBRARY}
 	#	${SDLKitchensink_STATIC_LIBRARY}
 )
