@@ -288,7 +288,7 @@ void I_StartupGraphics(void)
 
 bool I_SetScreenSize(scrmode_c *mode)
 {
-	I_Printf("I_SetScreenSize = reached\n");
+	//I_Printf("I_SetScreenSize = reached\n");
 	I_GrabCursor(false);
 
 	SDL_GL_DeleteContext(glContext);
@@ -344,7 +344,7 @@ bool I_SetScreenSize(scrmode_c *mode)
 #endif
 	SDL_GL_SwapWindow(my_vis);
 
-	HUD_Reset();
+	//HUD_Reset();
 	return true;
 }
 
@@ -353,9 +353,8 @@ void I_StartFrame(void)
 {
 	// CA 11/17/19:
 	// This wasn't needed here except for the letterboxing (this is mostly for image "borders"), so we need a better method. For now disabling this helps rendering overall.
-
-	//glClearColor(0, 0, 0, 0);
-	//glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 

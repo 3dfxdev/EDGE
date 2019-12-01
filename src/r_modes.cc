@@ -238,7 +238,7 @@ static bool DoExecuteChangeResolution(scrmode_c *mode)
 	W_DeleteAllImages();
 
 	// fixes white box/black screen problem
-	RGL_Init();
+	//RGL_Init();
 	R_SoftInitResolution();
 
 	bool was_ok = I_SetScreenSize(mode);
