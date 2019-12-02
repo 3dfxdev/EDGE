@@ -435,7 +435,7 @@ static optmenuitem_t vidoptions[] =
 	//{OPT_Slider,  "HUD Text Scale",  HudT,  20,  &r_textscale, NULL, "Experimental"},
 	{OPT_Boolean, "Screen Shake",  YesNo, 1, &m_tactile, NULL, "Will also affect user-defined values in COAL!"},
 	{OPT_Switch,  "Crosshair",       CrossH, 10, &menu_crosshair, M_ChangeCrossHair, NULL},
-	{OPT_Slider, "Crosshair Scale",  NULL, 15, &menu_crosshair2, M_ChangeCrossHairSize, NULL },
+	{OPT_Slider, "Crosshair Scale",  NULL, 14, &menu_crosshair2, M_ChangeCrossHairSize, NULL },
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Boolean, "Map Rotation",    YesNo,   2, &rotatemap, NULL, NULL},
 	{OPT_Switch,  "Teleport Flash",  YesNo,   2, &telept_flash, NULL, "Show a Teleport Flash?"},
@@ -445,8 +445,8 @@ static optmenuitem_t vidoptions[] =
 
 static optmenuitem_t advancedoptions[] =
 {
-	{OPT_Switch,  "GL3 Features",     YesNo, 2, &r_gl3_path, NULL, "Toggles advanced features (normals, per-pixel lighting, etc)"}, /// Change from GL1 to GL3
-	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{OPT_Switch,  "Normal Mapping",     YesNo, 2, &r_gl3_path, NULL, "UNFINISHED: For Models and Lights (breaks sprites)"}, /// Change from GL1 to GL3
+	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Boolean,   "Bloom Processing",  YesNo,  2,  &r_bloom, NULL, "Toggle Bloom Shader On or Off"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Boolean,   "Lens Distortion",  YesNo,  2,  &r_lens, NULL, "Toggle Lens Distortion Effect"},
