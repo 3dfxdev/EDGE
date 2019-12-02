@@ -1,7 +1,7 @@
-# EDGE Engine Authors (aka THE EDGE TEAM)
+# EDGE Engine Authors (aka The EDGE Team)
 ![alt text](http://3dfxdev.net/edgewiki/images/1/18/3DGElogo.gif "Isotope SoftWorks")
-# (C) 1999-2018 Isotope SoftWorks & Contributors
-##### Original DOOM engine (C) id Software, LLC
+# (C) 1997-2019 The EDGE Team and Contributors (Isotope SoftWorks)
+#### Original DOOM engine (C) id Software, LLC
 #### Licensed under the GPLv2
 http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 # See our EDGE Wiki 
@@ -18,15 +18,16 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
 # EDGE TEAM:
 ---
-* Coraline "Chu" Annis: programming
-* Joseph "Chilly Willy" Fenton: programming
-* Damir Srpcic: programming
-* Rachael "Eruanna" Alexanderson: programming
+* Corbin "Chu" Annis: programming
+* Joseph "ChillyW" Fenton: programming
+* Anton "UsernameAK" Korzhuk: programming
+* Andrew Apted: support
 * Maciej Kadlubowski: programming
+* Hayden Kowalchuck: programming
+* Rachael "Eruanna" Alexanderson: programming, support
+* Damir Srpcic: programming
 * Brendan "Brendoe1" Doe: programming, support
 * Alex "TapamN" Nesemann: programming
-* Andrew Apted: support
-* Anton "UsernameAK" Korzhuk: support
 * Gameblabla: support
 * Ryan "ryan-sg" Freeman: support
 
@@ -35,17 +36,18 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 * dpJudas: programming
 * Josh "Ph3nom" Pearson: KOS OpenGL programming
 * Kazade: KOS GLdc Library and Support
+* Ryan C. Gordon: physFS, SDL2 audio support code
 * Birger N. Andreasen (WinROTT, Rise of the Triad support)
 * Benjamin "The Zombie Killer" Moir (Visual Studio/CMake support)
 * AlexeyNukeyT (OPL and sound code)
-* CeeJay (writing the Heretic definitions)
+* CeeJay (Heretic, general support code)
 * plums  (Heretic definition accuracy checks)
 
 ## Special Thanks
 ---
 * Graf Zahl (for his ongoing wisdom, contributions, and guidance)
-* Marisa Heit (most amazing woman in the community, TBH ;)
-* Blzut3 (ECWolf, Wolf3D/ROTT technical support)
+* Marisa Heit (for ZDoom/et al)
+* Blzut3 (for ECWolf, Wolf3D/ROTT technical support)
 * Fraggle (Chocolate Doom SDL2 help)
 * Crispy Doom Guys (fabian, alexmax) for helping with lerp
 * Quasar (Eternity Engine, dynaBSP/midi_RPC stuff)
@@ -81,8 +83,9 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
 ### Doom Engine
 ![alt text](http://logos-download.com/wp-content/uploads/2016/09/Doom_logo_small.png "(C) id Software, LLC")
- * id Software
 
+### Other Licenses
+## Please see /docs/licenses for license information.
  ---
 ##### We've tried to include everyone, but if you've made a contribution to the EDGE engine and are not listed, please feel free to open an issue or pull request with your name and contribution.
 
