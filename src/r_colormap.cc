@@ -145,16 +145,18 @@ void V_InitPalette(void)
 		for (i = 0; i < 256; i++)
 		{
 
-		if (rott_mode)
-		{
-			playpal_data[t][i][0] = rotpal[(t * 256 + i) * 3 + 0];
-			playpal_data[t][i][1] = rotpal[(t * 256 + i) * 3 + 1];
-			playpal_data[t][i][2] = rotpal[(t * 256 + i) * 3 + 2];
-		}
+			if (rott_mode)
+			{
+				playpal_data[t][i][0] = rotpal[(t * 256 + i) * 3 + 0];
+				playpal_data[t][i][1] = rotpal[(t * 256 + i) * 3 + 1];
+				playpal_data[t][i][2] = rotpal[(t * 256 + i) * 3 + 2];
+			}
 		else
-			playpal_data[t][i][0] = pal[(t * 256 + i) * 3 + 0];
-			playpal_data[t][i][1] = pal[(t * 256 + i) * 3 + 1]; //TODO: V640 https://www.viva64.com/en/w/v640/ The code's operational logic does not correspond with its formatting. The statement is indented to the right, but it is always executed. It is possible that curly brackets are missing.
-			playpal_data[t][i][2] = pal[(t * 256 + i) * 3 + 2];
+			{
+				playpal_data[t][i][0] = pal[(t * 256 + i) * 3 + 0];
+				playpal_data[t][i][1] = pal[(t * 256 + i) * 3 + 1];
+				playpal_data[t][i][2] = pal[(t * 256 + i) * 3 + 2];
+			}
 		}
 	}
 
@@ -168,7 +170,7 @@ void V_InitPalette(void)
 	if (rott_mode)
 		W_DoneWithLump(rotpal);
 	else
-	W_DoneWithLump(pal);
+		W_DoneWithLump(pal);
 
 	loaded_playpal = true;
 
@@ -185,6 +187,7 @@ void V_InitPalette(void)
 	pal_green1 = V_FindColour(64, 128, 48);
 	pal_brown1 = V_FindColour(192, 128, 74);
 
+	I_Printf("==============================================================================\n");
 	I_Printf("Loaded global palette.\n");
 
 	L_WriteDebug("Black:%d White:%d Red:%d Green:%d Blue:%d\n",
