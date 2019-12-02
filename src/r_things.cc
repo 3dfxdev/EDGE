@@ -69,7 +69,7 @@ DEF_CVAR(r_fixspritescale, int, "c", 1);
 
 DEF_CVAR(r_crosshair, int, "c", 0);    // shape
 DEF_CVAR(r_crosscolor, int, "c", 0);   // 0 .. 7
-DEF_CVAR(r_crosssize, float, "c", 15.0f);    // pixels on a 320x200 screen
+DEF_CVAR(r_crosssize, float, "c", 9.0f);    // pixels on a 320x200 screen
 DEF_CVAR(r_crossbright, float, "c", 1.0f);  // 1.0 is normal
 
 extern int r_oldblend;
