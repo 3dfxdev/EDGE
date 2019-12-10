@@ -301,7 +301,7 @@ lumpinfo_t;
 //
 
 // Location of each lump on disk.
-lumpinfo_t *lumpinfo;
+static std::vector<lumpinfo_t> lumpinfo;
 static int *lumpmap = NULL;
 int numlumps;
 
@@ -1193,7 +1193,7 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 	int sort_index, const char *name, bool allow_ddf, const char *path)
 {
 	int j;
-	lumpinfo_t *lump_p = lumpinfo + lump;
+	lumpinfo_t *lump_p = &lumpinfo[lump];
 	image_c *rim;
 
 	lump_p->position = pos;
@@ -1988,7 +1988,7 @@ static PHYSFS_EnumerateCallbackResult LumpNamespace(void *userData, const char *
 
 	I_Debugf("    adding lump %s\n", fname);
 	numlumps++;
-	Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+	lumpinfo.resize(numlumps);
 	AddLumpEx(user_data->dfile, numlumps - 1, 0, length,
 		user_data->dfindex, user_data->index, fname, 1, path);
 #endif
@@ -2063,7 +2063,7 @@ static PHYSFS_EnumerateCallbackResult WadNamespace(void *userData, const char *o
 		}
 		I_Debugf("    adding wad lump %s\n", tname);
 		numlumps++;
-		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+		lumpinfo.resize(numlumps);
 		AddLumpEx(user_data->dfile, numlumps - 1, pos, size,
 			user_data->dfindex, user_data->index, tname, 0, path);
 
@@ -2159,7 +2159,7 @@ static PHYSFS_EnumerateCallbackResult ScriptNamespace(void *userData, const char
 
 		I_Printf("  adding global lump %s\n", fname);
 		numlumps++;
-		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+		lumpinfo.resize(numlumps);
 		AddLumpEx(user_data->dfile, numlumps - 1, 0, length,
 			user_data->dfindex, user_data->index, fname, 1, path);
 	}
@@ -2189,7 +2189,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// add fake C_START lump
 			I_Printf("  adding fake lump C_START\n");
 			numlumps++;
-			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			lumpinfo.resize(numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "C_START", 0);
 
 			// enumerate all entries in the colormaps directory
@@ -2198,7 +2198,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// add fake C_END lump
 			I_Printf("  adding fake lump C_END\n");
 			numlumps++;
-			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			lumpinfo.resize(numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "C_END", 0);
 		}
 		else if (stricmp(fname, "flats") == 0)
@@ -2206,7 +2206,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// add fake F_START lump
 			I_Printf("  adding fake lump F_START\n");
 			numlumps++;
-			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			lumpinfo.resize(numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "F_START", 0);
 
 			// enumerate all entries in the flats directory
@@ -2215,7 +2215,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// add fake F_END lump
 			I_Printf("  adding fake lump F_END\n");
 			numlumps++;
-			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			lumpinfo.resize(numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "F_END", 0);
 		}
 		else if (stricmp(fname, "hires") == 0)
@@ -2223,7 +2223,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// add fake HI_START lump
 			I_Printf("  adding fake lump HI_START\n");
 			numlumps++;
-			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			lumpinfo.resize(numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "HI_START", 0);
 
 			// enumerate all entries in the hires directory
@@ -2232,7 +2232,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// add fake HI_END lump
 			I_Printf("  adding fake lump HI_END\n");
 			numlumps++;
-			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			lumpinfo.resize(numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "HI_END", 0);
 		}
 		else if (stricmp(fname, "patches") == 0)
@@ -2240,7 +2240,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// add fake P_START lump
 			I_Printf("  adding fake lump P_START\n");
 			numlumps++;
-			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			lumpinfo.resize(numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "P_START", 0);
 
 			// enumerate all entries in the flats directory
@@ -2249,7 +2249,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// add fake P_END lump
 			I_Printf("  adding fake lump P_END\n");
 			numlumps++;
-			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			lumpinfo.resize(numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "P_END", 0);
 		}
 		else if (stricmp(fname, "sprites") == 0)
@@ -2257,7 +2257,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// add fake S_START lump
 			I_Printf("  adding fake lump S_START\n");
 			numlumps++;
-			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			lumpinfo.resize(numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "S_START", 0);
 
 			// enumerate all entries in the sprites directory
@@ -2266,7 +2266,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// add fake S_END lump
 			I_Printf("  adding fake lump S_END\n");
 			numlumps++;
-			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			lumpinfo.resize(numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "S_END", 0);
 		}
 		else if (stricmp(fname, "textures") == 0)
@@ -2274,7 +2274,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// add fake TX_START lump
 			I_Printf("  adding fake lump TX_START\n");
 			numlumps++;
-			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			lumpinfo.resize(numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "TX_START", 0);
 
 			// enumerate all entries in the textures directory
@@ -2283,7 +2283,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// add fake TX_END lump
 			I_Printf("  adding fake lump TX_END\n");
 			numlumps++;
-			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			lumpinfo.resize(numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "TX_END", 0);
 		}
 		else if (stricmp(fname, "voices") == 0)
@@ -2291,7 +2291,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// add fake V_START lump
 			I_Printf("  adding fake lump V_START\n");
 			numlumps++;
-			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			lumpinfo.resize(numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "V_START", 0);
 
 			// enumerate all entries in the voices directory
@@ -2300,7 +2300,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// add fake V_END lump
 			I_Printf("  adding fake lump V_END\n");
 			numlumps++;
-			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			lumpinfo.resize(numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "V_END", 0);
 		}
 		else if (stricmp(fname, "voxels") == 0)
@@ -2308,7 +2308,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// add fake VX_START lump
 			I_Printf("  adding fake lump VX_START\n");
 			numlumps++;
-			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			lumpinfo.resize(numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "VX_START", 0);
 
 			// enumerate all entries in the voxels directory
@@ -2317,7 +2317,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// add fake VX_END lump
 			I_Printf("  adding fake lump VX_END\n");
 			numlumps++;
-			Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+			lumpinfo.resize(numlumps);
 			AddLump(NULL, numlumps - 1, 0, 0, user_data->dfindex, user_data->index, "VX_END", 0);
 		}
 		//Startup IWAD?
@@ -2455,7 +2455,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 
 		I_Printf("  adding global lump %s\n", fname);
 		numlumps++;
-		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+		lumpinfo.resize(numlumps);
 		AddLumpEx(user_data->dfile, numlumps - 1, 0, length,
 			user_data->dfindex, user_data->index, fname, 1, path);
 	}
@@ -2791,7 +2791,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 		// Fill in lumpinfo
 		numlumps += header.num_entries;
-		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+		lumpinfo.resize(numlumps);
 
 		for (j = startlump, curinfo = fileinfo; j < numlumps; j++, curinfo++)
 		{
@@ -2832,7 +2832,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 
 		// Fill in lumpinfo
 		numlumps++;
-		Z_Resize(lumpinfo, lumpinfo_t, numlumps);
+		lumpinfo.resize(numlumps);
 
 		AddLump(df, startlump, 0,
 			file->GetLength(), datafile, datafile,
@@ -2980,7 +2980,7 @@ void W_InitMultipleFiles(void)
 	numlumps = 0;
 
 	// will be realloced as lumps are added
-	lumpinfo = NULL;
+	lumpinfo.clear();
 
 	std::list<raw_filename_c *>::iterator it;
 
@@ -3175,7 +3175,7 @@ epi::file_c *W_OpenLump(int lump)
 {
 	SYS_ASSERT(0 <= lump && lump < numlumps);
 
-	lumpinfo_t *l = lumpinfo + lump;
+	lumpinfo_t* l = &lumpinfo[lump];
 
 	data_file_c *df = data_files[l->file];
 
@@ -3216,7 +3216,7 @@ const char *W_GetFileName(int lump)
 {
 	SYS_ASSERT(0 <= lump && lump < numlumps);
 
-	lumpinfo_t *l = lumpinfo + lump;
+	lumpinfo_t* l = &lumpinfo[lump];
 
 	data_file_c *df = data_files[l->file];
 
@@ -3503,7 +3503,7 @@ int W_CheckNumForTexPatch(const char *name)
 
 	for (; i < numlumps && LUMP_MAP_CMP(i) == 0; i++)
 	{
-		lumpinfo_t *L = lumpinfo + lumpmap[i];
+		lumpinfo_t *L = &lumpinfo[lumpmap[i]];
 
 		if (L->kind == LMKIND_Patch || L->kind == LMKIND_Sprite || L->kind == LMKIND_PIC || // L->kind == LMKIND_ROTTPatch || L->kind == LMKIND_ROTTPic ||
 			L->kind == LMKIND_Normal)
@@ -3634,7 +3634,7 @@ static void W_ReadLump(int lump, void *dest)
 	if (lump >= numlumps)
 		I_Error("W_ReadLump: %i >= numlumps", lump);
 
-	lumpinfo_t *L = lumpinfo + lump;
+	lumpinfo_t *L = &lumpinfo[lump];
 #if (DEBUG_LUMPS)
 	I_Debugf("W_ReadLump: %d (%s)\n", lump, L->name);
 #endif
