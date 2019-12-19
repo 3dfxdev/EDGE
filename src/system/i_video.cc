@@ -195,7 +195,8 @@ void I_StartupGraphics(void)
                               display_W,
                               display_H,
                               flags);
-	my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_TARGETTEXTURE);
+
+	my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_ACCELERATED);
 
 	glContext = SDL_GL_CreateContext( my_vis );
 
