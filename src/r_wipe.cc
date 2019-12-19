@@ -23,10 +23,10 @@
 //
 //----------------------------------------------------------------------------
 
-#include "system/i_defs.h"
-#include "system/i_defs_gl.h"
+#include "i_defs.h"
+#include "i_defs_gl.h"
 
-#include "../epi/image_data.h"
+#include "epi/image_data.h"
 
 #include "m_random.h"
 #include "r_gldefs.h"
@@ -45,23 +45,12 @@ static int cur_wipe_progress;
 static int cur_wipe_lasttime;
 
 static GLuint cur_wipe_tex = 0;
-static float cur_wipe_left;  //tcleft, ROTT-specific
-static float cur_wipe_right; //tcright
-static float cur_wipe_top; //tctop
-static float cur_wipe_bot; //tcbot, ROTT-specific
+static float cur_wipe_right;
+static float cur_wipe_top;
 
-int scale, angle;
-int cx, cy;
-double rscale = 2048.0 / scale;
-double rangle = angle / 1024.0 * M_PI;
-double rcx = (cx / 320.0);
-double rcy = (cy / 200.0);// *r_aspect;
-
-double sina = sin(rangle);
-double cosa = cos(rangle);
 
 #define MELT_DIVS  128
-static int melt_yoffs[MELT_DIVS + 1];
+static int melt_yoffs[MELT_DIVS+1];
 
 static inline byte SpookyAlpha(int x, int y)
 {
@@ -73,15 +62,7 @@ static inline byte SpookyAlpha(int x, int y)
 	return (x*x + y * y) / 2;
 }
 
-#if 0
-static inline byte RotateScreen(int x, int y)
-{
-	;
-}
-#endif // 0
-
-
-static void CaptureScreenAsTexture(bool speckly, bool spooky, bool rotate)
+static void CaptureScreenAsTexture(bool speckly, bool spooky)
 {
 	int total_w = W_MakeValidSize(SCREENWIDTH);
 	int total_h = W_MakeValidSize(SCREENHEIGHT);
@@ -117,13 +98,6 @@ static void CaptureScreenAsTexture(bool speckly, bool spooky, bool rotate)
 				dest[4 * x + 3] = (rnd_val >> 16);
 			}
 		}
-		//else if (rotate)
-		//{
-		//	for (int x = 0; x < total_w; x++)
-		//	{
-		//		dest[4 * x + 3] = RotateScreen(x, y);
-		//	}
-		//}
 	}
 
 	cur_wipe_tex = R_UploadTexture(&img);
@@ -178,7 +152,7 @@ void RGL_InitWipe(int reverse, wipetype_e effect)
 		return;
 
 	CaptureScreenAsTexture(effect == WIPE_Pixelfade,
-		effect == WIPE_Spooky, effect == WIPE_Rotate); //CA: 10.28.17 - added screentex rotation from ROTT
+		effect == WIPE_Spooky);
 
 	if (cur_wipe_effect == WIPE_Melt)
 		RGL_Init_Melt();
@@ -195,43 +169,6 @@ void RGL_StopWipe(void)
 	}
 }
 
-#if 0
-void RGL_StartRotate(void)
-{
-	int rsw = powerof2(glscreenw);
-	int rsh = powerof2(glscreenh);
-	Uint32 *buf = (Uint32 *)gl_malloc(glscreenw * glscreenh * 4);
-	DrawScreenToBuffer(buf, 0, 0, glscreenw, glscreenh);
-
-	Uint32 *rtex = (Uint32*)gl_malloc(rsw * rsh * 4);
-
-	copy2d(buf, glscreenw, glscreenh, rtex, rsw, rsh, 0, 0,
-		0, 0, glscreenw, glscreenh);
-
-	glGenTextures(1, &screentex);
-
-	globallump = 0;//bna++
-	UploadTexture(screentex, rtex, rsw, rsh, 0, 0, 0, 20, rsw, rsh);
-
-	rtcx = 0.5;
-	rtcy = 0.5*screenratio;
-
-	gl_free(buf);
-	gl_free(rtex);
-	checkGLStatus();
-	DoingRotate = 1;
-	scrtrw = glscreenw / (double)rsw;
-	scrtrh = glscreenh / (double)rsh;
-}
-
-void GLStopRotate()
-{
-	glDeleteTextures(1, &screentex);
-	DoingRotate = 0;
-	DrawScreen = 1;
-	SetDrawMode(-1);
-}
-#endif // 0
 
 //----------------------------------------------------------------------------
 
@@ -330,32 +267,6 @@ static void RGL_Wipe_Melt(void)
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
 }
-
-#if 0
-void RGL_RotateScreen(int dx, int dy, int angle, int scale)
-{
-	glDepthMask(1);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glBindTexture(GL_TEXTURE_2D, cur_wipe_tex); //glbindtexture(screentex?)
-
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0);
-	glVertex2f(xtl, ytl);
-
-	glTexCoord2f(scrtrw, 0);
-	glVertex2f(xtr, ytr);
-
-	glTexCoord2f(scrtrw, scrtrh);
-	glVertex2f(xbr, ybr);
-
-	glTexCoord2f(0, scrtrh);
-	glVertex2f(xbl, ybl);
-	glEnd();
-
-	//SDL_GL_SwapBuffers();
-}
-#endif // 0
 
 static void RGL_Wipe_Slide(float how_far, float dx, float dy)
 {
@@ -466,7 +377,7 @@ bool RGL_DoWipe(void)
 	if (cur_wipe_progress > 40)  // FIXME: have option for wipe time
 		return true;
 
-	float how_far = (float)cur_wipe_progress / 20.0f;
+	float how_far = (float) cur_wipe_progress / 40.0f;
 
 	switch (cur_wipe_effect)
 	{
