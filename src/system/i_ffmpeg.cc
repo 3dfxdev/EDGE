@@ -17,12 +17,12 @@
 //----------------------------------------------------------------------------
 
 #ifdef USE_FFMPEG
-#include "../../epi/epi.h"
-#include "../../epi/bytearray.h"
-#include "../../epi/file.h"
-#include "../../epi/filesystem.h"
-#include "../../epi/math_oddity.h"
-#include "../../epi/endianess.h"
+#include <epi/epi.h>
+#include <epi/bytearray.h>
+#include <epi/file.h>
+#include <epi/filesystem.h>
+#include <epi/math_oddity.h>
+#include <epi/endianess.h>
 #include "i_defs.h"
 #include "i_defs_gl.h"
 #include "i_sdlinc.h"
@@ -620,7 +620,7 @@ void E_PlayMovie(const char *name, int flags)
     SDL_GL_MakeCurrent( my_vis, glContext );
 
     // restore OGL swap interval
-    if (r_vsync.d != 1)
+    if (r_vsync != 1)
         SDL_GL_SetSwapInterval(-1);
 
     I_Printf("E_PlayMovie exiting\n");
@@ -638,8 +638,8 @@ bool CIN_CheckCinematic (cinHandle_t handle)
 
     if (Kit_GetPlayerState(cin->player) == KIT_STOPPED)
     {
-        const char *estr = Kit_GetError();
 #ifdef DEBUG_MOVIE_PLAYER
+        const char *estr = Kit_GetError();
         I_Printf("  Cinematic stopped - %s\n", estr ? estr : "done");
 #endif
         if (cin->flags & CIN_LOOPING)
