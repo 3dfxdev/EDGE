@@ -7,8 +7,8 @@
 
 #ifndef __I_FFMPEG__
 #define __I_FFMPEG__
-/*
-#include "..\libs\msvc\kitchensink\include\kitchensink\kitchensink.h"
+
+#include <kitchensink\kitchensink.h>
 #include <epi\file.h>
 
 #include "i_sdlinc.h"
@@ -58,7 +58,7 @@ typedef struct
     int                 got;
 
 } cinematic_t;
-*/
+
 
 
 
