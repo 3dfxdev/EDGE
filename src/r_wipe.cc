@@ -23,8 +23,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "system\i_defs.h"
-#include "system\i_defs_gl.h"
+#include "system/i_defs.h"
+#include "system/i_defs_gl.h"
 
 #include "epi/image_data.h"
 
