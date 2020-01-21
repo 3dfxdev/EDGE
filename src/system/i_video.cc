@@ -19,12 +19,6 @@
 #include "i_defs.h"
 #include "i_defs_gl.h"
 
-#ifdef WIN32
-#include "opengl/gledge_wgl.h"
-//#define WGL_WGLEXT_PROTOTYPES 1
-PFNWGLSWAPINTERVALEXTPROC myWglSwapIntervalExtProc;
-#endif
-
 #include "i_sdlinc.h"
 
 #include <signal.h>
@@ -157,17 +151,20 @@ void I_StartupGraphics(void)
 	if (M_CheckParm("-nograb"))
 		in_grab = 0;
 
+#if 0
 	// anti-aliasing
 	if (r_anisotropy > 1)
 	{
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 4);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, r_anisotropy);
 	}
-	else 
+	else
 	{
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
 	}
+
+#endif // 0
 
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
@@ -177,8 +174,6 @@ void I_StartupGraphics(void)
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    8);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   16);
-//	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 2);
-
 	// ~CA 5.7.2016:
 
 	flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS | SDL_WINDOW_INPUT_FOCUS;

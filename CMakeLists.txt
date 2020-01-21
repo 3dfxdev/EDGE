@@ -417,6 +417,7 @@ set(EDGE_SOURCES
 	src/system/i_video.cc
 	src/system/i_sound.cc
 	src/system/i_net.cc
+	src/system/i_timer.cc
 	src/system/i_x86.cc
 	src/system/i_cinematic.cc
 	src/system/i_ffmpeg.cc
