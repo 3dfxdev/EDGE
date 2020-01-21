@@ -254,11 +254,11 @@ static inline void Unlink(cached_image_t *rc)
 //
 //  IMAGE CREATION
 //
-//TODO: V730 https://www.viva64.com/en/w/v730/
-image_c::image_c() : actual_w(0), actual_h(0), total_w(0), total_h(0), 
-source_type(IMSRC_Dummy),
-source_palette(-1),
-cache()
+
+image_c::image_c() : actual_w(0), actual_h(0), total_w(0), total_h(0),
+					 source_type(IMSRC_Dummy),
+					 source_palette(-1),
+					 cache()
 {
 	strcpy(name, "_UNINIT_");
 
@@ -334,8 +334,8 @@ static image_c *CreateDummyImage(const char *name, rgbcol_t fg, rgbcol_t bg)
 }
 
 static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
-	real_image_container_c& container,
-	const image_c *replaces = NULL)
+								real_image_container_c& container,
+								const image_c *replaces = NULL)
 {
 	/* also used for Sprites and TX/HI stuff */
 
@@ -511,7 +511,7 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 			// do checking for ROTT Graphics _FIRST_
 			int expectlen = width * height + 8; //if (lump_len != expectlen)
 //#if 1
-			if ((lump_len != expectlen) && (type == IMSRC_Graphic ^ IMSRC_rottpic))
+			if ((lump_len != expectlen) && (type == IMSRC_rottpic))// ^ IMSRC_rottpic))
 			{
 				//I_Printf("rottpic: '%s' seems to be a raw image + header (lpic_t)..lump_len = '%d'\n", name, lump_len);
 			//	I_Printf("rottpic: '%s' width: '%d' height: '%d'\n", name, rottpic->width, rottpic->height);
@@ -667,6 +667,8 @@ static image_c *AddImageFlat(const char *name, int lump)
 
 		// support for odd-size Hexen flats
 	case 64 * 128: size = 64; break;
+
+	case 128 * 128: size = 128; break;
 
 		// support for ROTT "flats"
 	case 128 * 128 + 8: size = 128; break;
@@ -1857,8 +1859,8 @@ bool W_InitImages(void)
 		var_mipmapping = 1;
 	else if (M_CheckParm("-trilinear"))
 		var_mipmapping = 2;
-	else if (M_CheckParm("-aafilter"))
-		var_mipmapping = 3;
+	//else if (M_CheckParm("-aafilter"))
+		//var_mipmapping = 3;
 
 	//M_CheckBooleanParm("dither", &var_dithering, false);
 
