@@ -93,10 +93,10 @@ int I_GetTimeMS(void)
 //    SDL_Delay(ms);
 //}
 
-void I_WaitVBL(int count)
-{
-    I_Sleep((count * 1000) / 70);
-}
+//void I_WaitVBL(int count)
+//{
+//    I_Sleep((count * 1000) / 70);
+//}
 
 static unsigned int start_displaytime;
 static unsigned int displaytime;
