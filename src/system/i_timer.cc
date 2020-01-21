@@ -20,7 +20,7 @@
 
 #include "i_defs.h"
 #include "i_sdlinc.h"
-#include "..\..\ddf\main.h"
+#include "../../ddf/main.h"
 
 static Uint32 basetime = 0;
 
