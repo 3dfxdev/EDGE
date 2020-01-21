@@ -737,9 +737,9 @@ elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "(Free|Open)BSD")
 	target_link_libraries(EDGE SDL2 GL dl)
 endif()
 
-if(MSVC)
-   target_link_libraries(EDGE rpcrt4)
-endif()
+#if(MSVC)
+#   target_link_libraries(EDGE rpcrt4)
+#endif()
 
 if (NOT VITA)
 INSTALL (TARGETS EDGE
