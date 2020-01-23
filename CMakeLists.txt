@@ -21,6 +21,10 @@ cmake_minimum_required(VERSION 3.2.2)
 ################################################################################
 ######################### CMake Configuration ##################################
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   if(DEFINED ENV{VITASDK})
     set(CMAKE_TOOLCHAIN_FILE "$ENV{VITASDK}/share/vita.toolchain.cmake" CACHE PATH "toolchain file")
@@ -538,6 +542,10 @@ set(EDGE_SOURCES
 	src/vm_hud.cc
 	src/vm_player.cc
 
+	src/utility/m_alloc.cc
+	src/utility/zstring.cc
+	src/utility/name.cc
+
 	src/games/rott/rt_byteordr.cc
 	src/games/wolf3d/wlf_util.cc
 	src/games/wolf3d/wlf_vswap.cc
@@ -700,9 +708,9 @@ add_executable(EDGE
 if (NOT VITA)
 add_dependencies( EDGE revision_check )
 endif()
-if(MSVC)
-	add_dependencies( EDGE eecrashreport )
-endif()
+#if(MSVC)
+#	add_dependencies( EDGE eecrashreport )
+#endif()
 
 #copy base folder to build root
 add_custom_command(TARGET EDGE POST_BUILD
@@ -735,6 +743,7 @@ elseif(VITA)
 elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "(Free|Open)BSD")
 	target_link_libraries(EDGE SDL2 GL dl)
 endif()
+
 
 if(MSVC)
    target_link_libraries(EDGE rpcrt4)
