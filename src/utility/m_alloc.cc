@@ -44,6 +44,8 @@
 #include <malloc.h>
 #endif
 
+#include "system/i_defs.h"
+
 
 #ifndef _MSC_VER
 #define _NORMAL_BLOCK			0

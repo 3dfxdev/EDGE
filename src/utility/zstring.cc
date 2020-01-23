@@ -37,6 +37,7 @@
 #include <string.h>
 #include <new>		// for bad_alloc
 
+#include "system/i_defs.h"
 #include "name.h"
 #include "zstring.h"
 

@@ -179,6 +179,12 @@ namespace epi
 #define Z_StrNCpy(dest, src, max) \
 	(void)(strncpy((dest), (src), (max)), (dest)[(max)] = 0)
 
+template <typename T, size_t N>
+char(&_ArraySizeHelper(T(&array)[N]))[N];
+
+#define countof( array ) (sizeof( _ArraySizeHelper( array ) ))
+
+
 
 #endif /* __EPI_UTIL__ */
 
