@@ -74,6 +74,7 @@ macro( make_release_only )
 endmacro()
 
 set( LZMA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/lzma/C" )
+set( GDTOA_INCLUDE_DIR "{CMAKE_CURRENT_SOURCE_DIR}/deps/gdtoa" )
 option(FORCE_INTERNAL_ZLIB "Use internal zlib")
 option(FORCE_INTERNAL_BZIP2 "Use internal bzip2")
 option(FORCE_INTERNAL_PHYSFS "Use internal physfs")
@@ -120,6 +121,7 @@ endif()
 
 add_subdirectory( deps/lzma )
 add_subdirectory( zipdir )
+add_subdirectory( deps/gdtoa )
 
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
@@ -369,6 +371,8 @@ include_directories(
 #find_package(ZLIB REQUIRED)
 include_directories(${ZLIB_INCLUDE_DIR})
 
+# gdtoa
+include_directories(${GDTOA_INCLUDE_DIR})
 # EDGE
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(EDGE_SOURCES
@@ -543,9 +547,10 @@ set(EDGE_SOURCES
 	src/vm_player.cc
 
 	src/utility/m_alloc.cc
-	src/utility/zstring.cc
 	src/utility/name.cc
-
+	src/utility/zstrformat.cc
+	src/utility/zstring.cc
+	
 	src/games/rott/rt_byteordr.cc
 	src/games/wolf3d/wlf_util.cc
 	src/games/wolf3d/wlf_vswap.cc
@@ -706,7 +711,7 @@ add_executable(EDGE
 )
 
 if (NOT VITA)
-add_dependencies( EDGE revision_check )
+add_dependencies( EDGE revision_check gdtoa)
 endif()
 #if(MSVC)
 #	add_dependencies( EDGE eecrashreport )
@@ -725,6 +730,7 @@ target_link_libraries(EDGE
 	${vorbisFILE_RELEASE_LIBRARY}
 	ZLIB::ZLIB
 	${PHYSFS_LIBRARY}
+	gdtoa
 	#	${SDLKitchensink_STATIC_LIBRARY}
 )
 
@@ -746,8 +752,13 @@ endif()
 
 
 if(MSVC)
-   target_link_libraries(EDGE rpcrt4)
+   #target_link_libraries(EDGE rpcrt4)
 endif()
+
+target_include_directories(EDGE PRIVATE
+	${EDGE_SOURCE_DIR}/deps/gdtoa
+	${CMAKE_BINARY_DIR}/deps/gdtoa
+)
 
 if (NOT VITA)
 INSTALL (TARGETS EDGE
