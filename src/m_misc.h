@@ -70,6 +70,8 @@ std::string M_ComposeFileName(const char *dir, const char *file);
 epi::file_c *M_OpenComposedEPIFile(const char *dir, const char *file);
 void M_WarnError(const char *error,...) GCCATTR((format(printf, 1, 2)));
 int L_CompareFileTimes(const char *wad_file, const char *gwa_file);
+DWORD SuperFastHash(const char* data, size_t len);
+DWORD SuperFastHashI(const char* data, size_t len);
 
 extern unsigned short save_screenshot[160][100];
 extern bool save_screenshot_valid;
