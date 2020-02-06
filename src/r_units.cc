@@ -40,6 +40,7 @@
 #include "r_shader.h"
 #include "r_bumpmap.h"
 #include "r_colormap.h"
+#include "r_qbb.h"
 
 // define to enable light color and fog per sector code
 #define USE_FOG
@@ -118,6 +119,8 @@ static int cur_vert;
 static int cur_unit;
 
 static bool batch_sort;
+
+static RQImmBuffer<RQVertex3fSprite> imm_buffer(RQVertex3fSprite::format, false);
 
 bool RGL_GL3Enabled() 
 {
@@ -371,58 +374,22 @@ static void EnableCustomEnv(GLuint env, bool enable)
 
 static inline void RGL_SendRawVector(const local_gl_vert_t *V)
 {
-#ifndef DREAMCAST
-	if (RGL_GL3Enabled() || r_colormaterial || ! r_colorlighting) {
-		glColor4fv(V->rgba);
-	}
-	else
-	{
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, V->rgba);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, V->rgba);
-	}
-#else
-	glColor4fv(V->rgba);
-#endif
-	myMultiTexCoord2f(GL_TEXTURE0, V->texc[0].x, V->texc[0].y);
-	myMultiTexCoord2f(GL_TEXTURE1, V->texc[1].x, V->texc[1].y);
-
-	glNormal3f(V->normal.x, V->normal.y, V->normal.z);
-#ifndef NO_EDGEFLAG
-	glEdgeFlag(V->edge);
-#endif
-
-	// vertex must be last
-	glVertex3f(V->pos.x, V->pos.y, V->pos.z);
+	imm_buffer.add({V->pos.x, V->pos.y, V->pos.z,
+					V->texc[0].x, V->texc[0].y,
+					V->texc[1].x, V->texc[1].y,
+					V->rgba[0], V->rgba[1], V->rgba[2], V->rgba[3],
+					V->normal.x, V->normal.y, V->normal.z,
+					V->tangent.x, V->tangent.y, V->tangent.z});
 }
 //also sends tangent
 static inline void RGL_SendRawVector2(const local_gl_vert_t *V)
 {
-	/*
-#ifndef DREAMCAST
-	if (r_colormaterial || ! r_colorlighting) {
-		glColor4fv(V->rgba);
-	}
-	else
-	{
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, V->rgba);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, V->rgba);
-	}
-#else
-	glColor4fv(V->rgba);
-#endif
-*/
-	myMultiTexCoord2f(GL_TEXTURE0, V->texc[0].x, V->texc[0].y);
-//	myMultiTexCoord2f(GL_TEXTURE1, V->texc[1].x, V->texc[1].y);
-
-	glNormal3f(V->normal.x, V->normal.y, V->normal.z);
-#ifndef NO_EDGEFLAG
-	glEdgeFlag(V->edge);
-#endif
-
-	glVertexAttrib3f(bmap_shader.attr_tan,V->tangent.x,V->tangent.y,V->tangent.z);
-
-	// vertex must be last
-	glVertex3f(V->pos.x, V->pos.y, V->pos.z);
+	imm_buffer.add({V->pos.x, V->pos.y, V->pos.z,
+					V->texc[0].x, V->texc[0].y,
+					V->texc[1].x, V->texc[1].y,
+					V->rgba[0], V->rgba[1], V->rgba[2], V->rgba[3],
+					V->normal.x, V->normal.y, V->normal.z,
+					V->tangent.x, V->tangent.y, V->tangent.z});
 }
 
 void calc_tan(local_gl_vert_t* v1,local_gl_vert_t* v2,local_gl_vert_t* v3) 
@@ -458,13 +425,11 @@ void RGL_BatchShape(GLuint shape)
 	if (current_shape == shape)
 		return;
 
-	if (current_shape != 0)
-		glEnd();
+	if(current_shape != 0) {
+		imm_buffer.draw(current_shape);
+	}
 
 	current_shape = shape;
-
-	if (current_shape != 0)
-		glBegin(shape);
 }
 
 //
@@ -682,7 +647,9 @@ void RGL_DrawUnits(void)
 				}
 			}
 
-			glBegin(unit->shape);
+
+			RGL_BatchShape(unit->shape);
+			// glBegin(unit->shape);
 			if(bmap_shader.attr_tan!=-1) 
 			{
 				for (int v_idx=0; v_idx < unit->count; v_idx++)
@@ -698,7 +665,8 @@ void RGL_DrawUnits(void)
 				}
 			}
 
-			glEnd();
+			// glEnd();
+			RGL_BatchShape(0);
 
 			bmap_shader.unbind();
 

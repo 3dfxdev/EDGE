@@ -24,8 +24,11 @@
 
 enum RQVertexFormatSpecialAttr {
     VFATTR_POSITION = -1,
-    VFATTR_FINAL = -2,
     VFATTR_TEXCOORD = -3,
+    VFATTR_TEXCOORD2 = -4,
+    VFATTR_COLOR = -6,
+    VFATTR_NORMAL = -5,
+    VFATTR_FINAL = -2,
 };
 
 struct RQVertexFormat {
@@ -45,6 +48,16 @@ struct RQVertex3f {
 struct RQVertex3fTextured {
     float x, y, z;
     float u, v;
+    static RQVertexFormat format[];
+};
+
+struct RQVertex3fSprite {
+    float x, y, z;
+    float u0, v0;
+    float u1, v1;
+    float r, g, b, a;
+    float nx, ny, nz;
+    float tx, ty, tz;
     static RQVertexFormat format[];
 };
 

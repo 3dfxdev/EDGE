@@ -445,7 +445,7 @@ static optmenuitem_t vidoptions[] =
 
 static optmenuitem_t advancedoptions[] =
 {
-	{OPT_Switch,  "Normal Mapping",     YesNo, 2, &r_gl3_path, NULL, "UNFINISHED: For Models and Lights (breaks sprites)"}, /// Change from GL1 to GL3
+	{OPT_Switch,  "Normal Mapping",     YesNo, 2, &r_gl3_path, NULL, "UNFINISHED: For Models and Lights"}, /// Change from GL1 to GL3
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Boolean,   "Bloom Processing",  YesNo,  2,  &r_bloom, NULL, "Toggle Bloom Shader On or Off"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },

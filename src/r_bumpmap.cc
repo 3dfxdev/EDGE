@@ -20,7 +20,6 @@
 #include "r_bumpmap.h"
 #include "system/i_defs.h"
 
-
 #include <assert.h>
 #include <stdio.h>
 
@@ -226,6 +225,9 @@ void bump_map_shader::check_init() {
 
 	glAttachShader(h_prog,h_vertex);
 	glAttachShader(h_prog,h_fragment);
+
+	glBindAttribLocation(h_prog,3,"tangent");
+
 	glLinkProgram(h_prog);
 	glUseProgram(h_prog);
 
@@ -233,6 +235,9 @@ void bump_map_shader::check_init() {
 	glUniform1i(glGetUniformLocation(h_prog,"tex_normal"),1);
 	glUniform1i(glGetUniformLocation(h_prog,"tex_specular"),2);
 	attr_tan=glGetAttribLocation(h_prog, "tangent");
+	if(attr_tan != 3) {
+		I_Printf("BindAttribLocation doesn't work\n");
+	}
 	uni_light_pos=glGetUniformLocation(h_prog,"light_pos");
 	uni_light_color=glGetUniformLocation(h_prog,"light_color");
 	uni_light_radius=glGetUniformLocation(h_prog,"light_r");
