@@ -37,6 +37,8 @@
 #include "r_modes.h"
 #include "r_wipe.h"
 
+#include "r_qbb.h"
+
 #define CON_WIPE_TICS  12
 
 
@@ -370,14 +372,13 @@ static void SolidBox(int x, int y, int w, int h, rgbcol_t col, float alpha)
   
 	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, alpha);
   
-	glBegin(GL_QUADS);
+	RQImmBuffer<RQVertex3f> buffer(RQVertex3f::format);
+	buffer.add({(float) x, (float)y, 0.f});
+	buffer.add({(float) x, (float)y + h, 0.f});
+	buffer.add({(float) x + w, (float)y + h, 0.f});
+	buffer.add({(float) x + w, (float)y, 0.f});
+	buffer.draw(GL_QUADS);
 
-	glVertex2i(x,   y);
-	glVertex2i(x,   y+h);
-	glVertex2i(x+w, y+h);
-	glVertex2i(x+w, y);
-  
-	glEnd();
 	glDisable(GL_BLEND);
 }
 
@@ -408,7 +409,7 @@ static void DrawChar(int x, int y, char ch, rgbcol_t col)
 	float ty1 = (py  ) / 16.0;
 	float ty2 = (py+1) / 16.0;
 
-	glBegin(GL_POLYGON);
+	/*glBegin(GL_POLYGON);
   
 	glTexCoord2f(tx1, ty1);
 	glVertex2i(x, y);
@@ -422,7 +423,14 @@ static void DrawChar(int x, int y, char ch, rgbcol_t col)
 	glTexCoord2f(tx2, ty1);
 	glVertex2i(x + FNSZ, y);
   
-	glEnd();
+	glEnd();*/
+
+	RQImmBuffer<RQVertex3fTextured> buffer(RQVertex3fTextured::format);
+	buffer.add({(float) x, (float)y, 0.f, tx1, ty1});
+	buffer.add({(float) x, (float) y + FNSZ, 0.f, tx1, ty2});
+	buffer.add({(float) x + FNSZ, (float)y + FNSZ, 0.f, tx2, ty2});
+	buffer.add({(float) x + FNSZ, (float) y, 0.f, tx2, ty1});
+	buffer.draw(GL_QUADS);
 }
 
 // writes the text on coords (x,y) of the console

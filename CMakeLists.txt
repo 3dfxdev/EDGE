@@ -509,6 +509,8 @@ set(EDGE_SOURCES
 	src/r_postprocessstate.cc
 	src/r_shaderprogram.cc
 	src/r_lensdistortion.cc
+	src/r_qbb.cc
+	src/r_qvf.cc
 	src/r_fxaa.cc
 	src/r_bloom.cc
 	src/s_blit.cc
