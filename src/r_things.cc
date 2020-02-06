@@ -307,6 +307,11 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 
 	/* draw the weapon */
 
+
+	short l = CLAMP(0, player->mo->props->lightlevel + player->mo->state->bright, 255); //
+
+	RGL_SetAmbientLight(l, l, l);
+
 	RGL_StartUnits(false);
 
 	int num_pass = is_fuzzy ? 1 : (4 + detail_level * 2);
@@ -1510,6 +1515,10 @@ skip_shadow:
 		}
 
 		GLuint fuzz_tex = is_fuzzy ? W_ImageCache(fuzz_image, false) : 0;
+
+		short l = CLAMP(0, mo->props->lightlevel + mo->state->bright, 255); //
+
+		RGL_SetAmbientLight(l, l, l);
 
 		local_gl_vert_t * glvert = RGL_BeginUnit(GL_POLYGON, 4,
 				 is_additive ? ENV_SKIP_RGB : GL_MODULATE, tex_id,

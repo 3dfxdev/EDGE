@@ -372,7 +372,7 @@ static void EnableCustomEnv(GLuint env, bool enable)
 static inline void RGL_SendRawVector(const local_gl_vert_t *V)
 {
 #ifndef DREAMCAST
-	if (r_colormaterial || ! r_colorlighting) {
+	if (RGL_GL3Enabled() || r_colormaterial || ! r_colorlighting) {
 		glColor4fv(V->rgba);
 	}
 	else
