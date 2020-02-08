@@ -13,7 +13,7 @@ RQVertexFormat RQVertex3fTextured::format[] {
 
 RQVertexFormat RQVertex3fColored::format[] {
     {VFATTR_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(RQVertex3fColored), offsetof(RQVertex3fColored, x)},
-    {VFATTR_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(RQVertex3fColored), offsetof(RQVertex3fColored, r)},
+    {VFATTR_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(RQVertex3fColored), offsetof(RQVertex3fColored, r)},
     {VFATTR_FINAL}
 };
 
