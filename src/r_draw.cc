@@ -28,6 +28,7 @@
 #include "r_draw.h"
 #include "r_modes.h"
 #include "r_image.h"
+#include "r_qbb.h"
 
 
 static int glbsp_last_prog_time = 0;
@@ -90,22 +91,12 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 
 	glColor4f(r, g, b, alpha);
 
-	glBegin(GL_QUADS);
-
-	glTexCoord2f(tx1, ty1);
-	glVertex2i(x1, y1);
-
-	glTexCoord2f(tx2, ty1);
-	glVertex2i(x2, y1);
-
-	glTexCoord2f(tx2, ty2);
-	glVertex2i(x2, y2);
-
-	glTexCoord2f(tx1, ty2);
-	glVertex2i(x1, y2);
-
-	glEnd();
-
+	RQImmBuffer<RQVertex3fTextured> buffer(RQVertex3fTextured::format);
+	buffer.add({x1, y1, 0, tx1, ty1});
+	buffer.add({x2, y1, 0, tx2, ty1});
+	buffer.add({x2, y2, 0, tx2, ty2});
+	buffer.add({x1, y2, 0, tx1, ty2});
+	buffer.draw(GL_QUADS);
 
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_ALPHA_TEST);
@@ -159,6 +150,29 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 
 	int x = (pw-8) * perc / 100;
 
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+	RQImmBuffer<RQVertex3fColored> buffer(RQVertex3fColored::format);
+
+	buffer.add({px, py, 0, 0.6f, 0.6f, 0.6f, alpha});
+	buffer.add({px, py + ph, 0, 0.6f, 0.6f, 0.6f, alpha});
+	buffer.add({px + pw, py + ph, 0, 0.6f, 0.6f, 0.6f, alpha});
+	buffer.add({px + pw, py, 0, 0.6f, 0.6f, 0.6f, alpha});
+
+	buffer.add({px + 2, py + 2, 0, 0.0f, 0.0f, 0.0f, alpha});
+	buffer.add({px + 2, py + ph - 2, 0, 0.0f, 0.0f, 0.0f, alpha});
+	buffer.add({px + pw - 2, py + ph - 2, 0, 0.0f, 0.0f, 0.0f, alpha});
+	buffer.add({px + pw - 2, py + 2, 0, 0.0f, 0.0f, 0.0f, alpha});
+
+	buffer.add({px + 4, py + 4, 0, cr, cg, cb, alpha});
+	buffer.add({px + 4, py + ph - 4, 0, cr, cg, cb, alpha});
+	buffer.add({px + 4 + x, py + ph - 4, 0, cr, cg, cb, alpha});
+	buffer.add({px + 4 + x, py + 4, 0, cr, cg, cb, alpha});
+
+	buffer.draw(GL_QUADS);
+
+	/*	// TODO: immediate mode
+
 	glColor4f(0.6f, 0.6f, 0.6f, alpha);
 	glBegin(GL_POLYGON);
 	glVertex2i(px, py);  glVertex2i(px, py+ph);
@@ -177,6 +191,8 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 	glVertex2i(px+4, py+4);  glVertex2i(px+4, py+ph-4);
 	glVertex2i(px+4+x, py+ph-4); glVertex2i(px+4+x, py+4);
 	glEnd();
+
+	*/ 
 
 	(*y) = py;
 }

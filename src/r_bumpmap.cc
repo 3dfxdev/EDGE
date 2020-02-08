@@ -324,6 +324,7 @@ void bump_map_shader::setCamMatrix(float mat[16]) {
 }
 
 void bump_map_shader::debugDrawLights() {
+	/* // TODO: immediate mode
 	glBegin(GL_LINES);
 	for(int i=0;i<max_lights;i++) {
 		if(data_light_radius[i]==0.0f) {
@@ -343,6 +344,7 @@ void bump_map_shader::debugDrawLights() {
 
 	}
 	glEnd();
+	*/
 }
 
 void matrix_mult(const float m[16],const float vec_in[3],float vec_out[3]) {

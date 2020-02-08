@@ -51,6 +51,12 @@ struct RQVertex3fTextured {
     static RQVertexFormat format[];
 };
 
+struct RQVertex3fColored {
+    float x, y, z;
+    float r, g, b, a;
+    static RQVertexFormat format[];
+};
+
 struct RQVertex3fSprite {
     float x, y, z;
     float u0, v0;

@@ -27,6 +27,7 @@
 
 #include "../src/r_image.h" //unwanted engine link?
 #include "../src/r_modes.h" //Unwanted engine link?
+#include "../src/r_qbb.h"
 
 static fontdef_c *dynamic_font;
 
@@ -269,7 +270,7 @@ static void DDF_DrawChar(int x, int y, char ch, rgbcol_t col)
 	float ty1 = (py  ) / 16.0;
 	float ty2 = (py+1) / 16.0;
 
-	glBegin(GL_POLYGON);
+	/*glBegin(GL_POLYGON);
   
 	glTexCoord2f(tx1, ty1);
 	glVertex2i(x, y);
@@ -283,7 +284,14 @@ static void DDF_DrawChar(int x, int y, char ch, rgbcol_t col)
 	glTexCoord2f(tx2, ty1);
 	glVertex2i(x + FNSZ, y);
   
-	glEnd();
+	glEnd();*/
+
+	RQImmBuffer<RQVertex3fTextured> buffer(RQVertex3fTextured::format);
+	buffer.add({(float)x, (float)y, 0.f, tx1, ty1});
+	buffer.add({(float)x, (float)y + FNSZ, 0.f, tx1, ty2});
+	buffer.add({(float)x + FNSZ, (float)y + FNSZ, 0.f, tx2, ty2});
+	buffer.add({(float)x + FNSZ, (float)y, 0.f, tx2, ty1});
+	buffer.draw(GL_QUADS);
 }
 
 // writes the text on coords (x,y) of the console

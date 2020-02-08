@@ -27,6 +27,7 @@
 #include "r_image.h"
 #include "r_modes.h"
 #include "r_texgl.h"
+#include "r_qbb.h"
 #include "w_wad.h"
 
 #define DEBUG  0
@@ -148,20 +149,20 @@ void RGL_ColourmapEffect(player_t *player)
 
 		glEnable(GL_BLEND);
 
-		glBegin(GL_QUADS);
-	  
+		RQImmBuffer<RQVertex3f> buffer(RQVertex3f::format);
+
 		x1 = viewwindow_x;
-		x2 = viewwindow_x + viewwindow_w;
+		x2 = viewwindow_x + viewwindow_h;
 
 		y1 = viewwindow_y + viewwindow_h;
 		y2 = viewwindow_y;
 
-		glVertex2i(x1, y1);
-		glVertex2i(x2, y1);
-		glVertex2i(x2, y2);
-		glVertex2i(x1, y2);
+		buffer.add({x1, y1, 0});
+		buffer.add({x2, y1, 0});
+		buffer.add({x2, y2, 0});
+		buffer.add({x1, y2, 0});
 
-		glEnd();
+		buffer.draw(GL_QUADS);
 	  
 		glDisable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -242,15 +243,13 @@ void RGL_PaletteEffect(player_t *player)
 
 	glEnable(GL_BLEND);
 
-	glBegin(GL_QUADS);
-  
-	glVertex2i(0, SCREENHEIGHT);
-	glVertex2i(SCREENWIDTH, SCREENHEIGHT);
-	glVertex2i(SCREENWIDTH, 0);
-	glVertex2i(0, 0);
-
-	glEnd();
-  
+	RQImmBuffer<RQVertex3f> buffer(RQVertex3f::format);
+	buffer.add({0, SCREENHEIGHT, 0});
+	buffer.add({SCREENWIDTH, SCREENHEIGHT, 0});
+	buffer.add({SCREENWIDTH, 0, 0});
+	buffer.add({0, 0, 0});
+	buffer.draw(GL_QUADS);
+	  
 	glDisable(GL_BLEND);
 }
 

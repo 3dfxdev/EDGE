@@ -11,6 +11,11 @@ RQVertexFormat RQVertex3fTextured::format[] {
     {VFATTR_FINAL}
 };
 
+RQVertexFormat RQVertex3fColored::format[] {
+    {VFATTR_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(RQVertex3fColored), offsetof(RQVertex3fColored, x)},
+    {VFATTR_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(RQVertex3fColored), offsetof(RQVertex3fColored, r)},
+    {VFATTR_FINAL}
+};
 
 RQVertexFormat RQVertex3fSprite::format[] {
     {VFATTR_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(RQVertex3fSprite), offsetof(RQVertex3fSprite, x)},

@@ -32,6 +32,7 @@
 #include "r_image.h"
 #include "r_misc.h"     //  R_Render
 #include "r_renderbuffers.h"
+#include "r_qbb.h"
 
 
 #define DUMMY_WIDTH(font)  (4)
@@ -327,21 +328,12 @@ void HUD_RawImage(float hx1, float hy1, float hx2, float hy2,
 
 	glColor4f(r, g, b, alpha);
 
-	glBegin(GL_QUADS);
-
-	glTexCoord2f(tx1, ty1);
-	glVertex2i(x1, y1);
-
-	glTexCoord2f(tx2, ty1);
-	glVertex2i(x2, y1);
-
-	glTexCoord2f(tx2, ty2);
-	glVertex2i(x2, y2);
-
-	glTexCoord2f(tx1, ty2);
-	glVertex2i(x1, y2);
-
-	glEnd();
+	RQImmBuffer<RQVertex3fTextured> buffer(RQVertex3fTextured::format);
+	buffer.add({x1, y1, 0, tx1, ty1});
+	buffer.add({x1, y2, 0, tx1, ty2});
+	buffer.add({x2, y2, 0, tx2, ty2});
+	buffer.add({x2, y1, 0, tx2, ty1});
+	buffer.draw(GL_QUADS);
 
 
 	glDisable(GL_TEXTURE_2D);
@@ -433,14 +425,13 @@ void HUD_SolidBox(float x1, float y1, float x2, float y2, rgbcol_t col)
 
 	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, cur_alpha);
 
-	glBegin(GL_QUADS);
+	RQImmBuffer<RQVertex3f> buffer(RQVertex3f::format);
+	buffer.add({x1, y1, 0});
+	buffer.add({x1, y2, 0});
+	buffer.add({x2, y2, 0});
+	buffer.add({x2, y1, 0});
+	buffer.draw(GL_QUADS);
 
-	glVertex2f(x1, y1);
-	glVertex2f(x1, y2);
-	glVertex2f(x2, y2);
-	glVertex2f(x2, y1);
-
-	glEnd();
 	glDisable(GL_BLEND);
 }
 
@@ -465,12 +456,10 @@ void HUD_SolidLine(float x1, float y1, float x2, float y2, rgbcol_t col,
 
 	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, cur_alpha);
 
-	glBegin(GL_LINES);
-
-	glVertex2i((int)x1 + (int)dx, (int)y1 + (int)dy);
-	glVertex2i((int)x2 + (int)dx, (int)y2 + (int)dy);
-
-	glEnd();
+	RQImmBuffer<RQVertex3fTextured> buffer(RQVertex3fTextured::format);
+	buffer.add({x1 + dx, y1 + dy, 0});
+	buffer.add({x2 + dx, y2 + dy, 0});
+	buffer.draw(GL_LINES);
 
 	glDisable(GL_BLEND);
 #ifndef NO_LINE_SMOOTH
@@ -492,25 +481,27 @@ void HUD_ThinBox(float x1, float y1, float x2, float y2, rgbcol_t col)
 
 	glColor4f(RGB_RED(col)/255.0, RGB_GRN(col)/255.0, RGB_BLU(col)/255.0, cur_alpha);
 
-	glBegin(GL_QUADS);
-	glVertex2f(x1,   y1); glVertex2f(x1,   y2);
-	glVertex2f(x1+2, y2); glVertex2f(x1+2, y1);
-	glEnd();
+	RQImmBuffer<RQVertex3f> buffer(RQVertex3f::format);
+	buffer.add({x1, y1, 0});
+	buffer.add({x1, y2, 0});
+	buffer.add({x1 + 2, y2, 0});
+	buffer.add({x1 + 2, y1, 0});
 
-	glBegin(GL_QUADS);
-	glVertex2f(x2-2, y1); glVertex2f(x2-2, y2);
-	glVertex2f(x2,   y2); glVertex2f(x2,   y1);
-	glEnd();
+	buffer.add({x2 - 2, y1, 0});
+	buffer.add({x2 - 2, y2, 0});
+	buffer.add({x2, y2, 0});
+	buffer.add({x2, y1, 0});
 
-	glBegin(GL_QUADS);
-	glVertex2f(x1+2, y1);   glVertex2f(x1+2, y1+2);
-	glVertex2f(x2-2, y1+2); glVertex2f(x2-2, y1);
-	glEnd();
+	buffer.add({x1 + 2, y1, 0});
+	buffer.add({x1 + 2, y1 + 2, 0});
+	buffer.add({x2 - 2, y1 + 2, 0});
+	buffer.add({x2 - 2, y1, 0});
 
-	glBegin(GL_QUADS);
-	glVertex2f(x1+2,  y2-2); glVertex2f(x1+2, y2);
-	glVertex2f(x2-2,  y2);   glVertex2f(x2-2, y2-2);
-	glEnd();
+	buffer.add({x1 + 2, y2 - 2, 0});
+	buffer.add({x1 + 2, y2, 0});
+	buffer.add({x2 - 2, y2, 0});
+	buffer.add({x2 - 2, y2 - 2, 0});
+	buffer.draw(GL_QUADS);
 
 	glDisable(GL_BLEND);
 }
@@ -526,6 +517,7 @@ void HUD_GradientBox(float x1, float y1, float x2, float y2, rgbcol_t *cols)
 	if (cur_alpha < 0.99f)
 		glEnable(GL_BLEND);
 
+/* // TODO: immediate mode
 	glBegin(GL_QUADS);
 
 	glColor4f(RGB_RED(cols[1])/255.0, RGB_GRN(cols[1])/255.0,
@@ -545,6 +537,8 @@ void HUD_GradientBox(float x1, float y1, float x2, float y2, rgbcol_t *cols)
 	glVertex2f(x2, y1);
 
 	glEnd();
+
+	*/
 	glDisable(GL_BLEND);
 }
 

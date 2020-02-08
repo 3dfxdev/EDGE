@@ -409,22 +409,6 @@ static void DrawChar(int x, int y, char ch, rgbcol_t col)
 	float ty1 = (py  ) / 16.0;
 	float ty2 = (py+1) / 16.0;
 
-	/*glBegin(GL_POLYGON);
-  
-	glTexCoord2f(tx1, ty1);
-	glVertex2i(x, y);
-
-	glTexCoord2f(tx1, ty2); 
-	glVertex2i(x, y + FNSZ);
-  
-	glTexCoord2f(tx2, ty2);
-	glVertex2i(x + FNSZ, y + FNSZ);
-  
-	glTexCoord2f(tx2, ty1);
-	glVertex2i(x + FNSZ, y);
-  
-	glEnd();*/
-
 	RQImmBuffer<RQVertex3fTextured> buffer(RQVertex3fTextured::format);
 	buffer.add({(float) x, (float)y, 0.f, tx1, ty1});
 	buffer.add({(float) x, (float) y + FNSZ, 0.f, tx1, ty2});
