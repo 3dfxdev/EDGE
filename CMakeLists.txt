@@ -104,7 +104,7 @@ if( BZIP2_FOUND AND NOT FORCE_INTERNAL_BZIP2 )
 else()
 	message( STATUS "Using internal bzip2 library" )
 	add_subdirectory( deps/bzip2 )
-	set( BZIP2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/bzip2" )
+	set( BZIP2_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/bzip2)
 	set( BZIP2_LIBRARIES bz2 )
 	set( BZIP2_LIBRARY bz2 )
 endif()
@@ -114,7 +114,7 @@ if( PHYSFS_FOUND AND NOT FORCE_INTERNAL_PHYSFS )
 else()
 	message( STATUS "Using internal physfs library" )
 	add_subdirectory( deps/physfs )
-	set (PHYSFS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/physfs/src")
+	set (PHYSFS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/physfs/src)
 	set( PHYSFS_LIBRARIES physfs-static )
 	set( PHYSFS_LIBRARY physfs-static )
 endif()
@@ -540,16 +540,23 @@ set(EDGE_SOURCES
 	src/w_sprite.cc
 	src/w_texture.cc
 	src/w_wad.cc
+#	src/w_wad2.cc
 	src/w_rottwad.cc
 	src/z_zone.cc
 	src/vm_coal.cc
 	src/vm_hud.cc
 	src/vm_player.cc
 
+#	src/utility/files.cc
+#	src/utility/filesys.cc
+#	src/utility/filesys_steam.cc
+#	src/utility/lumpremap.cc
 	src/utility/m_alloc.cc
 	src/utility/name.cc
+#	src/utility/scanner.cc
 	src/utility/zstrformat.cc
 	src/utility/zstring.cc
+	
 	
 	src/games/rott/rt_byteordr.cc
 	src/games/wolf3d/wlf_util.cc
@@ -596,21 +603,7 @@ set(EDGE_SOURCES
 	epi/sound_wav.cc
 	epi/timestamp.cc
 	epi/utility.cc
-	
-	# Note we only support file formats from physFS in EDGE that will be used!
-	#- all others were stripped! 
-	# epi/physfs/physfs.c
-    # epi/physfs/physfs_byteorder.c
-    # epi/physfs/physfs_unicode.c
-	# epi/physfs/physfs_platform_posix.c #// !!!
-    # epi/physfs/physfs_archiver_dir.c
-    # epi/physfs/physfs_archiver_unpacked.c
-    # epi/physfs/physfs_archiver_grp.c
-    # epi/physfs/physfs_archiver_7z.c
-    # epi/physfs/physfs_archiver_qpak.c
-    # epi/physfs/physfs_archiver_wad.c
-    # epi/physfs/physfs_archiver_zip.c
-    # epi/physfs/physfs_archiver_iso9660.c
+
 
 	glbsp/src/analyze.cc
 	glbsp/src/blockmap.cc
@@ -729,16 +722,17 @@ target_link_libraries(EDGE
 	${vorbis_RELEASE_LIBRARY}
 	${vorbisFILE_RELEASE_LIBRARY}
 	ZLIB::ZLIB
+	BZip2::BZip2
 	${PHYSFS_LIBRARY}
 	gdtoa
 	#	${SDLKitchensink_STATIC_LIBRARY}
 )
 
+# Win32: Removing gdi32 since this conflicts with other types 
 if (WIN32)
 	target_link_libraries(EDGE
 		wsock32
 		winmm
-		gdi32
 		opengl32
 	)
 elseif(APPLE)
@@ -756,6 +750,9 @@ if(MSVC)
 endif()
 
 target_include_directories(EDGE PRIVATE
+	${LZMA_INCLUDE_DIR}
+	${BZIP2_INCLUDE_DIR}
+	${PHYSFS_INCLUDE_DIR}
 	${EDGE_SOURCE_DIR}/deps/gdtoa
 	${CMAKE_BINARY_DIR}/deps/gdtoa
 )

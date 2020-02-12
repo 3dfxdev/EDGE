@@ -28,6 +28,10 @@ const char *GetVersionString();
 #define EDGEVER     210
 #define EDGEVERHEX  0x210
 
+
+//#include "versiondefs.h"
+#define MAIN_PK3 "edge.epk"
+
 #ifdef GIT_DESCRIPTION
 #define EDGEVERSTR GIT_DESCRIPTION
 #else

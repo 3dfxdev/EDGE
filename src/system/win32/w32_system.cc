@@ -43,6 +43,7 @@
 
 #define INTOLERANT_MATH 1  // -AJA- FIXME: temp fix to get to compile
 extern int __cdecl I_W32ExceptionHandler(PEXCEPTION_POINTERS ep);
+#define USE_WINDOWS_DWORD
 
 //#include <InitGuid.h>
 
@@ -351,6 +352,16 @@ void I_MessageBox(const char *message, const char *title)
 int I_PureRandom(void)
 {
 	return ((int)time(NULL) ^ (int)I_ReadMicroSeconds()) & 0x7FFFFFFF;
+}
+
+/*
+ * I_GetRandomTimeSeed
+ *
+ * CPhipps - extracted from G_ReloadDefaults because it is O/S based
+ */
+unsigned long I_GetRandomTimeSeed(void)
+{
+	return (unsigned long)time(NULL);
 }
 
 //

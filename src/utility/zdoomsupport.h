@@ -96,8 +96,8 @@ static void DPrintf(const char* fmt, ...) {}
 #endif
 
 #define MAXWIDTH 5120
-#define Printf printf
-#define I_FatalError Quit
+//#define Printf printf
+#define I_FatalError I_Error
 void I_Error(const char* format, ...);
 
 #define MulScale16(x,y) (SDWORD((SQWORD(x)*SQWORD(y))>>16))
@@ -106,6 +106,16 @@ void I_Error(const char* format, ...);
 #define STACK_ARGS __cdecl
 #else
 #define STACK_ARGS
+#endif
+
+#ifdef __GNUC__
+#define GCCPRINTF(stri,firstargi)		__attribute__((format(printf,stri,firstargi)))
+#define GCCFORMAT(stri)					__attribute__((format(printf,stri,0)))
+#define GCCNOWARN						__attribute__((unused))
+#else
+#define GCCPRINTF(a,b)
+#define GCCFORMAT(a)
+#define GCCNOWARN
 #endif
 
 #endif /* __ZDOOM_SUPPORT__ */
