@@ -99,7 +99,7 @@ if( BZIP2_FOUND AND NOT FORCE_INTERNAL_BZIP2 )
 else()
 	message( STATUS "Using internal bzip2 library" )
 	add_subdirectory( deps/bzip2 )
-	set( BZIP2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/bzip2" )
+	set( BZIP2_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/bzip2)
 	set( BZIP2_LIBRARIES bz2 )
 	set( BZIP2_LIBRARY bz2 )
 endif()
@@ -109,7 +109,7 @@ if( PHYSFS_FOUND AND NOT FORCE_INTERNAL_PHYSFS )
 else()
 	message( STATUS "Using internal physfs library" )
 	add_subdirectory( deps/physfs )
-	set (PHYSFS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/physfs/src")
+	set (PHYSFS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/physfs/src)
 	set( PHYSFS_LIBRARIES physfs-static )
 	set( PHYSFS_LIBRARY physfs-static )
 endif()
@@ -719,6 +719,7 @@ target_link_libraries(EDGE
 	${vorbis_RELEASE_LIBRARY}
 	${vorbisFILE_RELEASE_LIBRARY}
 	ZLIB::ZLIB
+	BZip2::BZip2
 	${PHYSFS_LIBRARY}
 	#	${SDLKitchensink_STATIC_LIBRARY}
 )
@@ -727,7 +728,7 @@ if (WIN32)
 	target_link_libraries(EDGE
 		wsock32
 		winmm
-		gdi32
+#		gdi32
 		opengl32
 	)
 elseif(APPLE)
@@ -742,6 +743,12 @@ endif()
 #if(MSVC)
 #   target_link_libraries(EDGE rpcrt4)
 #endif()
+
+target_include_directories(EDGE PRIVATE
+	${LZMA_INCLUDE_DIR}
+	${BZIP2_INCLUDE_DIR}
+	${PHYSFS_INCLUDE_DIR}
+)
 
 if (NOT VITA)
 INSTALL (TARGETS EDGE
