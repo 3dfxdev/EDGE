@@ -480,7 +480,7 @@ static void DrawStdCrossHair(void)
 
 	glColor3f(r, g, b);
 
-	glBegin(GL_POLYGON);
+	glBegin(GL_QUADS);
 
 	glTexCoord2f(0.0f, 0.0f); glVertex2f(x-w, y-w);
 	glTexCoord2f(0.0f, 1.0f); glVertex2f(x-w, y+w);

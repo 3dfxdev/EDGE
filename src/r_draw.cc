@@ -171,29 +171,6 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 
 	buffer.draw(GL_QUADS);
 
-	/*	// TODO: immediate mode
-
-	glColor4f(0.6f, 0.6f, 0.6f, alpha);
-	glBegin(GL_POLYGON);
-	glVertex2i(px, py);  glVertex2i(px, py+ph);
-	glVertex2i(px+pw, py+ph); glVertex2i(px+pw, py);
-	glVertex2i(px, py);
-	glEnd();
-
-	glColor4f(0.0f, 0.0f, 0.0f, alpha);
-	glBegin(GL_POLYGON);
-	glVertex2i(px+2, py+2);  glVertex2i(px+2, py+ph-2);
-	glVertex2i(px+pw-2, py+ph-2); glVertex2i(px+pw-2, py+2);
-	glEnd();
-
-	glColor4f(cr, cg, cb, alpha);
-	glBegin(GL_POLYGON);
-	glVertex2i(px+4, py+4);  glVertex2i(px+4, py+ph-4);
-	glVertex2i(px+4+x, py+ph-4); glVertex2i(px+4+x, py+4);
-	glEnd();
-
-	*/ 
-
 	(*y) = py;
 }
 

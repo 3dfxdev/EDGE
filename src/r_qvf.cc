@@ -23,6 +23,6 @@ RQVertexFormat RQVertex3fSprite::format[] {
     {VFATTR_TEXCOORD2, 2, GL_FLOAT, GL_FALSE, sizeof(RQVertex3fSprite), offsetof(RQVertex3fSprite, u1)},
     {VFATTR_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(RQVertex3fSprite), offsetof(RQVertex3fSprite, r)},
     {VFATTR_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(RQVertex3fSprite), offsetof(RQVertex3fSprite, nx)},
-    {3, 3, GL_FLOAT, GL_FALSE, sizeof(RQVertex3fSprite), offsetof(RQVertex3fSprite, tx)},
+    {6, 3, GL_FLOAT, GL_FALSE, sizeof(RQVertex3fSprite), offsetof(RQVertex3fSprite, tx)}, // tangent
     {VFATTR_FINAL}
 };

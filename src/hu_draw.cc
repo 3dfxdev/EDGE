@@ -517,28 +517,13 @@ void HUD_GradientBox(float x1, float y1, float x2, float y2, rgbcol_t *cols)
 	if (cur_alpha < 0.99f)
 		glEnable(GL_BLEND);
 
-/* // TODO: immediate mode
-	glBegin(GL_QUADS);
-
-	glColor4f(RGB_RED(cols[1])/255.0, RGB_GRN(cols[1])/255.0,
-	          RGB_BLU(cols[1])/255.0, cur_alpha);
-	glVertex2f(x1, y1);
-
-	glColor4f(RGB_RED(cols[0])/255.0, RGB_GRN(cols[0])/255.0,
-	          RGB_BLU(cols[0])/255.0, cur_alpha);
-	glVertex2f(x1, y2);
-
-	glColor4f(RGB_RED(cols[2])/255.0, RGB_GRN(cols[2])/255.0,
-	          RGB_BLU(cols[2])/255.0, cur_alpha);
-	glVertex2f(x2, y2);
-
-	glColor4f(RGB_RED(cols[3])/255.0, RGB_GRN(cols[3])/255.0,
-	          RGB_BLU(cols[3])/255.0, cur_alpha);
-	glVertex2f(x2, y1);
-
-	glEnd();
-
-	*/
+	RQImmBuffer<RQVertex3fColored> buffer(RQVertex3fColored::format);
+	buffer.add({x1, y1, RGB_RED(cols[1])/255.0, RGB_GRN(cols[1])/255.0, RGB_BLU(cols[1])/255.0, cur_alpha});
+	buffer.add({x1, y2, RGB_RED(cols[0])/255.0, RGB_GRN(cols[0])/255.0, RGB_BLU(cols[0])/255.0, cur_alpha});
+	buffer.add({x2, y2, RGB_RED(cols[2])/255.0, RGB_GRN(cols[2])/255.0, RGB_BLU(cols[2])/255.0, cur_alpha});
+	buffer.add({x2, y1, RGB_RED(cols[3])/255.0, RGB_GRN(cols[3])/255.0, RGB_BLU(cols[3])/255.0, cur_alpha});
+	buffer.draw(GL_QUADS);
+	
 	glDisable(GL_BLEND);
 }
 

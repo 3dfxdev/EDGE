@@ -1683,6 +1683,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	left_h[0]  = lz1; left_h[1]  = lz2;
 	right_h[0] = rz1; right_h[1] = rz2;
 
+	/*
 	if (solid_mode && !mid_masked)
 	{
 		GreetNeighbourSector(left_h,  left_num,  cur_seg->nb_sec[0]);
@@ -1705,6 +1706,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 		}
 #endif
 	}
+	*/
 
 	vec3_t vertices[MAX_EDGE_VERT * 2];
 
@@ -1785,7 +1787,7 @@ static void DrawWallPart(drawfloor_t *dfloor,
 
 	abstract_shader_c *cmap_shader = R_GetColormapShader(props, lit_adjust);
 
-	cmap_shader->WorldMix(GL_POLYGON, data.v_count, data.tex_id,
+	cmap_shader->WorldMix(GL_QUADS, data.v_count, data.tex_id,
 			trans, &data.pass, data.blending, data.mid_masked,
 			&data, WallCoordFunc);
 
@@ -3588,7 +3590,7 @@ static void DrawMirrorPolygon(drawmirror_c *mir)
 	MIR_Coordinate(x1, y1);
 	MIR_Coordinate(x2, y2);
 
-	glBegin(GL_POLYGON);
+	glBegin(GL_QUADS);
 
 	glVertex3f(x1, y1, z1);
 	glVertex3f(x1, y1, z2);
@@ -3662,7 +3664,7 @@ static void DrawPortalPolygon(drawmirror_c *mir)
 	ty1 = ty1 * surf->y_mat.y / total_h;
 	ty2 = ty2 * surf->y_mat.y / total_h;
 
-	glBegin(GL_POLYGON);
+	glBegin(GL_QUADS);
 
 	glTexCoord2f(tx1, ty1); glVertex3f(x1, y1, z1);
 	glTexCoord2f(tx1, ty2); glVertex3f(x1, y1, z2);

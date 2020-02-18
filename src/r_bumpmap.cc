@@ -226,7 +226,7 @@ void bump_map_shader::check_init() {
 	glAttachShader(h_prog,h_vertex);
 	glAttachShader(h_prog,h_fragment);
 
-	glBindAttribLocation(h_prog,3,"tangent");
+	glBindAttribLocation(h_prog,6,"tangent");
 
 	glLinkProgram(h_prog);
 	glUseProgram(h_prog);
