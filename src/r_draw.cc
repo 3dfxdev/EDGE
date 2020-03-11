@@ -92,10 +92,10 @@ void RGL_DrawImage(float x, float y, float w, float h, const image_c *image,
 	glColor4f(r, g, b, alpha);
 
 	RQImmBuffer<RQVertex3fTextured> buffer(RQVertex3fTextured::format);
-	buffer.add({x1, y1, 0, tx1, ty1});
-	buffer.add({x2, y1, 0, tx2, ty1});
-	buffer.add({x2, y2, 0, tx2, ty2});
-	buffer.add({x1, y2, 0, tx1, ty2});
+	buffer.add({(float)x1, (float)y1, 0, tx1, ty1});
+	buffer.add({(float)x2, (float)y1, 0, tx2, ty1});
+	buffer.add({(float)x2, (float)y2, 0, tx2, ty2});
+	buffer.add({(float)x1, (float)y2, 0, tx1, ty2});
 	buffer.draw(GL_QUADS);
 
 	glDisable(GL_TEXTURE_2D);
@@ -129,6 +129,7 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 	float cr, float cg, float cb,
 	int *y, int perc, float alpha)
 {
+#if 0
 	float zoom = 1.0f;
 #ifndef DREAMCAST
 	(*y) -= (int)(lh * zoom);
@@ -148,30 +149,32 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 	int ph = 30;
 	int py = *y - ph - 20;
 
-	int x = (pw-8) * perc / 100;
+	int x = (pw - 8) * perc / 100;
 
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	RQImmBuffer<RQVertex3fColored> buffer(RQVertex3fColored::format);
 
-	buffer.add({px, py, 0, 0.6f, 0.6f, 0.6f, alpha});
-	buffer.add({px, py + ph, 0, 0.6f, 0.6f, 0.6f, alpha});
-	buffer.add({px + pw, py + ph, 0, 0.6f, 0.6f, 0.6f, alpha});
-	buffer.add({px + pw, py, 0, 0.6f, 0.6f, 0.6f, alpha});
+	buffer.add({ px, py, 0, 0.6f, 0.6f, 0.6f, alpha });
+	buffer.add({ px, py + ph, 0, 0.6f, 0.6f, 0.6f, alpha });
+	buffer.add({ px + pw, py + ph, 0, 0.6f, 0.6f, 0.6f, alpha });
+	buffer.add({ px + pw, py, 0, 0.6f, 0.6f, 0.6f, alpha });
 
-	buffer.add({px + 2, py + 2, 0, 0.0f, 0.0f, 0.0f, alpha});
-	buffer.add({px + 2, py + ph - 2, 0, 0.0f, 0.0f, 0.0f, alpha});
-	buffer.add({px + pw - 2, py + ph - 2, 0, 0.0f, 0.0f, 0.0f, alpha});
-	buffer.add({px + pw - 2, py + 2, 0, 0.0f, 0.0f, 0.0f, alpha});
+	buffer.add({ px + 2, py + 2, 0, 0.0f, 0.0f, 0.0f, alpha });
+	buffer.add({ px + 2, py + ph - 2, 0, 0.0f, 0.0f, 0.0f, alpha });
+	buffer.add({ px + pw - 2, py + ph - 2, 0, 0.0f, 0.0f, 0.0f, alpha });
+	buffer.add({ px + pw - 2, py + 2, 0, 0.0f, 0.0f, 0.0f, alpha });
 
-	buffer.add({px + 4, py + 4, 0, cr, cg, cb, alpha});
-	buffer.add({px + 4, py + ph - 4, 0, cr, cg, cb, alpha});
-	buffer.add({px + 4 + x, py + ph - 4, 0, cr, cg, cb, alpha});
-	buffer.add({px + 4 + x, py + 4, 0, cr, cg, cb, alpha});
+	buffer.add({ px + 4, py + 4, 0, cr, cg, cb, alpha });
+	buffer.add({ px + 4, py + ph - 4, 0, cr, cg, cb, alpha });
+	buffer.add({ px + 4 + x, py + ph - 4, 0, cr, cg, cb, alpha });
+	buffer.add({ px + 4 + x, py + 4, 0, cr, cg, cb, alpha });
 
 	buffer.draw(GL_QUADS);
 
 	(*y) = py;
+#endif // 0
+
 }
 
 
@@ -191,11 +194,11 @@ void RGL_DrawProgress(int perc, int glbsp_perc)
 	logo_lum = RGL_LogoImage(&lw, &lh);
 	text_lum = RGL_InitImage(&tw, &th);
 
-	ProgressSection(logo_lum, lw, lh, text_lum, tw, th,
-		0.4f, 0.6f, 1.0f, &y, perc, 1.0f);
+	//ProgressSection(logo_lum, lw, lh, text_lum, tw, th,
+	//	0.4f, 0.6f, 1.0f, &y, perc, 1.0f);
 
-	y -= 40;
-
+	//y -= 40;
+#if 0
 	if (glbsp_perc >= 0 || glbsp_last_prog_time > 0)
 	{
 		// logic here is to avoid the brief flash of progress
@@ -223,6 +226,7 @@ void RGL_DrawProgress(int perc, int glbsp_perc)
 		ProgressSection(logo_lum, lw, lh, text_lum, tw, th,
 			1.0f, 0.2f, 0.1f, &y, glbsp_perc, alpha);
 	}
+#endif
 
 	glDisable(GL_BLEND);
 

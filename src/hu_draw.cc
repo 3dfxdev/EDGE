@@ -329,10 +329,10 @@ void HUD_RawImage(float hx1, float hy1, float hx2, float hy2,
 	glColor4f(r, g, b, alpha);
 
 	RQImmBuffer<RQVertex3fTextured> buffer(RQVertex3fTextured::format);
-	buffer.add({x1, y1, 0, tx1, ty1});
-	buffer.add({x1, y2, 0, tx1, ty2});
-	buffer.add({x2, y2, 0, tx2, ty2});
-	buffer.add({x2, y1, 0, tx2, ty1});
+	buffer.add({(float)x1, (float)y1, 0, tx1, ty1});
+	buffer.add({(float)x1, (float)y2, 0, tx1, ty2});
+	buffer.add({(float)x2, (float)y2, 0, tx2, ty2});
+	buffer.add({(float)x2, (float)y1, 0, tx2, ty1});
 	buffer.draw(GL_QUADS);
 
 
@@ -518,10 +518,10 @@ void HUD_GradientBox(float x1, float y1, float x2, float y2, rgbcol_t *cols)
 		glEnable(GL_BLEND);
 
 	RQImmBuffer<RQVertex3fColored> buffer(RQVertex3fColored::format);
-	buffer.add({x1, y1, RGB_RED(cols[1])/255.0, RGB_GRN(cols[1])/255.0, RGB_BLU(cols[1])/255.0, cur_alpha});
-	buffer.add({x1, y2, RGB_RED(cols[0])/255.0, RGB_GRN(cols[0])/255.0, RGB_BLU(cols[0])/255.0, cur_alpha});
-	buffer.add({x2, y2, RGB_RED(cols[2])/255.0, RGB_GRN(cols[2])/255.0, RGB_BLU(cols[2])/255.0, cur_alpha});
-	buffer.add({x2, y1, RGB_RED(cols[3])/255.0, RGB_GRN(cols[3])/255.0, RGB_BLU(cols[3])/255.0, cur_alpha});
+	buffer.add({(float)x1, (float)y1, RGB_RED(cols[1])/255.0f, RGB_GRN(cols[1])/255.0f, RGB_BLU(cols[1])/255.0f, cur_alpha});
+	buffer.add({(float)x1, (float)y2, RGB_RED(cols[0])/255.0f, RGB_GRN(cols[0])/255.0f, RGB_BLU(cols[0])/255.0f, cur_alpha});
+	buffer.add({(float)x2, (float)y2, RGB_RED(cols[2])/255.0f, RGB_GRN(cols[2])/255.0f, RGB_BLU(cols[2])/255.0f, cur_alpha});
+	buffer.add({ (float)x2, (float)y1, RGB_RED(cols[3])/255.0f, RGB_GRN(cols[3])/255.0f, RGB_BLU(cols[3])/255.0f, cur_alpha});
 	buffer.draw(GL_QUADS);
 	
 	glDisable(GL_BLEND);
