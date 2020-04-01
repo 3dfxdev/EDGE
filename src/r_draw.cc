@@ -129,7 +129,7 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 	float cr, float cg, float cb,
 	int *y, int perc, float alpha)
 {
-#if 0
+
 	float zoom = 1.0f;
 #ifndef DREAMCAST
 	(*y) -= (int)(lh * zoom);
@@ -153,7 +153,7 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-	RQImmBuffer<RQVertex3fColored> buffer(RQVertex3fColored::format);
+	RQImmBuffer<RQVertex3iColored> buffer(RQVertex3iColored::format);
 
 	buffer.add({ px, py, 0, 0.6f, 0.6f, 0.6f, alpha });
 	buffer.add({ px, py + ph, 0, 0.6f, 0.6f, 0.6f, alpha });
@@ -173,7 +173,7 @@ static void ProgressSection(const byte *logo_lum, int lw, int lh,
 	buffer.draw(GL_QUADS);
 
 	(*y) = py;
-#endif // 0
+
 
 }
 
@@ -194,8 +194,8 @@ void RGL_DrawProgress(int perc, int glbsp_perc)
 	logo_lum = RGL_LogoImage(&lw, &lh);
 	text_lum = RGL_InitImage(&tw, &th);
 
-	//ProgressSection(logo_lum, lw, lh, text_lum, tw, th,
-	//	0.4f, 0.6f, 1.0f, &y, perc, 1.0f);
+	ProgressSection(logo_lum, lw, lh, text_lum, tw, th,
+		0.4f, 0.6f, 1.0f, &y, perc, 1.0f);
 
 	//y -= 40;
 #if 0

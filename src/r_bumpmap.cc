@@ -235,8 +235,8 @@ void bump_map_shader::check_init() {
 	glUniform1i(glGetUniformLocation(h_prog,"tex_normal"),1);
 	glUniform1i(glGetUniformLocation(h_prog,"tex_specular"),2);
 	attr_tan=glGetAttribLocation(h_prog, "tangent");
-	if(attr_tan != 3) {
-		I_Printf("BindAttribLocation doesn't work\n");
+	if(attr_tan != 6 && attr_tan != -1) {
+		I_Printf("BindAttribLocation doesn't work (passed %d, got %d)\n", 6, attr_tan);
 	}
 	uni_light_pos=glGetUniformLocation(h_prog,"light_pos");
 	uni_light_color=glGetUniformLocation(h_prog,"light_color");
