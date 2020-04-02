@@ -372,8 +372,8 @@ static void LoadColourmap(const colourmap_c * colm)
 	data = (const byte*)W_CacheLumpNum(lump);
 
 	if ((colm->start + colm->length) * 256 > size)
-		I_Error("Colourmap [%s] is too small ! (LENGTH too big)\n",
-			colm->name.c_str());
+		I_Error("Colourmap [%s] is too small ! (LENGTH too big, lump %s sz = %d)\n",
+			colm->name.c_str(), colm->lump_name.c_str(), size);
 
 	data_in = data + (colm->start * 256);
 
