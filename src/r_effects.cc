@@ -149,7 +149,7 @@ void RGL_ColourmapEffect(player_t *player)
 
 		glEnable(GL_BLEND);
 
-		RQImmBuffer<RQVertex3f> buffer(RQVertex3f::format);
+		RQImmBuffer<RQVertex3iColored> buffer(RQVertex3iColored::format);
 
 		x1 = viewwindow_x;
 		x2 = viewwindow_x + viewwindow_h;
@@ -157,10 +157,10 @@ void RGL_ColourmapEffect(player_t *player)
 		y1 = viewwindow_y + viewwindow_h;
 		y2 = viewwindow_y;
 
-		buffer.add({(float)x1, (float)y1, 0});
-		buffer.add({ (float)x2, (float)y1, 0});
-		buffer.add({ (float)x2, (float)y2, 0});
-		buffer.add({ (float)x1, (float)y2, 0});
+		buffer.add({x1, y1, 0});
+		buffer.add({x2, y1, 0});
+		buffer.add({x2, y2, 0});
+		buffer.add({x1, y2, 0});
 
 		buffer.draw(GL_QUADS);
 	  
@@ -243,7 +243,9 @@ void RGL_PaletteEffect(player_t *player)
 
 	glEnable(GL_BLEND);
 
+	// This needs to stay wrapped with float otherwise the screen wash for pain does not respond.
 	RQImmBuffer<RQVertex3f> buffer(RQVertex3f::format);
+
 	buffer.add({ (float)0, (float)SCREENHEIGHT, 0});
 	buffer.add({ (float)SCREENWIDTH, (float)SCREENHEIGHT, 0});
 	buffer.add({ (float)SCREENWIDTH, (float)0, 0});
