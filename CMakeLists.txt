@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.2.2)
 ################################################################################
 ################################################################################
-## Copyright (c) 1997-2019 The EDGE Team (see AUTHORS.md)
+## Copyright (c) 1997-2020 The EDGE Team (see AUTHORS.md)
 ##
 ## This software is free software; you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ option(HYPERTENSION "Compile Hypertension Executable" OFF)
 
 find_package( ZLIB )
 find_package( BZip2 )
-find_package ( PHYSFS )
+find_package ( PhysFS )
 
 #find_package ( FFMPEG )
 #find_package ( SDLKitchensink )
@@ -587,21 +587,6 @@ set(EDGE_SOURCES
 	epi/timestamp.cc
 	epi/utility.cc
 	
-	# Note we only support file formats from physFS in EDGE that will be used!
-	#- all others were stripped! 
-	# epi/physfs/physfs.c
-    # epi/physfs/physfs_byteorder.c
-    # epi/physfs/physfs_unicode.c
-	# epi/physfs/physfs_platform_posix.c #// !!!
-    # epi/physfs/physfs_archiver_dir.c
-    # epi/physfs/physfs_archiver_unpacked.c
-    # epi/physfs/physfs_archiver_grp.c
-    # epi/physfs/physfs_archiver_7z.c
-    # epi/physfs/physfs_archiver_qpak.c
-    # epi/physfs/physfs_archiver_wad.c
-    # epi/physfs/physfs_archiver_zip.c
-    # epi/physfs/physfs_archiver_iso9660.c
-
 	glbsp/src/analyze.cc
 	glbsp/src/blockmap.cc
 	glbsp/src/glbsp.cc
