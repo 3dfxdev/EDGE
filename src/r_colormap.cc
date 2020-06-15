@@ -67,25 +67,25 @@ static bool loaded_playpal = false;
 // -AJA- 1999/07/03: moved these here from v_res.c:
 DEF_CVAR(r_gamma, int, "c", CFGDEF_CURRENT_GAMMA);
 
-static bool old_gamma = -1; //TODO: V786 https://www.viva64.com/en/w/v786/ It is odd that value '-1' is assigned to the 'old_gamma' variable. The value range of 'old_gamma' variable: [0, 1].
+static bool old_gamma = -1;
 
 // text translation tables
-const byte *font_whitener = NULL;
-const colourmap_c *font_whiten_map = NULL;
+const byte* font_whitener = NULL;
+const colourmap_c* font_whiten_map = NULL;
 
-const colourmap_c *text_red_map = NULL;
-const colourmap_c *text_white_map = NULL;
-const colourmap_c *text_grey_map = NULL;
-const colourmap_c *text_green_map = NULL;
-const colourmap_c *text_brown_map = NULL;
-const colourmap_c *text_blue_map = NULL;
-const colourmap_c *text_purple_map = NULL;
-const colourmap_c *text_yellow_map = NULL;
-const colourmap_c *text_orange_map = NULL;
+const colourmap_c* text_red_map = NULL;
+const colourmap_c* text_white_map = NULL;
+const colourmap_c* text_grey_map = NULL;
+const colourmap_c* text_green_map = NULL;
+const colourmap_c* text_brown_map = NULL;
+const colourmap_c* text_blue_map = NULL;
+const colourmap_c* text_purple_map = NULL;
+const colourmap_c* text_yellow_map = NULL;
+const colourmap_c* text_orange_map = NULL;
 
 // automap translation tables
-const byte *am_normal_colmap = NULL;
-const byte *am_overlay_colmap = NULL;
+const byte* am_normal_colmap = NULL;
+const byte* am_overlay_colmap = NULL;
 
 // colour indices from palette
 int pal_black, pal_white, pal_gray239;
@@ -99,8 +99,8 @@ void V_InitPalette(void)
 	int t, i, r, g, b, max_file, pal_lump;
 	wadtex_resource_c WT;
 
-	const byte *pal = 0;
-	const byte *rotpal = 0;
+	const byte* pal = 0;
+	const byte* rotpal = 0;
 
 	if (rott_mode)
 	{
@@ -151,7 +151,7 @@ void V_InitPalette(void)
 				playpal_data[t][i][1] = rotpal[(t * 256 + i) * 3 + 1];
 				playpal_data[t][i][2] = rotpal[(t * 256 + i) * 3 + 2];
 			}
-		else
+			else
 			{
 				playpal_data[t][i][0] = pal[(t * 256 + i) * 3 + 0];
 				playpal_data[t][i][1] = pal[(t * 256 + i) * 3 + 1];
@@ -236,7 +236,7 @@ static int cur_palette = -1;
 
 void V_InitColour(void)
 {
-	const char *s = M_GetParm("-gamma");
+	const char* s = M_GetParm("-gamma");
 	if (s)
 	{
 		r_gamma = MAX(0, MIN(5, atoi(s)));
@@ -343,7 +343,7 @@ void V_SetPalette(int type, float amount)
 }
 
 // Used for Rise of the Triad stuff.
-void VL_NormalizePalette(byte * palette)
+void VL_NormalizePalette(byte* palette)
 {
 	int i;
 
@@ -356,16 +356,16 @@ void VL_NormalizePalette(byte * palette)
 // the dc_colourmap & ds_colourmap variables for use by the column &
 // span drawers.
 //
-static void LoadColourmap(const colourmap_c * colm)
+static void LoadColourmap(const colourmap_c* colm)
 {
 	int lump;
 	int size;
-	const byte *data;
-	const byte *data_in;
+	const byte* data;
+	const byte* data_in;
 
 	// we are writing to const marked memory here. Here is the only place
 	// the cache struct is touched.
-	colmapcache_t *cache = (colmapcache_t *)&colm->cache; // Intentional Const Override
+	colmapcache_t* cache = (colmapcache_t*)&colm->cache; // Intentional Const Override
 
 	lump = W_GetNumForName(colm->lump_name);
 	size = W_LumpLength(lump);
@@ -391,7 +391,7 @@ static void LoadColourmap(const colourmap_c * colm)
 	W_DoneWithLump(data);
 }
 
-const byte *V_GetTranslationTable(const colourmap_c * colmap)
+const byte* V_GetTranslationTable(const colourmap_c* colmap)
 {
 	// Do we need to load or recompute this colourmap ?
 
@@ -401,8 +401,8 @@ const byte *V_GetTranslationTable(const colourmap_c * colmap)
 	return (const byte*)colmap->cache.data;
 }
 
-void R_TranslatePalette(byte *new_pal, const byte *old_pal,
-	const colourmap_c *trans)
+void R_TranslatePalette(byte* new_pal, const byte* old_pal,
+	const colourmap_c* trans)
 {
 	// is the colormap just using GL_COLOUR?
 	if (trans->length == 0)
@@ -421,7 +421,7 @@ void R_TranslatePalette(byte *new_pal, const byte *old_pal,
 	else
 	{
 		// do the actual translation
-		const byte *trans_table = V_GetTranslationTable(trans);
+		const byte* trans_table = V_GetTranslationTable(trans);
 
 		for (int j = 0; j < 256; j++)
 		{
@@ -434,8 +434,8 @@ void R_TranslatePalette(byte *new_pal, const byte *old_pal,
 	}
 }
 
-static int AnalyseColourmap(const byte *table, int alpha,
-	int *r, int *g, int *b)
+static int AnalyseColourmap(const byte* table, int alpha,
+	int* r, int* g, int* b)
 {
 	/* analyse whole colourmap */
 	int r_tot = 0;
@@ -526,15 +526,15 @@ static int AnalyseColourmap(const byte *table, int alpha,
 	return total / 256;
 }
 
-void TransformColourmap(colourmap_c *colmap)
+void TransformColourmap(colourmap_c* colmap)
 {
-	const byte *table = colmap->cache.data;
+	const byte* table = colmap->cache.data;
 
 	if (table == NULL && !colmap->lump_name.empty())
 	{
 		LoadColourmap(colmap);
 
-		table = (byte *)colmap->cache.data;
+		table = (byte*)colmap->cache.data;
 	}
 
 	if (colmap->font_colour == RGB_NO_VALUE)
@@ -581,12 +581,12 @@ void TransformColourmap(colourmap_c *colmap)
 	L_WriteDebug("- gl_colour   = #%06x\n", colmap->gl_colour);
 }
 
-void V_GetColmapRGB(const colourmap_c *colmap, float *r, float *g, float *b)
+void V_GetColmapRGB(const colourmap_c* colmap, float* r, float* g, float* b)
 {
 	if (colmap->gl_colour == RGB_NO_VALUE)
 	{
 		// Intention Const Override
-		TransformColourmap((colourmap_c *)colmap);
+		TransformColourmap((colourmap_c*)colmap);
 	}
 
 	rgbcol_t col = colmap->gl_colour;
@@ -596,7 +596,7 @@ void V_GetColmapRGB(const colourmap_c *colmap, float *r, float *g, float *b)
 	(*b) = GAMMA_CONV((col) & 0xFF) / 255.0f;
 }
 
-rgbcol_t V_GetFontColor(const colourmap_c *colmap)
+rgbcol_t V_GetFontColor(const colourmap_c* colmap)
 {
 	if (!colmap)
 		return RGB_NO_VALUE;
@@ -604,13 +604,13 @@ rgbcol_t V_GetFontColor(const colourmap_c *colmap)
 	if (colmap->font_colour == RGB_NO_VALUE)
 	{
 		// Intention Const Override
-		TransformColourmap((colourmap_c *)colmap);
+		TransformColourmap((colourmap_c*)colmap);
 	}
 
 	return colmap->font_colour;
 }
 
-rgbcol_t V_ParseFontColor(const char *name, bool strict)
+rgbcol_t V_ParseFontColor(const char* name, bool strict)
 {
 	if (!name || !name[0])
 		return RGB_NO_VALUE;
@@ -623,7 +623,7 @@ rgbcol_t V_ParseFontColor(const char *name, bool strict)
 	}
 	else
 	{
-		const colourmap_c *colmap = colourmaps.Lookup(name);
+		const colourmap_c* colmap = colourmaps.Lookup(name);
 
 		if (!colmap)
 		{
@@ -665,7 +665,7 @@ void V_ColourNewFrame(void)
 // Returns an RGB value from an index value - used the current
 // palette.  The byte pointer is assumed to point a 3-byte array.
 //
-void V_IndexColourToRGB(int indexcol, byte *returncol)
+void V_IndexColourToRGB(int indexcol, byte* returncol)
 {
 	returncol[0] = playpal_data[cur_palette][indexcol][0];
 	returncol[1] = playpal_data[cur_palette][indexcol][1];
@@ -714,7 +714,7 @@ void R_PaletteStuff(void)
 	int palette = PALETTE_NORMAL;
 	float amount = 0;
 
-	player_t *p = players[displayplayer];
+	player_t* p = players[displayplayer];
 	SYS_ASSERT(p);
 
 	int cnt = p->damagecount;
@@ -777,7 +777,7 @@ int R_DoomLightingEquation(int L, float dist)
 class colormap_shader_c : public abstract_shader_c
 {
 private:
-	const colourmap_c *colmap;
+	const colourmap_c* colmap;
 
 	int light_lev;
 	int light_color;
@@ -794,7 +794,7 @@ private:
 	rgbcol_t whites[32];
 
 public:
-	colormap_shader_c(const colourmap_c *CM) : colmap(CM), //TODO: V730 https://www.viva64.com/en/w/v730/ Not all members of a class are initialized inside the constructor. Consider inspecting: whites.
+	colormap_shader_c(const colourmap_c* CM) : colmap(CM), //TODO: V730 https://www.viva64.com/en/w/v730/ Not all members of a class are initialized inside the constructor. Consider inspecting: whites.
 		light_lev(255), light_color(0), desat_lev(0.0f), fade_tex(0),
 		simple_cmap(true), lt_model(LMODEL_Doom)
 	{
@@ -820,7 +820,7 @@ private:
 		return dx + dy + dz;
 	}
 
-	inline void TexCoord(local_gl_vert_t *v, int t, const vec3_t *lit_pos)
+	inline void TexCoord(local_gl_vert_t* v, int t, const vec3_t* lit_pos)
 	{
 		float dist = DistFromViewplane(lit_pos->x, lit_pos->y, lit_pos->z);
 
@@ -831,7 +831,7 @@ private:
 	}
 
 public:
-	virtual void Sample(multi_color_c *col, float x, float y, float z)
+	virtual void Sample(multi_color_c* col, float x, float y, float z)
 	{
 		// FIXME: assumes standard COLORMAP
 
@@ -853,8 +853,8 @@ public:
 		// FIXME: for foggy maps, need to adjust add_R/G/B too
 	}
 
-	virtual void Corner(multi_color_c *col, float nx, float ny, float nz,
-		struct mobj_s *mod_pos, bool is_weapon)
+	virtual void Corner(multi_color_c* col, float nx, float ny, float nz,
+		struct mobj_s* mod_pos, bool is_weapon)
 	{
 		// TODO: improve this (normal-ise a little bit)
 
@@ -872,17 +872,17 @@ public:
 	}
 
 	virtual void WorldMix(GLuint shape, int num_vert,
-		GLuint tex, float alpha, int *pass_var, int blending,
-		bool masked, void *data, shader_coord_func_t func)
+		GLuint tex, float alpha, int* pass_var, int blending,
+		bool masked, void* data, shader_coord_func_t func)
 	{
-		local_gl_vert_t * glvert = RGL_BeginUnit(shape, num_vert,
+		local_gl_vert_t* glvert = RGL_BeginUnit(shape, num_vert,
 			GL_MODULATE, tex,
 			(desat_lev > 0.1f) ? GL_DECAL : (simple_cmap || r_dumbmulti) ? GL_MODULATE : GL_DECAL,
 			fade_tex, *pass_var, blending);
 
 		for (int v_idx = 0; v_idx < num_vert; v_idx++)
 		{
-			local_gl_vert_t *dest = glvert + v_idx;
+			local_gl_vert_t* dest = glvert + v_idx;
 
 			dest->rgba[3] = alpha;
 
@@ -904,7 +904,7 @@ private:
 	{
 		epi::image_data_c img(256, 64, 4);
 
-		const byte *map = NULL;
+		const byte* map = NULL;
 		int length = 32;
 
 		if (colmap && colmap->length > 0)
@@ -949,7 +949,7 @@ private:
 
 		for (int L = 0; L < 64; L++)
 		{
-			byte *dest = img.PixelAt(0, L);
+			byte* dest = img.PixelAt(0, L);
 
 			for (int x = 0; x < 256; x++, dest += 4)
 			{
@@ -1105,7 +1105,7 @@ public:
 	}
 };
 
-colormap_shader_c *std_cmap_shader;
+colormap_shader_c* std_cmap_shader;
 
 void R_ColorMapUpdate(int col, float desat)
 {
@@ -1118,24 +1118,24 @@ void R_ColorMapUpdate(int col, float desat)
 	}
 }
 
-abstract_shader_c *R_GetColormapShader(const struct region_properties_s *props,
+abstract_shader_c* R_GetColormapShader(const struct region_properties_s* props,
 	int light_add)
 {
 	if (!std_cmap_shader)
 		std_cmap_shader = new colormap_shader_c(NULL);
 
-	colormap_shader_c *shader = std_cmap_shader;
+	colormap_shader_c* shader = std_cmap_shader;
 
 	if (props->colourmap)
 	{
 		if (props->colourmap->analysis)
-			shader = (colormap_shader_c *)props->colourmap->analysis;
+			shader = (colormap_shader_c*)props->colourmap->analysis;
 		else
 		{
 			shader = new colormap_shader_c(props->colourmap);
 
 			// Intentional Const Override
-			colourmap_c *CM = (colourmap_c *)props->colourmap;
+			colourmap_c* CM = (colourmap_c*)props->colourmap;
 			CM->analysis = shader;
 		}
 	}
@@ -1169,11 +1169,11 @@ void DeleteColourmapTextures(void)
 
 	for (int i = 0; i < colourmaps.GetSize(); i++)
 	{
-		colourmap_c *cmap = colourmaps[i];
+		colourmap_c* cmap = colourmaps[i];
 
 		if (cmap && cmap->analysis)
 		{
-			colormap_shader_c * shader = (colormap_shader_c *)cmap->analysis;
+			colormap_shader_c* shader = (colormap_shader_c*)cmap->analysis;
 
 			shader->DeleteTex();
 		}
