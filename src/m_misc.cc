@@ -167,7 +167,6 @@ static default_t defaults[] =
 	{CFGT_Boolean,  "crouching",         &global_flags.crouch, CFGDEF_CROUCH},
 	{CFGT_Int,      "mipmapping",        &var_mipmapping, CFGDEF_USE_MIPMAPPING},
 	{CFGT_Int,      "smoothing",         &var_smoothing,  CFGDEF_USE_SMOOTHING},
-	{CFGT_Boolean,  "dither",            &var_dithering, 0},
 	{CFGT_Int,      "dlights",           &use_dlights,    CFGDEF_USE_DLIGHTS},
 	{CFGT_Int,      "detail_level",      &detail_level,   CFGDEF_DETAIL_LEVEL},
 	{CFGT_Int,      "hq2x_scaling",      &hq2x_scaling,   CFGDEF_HQ2X_SCALING},
