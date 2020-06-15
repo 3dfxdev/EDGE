@@ -121,12 +121,12 @@ static void LoadMD5Animation(MD5model *model, short animfile, int frame, MD5join
 	if (anim != NULL && 0 <= frame && frame < anim->framecnt )
 	{
 		md5_pose_load(anim, frame, dst);
-		//I_Debugf("Render model: loading md5anim\n");
+		I_Debugf("Render model: loading md5anim\n");
 	}
 	else
 	{
 		md5_pose_load_identity(model->joints, model->jointcnt, dst);
-		//I_Debugf("Render model: loading md5joints\n");
+		I_Debugf("Render model: loading md5joints\n");
 	}
 }
 
@@ -146,7 +146,7 @@ void md5_draw_unified_gl(MD5umodel *umd5, epi::mat4_c *jointmats,const epi::mat4
 		if (!skin_img)
 		{   
 
-			//I_Debugf("R_unifiedMD5: no skin(s) defined in MD5 model: \"%s\"\n", md5);
+			I_Debugf("R_unifiedMD5: no skin(s) defined in MD5 model: \"%s\"\n", md5);
 			I_Debugf("md5draw: No skin(s) found, subbing for DummySkin!\n");
 			skin_img = W_ImageForDummySkin();
 		}
@@ -265,7 +265,7 @@ void MD5_RenderModel(modeldef_c *md, int last_anim, int last_frame,
 
 	md5_draw_unified_gl(md->md5u, posemats,model_mat);
 
-	//I_Printf("MD5_Render: %f %f %f\n",mo->x,mo->y,mo->z);
+	I_Printf("MD5_Render: %f %f %f\n",mo->x,mo->y,mo->z);
 
 	//glPopMatrix();
 }
