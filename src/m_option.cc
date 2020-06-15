@@ -154,7 +154,7 @@ static void M_AnalogueOptions(int keypressed);
 static void M_SoundOptions(int keypressed);
 static void M_DebugMenu(int keypressed); /// New Debugging Sub-menu
 
-static void M_Key2String(int key, char *deststring);
+static void M_Key2String(int key, char* deststring);
 
 // -ACB- 1998/08/09 "Does Map allow these changes?" procedures.
 static void M_ChangeMonsterRespawn(int keypressed);
@@ -185,7 +185,7 @@ static void M_ChangeDLights(int keypressed);
 // -ES- 1998/08/20 Added resolution options
 // -ACB- 1998/08/29 Moved to top and tried different system
 
-static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int centrex);
+static void M_ResOptDrawer(style_c* style, int topy, int bottomy, int dy, int centrex);
 static void M_ResolutionOptions(int keypressed);
 static void M_OptionSetResolution(int keypressed);
 ///--static void M_OptionTestResolution(int keypressed);
@@ -258,31 +258,31 @@ typedef struct optmenuitem_s
 	opt_type_e type;
 
 	char name[48];
-	const char *typenames;
+	const char* typenames;
 
 	int numtypes;
-	void *switchvar;
+	void* switchvar;
 
 	void(*routine)(int keypressed);
 
-	const char *help;
+	const char* help;
 }
 optmenuitem_t;
 
 typedef struct menuinfo_s
 {
 	// array of menu items
-	optmenuitem_t *items;
+	optmenuitem_t* items;
 	int item_num;
 
-	style_c **style_var;
+	style_c** style_var;
 
 	int menu_center;
 
 	// title information
 	int title_x;
 	char title_name[10];
-	const image_c *title_image;
+	const image_c* title_image;
 
 	// current position
 	int pos;
@@ -293,20 +293,20 @@ typedef struct menuinfo_s
 menuinfo_t;
 
 // current menu and position
-static menuinfo_t *curr_menu;
-static optmenuitem_t *curr_item;
+static menuinfo_t* curr_menu;
+static optmenuitem_t* curr_item;
 static int curr_key_menu;
 
 static int keyscan;
 
-static style_c *opt_def_style;
-static style_c *keyboard_style;
-static style_c *mouse_style;
-static style_c *gameplay_style;
-static style_c *video_style;
-static style_c *setres_style;
-static style_c *advanced_style;
-static style_c *debugmenu_style; //debugging menu "style"
+static style_c* opt_def_style;
+static style_c* keyboard_style;
+static style_c* mouse_style;
+static style_c* gameplay_style;
+static style_c* video_style;
+static style_c* setres_style;
+static style_c* advanced_style;
+static style_c* debugmenu_style; //debugging menu "style"
 
 static void M_ChangeMusVol(int keypressed)
 {
@@ -328,7 +328,7 @@ static void M_ChangeTimidQuiet(int keypressed)
 	S_ChangeTimidQuiet();
 }
 
-static int M_GetCurrentSwitchValue(optmenuitem_t *item)
+static int M_GetCurrentSwitchValue(optmenuitem_t* item)
 {
 	int retval = 0;
 
@@ -878,7 +878,7 @@ static menuinfo_t hereticautomap_optmenu =
  */
 #define NUM_KEY_MENUS  5
 
-static menuinfo_t * all_key_menus[NUM_KEY_MENUS] =
+static menuinfo_t* all_key_menus[NUM_KEY_MENUS] =
 {
 	&movement_optmenu,
 	&attack_optmenu,
@@ -886,7 +886,7 @@ static menuinfo_t * all_key_menus[NUM_KEY_MENUS] =
 	&weapon_optmenu,
 	&automap_optmenu
 };
-static menuinfo_t * heretic_key_menus[NUM_KEY_MENUS] =
+static menuinfo_t* heretic_key_menus[NUM_KEY_MENUS] =
 {
 	&hereticmovement_optmenu,
 	&hereticattack_optmenu,
@@ -951,7 +951,7 @@ void M_OptMenuInit()
 	keyscan = 0;
 
 	// load styles
-	styledef_c *def;
+	styledef_c* def;
 
 	def = styledefs.Lookup("OPTIONS");
 	/* 	if (! def) def = default_style; */
@@ -1014,7 +1014,7 @@ void M_OptDrawer()
 	HUD_SolidBox(0, 0, 320, 200, T_BLACK);
 	HUD_SetAlpha();
 
-	style_c *style = curr_menu->style_var[0];
+	style_c* style = curr_menu->style_var[0];
 	SYS_ASSERT(style);
 
 	if (!style->fonts[0])
@@ -1028,7 +1028,7 @@ void M_OptDrawer()
 	if (curr_menu->key_page[0])
 		menutop = 9 * font_h / 2;
 
-	const image_c *image;
+	const image_c* image;
 
 	if (!curr_menu->title_image)
 		curr_menu->title_image = W_ImageLookup(curr_menu->title_name);
@@ -1091,7 +1091,7 @@ void M_OptDrawer()
 
 			if (curr_menu->items[i].help)
 			{
-				const char *help = language[curr_menu->items[i].help];
+				const char* help = language[curr_menu->items[i].help];
 
 				HL_WriteText(style, 3, 160 - (style->fonts[3]->StringWidth(help) / 2), 200 - deltay * 2,
 					help);
@@ -1164,7 +1164,7 @@ void M_OptDrawer()
 //
 // -ACB- 1999/10/03 Written
 //
-static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int centrex)
+static void M_ResOptDrawer(style_c* style, int topy, int bottomy, int dy, int centrex)
 {
 	char tempstring[80];
 
@@ -1243,7 +1243,7 @@ static void KeyMenu_Prev()
 //
 // M_OptResponder
 //
-bool M_OptResponder(event_t * ev, int ch)
+bool M_OptResponder(event_t* ev, int ch)
 {
 	///--  	if (testticker != -1)
 	///--  		return true;
@@ -1251,7 +1251,7 @@ bool M_OptResponder(event_t * ev, int ch)
 		// Scan for keycodes
 	if (keyscan)
 	{
-		int *blah;
+		int* blah;
 
 		if (ev->type != ev_keydown)
 			return false;
@@ -1343,7 +1343,7 @@ bool M_OptResponder(event_t * ev, int ch)
 
 		case OPT_Boolean:
 		{
-			bool *boolptr = (bool*)curr_item->switchvar;
+			bool* boolptr = (bool*)curr_item->switchvar;
 
 			*boolptr = !(*boolptr);
 
@@ -1357,7 +1357,7 @@ bool M_OptResponder(event_t * ev, int ch)
 
 		case OPT_Switch:
 		{
-			int *val_ptr = (int*)curr_item->switchvar;
+			int* val_ptr = (int*)curr_item->switchvar;
 
 			*val_ptr -= 1;
 
@@ -1383,7 +1383,7 @@ bool M_OptResponder(event_t * ev, int ch)
 
 		case OPT_Slider:
 		{
-			int *val_ptr = (int*)curr_item->switchvar;
+			int* val_ptr = (int*)curr_item->switchvar;
 
 			if (*val_ptr > 0)
 			{
@@ -1422,7 +1422,7 @@ bool M_OptResponder(event_t * ev, int ch)
 
 		case OPT_Boolean:
 		{
-			bool *boolptr = (bool*)curr_item->switchvar;
+			bool* boolptr = (bool*)curr_item->switchvar;
 
 			*boolptr = !(*boolptr);
 
@@ -1436,7 +1436,7 @@ bool M_OptResponder(event_t * ev, int ch)
 
 		case OPT_Switch:
 		{
-			int *val_ptr = (int*)curr_item->switchvar;
+			int* val_ptr = (int*)curr_item->switchvar;
 
 			*val_ptr += 1;
 
@@ -1462,7 +1462,7 @@ bool M_OptResponder(event_t * ev, int ch)
 
 		case OPT_Slider:
 		{
-			int *val_ptr = (int*)curr_item->switchvar;
+			int* val_ptr = (int*)curr_item->switchvar;
 
 			if (*val_ptr < (curr_item->numtypes - 1))
 			{
@@ -1675,7 +1675,7 @@ static void M_KeyboardOptions(int keypressed)
 //
 // M_Key2String
 //
-static void M_Key2String(int key, char *deststring)
+static void M_Key2String(int key, char* deststring)
 {
 	int key1 = key & 0xffff;
 	int key2 = key >> 16;
