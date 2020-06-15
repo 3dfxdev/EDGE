@@ -348,9 +348,9 @@ function draw_all() =
 	
 	cam.set_vert_bob(1.0)
 	
-	if (player.get_side_move() != 0)
-	cam.set_roll_bob(0.25)
-	else
+	// if (player.get_side_move() != 0)
+	// cam.set_roll_bob(0.25)
+	// else
 	cam.set_roll_bob(0.0)
 	
 
