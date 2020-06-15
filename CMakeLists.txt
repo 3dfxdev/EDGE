@@ -70,6 +70,7 @@ macro( make_release_only )
 endmacro()
 
 set( LZMA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/lzma/C" )
+option(FORCE_STATIC_MSVC_LIBS "Use pre-build via ./libs" OFF)
 option(FORCE_INTERNAL_ZLIB "Use internal zlib")
 option(FORCE_INTERNAL_BZIP2 "Use internal bzip2")
 option(FORCE_INTERNAL_PHYSFS "Use internal physfs")
@@ -78,6 +79,10 @@ option(HYPERTENSION "Compile Hypertension Executable" OFF)
 find_package( ZLIB )
 find_package( BZip2 )
 find_package ( PhysFS )
+find_package(SDL2 REQUIRED)
+find_package(Ogg CONFIG REQUIRED)
+find_package(Vorbis CONFIG REQUIRED)
+#find_package ( libdumb )
 
 #find_package ( FFMPEG )
 #find_package ( SDLKitchensink )
@@ -113,6 +118,16 @@ else()
 	set( PHYSFS_LIBRARIES physfs-static )
 	set( PHYSFS_LIBRARY physfs-static )
 endif()
+
+#if( LIBDUMB_FOUND AND NOT FORCE_INTERNAL_LIBDUMB )
+#	message( STATUS "Using system libdumb library, includes found at ${LIBDUMB_INCLUDE_DIR}" )
+#else()
+#	message( STATUS "Using internal libdumb library" )
+#	add_subdirectory( deps/dumb )
+#	set (LIBDUMB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/dumb/include")
+#	set( LIBDUMB_LIBRARIES dumb )
+#	set( LIBDUMB_LIBRARY dumb )
+#endif()
 
 add_subdirectory( deps/lzma )
 add_subdirectory( zipdir )
@@ -227,7 +242,7 @@ endif()
 add_definitions(
 	-DDEH_EDGE_PLUGIN
 	-DHAVE_PHYSFS
-#	-DUSE_FFMPEG
+	#-DUSE_FFMPEG
 )
 
 # For the Hypertension team, we must continue using SSE2 and _not_ AVX, since not everyone has an AVX-compatible processor.
@@ -292,7 +307,7 @@ ENDIF (WIN32)
 
 # See /VSLibs/lib_versions.txt [libs have been compiled with MSVC 2017!]
 # CA: 11/30/18 - For MSVC, libs are no longer required to be downloaded seperately, they now exist in /libs/msvc/
-if (MSVC)
+if (FORCE_STATIC_MSVC_LIBS)
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/lib/x64/SDL2_net.lib" )
 		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x64/libogg_staticd.lib" )
@@ -319,7 +334,7 @@ if (MSVC)
 		include("${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL2/sdl-config.cmake")
 		set( SDL2_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL2")
 		set( SDLNET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/include" )
-endif(MSVC)
+endif(FORCE_STATIC_MSVC_LIBS)
 
 if(UNIX)
 	if(APPLE)
@@ -364,6 +379,9 @@ include_directories(
 # zlib
 #find_package(ZLIB REQUIRED)
 include_directories(${ZLIB_INCLUDE_DIR})
+
+# dumb
+#include_directories(${LIBDUMB_INCLUDE_DIR})
 
 # EDGE
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -514,6 +532,7 @@ set(EDGE_SOURCES
 	src/r_fxaa.cc
 	src/r_bloom.cc
 	src/s_blit.cc
+	#src/s_dumb.cc
 	src/s_cache.cc
 	src/s_sound.cc
 	src/s_music.cc
@@ -700,11 +719,11 @@ add_custom_command(TARGET EDGE POST_BUILD
 target_link_libraries(EDGE
 	${SDL2_LIBRARIES}
 	${SDL_NET_LIBRARY}
-	${ogg_RELEASE_LIBRARY}
-	${vorbis_RELEASE_LIBRARY}
-	${vorbisFILE_RELEASE_LIBRARY}
+	Ogg::ogg
+	Vorbis::vorbis Vorbis::vorbisenc Vorbis::vorbisfile
 	ZLIB::ZLIB
 	${PHYSFS_LIBRARY}
+	#	${LIBDUMB_LIBRARY}
 	#	${SDLKitchensink_STATIC_LIBRARY}
 )
 
