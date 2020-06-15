@@ -80,7 +80,7 @@
 #define CFGDEF_MUSIC_VOLUME     (8)
 #define CFGDEF_SAMPLE_RATE      (5)  // 22050Hz, 5 = 48000Hz
 #define CFGDEF_SOUND_BITS       (2)  // 16-bit, 2 = 32-bit floating point
-#define CFGDEF_SOUND_STEREO     (1)  // Stereo
+#define CFGDEF_SOUND_STEREO     (1)  // Stereo, 2 = SWAPPED
 #define CFGDEF_MIX_CHANNELS     (3)  // 32 channels, 3 = 96 mixing channels!
 #define CFGDEF_QUIET_FACTOR     (1)
 #define CFGDEF_OPL_OPL3MODE     (1)
@@ -113,7 +113,7 @@
 #define CFGDEF_WIPE_REVERSE     (0)
 #define CFGDEF_USE_VSYNC        (1)
 #define CFGDEF_INTERPOLATION    (1)
-#define CFGDEF_SCREENSHAKE      (1)
+#define CFGDEF_SCREENSHAKE      (0)
 #define CFGDEF_MELEESHAKE       (0)
 #define CFGDEF_USEBLOOM         (1)
 #define CFGDEF_LENSDISTORT      (1)
