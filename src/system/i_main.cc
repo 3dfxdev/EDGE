@@ -85,6 +85,10 @@ int main(int argc, char *argv[])
     //                  executable is globally installed
 #endif
 
+#if defined(HYPERTENSION)
+	const char* a[] = { "EDGE", "-file", "hod.epk", "-iwad", "hyper.wad" };
+#endif
+
 #ifdef DREAMCAST
 	const char *a[]={"dreamedge","-width","640","-height","480","-bpp","16","-fullscreen","-smoothing","-nomipmap","-nomusic",
 #ifdef NO_SOUND
@@ -104,6 +108,7 @@ fflush(stdout);
 
 #if defined(HYPERTENSION)
 	system("compile_hod_pk3.bat");
+	//system("launch_hypertension.bat");
 #endif  
 
 #if defined(DAIKATANA)
@@ -132,7 +137,11 @@ fflush(stdout);
 	_try
 	{
 		//I_TweakConsole();
+#if defined(HYPERTENSION)
+		E_Main(5,a);
+#else
 		E_Main(argc, (const char**)argv);
+#endif
 	}
 	__except (I_W32ExceptionHandler(GetExceptionInformation()))
 	{
