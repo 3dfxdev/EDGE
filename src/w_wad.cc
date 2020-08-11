@@ -1929,6 +1929,7 @@ typedef struct
 	int kind;
 	int index;
 	int dfindex;
+	bool is_named = true;
 } file_info_t;
 
 static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origDir, const char *fname);
@@ -1990,7 +1991,7 @@ static PHYSFS_EnumerateCallbackResult LumpNamespace(void *userData, const char *
 	numlumps++;
 	lumpinfo.resize(numlumps);
 	AddLumpEx(user_data->dfile, numlumps - 1, 0, length,
-		user_data->dfindex, user_data->index, fname, 1, path);
+		user_data->dfindex, user_data->index, user_data->is_named ? fname : "INTRNLMP", 1, path);
 #endif
 	return PHYSFS_ENUM_OK;
 }
@@ -2367,7 +2368,9 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 		else if (stricmp(fname, "shaders") == 0)
 		{
 			// enumerate scripts subdirectory
+			user_data->is_named = false;
 			PHYSFS_enumerate(path, LumpNamespace, userData);
+			user_data->is_named = true;
 		}
 		else if ((stricmp(fname, "video") == 0) || (stricmp(fname, "cinematics") == 0))
 		{
