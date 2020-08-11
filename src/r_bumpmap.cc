@@ -85,11 +85,14 @@ static const char* src_fragment=
 
 void matrix_mult(const float m[16],const float vec_in[3],float vec_out[3]);
 
-GLuint create_solid_texture(int w,int h,int rgba) {
+GLuint create_solid_texture(int w,int h,int rgba) 
+{
 	GLuint tex;
 
 	unsigned char* data=new unsigned char[w*h*4];
-	for(int i=0;i<w*h;i++) {
+
+	for(int i=0;i<w*h;i++) 
+	{
 		data[i*4+0]=(rgba&0xFF000000)>>24;
 		data[i*4+1]=(rgba&0x00FF0000)>>16;
 		data[i*4+2]=(rgba&0x0000FF00)>>8;
@@ -106,14 +109,16 @@ GLuint create_solid_texture(int w,int h,int rgba) {
 
     return tex;
 }
-GLuint create_test_texture() {
+GLuint create_test_texture() 
+{
 	GLuint tex;
 
 	int w=64;
 	int h=64;
 
 	unsigned char* data=new unsigned char[w*h*4];
-	for(int i=0;i<w*h;i++) {
+	for(int i=0;i<w*h;i++) 
+	{
 		data[i*4+0]=0;
 		data[i*4+1]=128*(i%5==0);
 		data[i*4+2]=0;
@@ -131,7 +136,8 @@ GLuint create_test_texture() {
     return tex;
 }
 
-GLuint compile_shader(GLenum type,const char* source_c) {
+GLuint compile_shader(GLenum type,const char* source_c) 
+{
 	GLuint handle=glCreateShader(type);
 
 	// Compile the shader.
@@ -140,17 +146,23 @@ GLuint compile_shader(GLenum type,const char* source_c) {
 
 	GLint vShaderCompiled = GL_FALSE;
 	glGetShaderiv(handle,GL_COMPILE_STATUS,&vShaderCompiled);
-	if(vShaderCompiled!=GL_TRUE) {
-		I_Printf("Unable to compile shader %d!\n",handle);
+
+	if(vShaderCompiled!=GL_TRUE) 
+	{
+		I_Printf("Unable to compile bumpmap shader %d!\n",handle);
+
 		int infoLogLength = 0;
 		int maxLength = infoLogLength;
 		glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &maxLength);
 		char* infoLog = new char[ maxLength ];
 		glGetShaderInfoLog( handle, maxLength, &infoLogLength, infoLog );
 		infoLog[infoLogLength]=0;
-		if( infoLogLength > 0 ) {
+
+		if( infoLogLength > 0 ) 
+		{
 			I_Printf( "%s\n", infoLog );
 		}
+
 		delete[] infoLog;
 
 		glDeleteShader(handle);
@@ -167,7 +179,8 @@ bump_map_shader::bump_map_shader():
 	data_light_color=new float[4*max_lights];
 	data_light_radius=new float[max_lights];
 
-	for(int i=0;i<max_lights;i++) {
+	for(int i=0;i<max_lights;i++) 
+	{
 		data_light_pos[i*4+0]=0;
 		data_light_pos[i*4+1]=0;
 		data_light_pos[i*4+2]=0;
@@ -187,35 +200,42 @@ bump_map_shader::bump_map_shader():
 	tex_default_specular=0;
 }
 
-bump_map_shader::~bump_map_shader() {
+bump_map_shader::~bump_map_shader() 
+{
 	deinit();
 	delete[] data_light_pos;
 	delete[] data_light_color;
 	delete[] data_light_radius;
 }
 
-bool bump_map_shader::supported() {
+bool bump_map_shader::supported() 
+{
 	check_init();
 	return _supported;
 }
-void bump_map_shader::bind() {
+void bump_map_shader::bind() 
+{
 	glUseProgram(h_prog);
 }
-void bump_map_shader::unbind() {
+void bump_map_shader::unbind() 
+{
 	glUseProgram(0);
 }
 
-void bump_map_shader::check_init() {
-	if(_inited) {
+void bump_map_shader::check_init() 
+{
+	if(_inited) 
+	{
 		return;
 	}
 	_inited=true;
 
-	I_Printf("BUMP INIT\n");
+	I_Printf("Shaders: Initialising bumpmapping...\n");
 
 	_supported=(glCreateProgram);
 
-	if(!_supported) {
+	if(!_supported) 
+	{
 		return;
 	}
 
@@ -226,7 +246,7 @@ void bump_map_shader::check_init() {
 	glAttachShader(h_prog,h_vertex);
 	glAttachShader(h_prog,h_fragment);
 
-	glBindAttribLocation(h_prog,3,"tangent");
+	glBindAttribLocation(h_prog, 6, "tangent");
 
 	glLinkProgram(h_prog);
 	glUseProgram(h_prog);
@@ -235,8 +255,10 @@ void bump_map_shader::check_init() {
 	glUniform1i(glGetUniformLocation(h_prog,"tex_normal"),1);
 	glUniform1i(glGetUniformLocation(h_prog,"tex_specular"),2);
 	attr_tan=glGetAttribLocation(h_prog, "tangent");
-	if(attr_tan != 3) {
-		I_Printf("BindAttribLocation doesn't work\n");
+
+	if (attr_tan != 6 && attr_tan != -1)
+	{
+		I_Printf("BindAttribLocation doesn't work (passed %d, got %d)\n", 6, attr_tan);
 	}
 	uni_light_pos=glGetUniformLocation(h_prog,"light_pos");
 	uni_light_color=glGetUniformLocation(h_prog,"light_color");
@@ -260,15 +282,18 @@ void bump_map_shader::check_init() {
 	tex_default_normal=create_solid_texture(2,2,0x0000FFFF);
 	tex_default_specular=create_solid_texture(2,2,0x000000FF);
 }
-void bump_map_shader::deinit() {
-	if(!_inited) {
+void bump_map_shader::deinit() 
+{
+	if(!_inited) 
+	{
 		return;
 	}
 	_inited=false;
 
-	I_Printf("BUMP DEINIT\n");
+	I_Printf("Shaders: disabling bump-maps\n");
 
-	if(!_supported) {
+	if(!_supported) 
+	{
 		return;
 	}
 
@@ -281,7 +306,8 @@ void bump_map_shader::deinit() {
 	glDeleteTextures(1,&tex_default_specular);
 
 }
-void bump_map_shader::lightDisable(int index) {
+void bump_map_shader::lightDisable(int index) 
+{
 	if(index>=max_lights) {
 		return;
 	}
@@ -289,12 +315,14 @@ void bump_map_shader::lightDisable(int index) {
 	data_light_color[index*4+1]=0;
 	data_light_color[index*4+2]=0;
 }
-void bump_map_shader::lightParamAmbient(float r,float g,float b) {
+void bump_map_shader::lightParamAmbient(float r,float g,float b) 
+{
 	data_light_color_ambient[0]=r;
 	data_light_color_ambient[1]=g;
 	data_light_color_ambient[2]=b;
 }
-void bump_map_shader::lightParam(int index,float x,float y,float z,float r,float g,float b,float radius) {
+void bump_map_shader::lightParam(int index,float x,float y,float z,float r,float g,float b,float radius) 
+{
 	if(index>=max_lights) {
 		return;
 	}
@@ -306,9 +334,12 @@ void bump_map_shader::lightParam(int index,float x,float y,float z,float r,float
 	data_light_color[index*4+2]=b;
 	data_light_radius[index]=radius;
 }
-void bump_map_shader::lightApply() {
+void bump_map_shader::lightApply() 
+{
 	int pos_offset=4*max_lights;
-	for(int i=0;i<max_lights;i++) {
+
+	for(int i=0;i<max_lights;i++) 
+	{
 		int off=i*4;
 		matrix_mult(cam_mat,data_light_pos+off,data_light_pos+pos_offset+off);
 	}
@@ -319,14 +350,20 @@ void bump_map_shader::lightApply() {
 	glUniform4fv(uni_light_color_ambient,1,data_light_color_ambient);
 }
 
-void bump_map_shader::setCamMatrix(float mat[16]) {
-	for(int i=0;i<16;i++) cam_mat[i]=mat[i];
+void bump_map_shader::setCamMatrix(float mat[16])
+{
+	for(int i=0;i<16;i++) 
+		cam_mat[i]=mat[i];
 }
 
-void bump_map_shader::debugDrawLights() {
+void bump_map_shader::debugDrawLights() 
+{
 	glBegin(GL_LINES);
-	for(int i=0;i<max_lights;i++) {
-		if(data_light_radius[i]==0.0f) {
+
+	for(int i=0;i<max_lights;i++) 
+	{
+		if(data_light_radius[i]==0.0f) 
+		{
 			continue;
 		}
 
@@ -345,8 +382,10 @@ void bump_map_shader::debugDrawLights() {
 	glEnd();
 }
 
-void matrix_mult(const float m[16],const float vec_in[3],float vec_out[3]) {
-	for (int i=0;i<3;i++){
+void matrix_mult(const float m[16],const float vec_in[3],float vec_out[3]) 
+{
+	for (int i=0;i<3;i++)
+	{
 		vec_out[i]=m[0*4+i]*vec_in[0] + m[1*4+i]*vec_in[1] + m[2*4+i]*vec_in[2] + m[3*4+i];
 	}
 }
