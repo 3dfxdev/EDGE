@@ -1287,7 +1287,7 @@ void MD2_RenderModel(md2_model_c *md, const skindef_c *skin,bool is_weapon,
 	if (MIR_Reflective())
 		blending |= BL_CullFront;
 	else
-		blending |= BL_Masked;
+		blending |= BL_CullBack;
 
 
 	data.mo = mo;
