@@ -1036,9 +1036,9 @@ static void IdentifyVersion(void)
 	std::string iwad_dir;
 
 	// Check -pak parameter, find out if it is PAKs. . .
-	std::string pak_par;
-	std::string pak_file;
-	std::string pak_dir;
+	//std::string pak_par;
+	//std::string pak_file;
+	//std::string pak_dir;
 
 
 	const char *s = M_GetParm("-iwad");
