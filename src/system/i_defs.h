@@ -24,7 +24,8 @@
 #include "../con_var.h"
 #include "i_system.h"
 
-
+#include "utility/lib_util.h"
+#include "utility/lib_file.h"
 
 #endif
 //--- editor settings ---

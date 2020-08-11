@@ -243,7 +243,7 @@ static void DrawROTTColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 	int h1 = rim->actual_h;
 
 	int w2 = rim->total_w;
-	int o1 = rim->origsize;
+//	int o1 = rim->origsize;
 
 	//I_Printf("Patch %s: %dx%d, w2: %d\n", rim->name, rim->actual_h, rim->actual_w, rim->total_w);
 
@@ -257,7 +257,7 @@ static void DrawROTTColumnIntoEpiBlock(image_c *rim, epi::image_data_c *img,
 		int top =  patchcol->topdelta;
 		//int count = EPI_LE_U16(patchcol->length);
 		int count = patchcol->length;
-		y = top;
+		//y = top;
 
 
 		byte *src = (byte *)patchcol + 2; //since ROTT has no padding bytes, setting this value nearly correctly renders the images!
@@ -365,8 +365,8 @@ static epi::image_data_c *ReadROTTPatchAsEpiBlock(image_c *rim)
 	int tw = rim->total_w;
 	int th = rim->total_h;
 
-	int offset_x = rim->offset_x;
-	int offset_y = rim->offset_y;
+//	int offset_x = rim->offset_x;
+//	int offset_y = rim->offset_y;
 
 
 	epi::image_data_c *img = new epi::image_data_c(tw, th, 1);
@@ -507,8 +507,8 @@ static epi::image_data_c *ReadROTTPICAsEpiBlock(image_c *rim)
 	//I_Printf("ReadROTTPICAsEpiBlock: Reached!\n");
 	SYS_ASSERT(rim->source_type == IMSRC_rottpic);
 
-	int tw = MAX(rim->total_w, 1);
-	int th = MAX(rim->total_h, 1);
+//	int tw = MAX(rim->total_w, 1);
+//	int th = MAX(rim->total_h, 1);
 	//pic_t *pic;
 	int lump = rim->source.pic.lump;
 
@@ -1225,10 +1225,10 @@ static epi::image_data_c *CreateUserFileImage(image_c *rim, imagedef_c *def)
 
 	CloseUserFileOrLump(def, f);
 
-	if (!img) 
+//	if (!img) 
 	//TODO: V614 https://www.viva64.com/en/w/v614/ Potentially uninitialized pointer 'img' used.
-		I_Error("Error occurred loading image file: %s\n",
-			def->info.c_str());
+	//	I_Error("Error occurred loading image file: %s\n",
+	//		def->info.c_str());
 
 #if 1  // DEBUGGING
 	L_WriteDebug("CREATE IMAGE [%s] %dx%d < %dx%d opac=%d --> %p %dx%d bpp %d\n",

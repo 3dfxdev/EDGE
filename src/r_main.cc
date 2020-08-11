@@ -743,10 +743,10 @@ void RGL_Init(void)
 #endif
 		}
 
-	GLfloat max_anisotropic;
+//	GLfloat max_anisotropic;
 
 	// initialise Anisotropic Filter
-	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_anisotropic);
+//	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_anisotropic);
 
 	RGL_SoftInit();
 

@@ -26,6 +26,7 @@
 #ifndef __E_TICCMD_H__
 #define __E_TICCMD_H__
 
+#include "epi/types.h"
 
 // The data sampled per tick (single player)
 // and transmitted to other peers (multiplayer).
@@ -62,7 +63,7 @@ typedef struct
 
 	byte unused2, unused3;
 
-	void ByteSwap();
+	//void ByteSwap();
 }
 ticcmd_t;
 

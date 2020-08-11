@@ -1167,22 +1167,22 @@ typedef struct wall_plane_data_s
 
 	int light;
 	float R, G, B;
-	int col[3];
+//	int col[3];
 	float trans;
 
-	int cmx;
+//	int cmx;
 
-	drawthing_t *dlights;
+//	drawthing_t *dlights;
 	const image_c *image;
 
-	float tx, tdx;
-	float ty, ty_mul, ty_skew;
+//	float tx, tdx;
+	float ty_mul;
 
 
 	vec2_t x_mat, y_mat;
 
-	bool flood_emu;
-	float emu_mx, emu_my;
+//	bool flood_emu;
+	//float emu_mx, emu_my;
 }
 wall_plane_data_t;
 
@@ -3359,7 +3359,7 @@ static void RGL_WalkPolyobject(drawsub_c *dsub, mobj_t *mo)
 	polyobj_t *po = P_GetPolyobject(mo->po_ix);
 	if (!po)
 	{
-		I_Debugf("RGL_WalkPolyobject: No PO %d!\n", po->index); 
+//		I_Debugf("RGL_WalkPolyobject: No PO %d!\n", po->index); 
 		//TODO: V522 https://www.viva64.com/en/w/v522/ Dereferencing of the null pointer 'po' might take place.
 		return;
 	}
