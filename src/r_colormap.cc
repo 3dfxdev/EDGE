@@ -162,9 +162,9 @@ void V_InitPalette(void)
 
 	for (i = 0; i < 256; i++)
 	{
-		r = playpal_data[0][i][0];
-		g = playpal_data[0][i][1];
-		b = playpal_data[0][i][2];
+		r = playpal_data[t][i][0];
+		g = playpal_data[t][i][1];
+		b = playpal_data[t][i][2];
 	}
 
 	if (rott_mode)
@@ -372,8 +372,8 @@ static void LoadColourmap(const colourmap_c * colm)
 	data = (const byte*)W_CacheLumpNum(lump);
 
 	if ((colm->start + colm->length) * 256 > size)
-		I_Error("Colourmap [%s] is too small ! (LENGTH too big)\n",
-			colm->name.c_str());
+		I_Error("Colourmap [%s] is too small ! (LENGTH too big, lump %s sz = %d)\n",
+			colm->name.c_str(), colm->lump_name.c_str(), size);
 
 	data_in = data + (colm->start * 256);
 
