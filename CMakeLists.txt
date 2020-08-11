@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.2.2)
 ################################################################################
 ################################################################################
-## Copyright (c) 1997-2019 The EDGE Team (see AUTHORS.md)
+## Copyright (c) 1997-2020 The EDGE Team (see AUTHORS.md)
 ##
 ## This software is free software; you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License as published by
@@ -70,6 +70,7 @@ macro( make_release_only )
 endmacro()
 
 set( LZMA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/lzma/C" )
+option(FORCE_STATIC_MSVC_LIBS "Use pre-build via ./libs" OFF)
 option(FORCE_INTERNAL_ZLIB "Use internal zlib")
 option(FORCE_INTERNAL_BZIP2 "Use internal bzip2")
 option(FORCE_INTERNAL_PHYSFS "Use internal physfs")
@@ -77,7 +78,11 @@ option(HYPERTENSION "Compile Hypertension Executable" OFF)
 
 find_package( ZLIB )
 find_package( BZip2 )
-find_package ( PHYSFS )
+find_package ( PhysFS )
+find_package(SDL2 REQUIRED)
+find_package(Ogg CONFIG REQUIRED)
+find_package(Vorbis CONFIG REQUIRED)
+#find_package ( libdumb )
 
 #find_package ( FFMPEG )
 #find_package ( SDLKitchensink )
@@ -99,7 +104,7 @@ if( BZIP2_FOUND AND NOT FORCE_INTERNAL_BZIP2 )
 else()
 	message( STATUS "Using internal bzip2 library" )
 	add_subdirectory( deps/bzip2 )
-	set( BZIP2_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/bzip2)
+	set( BZIP2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/bzip2" )
 	set( BZIP2_LIBRARIES bz2 )
 	set( BZIP2_LIBRARY bz2 )
 endif()
@@ -109,10 +114,37 @@ if( PHYSFS_FOUND AND NOT FORCE_INTERNAL_PHYSFS )
 else()
 	message( STATUS "Using internal physfs library" )
 	add_subdirectory( deps/physfs )
-	set (PHYSFS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/physfs/src)
+	set (PHYSFS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/physfs/src")
 	set( PHYSFS_LIBRARIES physfs-static )
 	set( PHYSFS_LIBRARY physfs-static )
 endif()
+
+#find_package(FLTK)
+#if(NOT FLTK_FOUND)
+    # if(WIN32)
+        # message("FLTK not found in standard location; looking in ${lookout_dir}/lib/x86")
+        # set(FLTK_LIBRARIES
+            # ${lookout_dir}/lib/x86/fltk.lib
+            # ${lookout_dir}/lib/x86/fltkforms.lib
+            # ${lookout_dir}/lib/x86/fltkgl.lib
+            # ${lookout_dir}/lib/x86/fltkimages.lib
+            # ${lookout_dir}/lib/x86/fltkjpeg.lib
+            # ${lookout_dir}/lib/x86/fltkpng.lib
+            # ${lookout_dir}/lib/x86/fltkzlib.lib
+        # )
+        # set(FLTK_INCLUDE_DIR ${lookout_dir}/include)
+    # endif()
+# endif()
+
+#if( LIBDUMB_FOUND AND NOT FORCE_INTERNAL_LIBDUMB )
+#	message( STATUS "Using system libdumb library, includes found at ${LIBDUMB_INCLUDE_DIR}" )
+#else()
+#	message( STATUS "Using internal libdumb library" )
+#	add_subdirectory( deps/dumb )
+#	set (LIBDUMB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/dumb/include")
+#	set( LIBDUMB_LIBRARIES dumb )
+#	set( LIBDUMB_LIBRARY dumb )
+#endif()
 
 add_subdirectory( deps/lzma )
 add_subdirectory( zipdir )
@@ -227,7 +259,7 @@ endif()
 add_definitions(
 	-DDEH_EDGE_PLUGIN
 	-DHAVE_PHYSFS
-#	-DUSE_FFMPEG
+	#-DUSE_FFMPEG
 )
 
 # For the Hypertension team, we must continue using SSE2 and _not_ AVX, since not everyone has an AVX-compatible processor.
@@ -292,7 +324,7 @@ ENDIF (WIN32)
 
 # See /VSLibs/lib_versions.txt [libs have been compiled with MSVC 2017!]
 # CA: 11/30/18 - For MSVC, libs are no longer required to be downloaded seperately, they now exist in /libs/msvc/
-if (MSVC)
+if (FORCE_STATIC_MSVC_LIBS)
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/lib/x64/SDL2_net.lib" )
 		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x64/libogg_staticd.lib" )
@@ -319,7 +351,7 @@ if (MSVC)
 		include("${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL2/sdl-config.cmake")
 		set( SDL2_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL2")
 		set( SDLNET_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/include" )
-endif(MSVC)
+endif(FORCE_STATIC_MSVC_LIBS)
 
 if(UNIX)
 	if(APPLE)
@@ -344,6 +376,8 @@ INCLUDE_DIRECTORIES (${SDLNET_INCLUDE_DIR})
 
 INCLUDE_DIRECTORIES (${PHYSFS_INCLUDE_DIR})
 
+INCLUDE_DIRECTORIES (${FLTK_INCLUDE_DIR})
+
 ## FIND FFMPEG AND KITCHENSINK INCLUDES
 ##INCLUDE_DIRECTORIES (${FFMPEG_INCLUDE_DIR})
 ##INCLUDE_DIRECTORIES (${SDLKitchensink_INCLUDE_DIRS})
@@ -364,6 +398,9 @@ include_directories(
 # zlib
 #find_package(ZLIB REQUIRED)
 include_directories(${ZLIB_INCLUDE_DIR})
+
+# dumb
+#include_directories(${LIBDUMB_INCLUDE_DIR})
 
 # EDGE
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -514,6 +551,7 @@ set(EDGE_SOURCES
 	src/r_fxaa.cc
 	src/r_bloom.cc
 	src/s_blit.cc
+	#src/s_dumb.cc
 	src/s_cache.cc
 	src/s_sound.cc
 	src/s_music.cc
@@ -554,6 +592,10 @@ set(EDGE_SOURCES
 	src/md5_conv/md5_draw.cc
 	epi/kmq2/epi_quake2stuff.cc
 
+	#src/utility/lib_file.cc
+	src/utility/lib_util.cc
+	src/utility/m_strings.cc
+
 	epi/arrays.cc
 	epi/bytearray.cc
 	epi/exe_path.cc
@@ -587,21 +629,6 @@ set(EDGE_SOURCES
 	epi/timestamp.cc
 	epi/utility.cc
 	
-	# Note we only support file formats from physFS in EDGE that will be used!
-	#- all others were stripped! 
-	# epi/physfs/physfs.c
-    # epi/physfs/physfs_byteorder.c
-    # epi/physfs/physfs_unicode.c
-	# epi/physfs/physfs_platform_posix.c #// !!!
-    # epi/physfs/physfs_archiver_dir.c
-    # epi/physfs/physfs_archiver_unpacked.c
-    # epi/physfs/physfs_archiver_grp.c
-    # epi/physfs/physfs_archiver_7z.c
-    # epi/physfs/physfs_archiver_qpak.c
-    # epi/physfs/physfs_archiver_wad.c
-    # epi/physfs/physfs_archiver_zip.c
-    # epi/physfs/physfs_archiver_iso9660.c
-
 	glbsp/src/analyze.cc
 	glbsp/src/blockmap.cc
 	glbsp/src/glbsp.cc
@@ -715,12 +742,12 @@ add_custom_command(TARGET EDGE POST_BUILD
 target_link_libraries(EDGE
 	${SDL2_LIBRARIES}
 	${SDL_NET_LIBRARY}
-	${ogg_RELEASE_LIBRARY}
-	${vorbis_RELEASE_LIBRARY}
-	${vorbisFILE_RELEASE_LIBRARY}
+	Ogg::ogg
+	Vorbis::vorbis Vorbis::vorbisenc Vorbis::vorbisfile
 	ZLIB::ZLIB
-	BZip2::BZip2
 	${PHYSFS_LIBRARY}
+	${FLTK_LIBRARIES}
+	#	${LIBDUMB_LIBRARY}
 	#	${SDLKitchensink_STATIC_LIBRARY}
 )
 
@@ -728,7 +755,7 @@ if (WIN32)
 	target_link_libraries(EDGE
 		wsock32
 		winmm
-#		gdi32
+		gdi32
 		opengl32
 	)
 elseif(APPLE)
@@ -743,12 +770,6 @@ endif()
 #if(MSVC)
 #   target_link_libraries(EDGE rpcrt4)
 #endif()
-
-target_include_directories(EDGE PRIVATE
-	${LZMA_INCLUDE_DIR}
-	${BZIP2_INCLUDE_DIR}
-	${PHYSFS_INCLUDE_DIR}
-)
 
 if (NOT VITA)
 INSTALL (TARGETS EDGE
