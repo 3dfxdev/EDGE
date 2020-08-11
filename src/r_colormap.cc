@@ -160,12 +160,15 @@ void V_InitPalette(void)
 		}
 	}
 
+#if 1
 	for (i = 0; i < 256; i++)
 	{
-		r = playpal_data[0][i][0];
-		g = playpal_data[0][i][1];
-		b = playpal_data[0][i][2];
+		r = playpal_data[t][i][0];
+		g = playpal_data[t][i][1];
+		b = playpal_data[t][i][2];
 	}
+#endif // 0
+
 
 	if (rott_mode)
 		W_DoneWithLump(rotpal);
@@ -761,9 +764,7 @@ void R_PaletteStuff(void)
 
 int R_DoomLightingEquation(int L, float dist)
 {
-	/* L in the range 0 to 63 */
-	//dist = 1024;
-	//HYPERTENSION HACK
+	/* L in the range 0 to 256 */ 	//L >>= 2;
 	//dist = 1024;
 
 	int min_L = CLAMP(0, 36 - L, 31);
