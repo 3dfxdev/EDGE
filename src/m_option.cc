@@ -445,7 +445,7 @@ static optmenuitem_t vidoptions[] =
 
 static optmenuitem_t advancedoptions[] =
 {
-	{OPT_Switch,  "Normal Mapping",     YesNo, 2, &r_gl3_path, NULL, "UNFINISHED: For Models and Lights"}, /// Change from GL1 to GL3
+	{OPT_Switch,  "Normal Mapping",     YesNo, 2, &r_gl3_path, NULL, "Unfinished: there are bugs"}, /// Change from GL1 to GL3
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{OPT_Boolean,   "Bloom Processing",  YesNo,  2,  &r_bloom, NULL, "Toggle Bloom Shader On or Off"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
@@ -1559,14 +1559,7 @@ static void M_AdvancedOptions(int keypressed)
 
 static void M_DebugMenu(int keypressed)
 {
-	if (heretic_mode)
-	{
-		curr_menu = &debug_optmenu;
-	}
-	else
-	{
-		curr_menu = &debug_optmenu;
-	}
+	curr_menu = &debug_optmenu;
 
 	curr_item = curr_menu->items + curr_menu->pos;
 }
