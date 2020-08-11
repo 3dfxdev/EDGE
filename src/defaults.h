@@ -113,7 +113,7 @@
 #define CFGDEF_WIPE_REVERSE     (0)
 #define CFGDEF_USE_VSYNC        (1)
 #define CFGDEF_INTERPOLATION    (1)
-#define CFGDEF_SCREENSHAKE      (1)
+#define CFGDEF_SCREENSHAKE      (0)
 #define CFGDEF_MELEESHAKE       (0)
 #define CFGDEF_USEBLOOM         (1)
 #define CFGDEF_LENSDISTORT      (1)
