@@ -38,7 +38,7 @@ extern float listen_x;
 extern float listen_y;
 extern float listen_z;
 
-DEF_CVAR(sound_pitch, int, "c", 0);
+DEF_CVAR(sound_pitch, int, "c", 1);
 
 /* See m_option.cc for corresponding menu items */
 const int channel_counts[5] = { 8, 16, 32, 64, 96 };

@@ -18,6 +18,7 @@
 //
 // Colourmap handling.
 //
+#include <cstring>
 
 #include "local.h"
 

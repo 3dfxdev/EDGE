@@ -1375,8 +1375,7 @@ void MD2_RenderModel(md2_model_c *md, const skindef_c *skin,bool is_weapon,
 		{
 			float r = mo->radius;
 
-			if(use_gl3_shader) 
-			{
+			if(use_gl3_shader) {
 				short l=CLAMP(0,props->lightlevel+mo->state->bright,255);
 				RGL_SetAmbientLight(l,l,l);
 				RGL_ClearLights();
@@ -1384,8 +1383,7 @@ void MD2_RenderModel(md2_model_c *md, const skindef_c *skin,bool is_weapon,
 									   mo->x + r, mo->y + r, mo->z + mo->height,
 									   DLIT_CollectLights, &data);
 			}
-			else 
-			{
+			else {
 				P_DynamicLightIterator(mo->x - r, mo->y - r, mo->z,
 						               mo->x + r, mo->y + r, mo->z + mo->height,
 									   DLIT_Model, &data);

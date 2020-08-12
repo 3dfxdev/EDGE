@@ -111,8 +111,8 @@ cached_image_t;
 typedef std::list<image_c *> real_image_container_c;
 
 static image_c *do_Lookup(real_image_container_c& bucket, const char *name,
-                          int source_type = -1
-						  /* use -2 to prevent USER override */)
+	int source_type = -1
+/* use -2 to prevent USER override */)
 {
 	// for a normal lookup, we want USER images to override
 	if (source_type == -1)
@@ -166,7 +166,7 @@ static void do_Animate(real_image_container_c& bucket)
 	}
 }
 
-#if 0
+#if 1
 static void do_DebugDump(real_image_container_c& bucket)
 {
 	L_WriteDebug("{\n");
@@ -379,8 +379,8 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	{
 		is_png = true;
 
-		if (! PNG_GetInfo(f, &width, &height, &solid) ||
-		    width <= 0 || height <= 0)
+		if (!PNG_GetInfo(f, &width, &height, &solid) ||
+			width <= 0 || height <= 0)
 		{
 			I_Error("Error scanning PNG image in '%s' lump\n", W_GetLumpName(lump));
 		}
@@ -577,13 +577,13 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	// create new image
 	image_c *rim = NewImage(width, height, solid ? OPAC_Solid : OPAC_Unknown);
 
-	
+	strcpy(rim->name, name);
 	rim->offset_x = offset_x;//!!! || roffset_x;
 	rim->offset_y = offset_y;//!!! || roffset_y;
 
 	//if (offset_x != roffset_x)
 	//I_Printf("IMAGE [%s]: offset x = [%s], offset y = [%s]\n", rim->name, rim->offset_x, rim->offset_y);
-	strcpy(rim->name, name);
+
 #if (IMAGE_DEBUG)
 	I_Printf("IMAGE: Creating new image [%s].\n", name);
 #endif
@@ -768,12 +768,13 @@ static image_c *AddImageUser(imagedef_c *def)
 		solid = true;
 		break;
 
-		case IMGDT_Builtin:
-			//!!!!! (detail_level == 2) ? 512 : 256;
-			w = 256;
-			h = 256;
-			solid = false;
-			break;
+	case IMGDT_Builtin:
+		//(detail_level == 2) ? 512 : 256;
+		// If this breaks from upping width/height, implement detail_level from DC code!
+		w = 256;
+		h = 256;
+		solid = false;
+		break;
 
 	case IMGDT_File:
 	case IMGDT_Lump:
@@ -799,16 +800,16 @@ static image_c *AddImageUser(imagedef_c *def)
 			got_info = epi::TGA_GetInfo(f, &w, &h, &solid);
 		else if (def->format == LIF_PNG)
 			got_info = epi::PNG_GetInfo(f, &w, &h, &solid);
-		else //if (!def->format)
+		else if (!def->format)
 			got_info = epi::JPEG_GetInfo(f, &w, &h, &solid);
 
 		if (!got_info)
-	//	{
-			//CloseUserFileOrLump(def, f);
-			I_Error("Error occurred scanning image: %s\n", basename);
+		{
+			CloseUserFileOrLump(def, f);
+			I_Warning("Error occurred scanning image: %s\n", basename);
 			//got_info = epi::JPEG_GetInfo(f, &w, &h, &solid);
-			//return NULL;
-	//	}
+			return NULL;
+		}
 
 		CloseUserFileOrLump(def, f);
 #if 1

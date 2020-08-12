@@ -108,8 +108,6 @@ bool wolf3d_mode = false; //Wolfenstein 3D game detection . . . kind of a 'hack'
 
 bool rott_mode = false; //hack!
 
-bool no_intro = false;
-
 bool heretic_mode = false; //hack!
 
 bool show_splash = true;
@@ -130,7 +128,6 @@ FILE *openglfile = NULL;
 FILE *shadercompilefile = NULL;
 
 DEF_CVAR(i_skipsplash, int, "c", 0);
-DEF_CVAR(i_skipintro, int, "c", 0);
 
 gameflags_t default_gameflags =
 {
@@ -202,7 +199,6 @@ DEF_CVAR(ddf_lax, int, "c", 0);
 DEF_CVAR(ddf_quiet, int, "c", 0);
 
 DEF_CVAR(r_gpuswitch, int, "c", 0);
-
 
 static void E_TitleDrawer(void);
 
@@ -1859,7 +1855,6 @@ static void E_Startup(void)
 	DoSystemStartup();
 
 	bool nosplash = false;
-	bool nointro = false;
 
 	//Splash Screen Check
 	M_CheckBooleanParm("nosplash", &nosplash, false);
@@ -1867,7 +1862,6 @@ static void E_Startup(void)
 	{
 		//E_SplashScreen();
 	}
-
 
 #if 0
 	pt = M_GetParm("-wolf3d");
@@ -1963,7 +1957,6 @@ static void E_InitialState(void)
 		bots = atoi(ps);
 
 	ps = M_GetParm("-warp");
-	
 	if (ps)
 	{
 		warp = true;
@@ -1992,7 +1985,7 @@ static void E_InitialState(void)
 		warp_deathmatch = 2;
 	}
 
-	if (M_CheckParm("-splitscreen"))
+	if (M_CheckParm("-splitscreen") > 0)
 		splitscreen_mode = true;
 
 	if (M_GetParm("-record"))
@@ -2001,11 +1994,6 @@ static void E_InitialState(void)
 	// start the appropriate game based on parms
 	if (!warp)
 	{
-		if (rott_mode)
-			E_PlayMovie("/pack0/video/apogee.roq", 1);
-		else
-			E_PlayMovie("/pack0/video/intro.roq", 1);
-
 		I_Debugf("- Startup: showing title screen.\n");
 		E_StartTitle();
 		return;
@@ -2070,6 +2058,12 @@ void E_Main(int argc, const char **argv)
 	try
 	{
 		E_Startup();
+
+//		E_PlayMovie("/pack0/video/intro.roq", 1);
+		if (rott_mode)
+			E_PlayMovie("/pack0/video/apogee.roq", 1);
+		else
+			E_PlayMovie("/pack0/video/intro.roq", 1);
 
 		E_InitialState();
 

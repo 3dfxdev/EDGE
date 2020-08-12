@@ -475,7 +475,7 @@ static optmenuitem_t debuggingoptions[] =
 	{ OPT_Switch,  "Framerate Info",    YesNo,  2,  &debug_fps, NULL, NULL },
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{ OPT_Boolean,  "Show HOM Errors",    YesNo,  2,  &debug_hom, NULL, "showhom" },
+	{ OPT_Switch,  "Show HOM Errors",    YesNo,  2,  &debug_hom, NULL, "showhom" },
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{ OPT_Switch,  "Show Position Coords",    YesNo,  2,  &debug_pos, NULL, NULL },
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
