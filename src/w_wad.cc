@@ -306,7 +306,7 @@ static int *lumpmap = NULL;
 int numlumps;
 
 #define LUMP_MAP_CMP(a) (strncmp(lumpinfo[lumpmap[a]].name, buf, 8))
-//#define SHADER_MAP_CMP(a) (strncmp(lumpinfo[lumpmap[a]].fullname, buf, 8))
+
 
 typedef struct lumpheader_s
 {
@@ -1703,6 +1703,12 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 			lump_p->kind = LMKIND_Patch;
 			df->patch_lumps.Insert(lump);
 		}
+    
+		if (within_colmap_list)
+		{
+			lump_p->kind = LMKIND_Colmap;
+			df->colmap_lumps.Insert(lump);
+		}
 
 		if (within_tex_list)
 		{
@@ -1851,15 +1857,12 @@ static bool FindCacheFilename(std::string& out_name,
 	const char *extension)
 {
 	std::string wad_dir;
-	std::string pak_dir;
-	std::string wolf_dir;
 	std::string hash_string;
 	std::string local_name;
 	std::string cache_name;
 
 	// Get the directory which the wad is currently stored
 	wad_dir = epi::PATH_GetDir(filename);
-	wolf_dir = epi::PATH_GetDir(filename);
 
 	// Hash string used for files in the cache directory
 	hash_string = epi::STR_Format("-%02X%02X%02X-%02X%02X%02X",
@@ -3311,7 +3314,6 @@ int W_CheckNumForName2(const char *name)
 	{
 		if (i > 8)
 		{
-			I_Warning("Attempting to load: Name '%s', must use a ZIP to do this!\n", name);
 			I_Error("W_CheckNumForName: Name '%s' longer than 8 chars!\n", name);
 			return -1;
 		}
@@ -3911,7 +3913,7 @@ void W_ProcessTX_HI(void)
 
 static const char *FileKind_Strings[] =
 {
-	"iwad", "pwad", "EDGE", "gwa", "hwa",
+	"iwad", "pwad", "edge", "gwa", "hwa",
 	"lump", "ddf",  "demo", "rts", "deh",
 	"pak",  "wl6",  "rtl",  "fp", "vp", "pk3",
 	"epk", "pk7"
