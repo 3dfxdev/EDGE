@@ -91,7 +91,7 @@ static inline float ExFloorLerpedTop(extrafloor_t *exf)
 // #define DEBUG_GREET_NEIGHBOUR
 
 
-DEF_CVAR(debug_hom, int, "h", 1);
+DEF_CVAR(debug_hom, int, "c", 0);
 DEF_CVAR(r_oldblend, int, "c", 1);
 extern int r_stretchworld;
 
