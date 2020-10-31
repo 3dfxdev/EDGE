@@ -26,17 +26,19 @@
 #include "../e_main.h"
 #include "../version.h"
 
-#ifdef _MSC_VER
+#ifdef WIN32
 #include <windows.h>
 #include "win32/w32_sysinc.h"
+#ifdef _MSC_VER
 extern int __cdecl I_W32ExceptionHandler(PEXCEPTION_POINTERS ep);
+#endif
 #endif
 
 const char *win32_exe_path = ".";
 
 //#undef HYPERTENSION
 
-#ifdef _MSC_VER
+#ifdef WIN32
 // (C) James Haley (From Eternity Engine)
 // I_TweakConsole 
 //
@@ -127,7 +129,7 @@ fflush(stdout);
 #endif  
 #endif // 0
 
-#ifdef WIN32
+#ifdef _MSC_VER
 	// Run EDGE. it never returns
 	_try
 	{
@@ -138,9 +140,7 @@ fflush(stdout);
 	{
 		I_Error("Exception caught in main: see CRASHLOG.TXT for info\n");
 	}
-#endif
-
-#if defined(LINUX) || defined(BSD)
+#else
 	try
 	{
 		E_Main(argc, (const char **)argv);

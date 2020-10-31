@@ -1363,7 +1363,7 @@ int P_MissileContact(mobj_t * object, mobj_t * target)
 	if (object->extendedflags & EF_TUNNEL)
 	{
 		// this hash is very basic, but should work OK
-		u32_t hash = (u32_t)(long)target;
+		u32_t hash = (u32_t)(intptr_t)target;
 
 		if (object->tunnel_hash[0] == hash || object->tunnel_hash[1] == hash)
 			return -1;

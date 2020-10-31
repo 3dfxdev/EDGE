@@ -81,7 +81,7 @@ find_package( BZip2 )
 find_package ( PhysFS )
 find_package(SDL2 REQUIRED)
 find_package(Ogg CONFIG REQUIRED)
-find_package(Vorbis CONFIG REQUIRED)
+find_package(Vorbis REQUIRED)
 #find_package ( libdumb )
 
 #find_package ( FFMPEG )
@@ -743,7 +743,8 @@ target_link_libraries(EDGE
 	${SDL2_LIBRARIES}
 	${SDL_NET_LIBRARY}
 	Ogg::ogg
-	Vorbis::vorbis Vorbis::vorbisenc Vorbis::vorbisfile
+	# Vorbis::vorbis Vorbis::vorbisenc Vorbis::vorbisfile
+	${VORBIS_LIBRARIES} ${VORBISFILE_LIBRARIES}
 	ZLIB::ZLIB
 	${PHYSFS_LIBRARY}
 	${FLTK_LIBRARIES}

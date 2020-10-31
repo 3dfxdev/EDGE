@@ -35,7 +35,7 @@
 
 #include <sys/types.h> // Required for _stat()
 
-void I_TweakConsole();
+// void I_TweakConsole(); // usernameak: it's defined static
 
 
 // Win32 Mixer

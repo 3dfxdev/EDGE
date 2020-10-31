@@ -45,10 +45,9 @@ const char *GetVersionString();
 #define EDGEPRINTBIT "32-bit"
 #define E_TITLE "EDGE (32-bit)" EDGEVERSTR
 #endif
-#endif
 
-// Build Platform Strings (GCC/Linux, et al)
-#if defined LINUX || defined __APPLE__
+#else
+// Build Platform Strings (GCC/Linux, GCC/Windows, et al)
 #ifdef __i386__
 #define EDGEPLATFORM "x86"
 #define EDGEPRINTBIT "32-bit"
