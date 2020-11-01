@@ -1445,7 +1445,7 @@ static void DLIT_Wall(mobj_t *mo, void *dataptr)
 			return;
 	}
 
-	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
+	R_ColorMapUpdate(NULL, cur_sub->sector->lightcolor, cur_sub->sector->desaturation); // FIXME: shouldn't this use colormaps properly too?
 
 	SYS_ASSERT(mo->dlight.shader);
 
@@ -1460,7 +1460,7 @@ static void GLOWLIT_Wall(mobj_t *mo, void *dataptr)
 {
 	wall_coord_data_t *data = (wall_coord_data_t *)dataptr;
 
-	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
+	R_ColorMapUpdate(NULL, cur_sub->sector->lightcolor, cur_sub->sector->desaturation); // FIXME: shouldn't this use colormaps properly too?
 
 	SYS_ASSERT(mo->dlight.shader);
 
@@ -1490,7 +1490,7 @@ static void DLIT_Plane(mobj_t *mo, void *dataptr)
 
 	// NOTE: distance already checked in P_DynamicLightIterator
 
-	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
+	R_ColorMapUpdate(NULL, cur_sub->sector->lightcolor, cur_sub->sector->desaturation); // FIXME: shouldn't this use colormaps properly too?
 
 	SYS_ASSERT(mo->dlight.shader);
 
@@ -1505,7 +1505,7 @@ static void GLOWLIT_Plane(mobj_t *mo, void *dataptr)
 {
 	plane_coord_data_t *data = (plane_coord_data_t *)dataptr;
 
-	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
+	R_ColorMapUpdate(NULL, cur_sub->sector->lightcolor, cur_sub->sector->desaturation); // FIXME: shouldn't this use colormaps properly too?
 
 	SYS_ASSERT(mo->dlight.shader);
 
@@ -1781,9 +1781,9 @@ static void DrawWallPart(drawfloor_t *dfloor,
 	data.trans = trans;
 	data.mid_masked = mid_masked;
 
-	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
-
 	abstract_shader_c *cmap_shader = R_GetColormapShader(props, lit_adjust);
+
+	R_ColorMapUpdate(cmap_shader, cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
 
 	cmap_shader->WorldMix(GL_POLYGON, data.v_count, data.tex_id,
 			trans, &data.pass, data.blending, data.mid_masked,
@@ -2331,7 +2331,7 @@ static void DLIT_Flood(mobj_t *mo, void *dataptr)
 			data->vert[col*2 + 1].Set(x, y, z + data->dh / data->piece_row);
 		}
 
-		R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
+		R_ColorMapUpdate(NULL, cur_sub->sector->lightcolor, cur_sub->sector->desaturation); // FIXME: shouldn't this use colormaps properly too?
 
 		mo->dlight.shader->WorldMix(GL_QUAD_STRIP, data->v_count,
 				data->tex_id, 1.0, &data->pass, blending, false,
@@ -2473,7 +2473,7 @@ static void EmulateFloodPlane(const drawfloor_t *dfloor,
 		data.B = (64 + 90 * (row & 2))  / 255.0;
 #endif
 
-		R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
+		R_ColorMapUpdate(cmap_shader, cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
 
 		cmap_shader->WorldMix(GL_QUAD_STRIP, data.v_count,
 				data.tex_id, 1.0, &data.pass, BL_NONE, false,
@@ -3256,8 +3256,6 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	data.trans = trans;
 	data.slope = slope;
 
-	R_ColorMapUpdate(cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
-
 	int lit_adjust = 0;
 	if (face_dir > 0)
 	{
@@ -3275,6 +3273,8 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	}
 
 	abstract_shader_c *cmap_shader = R_GetColormapShader(props, lit_adjust);
+
+	R_ColorMapUpdate(cmap_shader, cur_sub->sector->lightcolor, cur_sub->sector->desaturation);
 
 	cmap_shader->WorldMix(GL_POLYGON, data.v_count, data.tex_id,
 			trans, &data.pass, data.blending, false /* masked */,

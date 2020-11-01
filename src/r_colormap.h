@@ -62,7 +62,7 @@ void V_SetPalette(int type, float amount);
 void VL_NormalizePalette(byte * palette);
 void V_ColourNewFrame(void);
 void R_PaletteStuff(void);
-void R_ColorMapUpdate(int col, float desat);
+void R_ColorMapUpdate(abstract_shader_c *shader, int col, float desat);
 
 
 #define PAL_RED(pix)  ((float)(playpal_data[0][pix][0]) / 255.0f)

@@ -1107,14 +1107,16 @@ public:
 
 colormap_shader_c *std_cmap_shader;
 
-void R_ColorMapUpdate(int col, float desat)
+void R_ColorMapUpdate(abstract_shader_c *shader, int col, float desat)
 {
-	if (std_cmap_shader)
+	if (!shader) shader = std_cmap_shader;
+	colormap_shader_c *cmap_shader = dynamic_cast<colormap_shader_c *>(shader);
+	if (cmap_shader)
 	{
-		std_cmap_shader->SetLightColor(col | ((int)(desat * 127.0f) << 24));
-		std_cmap_shader->SetDesaturation(desat);
-		std_cmap_shader->ClearTex();
-		std_cmap_shader->Update();
+		cmap_shader->SetLightColor(col | ((int)(desat * 127.0f) << 24));
+		cmap_shader->SetDesaturation(desat);
+		cmap_shader->ClearTex();
+		cmap_shader->Update();
 	}
 }
 
