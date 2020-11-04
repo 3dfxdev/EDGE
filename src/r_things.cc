@@ -259,13 +259,8 @@ static void RGL_DrawPSprite(pspdef_t * psp, int which,
 	if (trans >= 0.11f && image->opacity != OPAC_Complex)
 		blending = BL_Less;
 
-	if (r_oldblend > 0)
-	{
-		if (trans < 0.99f || image->opacity == OPAC_Complex)
-			blending |= BL_Alpha;
-		else if (trans < 0.99f || image->opacity != OPAC_Solid)
-				blending |= BL_Alpha;
-	}
+	if (trans < 0.99 || image->opacity != OPAC_Solid)
+		blending |= BL_Alpha;
 
 
 	if (is_fuzzy)
@@ -1436,13 +1431,8 @@ skip_shadow:
 		blending = BL_Less;
 
 	
-	if (r_oldblend > 0)
-	{
-		if (trans < 0.99f || image->opacity == OPAC_Complex)
-			blending |= BL_Alpha;
-		else if (trans < 0.99f || image->opacity != OPAC_Solid)
-			blending |= BL_Alpha;
-	}
+	if (trans < 0.99 || image->opacity != OPAC_Solid)
+		blending |= BL_Alpha;
 
 	if (mo->hyperflags & HF_NOZBUFFER)
 		blending |= BL_NoZBuf;
