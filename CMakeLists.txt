@@ -709,6 +709,15 @@ if(WIN32)
 	set(EDGE_SOURCES ${EDGE_SOURCES}
 		${EDGE_WIN32_SOURCES}
 	)
+	if(MSVC)
+		set(EDGE_SOURCES ${EDGE_SOURCES}
+			src/system/win32/w32_manifest.manifest
+		)
+	else()
+		set(EDGE_SOURCES ${EDGE_SOURCES}
+			src/system/win32/w32_manifest_mgw.rc
+		)	
+	endif()
 elseif(UNIX)
 	set(EDGE_SOURCES ${EDGE_SOURCES}
 		${EDGE_UNIX_SOURCES}
