@@ -430,9 +430,9 @@ void W_InitTextures(void)
 		wadtex_resource_c WT;
 		raw_vswap_t WF;
 
-		if (wolf3d_mode)
-			W_GetWolfTextureLumps(file, &WF);
-		else
+		//if (wolf3d_mode)
+		//	W_GetWolfTextureLumps(file, &WF);
+		//else
 			W_GetTextureLumps(file, &WT);
 
 		if (WT.pnames < 0)
