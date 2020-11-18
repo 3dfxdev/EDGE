@@ -171,6 +171,20 @@ angle_t R_PointToAngle(float x1, float y1, float x, float y)
 	return (x == 0) && (y == 0) ? 0 : FLOAT_2_ANG(atan2(y, x) * (180 / M_PI));
 }
 
+//Float version of R_PointToAngle (!)
+static inline float E_PointToAngle(float x, float y)
+{
+	if (-0.01 < x && x < 0.01)
+		return static_cast<float>((y > 0) ? M_PI / 2 : (3 * M_PI / 2));
+
+	float angle = atan2(y, x);
+
+	if (angle < 0)
+		angle += static_cast<float>(2 * M_PI);
+
+	return angle;
+}
+
 // faster less precise PointToAngle
 angle_t BSP_PointToAngle(float x1, float y1, float x, float y)
 {
