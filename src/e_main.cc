@@ -89,7 +89,11 @@
 #include "vm_coal.h"
 #include "z_zone.h"
 
+#ifndef USE_FFMPEG
 #include "system/i_cinematic.h"
+#else
+#include "system/i_ffmpeg.h"
+#endif
 #include "system/i_x86.h"
 
 //CA: 6/11/2018
@@ -2004,6 +2008,7 @@ static void E_InitialState(void)
 		if (rott_mode)
 			E_PlayMovie("/pack0/video/apogee.roq", 1);
 		else
+		// IF YOU BUILD WITH USE_FFMPEG, CHANGE ROQ TO DESIRED FORMAT AS KIT DOES NOT PLAY ROQ.
 			E_PlayMovie("/pack0/video/intro.roq", 1);
 
 		I_Debugf("- Startup: showing title screen.\n");
