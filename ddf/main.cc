@@ -29,7 +29,7 @@
 
 #include "../src/p_action.h"
 
-//extern float M_Tan(angle_t ang)  GCCATTR((const));
+extern float M_Tan(angle_t ang)  GCCATTR((const));
 
 static int engine_version;
 static std::string ddf_where;
@@ -880,8 +880,8 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 				if (!firstgo)
 					DDF_Error("#VERSION cannot be used inside an entry !\n");
 
-				DDF_ParseVersion(memfileptr + 8, l_len - 8);
-
+				//DDF_ParseVersion(memfileptr + 8, l_len - 8);
+				//I_Printf("DDF: #VERSION directive ignored.");
 				memfileptr += l_len;
 				continue;
 			}
@@ -1362,8 +1362,10 @@ void DDF_MainGetPercent(const char *info, void *storage)
 
 	// check that the string is valid
 	Z_StrNCpy(s, info, 100);
+
 	for (p = s; isdigit(*p) || *p == '.'; p++)
-	{ /* do nothing */
+	{ 
+		/* do nothing */
 	}
 
 	// the number must be followed by %
@@ -1485,7 +1487,10 @@ void DDF_MainGetRGB(const char *info, void *storage)
 		return;
 	}
 
-	if (sscanf(info, " #%2x%2x%2x ", &r, &g, &b) != 3) //TODO: V576 https://www.viva64.com/en/w/v576/ Incorrect format. Consider checking the third actual argument of the 'sscanf' function. A pointer to the unsigned int type is expected. //TODO: V576 https://www.viva64.com/en/w/v576/ Incorrect format. Consider checking the fourth actual argument of the 'sscanf' function. A pointer to the unsigned int type is expected. //TODO: V576 https://www.viva64.com/en/w/v576/ Incorrect format. Consider checking the fifth actual argument of the 'sscanf' function. A pointer to the unsigned int type is expected.
+	if (sscanf(info, " #%2x%2x%2x ", &r, &g, &b) != 3) 
+		//TODO: V576 https://www.viva64.com/en/w/v576/ 
+		//      Incorrect format. Consider checking the third actual argument of the 'sscanf' function. 
+		//      A pointer to the unsigned int type is expected. 
 		DDF_Error("Bad RGB colour value: %s\n", info);
 
 	*result = (r << 16) | (g << 8) | b;
