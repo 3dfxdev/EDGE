@@ -35,7 +35,7 @@ typedef struct
     int                 offset;
 
     Kit_Source          *src;
-    Kit_StreamInfo      sinfo;
+    Kit_SourceStreamInfo      sinfo;
     Kit_Player          *player;
     Kit_PlayerInfo      pinfo;
 
@@ -46,6 +46,7 @@ typedef struct
     SDL_Texture         *render_tex;
     SDL_Texture         *flip_tex;
     GLuint              vtex[1];
+
     SDL_Texture         *subtitle_tex;
     GLuint              stex[1];
 
