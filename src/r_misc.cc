@@ -172,7 +172,7 @@ angle_t R_PointToAngle(float x1, float y1, float x, float y)
 }
 
 //Float version of R_PointToAngle (!)
-static inline float E_PointToAngle(float x, float y)
+inline float E_PointToAngle(float x, float y)
 {
 	if (-0.01 < x && x < 0.01)
 		return static_cast<float>((y > 0) ? M_PI / 2 : (3 * M_PI / 2));

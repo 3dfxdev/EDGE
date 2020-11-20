@@ -404,7 +404,7 @@ namespace cameraman
 
 		if (reading > 0)
 		{
-			if (file = fopen(fileName.c_str(), "rb"))
+            if ((file = fopen(fileName.c_str(), "rb")))
 			{
 				fread((void *)&g_count, sizeof(int), 1, file);
 				fread((void *)body, sizeof(char), 5, file);
@@ -418,7 +418,7 @@ namespace cameraman
 		}
 		else // Only editing
 		{
-			if (file = fopen(fileName.c_str(), "wb"))
+            if ((file = fopen(fileName.c_str(), "wb")))
 			{
 				fwrite((void *)&g_count, sizeof(int), 1, file);
 				fwrite((void *)body, sizeof(char), 5, file);

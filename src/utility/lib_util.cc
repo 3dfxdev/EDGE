@@ -31,6 +31,10 @@
 #endif
 #include <time.h>
 
+#ifdef _APPLE
+#include <unistd.h>
+#endif
+
 #include "m_strings.h"
 #include "../dm_defs.h"
 
@@ -245,7 +249,7 @@ SString StringTidy(const char *str, const char *bad_chars)
 }
 
 
-void TimeDelay(unsigned int millies)
+/*void TimeDelay(unsigned int millies)
 {
 	SYS_ASSERT(millies < 300000);
 
@@ -257,7 +261,7 @@ void TimeDelay(unsigned int millies)
 	usleep(millies * 1000);
 #endif
 }
-
+*/
 
 unsigned int TimeGetMillies()
 {

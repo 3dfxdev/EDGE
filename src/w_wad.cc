@@ -2389,18 +2389,20 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			}
 		}
 		else if (rott_mode)
+        {
 			// Checks for Global ROTT palette (PLAYPAL) instead of palette-byte translation (from SLADE.pk3)
 			if (stricmp(fname, "rott") == 0)
-			{
 				{
 					//		// enumerate all entries in placebo ROTT Directory (inside EDGE.pak)
 					PHYSFS_enumerate(path, LumpNamespace, userData);
 				}
-			}
+        }
 		else if (strncasecmp(fname, "root", 4) == 0)
 		{
+            {
 			// recurse root subdirectory to TopLevel
 			PHYSFS_enumerate(path, TopLevel, userData);
+            }
 		}
 
 		return PHYSFS_ENUM_OK;

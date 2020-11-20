@@ -40,7 +40,9 @@
 #include "s_blit.h"
 #include "s_music.h"
 
-
+#if __cplusplus > 199711L
+#define register //deprecated in C++11
+#endif //silence 'register' storage class specifier is deprecated and incompatible with C++17 . . .
 
 // Sound must be clipped to prevent distortion (clipping is
 // a kind of distortion of course, but it's much better than

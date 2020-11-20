@@ -454,11 +454,16 @@ void W_InitTextures(void)
 	}
 
 	if (tex_sets.GetSize() == 0)
+    {
 		if (!wolf3d_mode)
+        {
 			I_Error("No textures found !  Make sure the chosen IWAD is valid.\n");
-		else
+        }
+        else
+        {
 			I_Printf("No textures found for Wolf, but DDF will grab 'em\n");
-
+        }
+    }
 	// now clump all of the texturedefs together and sort 'em, primarily
 	// by increasing name, secondarily by increasing file number
 	// (measure of newness).  We ignore "dud" textures (missing

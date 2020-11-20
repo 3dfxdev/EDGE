@@ -35,7 +35,7 @@ void I_MessageBox(const char *_msg, const char *_title)
                                       encoding:default_encoding];
 
 	// Generate panel and await user feedback
-	NSRunAlertPanel(title, msg, @"OK", nil, nil);
+    NSRunAlertPanel(title, @"%@", msg, @"OK", nil, nil);
 
 	// Release strings when finished
 	[msg release];

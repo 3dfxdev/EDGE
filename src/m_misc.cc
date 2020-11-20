@@ -452,7 +452,7 @@ void M_LoadDefaults(void)
 				{
 					*(bool*)defaults[i].location = parm?true:false;
 				}
-				else /* CFGT_Int and CFGT_Key */
+				else  CFGT_Int and CFGT_Key */
 				/*{
 					*(int*)defaults[i].location = parm;
 				}
