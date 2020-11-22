@@ -86,6 +86,13 @@ find_package(Vorbis REQUIRED)
 
 #find_package ( FFMPEG )
 #find_package ( SDLKitchensink )
+
+#ifdef APPLE
+find_library(COCOA_LIBRARY Cocoa)
+FIND_PATH(COCOA_INCLUDE_DIR Cocoa/Cocoa.h)
+#endif
+
+
 #set (SDL_kitchensink_static "Statically link SDLKitchensink" ON)
 #set (SDL_kitchensink "Do not Statically link SDLKitchensink" OFF)
 
@@ -756,7 +763,6 @@ target_link_libraries(EDGE
 	${VORBIS_LIBRARIES} ${VORBISFILE_LIBRARIES}
 	ZLIB::ZLIB
 	${PHYSFS_LIBRARY}
-	${FLTK_LIBRARIES}
 	#	${LIBDUMB_LIBRARY}
 	#	${SDLKitchensink_STATIC_LIBRARY}
 )
@@ -769,8 +775,8 @@ if (WIN32)
 		opengl32
 	)
 elseif(APPLE)
-	target_link_libraries(EDGE SDL2)
-	set_target_properties(EDGE PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa -framework IOKit")
+        set_target_properties(EDGE PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa -framework IOKit")
+	target_link_libraries(EDGE SDL2 COCOA_LIBRARY stdc++ "-framework Foundation" "-framework Cocoa" "-framework IOKIT" objc)
 elseif(VITA)
 	target_link_libraries(EDGE SDL2 vitaGL SceDisplay_stub SceCtrl_stub SceAudio_stub SceSysmodule_stub SceGxm_stub SceCommonDialog_stub SceTouch_stub SceHid_stub m)
 elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "(Free|Open)BSD")
