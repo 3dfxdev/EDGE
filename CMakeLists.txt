@@ -87,10 +87,10 @@ find_package(Vorbis REQUIRED)
 #find_package ( FFMPEG )
 #find_package ( SDLKitchensink )
 
-#ifdef APPLE
+if(APPLE)
 find_library(COCOA_LIBRARY Cocoa)
 FIND_PATH(COCOA_INCLUDE_DIR Cocoa/Cocoa.h)
-#endif
+endif()
 
 
 #set (SDL_kitchensink_static "Statically link SDLKitchensink" ON)
