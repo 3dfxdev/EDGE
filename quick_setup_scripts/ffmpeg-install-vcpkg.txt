@@ -1,0 +1,1 @@
+.\vcpkg\vcpkg install ffmpeg:x86-windows ffmpeg:x64-windows libass:x86-windows libass:x64-windows
