@@ -179,6 +179,7 @@ bool DDF_ReadGames(void *data, int size)
 		games.message = "DDF_InitGames";
 		games.filename = "games.ddf";
 		games.lumpname = NULL;
+		gamedefs.Clear();
 	}
 
 	games.start_entry = GameStartEntry;
