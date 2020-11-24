@@ -160,8 +160,6 @@ static void ImageFinishEntry(void)
 			dynamic_image->format = LIF_EXT;
 		else if (DDF_CompareName(ext.c_str(), "tga") == 0)
 			dynamic_image->format = LIF_TGA;
-		else if (DDF_CompareName(ext.c_str(), "lmp") == 0)
-			dynamic_image->format = LIF_RIM;
 		else
 			DDF_WarnError("Unknown image extension for '%s'\n", filename);
 			dynamic_image->format = LIF_JPEG;
