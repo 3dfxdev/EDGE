@@ -103,7 +103,7 @@ sector_t *backsector;
 unsigned int root_node;
 
 
-int detail_level = 1;
+int detail_level = 2;
 int use_dlights = 0;
 
 int doom_fading = 1;

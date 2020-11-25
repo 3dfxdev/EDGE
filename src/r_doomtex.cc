@@ -79,11 +79,6 @@ int powerof2(int in)
 }
 
 
-#define REPEAT_X 1
-#define REPEAT_Y 2
-#define REPEAT_BOTH 3
-#define REPEAT_AUTO 4
-
 /*
 * Rule for ROTT patches: patch->collumnofs[0] == patch->width*2 + 10
 */

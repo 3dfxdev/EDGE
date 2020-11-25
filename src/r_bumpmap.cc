@@ -168,6 +168,8 @@ GLuint compile_shader(GLenum type,const char* source_c)
 		glDeleteShader(handle);
 		return 0;
 	}
+	else
+		I_Printf("Bumpmap shader compiled %d!\n", handle);
 	return handle;
 }
 
@@ -265,15 +267,14 @@ void bump_map_shader::check_init()
 	uni_light_radius=glGetUniformLocation(h_prog,"light_r");
 	uni_light_color_ambient=glGetUniformLocation(h_prog,"light_color_ambient");
 
-	/*
+	
 	I_Printf("attr_tan %d pos %d color %d radius %d ambient %d\n",
 			attr_tan,
 			uni_light_pos,
 			uni_light_color,
 			uni_light_radius,
 			uni_light_color_ambient);
-	*/
-
+	
 	//glGenBuffers(1,&vbo_tan);
 	lightApply();
 
