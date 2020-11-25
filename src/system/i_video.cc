@@ -191,10 +191,9 @@ void I_StartupGraphics(void)
                               display_H,
                               flags);
 
-	my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_ACCELERATED);
+	my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	glContext = SDL_GL_CreateContext( my_vis );
-
 
     SDL_GL_MakeCurrent( my_vis, glContext );
     if(my_vis == NULL)
@@ -302,7 +301,7 @@ bool I_SetScreenSize(scrmode_c *mode)
                     SDL_WINDOW_OPENGL | //SDL2 is double-buffered by default
                     (mode->full ? SDL_WINDOW_FULLSCREEN :0));
 
-	//my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_ACCELERATED);
+	my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	glContext = SDL_GL_CreateContext( my_vis );
 
