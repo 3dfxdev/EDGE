@@ -2,7 +2,7 @@
 //  EDGE Cinematic Playback Engine (ROQ)
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 2018 The EDGE Team
+//  Copyright (c) 2018-2020 The EDGE Team
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -283,7 +283,7 @@ cinHandle_t CIN_PlayCinematic (const char *name, int flags)
             Kit_GetBestSourceStream(cin->src, KIT_STREAMTYPE_VIDEO),
             Kit_GetBestSourceStream(cin->src, KIT_STREAMTYPE_AUDIO),
             Kit_GetBestSourceStream(cin->src, KIT_STREAMTYPE_SUBTITLE),
-            SCREENWIDTH, SCREENHEIGHT); //before 1280x720...?
+            SCREENWIDTH, SCREENHEIGHT); //~CA: before 1280x720...? Probably needs to be changed for screen vars?
 
         if (cin->player == NULL)
         {
@@ -470,8 +470,6 @@ cinHandle_t CIN_PlayCinematic (const char *name, int flags)
             // set subtitle texture blendmode
             SDL_SetTextureBlendMode(cin->subtitle_tex, SDL_BLENDMODE_BLEND);
 
-           // SDL_SetRenderDrawColor(my_rndrr, 0, 0, 0, 255);
-           // SDL_RenderClear(my_rndrr);
         }
 
 
@@ -535,7 +533,7 @@ void E_PlayMovie(const char* name, int flags)
         //Con_Close();
         //CON_SetVisible(vs_notvisible);
         //GUI_Close();
-        //M_ClearMenus();
+        M_ClearMenus();
 
         // Make sure sounds aren't playing
         //S_FreeChannels();
@@ -572,9 +570,9 @@ void E_PlayMovie(const char* name, int flags)
         // draw a movie frame
         I_StartFrame();
 
-        //glGenTextures(1, &cin->vtex[0]);
-
-        // upload decoded video into opengl texture
+        //!!! upload decoded video into opengl texture
+		//TODO: 
+		//Results in a white screen (???), BindTexture/my_rndrr problem...?
         glBindTexture(GL_TEXTURE_2D, cin->vtex[0]);
         SDL_GL_BindTexture(cin->render_tex, NULL, NULL);
 
@@ -722,14 +720,18 @@ bool CIN_CheckCinematic (cinHandle_t handle)
 void CIN_UpdateCinematic (cinHandle_t handle)
 {
 #ifdef DEBUG_MOVIE_PLAYER
-    I_Printf("CIN_UpdateCinematic!\n");
+   // I_Printf("CIN_UpdateCinematic!\n");
 #endif
     cinematic_t *cin = CIN_GetCinematicByHandle(handle);
     cin->got = 0;
-
+	
+	// TODO: Needed??
     // Get movie area size
     //SDL_RenderSetLogicalSize(my_rndrr, cin->pinfo.video.output.width, cin->pinfo.video.output.height);
 
+   // CA: SDL_CreateRenderer went back to being handled in "system/i_video.cc"
+   // my_rndrr = SDL_CreateRenderer(my_vis, -1, 0);
+   
     // update video texture
     if (Kit_GetPlayerVideoStream(cin->player) >= 0)
     {
@@ -739,6 +741,7 @@ void CIN_UpdateCinematic (cinHandle_t handle)
         // Clear screen with black
         SDL_SetRenderDrawColor(my_rndrr, 0, 0, 0, 255);
         SDL_RenderClear(my_rndrr);
+
         SDL_RenderCopy(my_rndrr, cin->video_tex, NULL, NULL);
         SDL_SetRenderTarget(my_rndrr, cin->render_tex);
         SDL_RenderCopyEx(my_rndrr, cin->flip_tex, NULL, NULL, 0, NULL, SDL_FLIP_VERTICAL);
@@ -864,7 +867,7 @@ void CIN_StopCinematic (cinHandle_t handle)
 
 /*
  ==================
- CIN_PlayCinematic_f (play through EDGE console?)
+ CIN_PlayCinematic_f (play through COAL/RTS?)
  ==================
 */
 static void CIN_PlayCinematic_f(void)
@@ -896,7 +899,7 @@ static void CIN_PlayCinematic_f(void)
 
 /*
  ==================
- CIN_ListCinematics_f
+ CIN_ListCinematics_f (EDGE Console Command?)
  ==================
 */
 #if 0
@@ -951,7 +954,7 @@ void CIN_Init (void)
     // Clear global array
     memset(cin_cinematics, 0, sizeof(cin_cinematics));
 
-    my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+   // my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (my_rndrr == NULL) 
     {
         I_Error("FUCKMYBUTTHOLE: Unable to create a renderer!\n");
@@ -961,11 +964,11 @@ void CIN_Init (void)
     Kit_Init(KIT_INIT_ASS);
 
     // Allow Kit to use more threads
-    Kit_SetHint(KIT_HINT_THREAD_COUNT, SDL_GetCPUCount() <= 4 ? SDL_GetCPUCount() : 4);
+    //Kit_SetHint(KIT_HINT_THREAD_COUNT, SDL_GetCPUCount() <= 4 ? SDL_GetCPUCount() : 4);
 
     // Lots of buffers for smooth playback (will eat up more memory, too).
-    Kit_SetHint(KIT_HINT_VIDEO_BUFFER_FRAMES, 5);
-    Kit_SetHint(KIT_HINT_AUDIO_BUFFER_FRAMES, 192);
+      Kit_SetHint(KIT_HINT_VIDEO_BUFFER_FRAMES, 5);
+   // Kit_SetHint(KIT_HINT_AUDIO_BUFFER_FRAMES, 192);
 
     // Add commands
     //Cmd_AddCommand("playCinematic", CIN_PlayCinematic_f, "Plays a cinematic", Cmd_ArgCompletion_VideoName);
