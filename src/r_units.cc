@@ -72,8 +72,9 @@ static bool tmp_init=false;
 static int bmap_light_count = 0;
 
 
-#define MAX_L_VERT  16384  //old vert limit, was not enough for particular md5 models
-///#define MAX_L_VERT 4096 //(might have to change this so it does not affect MD2/MD3 loading? )
+//XXX ~CA
+//"4096" was the previous default, changed for MD5 model support!
+#define MAX_L_VERT  16384  
 
 
 #define MAX_L_UNIT  (MAX_L_VERT / 4)
@@ -397,7 +398,7 @@ static inline void RGL_SendRawVector(const local_gl_vert_t* V)
 //also sends tangent
 static inline void RGL_SendRawVector2(const local_gl_vert_t* V)
 {
-	/*
+
 #ifndef DREAMCAST
 	if (r_colormaterial || ! r_colorlighting) {
 		glColor4fv(V->rgba);
@@ -410,9 +411,11 @@ static inline void RGL_SendRawVector2(const local_gl_vert_t* V)
 #else
 	glColor4fv(V->rgba);
 #endif
-*/
+
 	myMultiTexCoord2f(GL_TEXTURE0, V->texc[0].x, V->texc[0].y);
-	//	myMultiTexCoord2f(GL_TEXTURE1, V->texc[1].x, V->texc[1].y);
+	//XXX TODO:: NOTE:: FIXME ::
+	//!!!: CA: myMultiTexCoord2f ->  (GL_TEXTURE1 line) *used* to be disabled!
+	myMultiTexCoord2f(GL_TEXTURE1, V->texc[1].x, V->texc[1].y);
 
 	glNormal3f(V->normal.x, V->normal.y, V->normal.z);
 #ifndef NO_EDGEFLAG
@@ -682,6 +685,7 @@ void RGL_DrawUnits(void)
 				}
 			}
 
+			RGL_BatchShape(unit->shape);
 			glBegin(unit->shape);
 			if (bmap_shader.attr_tan != -1)
 			{
@@ -702,27 +706,30 @@ void RGL_DrawUnits(void)
 
 			bmap_shader.unbind();
 
+
 #ifdef DEBUG_GL3
 			//bmap_shader.debugDrawLights();
 			//XXX normals and tangent debug
-			/*
+
 			glBegin(GL_LINES);
-			for(int i=0;i<unit->count;i++) {
-				local_gl_vert_t* v=local_verts+unit->first+i;
+			for (int i = 0; i < unit->count; i++) {
+				local_gl_vert_t* v = local_verts + unit->first + i;
 
-				float s=1.0;
-				glColor3f(1,0,0);
-				glVertex3f(v->pos.x,v->pos.y,v->pos.z);
-				glVertex3f(v->pos.x+v->tangent.x*s,v->pos.y+v->tangent.y*s,v->pos.z+v->tangent.z*s);
+				float s = 1.0;
+				glColor3f(1, 0, 0);
+				glVertex3f(v->pos.x, v->pos.y, v->pos.z);
+				glVertex3f(v->pos.x + v->tangent.x * s, v->pos.y + v->tangent.y * s, v->pos.z + v->tangent.z * s);
 
-				glColor3f(0,0,1);
-				s=1.0;
-				glVertex3f(v->pos.x,v->pos.y,v->pos.z);
-				glVertex3f(v->pos.x+v->normal.x*s,v->pos.y+v->normal.y*s,v->pos.z+v->normal.z*s);
+				glColor3f(0, 0, 1);
+				s = 1.0;
+				glVertex3f(v->pos.x, v->pos.y, v->pos.z);
+				glVertex3f(v->pos.x + v->normal.x * s, v->pos.y + v->normal.y * s, v->pos.z + v->normal.z * s);
 			}
 			glEnd();
-			*/
-#endif
+
+#endif  
+
+
 
 		}
 		else
