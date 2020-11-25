@@ -47,7 +47,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "zlib.h"
-#include <bzlib.h>
+#include "bzlib.h"
 #include "LzmaEnc.h"
 #include "7zVersion.h"
 #ifdef PPMD
@@ -75,12 +75,12 @@
 #define MAKE_ID(a,b,c,d)	((d)|((c)<<8)|((b)<<16)|((a)<<24))
 static unsigned short LittleShort(unsigned short x)
 {
-	return (x>>8) | (x<<8);
+	return (x >> 8) | (x << 8);
 }
 
 static unsigned int LittleLong(unsigned int x)
 {
-	return (x>>24) | ((x>>8) & 0xff00) | ((x<<8) & 0xff0000) | (x<<24);
+	return (x >> 24) | ((x >> 8) & 0xff00) | ((x << 8) & 0xff0000) | (x << 24);
 }
 #endif
 
@@ -105,7 +105,7 @@ static unsigned int LittleLong(unsigned int x)
 
 typedef struct file_entry_s
 {
-	struct file_entry_s *next;
+	struct file_entry_s* next;
 	time_t time_write;
 	unsigned int uncompressed_size;
 	unsigned int compressed_size;
@@ -118,21 +118,21 @@ typedef struct file_entry_s
 
 typedef struct dir_tree_s
 {
-	struct dir_tree_s *next;
-	file_entry_t *files;
+	struct dir_tree_s* next;
+	file_entry_t* files;
 	size_t path_size;
 	char path[];
 } dir_tree_t;
 
 typedef struct file_sorted_s
 {
-	file_entry_t *file;
-	char *path_in_zip;
+	file_entry_t* file;
+	char* path_in_zip;
 } file_sorted_t;
 
 typedef struct compressor_s
 {
-	int (*compress)(Byte *out, unsigned int *outlen, const Byte *in, unsigned int inlen);
+	int (*compress)(Byte* out, unsigned int* outlen, const Byte* in, unsigned int inlen);
 	int method;
 } compressor_t;
 
@@ -197,37 +197,37 @@ typedef struct
 
 // PUBLIC FUNCTION PROTOTYPES ----------------------------------------------
 
-void print_usage(const char *cmdname);
-dir_tree_t *alloc_dir_tree(const char *dir);
-file_entry_t *alloc_file_entry(const char *prefix, const char *path, time_t last_written);
-void free_dir_tree(dir_tree_t *tree);
-void free_dir_trees(dir_tree_t *tree);
+void print_usage(const char* cmdname);
+dir_tree_t* alloc_dir_tree(const char* dir);
+file_entry_t* alloc_file_entry(const char* prefix, const char* path, time_t last_written);
+void free_dir_tree(dir_tree_t* tree);
+void free_dir_trees(dir_tree_t* tree);
 #ifdef _WIN32
-void recurse_dir(dir_tree_t *tree, const char *dirpath);
-dir_tree_t *add_dir(const char *dirpath);
+void recurse_dir(dir_tree_t* tree, const char* dirpath);
+dir_tree_t* add_dir(const char* dirpath);
 #endif
-dir_tree_t *add_dirs(char **argv);
-int count_files(dir_tree_t *trees);
-int sort_cmp(const void *a, const void *b);
-file_sorted_t *sort_files(dir_tree_t *trees, int num_files);
-void write_zip(const char *zipname, dir_tree_t *trees, int update);
-int append_to_zip(FILE *zip_file, file_sorted_t *file, FILE *ozip, BYTE *odir);
-int write_central_dir(FILE *zip, file_sorted_t *file);
-void time_to_dos(struct tm *time, short *dosdate, short *dostime);
+dir_tree_t* add_dirs(char** argv);
+int count_files(dir_tree_t* trees);
+int sort_cmp(const void* a, const void* b);
+file_sorted_t* sort_files(dir_tree_t* trees, int num_files);
+void write_zip(const char* zipname, dir_tree_t* trees, int update);
+int append_to_zip(FILE* zip_file, file_sorted_t* file, FILE* ozip, BYTE* odir);
+int write_central_dir(FILE* zip, file_sorted_t* file);
+void time_to_dos(struct tm* time, short* dosdate, short* dostime);
 int method_to_version(int method);
-const char *method_name(int method);
-int compress_lzma(Byte *out, unsigned int *outlen, const Byte *in, unsigned int inlen);
-int compress_bzip2(Byte *out, unsigned int *outlen, const Byte *in, unsigned int inlen);
-int compress_ppmd(Byte *out, unsigned int *outlen, const Byte *in, unsigned int inlen);
-int compress_deflate(Byte *out, unsigned int *outlen, const Byte *in, unsigned int inlen);
-BYTE *find_central_dir(FILE *fin);
-CentralDirectoryEntry *find_file_in_zip(BYTE *dir, const char *path, unsigned int len, unsigned int crc, short date, short time);
-int copy_zip_file(FILE *zip, file_entry_t *file, FILE *ozip, CentralDirectoryEntry *dirent);
+const char* method_name(int method);
+int compress_lzma(Byte* out, unsigned int* outlen, const Byte* in, unsigned int inlen);
+int compress_bzip2(Byte* out, unsigned int* outlen, const Byte* in, unsigned int inlen);
+int compress_ppmd(Byte* out, unsigned int* outlen, const Byte* in, unsigned int inlen);
+int compress_deflate(Byte* out, unsigned int* outlen, const Byte* in, unsigned int inlen);
+BYTE* find_central_dir(FILE* fin);
+CentralDirectoryEntry* find_file_in_zip(BYTE* dir, const char* path, unsigned int len, unsigned int crc, short date, short time);
+int copy_zip_file(FILE* zip, file_entry_t* file, FILE* ozip, CentralDirectoryEntry* dirent);
 
 // PRIVATE FUNCTION PROTOTYPES ---------------------------------------------
 
-static void *SzAlloc(ISzAllocPtr p, size_t size) { p = p; return malloc(size); }
-static void SzFree(ISzAllocPtr p, void *address) { p = p; free(address); }
+static void* SzAlloc(ISzAllocPtr p, size_t size) { p = p; return malloc(size); }
+static void SzFree(ISzAllocPtr p, void* address) { p = p; free(address); }
 
 // EXTERNAL DATA DECLARATIONS ----------------------------------------------
 
@@ -264,20 +264,20 @@ static compressor_t Compressors[] =
 //
 //==========================================================================
 
-void print_usage(const char *cmdname)
+void print_usage(const char* cmdname)
 {
 #ifdef _WIN32
-	const char *rchar = strrchr(cmdname, '\\');
+	const char* rchar = strrchr(cmdname, '\\');
 	if (rchar != NULL)
 	{
-		cmdname = rchar+1;
+		cmdname = rchar + 1;
 	}
 #endif
 	fprintf(stderr, "Usage: %s [options] <zip file> <directory> ...\n"
-					"Options: -d  Use deflate compression only\n"
-					"         -f  Force creation of archive\n"
-					"         -u  Only update changed files\n"
-					"         -q  Do not list files\n", cmdname);
+		"Options: -d  Use deflate compression only\n"
+		"         -f  Force creation of archive\n"
+		"         -u  Only update changed files\n"
+		"         -q  Do not list files\n", cmdname);
 }
 
 //==========================================================================
@@ -286,9 +286,9 @@ void print_usage(const char *cmdname)
 //
 //==========================================================================
 
-dir_tree_t *alloc_dir_tree(const char *dir)
+dir_tree_t* alloc_dir_tree(const char* dir)
 {
-	dir_tree_t *tree;
+	dir_tree_t* tree;
 	size_t dirlen;
 
 	dirlen = strlen(dir);
@@ -315,9 +315,9 @@ dir_tree_t *alloc_dir_tree(const char *dir)
 //
 //==========================================================================
 
-file_entry_t *alloc_file_entry(const char *prefix, const char *path, time_t last_written)
+file_entry_t* alloc_file_entry(const char* prefix, const char* path, time_t last_written)
 {
-	file_entry_t *entry;
+	file_entry_t* entry;
 
 	entry = malloc(sizeof(file_entry_t) + strlen(prefix) + strlen(path) + 1);
 	if (entry != NULL)
@@ -336,9 +336,9 @@ file_entry_t *alloc_file_entry(const char *prefix, const char *path, time_t last
 //
 //==========================================================================
 
-void free_dir_tree(dir_tree_t *tree)
+void free_dir_tree(dir_tree_t* tree)
 {
-	file_entry_t *entry, *next;
+	file_entry_t* entry, * next;
 
 	if (tree != NULL)
 	{
@@ -357,9 +357,9 @@ void free_dir_tree(dir_tree_t *tree)
 //
 //==========================================================================
 
-void free_dir_trees(dir_tree_t *tree)
+void free_dir_trees(dir_tree_t* tree)
 {
-	dir_tree_t *next;
+	dir_tree_t* next;
 
 	for (; tree != NULL; tree = next)
 	{
@@ -376,11 +376,11 @@ void free_dir_trees(dir_tree_t *tree)
 //
 //==========================================================================
 
-void recurse_dir(dir_tree_t *tree, const char *dirpath)
+void recurse_dir(dir_tree_t* tree, const char* dirpath)
 {
 	struct _finddata_t fileinfo;
 	intptr_t handle;
-	char *dirmatch;
+	char* dirmatch;
 
 	dirmatch = malloc(strlen(dirpath) + 2);
 	if (dirmatch == NULL)
@@ -406,11 +406,11 @@ void recurse_dir(dir_tree_t *tree, const char *dirpath)
 			}
 			if (fileinfo.attrib & _A_SUBDIR)
 			{
-				char *newdir;
+				char* newdir;
 
 				if (fileinfo.name[0] == '.' &&
 					(fileinfo.name[1] == '\0' ||
-					 (fileinfo.name[1] == '.' && fileinfo.name[2] == '\0')))
+						(fileinfo.name[1] == '.' && fileinfo.name[2] == '\0')))
 				{
 					// Do not record . and .. directories.
 					continue;
@@ -423,7 +423,7 @@ void recurse_dir(dir_tree_t *tree, const char *dirpath)
 			}
 			else
 			{
-				file_entry_t *entry;
+				file_entry_t* entry;
 
 				if (strstr(fileinfo.name, ".orig"))
 				{
@@ -453,9 +453,9 @@ void recurse_dir(dir_tree_t *tree, const char *dirpath)
 //
 //==========================================================================
 
-dir_tree_t *add_dir(const char *dirpath)
+dir_tree_t* add_dir(const char* dirpath)
 {
-	dir_tree_t *tree = alloc_dir_tree(dirpath);
+	dir_tree_t* tree = alloc_dir_tree(dirpath);
 
 	if (tree != NULL)
 	{
@@ -473,10 +473,10 @@ dir_tree_t *add_dir(const char *dirpath)
 //
 //==========================================================================
 
-dir_tree_t *add_dirs(char **argv)
+dir_tree_t* add_dirs(char** argv)
 {
-	dir_tree_t *tree, *trees = NULL;
-	char *s;
+	dir_tree_t* tree, * trees = NULL;
+	char* s;
 
 	while (*argv != NULL)
 	{
@@ -510,16 +510,16 @@ dir_tree_t *add_dirs(char **argv)
 //
 //==========================================================================
 
-void add_dir(dir_tree_t *tree, char* dirpath)
+void add_dir(dir_tree_t* tree, char* dirpath)
 {
-	DIR *directory = opendir(dirpath);
-	if(directory == NULL)
+	DIR* directory = opendir(dirpath);
+	if (directory == NULL)
 		return;
 
-	struct dirent *file;
-	while((file = readdir(directory)) != NULL)
+	struct dirent* file;
+	while ((file = readdir(directory)) != NULL)
 	{
-		if(file->d_name[0] == '.') //File is hidden or ./.. directory so ignore it.
+		if (file->d_name[0] == '.') //File is hidden or ./.. directory so ignore it.
 			continue;
 
 		int isDirectory = 0;
@@ -529,7 +529,7 @@ void add_dir(dir_tree_t *tree, char* dirpath)
 		strcpy(fullFileName, dirpath);
 		strcat(fullFileName, file->d_name);
 
-		struct stat *fileStat;
+		struct stat* fileStat;
 		fileStat = malloc(sizeof(struct stat));
 		stat(fullFileName, fileStat);
 		isDirectory = S_ISDIR(fileStat->st_mode);
@@ -538,7 +538,7 @@ void add_dir(dir_tree_t *tree, char* dirpath)
 
 		free(fullFileName);
 
-		if(isDirectory)
+		if (isDirectory)
 		{
 			char* newdir;
 			newdir = malloc(strlen(dirpath) + strlen(file->d_name) + 2);
@@ -550,7 +550,7 @@ void add_dir(dir_tree_t *tree, char* dirpath)
 			continue;
 		}
 
-		file_entry_t *entry;
+		file_entry_t* entry;
 		entry = alloc_file_entry(dirpath, file->d_name, time);
 		if (entry == NULL)
 		{
@@ -564,22 +564,22 @@ void add_dir(dir_tree_t *tree, char* dirpath)
 	closedir(directory);
 }
 
-dir_tree_t *add_dirs(char **argv)
+dir_tree_t* add_dirs(char** argv)
 {
-	dir_tree_t *tree, *trees = NULL;
+	dir_tree_t* tree, * trees = NULL;
 
 	int i = 0;
-	while(argv[i] != NULL)
+	while (argv[i] != NULL)
 	{
 		tree = alloc_dir_tree(argv[i]);
 		tree->next = trees;
 		trees = tree;
 
-		if(tree != NULL)
+		if (tree != NULL)
 		{
 			char* dirpath = malloc(sizeof(argv[i]) + 2);
 			strcpy(dirpath, argv[i]);
-			if(dirpath[strlen(dirpath)] != '/')
+			if (dirpath[strlen(dirpath)] != '/')
 				strcat(dirpath, "/");
 			add_dir(tree, dirpath);
 			free(dirpath);
@@ -601,12 +601,12 @@ dir_tree_t *add_dirs(char **argv)
 //
 //==========================================================================
 
-dir_tree_t *add_dirs(char **argv)
+dir_tree_t* add_dirs(char** argv)
 {
-	FTS *fts;
-	FTSENT *ent;
-	dir_tree_t *tree, *trees = NULL;
-	file_entry_t *file;
+	FTS* fts;
+	FTSENT* ent;
+	dir_tree_t* tree, * trees = NULL;
+	file_entry_t* file;
 
 	fts = fts_open(argv, FTS_LOGICAL, NULL);
 	if (fts == NULL)
@@ -639,7 +639,7 @@ dir_tree_t *add_dirs(char **argv)
 			// We're only interested in remembering files.
 			continue;
 		}
-		else if(ent->fts_name[strlen(ent->fts_name)-1] == '~')
+		else if (ent->fts_name[strlen(ent->fts_name) - 1] == '~')
 		{
 			// Don't remember backup files.
 			continue;
@@ -664,10 +664,10 @@ dir_tree_t *add_dirs(char **argv)
 //
 //==========================================================================
 
-int count_files(dir_tree_t *trees)
+int count_files(dir_tree_t* trees)
 {
-	dir_tree_t *tree;
-	file_entry_t *file;
+	dir_tree_t* tree;
+	file_entry_t* file;
 	int count;
 
 	for (count = 0, tree = trees; tree != NULL; tree = tree->next)
@@ -690,10 +690,10 @@ int count_files(dir_tree_t *trees)
 //
 //==========================================================================
 
-int sort_cmp(const void *a, const void *b)
+int sort_cmp(const void* a, const void* b)
 {
-	const file_sorted_t *sort1 = (const file_sorted_t *)a;
-	const file_sorted_t *sort2 = (const file_sorted_t *)b;
+	const file_sorted_t* sort1 = (const file_sorted_t*)a;
+	const file_sorted_t* sort2 = (const file_sorted_t*)b;
 	int in_dir1, in_dir2;
 
 	in_dir1 = (strchr(sort1->path_in_zip, '/') != NULL);
@@ -706,8 +706,8 @@ int sort_cmp(const void *a, const void *b)
 	{
 		return 1;
 	}
-	return strcmp(((const file_sorted_t *)a)->path_in_zip,
-		((const file_sorted_t *)b)->path_in_zip);
+	return strcmp(((const file_sorted_t*)a)->path_in_zip,
+		((const file_sorted_t*)b)->path_in_zip);
 }
 
 //==========================================================================
@@ -716,11 +716,11 @@ int sort_cmp(const void *a, const void *b)
 //
 //==========================================================================
 
-file_sorted_t *sort_files(dir_tree_t *trees, int num_files)
+file_sorted_t* sort_files(dir_tree_t* trees, int num_files)
 {
-	file_sorted_t *sorter;
-	dir_tree_t *tree;
-	file_entry_t *file;
+	file_sorted_t* sorter;
+	dir_tree_t* tree;
+	file_entry_t* file;
 	int i;
 
 	sorter = malloc(sizeof(*sorter) * num_files);
@@ -746,7 +746,7 @@ file_sorted_t *sort_files(dir_tree_t *trees, int num_files)
 //
 //==========================================================================
 
-void write_zip(const char *zipname, dir_tree_t *trees, int update)
+void write_zip(const char* zipname, dir_tree_t* trees, int update)
 {
 #ifdef _WIN32
 	char tempname[_MAX_PATH];
@@ -755,9 +755,9 @@ void write_zip(const char *zipname, dir_tree_t *trees, int update)
 #endif
 	EndOfCentralDirectory dirend;
 	int i, num_files;
-	file_sorted_t *sorted;
-	FILE *zip, *ozip = NULL;
-	void *central_dir = NULL;
+	file_sorted_t* sorted;
+	FILE* zip, * ozip = NULL;
+	void* central_dir = NULL;
 
 	num_files = count_files(trees);
 	sorted = sort_files(trees, num_files);
@@ -781,6 +781,8 @@ void write_zip(const char *zipname, dir_tree_t *trees, int update)
 			if (central_dir == NULL)
 			{
 				fprintf(stderr, "Could not read central directory from %s. (Is it a zipfile?)\n", zipname);
+				fclose(ozip);
+				ozip = NULL;
 				update = 0;
 			}
 		}
@@ -876,23 +878,23 @@ void write_zip(const char *zipname, dir_tree_t *trees, int update)
 //
 //==========================================================================
 
-int append_to_zip(FILE *zip_file, file_sorted_t *filep, FILE *ozip, BYTE *odir)
+int append_to_zip(FILE* zip_file, file_sorted_t* filep, FILE* ozip, BYTE* odir)
 {
 	LocalFileHeader local;
 	uLong crc;
-	file_entry_t *file;
-	Byte *readbuf;
-	Byte *compbuf[2];
+	file_entry_t* file;
+	Byte* readbuf;
+	Byte* compbuf[2];
 	unsigned int comp_len[2];
 	int offset[2];
 	int method[2];
 	int best;
 	int slot;
-	FILE *lumpfile;
+	FILE* lumpfile;
 	unsigned int readlen;
 	unsigned int len;
 	int i;
-	struct tm *ltime;
+	struct tm* ltime;
 
 	file = filep->file;
 
@@ -908,9 +910,9 @@ int append_to_zip(FILE *zip_file, file_sorted_t *filep, FILE *ozip, BYTE *odir)
 		return 1;
 	}
 	// len = source size
-	fseek (lumpfile, 0, SEEK_END);
+	fseek(lumpfile, 0, SEEK_END);
 	len = ftell(lumpfile);
-	fseek (lumpfile, 0, SEEK_SET);
+	fseek(lumpfile, 0, SEEK_SET);
 
 	// allocate a buffer for the whole source file
 	readbuf = malloc(len);
@@ -946,7 +948,7 @@ int append_to_zip(FILE *zip_file, file_sorted_t *filep, FILE *ozip, BYTE *odir)
 	// Can we save time and just copy the file from the old zip?
 	if (odir != NULL && ozip != NULL)
 	{
-		CentralDirectoryEntry *dirent;
+		CentralDirectoryEntry* dirent;
 
 		dirent = find_file_in_zip(odir, filep->path_in_zip, len, crc, file->date, file->time);
 		if (dirent != NULL)
@@ -1013,9 +1015,9 @@ int append_to_zip(FILE *zip_file, file_sorted_t *filep, FILE *ozip, BYTE *odir)
 		file->method = method[best];
 		file->compressed_size = comp_len[best];
 	}
-//	printf("%s -> method %d -> slot %d\n", filep->path_in_zip, file->method, best);
+	//	printf("%s -> method %d -> slot %d\n", filep->path_in_zip, file->method, best);
 
-	// Fill in local directory header.
+		// Fill in local directory header.
 	local.Magic = ZIP_LOCALFILE;
 	local.VersionToExtract[0] = method_to_version(file->method);
 	local.VersionToExtract[1] = 0;
@@ -1035,7 +1037,7 @@ int append_to_zip(FILE *zip_file, file_sorted_t *filep, FILE *ozip, BYTE *odir)
 	if (fwrite(&local, sizeof(local), 1, zip_file) != 1 ||
 		fwrite(filep->path_in_zip, strlen(filep->path_in_zip), 1, zip_file) != 1 ||
 		(file->method ? fwrite(compbuf[best] + offset[best], 1, comp_len[best], zip_file) != comp_len[best] :
-						fwrite(readbuf, 1, len, zip_file) != len))
+			fwrite(readbuf, 1, len, zip_file) != len))
 	{
 		if (!Quiet)
 		{
@@ -1080,10 +1082,10 @@ int append_to_zip(FILE *zip_file, file_sorted_t *filep, FILE *ozip, BYTE *odir)
 //
 //==========================================================================
 
-int write_central_dir(FILE *zip, file_sorted_t *filep)
+int write_central_dir(FILE* zip, file_sorted_t* filep)
 {
 	CentralDirectoryEntry dir;
-	file_entry_t *file;
+	file_entry_t* file;
 
 	file = filep->file;
 	dir.Magic = ZIP_CENTRALFILE;
@@ -1123,7 +1125,7 @@ int write_central_dir(FILE *zip, file_sorted_t *filep)
 //
 //==========================================================================
 
-void time_to_dos(struct tm *time, short *dosdate, short *dostime)
+void time_to_dos(struct tm* time, short* dosdate, short* dostime)
 {
 	if (time == NULL || time->tm_year < 80)
 	{
@@ -1168,7 +1170,7 @@ int method_to_version(int method)
 //
 //==========================================================================
 
-const char *method_name(int method)
+const char* method_name(int method)
 {
 	static char unkn[16];
 
@@ -1206,7 +1208,7 @@ const char *method_name(int method)
 //
 //==========================================================================
 
-int compress_lzma(Byte *out, unsigned int *outlen, const Byte *in, unsigned int inlen)
+int compress_lzma(Byte* out, unsigned int* outlen, const Byte* in, unsigned int inlen)
 {
 	CLzmaEncProps lzma_props;
 	size_t props_size;
@@ -1224,7 +1226,7 @@ int compress_lzma(Byte *out, unsigned int *outlen, const Byte *in, unsigned int 
 	}
 
 	LzmaEncProps_Init(&lzma_props);
-//	lzma_props.level = 9;
+	//	lzma_props.level = 9;
 	props_size = LZMA_PROPS_SIZE;
 	comp_len = *outlen - 4 - LZMA_PROPS_SIZE;
 
@@ -1248,9 +1250,9 @@ int compress_lzma(Byte *out, unsigned int *outlen, const Byte *in, unsigned int 
 		}
 	}
 	out[offset] = MY_VER_MAJOR;
-	out[offset+1] = MY_VER_MINOR;
-	out[offset+2] = (Byte)props_size;
-	out[offset+3] = 0;
+	out[offset + 1] = MY_VER_MINOR;
+	out[offset + 2] = (Byte)props_size;
+	out[offset + 3] = 0;
 	// Add header length to outlen
 	*outlen = (unsigned int)(comp_len + 4 + props_size);
 	return offset;
@@ -1264,9 +1266,9 @@ int compress_lzma(Byte *out, unsigned int *outlen, const Byte *in, unsigned int 
 //
 //==========================================================================
 
-int compress_bzip2(Byte *out, unsigned int *outlen, const Byte *in, unsigned int inlen)
+int compress_bzip2(Byte* out, unsigned int* outlen, const Byte* in, unsigned int inlen)
 {
-	if (BZ_OK == BZ2_bzBuffToBuffCompress((char *)out, outlen, (char *)in, inlen, 9, 0, 0))
+	if (BZ_OK == BZ2_bzBuffToBuffCompress((char*)out, outlen, (char*)in, inlen, 9, 0, 0))
 	{
 		return 0;
 	}
@@ -1291,14 +1293,14 @@ int compress_bzip2(Byte *out, unsigned int *outlen, const Byte *in, unsigned int
 //
 //==========================================================================
 
-int compress_ppmd(Byte *out, unsigned int *outlen, const Byte *in, unsigned int inlen)
+int compress_ppmd(Byte* out, unsigned int* outlen, const Byte* in, unsigned int inlen)
 {
 	int maxorder = 8;
 	int sasize = 8;
 	int cutoff = 0;
 
-	_PPMD_FILE ppsin = { (char *)in, inlen, 0 };
-	_PPMD_FILE ppsout = { out + 2, *outlen - 2, 0};
+	_PPMD_FILE ppsin = { (char*)in, inlen, 0 };
+	_PPMD_FILE ppsout = { out + 2, *outlen - 2, 0 };
 
 	if (!PPMd_StartSubAllocator(sasize))
 	{
@@ -1316,7 +1318,7 @@ int compress_ppmd(Byte *out, unsigned int *outlen, const Byte *in, unsigned int 
 	}
 
 	const short outval = LittleShort((maxorder - 1) + ((sasize - 1) << 4) + (cutoff << 12));
-	memcpy(out, (const Byte *)&outval, sizeof(short));
+	memcpy(out, (const Byte*)&outval, sizeof(short));
 	*outlen = *outlen - ppsout.buffersize;
 	return 0;
 }
@@ -1330,30 +1332,30 @@ int compress_ppmd(Byte *out, unsigned int *outlen, const Byte *in, unsigned int 
 //
 //==========================================================================
 
-int compress_deflate(Byte *out, unsigned int *outlen, const Byte *in, unsigned int inlen)
+int compress_deflate(Byte* out, unsigned int* outlen, const Byte* in, unsigned int inlen)
 {
-    z_stream stream;
-    int err;
+	z_stream stream;
+	int err;
 
-    stream.next_in = (Bytef *)in;
-    stream.avail_in = inlen;
-    stream.next_out = out;
-    stream.avail_out = *outlen;
-    stream.zalloc = (alloc_func)0;
-    stream.zfree = (free_func)0;
-    stream.opaque = (voidpf)0;
+	stream.next_in = (Bytef*)in;
+	stream.avail_in = inlen;
+	stream.next_out = out;
+	stream.avail_out = *outlen;
+	stream.zalloc = (alloc_func)0;
+	stream.zfree = (free_func)0;
+	stream.opaque = (voidpf)0;
 
-    err = deflateInit2(&stream, 9, Z_DEFLATED, -15, 9, Z_DEFAULT_STRATEGY);
-    if (err != Z_OK) return -1;
+	err = deflateInit2(&stream, 9, Z_DEFLATED, -15, 9, Z_DEFAULT_STRATEGY);
+	if (err != Z_OK) return -1;
 
-    err = deflate(&stream, Z_FINISH);
-    if (err != Z_STREAM_END) {
-        deflateEnd(&stream);
-        return -1;
-    }
-    *outlen = stream.total_out;
+	err = deflate(&stream, Z_FINISH);
+	if (err != Z_STREAM_END) {
+		deflateEnd(&stream);
+		return -1;
+	}
+	*outlen = stream.total_out;
 
-    err = deflateEnd(&stream);
+	err = deflateEnd(&stream);
 	return err == Z_OK ? 0 : -1;
 }
 
@@ -1366,11 +1368,11 @@ int compress_deflate(Byte *out, unsigned int *outlen, const Byte *in, unsigned i
 //
 //==========================================================================
 
-BYTE *find_central_dir(FILE *fin)
+BYTE* find_central_dir(FILE* fin)
 {
 	unsigned char buf[BUFREADCOMMENT + 4];
 	EndOfCentralDirectory eod;
-	BYTE *dir;
+	BYTE* dir;
 	long file_size;
 	long back_read;
 	long max_back;		// maximum size of global comment
@@ -1386,14 +1388,14 @@ BYTE *find_central_dir(FILE *fin)
 	{
 		UINT32 read_size, read_pos;
 		int i;
-		if (back_read + BUFREADCOMMENT > max_back) 
+		if (back_read + BUFREADCOMMENT > max_back)
 			back_read = max_back;
 		else
 			back_read += BUFREADCOMMENT;
 		read_pos = file_size - back_read;
 
 		read_size = (BUFREADCOMMENT + 4) < (file_size - read_pos) ?
-					(BUFREADCOMMENT + 4) : (file_size - read_pos);
+			(BUFREADCOMMENT + 4) : (file_size - read_pos);
 
 		if (fseek(fin, read_pos, SEEK_SET) != 0)
 			return NULL;
@@ -1403,7 +1405,7 @@ BYTE *find_central_dir(FILE *fin)
 
 		for (i = (int)read_size - 3; (i--) > 0;)
 		{
-			if (buf[i] == 'P' && buf[i+1] == 'K' && buf[i+2] == 5 && buf[i+3] == 6)
+			if (buf[i] == 'P' && buf[i + 1] == 'K' && buf[i + 2] == 5 && buf[i + 3] == 6)
 			{
 				pos_found = read_pos + i;
 				break;
@@ -1431,12 +1433,12 @@ BYTE *find_central_dir(FILE *fin)
 		free(dir);
 		return NULL;
 	}
-	if (memcmp(dir, (const BYTE *)&centralfile, sizeof(UINT32)) != 0)
+	if (memcmp(dir, (const BYTE*)&centralfile, sizeof(UINT32)) != 0)
 	{
 		free(dir);
 		return NULL;
 	}
-	memcpy(dir + LittleLong(eod.DirectorySize), (const BYTE *)&endofdir, sizeof(UINT32));
+	memcpy(dir + LittleLong(eod.DirectorySize), (const BYTE*)&endofdir, sizeof(UINT32));
 	return dir;
 }
 
@@ -1449,24 +1451,24 @@ BYTE *find_central_dir(FILE *fin)
 //
 //==========================================================================
 
-CentralDirectoryEntry *find_file_in_zip(BYTE *dir, const char *path, unsigned int len, unsigned int crc, short date, short time)
+CentralDirectoryEntry* find_file_in_zip(BYTE* dir, const char* path, unsigned int len, unsigned int crc, short date, short time)
 {
 	int pathlen = (int)strlen(path);
-	CentralDirectoryEntry *ent;
+	CentralDirectoryEntry* ent;
 	int flags;
 
-	while (memcmp(dir, (const BYTE *)&centralfile, sizeof(UINT32)) == 0)
+	while (memcmp(dir, (const BYTE*)&centralfile, sizeof(UINT32)) == 0)
 	{
-		ent = (CentralDirectoryEntry *)dir;
+		ent = (CentralDirectoryEntry*)dir;
 		if (pathlen == LittleShort(ent->NameLength) &&
-			strncmp((char *)(ent + 1), path, pathlen) == 0)
+			strncmp((char*)(ent + 1), path, pathlen) == 0)
 		{
 			// Found something that matches by name.
 			break;
 		}
 		dir += sizeof(*ent) + LittleShort(ent->NameLength) + LittleShort(ent->ExtraLength) + LittleShort(ent->CommentLength);
 	}
-	if (memcmp(dir, (const BYTE *)&centralfile, sizeof(UINT32)) != 0)
+	if (memcmp(dir, (const BYTE*)&centralfile, sizeof(UINT32)) != 0)
 	{
 		return NULL;
 	}
@@ -1502,10 +1504,10 @@ CentralDirectoryEntry *find_file_in_zip(BYTE *dir, const char *path, unsigned in
 //
 //==========================================================================
 
-int copy_zip_file(FILE *zip, file_entry_t *file, FILE *ozip, CentralDirectoryEntry *ent)
+int copy_zip_file(FILE* zip, file_entry_t* file, FILE* ozip, CentralDirectoryEntry* ent)
 {
 	LocalFileHeader lfh;
-	BYTE *buf;
+	BYTE* buf;
 	UINT32 buf_size;
 
 	if (fseek(ozip, LittleLong(ent->LocalHeaderOffset), SEEK_SET) != 0)
@@ -1536,7 +1538,7 @@ int copy_zip_file(FILE *zip, file_entry_t *file, FILE *ozip, CentralDirectoryEnt
 		return 0;
 	}
 	// Check to be sure name matches.
-	if (strncmp((char *)buf, (char *)(ent + 1), LittleShort(lfh.NameLength)) != 0)
+	if (strncmp((char*)buf, (char*)(ent + 1), LittleShort(lfh.NameLength)) != 0)
 	{
 		free(buf);
 		return 0;
@@ -1565,10 +1567,10 @@ int copy_zip_file(FILE *zip, file_entry_t *file, FILE *ozip, CentralDirectoryEnt
 //
 //==========================================================================
 
-int main (int argc, char **argv)
+int main(int argc, char** argv)
 {
-	dir_tree_t *tree, *trees;
-	file_entry_t *file;
+	dir_tree_t* tree, * trees;
+	file_entry_t* file;
 	struct stat zipstat;
 	int needwrite;
 	int i, j, k;
@@ -1688,7 +1690,7 @@ int main (int argc, char **argv)
 //
 //==========================================================================
 
-void bz_internal_error (int errcode)
+void bz_internal_error(int errcode)
 {
 	fprintf(stderr, "libbzip2: internal error number %d\n", errcode);
 	exit(3);
