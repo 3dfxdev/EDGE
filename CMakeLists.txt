@@ -376,7 +376,7 @@ endif(UNIX)
 
 ## SDL2
 #set(SDL2_PATH "${CMAKE_CURRENT_SOURCE_DIR/SDL2-2.0.9}" CACHE PATH “The location to search for SDL2”)
-INCLUDE_DIRECTORIES (${SDL2_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES (${SDL2_INCLUDE_DIR})
 
 ## FIND_PACKAGE (SDL_net REQUIRED)
 INCLUDE_DIRECTORIES (${SDLNET_INCLUDE_DIR})
@@ -756,7 +756,7 @@ add_custom_command(TARGET EDGE POST_BUILD
                        ${CMAKE_SOURCE_DIR}/data/base $<TARGET_FILE_DIR:${PROJECT_NAME}>/base)
 
 target_link_libraries(EDGE
-	${SDL2_LIBRARIES}
+	${SDL2_LIBRARY}
 	${SDL_NET_LIBRARY}
 	Ogg::ogg
 	# Vorbis::vorbis Vorbis::vorbisenc Vorbis::vorbisfile
