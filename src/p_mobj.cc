@@ -1172,6 +1172,8 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	float dist;
 	float delta;
 	float zmove;
+	
+#if 0
 	static bool splash = false;
 
 	//This code below stores known flats in a container (see image_array_contains)
@@ -1255,6 +1257,7 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 	/// DEBUG CURRENT FLOOR: CON_Message("Image is: '%s'\n",image);
 
 	//int img_num;
+#endif
 
 	float gravity = props->gravity / 8.0f *
 		(float)level_flags.menu_grav / (float)MENU_GRAV_NORMAL;
@@ -1289,11 +1292,9 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 		}
 	}
 
-	if (mo->flags & MF_SKULLFLY)
-			mo->mom.z = -mo->mom.z;
-
-	//TeleportRespawn(mobj);
-
+	//
+	//  HIT FLOOR ?
+	//
 
 	if (mo->z <= mo->floorz)
 	{
@@ -1310,18 +1311,8 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 			{
 				// Squat down. Decrease viewheight for a moment after hitting the
 				// ground (hard), and utter appropriate sound.
-				if (image_array_contains(names, image))
-				{
-					if (!splash)
-					{
-						//I_Printf("z: %f, fz: %f, sz: %d\n", mo->z, mo->floorz, mo->subsector->sector->f_h);
-						mo->player->deltaviewheight = zmove / 8.0f;
-						S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
-						splash = true;
-					}
-				}
-				else
-					splash = false;
+				mo->player->deltaviewheight = zmove / 8.0f;
+				S_StartFX(mo->info->oof_sound, P_MobjGetSfxCategory(mo), mo);
 			}
 
 
@@ -1345,36 +1336,9 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 					mo->mom.x = mo->mom.y = mo->mom.z = 0;
 				}
 			}
-
-			if (mo->player && gravity > 0 && -zmove > ! OOF_SPEED && ! fly_or_swim) 
-			//TODO: V562 https://www.viva64.com/en/w/v562/ It's odd to compare a bool type value with a value of float type: - zmove >!20.0f.
-			{
-
-				if (image_array_contains(names, image) && (mo->z <= mo->subsector->sector->f_h))
-				{
-					//DEBUG:
-					//CON_Message("Detected FWATER FLAT!");
-					if ((!splash) && (!splitscreen_mode))
-					{
-						//I_Printf("z: %f, fz: %f, sz: %f\n", mo->z, mo->floorz, mo->subsector->sector->f_h);
-						mo->player->deltaviewheight = zmove / 8.0f;
-						// [SP] This seems to crash, disabling for now.
-						S_StartFX(mo->info->gloopsound, P_MobjGetSfxCategory(mo), mo);
-						splash = true;
-						//CA: Need to set a cooldown, and not have zmove go so far downward over time (or at all!)
-					}
-					else if (splitscreen_mode)
-					{
-						splash = false;
-					}
-				}
-				else
-					splash = false;
-			}
-			//else
-				//mo->mom.z = 0;
+			else
+				mo->mom.z = 0;
 		}
-		mo->mom.z = 0;
 
 		mo->z = mo->floorz;
 
@@ -1408,24 +1372,18 @@ static void P_ZMovement(mobj_t * mo, const region_properties_t *props)
 			return;
 		}
 	}
-	else
+	else if (gravity > 0.0f)
 	{
-		// jumped/flew up out of water, splash when come down
-		splash = false;
+		// thing is above the ground, therefore apply gravity
 
-		if (gravity > 0.0f)
+		// -MH- 1998/08/18 - Disable gravity while player has jetpack
+		//                   (nearly forgot this one:-)
+
+		if (!(mo->flags & MF_NOGRAVITY) &&
+			!(mo->player && mo->player->powers[PW_Jetpack] > 0) &&
+			!(mo->on_ladder >= 0))
 		{
-			// thing is above the ground, therefore apply gravity
-
-			// -MH- 1998/08/18 - Disable gravity while player has jetpack
-			//                   (nearly forgot this one:-)
-
-			if (!(mo->flags & MF_NOGRAVITY) &&
-				!(mo->player && mo->player->powers[PW_Jetpack] > 0) &&
-				!(mo->on_ladder >= 0))
-			{
-				mo->mom.z -= gravity;
-			}
+			mo->mom.z -= gravity;
 		}
 	}
 

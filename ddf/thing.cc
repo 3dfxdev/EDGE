@@ -1022,9 +1022,8 @@ static void BenefitAdd(benefit_t **list, benefit_t *source)
 		return;
 	}
 
-	for (tail = (*list); tail && tail->next; tail = tail->next)
-	{
-	}
+	for (tail = (*list); tail && tail->next; tail=tail->next)
+	{ }
 
 	tail->next = cur;
 }
@@ -1093,9 +1092,8 @@ static void AddPickupEffect(pickup_effect_c **list, pickup_effect_c *cur)
 
 	pickup_effect_c *tail;
 
-	for (tail = (*list); tail && tail->next; tail = tail->next)
-	{
-	}
+	for (tail = (*list); tail && tail->next; tail=tail->next)
+	{ }
 
 	tail->next = cur;
 }

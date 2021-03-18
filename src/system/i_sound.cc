@@ -186,8 +186,8 @@ void I_StartupSound(void)
 #ifdef WIN32
 		if (force_waveout)
 			driver = "waveout";
-		//else
-		//	driver = "directsound";
+		else
+			driver = "directsound";
 #endif
 	}
 
@@ -201,7 +201,7 @@ void I_StartupSound(void)
 		SDL_setenv(nameBuffer, valueBuffer, overWrite);
 	}
 #ifdef WIN32
-		//SDL_setenv("SDL_AUDIODRIVER", "directsound", true);
+		SDL_setenv("SDL_AUDIODRIVER", "directsound", true);
 #endif
 
 	I_Printf("SDL_Audio_Driver: %s\n", driver);

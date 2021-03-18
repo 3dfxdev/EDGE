@@ -21,7 +21,6 @@
 #include <limits.h>
 #include <vector>
 
-#include "../epi/math_angle.h"
 #include "../epi/path.h"
 #include "../epi/str_format.h"
 
@@ -29,7 +28,12 @@
 
 #include "../src/p_action.h"
 
+
+// FIXME: unwanted link to engine code (switch to epi::angle_c)
 extern float M_Tan(angle_t ang)  GCCATTR((const));
+
+
+#define DEBUG_DDFREAD  0
 
 static int engine_version;
 static std::string ddf_where;
@@ -188,7 +192,7 @@ public:
 	define_c() : name(NULL), value(NULL)
 	{ }
 
-	define_c(char *_name, char *_value) : name(_name), value(_value)
+	define_c(char *_N, char *_V) : name(_N), value(_V)
 	{ }
 
 	~define_c()
@@ -368,7 +372,7 @@ static void *DDF_MainCacheFile(readinfo_t * readinfo)
 	file = fopen(filename.c_str(), "rb");
 	if (file == NULL)
 	{
-		//I_Warning("DDF_MainReadFile: Unable to open: '%s'\n", filename.c_str());
+		I_Warning("DDF_MainReadFile: Unable to open: '%s'\n", filename.c_str());
 		return NULL;
 	}
 
@@ -425,10 +429,10 @@ static void DDF_ParseVersion(const char *bstr, int len)
 		((str[2] - '0') * 10) +
 		(str[3] - '0');
 
-	if (ddf_version < 210)
+	if (ddf_version < 131)
 	{
 		if (ddf_version < 129)
-			DDF_Error("Illegal #VERSION number: (%d) %s\n", ddf_version, str);
+			DDF_WarnError("Illegal #VERSION number: (%d) %s\n", ddf_version, str);
 		if (ddf_version >= 129 && ddf_version < 135 && !M_CheckParm("-v129"))
 			DDF_WarnError("You need to use the -v129 command line arg to use this file\n");
 		if (ddf_version >= 135 && !M_CheckParm("-v135"))
@@ -853,10 +857,10 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 			cur_ddf_line_num++;
 
 			// -AJA- 2000/03/21: determine linedata.  Ouch.
-			for (l_len = 0; &memfileptr[l_len] < &memfile[size] &&
-				memfileptr[l_len] != '\n' && memfileptr[l_len] != '\r'; l_len++)
-			{
-			}
+			for (l_len=0; &memfileptr[l_len] < &memfile[size] &&
+					 memfileptr[l_len] != '\n' && memfileptr[l_len] != '\r'; l_len++)
+			{ }
+
 
 			cur_ddf_linedata = std::string(memfileptr, l_len);
 
@@ -881,7 +885,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 					DDF_Error("#VERSION cannot be used inside an entry !\n");
 
 				//DDF_ParseVersion(memfileptr + 8, l_len - 8);
-				//I_Printf("DDF: #VERSION directive ignored.");
+				I_Printf("DDF: #VERSION directive ignored.");
 				memfileptr += l_len;
 				continue;
 			}
@@ -1335,7 +1339,7 @@ void DDF_MainGetSlope(const char *info, void *storage)
 	if (sscanf(info, "%f", &val) != 1)
 		DDF_Error("Bad slope value: %s\n", info);
 
-	*dest = DDF_Tan(val);
+	*dest = M_Tan(FLOAT_2_ANG(val));
 }
 
 static void DoGetFloat(const char *info, void *storage)
@@ -1362,11 +1366,8 @@ void DDF_MainGetPercent(const char *info, void *storage)
 
 	// check that the string is valid
 	Z_StrNCpy(s, info, 100);
-
 	for (p = s; isdigit(*p) || *p == '.'; p++)
-	{ 
-		/* do nothing */
-	}
+	{ /* do nothing */ }
 
 	// the number must be followed by %
 	if (*p != '%')
@@ -1403,8 +1404,7 @@ void DDF_MainGetPercentAny(const char *info, void *storage)
 	// check that the string is valid
 	Z_StrNCpy(s, info, 100);
 	for (p = s; isdigit(*p) || *p == '.'; p++)
-	{ /* do nothing */
-	}
+	{ /* do nothing */ }
 
 	// the number must be followed by %
 	if (*p != '%')
@@ -2148,13 +2148,6 @@ weakness_info_c& weakness_info_c::operator=(weakness_info_c &rhs)
 	Copy(rhs);
 
 	return *this;
-}
-
-float DDF_Tan(float degrees)
-{
-	degrees = CLAMP(-89.5f, degrees, 89.5f);
-
-	return (float)tan(degrees * M_PI / 180.0f);
 }
 
 //--- editor settings ---

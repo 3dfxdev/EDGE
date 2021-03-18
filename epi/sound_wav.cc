@@ -89,6 +89,7 @@ namespace epi
 
 #define FMT_NORMAL 0x0001    /* Uncompressed waveform data.     */
 #define FMT_ADPCM  0x0002    /* ADPCM compressed waveform data. */
+#define FMT_IMA    0x0011    /* IMA ADPCM compressed waveform data. */
 
 	typedef struct
 	{
@@ -106,6 +107,12 @@ namespace epi
 	}
 	ADPCMBLOCKHEADER;
 
+	typedef struct
+	{
+		s16_t iPrevSamp;
+		u8_t iStepIndex;
+	} IMAADPCMDATA;
+
 	typedef struct S_WAV_FMT_T
 	{
 		u32_t chunkID;
@@ -121,6 +128,7 @@ namespace epi
 		u32_t next_chunk_offset;
 
 		u32_t sample_frame_size;
+		u32_t data_starting_offset;
 		u32_t total_bytes;
 
 		union
@@ -137,16 +145,24 @@ namespace epi
 				s8_t nibble;
 			} adpcm;
 
-#if 0
-			struct
-			{
-				u8_t Description[20];
-				u16_t DataBlockOffset;
-				u16_t Version;
-				u16_t IDCode;
-			} VocHeader;
+	typedef struct S_IMA_FMT_T
+	{
+				/* per channel decoder state */
+				IMAADPCMDATA* d;
+				/* auxiliary buffer */
+				u8_t* buf;
 
-#endif // 0
+				u16_t block_frames;
+				u16_t block_framesets;
+				u16_t enc_frameset_size;
+				u16_t headerset_size;
+				u16_t dec_frame_size;
+				u16_t dec_frameset_size;
+				u16_t rem_block_framesets;
+
+				/* whether the next word(s) are the start of a new block */
+				int read_header;
+			} ima;
 
 
 			/* put other format-specific data here... */
@@ -162,6 +178,8 @@ namespace epi
 	 * Note that the union "fmt" is not read in here; that is handled as
 	 *  needed in the read_fmt_* functions.
 	 */
+	//we do not use SDL_RWops *rw, instead file_c *f
+	//SDLRWtell -> f->GetPosition 
 	static bool read_fmt_chunk(file_c *f, fmt_t *fmt)
 	{
 		/* skip reading the chunk ID, since it was already read at this point... */
@@ -206,6 +224,8 @@ namespace epi
 	}
 	wav_t;
 
+	//below EDGE specific
+
 	static wav_t decoder_wavt;
 
 	static file_c *decode_F;
@@ -242,6 +262,7 @@ namespace epi
 		 * directly into the internal buffer...
 		 */
 		//u32_t retval = SDL_RWread(internal->rw, internal->buffer, 1, max);
+		//decode_F->Read is RWread, remember, internal->rw = buffer, then ext bullshit is always want * bytes (each)
 		int got_bytes = decode_F->Read(buffer, want * bytes_each);  // FIXME: DECODE U8 --> S16
 
 		if (got_bytes < 0)

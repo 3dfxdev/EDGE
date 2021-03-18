@@ -1236,8 +1236,8 @@ static inline bool Weakness_CheckHit(mobj_t *target,
 
 	if (weak->classes == BITSET_EMPTY)
 		return false;
-
-//I_Debugf("Weakness_CheckHit: target=[%s] classes=0x%08x\n", target->info->name.c_str(), weak->classes);
+	
+I_Debugf("Weakness_CheckHit: target=[%s] classes=0x%08x\n", target->info->name.c_str(), weak->classes); 
 
 	if (BITSET_EMPTY != (attack->attack_class & ~weak->classes))
 		return false;
@@ -1251,9 +1251,9 @@ static inline bool Weakness_CheckHit(mobj_t *target,
 	z = (z - target->z) / target->height;
 	z = CLAMP(0.01f, z, 0.99f);
 
-//I_Debugf("HEIGHT CHECK: %1.2f < %1.2f < %1.2f\n",
-		  //weak->height[0], z, weak->height[1]);
-
+I_Debugf("HEIGHT CHECK: %1.2f < %1.2f < %1.2f\n",
+		  weak->height[0], z, weak->height[1]);
+	
 	if (z < weak->height[0] || z > weak->height[1])
 		return false;
 
