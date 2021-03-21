@@ -340,7 +340,6 @@ void M_SaveDefaults(void)
 		return;  // can't write the file, but don't complain
 	}
 	
-	std::cout << *root;
 	f << *root;
 
 	// no need to close. RAII will do it for us.

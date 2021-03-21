@@ -176,7 +176,7 @@ void I_StartupGraphics(void)
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,   16);
 	// ~CA 5.7.2016:
 
-	flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS | SDL_WINDOW_INPUT_FOCUS;
+	flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_INPUT_FOCUS;
 
 	display_W = SCREENWIDTH;
 	display_H = SCREENHEIGHT;
@@ -283,61 +283,43 @@ void I_StartupGraphics(void)
 
 bool I_SetScreenSize(scrmode_c *mode)
 {
-	//I_Printf("I_SetScreenSize = reached\n");
-	I_GrabCursor(false);
+ 	I_Printf("I_SetScreenSize: trying %dx%d %dbpp (%s)\n",
+ 			 mode->width, mode->height, mode->depth,
+ 			 mode->full ? "fullscreen" : "windowed");
 
-	SDL_GL_DeleteContext(glContext);
-	SDL_DestroyRenderer(my_rndrr);
-	SDL_DestroyWindow(my_vis);
+ 	// -AJA- turn off cursor -- BIG performance increase.
+ 	//       Plus, the combination of no-cursor + grab gives
+ 	//       continuous relative mouse motion.
 
-	I_Printf("I_SetScreenSize: trying %dx%d %dbpp (%s)\n",
-			 mode->width, mode->height, mode->depth,
-			 mode->full ? "fullscreen" : "windowed");
+ 	// ~CA~  TODO:  Eventually we will want to turn on the cursor
+ 	//				when we get Doom64-style mouse control for
+ 	//				the options drawer.
+ 	I_GrabCursor(false);
 
-	my_vis = SDL_CreateWindow("EDGE",
-		SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED,
-                    mode->width, mode->height,
-                    SDL_WINDOW_OPENGL | //SDL2 is double-buffered by default
-                    (mode->full ? SDL_WINDOW_FULLSCREEN :0));
+// 	    // reset gamma to default
+//         I_SetGamma(1.0f);
 
-	my_rndrr = SDL_CreateRenderer(my_vis, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	SDL_DisplayMode dm;
+	memset(&dm, 0, sizeof(dm));
+	dm.format = SDL_PIXELFORMAT_RGBA8888; // TODO: set proper pixel format
+	dm.w = mode->width;
+	dm.h = mode->height;
 
-	glContext = SDL_GL_CreateContext( my_vis );
-
-    SDL_GL_MakeCurrent( my_vis, glContext );
-	//HUD_Reset(); // Make doubly sure the HUD module is reset to counter the 640x480 white-box ghosting bug upon mode change.
-
-	if (my_vis == NULL)
-	{
-		I_Printf("I_SetScreenSize: (mode not possible)\n");
-		return false;
+	if(SDL_SetWindowDisplayMode(my_vis, &dm) != 0) {
+        I_Printf("I_SetScreenSize: failed to set video mode: %s\n", SDL_GetError());
+        return false;
 	}
+	SDL_SetWindowFullscreen(my_vis, mode->full ? SDL_WINDOW_FULLSCREEN : 0);
+    if(!mode->full) {
+        SDL_SetWindowSize(my_vis, mode->width, mode->height);
+    }
 
-	if (r_vsync == 1 && r_swapinterval == 0)
-		SDL_GL_SetSwapInterval(1);		// SDL-based standard
-	else if (r_vsync == 1 && r_swapinterval == 1)
-		SDL_GL_SetSwapInterval(-1);
+    if (r_vsync == 1 && r_swapinterval == 0)
+        SDL_GL_SetSwapInterval(1);		// SDL-based standard
+    else if (r_vsync == 1 && r_swapinterval == 1)
+        SDL_GL_SetSwapInterval(-1);
 
-	// -AJA- turn off cursor -- BIG performance increase.
-	//       Plus, the combination of no-cursor + grab gives
-	//       continuous relative mouse motion.
-
-	// ~CA~  TODO:  Eventually we will want to turn on the cursor
-	//				when we get Doom64-style mouse control for
-	//				the options drawer.
 	I_GrabCursor(false);
-
-	glClearColor(0, 0, 0, 0);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	    // reset gamma to default
-        I_SetGamma(1.0f);
-
-#ifdef MACOSX
-	//TODO: On Mac OS X make sure to bind 0 to the draw framebuffer before swapping the window, otherwise nothing will happen.
-#endif
-	SDL_GL_SwapWindow(my_vis);
 
 	//HUD_Reset();
 	return true;
