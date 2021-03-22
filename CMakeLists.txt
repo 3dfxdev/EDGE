@@ -76,12 +76,17 @@ option(FORCE_INTERNAL_BZIP2 "Use internal bzip2")
 option(FORCE_INTERNAL_PHYSFS "Use internal physfs")
 option(HYPERTENSION "Compile Hypertension Executable" OFF)
 
+if(MINGW)
+	SET(CMAKE_FIND_LIBRARY_PREFIXES "lib")
+	SET(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a)
+endif()
+
+find_package(Ogg REQUIRED)
+find_package(Vorbis REQUIRED)
 find_package( ZLIB )
 find_package( BZip2 )
 find_package ( PhysFS )
 find_package(SDL2 REQUIRED)
-find_package(Ogg CONFIG REQUIRED)
-find_package(Vorbis REQUIRED)
 #find_package ( libdumb )
 
 #find_package ( FFMPEG )
@@ -743,6 +748,9 @@ add_executable(EDGE
 	${EDGE_SOURCES}
 )
 
+set_target_properties(EDGE PROPERTIES LINK_SEARCH_START_STATIC 1)
+set_target_properties(EDGE PROPERTIES LINK_SEARCH_END_STATIC 1)
+
 if (NOT VITA)
 add_dependencies( EDGE revision_check )
 endif()
@@ -759,13 +767,17 @@ target_link_libraries(EDGE
 	${SDL2_LIBRARY}
 	${SDL_NET_LIBRARY}
 	Ogg::ogg
-	# Vorbis::vorbis Vorbis::vorbisenc Vorbis::vorbisfile
-	${VORBIS_LIBRARIES} ${VORBISFILE_LIBRARIES}
+	Vorbis::vorbis Vorbis::vorbisenc Vorbis::vorbisfile
+#	${VORBIS_LIBRARIES} ${VORBISFILE_LIBRARIES}
 	ZLIB::ZLIB
 	${PHYSFS_LIBRARY}
 	#	${LIBDUMB_LIBRARY}
 	#	${SDLKitchensink_STATIC_LIBRARY}
 )
+
+if(MINGW)
+	set_target_properties(EDGE PROPERTIES LINK_FLAGS "-static-libgcc -static-libstdc++ -static")
+endif()
 
 if (WIN32)
 	target_link_libraries(EDGE
@@ -773,9 +785,12 @@ if (WIN32)
 		winmm
 		gdi32
 		opengl32
+		Imm32
+		Setupapi
+		Version
 	)
 elseif(APPLE)
-        set_target_properties(EDGE PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa -framework IOKit")
+	set_target_properties(EDGE PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa -framework IOKit")
 	target_link_libraries(EDGE SDL2 COCOA_LIBRARY stdc++ "-framework Foundation" "-framework Cocoa" "-framework IOKIT" objc)
 elseif(VITA)
 	target_link_libraries(EDGE SDL2 vitaGL SceDisplay_stub SceCtrl_stub SceAudio_stub SceSysmodule_stub SceGxm_stub SceCommonDialog_stub SceTouch_stub SceHid_stub m)

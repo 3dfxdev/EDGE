@@ -339,7 +339,7 @@ void M_SaveDefaults(void)
 		I_Warning("Couldn't open config file %s for writing.", cfgfile.c_str());
 		return;  // can't write the file, but don't complain
 	}
-	
+
 	f << *root;
 
 	// no need to close. RAII will do it for us.
