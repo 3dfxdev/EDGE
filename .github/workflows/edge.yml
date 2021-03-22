@@ -18,7 +18,7 @@ jobs:
       - name: Install prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install libogg-dev libvorbis-dev libsdl2-dev libphysfs-dev zlib1g-dev libbz2-dev libgl1-mesa-dev
+          sudo apt-get install libogg-dev libvorbis-dev libsdl2-dev libphysfs-dev zlib1g-dev libbz2-dev libgl-dev
 
       - name: Create Build Environment
         run: cmake -E make_directory ${{github.workspace}}/build
