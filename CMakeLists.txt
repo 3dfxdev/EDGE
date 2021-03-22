@@ -75,8 +75,11 @@ option(FORCE_INTERNAL_ZLIB "Use internal zlib")
 option(FORCE_INTERNAL_BZIP2 "Use internal bzip2")
 option(FORCE_INTERNAL_PHYSFS "Use internal physfs")
 option(HYPERTENSION "Compile Hypertension Executable" OFF)
-
 if(MINGW)
+	option(MINGW_LINK_STATIC "Link statically on MinGW" ON)
+endif()
+
+if(MINGW AND MINGW_LINK_STATIC)
 	SET(CMAKE_FIND_LIBRARY_PREFIXES "lib")
 	SET(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a)
 endif()
@@ -775,7 +778,7 @@ target_link_libraries(EDGE
 	#	${SDLKitchensink_STATIC_LIBRARY}
 )
 
-if(MINGW)
+if(MINGW AND MINGW_LINK_STATIC)
 	set_target_properties(EDGE PROPERTIES LINK_FLAGS "-static-libgcc -static-libstdc++ -static")
 endif()
 
