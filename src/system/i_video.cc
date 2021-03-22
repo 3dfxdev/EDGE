@@ -312,6 +312,7 @@ bool I_SetScreenSize(scrmode_c *mode)
 	SDL_SetWindowFullscreen(my_vis, mode->full ? SDL_WINDOW_FULLSCREEN : 0);
     if(!mode->full) {
         SDL_SetWindowSize(my_vis, mode->width, mode->height);
+        SDL_SetWindowPosition(my_vis, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     }
 
     if (r_vsync == 1 && r_swapinterval == 0)
