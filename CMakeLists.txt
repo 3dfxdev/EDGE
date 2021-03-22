@@ -778,8 +778,12 @@ target_link_libraries(EDGE
 	#	${SDLKitchensink_STATIC_LIBRARY}
 )
 
-if(MINGW AND MINGW_LINK_STATIC)
-	set_target_properties(EDGE PROPERTIES LINK_FLAGS "-static-libgcc -static-libstdc++ -static")
+if(MINGW)
+	set(MINGW_BUILD_EDGE_TARGET_PROPERTIES "-Wl,-subsystem,windows")
+	if(MINGW_LINK_STATIC)
+		set(MINGW_BUILD_EDGE_TARGET_PROPERTIES "${MINGW_BUILD_EDGE_TARGET_PROPERTIES} -static-libgcc -static-libstdc++ -static")
+	endif()
+	set_target_properties(EDGE PROPERTIES LINK_FLAGS "${MINGW_BUILD_EDGE_TARGET_PROPERTIES}")
 endif()
 
 if (WIN32)
