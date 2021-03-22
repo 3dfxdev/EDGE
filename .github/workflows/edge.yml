@@ -1,0 +1,37 @@
+name: EDGE
+
+on: [push]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v1
+
+      - name: Create Build Environment
+        run: cmake -E make_directory ${{github.workspace}}/build
+
+      - name: Configure CMake
+        shell: bash
+        working-directory: ${{github.workspace}}/build
+        run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        shell: bash
+        run: cmake --build . --parallel ${{steps.cpu-cores.outputs.count}} --config $BUILD_TYPE
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: EDGE
+          path: |
+            ${{github.workspace}}/build/EDGE
+            ${{github.workspace}}/build/edge.epk
+            ${{github.workspace}}/build/base/
