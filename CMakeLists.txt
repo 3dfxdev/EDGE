@@ -802,7 +802,7 @@ elseif(APPLE)
 elseif(VITA)
 	target_link_libraries(EDGE SDL2 vitaGL SceDisplay_stub SceCtrl_stub SceAudio_stub SceSysmodule_stub SceGxm_stub SceCommonDialog_stub SceTouch_stub SceHid_stub m)
 elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "(Free|Open)BSD")
-	target_link_libraries(EDGE SDL2 GL dl)
+	target_link_libraries(EDGE SDL2 OpenGL::GL dl)
 endif()
 
 #if(MSVC)
