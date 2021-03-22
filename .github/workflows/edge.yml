@@ -15,6 +15,11 @@ jobs:
       - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v1
 
+      - name: Install prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install libogg-dev libvorbis-dev libSDL2-dev libphysfs-dev zlib1g-dev libbz2-dev
+
       - name: Create Build Environment
         run: cmake -E make_directory ${{github.workspace}}/build
 
