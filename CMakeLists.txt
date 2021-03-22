@@ -751,8 +751,10 @@ add_executable(EDGE
 	${EDGE_SOURCES}
 )
 
-set_target_properties(EDGE PROPERTIES LINK_SEARCH_START_STATIC 1)
-set_target_properties(EDGE PROPERTIES LINK_SEARCH_END_STATIC 1)
+if(MINGW AND MINGW_LINK_STATIC)
+	set_target_properties(EDGE PROPERTIES LINK_SEARCH_START_STATIC 1)
+	set_target_properties(EDGE PROPERTIES LINK_SEARCH_END_STATIC 1)
+endif()
 
 if (NOT VITA)
 add_dependencies( EDGE revision_check )
