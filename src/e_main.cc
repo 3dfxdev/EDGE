@@ -316,20 +316,6 @@ static void SetGlobalVars(void)
 		SCREENHEIGHT = atoi(M_GetArgument(p + 2));
 	}
 
-	// Bits per pixel check....
-	s = M_GetParm("-bpp");
-	if (s)
-	{
-		SCREENBITS = atoi(s);
-
-		if (SCREENBITS <= 4) // backwards compat
-			SCREENBITS *= 8;
-	}
-
-	// restrict depth to allowable values
-	if (SCREENBITS < 15) SCREENBITS = 15;
-	else if (SCREENBITS > 32) SCREENBITS = 32;
-
 	M_CheckBooleanParm("windowed", &FULLSCREEN, true);
 	M_CheckBooleanParm("fullscreen", &FULLSCREEN, false);
 

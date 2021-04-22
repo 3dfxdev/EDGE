@@ -117,7 +117,6 @@ static default_t defaults[] =
 	{CFGT_Int,		"edge_version",		 &edge_version,	  0},
 	{CFGT_Int,		"screenwidth",		 &SCREENWIDTH,	  CFGDEF_SCREENWIDTH},
 	{CFGT_Int,		"screenheight",		 &SCREENHEIGHT,	  CFGDEF_SCREENHEIGHT},
-	{CFGT_Int,		"screendepth",		 &SCREENBITS,	  CFGDEF_SCREENBITS},
 	{CFGT_Boolean,	"fullscreen",		 &FULLSCREEN,	  CFGDEF_FULLSCREEN},
 	{CFGT_Boolean,	"directx",			 &force_directx,  0},
 	{CFGT_Boolean,	"waveout",			 &force_waveout,  0},

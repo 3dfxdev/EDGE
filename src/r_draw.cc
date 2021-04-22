@@ -33,7 +33,7 @@
 static int glbsp_last_prog_time = 0;
 
 
-void RGL_NewScreenSize(int width, int height, int bits)
+void RGL_NewScreenSize(int width, int height)
 {
 	HUD_Reset();
 	//!!! quick hack

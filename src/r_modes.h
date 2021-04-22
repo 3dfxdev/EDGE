@@ -51,20 +51,18 @@ class scrmode_c
 public:
 	int width;
 	int height;
-	int depth;
 	bool full;
 
 public:
-	scrmode_c() : width(0), height(0), depth(0), full(true)
+	scrmode_c() : width(0), height(0), full(true)
 	{ }
 		
-	scrmode_c(int _w, int _h, int _depth, bool _full) :
-		width(_w), height(_h), depth(_depth), full(_full)
+	scrmode_c(int _w, int _h, bool _full) :
+		width(_w), height(_h), full(_full)
 	{ }
 	
 	scrmode_c(const scrmode_c& other) :
-		width(other.width), height(other.height),
-		depth(other.depth), full(other.full)
+		width(other.width), height(other.height), full(other.full)
 	{ }
 
 	~scrmode_c()
@@ -75,15 +73,11 @@ public:
 // Exported Vars
 extern int SCREENWIDTH;
 extern int SCREENHEIGHT;
-extern int SCREENBITS;
 extern bool FULLSCREEN;
-
-// Exported Func
-bool R_DepthIsEquivalent(int depth1, int depth2);
 
 void R_AddResolution(scrmode_c *mode);
 void R_DumpResList(void);
-scrmode_c *R_FindResolution(int w, int h, int depth, bool full);
+scrmode_c *R_FindResolution(int w, int h, bool full);
 
 typedef enum
 {

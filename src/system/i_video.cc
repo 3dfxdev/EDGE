@@ -234,17 +234,12 @@ void I_StartupGraphics(void)
 			scrmode_c scr_mode;
 			scr_mode.width = mode.w;
 			scr_mode.height = mode.h;
-			scr_mode.depth = SDL_BITSPERPIXEL(mode.format);
 			scr_mode.full = true;
 
 			if ((scr_mode.width & 15) != 0)
 				continue;
 
-			if (scr_mode.depth == 15 || scr_mode.depth == 16 ||
-				scr_mode.depth == 24 || scr_mode.depth == 32)
-			{
-				R_AddResolution(&scr_mode);
-			}
+            R_AddResolution(&scr_mode);
 		}
 	}
 
@@ -257,7 +252,6 @@ void I_StartupGraphics(void)
 			scrmode_c scr_mode;
 			scr_mode.width = possible_modes[i].w;
 			scr_mode.height = possible_modes[i].h;
-			scr_mode.depth = SDL_BITSPERPIXEL(mode.format);
 			scr_mode.full = false;
 
 			if (scr_mode.width <= mode.w && scr_mode.height <= mode.h)
@@ -283,8 +277,8 @@ void I_StartupGraphics(void)
 
 bool I_SetScreenSize(scrmode_c *mode)
 {
- 	I_Printf("I_SetScreenSize: trying %dx%d %dbpp (%s)\n",
- 			 mode->width, mode->height, mode->depth,
+ 	I_Printf("I_SetScreenSize: trying %dx%d (%s)\n",
+ 			 mode->width, mode->height,
  			 mode->full ? "fullscreen" : "windowed");
 
  	// -AJA- turn off cursor -- BIG performance increase.

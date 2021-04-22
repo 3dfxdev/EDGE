@@ -528,7 +528,6 @@ static optmenuitem_t resoptions[] =
 	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
 	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
 	{OPT_Function, "New Size",  NULL, 0, NULL, M_ChangeResSize, NULL},
-	{OPT_Function, "New Depth", NULL, 0, NULL, M_ChangeResDepth, NULL},
 	{OPT_Function, "New Mode",  NULL, 0, NULL, M_ChangeResFull, NULL},
 	{OPT_Plain,    "",          NULL, 0, NULL, NULL, NULL},
 	{OPT_Function, "Set Resolution", NULL, 0, NULL, M_OptionSetResolution, NULL},
@@ -1179,9 +1178,9 @@ static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int ce
 	HL_WriteText(style, 1, centrex + 15, y, tempstring);
 
 	// Draw depth selection option
-	y += dy;
-	sprintf(tempstring, "%d bit", (new_scrmode.depth < 20) ? 16 : 32);
-	HL_WriteText(style, 1, centrex + 15, y, tempstring);
+//	y += dy;
+//	sprintf(tempstring, "%d bit", (new_scrmode.depth < 20) ? 16 : 32);
+//	HL_WriteText(style, 1, centrex + 15, y, tempstring);
 
 	y += dy;
 	sprintf(tempstring, "%s", new_scrmode.full ? "Fullscreen" : "Windowed");
@@ -1196,8 +1195,8 @@ static void M_ResOptDrawer(style_c *style, int topy, int bottomy, int dy, int ce
 
 	y += dy;
 
-	sprintf(tempstring, "%d x %d at %d-bit %s",
-		SCREENWIDTH, SCREENHEIGHT, (SCREENBITS < 20) ? 16 : 32,
+	sprintf(tempstring, "%d x %d %s",
+		SCREENWIDTH, SCREENHEIGHT,
 		FULLSCREEN ? "Fullscreen" : "Windowed");
 
 	HL_WriteText(style, 1, 160 - (style->fonts[1]->StringWidth(tempstring) / 2), y, tempstring);
@@ -1577,7 +1576,6 @@ static void M_ResolutionOptions(int keypressed)
 {
 	new_scrmode.width = SCREENWIDTH;
 	new_scrmode.height = SCREENHEIGHT;
-	new_scrmode.depth = SCREENBITS;
 	new_scrmode.full = FULLSCREEN;
 
 	if (heretic_mode)
@@ -2004,7 +2002,7 @@ static void M_OptionSetResolution(int keypressed)
 	{
 		std::string msg(epi::STR_Format(language["ModeSelErr"],
 			new_scrmode.width, new_scrmode.height,
-			(new_scrmode.depth < 20) ? 16 : 32));
+			0));
 
 		M_StartMessage(msg.c_str(), NULL, false);
 
