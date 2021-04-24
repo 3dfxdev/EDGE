@@ -61,7 +61,8 @@ typedef struct
 	byte chatchar;
 
 	byte unused2, unused3;
-	void ByteSwap();
+	
+	//void ByteSwap();
 }
 ticcmd_t;
 

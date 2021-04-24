@@ -885,7 +885,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 					DDF_Error("#VERSION cannot be used inside an entry !\n");
 
 				//DDF_ParseVersion(memfileptr + 8, l_len - 8);
-				I_Printf("DDF: #VERSION directive ignored.");
+				//I_Printf("DDF: #VERSION directive ignored.");
 				memfileptr += l_len;
 				continue;
 			}
@@ -914,7 +914,7 @@ bool DDF_MainReadFile(readinfo_t * readinfo)
 
 		case command_read:
 			if (!token.empty())
-				current_cmd = token.c_str(); //TODO: V811 https://www.viva64.com/en/w/v811/ Decreased performance. Excessive type casting: string -> char * -> string. Consider inspecting the 'token.c_str()' expression. //TODO: V811 https://www.viva64.com/en/w/v811/ Decreased performance. Excessive type casting: string -> char * -> string. Consider inspecting the 'token.c_str()' expression.
+				current_cmd = token.c_str();
 			else
 				current_cmd.clear();
 
