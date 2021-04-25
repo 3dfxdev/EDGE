@@ -236,6 +236,26 @@ gameflags_t;
 #define KEYD_JOY14		286
 #define KEYD_JOY15		287
 
+#define KEYD_AXIS1      384
+#define KEYD_AXIS2      385
+#define KEYD_AXIS3      386
+#define KEYD_AXIS4      387
+#define KEYD_AXIS5      388
+#define KEYD_AXIS6      389
+#define KEYD_AXIS7      390
+#define KEYD_AXIS8      391
+#define KEYD_AXIS9      392
+#define KEYD_AXIS10     393
+#define KEYD_AXIS11     394
+#define KEYD_AXIS12     395
+#define KEYD_AXIS13     396
+#define KEYD_AXIS14     397
+#define KEYD_AXIS15     398
+#define KEYD_AXIS16     399
+#define KEYD_AXIS_FLAG_NEGATIVE 16
+// exclusive!
+#define KEYD_AXIS_MAX   416
+
 // -KM- 1998/09/27 Analogue binding, added a fly axis
 #define AXIS_DISABLE     0
 #define AXIS_TURN        1

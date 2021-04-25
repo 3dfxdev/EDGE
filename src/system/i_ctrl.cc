@@ -387,6 +387,58 @@ void HandleMouseWheelEvent(SDL_Event * ev)
 	return;
 }
 
+void HandleJoystickAxisEvent(SDL_Event *ev) {
+    static char axis_states[16] {};
+
+    SDL_PumpEvents();
+    // ignore other joysticks;
+    if ((int)ev->jaxis.which != cur_joy-1)
+        return;
+
+    Uint8 axis = ev->jaxis.axis;
+    if (axis >= 16)
+        return;
+
+    int old_dir = axis_states[axis];
+    int dir;
+
+    if(ev->jaxis.value > 0.1f) {
+        dir = 1;
+    } else if(ev->jaxis.value < 0.1f) {
+        dir = -1;
+    } else {
+        dir = 0;
+    }
+
+    axis_states[axis] = dir;
+
+    if(old_dir == dir) return;
+
+    if(old_dir != 0) {
+        // release old dir
+        event_t event;
+        event.type = ev_keyup;
+        event.data1 = KEYD_AXIS1 + axis;
+        if(old_dir == -1) {
+            event.data1 |= KEYD_AXIS_FLAG_NEGATIVE;
+        }
+
+        E_PostEvent(&event);
+    }
+
+    if(dir != 0) {
+        // push new dir
+        event_t event;
+        event.type = ev_keydown;
+        event.data1 = KEYD_AXIS1 + axis;
+        if(dir == -1) {
+            event.data1 |= KEYD_AXIS_FLAG_NEGATIVE;
+        }
+
+        E_PostEvent(&event);
+    }
+}
+
 void HandleJoystickButtonEvent(SDL_Event * ev)
 {
 	SDL_PumpEvents();
@@ -490,6 +542,10 @@ void ActiveEventProcess(SDL_Event *sdl_ev)
 		case SDL_JOYBUTTONUP:
 			HandleJoystickButtonEvent(sdl_ev);
 			break;
+
+	    case SDL_JOYAXISMOTION:
+	        HandleJoystickAxisEvent(sdl_ev);
+	        break;
 
 		case SDL_MOUSEMOTION:
 			if (eat_mouse_motion)
