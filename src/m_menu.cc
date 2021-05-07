@@ -1998,7 +1998,7 @@ bool M_Responder(event_t * ev)
 	if (msg_mode == 1)
 	{
 		if (msg_needsinput == true &&
-			!(ch == ' ' || ch == 'n' || ch == 'y' || ch == KEYD_ESCAPE))
+			!(ch == ' ' || ch == 'n' || ch == 'y' || ch == KEYD_ESCAPE || ch == KEYD_JOY2))
 			return false;
 
 		msg_mode = 0;
@@ -2013,7 +2013,7 @@ bool M_Responder(event_t * ev)
 	}
 	else if (msg_mode == 2)
 	{
-		if (ch == KEYD_ENTER)
+		if (ch == KEYD_ENTER || ch == KEYD_JOY1)
 		{
 			menuactive = msg_lastmenu ? true : false;
 			msg_mode = 0;
@@ -2028,7 +2028,7 @@ bool M_Responder(event_t * ev)
 			return true;
 		}
 
-		if (ch == KEYD_ESCAPE)
+		if (ch == KEYD_ESCAPE || ch == KEYD_JOY2)
 		{
 			menuactive = msg_lastmenu ? true : false;
 			msg_mode = 0;
@@ -2234,7 +2234,7 @@ bool M_Responder(event_t * ev)
 		}
 
 		// Pop-up menu?
-		if (ch == KEYD_ESCAPE)
+		if (ch == KEYD_ESCAPE || ch == KEYD_JOY7)
 		{
 			M_StartControlPanel();
 			S_StartFX(sfx_swtchn);
@@ -2248,6 +2248,7 @@ bool M_Responder(event_t * ev)
 	{
 	case KEYD_DOWNARROW:
 	case KEYD_WHEEL_DN:
+	case KEYD_JOY13:
 		do
 		{
 			if (itemOn + 1 > currentMenu->numitems - 1)
@@ -2260,6 +2261,7 @@ bool M_Responder(event_t * ev)
 
 	case KEYD_UPARROW:
 	case KEYD_WHEEL_UP:
+	case KEYD_JOY12:
 		do
 		{
 			if (itemOn == 0)
@@ -2272,6 +2274,8 @@ bool M_Responder(event_t * ev)
 
 	case KEYD_PGUP:
 	case KEYD_LEFTARROW:
+	case KEYD_JOY14:
+	//case KEYD_AXIS3:
 		if (currentMenu->menuitems[itemOn].select_func &&
 			currentMenu->menuitems[itemOn].status == 2)
 		{
@@ -2283,6 +2287,8 @@ bool M_Responder(event_t * ev)
 
 	case KEYD_PGDN:
 	case KEYD_RIGHTARROW:
+	case KEYD_JOY15:
+	//case KEYD_AXIS4:
 		if (currentMenu->menuitems[itemOn].select_func &&
 			currentMenu->menuitems[itemOn].status == 2)
 		{
@@ -2294,6 +2300,7 @@ bool M_Responder(event_t * ev)
 
 	case KEYD_ENTER:
 	case KEYD_MOUSE1:
+	case KEYD_JOY1:
 		if (currentMenu->menuitems[itemOn].select_func &&
 			currentMenu->menuitems[itemOn].status)
 		{
@@ -2306,12 +2313,14 @@ bool M_Responder(event_t * ev)
 	case KEYD_ESCAPE:
 	case KEYD_MOUSE2:
 	case KEYD_MOUSE3:
+	case KEYD_JOY2:
 		currentMenu->lastOn = itemOn;
 		M_ClearMenus();
 		S_StartFX(sfx_swtchx);
 		return true;
 
 	case KEYD_BACKSPACE:
+	//case KEYD_JOY2:
 		currentMenu->lastOn = itemOn;
 		if (currentMenu->prevMenu)
 		{

@@ -134,8 +134,9 @@ extern int sound_pitch;
 extern int r_stretchworld;
 extern int r_fixspritescale;
 extern int m_tactile;
+extern int r_fxaa;
 
-//extern cvar_c r_textscale; //temp hack for HUD text scaling size
+extern float r_textscale; //temp hack for HUD text scaling size
 
 static int menu_crosshair;  // temp hack
 static int menu_crosshair2;  /// love haxxx
@@ -422,18 +423,19 @@ static optmenuitem_t vidoptions[] =
 {
 	{OPT_Slider,  "Brightness",    NULL,  6,  &r_gamma, M_ChangeGamma, NULL},
 
-	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
+	{OPT_Boolean, "Video Sync",   YesNo,   2, &r_vsync, NULL, "Enable VSYNC"},
+	{OPT_Switch,  "Interpolation",    YesNo,   2, &r_lerp, NULL, "Uncapped Framerate"},
 
 	{OPT_Switch,  "Monitor Size",  MonitSiz,  5, &monitor_size, M_ChangeMonitorSize, NULL},
 	{OPT_Switch,  "Smoothing",     YesNo, 2, &var_smoothing, M_ChangeMipMap, NULL},
-	{OPT_Switch,  "H.Q.2x Scaling", Hq2xMode, 4, &hq2x_scaling, M_ChangeMipMap, NULL},
-	{OPT_Switch ,  "Detail Level",   Details,  3, &detail_level, M_ChangeMipMap, NULL},
+	{OPT_Switch,  "HQ2x Scaling", Hq2xMode, 4, &hq2x_scaling, M_ChangeMipMap, NULL},
+	{OPT_Switch , "Detail Level",   Details,  3, &detail_level, M_ChangeMipMap, NULL},
 	{OPT_Switch,  "Texture Filtering",     MipMaps,  3, &var_mipmapping, M_ChangeMipMap, NULL},
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	//{OPT_Slider,   "HUD Text Scale",  HudT, 20,  &r_textscale, M_ChangeHUDTextScale, "Set overall scale of HUD text" },
 	{OPT_Boolean, "Show Disk Icon",  YesNo, 1, &m_diskicon, NULL, NULL},
 	//{OPT_Slider,  "HUD Text Scale",  HudT,  20,  &r_textscale, NULL, "Experimental"},
-	{OPT_Boolean, "Screen Shake",  YesNo, 1, &m_tactile, NULL, "Will also affect user-defined values in COAL!"},
+	{OPT_Boolean, "Screen Shake",  YesNo, 1, &m_tactile, NULL, "Will also affect values in COAL!"},
 	{OPT_Switch,  "Crosshair",       CrossH, 10, &menu_crosshair, M_ChangeCrossHair, NULL},
 	{OPT_Slider, "Crosshair Scale",  NULL, 14, &menu_crosshair2, M_ChangeCrossHairSize, NULL },
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
@@ -445,15 +447,15 @@ static optmenuitem_t vidoptions[] =
 
 static optmenuitem_t advancedoptions[] =
 {
-	{OPT_Switch,  "Normal Mapping",     YesNo, 2, &r_gl3_path, NULL, "Unfinished: there are bugs"}, /// Change from GL1 to GL3
+	{OPT_Plain,   "Post-Processing",  NULL,  0,  NULL, NULL,"Including Shaders"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{OPT_Boolean,   "Bloom Processing",  YesNo,  2,  &r_bloom, NULL, "Toggle Bloom Shader On or Off"},
+	{OPT_Switch,  "Modern GL3 Renderer",     YesNo, 2, &r_gl3_path, NULL, "Unfinished: there are minor bugs"}, /// Change from GL1 to GL3
+	{OPT_Boolean, "Bloom Processing",  YesNo,  2,  &r_bloom, NULL, "Use r_bloom_amount cvar to set strength"},
+	{OPT_Boolean, "Lens Distortion",  YesNo,  2,  &r_lens, NULL, "Toggle Lens Distortion Effect"},
+	{OPT_Boolean, "FXAA",  YesNo,  2,  &r_fxaa, NULL, "Use r_fxaa_quality cvar to set sample strength"},
+
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{OPT_Boolean,   "Lens Distortion",  YesNo,  2,  &r_lens, NULL, "Toggle Lens Distortion Effect"},
-	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
-	{OPT_Boolean, "Video Sync",   YesNo,   2, &r_vsync, NULL, "Enable VSYNC"},
-	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{OPT_Switch,  "Interpolation",    YesNo,   2, &r_lerp, NULL, "Frame Prediction"},
+
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL},
 	{OPT_Switch,  "Dynamic Lighting", DLMode, 2, &use_dlights, M_ChangeDLights, "DynaLight"},
 	{OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
@@ -475,15 +477,15 @@ static optmenuitem_t debuggingoptions[] =
 	{ OPT_Switch,  "Framerate Info",    YesNo,  2,  &debug_fps, NULL, NULL },
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{ OPT_Boolean,  "Show HOM Errors",    YesNo,  2,  &debug_hom, NULL, "showhom" },
+	{ OPT_Boolean,  "Show HOM Errors",    YesNo,  2,  &debug_hom, NULL, "Makes HOMs colorful"},//"showhom" },
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{ OPT_Switch,  "Show Position Coords",    YesNo,  2,  &debug_pos, NULL, NULL },
+	{ OPT_Switch,  "Show Position Coords",    YesNo,  2,  &debug_pos, NULL, "Position/World Coords" },
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{ OPT_Switch,  "Busy/Wait?", YesNo,  2,  &m_busywait, NULL, "BusyWait" }, //Call to LDF.
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
 	{ OPT_Switch,  "Get Psyched!",   YesNo, 2,  &m_goobers, NULL, "Wolf3D Mode: Requires map restart!" },
 	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
-	{OPT_Slider,   "Global MD5 Scale",    NULL,  4,  &r_md5scale, NULL, "(debugging)"}
+	{OPT_Slider,   "Global MD5 Scale",    NULL,  4,  &r_md5scale, NULL, "MD5 Model Global Scalar"}
 };
 
 ///Screen Options, custom graphic by Julian
@@ -558,21 +560,24 @@ static menuinfo_t hereticres_optmenu =
 //
 static optmenuitem_t analogueoptions[] =
 {
-	{OPT_Switch,   "Mouse X Axis",       Axis, 11, &mouse_xaxis, NULL, NULL},
-	{OPT_Switch,   "Mouse Y Axis",       Axis, 11, &mouse_yaxis, NULL, NULL},
-	{OPT_Slider,   "X Sensitivity",      NULL, 16, &mouse_xsens, NULL, NULL},
-	{OPT_Slider,   "Y Sensitivity",      NULL, 16, &mouse_ysens, NULL, NULL},
+		{OPT_Plain,    "<-Mouse Settings->", NULL, 0,  NULL, NULL, "Mouse Options"},
+		{OPT_Switch,   "Mouse X Axis",       Axis, 11, &mouse_xaxis, NULL, NULL},
+		{OPT_Switch,   "Mouse Y Axis",       Axis, 11, &mouse_yaxis, NULL, NULL},
+		{OPT_Slider,   "X Sensitivity",      NULL, 16, &mouse_xsens, NULL, NULL},
+		{OPT_Slider,   "Y Sensitivity",      NULL, 16, &mouse_ysens, NULL, NULL},
 	//	{OPT_Slider,   "Mouse Acceleration", NULL, 20,  &mouse_accel, NULL, NULL},
 		// {OPT_Boolean,  "Mouse Filtering",    YesNo, 0,  &mouse_filter, NULL, NULL},
+		{OPT_Plain,    "<-Joystick/Gamepads->", NULL, 0,  NULL, NULL, "Joystick Options"},
 		{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
-		{OPT_Switch,   "Joystick Device", JoyDevs, 7,  &joystick_device, NULL, NULL},
+		{OPT_Switch,   "Joystick Device", JoyDevs, 7,  &joystick_device, NULL, "Verify index via console!"},
 		{OPT_Switch,   "First Axis",         Axis, 11, &joy_axis[0], NULL, NULL},
 		{OPT_Switch,   "Second Axis",        Axis, 11, &joy_axis[1], NULL, NULL},
 		{OPT_Switch,   "Third Axis",         Axis, 11, &joy_axis[2], NULL, NULL},
 		{OPT_Switch,   "Fourth Axis",        Axis, 11, &joy_axis[3], NULL, NULL},
-		{OPT_Switch,   "Fifth Axis",         Axis, 11, &joy_axis[4], NULL, NULL},
-		{OPT_Switch,   "Sixth Axis",         Axis, 11, &joy_axis[5], NULL, NULL},
+		{OPT_Switch,   "Fifth Axis",         Axis, 11, &joy_axis[4], NULL, "Useful for Pad Triggers"},
+		{OPT_Switch,   "Sixth Axis",         Axis, 11, &joy_axis[5], NULL, "Useful for Pad Triggers"},
 
+		{OPT_Plain,    "<-Calibration->", NULL, 0,  NULL, NULL, "Fine-Tuning"},
 		{OPT_Plain,    "",                   NULL, 0,  NULL, NULL, NULL},
 		{OPT_Slider,   "Turning Speed",      NULL, 12, &var_turnspeed,    NULL, NULL},
 		{OPT_Slider,   "MLook Speed",        NULL, 12, &var_mlookspeed,   NULL, NULL},
@@ -610,7 +615,7 @@ static optmenuitem_t soundoptions[] =
 	{OPT_Switch,  "Music Device",    MusicDevs, 3, &var_music_dev, NULL, "Choose Music Device Playback [default OPL]" },
 
 	{ OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL },
-	{OPT_Boolean, "Sound Pitching",  SoundPitching, 2,  &sound_pitch, NULL, "Emulate Doom 1.2 Random SFX Pitching"},
+	{OPT_Boolean, "Sound Pitching",  SoundPitching, 2,  &sound_pitch, NULL, "Emulate Doom 1.2 SFX Pitching"},
 	{OPT_Switch,  "Mix Channels",    MixChans,  4, &var_mix_channels, M_ChangeMixChan, NULL},
 	{OPT_Switch,  "SFX: Quiet Factor",    QuietNess, 3, &var_quiet_factor, NULL, "How normalized do you want the sound?"},
 
@@ -1145,6 +1150,7 @@ void M_OptDrawer()
 			k = *(int*)(curr_menu->items[i].switchvar);
 			M_Key2String(k, tempstring);
 			HL_WriteText(style, 1, (curr_menu->menu_center + 15), curry, tempstring);
+			//I_Debugf("Key2String: %s\n", tempstring);
 			break;
 		}
 
@@ -1258,7 +1264,7 @@ bool M_OptResponder(event_t * ev, int ch)
 
 		keyscan = 0;
 
-		if (ch == KEYD_ESCAPE)
+		if (ch == KEYD_ESCAPE || KEYD_JOY2)
 			return true;
 
 		blah = (int*)(curr_item->switchvar);
@@ -1297,6 +1303,8 @@ bool M_OptResponder(event_t * ev, int ch)
 
 	case KEYD_DOWNARROW:
 	case KEYD_WHEEL_DN:
+	case KEYD_JOY13:
+
 	{
 		do
 		{
@@ -1312,6 +1320,7 @@ bool M_OptResponder(event_t * ev, int ch)
 
 	case KEYD_UPARROW:
 	case KEYD_WHEEL_UP:
+	case KEYD_JOY12:
 	{
 		do
 		{
@@ -1326,6 +1335,7 @@ bool M_OptResponder(event_t * ev, int ch)
 	}
 
 	case KEYD_LEFTARROW:
+	case KEYD_JOY14:
 	{
 		if (curr_menu->key_page[0])
 		{
@@ -1403,6 +1413,7 @@ bool M_OptResponder(event_t * ev, int ch)
 	} //TODO: V796 https://www.viva64.com/en/w/v796/ It is possible that 'break' statement is missing in switch statement.
 
 	case KEYD_RIGHTARROW:
+	case KEYD_JOY15:
 		if (curr_menu->key_page[0])
 		{
 			KeyMenu_Next();
@@ -1413,6 +1424,7 @@ bool M_OptResponder(event_t * ev, int ch)
 
 	case KEYD_ENTER:
 	case KEYD_MOUSE1:
+	case KEYD_JOY1:
 	{
 		switch (curr_item->type)
 		{
@@ -1490,6 +1502,7 @@ bool M_OptResponder(event_t * ev, int ch)
 	case KEYD_ESCAPE:
 	case KEYD_MOUSE2:
 	case KEYD_MOUSE3:
+	case KEYD_JOY2:
 	{
 		if (heretic_mode)
 		{

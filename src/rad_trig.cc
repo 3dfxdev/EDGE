@@ -175,7 +175,7 @@ public:
 			return key - '0';
 
 		if (NumChoices() < 2 &&
-			(key == KEYD_SPACE || key == KEYD_ENTER || key == 'Y'))
+			(key == KEYD_SPACE || key == KEYD_ENTER || key == 'Y' || key == KEYD_JOY1))
 			return 1;
 
 		return -1;  /* invalid */

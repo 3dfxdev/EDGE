@@ -765,7 +765,7 @@ void RGL_Init(void)
 		r_fxaa_quality = 0;
 		r_lens = 0;
 		r_gl3_path = 0;
-		I_Printf("OpenGL: RenderBuffers/GLSL disabled...\n");
+		I_Printf("RGL_Init: GL3/Post-Processing disabled!\n");
 		I_Printf("==============================================================================\n");
 	}
 	else if ((!M_CheckParm("-norenderbuffers")))

@@ -320,8 +320,8 @@ static void UpdateForces(void)
 
 	// ---Joystick---
 
-	//for (int j = 0; j < 6; j++)
-	//	UpdateJoyAxis(j);
+	for (int j = 0; j < 6; j++)
+		UpdateJoyAxis(j);
 }
 
 static void UpdateJoyForces(void)
@@ -628,7 +628,7 @@ void E_BuildTiccmd_Other(ticcmd_t * cmd)
 	//bJoystickActive = 1;
 
 
-	UpdateJoyForces();
+	//UpdateJoyForces();
 
 	Z_Clear(cmd, ticcmd_t, 1);
 
@@ -720,12 +720,12 @@ void E_BuildTiccmd_Other(ticcmd_t * cmd)
 		side *= speed_factors[var_sidespeed];
 
 		// -ACB- 1998/09/06 Side Move Speed Control
-		//side += sidemove[speed] * ball_deltas[AXIS_STRAFE] / 64.0;
+		side += sidemove[speed] * ball_deltas[AXIS_STRAFE] / 64.0;
 
-		//if (strafe)
-		//	side += sidemove[speed] * ball_deltas[AXIS_TURN] / 64.0;
+		if (strafe)
+			side += sidemove[speed] * ball_deltas[AXIS_TURN] / 64.0;
 
-		//side = CLAMP(-MAXPLMOVE, side, MAXPLMOVE);
+		side = CLAMP(-MAXPLMOVE, side, MAXPLMOVE);
 
 		cmd->sidemove = I_ROUND(side);
 	}
@@ -768,8 +768,8 @@ void E_BuildTiccmd_Other(ticcmd_t * cmd)
 	else
 		allowautorun = true;
 
-	//for (int k = 0; k < 6; k++)
-	//ball_deltas[k] = 0;
+	for (int k = 0; k < 6; k++)
+	ball_deltas[k] = 0;
 	//for (int k = 0; k < 6; k++)
 		//ball_deltas[k] = 0;
 }

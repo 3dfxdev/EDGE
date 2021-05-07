@@ -32,6 +32,7 @@
 #include "r_image.h"
 #include "r_misc.h"     //  R_Render
 #include "r_renderbuffers.h"
+#include "r_postprocessstate.h"
 
 
 #define DUMMY_WIDTH(font)  (4)
@@ -108,6 +109,8 @@ void HUD_SetAlignment(int xa, int ya)
 
 void HUD_Reset()
 {
+	//FGLRenderBuffers ClearScene();
+	//auto renderbuffers = FGLRenderBuffers::Instance();
 	HUD_SetCoordSys(320, 200);
 
 	cur_font  = default_font;
@@ -162,13 +165,17 @@ void HUD_FrameSetup(int split)
 	margin_X = (SCREENWIDTH  - margin_W) / 2.0;
 	margin_Y = (SCREENHEIGHT + margin_H) / 2.0;
 
-	//TODO: make this a menu option - to split the screen vertically or horizontally for two player!
-	/// split 1 means viewport 1, split 2 means viewport 2
-	if (split == 2)
-		margin_X += margin_W / 2;
+	if (splitscreen_mode)
+	{
+		//TODO: make this a menu option - to split the screen vertically or horizontally for two player!
+		/// split 1 means viewport 1, split 2 means viewport 2
+		if (split == 2)
+			margin_X += margin_W / 2;
 
-	if (split == 1 || split == 2)
-		margin_W = margin_W / 2 - 8;
+		if (split == 1 || split == 2)
+			margin_W = margin_W / 2 - 8;
+	}
+	
 }
 
 
