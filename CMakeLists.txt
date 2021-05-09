@@ -418,7 +418,7 @@ include_directories(${ZLIB_INCLUDE_DIR})
 #include_directories(${LIBDUMB_INCLUDE_DIR})
 
 # EDGE
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/sse2neon)
 set(EDGE_SOURCES
 	coal/c_compile.cc
 	coal/c_execute.cc
@@ -666,7 +666,7 @@ set(EDGE_SOURCES
 
 	src/system/sound/opllib/opl3.cc
 	src/system/sound/opllib/oplapi.cc
-
+	
 )
 
 
