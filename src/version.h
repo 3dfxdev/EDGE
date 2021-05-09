@@ -65,6 +65,10 @@ const char *GetVersionString();
 #define EDGEPLATFORM "x64 " EDGECOMPILER
 #define EDGEPRINTBIT "64-bit"
 #define E_TITLE "EDGE (64-bit)"  EDGEVERSTR
+#elif __aarch64__
+#define EDGEPLATFORM "ARM64 " EDGECOMPILER
+#define EDGEPRINTBIT "64-bit"
+#define E_TITLE "EDGE (64-bit)"  EDGEVERSTR
 #else
 #error "No platform defined"
 #endif
