@@ -101,7 +101,6 @@ void V_InitPalette(void)
 
 	const byte *pal = 0;
 	const byte *rotpal = 0;
-
 	if (rott_mode)
 	{
 		rotpal = (const byte*)W_CacheLumpName("PAL");

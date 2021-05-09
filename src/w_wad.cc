@@ -2767,13 +2767,11 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		}
 	}
 #endif // 0
-
 	if (kind <= FLKIND_HWad)
 	{
 		// WAD file
 		// TODO: handle Read failure
 		file->Read(&header, sizeof(raw_wad_header_t));
-
 		if (strncmp(header.identification, "IWAD", 4) != 0)
 		{
 			// Homebrew levels?
@@ -2791,6 +2789,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 		raw_wad_entry_t *fileinfo = new raw_wad_entry_t[header.num_entries];
 
 		file->Seek(header.dir_start, epi::file_c::SEEKPOINT_START);
+
 		// TODO: handle Read failure
 		file->Read(fileinfo, length);
 
@@ -2846,7 +2845,6 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 			file->GetLength(), datafile, datafile,
 			lump_name, true);
 	}
-
 	I_Debugf("   md5hash = %02x%02x%02x%02x...%02x%02x%02x%02x\n",
 		df->dir_hash.hash[0], df->dir_hash.hash[1],
 		df->dir_hash.hash[2], df->dir_hash.hash[3],
@@ -2983,7 +2981,6 @@ void W_AddRawFilename(const char *file, int kind)
 void W_InitMultipleFiles(void)
 {
 	InitCaches();
-
 	// open all the files, load headers, and count lumps
 	numlumps = 0;
 
