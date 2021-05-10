@@ -1264,7 +1264,7 @@ bool M_OptResponder(event_t * ev, int ch)
 
 		keyscan = 0;
 
-		if (ch == KEYD_ESCAPE || KEYD_JOY2)
+		if (ch == KEYD_ESCAPE || ch == KEYD_JOY2)
 			return true;
 
 		blah = (int*)(curr_item->switchvar);
