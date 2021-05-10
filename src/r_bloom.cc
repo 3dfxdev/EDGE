@@ -31,7 +31,7 @@
 //FIXME: Ugly hacks.
 DEF_CVAR(r_bloom, int, "c", 1);
 #define gl_bloom (bool)(r_bloom != 0)
-DEF_CVAR(r_bloom_amount, float, "c", 1.5f);
+DEF_CVAR(r_bloom_amount, float, "c", 1.4f);
 #define gl_bloom_amount (float)(r_bloom_amount) //defaults to 1.4f
 
 #if 0
