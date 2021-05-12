@@ -1232,15 +1232,13 @@ static void LaunchSmartProjectile(mobj_t * source, mobj_t * target,
 static inline bool Weakness_CheckHit(mobj_t *target,
 		const atkdef_c *attack, float x, float y, float z)
 {
+	//I_Printf("Weakness_CheckHit!\n");
 	const weakness_info_c *weak = &target->info->weak;
 
 	if (weak->classes == BITSET_EMPTY)
 		return false;
-	
-I_Debugf("Weakness_CheckHit: target=[%s] classes=0x%08x\n", target->info->name.c_str(), weak->classes); 
 
-	if (BITSET_EMPTY != (attack->attack_class & ~weak->classes))
-		return false;
+	I_Debugf("Weakness_CheckHit: target=[%s] classes=0x%08x\n", target->info->name.c_str(), weak->classes); 
 
 	if (target->height < 1)
 		return false;
@@ -1251,8 +1249,8 @@ I_Debugf("Weakness_CheckHit: target=[%s] classes=0x%08x\n", target->info->name.c
 	z = (z - target->z) / target->height;
 	z = CLAMP(0.01f, z, 0.99f);
 
-I_Debugf("HEIGHT CHECK: %1.2f < %1.2f < %1.2f\n",
-		  weak->height[0], z, weak->height[1]);
+	I_Debugf("HEIGHT CHECK: %1.2f < %1.2f < %1.2f\n",
+			  weak->height[0], z, weak->height[1]);
 	
 	if (z < weak->height[0] || z > weak->height[1])
 		return false;
@@ -1261,9 +1259,9 @@ I_Debugf("HEIGHT CHECK: %1.2f < %1.2f < %1.2f\n",
 
 	ang -= target->angle;
 
-I_Debugf("ANGLE CHECK: %1.2f < %1.2f < %1.2f\n",
-		 ANG_2_FLOAT(weak->angle[0]), ANG_2_FLOAT(ang),
-		 ANG_2_FLOAT(weak->angle[1]));
+	I_Debugf("ANGLE CHECK: %1.2f < %1.2f < %1.2f\n",
+			  ANG_2_FLOAT(weak->angle[0]), ANG_2_FLOAT(ang),
+			  ANG_2_FLOAT(weak->angle[1]));
 
 	if (weak->angle[0] <= weak->angle[1])
 	{
