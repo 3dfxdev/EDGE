@@ -256,6 +256,8 @@ endif(MSVC)
 
 if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
 		set ( CMAKE_CXX_FLAGS "-mfpu=neon-vfpv4 -mtune=cortex-a7 -mhard-float ${CMAKE_CXX_FLAGS}" )
+	elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
+		set( CMAKE_CXX_FLAGS "-mcpu=cortex-a72 -mtune=cortex-a72 -march=armv8-a+fp+simd+crc ${CMAKE_CXX_FLAGS}" )
 	elseif(CMAKE_SIZEOF_VOID_P EQUAL 4 AND NOT MSVC)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
 	endif()
@@ -399,9 +401,12 @@ INCLUDE_DIRECTORIES (${FLTK_INCLUDE_DIR})
 
 # OpenGL
 if (NOT VITA)
-FIND_PACKAGE (OpenGL)
+    if(POLICY CMP0072)
+        cmake_policy(SET CMP0072 NEW)
+    endif()
+    FIND_PACKAGE (OpenGL)
 elseif(VITA)
-FIND_PACKAGE (VitaGL)
+    FIND_PACKAGE (VitaGL)
 endif()
 
 # libvorbis/libogg

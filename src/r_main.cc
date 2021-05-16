@@ -299,7 +299,7 @@ void RGL_LoadExtensions()
 		glversion += 10;
 		gl.es = true;
 	}
-
+	
 	const char *version = M_GetParm("-glversion");
 
 	if (version == NULL)
@@ -317,9 +317,17 @@ void RGL_LoadExtensions()
 
 	float gl_version = (float)strtod(version, NULL) + 0.01f;
 
-
+	// Pi 4 fkms driver check for OpenGLES
+	const char *glrenderer = (const char*)glGetString(GL_RENDERER);
+	if (glrenderer && strlen(glversion) > 4 && memcmp(glrenderer, "V3D ", 4) == 0)
+	{
+		gl.es = true;
+		gl_version = 3.1;
+	}
+	
 	if (gl.es)
 	{
+		
 		if (gl_version < 2.0f)
 		{
 			I_Error("Unsupported OpenGL ES version.\nAt least OpenGL ES 2.0 is required to run EDGE.\n");
