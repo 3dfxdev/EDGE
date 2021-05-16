@@ -317,21 +317,20 @@ void RGL_LoadExtensions()
 
 	float gl_version = (float)strtod(version, NULL) + 0.01f;
 
-	// Broadcom V3D driver check for OpenGLES. Performs a simple version check to manually set OpenGL ES version
+	// Broadcom V3D driver check for OpenGLES. Performs a major version check to manually set OpenGL ES version
 	const char *glrenderer = (const char*)glGetString(GL_RENDERER);
-	if (glrenderer && strlen(glversion) > 5 && memcmp(glrenderer, "V3D ", 4) == 0)
-	{
-		gl.es = true;
-		if (atoi((const char*)glrenderer[4]) >= 4) {
+	if (glrenderer && strlen(glversion) > 5) {
+		if (memcmp(glrenderer, "V3D 4", 5) == 0) {
+			gl.es = true;
 			gl_version = 3.1;
-		} else {
+		} else if (memcmp(glrenderer, "V3D 3", 5) == 0) {
+			gl.es = true;
 			gl_version = 2.0;
-		}
+		}	
 	}
 	
 	if (gl.es)
 	{
-		
 		if (gl_version < 2.0f)
 		{
 			I_Error("Unsupported OpenGL ES version.\nAt least OpenGL ES 2.0 is required to run EDGE.\n");
