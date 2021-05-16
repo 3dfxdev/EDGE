@@ -317,12 +317,16 @@ void RGL_LoadExtensions()
 
 	float gl_version = (float)strtod(version, NULL) + 0.01f;
 
-	// Pi 4 fkms driver check for OpenGLES
+	// Broadcom V3D driver check for OpenGLES. Performs a simple version check to manually set OpenGL ES version
 	const char *glrenderer = (const char*)glGetString(GL_RENDERER);
-	if (glrenderer && strlen(glversion) > 4 && memcmp(glrenderer, "V3D ", 4) == 0)
+	if (glrenderer && strlen(glversion) > 5 && memcmp(glrenderer, "V3D ", 4) == 0)
 	{
 		gl.es = true;
-		gl_version = 3.1;
+		if (atoi(glrenderer[4]) >= 4) {
+			gl_version = 3.1;
+		} else {
+			gl_version = 2.0;
+		}
 	}
 	
 	if (gl.es)
