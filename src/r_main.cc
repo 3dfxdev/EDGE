@@ -322,7 +322,7 @@ void RGL_LoadExtensions()
 	if (glrenderer && strlen(glversion) > 5 && memcmp(glrenderer, "V3D ", 4) == 0)
 	{
 		gl.es = true;
-		if (atoi(glrenderer[4]) >= 4) {
+		if (atoi((const char*)glrenderer[4]) >= 4) {
 			gl_version = 3.1;
 		} else {
 			gl_version = 2.0;
