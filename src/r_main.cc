@@ -351,6 +351,14 @@ void RGL_LoadExtensions()
 		gl.legacyMode = false;
 		//gl.lightmethod = LM_DEFERRED;
 		//gl.buffermethod = BM_DEFERRED;
+		
+		/* Force no_render_buffers for Pi 4 until GLSL 1.20 shaders can be implemented as an alternative.
+		Comment this out to use GL2/3 renderer, but be aware that attempting to enable FXAA/Bloom will crash EDGE. - Dasho */
+		if (glrenderer && strlen(glversion) > 4) {
+			if (memcmp(glrenderer, "V3D ", 4) == 0) {
+				no_render_buffers = true;
+			}	
+		}
 	}
 	else
 	{
