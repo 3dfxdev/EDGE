@@ -133,8 +133,8 @@ FILE *debugfile = NULL;
 FILE *openglfile = NULL;
 FILE *shadercompilefile = NULL;
 
-DEF_CVAR(i_skipsplash, int, "c", 0);
-DEF_CVAR(i_skipintro, int, "c", 0);
+DEF_CVAR(i_playsplash, int, "c", 0);
+
 
 gameflags_t default_gameflags =
 {
@@ -199,6 +199,9 @@ static std::string dragged_demo;
 
 extern std::string m_language;
 extern int g_aggression;
+
+DEF_CVAR(i_playintro, int, "c", 0);
+DEF_CVAR(g_showtitle, int, "c", 1);
 
 DEF_CVAR(debug_testlerp, int, "c", 0);
 DEF_CVAR(ddf_strict, int, "c", 0);
@@ -1852,11 +1855,11 @@ static void E_Startup(void)
 	bool nointro = false;
 
 	//Splash Screen Check
-	M_CheckBooleanParm("nosplash", &nosplash, false);
-	if (!nosplash && i_skipsplash == 0)
-	{
+	//M_CheckBooleanParm("nosplash", &nosplash, false);
+	//if (!nosplash)
+	//{
 		//E_SplashScreen();
-	}
+	//}
 
 
 #if 0
@@ -1991,16 +1994,34 @@ static void E_InitialState(void)
 	// start the appropriate game based on parms
 	if (!warp)
 	{
-		if (rott_mode)
-			E_PlayMovie("/pack0/video/apogee.roq", 1);
-		else
-		// IF YOU BUILD WITH USE_FFMPEG, CHANGE ROQ TO DESIRED FORMAT AS KIT DOES NOT PLAY ROQ.
+		if (i_playsplash == 1)
+		{
+			I_Debugf("- Startup: i_playsplash is 1, E_SplashScreen.\n");
+			E_SplashScreen();
+		}
+		if (i_playintro == 1)
+		{
+			I_Debugf("- Startup: i_playintro is 1, playback ROQ.\n");
+			//if (rott_mode)
+			//{
+			//	E_PlayMovie("/pack0/video/apogee.roq", 1);
+			//}
+			//else
+				// IF YOU BUILD WITH USE_FFMPEG, CHANGE ROQ TO DESIRED FORMAT AS KIT DOES NOT PLAY ROQ.
 			E_PlayMovie("/pack0/video/intro.roq", 1);
+		}
+		//if ((!warp) && (i_playintro == 0))
+		//{
+		//	I_Debugf("- Startup: showing title screen.\n");
+		//}
+		if (g_showtitle == 1)
+		{
+			E_StartTitle();
+		}
 
-		I_Debugf("- Startup: showing title screen.\n");
-		E_StartTitle();
 		return;
 	}
+
 
 	newgame_params_c params;
 
