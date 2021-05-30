@@ -135,6 +135,7 @@ extern int r_stretchworld;
 extern int r_fixspritescale;
 extern int m_tactile;
 extern int r_fxaa;
+extern int r_fxaa_quality;
 
 extern float r_textscale; //temp hack for HUD text scaling size
 
@@ -145,6 +146,9 @@ extern int monitor_size;
 extern int joystick_device;
 
 extern bool heretic_mode;
+extern int i_playintro;
+extern int i_playsplash;
+extern int g_showtitle;
 
 //submenus
 static void M_KeyboardOptions(int keypressed);
@@ -154,6 +158,7 @@ static void M_GameplayOptions(int keypressed); /// Make Gameplay Options page-fl
 static void M_AnalogueOptions(int keypressed);
 static void M_SoundOptions(int keypressed);
 static void M_DebugMenu(int keypressed); /// New Debugging Sub-menu
+static void M_StartupMenu(int keypressed); /// New Debugging Sub-menu
 
 static void M_Key2String(int key, char *deststring);
 
@@ -308,6 +313,7 @@ static style_c *video_style;
 static style_c *setres_style;
 static style_c *advanced_style;
 static style_c *debugmenu_style; //debugging menu "style"
+static style_c* startup_style;
 
 static void M_ChangeMusVol(int keypressed)
 {
@@ -381,8 +387,9 @@ static optmenuitem_t mainoptions[] =
 	{OPT_Function, "Language",          NULL,  0, NULL, M_ChangeLanguage, NULL},
 	{OPT_Switch,   "Messages",          YesNo, 2, &showMessages, NULL, "Messages"},
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
+	{OPT_Function, "Startup Options",	NULL,  0, NULL, M_StartupMenu, "Set Options at Startup" },
 	{OPT_Function, "Debug Menu",	    NULL,  0, NULL, M_DebugMenu, "Debugging Options" },
-	{OPT_Function, "Advanced Start",    NULL,  0, NULL, M_HostNetGame, NULL },
+	{OPT_Function, "Network Start",    NULL,  0, NULL, M_HostNetGame, NULL },
 
 	{OPT_Plain,    "",                  NULL,  0, NULL, NULL, NULL},
 	{OPT_Function, "Reset to Defaults", NULL,  0, NULL, M_ResetDefaults, NULL}
@@ -488,6 +495,17 @@ static optmenuitem_t debuggingoptions[] =
 	{OPT_Slider,   "Global MD5 Scale",    NULL,  4,  &r_md5scale, NULL, "MD5 Model Global Scalar"}
 };
 
+static optmenuitem_t startupoptions[] =
+{
+	{ OPT_Boolean, "Play Startup Cinematic",YesNo,  2, &i_playintro, NULL, "Play ROQ Cinematic intros"},
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Boolean, "Play Startup SplashScreen", YesNo,  2, &i_playsplash, NULL, "Show EDGE Splashscreen"},
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Plain,   "",  NULL,  0,  NULL, NULL, NULL },
+	{ OPT_Plain, "Show TITLESCREEN", YesNo,  2, &g_showtitle, NULL, "Show TITLEPIC, DEBUGGING, THIS CANNOT BE CHANGED HERE"}
+};
+
 ///Screen Options, custom graphic by Julian
 static menuinfo_t video_optmenu =
 {
@@ -519,6 +537,13 @@ static menuinfo_t debug_optmenu =
 {
 	debuggingoptions, sizeof(debuggingoptions) / sizeof(optmenuitem_t),
 	&advanced_style, 150, 77, "M_SETUPM", NULL, 0, "" //TODO: supposed to be &debugmenu_style and M_DEBUG
+};
+
+// Debug Menu
+static menuinfo_t startup_optmenu =
+{
+	startupoptions, sizeof(startupoptions) / sizeof(optmenuitem_t),
+	&advanced_style, 250, 75, "M_OPTTTL", NULL, 0, "" //TODO: supposed to be &debugmenu_style and M_DEBUG
 };
 
 //
@@ -1572,6 +1597,13 @@ static void M_AdvancedOptions(int keypressed)
 static void M_DebugMenu(int keypressed)
 {
 	curr_menu = &debug_optmenu;
+
+	curr_item = curr_menu->items + curr_menu->pos;
+}
+
+static void M_StartupMenu(int keypressed)
+{
+	curr_menu = &startup_optmenu;
 
 	curr_item = curr_menu->items + curr_menu->pos;
 }
