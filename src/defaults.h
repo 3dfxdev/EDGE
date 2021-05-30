@@ -25,6 +25,10 @@
 #define CFGDEF_SCREENBITS       (32)
 #define CFGDEF_FULLSCREEN       (0)
 
+// intros
+#define CFGDEF_PLAYSPLASH		(0)
+#define CFGDEF_PLAYINTRO		(1)
+
 // Controls (Key/Mouse Buttons)
 #define CFGDEF_KEY_FIRE         (KEYD_RCTRL + (KEYD_MOUSE1 << 16))
 #define CFGDEF_KEY_SECONDATK    ('e')

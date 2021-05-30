@@ -84,6 +84,8 @@ extern int r_bloom;
 extern int r_lens;
 extern int r_stretchworld;
 extern int r_fixspritescale;
+extern int i_playsplash;
+extern int i_playintro;
 
 
 bool display_disk = false;
@@ -120,6 +122,8 @@ static default_t defaults[] =
 	{CFGT_Boolean,	"fullscreen",		 &FULLSCREEN,	  CFGDEF_FULLSCREEN},
 	{CFGT_Boolean,	"directx",			 &force_directx,  0},
 	{CFGT_Boolean,	"waveout",			 &force_waveout,  0},
+	{CFGT_Int,      "i_playsplash",      &i_playsplash,   CFGDEF_PLAYSPLASH},
+	{CFGT_Int,      "i_playintro",       &i_playintro,    CFGDEF_PLAYINTRO},
 	// {CFGT_Int,      "usegamma",          &r_gamma,	  CFGDEF_CURRENT_GAMMA},
 	// {CFGT_Boolean,  "m_diskicon",		 &m_diskicon,	  CFGDEF_DISK_ICON},
 
