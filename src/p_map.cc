@@ -1214,8 +1214,12 @@ bool P_SlideMove(mobj_t * mo, float x, float y)
 		dx = tmxmove;
 		dy = tmymove;
 
-		if (bestslidefrac > 0.99f)
-			disable_bob = true;
+		// 6.2.21 ~CA: Encapsulate player bobbing so voodoo dolls are not affected
+		if (mo->player && mo->player->mo == mo)
+		{
+			if (bestslidefrac > 0.99f)
+				disable_bob = true;
+		}
 
 		if (P_TryMove(mo, mo->x + tmxmove, mo->y + tmymove))
 			return true;
