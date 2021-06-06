@@ -824,6 +824,15 @@ static image_c *AddImageUser(imagedef_c *def)
 
 	image_c *rim = NewImage(w, h, solid ? OPAC_Solid : OPAC_Unknown);
 
+	epi::image_data_c* tmp_img = ReadAsEpiBlock(rim);
+
+	// CA 6.5.21: Set grAb values for rim before they are copied to def
+	if ((def->format == LIF_PNG) && (tmp_img->grAb != nullptr))
+	{
+		rim->offset_x = tmp_img->grAb->x;
+		rim->offset_y = tmp_img->grAb->y;
+	}
+
 	rim->offset_x = def->x_offset;
 	rim->offset_y = def->y_offset;
 
