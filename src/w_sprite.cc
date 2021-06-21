@@ -583,7 +583,6 @@ bool W_CheckSpritesExist(const state_group_t& group)
 			break;
 		}
 	}
-	I_Printf("Checking if Sprites Exist...\n");
 	return false;
 }
 
