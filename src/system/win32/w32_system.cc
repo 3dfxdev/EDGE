@@ -24,6 +24,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <winternl.h>
 
 #include "../../../epi/timestamp.h"
 
@@ -64,7 +65,29 @@ static char glbuf[GLMSGBUFSIZE];
 // ================ INTERNALS =================
 
 
+void I_GetOperatingSystem()
+{
+	int osver = 0.0;
+	int minorver = 0.0;
 
+	NTSTATUS(WINAPI * RtlGetVersion)(LPOSVERSIONINFOEXW);
+	OSVERSIONINFOEXW info;
+
+	*(FARPROC*)&RtlGetVersion = GetProcAddress(GetModuleHandleA("ntdll"), "RtlGetVersion");
+
+	if (NULL != RtlGetVersion)
+	{
+		info.dwOSVersionInfoSize = sizeof(info);
+		RtlGetVersion(&info);
+		info.dwMajorVersion; info.dwMinorVersion; info.dwBuildNumber;
+		//osver = info.dwMajorVersion;
+		//minorver = info.dwMinorVersion;
+		I_Printf("==============================================================================\n");
+		I_Printf("Operating System:\n Windows %u.%u.%u\n", info.dwMajorVersion, info.dwMinorVersion, info.dwBuildNumber);
+		I_Printf("==============================================================================\n");
+	}
+	//GetVersionEx((LPOSVERSIONINFO)&info); //info requires typecasting
+}
 
 
 //
@@ -124,6 +147,7 @@ void I_SystemStartup(void)
 	//if (M_CheckParm("-ffshake"))
 		ff_shake[0] = true;
 
+	I_GetOperatingSystem(); // Print OS Information
 	I_StartupGraphics(); // SDL requires this to be called first
 	I_StartupControl();
 	I_StartupSound();
