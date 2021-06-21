@@ -3210,8 +3210,8 @@ void M_Init(void)
 	//code below switches out skull
 	if (W_CheckNumForName("M_SLCTR1") >= 0)
 		menu_skull[0] = W_ImageLookup("M_SLCTR1");
-	//else if (W_CheckNumForName("CURSOR01") >= 0)
-		//menu_skull[0] = W_ImageLookup("CURSOR01");
+	else if (W_CheckNumForName("CURSOR01") >= 0)
+		menu_skull[0] = W_ImageLookup("CURSOR01");
 	else
 		menu_skull[0] = W_ImageLookup("M_SKULL1");
 

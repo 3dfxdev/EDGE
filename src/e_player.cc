@@ -426,7 +426,6 @@ static void P_SpawnVoodooDoll(player_t *p, const spawnpoint_t *point)
 			p->pnum+1, point->x, point->y);
 
 	mobj_t *mobj = P_MobjCreateObject(point->x, point->y, point->z, info);
-
 	mobj->angle = point->angle;
 	mobj->vertangle = point->vertangle;
 	mobj->player = p;
@@ -437,6 +436,7 @@ static void P_SpawnVoodooDoll(player_t *p, const spawnpoint_t *point)
 
 	// Don't get stuck spawned in things: telefrag them.
 	P_TeleportMove(mobj, mobj->x, mobj->y, mobj->z);
+	mobj->UpdateLastTicRender();
 }
 
 //

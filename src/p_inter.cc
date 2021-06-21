@@ -1161,6 +1161,9 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 		// add damage after armour / invuln detection
 		if (damage > 0)
 		{
+			// 6.20.21 ~CA: 
+			// Cancel out teleport effect (fixes stuck telept_fov)
+			player->telept_fov = 0;
 			player->damagecount += (int)MAX(damage, DAMAGE_ADD_MIN);
 			player->damage_pain += damage;
 		}
