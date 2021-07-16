@@ -3245,8 +3245,8 @@ static void RGL_DrawPlane(drawfloor_t *dfloor, float h,
 	data.y_mat = surf->y_mat;
 
 	float mir_scale = MIR_XYScale();
-	data.x_mat.x /= mir_scale; data.x_mat.y /= mir_scale / 2.0f;
-	data.y_mat.x /= mir_scale * 2.0f; data.y_mat.y /= mir_scale;
+	data.x_mat.x /= mir_scale; data.x_mat.y /= mir_scale;
+	data.y_mat.x /= mir_scale; data.y_mat.y /= mir_scale;
 
 	data.normal.Set(0, 0, (viewz > h) ? +1 : -1);
 
