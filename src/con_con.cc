@@ -1192,7 +1192,7 @@ void CON_ShowFPS(void)
 		lcount++;
 
 	if (debug_pos)
-		lcount += 7;
+		lcount += 8;
 
 	int x = SCREENWIDTH  - XMUL * 16;
 	int y = SCREENHEIGHT - YMUL * lcount;
@@ -1236,6 +1236,10 @@ void CON_ShowFPS(void)
 		y -= YMUL;
 
 		sprintf(textbuf, "angle: %d", (int)ANG_2_FLOAT(p->mo->angle));
+		DrawText(x, y, textbuf, T_GREY176);
+		y -= YMUL;
+
+		sprintf(textbuf, "speed: %1.2f", (float)(p->actual_speed));
 		DrawText(x, y, textbuf, T_GREY176);
 		y -= YMUL;
 
