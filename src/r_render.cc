@@ -2637,12 +2637,17 @@ static void RGL_WalkMirror(drawsub_c *dsub, seg_t *seg,
 //
 static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 {
+	// ignore segs sitting on current mirror
+	if (MIR_SegOnPortal(seg))
+		return;
+
 	float sx1 = seg->v1->x;
 	float sy1 = seg->v1->y;
 
 	float sx2 = seg->v2->x;
 	float sy2 = seg->v2->y;
 
+#ifdef EXPERIMENTAL_REJECT
 	// Reject lines not facing viewer
 	{
 		float pt1x = sx1 - viewx;
@@ -2656,6 +2661,7 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 	// ignore segs sitting on current mirror
 	if (MIR_SegOnPortal(seg))
 		return;
+#endif
 
 	// when there are active mirror planes, segs not only need to
 	// be flipped across them but also clipped across them.
@@ -2764,7 +2770,11 @@ static void RGL_WalkSeg(drawsub_c *dsub, seg_t *seg)
 
 	dsub->visible = true;
 
+#ifdef ZDOOM_OCCLUSION
 	if (seg->miniseg || angle_L == angle_R)
+#else
+	if (seg->miniseg || span == 0)
+#endif
 		return;
 
 	if (num_active_mirrors < MAX_MIRRORS)
