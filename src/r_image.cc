@@ -743,20 +743,20 @@ static image_c *AddLBMImage(const char *name, int lump)
 
 	//len = W_LumpLength(lump);
 
-	rim = NewImage(320, 200, OPAC_Solid);
+rim = NewImage(320, 200, OPAC_Solid);
 
-	strcpy(rim->name, name);
+strcpy(rim->name, name);
 
-	rim->source_type = IMSRC_ROTTLBM;
-	rim->source.flat.lump = lump;
-	rim->source_palette = W_GetPaletteForLump(lump);
+rim->source_type = IMSRC_ROTTLBM;
+rim->source.flat.lump = lump;
+rim->source_palette = W_GetPaletteForLump(lump);
 
-	raw_graphics.push_back(rim);
+raw_graphics.push_back(rim);
 
-	return rim;
+return rim;
 }
 
-static image_c *AddImageUser(imagedef_c *def)
+static image_c* AddImageUser(imagedef_c* def)
 {
 	int w, h;
 	bool solid;
@@ -768,19 +768,19 @@ static image_c *AddImageUser(imagedef_c *def)
 		solid = true;
 		break;
 
-		case IMGDT_Builtin:
-			//!!!!! (detail_level == 2) ? 512 : 256;
-			w = 256;
-			h = 256;
-			solid = false;
-			break;
+	case IMGDT_Builtin:
+		//!!!!! (detail_level == 2) ? 512 : 256;
+		w = 256;
+		h = 256;
+		solid = false;
+		break;
 
 	case IMGDT_File:
 	case IMGDT_Lump:
 	{
-		const char *basename = def->info.c_str();
+		const char* basename = def->info.c_str();
 
-		epi::file_c *f = OpenUserFileOrLump(def);
+		epi::file_c* f = OpenUserFileOrLump(def);
 
 		if (!f)
 		{
@@ -793,7 +793,7 @@ static image_c *AddImageUser(imagedef_c *def)
 
 		if (def->format == LIF_EXT)
 			got_info = epi::JPEG_GetInfo(f, &w, &h, &solid);
-		else if  (def->format == LIF_JPEG)
+		else if (def->format == LIF_JPEG)
 			got_info = epi::JPEG_GetInfo(f, &w, &h, &solid);
 		else if (def->format == LIF_TGA)
 			got_info = epi::TGA_GetInfo(f, &w, &h, &solid);
@@ -803,12 +803,12 @@ static image_c *AddImageUser(imagedef_c *def)
 			got_info = epi::JPEG_GetInfo(f, &w, &h, &solid);
 
 		if (!got_info)
-	//	{
-			//CloseUserFileOrLump(def, f);
+			//	{
+					//CloseUserFileOrLump(def, f);
 			I_Error("Error occurred scanning image: %s\n", basename);
-			//got_info = epi::JPEG_GetInfo(f, &w, &h, &solid);
-			//return NULL;
-	//	}
+		//got_info = epi::JPEG_GetInfo(f, &w, &h, &solid);
+		//return NULL;
+//	}
 
 		CloseUserFileOrLump(def, f);
 #if 1
@@ -822,16 +822,7 @@ static image_c *AddImageUser(imagedef_c *def)
 		return NULL; /* NOT REACHED */
 	}
 
-	image_c *rim = NewImage(w, h, solid ? OPAC_Solid : OPAC_Unknown);
-
-	epi::image_data_c* tmp_img = ReadAsEpiBlock(rim);
-
-	// CA 6.5.21: Set grAb values for rim before they are copied to def
-	if ((def->format == LIF_PNG) && (tmp_img->grAb != nullptr))
-	{
-		rim->offset_x = tmp_img->grAb->x;
-		rim->offset_y = tmp_img->grAb->y;
-	}
+	image_c* rim = NewImage(w, h, solid ? OPAC_Solid : OPAC_Unknown);
 
 	rim->offset_x = def->x_offset;
 	rim->offset_y = def->y_offset;
@@ -848,6 +839,17 @@ static image_c *AddImageUser(imagedef_c *def)
 
 	rim->source_type = IMSRC_User;
 	rim->source.user.def = def;
+
+	// CA 6.5.21: Set grAb values for rim before they are copied to def
+	if ((def->format == LIF_PNG))
+	{
+		epi::image_data_c* tmp_img = ReadAsEpiBlock(rim);
+		if (tmp_img->grAb != nullptr)
+		{
+			rim->offset_x = tmp_img->grAb->x;
+			rim->offset_y = tmp_img->grAb->y;
+		}
+	}
 
 	if (def->special & IMGSP_Crosshair)
 	{
