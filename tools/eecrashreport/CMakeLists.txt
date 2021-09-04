@@ -25,6 +25,7 @@ ENDIF (COMMAND cmake_policy)
 ################################################################################
 ######################### Set Project Source  ##################################
 ADD_DEFINITIONS(-D_AFXDLL)
+SET(CMAKE_MFC_FLAG 2)
 FILE (GLOB EECRASHREPORT_SOURCES *.cc)
 INCLUDE_DIRECTORIES (.)
 

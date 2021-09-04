@@ -100,6 +100,9 @@ find_library(COCOA_LIBRARY Cocoa)
 FIND_PATH(COCOA_INCLUDE_DIR Cocoa/Cocoa.h)
 endif()
 
+if(MSVC)
+add_compile_options(/Qspectre-)
+endif()
 
 #set (SDL_kitchensink_static "Statically link SDLKitchensink" ON)
 #set (SDL_kitchensink "Do not Statically link SDLKitchensink" OFF)
