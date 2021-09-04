@@ -57,9 +57,9 @@ enum
    ML_SECTORS,   // Sectors, from editing
    ML_REJECT,    // LUT, sector-sector visibility
    ML_BLOCKMAP,  // LUT, motion clipping, walls/grid element
-   ML_BEHAVIOR,   // Hexen scripting stuff
+   ML_BEHAVIOR   // Hexen scripting stuff
 
-   ML_PORTALCONNECT = 0x80000000	// for internal use only: This line connects to a sector with a linked portal (used to speed up sight checks.)
+  // ML_PORTALCONNECT = 0x80000000	// for internal use only: This line connects to a sector with a linked portal (used to speed up sight checks.)
 };
 
 // -AJA- 1999/12/20: Lump order from "GL-Friendly Nodes" specs.
