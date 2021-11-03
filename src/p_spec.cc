@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Specials Lines & Floor Code
 //----------------------------------------------------------------------------
-//
-//  Copyright (c) 1999-2018  The EDGE Team.
-//
+// 
+//  Copyright (c) 1999-2009  The EDGE Team.
+// 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -27,7 +27,7 @@
 //
 //
 
-#include "system/i_defs.h"
+#include "i_defs.h"
 
 #include <limits.h>
 
@@ -40,7 +40,6 @@
 #include "m_argv.h"
 #include "m_random.h"
 #include "p_local.h"
-#include "p_pobj.h"
 #include "p_spec.h"
 #include "rad_trig.h"
 #include "s_sound.h"
@@ -84,6 +83,7 @@ static bool DoDonut_wrapper(sector_t *s, const void *p1, void *p2)
 //
 // UTILITIES
 //
+
 //
 // Will return a side_t * given the number of the current sector,
 // the line number, and the side (0/1) that you want.
@@ -411,7 +411,7 @@ static void AdjustLightParts(side_t *side, bool left,
 }
 
 
-static void P_EFTransferTrans(sector_t *ctrl, sector_t *sec, line_t *line,
+static void P_EFTransferTrans(sector_t *ctrl, sector_t *sec, line_t *line, 
 		const extrafloordef_c *ef, float trans)
 {
 	int i;
@@ -682,7 +682,7 @@ static void P_PortalEffect(line_t *ld)
 
 	if (ld->side[1])
 	{
-		I_Warning("Portal on line #%ld disabled: Not one-sided!\n", ld - lines);
+		I_Warning("Portal on line #%d disabled: Not one-sided!\n", (int)(ld - lines));
 		return;
 	}
 
@@ -694,7 +694,7 @@ static void P_PortalEffect(line_t *ld)
 
 	if (ld->tag <= 0)
 	{
-		I_Warning("Portal on line #%ld disabled: Missing tag.\n", ld - lines);
+		I_Warning("Portal on line #%d disabled: Missing tag.\n", (int)(ld - lines));
 		return;
 	}
 
@@ -715,7 +715,7 @@ static void P_PortalEffect(line_t *ld)
 
 		if (h1 < 1 || h2 < 1)
 		{
-			I_Warning("Portal on line #%ld disabled: sector is closed.\n", ld - lines);
+			I_Warning("Portal on line #%d disabled: sector is closed.\n", (int)(ld - lines));
 			return;
 		}
 
@@ -730,13 +730,13 @@ static void P_PortalEffect(line_t *ld)
 
 		if (other->portal_pair)
 		{
-			I_Warning("Portal on line #%ld disabled: Partner already a portal.\n", ld - lines);
+			I_Warning("Portal on line #%d disabled: Partner already a portal.\n", (int)(ld - lines));
 			return;
 		}
 
 		if (other->side[1])
 		{
-			I_Warning("Portal on line #%ld disabled: Partner not one-sided.\n", ld - lines);
+			I_Warning("Portal on line #%d disabled: Partner not one-sided.\n", (int)(ld - lines));
 			return;
 		}
 
@@ -744,7 +744,7 @@ static void P_PortalEffect(line_t *ld)
 
 		if (h_ratio < 0.95f || h_ratio > 1.05f)
 		{
-			I_Warning("Portal on line #%ld disabled: Partner is different height.\n", ld - lines);
+			I_Warning("Portal on line #%d disabled: Partner is different height.\n", (int)(ld - lines));
 			return;
 		}
 
@@ -752,7 +752,7 @@ static void P_PortalEffect(line_t *ld)
 
 		if (len_ratio < 0.95f || len_ratio > 1.05f)
 		{
-			I_Warning("Portal on line #%ld disabled: Partner is different length.\n", ld - lines);
+			I_Warning("Portal on line #%d disabled: Partner is different length.\n", (int)(ld - lines));
 			return;
 		}
 
@@ -765,7 +765,7 @@ static void P_PortalEffect(line_t *ld)
 		return; // Success !!
 	}
 
-	I_Warning("Portal on line #%ld disabled: Cannot find partner!\n", ld - lines);
+	I_Warning("Portal on line #%d disabled: Cannot find partner!\n", (int)(ld - lines));
 }
 
 
@@ -798,11 +798,11 @@ static slope_plane_t * DetailSlope_BoundIt(line_t *ld, sector_t *sec, float dz1,
 		}
 	}
 
-L_WriteDebug("DETAIL SLOPE in #%ld: dists %1.3f -> %1.3f\n", sec - sectors, d_close, d_far);
+L_WriteDebug("DETAIL SLOPE in #%d: dists %1.3f -> %1.3f\n", (int)(sec - sectors), d_close, d_far);
 
 	if (d_far - d_close < 0.5)
 	{
-		I_Warning("Detail slope in sector #%ld disabled: no area?!?\n", sec - sectors);
+		I_Warning("Detail slope in sector #%d disabled: no area?!?\n", (int)(sec - sectors));
 		return NULL;
 	}
 
@@ -823,7 +823,7 @@ static void DetailSlope_Floor(line_t *ld)
 {
 	if (! ld->side[1])
 	{
-		I_Warning("Detail slope on line #%ld disabled: Not two-sided!\n", ld - lines);
+		I_Warning("Detail slope on line #%d disabled: Not two-sided!\n", (int)(ld - lines));
 		return;
 	}
 
@@ -834,7 +834,7 @@ static void DetailSlope_Floor(line_t *ld)
 
 	if (fabs(z1 - z2) < 0.5)
 	{
-		I_Warning("Detail slope on line #%ld disabled: floors are same height\n", ld - lines);
+		I_Warning("Detail slope on line #%d disabled: floors are same height\n", (int)(ld - lines));
 		return;
 	}
 
@@ -848,7 +848,7 @@ static void DetailSlope_Floor(line_t *ld)
 
 	if (sec->f_slope)
 	{
-		I_Warning("Detail slope in sector #%ld disabled: floor already sloped!\n", sec - sectors);
+		I_Warning("Detail slope in sector #%d disabled: floor already sloped!\n", (int)(sec - sectors));
 		return;
 	}
 
@@ -870,7 +870,7 @@ static void DetailSlope_Ceiling(line_t *ld)
 
 	if (fabs(z1 - z2) < 0.5)
 	{
-		I_Warning("Detail slope on line #%ld disabled: ceilings are same height\n", ld - lines);
+		I_Warning("Detail slope on line #%d disabled: ceilings are same height\n", (int)(ld - lines));
 		return;
 	}
 
@@ -884,7 +884,7 @@ static void DetailSlope_Ceiling(line_t *ld)
 
 	if (sec->c_slope)
 	{
-		I_Warning("Detail slope in sector #%ld disabled: ceiling already sloped!\n", sec - sectors);
+		I_Warning("Detail slope in sector #%d disabled: ceiling already sloped!\n", (int)(sec - sectors));
 		return;
 	}
 
@@ -914,7 +914,7 @@ static void DetailSlope_Ceiling(line_t *ld)
 // was activated, ie shot/crossed/pushed.  `line' can be NULL for
 // non-line activations.
 //
-// -KM- 1998/09/01 Procedure Written.
+// -KM- 1998/09/01 Procedure Written.  
 //
 // -ACB- 1998/09/11 Return Success or Failure.
 //
@@ -939,30 +939,16 @@ static bool P_ActivateSpecialLine(line_t * line,
 
 	int i;
 
+#ifdef DEVELOPERS
 	if (!special)
 	{
 		if (line == NULL)
 			I_Error("P_ActivateSpecialLine: Special type is 0\n");
-
-		if (line->action == 0)
-			I_Error("P_ActivateSpecialLine: Line %d is not Special\n",
+		else
+			I_Error("P_ActivateSpecialLine: Line %d is not Special\n", 
 					(int)(line - lines));
-
-		// do line action (zdoom)
-		if (line->action == 2)
-		{
-			PO_RotateLeft(line->args[0], line->args[1], line->args[2]);
-			return true;
-		}
-
-		if (line->action == 71) //line_walkable
-		{
-			EV_Teleport(line, line->args[2], thing, &special->t);
-			return true;
-		}
-
-		return false;
 	}
+#endif
 
 	if (!G_CheckWhenAppear(special->appear))
 	{
@@ -985,10 +971,10 @@ static bool P_ActivateSpecialLine(line_t * line,
 		return false;
 
 	// -AJA- 1999/12/07: Height checking.
-	if (line && thing && thing->player &&
+	if (line && thing && thing->player && 
         (special->special_flags & LINSP_MustReach) && !can_reach)
 	{
-        S_StartFX(thing->info->noway_sound,
+        S_StartFX(thing->info->noway_sound, 
                   P_MobjGetSfxCategory(thing), thing);
 
 		return false;
@@ -1148,7 +1134,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 		}
 		else
 		{
-			texSwitch = P_DoSectorsFromTag(tag, &special->f,
+			texSwitch = P_DoSectorsFromTag(tag, &special->f, 
 					line ? line->frontsector : NULL, DoPlane_wrapper);
 		}
 	}
@@ -1319,7 +1305,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 		}
         else if (thing)
         {
-            S_StartFX(special->activate_sfx,
+            S_StartFX(special->activate_sfx, 
                            P_MobjGetSfxCategory(thing), thing);
         }
 
@@ -1359,7 +1345,7 @@ static bool P_ActivateSpecialLine(line_t * line,
 //
 bool P_CrossSpecialLine(line_t *ld, int side, mobj_t * thing)
 {
-	return P_ActivateSpecialLine(ld, ld->special, ld->tag,
+	return P_ActivateSpecialLine(ld, ld->special, ld->tag, 
 			side, thing, line_walkable, 1, 0);
 }
 
@@ -1368,7 +1354,7 @@ bool P_CrossSpecialLine(line_t *ld, int side, mobj_t * thing)
 //
 void P_ShootSpecialLine(line_t * ld, int side, mobj_t * thing)
 {
-	P_ActivateSpecialLine(ld, ld->special, ld->tag,
+	P_ActivateSpecialLine(ld, ld->special, ld->tag, 
 			side, thing, line_shootable, 1, 0);
 }
 
@@ -1401,7 +1387,7 @@ bool P_UseSpecialLine(mobj_t * thing, line_t * line, int side,
 //
 // -AJA- 1999/10/21: written.
 //
-void P_RemoteActivation(mobj_t * thing, int typenum, int tag,
+void P_RemoteActivation(mobj_t * thing, int typenum, int tag, 
 		int side, trigger_e method)
 {
 	const linetype_c *spec = P_LookupLineType(typenum);
@@ -1505,12 +1491,12 @@ static inline void PlayerInProperties(player_t *player,
 	if (special->secret)
 	{
 		player->secretcount++;
+
 		CON_Message("You found a Secret!");
 		S_StartFX(player->mo->info->secretsound,
-                           P_MobjGetSfxCategory(player->mo),
-                           player->mo);
-						   //for sound?
-
+				P_MobjGetSfxCategory(player->mo),
+				player->mo);
+		
 		props->type = 0;
 		props->special = NULL;
 	}
@@ -1606,7 +1592,7 @@ void P_PlayerInSpecialSector(player_t * player, sector_t * sec)
 		}
 
 		player->air_in_lungs = player->mo->info->lung_capacity;
-	}
+	} 
 
 	// -AJA- 2008/01/20: water splash sounds for players
 	if (!was_swimming && player->swimming)

@@ -86,6 +86,7 @@ module math
     }
 }
 
+
 // STRINGS
 
 module strings
@@ -95,15 +96,23 @@ module strings
     function tonumber(s : string) : float = native
 }
 
-// CAMERA-MAN LIBRARY
+
+//dummy function just to shut up any 2.x mod
 module cam
 {
     var bob_z_scale
 	var bob_r_scale
 	
-	function set_vert_bob (bob_z_scale : float) = native
-	function set_roll_bob (bob_r_scale : float) = native
+	function set_vert_bob (bob_z_scale : float) = 
+	{ 
+		bob_z_scale = 0 
+	}
+	function set_roll_bob (bob_r_scale : float) = 
+	{ 
+		bob_r_scale = 0
+	}
 }
+
 
 // HUD LIBRARY
 
@@ -122,13 +131,18 @@ module hud
     constant BLACK  = '0 0 0'
     constant WHITE  = '255 255 255'
     constant RED    = '255 0 0'
+	constant LIGHTRED    = '220 0 0'
     constant GREEN  = '0 255 0'
+	constant LIGHTGREEN  = '0 255 144'
     constant BLUE   = '0 0 255'
+	constant LIGHTBLUE   = '0 0 255'
     constant YELLOW = '255 255 0'
     constant PURPLE = '255 0 255'
     constant CYAN   = '0 255 255'
     constant ORANGE = '255 160 0'
     constant GRAY   = '128 128 128'
+	constant LIGHTGRAY   = '192 192 192'
+
 
     // automap options
     constant AM_GRID     = 1   // also a color
@@ -181,7 +195,6 @@ module hud
     function stretch_image(x, y, w, h, image : string) = native
     function tile_image(x, y, w, h, image : string, offset_x, offset_y) = native
     function draw_text(x, y, text : string) = native
-	function draw_num(x, y, w, num) = native
     function draw_num2(x, y, w, num) = native
 
     function render_world(x, y, w, h)   = native
@@ -263,7 +276,6 @@ module player
     function get_pos()   : vector = native
     function get_angle() : float  = native
     function get_mlook() : float  = native
-	
 
     function health()      : float = native
     function armor(type)   : float = native
@@ -278,8 +290,6 @@ module player
     function is_using()     : float = native
     function is_action1()   : float = native
     function is_action2()   : float = native
-	function is_action3()   : float = native
-	function is_action4()   : float = native
     function is_attacking() : float = native
     function is_rampaging() : float = native
     function is_grinning()  : float = native
@@ -288,7 +298,6 @@ module player
     function on_ground()    : float = native
     function move_speed()   : float = native
     function air_in_lungs() : float = native
-	function get_side_move() : float = native
 
     function has_key(key)     : float = native
     function has_power(type)  : float = native

@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Video Context
+//  EDGE Video Context
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2009  The EDGE2 Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -38,7 +38,6 @@ void HUD_SetFont(font_c *font = NULL);
 void HUD_SetScale(float scale = 1.0f);
 void HUD_SetTextColor(rgbcol_t color = RGB_NO_VALUE);
 void HUD_SetAlpha(float alpha = 1.0f);
-void HUD_FadeAlpha(float alpha = 1.0f);
 
 void HUD_SetAlignment(int xa = -1, int ya = -1);
 // xa is -1 for left, 0 for centred, +1 for right
@@ -50,7 +49,7 @@ void HUD_Reset();
 
 void HL_Init(void);
 
-void HUD_FrameSetup(int split);
+void HUD_FrameSetup(void);
 
 
 void HUD_PushScissor(float x1, float y1, float x2, float y2, bool expand=false);
@@ -89,6 +88,7 @@ void HUD_GradientBox(float x1, float y1, float x2, float y2, rgbcol_t *cols);
 // be specified individually.
 
 void HUD_DrawImage(float x, float y, const image_c *image);
+void HUD_DrawImageTitleWS(const image_c *image);
 void HUD_StretchImage(float x, float y, float w, float h, const image_c *image);
 void HUD_TileImage(float x, float y, float w, float h, const image_c *image,
 				   float offset_x = 0.0f, float offset_y = 0.0f);

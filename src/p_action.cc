@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Play Simulation Action routines
 //----------------------------------------------------------------------------
-//
-//  Copyright (c) 1999-2018  The EDGE Team.
-//
+// 
+//  Copyright (c) 1999-2009  The EDGE Team.
+// 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -39,7 +39,7 @@
 // -AJA- 1999/08/08: Replaced some P_Random()-P_Random() stuff.
 //
 
-#include "system/i_defs.h"
+#include "i_defs.h"
 #include "p_action.h"
 
 #include "con_main.h"
@@ -57,10 +57,8 @@
 #include "z_zone.h"
 
 
-DEF_CVAR(g_aggression, int, "c", 0);
+cvar_c g_aggression;
 
-DEF_CVAR(m_tactile, int, "c", 1);
-DEF_CVAR(melee_tactile, int, "c", 0);
 
 static int AttackSfxCat(const mobj_t *mo)
 {
@@ -93,16 +91,16 @@ static int SfxFlags(const mobjtype_c *info)
 // fold with radius triggers, which can also do it.  There's only two
 // parameters needed: linetype number & tag number, which are stored
 // in the state's `action_par' field as a pointer to two integers.
-//
+// 
 void P_ActActivateLineType(mobj_t * mo)
 {
 	int *values;
-
+  
 	if (!mo->state || !mo->state->action_par)
 		return;
 
 	values = (int *) mo->state->action_par;
-
+  
 	// Note the `NULL' here: this prevents the activation from failing
 	// because the object isn't a PLAYER, for example.
 	P_RemoteActivation(NULL, values[0], values[1], 0, line_Any);
@@ -131,7 +129,7 @@ void P_ActDisableRadTrig(mobj_t * mo)
 		return;
 
 	int *value = (int *) mo->state->action_par;
-
+	
 	RAD_EnableByTag(mo, value[0], true);
 }
 
@@ -242,7 +240,7 @@ static bool DecideMeleeAttack(mobj_t * object, const atkdef_c * attack)
 		distance = P_ApproxDistance(target->z - object->z, distance);
 
 	meleedist = attack ? attack->range : MELEERANGE;
-	meleedist += target->radius - 20.0f;	// Check the thing's actual radius
+	meleedist += target->radius - 20.0f;	// Check the thing's actual radius		
 
 	if (distance >= meleedist)
 		return false;
@@ -376,7 +374,7 @@ void P_ActFaceTarget(mobj_t * object)
 	// don't look up/down too far...
 	if (object->vertangle < ANG180 && object->vertangle > ANG45)
 		object->vertangle = ANG45;
-
+		
 	if (object->vertangle >= ANG180 && object->vertangle < ANG315)
 		object->vertangle = ANG315;
 }
@@ -416,7 +414,7 @@ void P_BringCorpseToLife(mobj_t * corpse)
 	{
 		corpse->player->playerstate = PST_LIVE;
 		corpse->player->health = corpse->health;
-		corpse->player->std_viewheight = corpse->height *
+		corpse->player->std_viewheight = corpse->height * 
 			PERCENT_2_FLOAT(info->viewheight);
 	}
 
@@ -672,7 +670,7 @@ void P_ActTurnRandom(mobj_t * mo)
 	}
 
 	turn = turn * P_Random() / 90;  // 10 bits of angle
-
+   
 	if (turn < 0)
 		mo->angle -= (angle_t)((-turn) << (ANGLEBITS - 10));
 	else
@@ -704,7 +702,7 @@ void P_ActMoveFwd(mobj_t * mo)
 	if (st && st->action_par)
 	{
 		float amount = *(float *)st->action_par;
-
+    
 		float dx = M_Cos(mo->angle);
 		float dy = M_Sin(mo->angle);
 
@@ -720,7 +718,7 @@ void P_ActMoveRight(mobj_t * mo)
 	if (st && st->action_par)
 	{
 		float amount = *(float *)st->action_par;
-
+    
 		float dx = M_Cos(mo->angle - ANG90);
 		float dy = M_Sin(mo->angle - ANG90);
 
@@ -758,7 +756,7 @@ void P_ActPlaySound(mobj_t * mo)
 
 	if (! sound)
 	{
-		M_WarnError("P_ActPlaySound: missing sound name in %s.\n",
+		M_WarnError("P_ActPlaySound: missing sound name in %s.\n", 
 					mo->info->name.c_str());
 		return;
 	}
@@ -863,7 +861,7 @@ void P_ActMakeCloseAttemptSound(mobj_t * mo)
 	if (! mo->info->closecombat)
 		I_Error("Object [%s] used CLOSEATTEMPTSND action, "
 				"but has no CLOSE_ATTACK\n", mo->info->name.c_str());
-
+   
 	sfx_t *sound = mo->info->closecombat->initsound;
 
 	if (sound)
@@ -879,7 +877,7 @@ void P_ActMakeRangeAttemptSound(mobj_t * mo)
 
 	if (! mo->info->rangeattack)
 		I_Error("Object [%s] used RANGEATTEMPTSND action, "
-				"but has no RANGE_ATTACK\n", mo->info->name.c_str());
+				"but has no RANGE_ATTACK\n", mo->info->name.c_str());     
 
 	sfx_t *sound = mo->info->rangeattack->initsound;
 
@@ -902,7 +900,7 @@ void P_ActMakeRangeAttemptSound(mobj_t * mo)
 void P_ActDamageExplosion(mobj_t * object)
 {
 	float damage;
-
+  
 	DAMAGE_COMPUTE(damage, &object->info->explode_damage);
 
 #ifdef DEVELOPERS
@@ -929,7 +927,7 @@ void P_ActDamageExplosion(mobj_t * object)
 void P_ActThrust(mobj_t * object)
 {
 	float damage;
-
+  
 	DAMAGE_COMPUTE(damage, &object->info->explode_damage);
 
 #ifdef DEVELOPERS
@@ -1123,7 +1121,7 @@ static mobj_t *DoLaunchProjectile(mobj_t * source, float tx, float ty, float tz,
 	// -AJA- 1999/09/11: add in attack's angle & slope offsets.
 	angle -= attack->angle_offset;
 	slope += attack->slope_offset;
-
+  
 	// is the attack not accurate?
 	if (!source->player || source->player->refire > 0)
 	{
@@ -1165,7 +1163,7 @@ static mobj_t *LaunchProjectile(mobj_t * source, mobj_t * target,
 // -KM- 1998/10/29
 // -KM- 1998/12/16 Fixed it up.  Works quite well :-)
 //
-static void LaunchSmartProjectile(mobj_t * source, mobj_t * target,
+static void LaunchSmartProjectile(mobj_t * source, mobj_t * target, 
 								  const mobjtype_c * type)
 {
 	float t = -1;
@@ -1232,25 +1230,33 @@ static void LaunchSmartProjectile(mobj_t * source, mobj_t * target,
 static inline bool Weakness_CheckHit(mobj_t *target,
 		const atkdef_c *attack, float x, float y, float z)
 {
-	//I_Printf("Weakness_CheckHit!\n");
 	const weakness_info_c *weak = &target->info->weak;
 
 	if (weak->classes == BITSET_EMPTY)
 		return false;
-
-	I_Debugf("Weakness_CheckHit: target=[%s] classes=0x%08x\n", target->info->name.c_str(), weak->classes); 
+	
+	if(!attack) //Lobo: This fixes the long standing bug where EDGE crashes out sometimes.
+	{
+		return false; 
+	}
+	
+	if (BITSET_EMPTY != (attack->attack_class & ~weak->classes))
+		return false;
+	
 
 	if (target->height < 1)
 		return false;
 
+I_Debugf("Weakness_CheckHit: target=[%s] classes=0x%08x\n", target->info->name.c_str(), weak->classes); 	
+	
 	// compute vertical position.  Clamping it means that a missile
 	// which hits the target on the head (coming sharply down) will
 	// still register as a head-shot.
 	z = (z - target->z) / target->height;
 	z = CLAMP(0.01f, z, 0.99f);
 
-	I_Debugf("HEIGHT CHECK: %1.2f < %1.2f < %1.2f\n",
-			  weak->height[0], z, weak->height[1]);
+I_Debugf("HEIGHT CHECK: %1.2f < %1.2f < %1.2f\n",
+		  weak->height[0], z, weak->height[1]);
 	
 	if (z < weak->height[0] || z > weak->height[1])
 		return false;
@@ -1259,9 +1265,9 @@ static inline bool Weakness_CheckHit(mobj_t *target,
 
 	ang -= target->angle;
 
-	I_Debugf("ANGLE CHECK: %1.2f < %1.2f < %1.2f\n",
-			  ANG_2_FLOAT(weak->angle[0]), ANG_2_FLOAT(ang),
-			  ANG_2_FLOAT(weak->angle[1]));
+I_Debugf("ANGLE CHECK: %1.2f < %1.2f < %1.2f\n",
+		 ANG_2_FLOAT(weak->angle[0]), ANG_2_FLOAT(ang), 
+		 ANG_2_FLOAT(weak->angle[1]));
 
 	if (weak->angle[0] <= weak->angle[1])
 	{
@@ -1361,7 +1367,7 @@ int P_MissileContact(mobj_t * object, mobj_t * target)
 	if (object->extendedflags & EF_TUNNEL)
 	{
 		// this hash is very basic, but should work OK
-		u32_t hash = (u32_t)(intptr_t)target;
+		u32_t hash = (u32_t)(long long)target; // This might need to have an ifdef for 32-bit to be long instead of long long - Dasho
 
 		if (object->tunnel_hash[0] == hash || object->tunnel_hash[1] == hash)
 			return -1;
@@ -1380,7 +1386,7 @@ int P_MissileContact(mobj_t * object, mobj_t * target)
 	if (!damage)
 	{
 #ifdef DEVELOPERS
-		L_WriteDebug("%s missile did zero damage.\n",
+		L_WriteDebug("%s missile did zero damage.\n", 
 					 object->info->name.c_str());
 #endif
 		return 0;
@@ -1403,7 +1409,7 @@ int P_MissileContact(mobj_t * object, mobj_t * target)
 //           0 if hit but no damage was done.
 //          +1 if hit and damage was done.
 //
-int P_BulletContact(mobj_t * source, mobj_t * target,
+int P_BulletContact(mobj_t * source, mobj_t * target, 
 					float damage, const damage_c *damtype,
 					float x, float y, float z)
 {
@@ -1432,7 +1438,7 @@ int P_BulletContact(mobj_t * source, mobj_t * target,
 	{
 		if (source->currentattack == target->info->rangeattack)
 			return 0;
-		if (source->currentattack == target->info->closecombat) //TODO: V595 https://www.viva64.com/en/w/v595/ The 'source' pointer was utilized before it was verified against nullptr. Check lines: 1435, 1446.
+		if (source->currentattack == target->info->closecombat)
 			return 0;
 	}
 
@@ -1472,7 +1478,7 @@ int P_BulletContact(mobj_t * source, mobj_t * target,
 	if (!damage)
 	{
 #ifdef DEVELOPERS
-		L_WriteDebug("%s's shoot/combat attack did zero damage.\n",
+		L_WriteDebug("%s's shoot/combat attack did zero damage.\n", 
 					 source->info->name.c_str());
 #endif
 		return 0;
@@ -1508,7 +1514,7 @@ void P_ActCreateSmokeTrail(mobj_t * projectile)
 					attack->name.c_str());
 		return;
 	}
-
+  
 	// spawn a puff of smoke behind the rocket
 	mobj_t *smoke = P_MobjCreateObject(
 		projectile->x - projectile->mom.x / 2.0f,
@@ -1625,7 +1631,7 @@ void P_ActHomingProjectile(mobj_t * projectile)
 void P_ActHomeToSpot(mobj_t * projectile)
 {
 	mobj_t *target = projectile->target;
-
+  
 	if (!target)
 	{
 		P_MobjExplodeMissile(projectile);
@@ -1638,7 +1644,7 @@ void P_ActHomeToSpot(mobj_t * projectile)
 
 	float ck_radius = target->radius + projectile->radius + 2;
 	float ck_height = target->height + projectile->height + 2;
-
+  
 	// reached target ?
 	if (fabs(dx) <= ck_radius && fabs(dy) <= ck_radius && fabs(dz) <= ck_height)
 	{
@@ -1693,9 +1699,9 @@ static void LaunchOrderedSpread(mobj_t * mo)
 
 	// object or projectile?
 	// true --> the object, false --> the projectile.
-	if (spreadorder[count + 1]) //TODO: V557 https://www.viva64.com/en/w/v557/ Array overrun is possible. The value of 'count + 1' index could reach 13.
+	if (spreadorder[count + 1])
 	{
-		mo->angle += spreadorder[count]; //TODO: V557 https://www.viva64.com/en/w/v557/ Array overrun is possible. The value of 'count' index could reach 12.
+		mo->angle += spreadorder[count];
 
 		LaunchProjectile(mo, mo->target, attack->atk_mobj);
 	}
@@ -1706,7 +1712,7 @@ static void LaunchOrderedSpread(mobj_t * mo)
 		if (projectile == NULL)
 			return;
 
-		projectile->angle += spreadorder[count]; //TODO: V557 https://www.viva64.com/en/w/v557/ Array overrun is possible. The value of 'count' index could reach 12.
+		projectile->angle += spreadorder[count];
 
 		projectile->mom.x = projectile->speed * M_Cos(projectile->angle);
 		projectile->mom.y = projectile->speed * M_Sin(projectile->angle);
@@ -1779,13 +1785,10 @@ static void ShotAttack(mobj_t * mo)
 	if (attack->sound)
 		S_StartFX(attack->sound, AttackSfxCat(mo), mo);
 
-	//if (mo->player)
-		//I_Tactile(100, 10, mo->player->pnum);
-
 	// -AJA- 1999/09/10: apply the attack's angle offsets.
 	objangle -= attack->angle_offset;
 	objslope += attack->slope_offset;
-
+  
 	for (int i = 0; i < attack->count; i++)
 	{
 		angle_t angle = objangle;
@@ -1876,18 +1879,13 @@ static void DoMeleeAttack(mobj_t * mo)
 
 	if (! DecideMeleeAttack(mo, attack))
 	{
-		P_LineAttack(mo, mo->angle, range, M_Tan(mo->vertangle),
+		P_LineAttack(mo, mo->angle, range, M_Tan(mo->vertangle), 
 					 damage, &attack->damage, attack->puff);
 		return;
 	}
 
 	if (attack->sound)
 		S_StartFX(attack->sound, AttackSfxCat(mo), mo);
-
-	//CA: Halved this so the effect isn't so extreme
-	//TODO: Move into COAL (PL_add_tactile)
-	if ((mo->player) && (melee_tactile > 0))
-		I_Tactile(5, (2 + (int)(damage / 4.0f)) * 2, mo->player->pnum);
 
 	float slope;
 
@@ -2040,7 +2038,7 @@ void P_ActEffectTracker(mobj_t * object)
 #ifdef DEVELOPERS
 	else
 		L_WriteDebug("%s + %s attack has zero damage\n",
-					 object->info->name.c_str(),
+					 object->info->name.c_str(), 
 					 tracker->info->name.c_str());
 #endif
 
@@ -2063,7 +2061,7 @@ void P_ActEffectTracker(mobj_t * object)
 #ifdef DEVELOPERS
 	if (!tracker->info->explode_damage.nominal)
 		L_WriteDebug("%s + %s explosion has zero damage\n",
-					 object->info->name.c_str(),
+					 object->info->name.c_str(), 
 					 tracker->info->name.c_str());
 #endif
 
@@ -2109,7 +2107,7 @@ static void ShootToSpot(mobj_t * object)
 
 	current_spot += P_Random();
 	current_spot %= brain_spots.number;
-
+  
 	LaunchProjectile(object, brain_spots.targets[current_spot],
 					 object->currentattack->atk_mobj);
 }
@@ -2145,8 +2143,8 @@ static void ObjectSpawning(mobj_t * parent, angle_t angle)
 	if (! shoottype)
 	{
 		I_Error("Object [%s] uses spawning attack [%s], but no object "
-				"specified.\n",
-				parent->info->name.c_str(),
+				"specified.\n", 
+				parent->info->name.c_str(), 
 				attack->name.c_str());
 	}
 
@@ -2162,7 +2160,7 @@ static void ObjectSpawning(mobj_t * parent, angle_t angle)
 	// -AJA- 1999/09/10: apply the angle offset of the attack.
 	angle -= attack->angle_offset;
 	slope = M_Tan(parent->vertangle) + attack->slope_offset;
-
+  
 	float spawnx = parent->x;
 	float spawny = parent->y;
 	float spawnz = parent->z + attack->height;
@@ -2340,16 +2338,16 @@ bool P_UseThing(mobj_t * user, mobj_t * thing, float open_bottom,
 	// item is disarmed ?
 	if (!(thing->flags & MF_TOUCHY))
 		return false;
-
+  
   // can be reached ?
 	open_top    = MIN(open_top, thing->z + thing->height);
 	open_bottom = MAX(open_bottom, thing->z);
-
-	if (user->z >= open_top ||
+  
+	if (user->z >= open_top || 
 		(user->z + user->height + USE_Z_RANGE < open_bottom))
 		return false;
-
-  // OK, disarm and put into touch states
+  
+  // OK, disarm and put into touch states  
 	SYS_ASSERT(thing->info->touch_state > 0);
 
 	thing->flags &= ~MF_TOUCHY;
@@ -2419,7 +2417,7 @@ void P_ActDropItem(mobj_t * mo)
 
 	if (! info)
 	{
-		M_WarnError("P_ActDropItem: %s specifies no item to drop.\n",
+		M_WarnError("P_ActDropItem: %s specifies no item to drop.\n", 
 					mo->info->name.c_str());
 		return;
 	}
@@ -2474,7 +2472,7 @@ void P_ActPathCheck(mobj_t * mo)
 
 	if (! mo->path_trigger || ! mo->info->meander_state)
 		return;
-
+ 
 	P_SetMobjStateDeferred(mo, mo->info->meander_state, 0);
 
 	mo->movedir = DI_SLOWTURN;
@@ -2508,7 +2506,7 @@ void P_ActPathFollow(mobj_t * mo)
 
 	angle_t diff = R_PointToAngle(0, 0, dx, dy) - mo->angle;
 
-	// movedir value:
+	// movedir value: 
 	//   0 for slow turning.
 	//   1 for fast turning.
 	//   2 for walking.
@@ -2521,7 +2519,7 @@ void P_ActPathFollow(mobj_t * mo)
 		if (diff > ANG1*15 && diff < (ANG_MAX-ANG1*15))
 		{
 			angle_t step = ANG1*30;
-
+    
 			if (diff < ANG180)
 				mo->angle += P_Random() * (step >> 8);
 			else
@@ -2663,7 +2661,7 @@ static void P_DoAttack(mobj_t * object)
 		default:  // THIS SHOULD NOT HAPPEN
 		{
 			if (strict_errors)
-				I_Error("P_DoAttack: %s has an unknown attack type.\n",
+				I_Error("P_DoAttack: %s has an unknown attack type.\n", 
 					object->info->name.c_str());
 			break;
 		}
@@ -2737,7 +2735,7 @@ void P_ActMeleeAttack(mobj_t * object)
 
 	if (!attack)
 	{
-		M_WarnError("P_ActMeleeAttack: %s has no close combat attack.\n",
+		M_WarnError("P_ActMeleeAttack: %s has no close combat attack.\n", 
 					object->info->name.c_str());
 		return;
 	}
@@ -2774,7 +2772,7 @@ void P_ActRangeAttack(mobj_t * object)
 
 	if (!attack)
 	{
-		M_WarnError("P_ActRangeAttack: %s hasn't got a range attack.\n",
+		M_WarnError("P_ActRangeAttack: %s hasn't got a range attack.\n", 
 					object->info->name.c_str());
 		return;
 	}
@@ -2959,7 +2957,7 @@ static bool CreateAggression(mobj_t * mo)
 
 		// don't attack a friend if we cannot hurt them.
 		// -AJA- I'm assuming that even friends will 'infight'.
-		if ((mo->info->side & other->info->side) != 0 &&
+		if ((mo->info->side & other->info->side) != 0 && 
 			(other->info->hyperflags & (HF_SIDEIMMUNE | HF_ULTRALOYAL)))
 		{
 			continue;
@@ -3013,7 +3011,7 @@ void P_ActStandardLook(mobj_t * object)
 
 	targ_pnum = object->subsector->sector->sound_player;
 
-	if (targ_pnum >= 0 && targ_pnum < MAXPLAYERS &&
+	if (targ_pnum >= 0 && targ_pnum < MAXPLAYERS && 
 		players[targ_pnum])
 	{
 		targ = players[targ_pnum]->mo;
@@ -3027,8 +3025,8 @@ void P_ActStandardLook(mobj_t * object)
 	if (object->flags & MF_STEALTH)
 		object->vis_target = VISIBLE;
 
-	if (g_aggression)
-		if (CreateAggression(object) || CreateAggression(object)) //TODO: V501 https://www.viva64.com/en/w/v501/ There are identical sub-expressions 'CreateAggression(object)' to the left and to the right of the '||' operator.
+	if (g_aggression.d)
+		if (CreateAggression(object) || CreateAggression(object))
 			return;
 
 	if (targ && (targ->flags & MF_SHOOTABLE))
@@ -3037,7 +3035,7 @@ void P_ActStandardLook(mobj_t * object)
 
 		if (object->flags & MF_AMBUSH)
 		{
-			if (!P_CheckSight(object, object->target) &&
+			if (!P_CheckSight(object, object->target) && 
 				!P_LookForPlayers(object, object->info->sight_angle))
 				return;
 		}
@@ -3324,7 +3322,7 @@ void P_ActWalkSoundChase(mobj_t * object)
 {
 	if (!object->info->walksound)
 	{
-		M_WarnError("WALKSOUND_CHASE: %s hasn't got a walksound.\n",
+		M_WarnError("WALKSOUND_CHASE: %s hasn't got a walksound.\n", 
 					object->info->name.c_str());
 		return;
 	}
@@ -3383,7 +3381,7 @@ void P_ActCheckMoving(mobj_t * mo)
 		}
 		return;
 	}
-
+	
 	if (fabs(mo->mom.x) < STOPSPEED && fabs(mo->mom.y) < STOPSPEED)
 	{
 		mo->mom.x = mo->mom.y = 0;
@@ -3397,7 +3395,7 @@ void P_ActCheckActivity(mobj_t *mo)
 
 	if (! pl)
 		return;
-
+	
 	if (pl->swimming)
 	{
 		// enter the SWIM states (if present)
@@ -3536,7 +3534,7 @@ void P_ActBecome(struct mobj_s *mo)
 			{
 				mo->dlight.target = dinfo->radius;
 				mo->dlight.color  = dinfo->colour;
-
+				
 				// make renderer re-create shader info
 				if (mo->dlight.shader)
 				{
@@ -3570,7 +3568,7 @@ void P_PlayerAttack(mobj_t * p_obj, const atkdef_c * attack)
 	float range = (attack->range > 0) ? attack->range : MISSILERANGE;
 
 	// see which target is to be aimed at
-	mobj_t *target = P_MapTargetAutoAim(p_obj, p_obj->angle, range,
+	mobj_t *target = P_MapTargetAutoAim(p_obj, p_obj->angle, range, 
 				 (attack->flags & AF_ForceAim) ? true : false);
 
 	p_obj->SetTarget(target);

@@ -1,12 +1,12 @@
 //
-//    3DGE LANGUAGE.LDF -redefine or add new messages.
+//    EDGE LANGUAGE.LDF -redefine or add new messages.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 7
+//    DDF Version 6.1
 //
 
 <LANGUAGES>
 
-#VERSION 2.10
+#VERSION 1.35
 
 // ------ English Language Definition File ----------
 
@@ -14,8 +14,6 @@
 DevelopmentMode="Development Mode is enabled.\n";
 PressKey="Press A Key";
 PressYorN="Press Y or N";
-
-
 
 QuickSaveOver="quicksave over your game named\n\n'%s'?\n\npress y or n.";
 NoQuickSaveSlot="you haven't picked a quicksave slot yet!\n\npress a key.";
@@ -27,11 +25,6 @@ QuickLoad="do you want to quickload the game named\n\n'%s'?\n\npress y or n.";
 
 NewNetGame="you can't start a new game\n"
            "while in a network game.\n\npress a key.";
-		   
-NewSplitGame="please quit to the title screen before\n"
-           "starting splitscreen! Options -> End Game\n"
-		   "first.\n\npress a key.";
-		   
 EpisodeNonExist="You don't have this episode!\n\npress a key.";
 NightmareCheck="Are you sure ? this skill level\n"
                "isn't even remotely fair.\n\npress y or n.";
@@ -40,7 +33,6 @@ MessagesOff="Messages OFF";
 MessagesOn="Messages ON";
 
 EndNetGame="you can't end a netgame!\n\npress a key.";
-
 EndGameCheck="are you sure you want to end the game?\n\npress y or n.";
 
 PressToQuit="(press y to quit)";
@@ -165,38 +157,38 @@ OB_Saw       = "%k sawed %o's head off.";
 OB_Shotgun   = "%o was shot by %k.";
 OB_BFG       = "%k annihilated %o.";
 
-Map01Desc="level 1: entryway";
-Map02Desc="level 2: underhalls";
-Map03Desc="level 3: the gantlet";
-Map04Desc="level 4: the focus";
-Map05Desc="level 5: the waste tunnels";
-Map06Desc="level 6: the crusher";
-Map07Desc="level 7: dead simple";
-Map08Desc="level 8: tricks and traps";
-Map09Desc="level 9: the pit";
-Map10Desc="level 10: refueling base";
-Map11Desc="level 11: 'o' of destruction!";
-Map12Desc="level 12: the factory";
-Map13Desc="level 13: downtown";
-Map14Desc="level 14: the inmost dens";
-Map15Desc="level 15: industrial zone";
-Map16Desc="level 16: suburbs";
-Map17Desc="level 17: tenements";
-Map18Desc="level 18: the courtyard";
-Map19Desc="level 19: the citadel";
-Map20Desc="level 20: gotcha!";
-Map21Desc="level 21: nirvana";
-Map22Desc="level 22: the catacombs";
-Map23Desc="level 23: barrels o' fun";
-Map24Desc="level 24: the chasm";
-Map25Desc="level 25: bloodfalls";
-Map26Desc="level 26: the abandoned mines";
-Map27Desc="level 27: monster condo";
-Map28Desc="level 28: the spirit world";
-Map29Desc="level 29: the living end";
-Map30Desc="level 30: icon of sin";
-Map31Desc="level 31: wolfenstein";
-Map32Desc="level 32: grosse";
+Map01Desc="Level 1: Entryway";
+Map02Desc="Level 2: Underhalls";
+Map03Desc="Level 3: The gantlet";
+Map04Desc="Level 4: The focus";
+Map05Desc="Level 5: The waste tunnels";
+Map06Desc="Level 6: The crusher";
+Map07Desc="Level 7: Dead simple";
+Map08Desc="Level 8: Tricks and traps";
+Map09Desc="Level 9: The pit";
+Map10Desc="Level 10: Refueling base";
+Map11Desc="Level 11: 'O' of destruction!";
+Map12Desc="Level 12: The factory";
+Map13Desc="Level 13: Downtown";
+Map14Desc="Level 14: The inmost dens";
+Map15Desc="Level 15: Industrial zone";
+Map16Desc="Level 16: Suburbs";
+Map17Desc="Level 17: Tenements";
+Map18Desc="Level 18: The courtyard";
+Map19Desc="Level 19: The citadel";
+Map20Desc="Level 20: Gotcha!";
+Map21Desc="Level 21: Nirvana";
+Map22Desc="Level 22: The catacombs";
+Map23Desc="Level 23: Barrels o' fun";
+Map24Desc="Level 24: The chasm";
+Map25Desc="Level 25: Bloodfalls";
+Map26Desc="Level 26: The abandoned mines";
+Map27Desc="Level 27: Monster condo";
+Map28Desc="Level 28: The spirit world";
+Map29Desc="Level 29: The living end";
+Map30Desc="Level 30: Icon of sin";
+Map31Desc="Level 31: Wolfenstein";
+Map32Desc="Level 32: Grosse";
 
 E1M1Desc="E1M1: Hangar";
 E1M2Desc="E1M2: Nuclear Plant";
@@ -237,17 +229,6 @@ E4M6Desc="E4M6: Against Thee Wickedly";
 E4M7Desc="E4M7: And Hell Followed";
 E4M8Desc="E4M8: Unto The Cruel";
 E4M9Desc="E4M9: Fear";
-
-
-E5M1Desc="E5M1: Baphomet's Demesne";
-E5M2Desc="E5M2: Sheol";
-E5M3Desc="E5M3: Cages of the Damned";
-E5M4Desc="E5M4: Paths of Wretchedness";
-E5M5Desc="E5M5: Abaddon's Void";
-E5M6Desc="E5M6: Unspeakable Persecution";
-E5M7Desc="E5M7: Nightmare Underworld";
-E5M8Desc="E5M8: Halls of Perdition";
-E5M9Desc="E5M9: Realm of Iblis";
 
 TALKTOSELF1="You mumble to yourself";
 TALKTOSELF2="Who's there?";
@@ -377,33 +358,20 @@ Episode4Text="the spider mastermind must have sent forth\n"
 "\n"
 "next stop, hell on earth!";
 
-Episode5Text="Baphomet was only doing Satan's bidding\n"
-"by bringing you back to Hell. Somehow they\n"
-"didn't understand that you're the reason\n"
-"they failed in the first place.\n"
-"\n"
-"After mopping up the place with your\n"
-"arsenal, you're ready to face the more\n"
-"advanced demons that were sent to Earth.\n"
-"\n"
-"\n"
-"Lock and load. Rip and tear.";
-
-
-Level7Text="YOU HAVE ENTERED DEEPLY INTO THE INFESTED\n"
-           "STARPORT. BUT SOMETHING IS WRONG. THE\n"
-           "MONSTERS HAVE BROUGHT THEIR OWN REALITY\n"
-           "WITH THEM, AND THE STARPORT'S TECHNOLOGY\n"
-           "IS BEING SUBVERTED BY THEIR PRESENCE.\n"
+Level7Text="YOU HAVE ENTERED DEEPLY INTO THE INFESTED\n" 
+           "STARPORT. BUT SOMETHING IS WRONG. THE\n" 
+           "MONSTERS HAVE BROUGHT THEIR OWN REALITY\n" 
+           "WITH THEM, AND THE STARPORT'S TECHNOLOGY\n" 
+           "IS BEING SUBVERTED BY THEIR PRESENCE.\n" 
            "\n"
-           "AHEAD, YOU SEE AN OUTPOST OF HELL, A\n"
-           "FORTIFIED ZONE. IF YOU CAN GET PAST IT,\n"
-           "YOU CAN PENETRATE INTO THE HAUNTED HEART\n"
-           "OF THE STARBASE AND FIND THE CONTROLLING\n"
-           "SWITCH WHICH HOLDS EARTH'S POPULATION\n"
+           "AHEAD, YOU SEE AN OUTPOST OF HELL, A\n" 
+           "FORTIFIED ZONE. IF YOU CAN GET PAST IT,\n" 
+           "YOU CAN PENETRATE INTO THE HAUNTED HEART\n" 
+           "OF THE STARBASE AND FIND THE CONTROLLING\n" 
+           "SWITCH WHICH HOLDS EARTH'S POPULATION\n" 
            "HOSTAGE.";
 
-Level12Text="YOU HAVE WON! YOUR VICTORY HAS ENABLED\n"
+Level12Text="YOU HAVE WON! YOUR VICTORY HAS ENABLED\n" 
             "HUMANKIND TO EVACUATE EARTH AND ESCAPE\n"
             "THE NIGHTMARE.  NOW YOU ARE THE ONLY\n"
             "HUMAN LEFT ON THE FACE OF THE PLANET.\n"
@@ -493,13 +461,12 @@ ShotgunGuyName=      "SHOTGUN GUY";
 SpiderMastermindName="THE SPIDER MASTERMIND";
 ZombiemanName=       "ZOMBIEMAN";
 
-
 Notice=
- "_________________________________\n"
- "		       EDGE 	           \n"
- "   (C) Isotope SoftWorks		   \n"
- "	http://3dfxdev.net/edgewiki	   \n"
- "    Licensed under the GPLv2     \n";
+ "==============================================================================\n"
+ " This is EDGE: a project that is based upon the Doom Source Code released by  \n"
+ " John Carmack of Id Software in December 1997. The work on this project is    \n"
+ " designed, and implemented by the EDGE Team (http://edge.sourceforge.net/).    \n"
+ "==============================================================================\n";
 
 JoystickCentre= "CENTRE the joystick\n\npress a key.";
 JoystickTL=     "Push the joystick to the UPPER LEFT corner\n\npress a key.";
@@ -608,8 +575,7 @@ OptMultiplayTalk="Multiplay Talk";
 
 Controls="Setup Standard Doom Controls";
 Controls2="Setup Extended EDGE Controls";
-VideoOptions="Setup detail level, smoothing, etc...";
-AdvancedOptions="Set OpenGL, lights, render effects...";
+VideoOptions="Setup Translucency, Resolutions, etc...";
 SoundOptions="Setup Volume, Frequency, Stereo, etc...";
 GameplayOptions="Setup Respawn, Gravity, 3D Options etc...";
 AnalogueOptions="Setup mouse and joystick options";
@@ -624,24 +590,24 @@ Gravity="Changes the global gravity setting";
 Blood="Enables extra gore mode...";
 True3d="Enables jumping over things, flight etc...";
 
-ChangeRes="Sets Screen resolution and color depth";
+ChangeRes="Sets Screen resolution, hicolour mode";
 
-QuitMsg1="please don't leave, there's more\ndemons to toast!";
-QuitMsg2="let's beat it -- this is turning\ninto a bloodbath!";
-QuitMsg3="i wouldn't leave if i were you.\ndos is much worse.";
-QuitMsg4="you're trying to say you like dos\nbetter than me, right?";
-QuitMsg5="don't leave yet -- there's a\ndemon around that corner!";
-QuitMsg6="ya know, next time you come in here\ni'm gonna toast ya.";
-QuitMsg7="go ahead and leave. see if i care.";
-QuitMsg8="you want to quit?\nthen, thou hast lost an eighth!";
-QuitMsg9="don't go now, there's a \ndimensional shambler waiting\nat the dos prompt!";
-QuitMsg10="get outta here and go back\nto your boring programs.";
-QuitMsg11="if i were your boss, i'd \n deathmatch ya in a minute!";
-QuitMsg12="look, bud. you leave now\nand you forfeit your body count!";
-QuitMsg13="just leave. when you come\nback, i'll be waiting with a bat.";
-QuitMsg14="you're lucky i don't smack\nyou for thinking about leaving.";
+QuitMsg1="Please don't leave, there's more\ndemons to toast!";
+QuitMsg2="Let's beat it -- this is turning\ninto a bloodbath!";
+QuitMsg3="I wouldn't leave if i were you.\ndos is much worse.";
+QuitMsg4="You're trying to say you like dos\nbetter than me, right?";
+QuitMsg5="Don't leave yet -- there's a\ndemon around that corner!";
+QuitMsg6="Ya know, next time you come in here\ni'm gonna toast ya.";
+QuitMsg7="Go ahead and leave. see if i care.";
+QuitMsg8="You want to quit?\nthen, thou hast lost an eighth!";
+QuitMsg9="Don't go now, there's a \ndimensional shambler waiting\nat the dos prompt!";
+QuitMsg10="Get outta here and go back\nto your boring programs.";
+QuitMsg11="If i were your boss, i'd \n deathmatch ya in a minute!";
+QuitMsg12="Look, bud. you leave now\nand you forfeit your body count!";
+QuitMsg13="Just leave. when you come\nback, i'll be waiting with a bat.";
+QuitMsg14="You're lucky i don't smack\nyou for thinking about leaving.";
 
-QuitMsg15="don't quit now! we're \nstill spending your money!";
+QuitMsg15="Don't quit now! we're \nstill spending your money!";
 
 QuitMsg16="THIS IS NO MESSAGE!\nPage intentionally left blank.";
 
@@ -649,7 +615,7 @@ QuitSnd1="pldeth";
 QuitSnd2="dmpain";
 QuitSnd3="popain";
 QuitSnd4="slop";
-QuitSnd5="secret";
+QuitSnd5="telept";
 QuitSnd6="posit1";
 QuitSnd7="posit3";
 QuitSnd8="sgtatk";
@@ -706,17 +672,6 @@ idbot="idbot";
 idtst="idtst";
 BotSpawn="Death Bot Spawn Detected...";
 idhom="idhom";
-
-// ---- DEBUGGING MENU STRINGS -----
-StretchWorld="Scales screen pitch for pixel stretching.";
-SpriteScale="Closer match sprites to Doom aspect ratio.";
-BusyWait="Network:(Default ON)";
-Lerping="Unlocks framerate beyond 35FPS...";
-VideoSync="Use 'r_vsync' in console to finely control (0-3)";
-OpenGL="OpenGL mode (OFF = OpenGL 1.X, ON = OpenGL 3)";
-DynaLight="Enable Dynamic Lights";
-MD5Scale="Sets global MD5 model scale, default is 5";
-showhom="Useful feature to debug HOMS on-the-fly";
 
 // ---- French Language Definition File ----------
 
@@ -1051,16 +1006,6 @@ E4M7Desc="E4M7: And Hell Followed";
 E4M8Desc="E4M8: Unto The Cruel";
 E4M9Desc="E4M9: Fear";
 
-E5M1Desc="E5M1: Baphomet's Demesne";
-E5M2Desc="E5M2: Sheol";
-E5M3Desc="E5M3: Cages of the Damned";
-E5M4Desc="E5M4: Paths of Wretchedness";
-E5M5Desc="E5M5: Abaddon's Void";
-E5M6Desc="E5M6: Unspeakable Persecution";
-E5M7Desc="E5M7: Nightmare Underworld";
-E5M8Desc="E5M8: Halls of Perdition";
-E5M9Desc="E5M9: Realm of Iblis";
-
 Level7Text = "VOUS ETES AU PLUS PROFOND DE L'ASTROPORT\n"
 	"INFESTE DE MONSTRES, MAIS QUELQUE CHOSE\n"
 	"NE VA PAS. ILS ONT APPORTE LEUR PROPRE\n"
@@ -1141,7 +1086,7 @@ CyberdemonName=      "LE CYBERDEMON";
 SpiderMastermindName="L'ARAIGNEE CERVEAU";
 ZombiemanName=       "ZOMBIE";
 
-Notice =
+Notice = 
 "==============================================================================\n"
 " This is EDGE: a project that is based upon the Doom Source Code released by  \n"
 " John Carmack of Id Software in December 1997. The work on this project is    \n"
@@ -1591,7 +1536,7 @@ ShotgunGuyName=       "TIO DE ESCOPETA";
 SpiderMastermindName= "LA MAESTRA-MENTE ARANA";
 ZombiemanName=        "HOMBRE ZOMBIE";
 
-Notice =
+Notice = 
 "==============================================================================\n"
 " This is EDGE: a project that is based upon the Doom Source Code released by  \n"
 " John Carmack of Id Software in December 1997. The work on this project is    \n"
@@ -1634,12 +1579,12 @@ ModeSelErr = "Unable to Initialise\n"
 // =======================================================
 //         TRANSLATIONS MADE BY FREDRIK EHNBOM
 //             (fredrik.ehnbom@linux.nu)
-//
+// 
 //        Spelling corrections, interpunction,
 //        additional translations and overall
 //             a nice guy: Anton Berglin
 //            (berglin@mbox301.swipnet.se)
-//
+// 
 //   Additional fine-tuning by Team Member Erik Sandberg
 // =======================================================
 
@@ -2466,7 +2411,7 @@ SendNet = "verzenden netwerk start info...\n";
 TurboScale = "turbo schaal: %i%%\n";
 IsTurbo = "%s is turbo!";
 
-Notice =
+Notice = 
 "==============================================================================\n"
 " This is EDGE: a project that is based upon the Doom Source Code released by\n"
 " John Carmack of Id Software in December 1997. The work on this project is\n"
@@ -2896,7 +2841,7 @@ SendNet = "sending network start info...\n";
 TurboScale = "Turbo-Skala: %i%%\n";
 IsTurbo = "%s ist turbo!";
 
-Notice =
+Notice = 
 "==============================================================================\n"
 " This is EDGE: a project that is based upon the Doom Source Code released by\n"
 " John Carmack of Id Software in December 1997. The work on this project is\n"
@@ -3113,18 +3058,18 @@ CDPlayTrack="Soitetaan raitaa %d";
 LevelQ="Kent�n vaihto!\nAnna kent�n nimi:\n\n";
 MusicQ="Musiikin vaihto!\nAnna musiikin nimi:\n\n";
 
-Level7Text="OLET ASTUNUT SIS��N AVARUUSPORTISTA.\n"
-           "JOKIN ON VINOSSA.HIRVI�T OVAT MANIPULOINEET\n"
-           "AVARUUSASEMAN TEKNOLOGIAN OMAAN K�YTT��NS�.\n"
+Level7Text="OLET ASTUNUT SIS��N AVARUUSPORTISTA.\n" 
+           "JOKIN ON VINOSSA.HIRVI�T OVAT MANIPULOINEET\n" 
+           "AVARUUSASEMAN TEKNOLOGIAN OMAAN K�YTT��NS�.\n" 
            "\n"
-           "EDESS�SI N��T HELVETIN PORTIT, MIEHITETYN\n"
-           "LINNAKKEEN T�YNN� DEMONEJA.\n"
-           "JOS ONNISTUT P��SEM��N SEN L�PI, VOIT\n"
-           "TUNKEUTUA AVARUUSASEMAN SYD�MMEEN JA L�YT��\n"
-           "KYTKIMEN JOKA PIT�� MAIILMAN KANSAA\n"
+           "EDESS�SI N��T HELVETIN PORTIT, MIEHITETYN\n" 
+           "LINNAKKEEN T�YNN� DEMONEJA.\n" 
+           "JOS ONNISTUT P��SEM��N SEN L�PI, VOIT\n" 
+           "TUNKEUTUA AVARUUSASEMAN SYD�MMEEN JA L�YT��\n" 
+           "KYTKIMEN JOKA PIT�� MAIILMAN KANSAA\n" 
            "PANTTIVAKINAAN.";
 
-Level12Text="SIN� TEIT SEN! SAAVUTUKSESI MAHDOLLISTI\n"
+Level12Text="SIN� TEIT SEN! SAAVUTUKSESI MAHDOLLISTI\n" 
             "MAIILMAN KANSAN EVAKUOIMISEN JA\n"
             "PAKENEMISEN T�LT� PAINAJAISELTA.\n"
             "NYT OLET AINOA IHMINEN PLANEETALLA.\n"

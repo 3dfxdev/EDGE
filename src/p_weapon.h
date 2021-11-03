@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
-//  EDGE2 Weapon (player sprites) Action Code
+//  EDGE Weapon (player sprites) Action Code
 //----------------------------------------------------------------------------
-//
-//  Copyright (c) 1999-2009  The EDGE2 Team.
-//
+// 
+//  Copyright (c) 1999-2009  The EDGE Team.
+// 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -26,7 +26,7 @@
 #ifndef __P_PSPR__
 #define __P_PSPR__
 
-#include "../ddf/main.h"
+#include "main.h"
 
 // maximum weapons player can hold at once
 #define MAXWEAPONS  64
@@ -76,7 +76,7 @@ playerweapon_flags_e;
 
 //
 // Per-player Weapon Info.
-//
+// 
 typedef struct
 {
 	weapondef_c *info;
@@ -89,7 +89,7 @@ typedef struct
 
 	// current clip sizes
 	int clip_size[2];
-
+	
 	// reload clip counts
 	int reload_count[2];
 

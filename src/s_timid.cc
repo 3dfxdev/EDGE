@@ -16,15 +16,15 @@
 //
 //----------------------------------------------------------------------------
 
-#include "system/i_defs.h"
+#include "i_defs.h"
 
-#include "../epi/file.h"
-#include "../epi/filesystem.h"
-#include "../epi/mus_2_midi.h"
-#include "../epi/path.h"
-#include "../epi/str_format.h"
+#include "file.h"
+#include "filesystem.h"
+#include "mus_2_midi.h"
+#include "path.h"
+#include "str_format.h"
 
-#include "system/sound/timidity/timidity.h"
+#include "timidity.h"
 
 #include "s_blit.h"
 #include "s_music.h"
@@ -202,20 +202,13 @@ static const char *config_base_dirs[] =
 	"\\",
 #endif
 
-#ifdef LINUX
+#ifdef __linux__
 	"/etc",
 	"/usr/local/lib",
 	"/usr/local/share",
 	"/usr/lib",
 	"/usr/share",
 	"/opt",
-#endif
-
-#ifdef BSD
-	"/usr/local/lib",
-	"/usr/local/share",
-	"/usr/pkg/lib",
-	"/usr/pkg/share",
 #endif
 
 	NULL // the end
@@ -243,7 +236,7 @@ static const char *config_sub_dirs[] =
 #ifdef WIN32
 	"timidity\\patches",
 #else
-	"../timidity/patches",
+	"timidity/patches",
 #endif
 
 	NULL // end of list
@@ -302,7 +295,7 @@ static const char * FindTimidityConfig(void)
 			// if the directory does not exist, then there is no
 			// need to proceed (hence saving a LOT of time).
 
-			//I_Debugf("TIMID: checking directory '%s'\n", dir.c_str());
+			I_Debugf("TIMID: checking directory '%s'\n", dir.c_str());
 
 			if (dir.length() > 0 && ! epi::FS_IsDir(dir.c_str()))
 				continue;
@@ -316,7 +309,7 @@ static const char * FindTimidityConfig(void)
 				else
 					fn = epi::PATH_Join(dir.c_str(), config_names[k]);
 				
-				//I_Debugf("  trying '%s'\n", fn.c_str());
+				I_Debugf("  trying '%s'\n", fn.c_str());
 				
 				if (epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
 				{
@@ -391,8 +384,11 @@ abstract_music_c * S_PlayTimidity(byte *data, int length, bool is_mus,
 
 	delete[] data;
 
-	if (! song)
-		I_Error("Timidity player: failed to load MIDI file!\n");
+	if (! song) //Lobo: quietly log it instead of completely exiting EDGE
+	{
+		I_Debugf("Timidity player: failed to load MIDI file!\n");
+		return NULL;
+	}
 
 	S_ChangeTimidQuiet();
 

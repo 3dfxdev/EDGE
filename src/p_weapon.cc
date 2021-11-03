@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Weapon (player sprites) Action Code
 //----------------------------------------------------------------------------
-//
-//  Copyright (c) 1999-2018  The EDGE Team.
-//
+// 
+//  Copyright (c) 1999-2009  The EDGE Team.
+// 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -26,7 +26,7 @@
 // -KM- 1998/11/25 Added/Changed stuff for weapons.ddf
 //
 
-#include "system/i_defs.h"
+#include "i_defs.h"
 #include "p_weapon.h"
 
 #include "e_event.h"
@@ -43,15 +43,13 @@
 
 static sound_category_e WeapSfxCat(player_t *p)
 {
-    if (p == players[consoleplayer1])
-	//if (p->playerflags & PFL_Console)
+	if (p == players[consoleplayer])
 		return SNCAT_Weapon;
-
+        
 	return SNCAT_Opponent;
 }
 
 
-//SetPsprite is player weapon sprite. Look into this for weird Heretic offsets...?
 static void P_SetPsprite(player_t * p, int position, int stnum, weapondef_c *info = NULL)
 {
 	pspdef_t *psp = &p->psprites[position];
@@ -90,7 +88,7 @@ static void P_SetPsprite(player_t * p, int position, int stnum, weapondef_c *inf
 
 	psp->state = st;
 	psp->tics  = st->tics;
-	psp->next_state = (st->nextstate == S_NULL) ? NULL :
+	psp->next_state = (st->nextstate == S_NULL) ? NULL : 
 		(states + st->nextstate);
 
 	// call action routine
@@ -132,20 +130,13 @@ void P_SetPspriteDeferred(player_t * p, int position, int stnum)
 //
 // -KM- 1998/12/16 Added check to make sure sprites exist.
 // -AJA- 2000: Made into a separate routine.
-// -CA- : Fixed this gnarly weapons bug.
+//
 bool P_CheckWeaponSprite(weapondef_c *info)
 {
 	if (info->up_state == S_NULL)
 		return false;
 
-	return true;
-
-	//return W_CheckSpritesExist(info->state_grp);
-
-	///Hypertension (and 3D projects need this fix):
-#ifdef HYPERTENSION
-	return true;
-#endif
+	return W_CheckSpritesExist(info->state_grp);
 }
 
 static bool ButtonDown(player_t *p, int ATK)
@@ -237,8 +228,7 @@ static bool WeaponCouldAutoFire(player_t *p, int idx, int ATK)
 	// Returns true when weapon will either fire or reload
 	// (assuming the button is held down).
 
-	weapondef_c *info = p->weapons[idx].info; 
-	//TODO: V557 https://www.viva64.com/en/w/v557/ Array overrun is possible. The 'WeaponCouldAutoFire' function processes value '-2'. Inspect the second argument. Check lines: 238, 696.
+	weapondef_c *info = p->weapons[idx].info;
 
 	if (! info->attack_state[ATK])
 		return false;
@@ -291,7 +281,7 @@ static void GotoReadyState(player_t *p)
 static void GotoEmptyState(player_t *p)
 {
 	weapondef_c *info = p->weapons[p->ready_wp].info;
-
+	
 	int newstate = info->empty_state;
 
 	P_SetPspriteDeferred(p, ps_weapon, newstate);
@@ -389,7 +379,7 @@ static void SwitchAway(player_t * p, int ATK, int reload)
 		P_SelectNewWeapon(p, -100, AM_DontCare);
 	else if (info->empty_state && ! WeaponCouldAutoFire(p, p->ready_wp, 0))
 		GotoEmptyState(p);
-	else
+	else 
 		GotoReadyState(p);
 }
 
@@ -428,8 +418,7 @@ static void P_BringUpWeapon(player_t * p)
 		return;
 	}
 
-	weapondef_c *info = p->weapons[sel].info; 
-	//TODO: V557 https://www.viva64.com/en/w/v557/ Array underrun is possible. The 'sel' index is pointing beyond array bound.
+	weapondef_c *info = p->weapons[sel].info;
 
 	// update current key choice
 	if (info->bind_key >= 0)
@@ -445,7 +434,7 @@ static void P_BringUpWeapon(player_t * p)
 		else if (level_flags.limit_zoom)
 			p->zoom_fov = 0;
 		else
-			p->zoom_fov = r_zoomfov;
+			p->zoom_fov = r_zoomfov.d;
 	}
 
 	if (info->start)
@@ -711,7 +700,7 @@ void P_TrySwitchNewWeapon(player_t *p, int new_weap, ammotype_e new_ammo)
 	}
 
 	SYS_ASSERT(new_ammo >= 0);
-
+	
 	// We were down to zero ammo, so select a new weapon.
 	// Choose the next highest priority weapon than the current one.
 	// Don't override any weapon change already underway.
@@ -792,7 +781,7 @@ void P_FillWeapon(player_t *p, int slot)
 		p->weapons[slot].clip_size[ATK] = info->clip_size[ATK];
 	}
 }
-
+	
 
 void P_DropWeapon(player_t * p)
 {
@@ -806,7 +795,6 @@ void P_DropWeapon(player_t * p)
 }
 
 
-//Ah, here we go.
 void P_SetupPsprites(player_t * p)
 {
 	// --- Called at start of level for each player ---
@@ -899,9 +887,9 @@ static void BobWeapon(player_t *p, weapondef_c *info)
 
 	float new_sx = 0;
 	float new_sy = 0;
-
+	
 	// bob the weapon based on movement speed
-	if (! hasjetpack && ! disable_bob)
+	if (! hasjetpack)
 	{
 		angle_t angle = (128 * leveltime) << 19;
 		new_sx = p->bob * PERCENT_2_FLOAT(info->swaying) * M_Cos(angle);
@@ -1243,7 +1231,7 @@ void A_Lower(mobj_t * mo)
 		if (level_flags.limit_zoom)
 			p->zoom_fov = 0;
 		else
-			p->zoom_fov = r_zoomfov;
+			p->zoom_fov = r_zoomfov.d;
 	}
 
 	psp->sy += LOWERSPEED;
@@ -1374,7 +1362,7 @@ void A_FriendJump(mobj_t * mo)
 static void DoGunFlash(mobj_t * mo, int ATK)
 {
 	player_t *p = mo->player;
-
+	
 	SYS_ASSERT(p->ready_wp >= 0);
 
 	weapondef_c *info = p->weapons[p->ready_wp].info;
@@ -1602,7 +1590,6 @@ void A_WeaponJump(mobj_t * mo)
 	}
 }
 
-
 void A_WeaponDJNE(mobj_t * mo)
 {
 	player_t *p = mo->player;
@@ -1631,6 +1618,7 @@ void A_WeaponDJNE(mobj_t * mo)
 			(states + psp->state->jumpstate);
 	}
 }
+
 
 
 void A_WeaponTransSet(mobj_t * mo)
@@ -1663,46 +1651,6 @@ void A_WeaponTransFade(mobj_t * mo)
 	}
 
 	psp->vis_target = value;
-}
-
-
-void A_WeaponDlightSet(mobj_t * mo)
-{
-	player_t *p = mo->player;
-	//pspdef_t *psp = &p->psprites[p->action_psp];
-
-	SYS_ASSERT(p->ready_wp >= 0);
-	//weapondef_c *info = p->weapons[p->ready_wp].info;
-
-	const state_t *st = mo->state;
-
-	if (st && st->action_par)
-	{
-		mo->dlight.r = MAX(0.0f, ((int *)st->action_par)[0]);
-
-		if (mo->info->hyperflags & HF_QUADRATIC_COMPAT)
-			mo->dlight.r = DLIT_COMPAT_RAD(mo->dlight.r);
-
-		mo->dlight.target = mo->dlight.r;
-	}
-}
-
-void A_WeaponDLightFade(mobj_t * mo)
-{
-	player_t *p = mo->player;
-	//pspdef_t *psp = &p->psprites[p->action_psp];
-
-	SYS_ASSERT(p->ready_wp >= 0);
-	//weapondef_c *info = p->weapons[p->ready_wp].info;
-	const state_t *st = mo->state;
-
-	if (st && st->action_par)
-	{
-		mo->dlight.target = MAX(0.0f, ((int *)st->action_par)[0]);
-
-		if (mo->info->hyperflags & HF_QUADRATIC_COMPAT)
-			mo->dlight.target = DLIT_COMPAT_RAD(mo->dlight.target);
-	}
 }
 
 
@@ -1760,9 +1708,6 @@ void A_WeaponUnzoom(mobj_t * mo)
 
 	p->zoom_fov = 0;
 }
-
-////5.27.2015 Coraline - added Dlight generation for weapons TODO: coordinates
-
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

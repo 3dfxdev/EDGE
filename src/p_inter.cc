@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Interactions (picking up items etc..) Code
 //----------------------------------------------------------------------------
-//
-//  Copyright (c) 1999-2018  The EDGE Team.
-//
+// 
+//  Copyright (c) 1999-2009  The EDGE Team.
+// 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -23,7 +23,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "system/i_defs.h"
+#include "i_defs.h"
 
 #include "am_map.h"
 #include "con_main.h"
@@ -41,11 +41,8 @@
 
 #define DAMAGE_ADD_MIN  3
 #define DAMAGE_LIMIT  100
-/*
-DEF_CVAR(m_tactile, int, "c", 1);
-DEF_CVAR(melee_tactile, int, "c", 0);*/
-extern int m_tactile;
-extern int melee_tactile;
+
+
 bool var_obituaries = true;
 
 
@@ -94,7 +91,7 @@ static void GiveAmmo(pickup_info_t *pu, benefit_t *be)
 	if (pu->no_ammo)
 		return;
 
-	int ammo  = be->sub.type;
+	int ammo  = be->sub.type;  
 	int num   = I_ROUND(be->amount);
 
 	// -AJA- in old deathmatch, weapons give 2.5 times more ammo
@@ -134,7 +131,7 @@ static void GiveAmmo(pickup_info_t *pu, benefit_t *be)
 	bool did_pickup = false;
 
 	// for newly acquired weapons (in the same benefit list) which have
-	// a clip, try to "bundle" this ammo inside that clip.
+	// a clip, try to "bundle" this ammo inside that clip.  
 	if (pu->new_weap >= 0)
 	{
 		did_pickup = P_TryFillNewWeapon(pu->player, pu->new_weap,
@@ -159,7 +156,7 @@ static void GiveAmmo(pickup_info_t *pu, benefit_t *be)
 		return;
 	}
 
-	// if there is some fresh ammo, we should change weapons
+	// if there is some fresh ammo, we should change weapons 
 	if (pu->player->ammo[ammo].num == 0)
 		pu->new_ammo = ammo;
 
@@ -176,7 +173,7 @@ static void GiveAmmo(pickup_info_t *pu, benefit_t *be)
 //
 static void GiveAmmoLimit(pickup_info_t *pu, benefit_t *be)
 {
-	int ammo  = be->sub.type;
+	int ammo  = be->sub.type;  
 	int limit = I_ROUND(be->amount);
 
 	if (ammo == AM_NoAmmo)
@@ -308,7 +305,7 @@ static void GiveArmour(pickup_info_t *pu, benefit_t *be)
 
 		if (amount > slack)
 			amount = slack;
-
+		
 		if (amount <= 0)
 			return;
 	}
@@ -333,7 +330,7 @@ static void GiveArmour(pickup_info_t *pu, benefit_t *be)
 
 		if (amount > slack)
 			amount = slack;
-
+		
 		SYS_ASSERT(amount  >= 0);
 		SYS_ASSERT(upgrade >= 0);
 
@@ -411,7 +408,7 @@ static void GiveKey(pickup_info_t *pu, benefit_t *be)
 // for this item. -ACB- 1998/06/20
 //
 static void GivePower(pickup_info_t *pu, benefit_t *be)
-{
+{ 
 	// -ACB- 1998/06/20 - calculate duration in seconds
 	float duration = be->amount * TICRATE;
 	float limit    = be->limit  * TICRATE;
@@ -459,7 +456,7 @@ void DoGiveBenefitList(pickup_info_t *pu)
 
 	for (benefit_t *be = pu->list; be; be = be->next)
 	{
-		// Put the checking in for neg amounts at benefit level. Powerups can be neg
+		// Put the checking in for neg amounts at benefit level. Powerups can be neg 
 		// if they last all level. -ACB- 2004/02/04
 
 		switch (be->type)
@@ -512,7 +509,7 @@ void DoGiveBenefitList(pickup_info_t *pu)
 // benefits should be taken away instead.  Returns true if _any_
 // benefit was picked up (or lost), or false if none of them were.
 //
-bool P_GiveBenefitList(player_t *player, mobj_t * special,
+bool P_GiveBenefitList(player_t *player, mobj_t * special, 
 					   benefit_t *list, bool lose_em)
 {
 	pickup_info_t info;
@@ -540,7 +537,7 @@ bool P_GiveBenefitList(player_t *player, mobj_t * special,
 //
 // RunPickupEffects
 //
-static void RunPickupEffects(player_t *player, mobj_t *special,
+static void RunPickupEffects(player_t *player, mobj_t *special, 
 		pickup_effect_c *list)
 {
 	for (; list; list=list->next)
@@ -562,7 +559,7 @@ static void RunPickupEffects(player_t *player, mobj_t *special,
 			case PUFX_ScreenEffect:
 				// FIXME
 				break;
-
+			
 			default: break;
 		}
 	}
@@ -591,7 +588,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 		return;
 
 	// -KM- 1998/09/27 Sounds.ddf
-	sfx_t *sound = special->info->activesound; //TODO: V595 https://www.viva64.com/en/w/v595/ The 'special' pointer was utilized before it was verified against nullptr. Check lines: 592, 598.
+	sfx_t *sound = special->info->activesound;
 
 	pickup_info_t info;
 
@@ -617,14 +614,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 	info.lose_em = false;
 	DoGiveBenefitList(&info);
 
-	if ((special->flags & MF_COUNTITEM) && (special->hyperflags & HF_SILENTPICKUP))
-	{
-		info.silent = true;
-		info.player->itemcount++;
-		info.got_it = true;
-	}
-
-	else if (special->flags & MF_COUNTITEM)
+	if (special->flags & MF_COUNTITEM)
 	{
 		info.player->itemcount++;
 		info.got_it = true;
@@ -632,13 +622,6 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 	else if (special->hyperflags & HF_FORCEPICKUP)
 	{
 		info.got_it  = true;
-		info.keep_it = false;
-	}
-	else if (special->hyperflags & HF_SILENTPICKUP)
-	{
-		info.silent = true;
-		info.player->itemcount++;
-		info.got_it = true;
 		info.keep_it = false;
 	}
 
@@ -652,7 +635,7 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 	}
 
 	// do all the special effects, lights & sound etc...
-	if (!info.silent)
+	if (! info.silent)
 	{
 		info.player->bonuscount += BONUS_ADD;
 		if (info.player->bonuscount > BONUS_LIMIT)
@@ -666,28 +649,19 @@ void P_TouchSpecialThing(mobj_t * special, mobj_t * toucher)
 		}
 
 		if (sound)
-		{
-			int sfx_cat;
+        {
+            int sfx_cat;
 
-			if (info.player->playerflags & PFL_Console)
-				sfx_cat = SNCAT_Player;
-			else
-				sfx_cat = SNCAT_Opponent;
+            if (info.player == players[consoleplayer])
+                sfx_cat = SNCAT_Player;
+            else
+                sfx_cat = SNCAT_Opponent;
 
 			S_StartFX(sound, sfx_cat, info.player->mo);
-		}
+        }
 
 		if (info.new_weap >= 0 || info.new_ammo >= 0)
 			P_TrySwitchNewWeapon(info.player, info.new_weap, (ammotype_e)info.new_ammo);
-	}
-
-	else if (info.silent)
-	{
-		info.player->silentbonuscount += BONUS_ADD;
-		if (info.player->silentbonuscount > BONUS_LIMIT)
-			info.player->silentbonuscount = BONUS_LIMIT;
-		//No Sound here
-		//No weapon switching, either!
 	}
 
 	RunPickupEffects(info.player, special, special->info->pickup_effects);
@@ -715,7 +689,7 @@ static std::string PatternSubst(const char *format, const std::vector<std::strin
 		pos++;
 
 		char key[4];
-
+		
 		key[0] = *pos++;
 		key[1] = 0;
 
@@ -812,7 +786,7 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype,
 		target->player = NULL;
 	}
 
-	target->flags &= ~(MF_SPECIAL | MF_SHOOTABLE | MF_FLOAT |
+	target->flags &= ~(MF_SPECIAL | MF_SHOOTABLE | MF_FLOAT | 
 		MF_SKULLFLY | MF_TOUCHY);
 	target->extendedflags &= ~(EF_BOUNCE | EF_USABLE | EF_CLIMBABLE);
 
@@ -849,7 +823,7 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype,
 	{
 		// count all monster deaths,
 		// even those caused by other monsters
-		players[consoleplayer1]->killcount++;
+		players[consoleplayer]->killcount++;
 	}
 
 	if (target->player)
@@ -872,11 +846,11 @@ void P_KillMobj(mobj_t * source, mobj_t * target, const damage_c *damtype,
 		P_DropWeapon(target->player);
 
 		// don't die in auto map, switch view prior to dying
-		if (target->player == players[consoleplayer1] && automapactive)
+		if (target->player == players[consoleplayer] && automapactive)
 			AM_Stop();
 
 		// don't immediately restart when USE key was pressed
-		if (target->player == players[consoleplayer1])
+		if (target->player == players[consoleplayer])
 			E_ClearInput();
 	}
 
@@ -1019,6 +993,10 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 		return;
 	}
 
+	// check for immortality
+	if (target->hyperflags & HF_IMMORTAL)
+		damage = 0.0f; //do no damage
+
 	// check for partial resistance against the attack
 	if (!weak_spot && damage >= 0.1f && inflictor && inflictor->currentattack &&
 		BITSET_EMPTY == (inflictor->currentattack->attack_class & ~target->info->resistance))
@@ -1129,7 +1107,7 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 					case ARMOUR_Yellow: saved = damage * 0.75; break;
 					case ARMOUR_Red:    saved = damage * 0.90; break;
 
-					default:
+					default: 
 						I_Error("INTERNAL ERROR in P_DamageMobj: bad armour %d\n", i);
 				}
 			}
@@ -1161,9 +1139,6 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 		// add damage after armour / invuln detection
 		if (damage > 0)
 		{
-			// 6.20.21 ~CA: 
-			// Cancel out teleport effect (fixes stuck telept_fov)
-			player->telept_fov = 0;
 			player->damagecount += (int)MAX(damage, DAMAGE_ADD_MIN);
 			player->damage_pain += damage;
 		}
@@ -1171,13 +1146,6 @@ void P_DamageMobj(mobj_t * target, mobj_t * inflictor, mobj_t * source,
 		// teleport stomp does 10k points...
 		if (player->damagecount > DAMAGE_LIMIT)
 			player->damagecount = DAMAGE_LIMIT;
-
-		// Damage limit computation for I_Tactile
-        int temp = damage < DAMAGE_LIMIT ? damage : DAMAGE_LIMIT;
-
-		//TODO: Move into COAL (PL_add_tactile)
-		if (m_tactile > 0)
-		I_Tactile(5, (1 + (temp >> 4)) * 10, player->pnum);
 	}
 
 	// do the damage
@@ -1280,7 +1248,7 @@ void P_TelefragMobj(mobj_t * target, mobj_t * inflictor, const damage_c * damtyp
 {
 	if (target->health <= 0)
 		return;
-
+	
 	target->health = -1000;
 
 	if (target->flags & MF_STEALTH)

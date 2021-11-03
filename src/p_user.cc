@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Player User Code
 //----------------------------------------------------------------------------
-//
-//  Copyright (c) 1999-2018  The EDGE Team.
-//
+// 
+//  Copyright (c) 1999-2009  The EDGE Team.
+// 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -23,11 +23,11 @@
 //
 //----------------------------------------------------------------------------
 
-#include "system/i_defs.h"
+#include "i_defs.h"
 
 #include <float.h>
 
-#include "../ddf/colormap.h"
+#include "colormap.h"
 
 #include "dm_state.h"
 #include "e_input.h"
@@ -39,10 +39,6 @@
 #include "s_sound.h"
 #include "z_zone.h"
 
-extern float fade_gdelta;
-extern float fade_gamma;
-extern int fade_starttic;
-extern bool fade_active;
 
 static void P_UpdatePowerups(player_t *player);
 
@@ -56,52 +52,9 @@ static sfx_t * sfx_jprise;
 static sfx_t * sfx_jpdown;
 static sfx_t * sfx_jpflow;
 
-#if 0
-float xxxSlope_GetHeight(slope_plane_t *slope, float x, float y/*,bool floorz_hack*/) {
-	// FIXME: precompute (store in slope_plane_t)
-	float dx = slope->x2 - slope->x1;
-	float dy = slope->y2 - slope->y1;
-
-	float d_len = dx*dx + dy*dy;
-
-	float along = ((x - slope->x1) * dx + (y - slope->y1) * dy) / d_len;
-/*
-	printf("x %f z1 %f z2 %f p %f x1 %f x2 %f\n",x,slope->dz1,slope->dz2,
-			along,slope->x1,slope->x2);
-			*/
-	/*
-	if(floorz_hack) {
-		along+=1.0;
-	}
-	*/
-
-	return slope->dz1 + along * (slope->dz2 - slope->dz1);
-}
-#endif
-
 static void CalcHeight(player_t * player)
 {
-	player->lastviewz = player->viewz;
-
 	bool onground = player->mo->z <= player->mo->floorz;
-#if 0
-	bool onslope=(player->mo->z<=player->mo->floorz+23.0 && player->mo->subsector->sector->c_slope);
-
-	float slope_offset=0;
-	float slope_total=0;
-	if(onslope) {
-		slope_offset=xxxSlope_GetHeight(player->mo->subsector->sector->c_slope,player->mo->x,player->mo->y);
-		slope_total=slope_offset+player->mo->subsector->sector->f_h;//player->mo->floorz;
-		/*
-		printf("floorz %f sector floorz %f slope %f TOTAL\t%f\n",player->mo->floorz,
-				player->mo->subsector->sector->f_h,
-				slope_offset,
-				player->mo->floorz+slope_offset);
-		*/
-	}
-
-	//bool still = false;
-#endif
 
 	if (player->mo->height < (player->mo->info->height + player->mo->info->crouchheight) / 2.0f)
 		player->mo->extendedflags |= EF_CROUCHING;
@@ -114,27 +67,13 @@ static void CalcHeight(player_t * player)
 
 	float bob_z = 0;
 
-	// Regular movement bobbing
-	// (needs to be calculated for gun swing even if not on ground).
+	// Regular movement bobbing 
+	// (needs to be calculated for gun swing even if not on ground).  
 	// -AJA- Moved up here, to prevent weapon jumps when running down
 	// stairs.
 
-	if (! disable_bob)
-	{
-		player->bob = (player->mo->mom.x * player->mo->mom.x
-			+ player->mo->mom.y * player->mo->mom.y) / 8;
-	}
-	else
-	{
-		player->bob = 0;
-		disable_bob = false;
-	}
-
-	//if (bob_z == 0)
-	//	{
-	//		still = true;
-	//	}
-	//	else
+	player->bob = (player->mo->mom.x * player->mo->mom.x
+		+ player->mo->mom.y * player->mo->mom.y) / 8;
 
 	if (player->bob > MAXBOB)
 		player->bob = MAXBOB;
@@ -143,11 +82,8 @@ static void CalcHeight(player_t * player)
 	if (player->playerstate == PST_LIVE && onground)
 	{
 		angle_t angle = ANG90 / 5 * leveltime;
-		extern float bob_z_scale;
-		extern float bob_r_scale;
 
-		bob_z = player->bob / 2 * player->mo->info->bobbing * M_Sin(angle) * bob_z_scale;
-		cameraroll = player->bob / 2 * player->mo->info->bobbing * M_Sin(angle) * bob_r_scale;
+		bob_z = player->bob / 2 * player->mo->info->bobbing * M_Sin(angle);
 	}
 
 	// ----CALCULATE VIEWHEIGHT----
@@ -182,20 +118,21 @@ static void CalcHeight(player_t * player)
 	//  6/6/2011 - Fix this so RTS does NOT interfere with fracunits (it does in Hypertension's E1M1 starting script)!
     //  6/7/2011 - Ajaped said to remove FRACUNIT...seeya oldness.
 
-	if ((player->mo->mom.z <= -35.0)&&(player->mo->mom.z >= -40.0))
+	//if ((player->mo->mom.z <= -35.0)&&(player->mo->mom.z >= -40.0))
+	if ((player->mo->mom.z <= -35.0)&&(player->mo->mom.z >= -36.0))
 	if (player->mo->info->falling_sound)
 	{
 	    int sfx_cat;
 
-		if (player == players[consoleplayer1])
+		if (player == players[consoleplayer]) {
 			sfx_cat = SNCAT_Player;
-		else
+		} else {
 			sfx_cat = SNCAT_Opponent;
-
-			{
-					S_StartFX(player->mo->info->falling_sound, sfx_cat, player->mo);
-			}
+		}
+		S_StartFX(player->mo->info->falling_sound, sfx_cat, player->mo);
 	}
+
+
 	// don't apply bobbing when jumping, but have a smooth
 	// transition at the end of the jump.
 	if (player->jumpwait > 0)
@@ -206,17 +143,7 @@ static void CalcHeight(player_t * player)
 			bob_z *= (6 - player->jumpwait) / 6.0;
 	}
 
-#if 0
-	if(onslope) {
-		//printf("VIEWZ %f Z %f TOTAL %f\n",player->viewz,player->mo->z,player->mo->floorz+slope_offset);
-		player->viewz=slope_total-player->mo->z+bob_z+player->std_viewheight;
-	}
-	else {
-		player->viewz = player->viewheight + bob_z;
-	}
-#else
 	player->viewz = player->viewheight + bob_z;
-#endif
 
 #if 0  // DEBUG
 I_Debugf("Jump:%d bob_z:%1.2f  z:%1.2f  height:%1.2f delta:%1.2f --> viewz:%1.3f\n",
@@ -225,7 +152,6 @@ I_Debugf("Jump:%d bob_z:%1.2f  z:%1.2f  height:%1.2f delta:%1.2f --> viewz:%1.3f
 		 player->mo->z + player->viewz);
 #endif
 }
-
 
 
 void P_PlayerJump(player_t *pl, float dz, int wait)
@@ -245,7 +171,7 @@ void P_PlayerJump(player_t *pl, float dz, int wait)
 	{
 		int sfx_cat;
 
-		if (pl->playerflags & PFL_Console)
+		if (pl == players[consoleplayer])
 			sfx_cat = SNCAT_Player;
 		else
 			sfx_cat = SNCAT_Opponent;
@@ -379,7 +305,7 @@ static void MovePlayer(player_t * player)
 	{
         int sfx_cat;
 
-        if (player->playerflags & PFL_Console)
+        if (player == players[consoleplayer])
             sfx_cat = SNCAT_Player;
         else
             sfx_cat = SNCAT_Opponent;
@@ -420,7 +346,7 @@ static void MovePlayer(player_t * player)
 	{
 		if (!jumping && !crouching && !swimming && !flying && onground && !onladder)
 		{
-			P_PlayerJump(player, player->mo->info->jumpheight / 1.9f,
+			P_PlayerJump(player, player->mo->info->jumpheight / 1.4f,
 			             player->mo->info->jump_delay);
 		}
 	}
@@ -437,7 +363,7 @@ static void MovePlayer(player_t * player)
 			mo->height = MAX(mo->height - 2.0f, mo->info->crouchheight);
 
 			// update any things near the player
-			//P_ChangeThingSize(mo);
+			P_ChangeThingSize(mo);
 
 			mo->player->deltaviewheight = -1.0f;
 		}
@@ -452,7 +378,7 @@ static void MovePlayer(player_t * player)
 				mo->height = MIN(mo->height + 2, mo->info->height);
 
 				// update any things near the player
-				//P_ChangeThingSize(mo);
+				P_ChangeThingSize(mo);
 
 				mo->player->deltaviewheight = 1.0f;
 			}
@@ -472,7 +398,7 @@ static void MovePlayer(player_t * player)
 
 			// In `LimitZoom' mode, only allow zooming if weapon supports it
 			if (fov <= 0 && !level_flags.limit_zoom)
-				fov = r_zoomfov;
+				fov = r_zoomfov.d;
 		}
 
 		player->zoom_fov = fov;
@@ -510,7 +436,7 @@ static void DeathThink(player_t * player)
 	{
 		dx = player->attacker->x - player->mo->x;
 		dy = player->attacker->y - player->mo->y;
-		dz = (player->attacker->z + player->attacker->height/2) -
+		dz = (player->attacker->z + player->attacker->height/2) - 
 			(player->mo->z + player->viewheight);
 
 		angle = R_PointToAngle(0, 0, dx, dy);
@@ -530,13 +456,13 @@ static void DeathThink(player_t * player)
 			if (player->damagecount > 0)
 				player->damagecount--;
 		}
-		else
+		else 
 		{
 			if (delta < ANG180)
 				delta /= 5;
 			else
 				delta = (angle_t)(0 - (angle_t)(0 - delta) / 5);
-
+			
 			if (delta > ANG5 && delta < (angle_t)(0 - ANG5))
 				delta = (delta < ANG180) ? ANG5 : (angle_t)(0 - ANG5);
 
@@ -544,7 +470,7 @@ static void DeathThink(player_t * player)
 				delta_s /= 5;
 			else
 				delta_s = (angle_t)(0 - (angle_t)(0 - delta_s) / 5);
-
+			
 			if (delta_s > (ANG5/2) && delta_s < (angle_t)(0 - ANG5/2))
 				delta_s = (delta_s < ANG180) ? (ANG5/2) : (angle_t)(0 - ANG5/2);
 
@@ -562,9 +488,6 @@ static void DeathThink(player_t * player)
 	if (player->bonuscount)
 		player->bonuscount--;
 
-	if (player->silentbonuscount)
-		player->silentbonuscount--;
-
 	P_UpdatePowerups(player);
 
 	// lose the zoom when dead
@@ -575,9 +498,6 @@ static void DeathThink(player_t * player)
 
 	if (player->cmd.buttons & BT_USE)
 		player->playerstate = PST_REBORN;
-
-	if ((!player->isBot()) && (!splitscreen_mode)) //Disable for splitscreen mode since it affects all players :S
-		cameraroll = 70.0f;//TODO: lerp it!
 }
 
 static void P_UpdatePowerups(player_t *player)
@@ -651,9 +571,9 @@ static void P_UpdatePowerups(player_t *player)
 // Does the thinking of the console player, i.e. read from input
 void P_ConsolePlayerBuilder(const player_t *pl, void *data, ticcmd_t *dest)
 {
-	dest->player_idx = pl->pnum;
+	E_BuildTiccmd(dest);
 
-	E_BuildTiccmd(dest, pl->pnum);//E_BuildTiccmd(dest, pl->pnum);
+	dest->player_idx = pl->pnum;
 }
 
 static u16_t MakeConsistency(const player_t *pl)
@@ -693,7 +613,7 @@ bool P_PlayerSwitchWeapon(player_t *player, weapondef_c *choice)
 		return false;
 	}
 
-	player->pending_wp = (weapon_selection_e) pw_index; //TODO: V1016 https://www.viva64.com/en/w/v1016/ The value 'pw_index' is out of range of enum values. This causes unspecified or undefined behavior.
+	player->pending_wp = (weapon_selection_e) pw_index;
 
 	return true;
 }
@@ -704,7 +624,6 @@ void P_PlayerThink(player_t * player)
 	ticcmd_t *cmd;
 
 	SYS_ASSERT(player->mo);
-
 
 #if 0  // DEBUG ONLY
 	{
@@ -759,32 +678,9 @@ void P_PlayerThink(player_t * player)
 	// bit after a teleport.
 
 	if (player->mo->reactiontime)
-	{
 		player->mo->reactiontime--;
-		player->telept_fov = player->telept_fov >= 5 ? player->telept_fov - 5 : 0;
-	}
 	else
-	{
 		MovePlayer(player);
-	}
-
-	if (fade_active)
-	{
-		if (fade_starttic <= leveltime)
-		{
-			fade_gamma += fade_gdelta;
-			if (fade_gdelta < 0)
-			{
-				if (fade_gamma <= 0.0f)
-					fade_active = false;
-			}
-			else
-			{
-				if (fade_gamma >= 1.0f)
-					fade_active = false;
-			}
-		}
-	}
 
 	CalcHeight(player);
 
@@ -833,8 +729,6 @@ void P_PlayerThink(player_t * player)
 
 	player->actiondown[0] = (cmd->extbuttons & EBT_ACTION1) ? true : false;
 	player->actiondown[1] = (cmd->extbuttons & EBT_ACTION2) ? true : false;
-	player->actiondown[2] = (cmd->extbuttons & EBT_ACTION3) ? true : false;
-	player->actiondown[3] = (cmd->extbuttons & EBT_ACTION4) ? true : false;
 
 	// decrement jumpwait counter
 	if (player->jumpwait > 0)
@@ -855,9 +749,6 @@ void P_PlayerThink(player_t * player)
 
 	if (player->bonuscount > 0)
 		player->bonuscount--;
-
-	if (player->silentbonuscount > 0)
-		player->silentbonuscount--;
 
 	if (player->grin_count > 0)
 		player->grin_count--;
@@ -880,7 +771,7 @@ void P_CreatePlayer(int pnum, bool is_bot)
 
 	player_t *p = new player_t;
 
-	Z_Clear(p, player_t, 1); //TODO: V782 https://www.viva64.com/en/w/v782/ There is no sense in evaluating the distance between elements from different arrays: '(p) - ((player_t *)(p))'.
+	Z_Clear(p, player_t, 1);
 
 	p->pnum = pnum;
 	p->playerstate = PST_DEAD;
@@ -937,9 +828,8 @@ void P_DestroyAllPlayers(void)
 	numplayers = 0;
 	numbots = 0;
 
-	consoleplayer1 = -1;
-	consoleplayer2 = -1;
-	displayplayer  = -1;
+	consoleplayer = -1;
+	displayplayer = -1;
 
 	sfx_jpidle = sfx_jpmove = sfx_jprise = NULL;
 	sfx_jpdown = sfx_jpflow = NULL;
@@ -1002,11 +892,8 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 	int upgrade_slot = -1;
 
 	// cannot own weapons if sprites are missing
-	if (!P_CheckWeaponSprite(info))
-	{
-		I_Warning("CANNOT OWN WEAPONS IF SPRITES ARE MISSING!\n");
+	if (! P_CheckWeaponSprite(info))
 		return false;
-	}
 
 	for (int i=0; i < MAXWEAPONS; i++)
 	{
@@ -1075,7 +962,7 @@ bool P_AddWeapon(player_t *player, weapondef_c *info, int *index)
 		// check and update key_choices[]
 		for (int w=0; w <= 9; w++)
 			if (player->key_choices[w] == upgrade_slot)
-				player->key_choices[w] = (weapon_selection_e)slot; //TODO: V1016 https://www.viva64.com/en/w/v1016/ The value 'slot' is out of range of enum values. This causes unspecified or undefined behavior.
+				player->key_choices[w] = (weapon_selection_e)slot;
 
 		// handle the case of holding the weapon which is being upgraded
 		// by the new one.  We mark the old weapon for removal.
@@ -1157,7 +1044,7 @@ void P_GiveInitialBenefits(player_t *p, const mobjtype_c *info)
 
 	epi::array_iterator_c it;
 	weapondef_c *w;
-
+	
 	p->ready_wp   = WPSEL_None;
 	p->pending_wp = WPSEL_NoChange;
 

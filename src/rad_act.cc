@@ -2,7 +2,7 @@
 //  EDGE Radius Trigger Actions
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2018  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -19,9 +19,7 @@
 // -AJA- 1999/10/24: Split these off from the rad_trig.c file.
 //
 
-#include "system/i_defs.h"
-//#include "system/i_ffmpeg.h"
-//#include "system/i_cinematic.h"
+#include "i_defs.h"
 
 #include <limits.h>
 
@@ -50,9 +48,6 @@
 #include "w_wad.h"
 #include "w_texture.h"
 #include "z_zone.h"
-
-extern void E_PlayMovie(const char *name, int flags);
-
 
 // current tip slots
 drawtip_t tip_slots[MAXTIPSLOT];
@@ -157,7 +152,8 @@ static void SendTip(rad_trigger_t *R, s_tip_t * tip, int slot)
 	current->tip_graphic = tip->tip_graphic ?
 		W_ImageLookup(tip->tip_graphic) : NULL;
 	current->playsound   = tip->playsound ? true : false;
-	current->scale       = tip->tip_graphic ? tip->gfx_scale : 1.0f;
+	//current->scale       = tip->tip_graphic ? tip->gfx_scale : 1.0f;
+	current->scale       = tip->gfx_scale;
 	current->fade_time   = 0;
 
 	// mark it as "set me up please"
@@ -269,7 +265,7 @@ static player_t *GetWhoDunnit(rad_trigger_t *R)
 {
 	// this IS NOT CORRECT, but matches old behavior
 	if (numplayers == 1)
-		return players[consoleplayer1];
+		return players[consoleplayer];
 
 	if (R->acti_players == 0)
 		return NULL;
@@ -299,7 +295,7 @@ void RAD_ActTip(rad_trigger_t *R, void *param)
 	// Only display the tip to the player that stepped into the radius
 	// trigger.
 
-	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer1)) == 0)
+	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer)) == 0)
 		return;
 
 	SendTip(R, tip, R->tip_slot);
@@ -310,7 +306,7 @@ void RAD_ActTipProps(rad_trigger_t *R, void *param)
 	s_tip_prop_t *tp = (s_tip_prop_t *) param;
 	drawtip_t *current;
 
-	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer1)) == 0)
+	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer)) == 0)
 		return;
 
 	if (tp->slot_num >= 0)
@@ -648,7 +644,10 @@ void RAD_ActPlaySound(rad_trigger_t *R, void *param)
 	else
 		R->sfx_origin.z = ambient->z;
 
-	S_StartFX(ambient->sfx, SNCAT_Level, &R->sfx_origin, flags);
+	if (ambient->kind == PSOUND_BossMan) 
+		S_StartFX(ambient->sfx); //Lobo: want BOSSMAN to sound from the player
+	else
+		S_StartFX(ambient->sfx, SNCAT_Level, &R->sfx_origin, flags);
 }
 
 void RAD_ActKillSound(rad_trigger_t *R, void *param)
@@ -661,16 +660,6 @@ void RAD_ActChangeMusic(rad_trigger_t *R, void *param)
 	s_music_t *music = (s_music_t *) param;
 
 	S_ChangeMusic(music->playnum, music->looping);
-}
-
-void RAD_ActPlayCinematic(rad_trigger_t *R, void *param)
-{
-	//cinematic_t *cin = (cinematic_t *) param;
-
-	//cin->playing = true;
-
-	//E_PlayMovie("/pack0/video/intro.roq", 1);
-	//cin->playing = true;
 }
 
 void RAD_ActChangeTex(rad_trigger_t *R, void *param)
@@ -967,7 +956,7 @@ void RAD_ActShowMenu(rad_trigger_t *R, void *param)
 {
 	s_show_menu_t *menu = (s_show_menu_t *) param;
 
-	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer1)) == 0)
+	if (numplayers > 1 && (R->acti_players & (1 << consoleplayer)) == 0)
 		return;
 
 	if (rts_menuactive)
@@ -1073,12 +1062,6 @@ void RAD_ActWaitUntilDead(rad_trigger_t *R, void *param)
 	}
 }
 
-void RAD_ActActivateCamera(rad_trigger_t *R, void *param)
-{
-	s_actvcamera_t *camera = (s_actvcamera_t *)param;
-	cameraman::SetStartId(camera->id);
-	cameraman::SetEndId(camera->id);
-}
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

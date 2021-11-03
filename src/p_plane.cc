@@ -2,7 +2,7 @@
 //  EDGE Floor/Ceiling/Stair/Elevator Action Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2018  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -23,7 +23,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "system/i_defs.h"
+#include "i_defs.h"
 
 #include "z_zone.h"
 #include "dm_defs.h"
@@ -908,8 +908,7 @@ bool EV_ManualPlane(line_t * line, mobj_t * thing, const movplanedef_c * def)
 
     // if the sector has an active thinker, use it
     sector_t *sec = side ? line->frontsector : line->backsector;
-    if (!sec)
-        return false;
+    if (!sec) return false;
 
 	plane_move_t *pmov = def->is_ceiling ? sec->ceil_move : sec->floor_move;
 
@@ -1219,7 +1218,12 @@ bool EV_DoSlider(line_t * door, line_t *act_line, mobj_t * thing,
 
     P_AddActiveSlider(smov);
 
-    S_StartFX(special->s.sfx_start, SNCAT_Level, &sec->sfx_origin);
+    //Lobo: SFX_OPEN would not play for monsters.
+    //Going forward, I think it's better just to use SFX_OPEN and SFX_CLOSE
+    //and quietly forget about SFX_START.
+
+    //S_StartFX(special->s.sfx_start, SNCAT_Level, &sec->sfx_origin);
+    S_StartFX(special->s.sfx_open, SNCAT_Level, &sec->sfx_origin);
 
 	return true;
 }

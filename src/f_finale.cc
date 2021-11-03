@@ -2,7 +2,7 @@
 // EDGE Finale Code on Game Completion
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2018  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -28,10 +28,10 @@
 // -KM- 1998/11/25 Finale generalised.
 //
 
-#include "system/i_defs.h"
-#include "system/i_defs_gl.h"
+#include "i_defs.h"
+#include "i_defs_gl.h"
 
-#include "../ddf/main.h"
+#include "main.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -261,16 +261,12 @@ bool F_Responder(event_t * event)
 
 	if (finalecount > TICRATE)
 	{
-		if (finalestage == f_pic && finale->picwait == INT_MAX)
-			return false;
-
 		skip_finale = true;
 		return true;
 	}
 
 	return false;
 }
-
 
 
 void F_Ticker(void)
@@ -355,7 +351,19 @@ static void TextWrite(void)
 	if (finale_textback)
 	{
 		HUD_SetScale(finale_textbackscale);
-		HUD_TileImage(0, 0, 320, 200, finale_textback);
+		
+		if (finale->text_flat[0])
+		{
+			//Lobo: if it's a flat, tile it
+  			HUD_TileImage(-240, 0, 820, 200, finale_textback); //Lobo: Widescreen support
+			//HUD_TileImage(0, 0, 320, 200, finale_textback);
+		}
+		else
+		{
+			//Lobo: if it's a normal graphic, no tile and center it
+			HUD_DrawImageTitleWS(finale_textback); //Lobo: Widescreen support
+			//HUD_TileImage(-240, 0, 820, 200, finale_textback); //Lobo: Widescreen support
+		}
 		HUD_SetScale();
 	}
 
@@ -649,7 +657,8 @@ static void CastDrawer(void)
 {
 	const image_c *image = W_ImageLookup("BOSSBACK");
 
-	HUD_StretchImage(0, 0, 320, 200, image);
+	HUD_DrawImageTitleWS(image); //Lobo: Widescreen support
+	//HUD_StretchImage(0, 0, 320, 200, image);
 
 	HUD_SetAlignment(0, -1);
 	HUD_SetTextColor(T_YELLOW);
@@ -668,7 +677,7 @@ static void CastDrawer(void)
 	{
 		modeldef_c *md = W_GetModel(caststate->sprite);
 
-		const image_c *skin_img = md->skins[castorder->model_skin].img;
+		const image_c *skin_img = md->skins[castorder->model_skin];
 
 		if (! skin_img)
 			skin_img = W_ImageForDummySkin();
@@ -721,7 +730,7 @@ static void CastDrawer(void)
 //
 // -KM- 1998/07/31 Made our bunny friend take up more screen space.
 // -KM- 1998/12/16 Removed fading routine.
-//
+// -Lobo- 2021/11/02 Widescreen support: both images must be the same size
 static void BunnyScroll(void)
 {
 	int scrolled;
@@ -734,15 +743,27 @@ static void BunnyScroll(void)
 	p1 = W_ImageLookup("PFUB2");
 	p2 = W_ImageLookup("PFUB1");
 
-	scrolled = 320 - (finalecount - 230) / 2;
+	float TempWidth = 0;
+	float TempHeight = 0;
+	float TempScale = 0;
+	float CenterX = 0;
+	//1. Calculate scaling to apply.
+	TempScale = 200;
+	TempScale /= p1->actual_h;
+	TempWidth = p1->actual_w * TempScale;
+	TempHeight = p1->actual_h * TempScale;
+	//2. Calculate centering on screen.
+	CenterX = 160;
+	CenterX -= (p1->actual_w * TempScale)/ 2;
 
-	if (scrolled > 320)
-		scrolled = 320;
+	scrolled = (TempWidth + CenterX) - (finalecount - 230) / 2;
+	if (scrolled > (TempWidth + CenterX))
+		scrolled = (TempWidth + CenterX);
 	if (scrolled < 0)
 		scrolled = 0;
 
-	HUD_StretchImage(0   - scrolled, 0, 320, 200, p1);
-	HUD_StretchImage(320 - scrolled, 0, 320, 200, p2);
+	HUD_StretchImage(CenterX  - scrolled, 0, TempWidth, TempHeight, p1);
+	HUD_StretchImage((CenterX + TempWidth) - (scrolled + 1), 0, TempWidth, TempHeight, p2);
 
 	if (finalecount < 1130)
 		return;
@@ -789,7 +810,8 @@ void F_Drawer(void)
 			{
 				const image_c *image = W_ImageLookup(finale->pics[picnum]);
 
-				HUD_StretchImage(0, 0, 320, 200, image);
+				HUD_DrawImageTitleWS(image); //Lobo: Widescreen support
+				//HUD_StretchImage(0, 0, 320, 200, image);
 			}
 			break;
 

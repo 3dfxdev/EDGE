@@ -1,12 +1,12 @@
 //
-//    3DGE Radius Triggers
+//    EDGE Radius Triggers
 //
 //    These scripts replace hardcoded events for both DOOM 1 and 2.
 //    For documentation, see http://edge.sourceforge.net/
-//    DDF Version 7
+//    DDF Version 6.1
 //
 
-#VERSION 2.10
+#VERSION 1.35
 
 // *****************
 // * DOOM1 scripts *
@@ -66,29 +66,12 @@ END_MAP
 // * DOOM2 scripts *
 // *****************
 
-START_MAP map05
-
-//Workaround for a bug in Doom2 where TAG 9 is used incorrectly
-RADIUS_TRIGGER 0 0 -1
-
-//As soon as we detect it goes down.
-onceilingheight 90 199 4 //sector 4 is the first problematic one
-
-wait 1T //must wait a little bit or it doesn't run
-
-SECTORV 4 104 ceiling //Just raise the ceiling back up for sector 4
-SECTORV 153 80 ceiling //Just raise the ceiling back up for sector 153
-
-END_RADIUS_TRIGGER
-
-END_MAP
-
 START_MAP map07
 
 // lower the outer walls when all Mancubi are killed
 
   RADIUS_TRIGGER 0 0 -1
-    WAIT_UNTIL_DEAD Mancubus
+	WAIT_UNTIL_DEAD Mancubus
     ACTIVATE_LINETYPE 38 666
   END_RADIUS_TRIGGER
 

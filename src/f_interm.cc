@@ -2,7 +2,7 @@
 //  EDGE Intermission Code
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 1999-2018  The EDGE Team.
+//  Copyright (c) 1999-2009  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -29,7 +29,7 @@
 //    + have proper styles (for text font and sounds).
 //
 
-#include "system/i_defs.h"
+#include "i_defs.h"
 
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -565,8 +565,7 @@ static void DrawTime(float x, float y, int t)
 			div *= 60;
 
 			// draw
-			if (div == 60 || t / div) 
-				//TODO: V793 https://www.viva64.com/en/w/v793/ It is odd that the result of the 't / div' statement is a part of the condition. Perhaps, this statement should have been compared with something else.
+			if (div == 60 || t / div)
 				HUD_DrawImage(x, y, colon);
 		}
 		while (t / div);
@@ -825,10 +824,10 @@ static void DrawDeathmatchStats(void)
 
 		// hightlight the console player
 #if 1
-		if (p == consoleplayer1)
+		if (p == consoleplayer)
 			t_type = styledef_c::T_ALT;
 #else
-		if (p == consoleplayer1 && ((bcnt & 31) < 16))
+		if (p == consoleplayer && ((bcnt & 31) < 16))
 			continue;
 #endif
 
@@ -1101,10 +1100,10 @@ static void DrawCoopStats(void)
 
 		// hightlight the console player
 #if 1
-		if (p == consoleplayer1)
+		if (p == consoleplayer)
 			t_type = styledef_c::T_ALT;
 #else
-		if (p == consoleplayer1 && ((bcnt & 31) < 16))
+		if (p == consoleplayer && ((bcnt & 31) < 16))
 			continue;
 #endif
 
@@ -1160,7 +1159,7 @@ static void UpdateSinglePlayerStats(void)
 {
 	//WI_updateAnimatedBack();
 
-	player_t *con_plyr = players[consoleplayer1];
+	player_t *con_plyr = players[consoleplayer];
 
 	const gamedef_c *gd = wi_stats.cur->episode;
 
@@ -1403,8 +1402,9 @@ void WI_Drawer(void)
 	} 
 	else
 	{
-		HUD_StretchImage(0, 0, 320, 200, bg_image);
-
+		//HUD_StretchImage(0, 0, 320, 200, bg_image);
+		HUD_DrawImageTitleWS(bg_image); //Lobo: Widescreen support
+		
 		for (int i = 0; i < worldint.numanims; i++)
 		{
 			wi_anim_c *a = &worldint.anims[i];
