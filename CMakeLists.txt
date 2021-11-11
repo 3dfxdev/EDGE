@@ -580,7 +580,7 @@ set(EDGE_SOURCES
 	src/s_music.cc
 	src/s_ogg.cc
 	src/s_opl.cc
-	src/s_timid.cc
+	src/s_tsf.cc
 	src/sv_chunk.cc
 	src/sv_glob.cc
 	src/sv_level.cc
@@ -662,15 +662,6 @@ set(EDGE_SOURCES
 	glbsp/src/system.cc
 	glbsp/src/util.cc
 	glbsp/src/wad.cc
-
-	src/system/sound/timidity/common.cc
-	src/system/sound/timidity/instrum.cc
-	src/system/sound/timidity/mix.cc
-	src/system/sound/timidity/playmidi.cc
-	src/system/sound/timidity/loadmidi.cc
-	src/system/sound/timidity/resample.cc
-	src/system/sound/timidity/tables.cc
-	src/system/sound/timidity/timidity.cc
 
 	src/system/sound/opllib/opl3.cc
 	src/system/sound/opllib/oplapi.cc
@@ -775,6 +766,11 @@ endif()
 add_custom_command(TARGET EDGE POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${CMAKE_SOURCE_DIR}/data/base $<TARGET_FILE_DIR:${PROJECT_NAME}>/base)
+
+#copy soundfont folder to build root (Not sure where you want this in the final iteration - Dasho)
+add_custom_command(TARGET EDGE POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_SOURCE_DIR}/data/soundfont $<TARGET_FILE_DIR:${PROJECT_NAME}>/soundfont)
 
 target_link_libraries(EDGE
 	${SDL2_LIBRARY}
