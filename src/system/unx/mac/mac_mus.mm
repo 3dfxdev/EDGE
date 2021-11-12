@@ -27,7 +27,7 @@
 #include "dm_state.h"
 #include "s_music.h"
 #include "s_opl.h"
-#include "s_timid.h"
+#include "s_tsf.h"
 
 #import <Cocoa/Cocoa.h>
 #import <QTKit/QTMovie.h>
@@ -193,19 +193,19 @@ void I_StartupMusic(void)
 			I_Printf("I_StartupMusic: OPL Init FAILED\n");
 		}
 		
-		if (S_StartupTimidity())
+		if (S_StartupTSF())
 		{
-			I_Printf("I_StartupMusic: Timidity Init OK\n");
+			I_Printf("I_StartupMusic: TinySoundfont Init OK\n");
 		}
 		else
 		{
-			I_Printf("I_StartupMusic: Timidity Init FAILED\n");
+			I_Printf("I_StartupMusic: TinySoundfont Init FAILED\n");
 		}
 	}
 	else
 #endif
     {
-		I_Printf("I_StartupMusic: Timidity Disabled\n");
+		I_Printf("I_StartupMusic: TinySoundfont Disabled\n");
     }
 
 	// Nothing went pear shaped

@@ -95,7 +95,6 @@
 #include "r_gldefs.h"
 #include "s_sound.h"
 #include "s_music.h"
-#include "s_timid.h"
 #include "am_map.h"
 #include "r_draw.h"
 #include "r_modes.h"
@@ -236,7 +235,7 @@ static char SoundBits[] = "8 bit/16 bit/32 bit";
 static char StereoNess[] = "Off/On/Swapped";
 static char MixChans[] = "8/16/32/64/96";
 static char QuietNess[] = "Loud (distorted)/Normal/Soft/Very Soft";
-static char MusicDevs[] = "System/Timidity/OPL";
+static char MusicDevs[] = "System/TinySoundfont/OPL";
 static char SoundPitching[] = "Off/On";
 static char OPL[] = "OPL 1/OPL 3";
 
@@ -328,11 +327,6 @@ static void M_ChangeSfxVol(int keypressed)
 static void M_ChangeMixChan(int keypressed)
 {
 	S_ChangeChannelNum();
-}
-
-static void M_ChangeTimidQuiet(int keypressed)
-{
-	S_ChangeTimidQuiet();
 }
 
 static int M_GetCurrentSwitchValue(optmenuitem_t *item)
@@ -647,7 +641,6 @@ static optmenuitem_t soundoptions[] =
 	{OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL},
 
 	{OPT_Boolean, "OPL Emulation Mode",       OPL,     2, &var_opl_opl3mode, NULL, "OPL1 or OPL3 mode emulation"},
-	{ OPT_Switch, "Timidity Factor", QuietNess, 3, &var_timid_factor, M_ChangeTimidQuiet, NULL },
 };
 
 static menuinfo_t sound_optmenu =
