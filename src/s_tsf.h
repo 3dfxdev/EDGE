@@ -26,7 +26,6 @@ bool S_StartupTSF(void);
 
 abstract_music_c * S_PlayTSF(byte *data, int length, bool is_mus,
 			float volume, bool loop);
-// this function will delete[] the 'data' parameter
 
 #endif /* __S_TSF_H__ */
 
