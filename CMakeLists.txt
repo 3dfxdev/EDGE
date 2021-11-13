@@ -577,6 +577,7 @@ set(EDGE_SOURCES
 	#src/s_dumb.cc
 	src/s_cache.cc
 	src/s_sound.cc
+	src/s_mp3.cc
 	src/s_music.cc
 	src/s_ogg.cc
 	src/s_opl.cc
