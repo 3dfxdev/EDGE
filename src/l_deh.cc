@@ -44,7 +44,7 @@ static void GCCATTR((format (printf,1,2)))
 	vsprintf(dh_message, str, args);
 	va_end(args);
 
-	I_Printf("../deh_edge: %s", dh_message);
+	I_Printf("DEH_EDGE: %s", dh_message);
 }
 
 //

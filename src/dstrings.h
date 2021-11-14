@@ -68,11 +68,11 @@
 #define VERTEXT "vp"
 
 #ifdef WIN32 //TODO: Application Data (WinXP?), do we need this explicit?
-#define EDGEHOMESUBDIR  "Application Data\\EDGE"
+#define EDGEHOMESUBDIR  "Application Data\\Edge"
 #elif MACOSX
-#define EDGEHOMESUBDIR  "Library/Application Support/EDGE2"
+#define EDGEHOMESUBDIR  "Library/Application Support/EDGE"
 #else // Linux
-#define EDGEHOMESUBDIR  ".EDGE2"
+#define EDGEHOMESUBDIR  ".edge"
 #endif
 
 
