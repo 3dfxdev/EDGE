@@ -91,8 +91,7 @@ typedef enum
 	LIF_EXT = 0,
 	LIF_PNG,
 	LIF_JPEG,
-	LIF_TGA,
-	LIF_RIM //for real-image graphics (image_data_c *rim)
+	LIF_TGA
 }
 L_image_format_e;
 

@@ -484,7 +484,7 @@ static void MakeBoomLift(linetype_c *line, int number)
 	switch (target)
 	{
 	case 0:  // LnF (Lowest neighbour Floor)
-		line->f.destref = (heightref_e)(REF_Surrounding | REF_INCLUDE); //TODO: V1016 https://www.viva64.com/en/w/v1016/ The value '(REF_Surrounding | REF_INCLUDE)' is out of range of enum values. This causes unspecified or undefined behavior.
+		line->f.destref = (heightref_e)(REF_Surrounding | REF_INCLUDE);
 		break;
 
 	case 1:  // NnF (Next lowest neighbour Floor)
@@ -492,13 +492,13 @@ static void MakeBoomLift(linetype_c *line, int number)
 		break;
 
 	case 2:  // LnC (Lowest neighbour Ceiling)
-		line->f.destref = (heightref_e)(REF_Surrounding | REF_CEILING | REF_INCLUDE); //TODO: V1016 https://www.viva64.com/en/w/v1016/ The value is out of range of enum 'heightref_e' values. This causes unspecified or undefined behavior.
+		line->f.destref = (heightref_e)(REF_Surrounding | REF_CEILING | REF_INCLUDE);
 		break;
 
 	case 3:  // Perpetual lift LnF<->HnF
 		line->f.type = mov_Continuous;
-		line->f.destref = (heightref_e)(REF_Surrounding | REF_INCLUDE); //TODO: V1016 https://www.viva64.com/en/w/v1016/ The value '(REF_Surrounding | REF_INCLUDE)' is out of range of enum values. This causes unspecified or undefined behavior.
-		line->f.otherref = (heightref_e)(REF_Surrounding | REF_HIGHEST | REF_INCLUDE); //TODO: V1016 https://www.viva64.com/en/w/v1016/ The value is out of range of enum 'heightref_e' values. This causes unspecified or undefined behavior.
+		line->f.destref = (heightref_e)(REF_Surrounding | REF_INCLUDE);
+		line->f.otherref = (heightref_e)(REF_Surrounding | REF_HIGHEST | REF_INCLUDE);
 		break;
 	}
 

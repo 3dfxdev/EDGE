@@ -416,8 +416,7 @@ static void DDF_ParseVersion(const char *bstr, int len)
 		DDF_Error("Badly formed #VERSION directive.\n");
 
 	for (; isspace(*str) && len > 0; str++, len--)
-	{
-	}
+	{ }
 
 	if (len < 4 || !isdigit(str[0]) || str[1] != '.' ||
 		!isdigit(str[2]) || !isdigit(str[3]))
@@ -440,7 +439,7 @@ static void DDF_ParseVersion(const char *bstr, int len)
 	}
 
 	if (ddf_version > engine_version)
-		DDF_Error("This version of EDGE cannot handle this DDF.\n");
+		DDF_WarnError("This version of EDGE might have problems handling this DDF.\n");
 }
 
 //
@@ -1339,6 +1338,11 @@ void DDF_MainGetSlope(const char *info, void *storage)
 	if (sscanf(info, "%f", &val) != 1)
 		DDF_Error("Bad slope value: %s\n", info);
 
+	if (val > +89.5f)
+		val = +89.5f;
+	if (val < -89.5f)
+		val = -89.5f;
+
 	*dest = M_Tan(FLOAT_2_ANG(val));
 }
 
@@ -1487,17 +1491,14 @@ void DDF_MainGetRGB(const char *info, void *storage)
 		return;
 	}
 
-	if (sscanf(info, " #%2x%2x%2x ", &r, &g, &b) != 3) 
-		//TODO: V576 https://www.viva64.com/en/w/v576/ 
-		//      Incorrect format. Consider checking the third actual argument of the 'sscanf' function. 
-		//      A pointer to the unsigned int type is expected. 
+	if (sscanf(info, " #%2x%2x%2x ", &r, &g, &b) != 3)
 		DDF_Error("Bad RGB colour value: %s\n", info);
 
 	*result = (r << 16) | (g << 8) | b;
 
 	// silently change if matches the "none specified" value
 	if (*result == RGB_NO_VALUE)
-		*result ^= RGB_MAKE(1, 1, 1);
+		*result ^= RGB_MAKE(1,1,1);
 }
 
 //
@@ -1521,7 +1522,7 @@ void DDF_MainGetWhenAppear(const char *info, void *storage)
 
 	bool negate = (info[0] == '!');
 
-	const char *range = strstr(info, "-"); //TODO: V817 https://www.viva64.com/en/w/v817/ It is more efficient to seek '-' character rather than a string.
+	const char *range = strstr(info, "-");
 
 	if (range)
 	{
@@ -1540,24 +1541,24 @@ void DDF_MainGetWhenAppear(const char *info, void *storage)
 	}
 	else
 	{
-		if (strstr(info, "1")) //TODO: V817 https://www.viva64.com/en/w/v817/ It is more efficient to seek '1' character rather than a string.
+		if (strstr(info, "1"))
 			*result = (when_appear_e)(*result | WNAP_SkillLevel1);
 
-		if (strstr(info, "2")) //TODO: V817 https://www.viva64.com/en/w/v817/ It is more efficient to seek '2' character rather than a string.
+		if (strstr(info, "2"))
 			*result = (when_appear_e)(*result | WNAP_SkillLevel2);
 
-		if (strstr(info, "3")) //TODO: V817 https://www.viva64.com/en/w/v817/ It is more efficient to seek '3' character rather than a string.
+		if (strstr(info, "3"))
 			*result = (when_appear_e)(*result | WNAP_SkillLevel3);
 
-		if (strstr(info, "4")) //TODO: V817 https://www.viva64.com/en/w/v817/ It is more efficient to seek '4' character rather than a string.
+		if (strstr(info, "4"))
 			*result = (when_appear_e)(*result | WNAP_SkillLevel4);
 
-		if (strstr(info, "5")) //TODO: V817 https://www.viva64.com/en/w/v817/ It is more efficient to seek '5' character rather than a string.
+		if (strstr(info, "5"))
 			*result = (when_appear_e)(*result | WNAP_SkillLevel5);
 	}
 
 	if (strstr(info, "SP") || strstr(info, "sp"))
-		*result = (when_appear_e)(*result | WNAP_Single);
+		*result = (when_appear_e)(*result| WNAP_Single);
 
 	if (strstr(info, "COOP") || strstr(info, "coop"))
 		*result = (when_appear_e)(*result | WNAP_Coop);
@@ -1710,8 +1711,8 @@ static int FindSpecialFlag(const char *prefix, const char *name,
 }
 
 checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
-	const specflags_t *flag_set, int *flag_value,
-	bool allow_prefixes, bool allow_user)
+							 const specflags_t *flag_set, int *flag_value, 
+							 bool allow_prefixes, bool allow_user)
 {
 	int index;
 	int negate = 0;
@@ -1719,7 +1720,7 @@ checkflag_result_e DDF_MainCheckSpecialFlag(const char *name,
 
 	// try plain name...
 	index = FindSpecialFlag("", name, flag_set);
-
+  
 	if (allow_prefixes)
 	{
 		// try name with ENABLE_ prefix...
@@ -2120,24 +2121,24 @@ void weakness_info_c::Copy(weakness_info_c &src)
 {
 	height[0] = src.height[0];
 	height[1] = src.height[1];
-	angle[0] = src.angle[0];
-	angle[1] = src.angle[1];
+	angle[0]  = src.angle[0];
+	angle[1]  = src.angle[1];
 
-	classes = src.classes;
-	multiply = src.multiply;
+	classes    = src.classes;
+	multiply   = src.multiply;
 	painchance = src.painchance;
 }
 
 void weakness_info_c::Default()
 {
-	height[0] = PERCENT_MAKE(0);
+	height[0] = PERCENT_MAKE(  0);
 	height[1] = PERCENT_MAKE(100);
 
 	angle[0] = ANG0;
 	angle[1] = ANG_MAX;
 
-	classes = BITSET_EMPTY;
-	multiply = 2.5;
+	classes   = BITSET_EMPTY;
+	multiply  = 2.5;
 	painchance = -1; // disabled
 }
 
