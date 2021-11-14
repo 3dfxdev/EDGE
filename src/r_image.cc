@@ -549,8 +549,21 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 				return rim;
 			}
 
+			// ~CA: Explicitly check for Widescreen len and set it as such (todo: refactor mundo titlescreenWS hack)
+			if (lump_len == 560 * 200 && type == IMSRC_Graphic)
+			{
+				I_Printf("AddImage: '%s' seems to be a widescreen image\n", name);
+				image_c* rim = NewImage(560, 200, OPAC_Solid); //!!! remember: width/height were previously 320x200
+				strcpy(rim->name, name);
 
-			// check for ROTT, which are raw 128x128
+				rim->source_type = IMSRC_WideTitle560x200;
+				rim->source.flat.lump = lump;
+				rim->source_palette = W_GetPaletteForLump(lump);
+				return rim;
+			}
+
+
+			// check for ROTT stuff, which are raw 128x128
 			if (lump_len == 128 * 128 && type == IMSRC_ROTTRaw128x128)// || IMSRC_ROTTGFX)
 			{
 				I_Printf("ROTT RawFlat: '%s' seems to be a raw image, 320x200 it..\n", name);
