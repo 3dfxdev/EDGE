@@ -733,21 +733,21 @@ static void TabComplete(void)
 
 	if (match_vars.size() > 0)
 	{
-		CON_Printf("%lu Possible variables:\n", match_vars.size());
+		CON_Printf("%u Possible variables:\n", (int)match_vars.size());
 
 		ListCompletions(match_vars, input_pos, 7, RGB_MAKE(0,208,72));
 	}
 
-	if (match_keys.size() > 0) //TODO: V547 https://www.viva64.com/en/w/v547/ Expression 'match_keys.size() > 0' is always false.
+	if (match_keys.size() > 0)
 	{
-		CON_Printf("%lu Possible keys:\n", match_keys.size());
+		CON_Printf("%u Possible keys:\n", (int)match_keys.size());
 
 		ListCompletions(match_keys, input_pos, 4, RGB_MAKE(0,208,72));
 	}
 
 	if (match_cmds.size() > 0)
 	{
-		CON_Printf("%lu Possible commands:\n", match_cmds.size());
+		CON_Printf("%u Possible commands:\n", (int)match_cmds.size());
 
 		ListCompletions(match_cmds, input_pos, 3, T_ORANGE);
 	}
@@ -758,8 +758,7 @@ static void TabComplete(void)
 	// begin by lumping all completions into one list
 	unsigned int i;
 
-	//TODO: V621 https://www.viva64.com/en/w/v621/ Consider inspecting the 'for' operator. It's possible that the loop will be executed incorrectly or won't be executed at all.
-	for (i = 0; i < match_keys.size(); i++) //TODO: V654 https://www.viva64.com/en/w/v654/ The condition 'i < match_keys.size()' of loop is always false. 
+	for (i = 0; i < match_keys.size(); i++)
 		match_vars.push_back(match_keys[i]);
 
 	for (i = 0; i < match_cmds.size(); i++)
