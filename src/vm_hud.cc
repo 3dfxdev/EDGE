@@ -389,6 +389,7 @@ static void HD_draw_num2(coal::vm_c *vm, int argc)
 
 	int len = (int) *vm->AccessParam(2);
 	int num = (int) *vm->AccessParam(3);
+	//int align_right = (int)*vm->AccessParam(4);
 
 	if (len < 1 || len > 20)
 		I_Error("hud.draw_number: bad field length: %d\n", len);
@@ -435,6 +436,7 @@ static void HD_draw_num(coal::vm_c *vm, int argc)
 
 	int len = (int) *vm->AccessParam(2);
 	int num = (int) *vm->AccessParam(3);
+	//int align_right = (int) *vm->AccessParam(4);
 
 	if (len < 1 || len > 20)
 		I_Error("hud.draw_number: bad field length: %d\n", len);
@@ -466,11 +468,83 @@ static void HD_draw_num(coal::vm_c *vm, int argc)
 			*--pos = '-';
 	}
 
-	HUD_SetAlignment(+1, -1);
-	HUD_DrawText(x, y, pos);
-	HUD_SetAlignment();
+	//if (align_right == 0)
+	//{
+	//	HUD_DrawText(x, y, pos);
+	//}
+	//else
+	//{
+		HUD_SetAlignment(+1, -1);
+		HUD_DrawText(x, y, pos);
+		HUD_SetAlignment();
+	//}
 }
 
+//CA Add draw_number back for compatibility, even though it's a duplicate of the above
+//Lobo November 2021:  hud.draw_number(x, y, len, num, align_right)
+//
+static void HD_draw_number(coal::vm_c* vm, int argc)
+{
+	float x = *vm->AccessParam(0);
+	float y = *vm->AccessParam(1);
+
+	int len = (int)*vm->AccessParam(2);
+	int num = (int)*vm->AccessParam(3);
+	int align_right = (int)*vm->AccessParam(4);
+
+	if (len < 1 || len > 20)
+		I_Error("hud.draw_number: bad field length: %d\n", len);
+
+	bool is_neg = false;
+
+	if (num < 0 && len > 1)
+	{
+		is_neg = true; len--;
+	}
+
+	// build the integer backwards
+
+	char buffer[200];
+	char* pos = &buffer[sizeof(buffer) - 4];
+
+	*--pos = 0;
+
+	if (num == 0)
+	{
+		*--pos = '0';
+	}
+	else
+	{
+		for (; num > 0 && len > 0; num /= 10, len--)
+			*--pos = '0' + (num % 10);
+
+		if (is_neg)
+			*--pos = '-';
+	}
+
+	if (align_right == 0)
+	{
+		HUD_DrawText(x, y, pos);
+	}
+	else
+	{
+		HUD_SetAlignment(+1, -1);
+		HUD_DrawText(x, y, pos);
+		HUD_SetAlignment();
+	}
+}
+
+static void HD_game_paused(coal::vm_c* vm, int argc)
+{
+	if (paused || menuactive)
+	{
+		vm->ReturnFloat(1);
+	}
+	else
+	{
+		vm->ReturnFloat(0);
+	}
+}
 
 // hud.render_world(x, y, w, h)
 //
@@ -648,8 +722,11 @@ void VM_RegisterHUD(coal::vm_c *vm)
 	vm->AddNativeFunction("hud.stretch_image",   HD_stretch_image);
 	vm->AddNativeFunction("hud.tile_image",      HD_tile_image);
 	vm->AddNativeFunction("hud.draw_text",       HD_draw_text);
+	vm->AddNativeFunction("hud.draw_num",		 HD_draw_num);
 	vm->AddNativeFunction("hud.draw_num2",       HD_draw_num2);
-	vm->AddNativeFunction("hud.draw_num",       HD_draw_num);
+	//Lobo: new function
+	vm->AddNativeFunction("hud.draw_number",     HD_draw_number);
+	vm->AddNativeFunction("hud.game_paused",	 HD_game_paused);
 
 	vm->AddNativeFunction("hud.render_world",    HD_render_world);
 	vm->AddNativeFunction("hud.render_automap",  HD_render_automap);

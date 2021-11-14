@@ -79,7 +79,7 @@ void VM_CallFunction(coal::vm_c *vm, const char *name)
 		I_Error("Missing coal function: %s\n", name);
 
 	if (vm->Execute(func) != 0)
-		I_Error("Coal script terminated with an error.\n");
+		I_Error("Coal script terminated with an error in the function: %s\n", name);
 }
 
 
@@ -162,6 +162,13 @@ static void MATH_random(coal::vm_c *vm, int argc)
 	vm->ReturnFloat(r / double(0x10000));
 }
 
+//Lobo November 2021: math.random2() always between 0 and 10
+static void MATH_random2(coal::vm_c *vm, int argc)
+{
+	int r = rand() % 10;
+	
+	vm->ReturnFloat(r);
+}
 
 // math.cos(val)
 static void MATH_cos(coal::vm_c *vm, int argc)
@@ -248,9 +255,9 @@ static void STRINGS_sub(coal::vm_c *vm, int argc)
 {
 	const char * s = vm->AccessParamString(0);
 
-	size_t start = (int) *vm->AccessParam(1);
-	size_t end   = (int) *vm->AccessParam(2);
-	size_t len   = strlen(s);
+	int start = (int) *vm->AccessParam(1);
+	int end   = (int) *vm->AccessParam(2);
+	int len   = strlen(s);
 
 	// negative values are relative to END of the string (-1 = last character)
 	if (start < 0) start += len + 1;
@@ -271,7 +278,7 @@ static void STRINGS_sub(coal::vm_c *vm, int argc)
 	start--;
 	end--;
 
-	size_t new_len = (end - start + 1);
+	int new_len = (end - start + 1);
 
 	vm->ReturnString(s + start, new_len);
 }
@@ -515,6 +522,9 @@ void VM_RegisterBASE(coal::vm_c *vm)
     vm->AddNativeFunction("math.ceil",      MATH_ceil);
     vm->AddNativeFunction("math.random",    MATH_random);
 
+	//Lobo November 2021
+	vm->AddNativeFunction("math.random2",    MATH_random2);
+	
     vm->AddNativeFunction("math.cos",       MATH_cos);
     vm->AddNativeFunction("math.sin",       MATH_sin);
     vm->AddNativeFunction("math.tan",       MATH_tan);
