@@ -2,8 +2,7 @@
 //  EDGE MP3 Music Player
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2009  The EDGE Team.
-//  Adapted from the EDGE Ogg Player in 2021 - Dashodanger
+//  Copyright (c) 2004-2021  The EDGE Team
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -17,10 +16,6 @@
 //
 //----------------------------------------------------------------------------
 //
-// -ACB- 2004/08/18 Written: 
-//
-// Based on a tutorial at DevMaster.net:
-// http://www.devmaster.net/articles/openal-tutorials/lesson8.php
 //
 
 #include "system/i_defs.h"
