@@ -107,9 +107,9 @@ void font_c::LoadPatches()
 
 		for (int ch = pat->char1; ch <= pat->char2; ch++, BumpPatchName(pname))
 		{
-//#if 0  // DEBUG
-			//L_WriteDebug("- LoadFont [%s] : char %d = %s\n", def->name.c_str(), ch, pname);
-//#endif
+#if 0  // DEBUG
+			L_WriteDebug("- LoadFont [%s] : char %d = %s\n", def->name.c_str(), ch, pname);
+#endif
 			int idx = ch - p_cache.first;
 			SYS_ASSERT(0 <= idx && idx < total);
 
