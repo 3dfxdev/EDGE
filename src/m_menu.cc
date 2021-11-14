@@ -2672,7 +2672,7 @@ void M_Drawer(void)
 		int sx = x + SKULLXOFF;
 		int sy = currentMenu->y - 5 + itemOn * LINEHEIGHT;
 
-		HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
+		HUD_DrawImage(sx, sy, menu_skull[0]);
 }
 
 //
@@ -2832,7 +2832,7 @@ void H_Drawer(void)
 	int sx = x + HSKULLXOFF;
 	int sy = currentMenu->y - 5 + itemOn * HLINEHEIGHT;
 
-	HUD_DrawImage(sx, sy, menu_skull[whichSkull]);
+	HUD_DrawImage(sx, sy, menu_skull[0]);
 	//}
 }
 
