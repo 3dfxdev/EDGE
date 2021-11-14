@@ -567,8 +567,8 @@ type_t * real_vm_c::ParseType()
 		type = &type_float;
 	else if (!strcmp(comp.token_buf, "vector") )
 		type = &type_vector;
-//else if (!strcmp(comp.token_buf, "float") )
-//		type = &type_float;
+	else if (!strcmp(comp.token_buf, "float") )
+		type = &type_float;
 //	else if (!strcmp(comp.token_buf, "entity") )
 //		type = &type_entity;
 	else if (!strcmp(comp.token_buf, "string") )
@@ -724,8 +724,7 @@ void real_vm_c::FreeTemporaries()
 {
 	std::vector<def_t *>::iterator TI;
 
-	for (TI = comp.temporaries.begin(); TI != comp.temporaries.end(); ++TI) 
-	//TODO: V803 https://www.viva64.com/en/w/v803/ Decreased performance. In case 'TI' is iterator it's more effective to use prefix form of increment. Replace iterator++ with ++iterator. 
+	for (TI = comp.temporaries.begin(); TI != comp.temporaries.end(); TI++)
 	{
 		def_t *tvar = *TI;
 
@@ -1332,9 +1331,7 @@ void real_vm_c::STAT_ForLoop()
 	EmitCode(OP_GOTO, 0, begin);
 
 	REF_OP(patch)->b = EmitCode(OP_NULL);
-
-//	delete[] target;
-} //TODO: V773 https://www.viva64.com/en/w/v773/ Visibility scope of the 'target' pointer was exited without releasing the memory. A memory leak is possible.
+}
 
 
 void real_vm_c::STAT_Assignment(def_t *e)
@@ -1908,10 +1905,7 @@ void real_vm_c::SetAsmDump(bool enable)
 
 vm_c * CreateVM()
 {
-
-#if DREAMCAST
 	assert(sizeof(double) == 8);
-#endif
 
 	return new real_vm_c;
 }
