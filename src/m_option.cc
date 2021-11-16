@@ -634,11 +634,11 @@ static optmenuitem_t soundoptions[] =
 	{OPT_Switch,  "Music Device",    MusicDevs, 3, &var_music_dev, NULL, "Choose Music Device Playback [default OPL]" },
 
 	{ OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL },
-	{OPT_Boolean, "Sound Pitching",  SoundPitching, 2,  &sound_pitch, NULL, "Emulate Doom 1.2 SFX Pitching"},
+	{OPT_Boolean, "Sound Pitching",  SoundPitching, 2,  &sound_pitch, NULL, "Emulate Doom 1.2 Random SFX Pitching"},
 	{OPT_Switch,  "Mix Channels",    MixChans,  4, &var_mix_channels, M_ChangeMixChan, NULL},
 	{OPT_Switch,  "SFX: Quiet Factor",    QuietNess, 3, &var_quiet_factor, NULL, "How normalized do you want the sound?"},
 
-	{OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL},
+	//{OPT_Plain,   "SF2 File Selection",                SF2FILE, 0,  NULL, NULL, NULL},
 
 	{OPT_Boolean, "OPL Emulation Mode",       OPL,     2, &var_opl_opl3mode, NULL, "OPL1 or OPL3 mode emulation"},
 };
@@ -803,7 +803,7 @@ static menuinfo_t hereticattack_optmenu =
 //
 static optmenuitem_t other_keyconfig[] =
 {
-	{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL },
+	//{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL },
 	{OPT_KeyConfig, "Strafe",           NULL, 0, &key_strafe, NULL, NULL},
 	{OPT_KeyConfig, "Run",              NULL, 0, &key_speed, NULL, NULL},
 	{OPT_KeyConfig, "Toggle Autorun",   NULL, 0, &key_autorun, NULL, NULL},
@@ -917,7 +917,7 @@ static menuinfo_t * heretic_key_menus[NUM_KEY_MENUS] =
 	&hereticautomap_optmenu
 };
 
-static char keystring1[] = "Enter to change, Backspace to Clear";
+static char keystring1[] = "Enter to Change, Backspace to Clear";
 static char keystring2[] = "Press a key for this action";
 
 //
