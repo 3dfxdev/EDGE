@@ -4,8 +4,8 @@
  * @date May 2013
  */
 
-#ifndef _CPPTOML_H_
-#define _CPPTOML_H_
+#ifndef CPPTOML_H
+#define CPPTOML_H
 
 #include <algorithm>
 #include <cassert>
@@ -14,6 +14,7 @@
 #include <cstring>
 #include <fstream>
 #include <iomanip>
+#include <limits>
 #include <map>
 #include <memory>
 #include <sstream>
@@ -84,11 +85,12 @@ class option
         return &value_;
     }
 
-    const T& value_or(const T& alternative) const
+    template <class U>
+    T value_or(U&& alternative) const
     {
         if (!empty_)
             return value_;
-        return alternative;
+        return static_cast<T>(std::forward<U>(alternative));
     }
 
   private:
@@ -2874,8 +2876,14 @@ class parser
     std::string::iterator find_end_of_date(std::string::iterator it,
                                            std::string::iterator end)
     {
-        return std::find_if(it, end, [](char c) {
-            return !is_number(c) && c != 'T' && c != ' ' && c != 'Z' && c != ':'
+        auto end_of_date = std::find_if(it, end, [](char c) {
+            return !is_number(c) && c != '-';
+        });
+        if (end_of_date != end && *end_of_date == ' ' && end_of_date + 1 != end
+            && is_number(end_of_date[1]))
+            end_of_date++;
+        return std::find_if(end_of_date, end, [](char c) {
+            return !is_number(c) && c != 'T' && c != 'Z' && c != ':'
                    && c != '-' && c != '+' && c != '.';
         });
     }
@@ -3097,8 +3105,11 @@ class parser
                 throw_parse_exception("Unterminated inline table");
 
             consume_whitespace(it, end);
-            parse_key_value(it, end, tbl.get());
-            consume_whitespace(it, end);
+            if (it != end && *it != '}')
+            {
+                parse_key_value(it, end, tbl.get());
+                consume_whitespace(it, end);
+            }
         } while (*it == ',');
 
         if (it == end || *it != '}')
@@ -3435,7 +3446,7 @@ class toml_writer
             {
                 res += "\\\\";
             }
-            else if ((const uint32_t)*it <= 0x001f)
+            else if (static_cast<uint32_t>(*it) <= UINT32_C(0x001f))
             {
                 res += "\\u";
                 std::stringstream ss;
@@ -3655,4 +3666,4 @@ inline std::ostream& operator<<(std::ostream& stream, const array& a)
     return stream;
 }
 } // namespace cpptoml
-#endif
+#endif // CPPTOML_H
