@@ -50,6 +50,7 @@
 #define WOLFVGAGRAPH "vragraph"
 #define WOLFVGAHEAD  "vgahead"
 #define WOLFVSWAP    "vswap"
+#define WOLFREDUXPAK    "wolf"
 
 
 #define SAVEGAMEBASE   "save"

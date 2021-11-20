@@ -39,7 +39,7 @@
 #include "dm_structs.h"
 #include "e_main.h"
 #include "g_game.h"
-#include "l_glbsp.h"
+#include "l_ajbsp.h"
 #include "m_argv.h"
 #include "m_bbox.h"
 #include "m_misc.h"

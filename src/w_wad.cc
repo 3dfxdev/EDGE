@@ -65,7 +65,7 @@
 #include "e_main.h"
 #include "e_search.h"
 #include "l_deh.h"
-#include "l_glbsp.h"
+#include "l_ajbsp.h"
 #include "m_misc.h"
 #include "r_image.h"
 #include "rad_trig.h"
@@ -246,7 +246,7 @@ public:
 
 static std::list<raw_filename_c *> wadfiles;
 //static std::list<raw_filename_c *> r_pak_fp;
-//static std::list<raw_filename_c *> raw_wl6;
+static std::list<raw_filename_c *> wl6files;
 
 typedef enum
 {
@@ -2052,13 +2052,17 @@ static PHYSFS_EnumerateCallbackResult WadNamespace(void *userData, const char *o
 
 	PHYSFS_readBytes(file, &header, sizeof(raw_wad_header_t));
 
-	if (strncmp(header.identification, "IWAD", 4) != 0)
+	
+	if ((strncmp(header.identification, "IWAD", 4) != 0) && (!wolf3d_mode))
 	{
 		// Homebrew levels?
 		if (strncmp(header.identification, "PWAD", 4) != 0)
 		{
 			I_Error("Wad file %s doesn't have IWAD or PWAD id\n", fname);
 		}
+		else
+			I_Warning("Wolf_WAD: No IWAD for Wolfenstein, return ENUM_OK\n", fname);
+			return PHYSFS_ENUM_OK;
 	}
 
 	header.num_entries = EPI_LE_S32(header.num_entries);
@@ -2386,6 +2390,11 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// enumerate all entries in the skins directory
 			PHYSFS_enumerate(path, LumpNamespace, userData);
 		}
+		else if (stricmp(fname, "soundfonts") == 0)
+		{
+		// enumerate all entries in the soundfonts directory
+		PHYSFS_enumerate(path, LumpNamespace, userData);
+		}
 		else if (stricmp(fname, "sounds") == 0)
 		{
 			// enumerate all entries in the sounds directory
@@ -2499,7 +2508,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 	return PHYSFS_ENUM_OK;
 }
 
-extern void MapsReadHeaders(); //<--- This makes wlf_maps able to start the header identification
+extern bool MapsReadHeaders(); //<--- This makes wlf_maps able to start the header identification
 
 
 
@@ -2617,7 +2626,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 				{
 					I_Printf("Building GL Nodes for: %s\n", filename);
 
-					if (!GB_BuildNodes(pakdir, gwa_filename.c_str()))
+					if (!AJ_BuildNodes(pakdir, gwa_filename.c_str()))
 						I_Error("Failed to build GL nodes for: %s\n", filename);
 				}
 				else
@@ -2932,7 +2941,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 			{
 				I_Printf("Building GL Nodes for: %s\n", filename);
 
-				if (!GB_BuildNodes(filename, gwa_filename.c_str()))
+				if (!AJ_BuildNodes(filename, gwa_filename.c_str()))
 					I_Error("Failed to build GL nodes for: %s\n", filename);
 			}
 
@@ -2998,6 +3007,13 @@ void W_AddRawFilename(const char *file, int kind)
 	wadfiles.push_back(new raw_filename_c(file, kind));
 }
 
+void WLF_AddRawFilename(const char* file, int kind)
+{
+	I_Debugf("Added filename: %s\n", file);
+
+	wl6files.push_back(new raw_filename_c(file, kind));
+}
+
 //
 // W_InitMultipleFiles
 //
@@ -3026,7 +3042,7 @@ void W_InitMultipleFiles(void)
 	}
 
 	if (numlumps == 0)
-		I_Error("W_InitMultipleFiles: no files found!\n");
+		I_Warning("W_InitMultipleFiles: no files found!\n");
 }
 
 static bool TryLoadExtraLanguage(const char *name)

@@ -59,7 +59,7 @@
 #include "g_game.h"
 #include "hu_draw.h"
 #include "hu_stuff.h"
-#include "l_glbsp.h"
+#include "l_ajbsp.h"
 #include "m_argv.h"
 #include "m_bbox.h"
 #include "m_cheatcodes.h"
@@ -1319,6 +1319,42 @@ static void IdentifyVersion(void)
 }
 
 //WLF_EXTENSION ADDS ALL WL6 FILES ALL AT ONCE FOR WOLFENSTEIN, JUST FOR TESTING, MAYBE MAKE THIS MORE ROBUST IN THE FUTURE...?
+
+static void Add_Wolf(void)
+{
+
+	std::string loaded_game = iwad_base;
+
+	for (size_t i = 0; i < loaded_game.size(); i++)
+	{
+		loaded_game.at(i) = std::tolower(loaded_game.at(i));
+	}
+
+	const char* game_extras[] = { "base", "wolf3d", NULL };
+
+	for (size_t i = 0; game_extras[i]; i++)
+	{
+		if (game_extras[i])
+		{
+#ifdef __linux__
+			std::string optwad = "base/";
+#else
+			std::string optwad = "wolf3d\\";
+#endif
+			optwad.append(loaded_game.c_str()).append("_").append(game_extras[i]).append(".wl6");
+			optwad = epi::PATH_Join(game_dir.c_str(), optwad.c_str());
+
+			if (epi::FS_Access(optwad.c_str(), epi::file_c::ACCESS_READ))
+			{
+				WLF_AddRawFilename(optwad.c_str(), FLKIND_WL6);
+			}
+		}
+		else
+			I_Error("Wolfenstein: COULD NOT ADD WL6!\n");
+	}
+
+}
+
 const char *wlf_extension[] = { "audiohed", "audiot", "gamemaps","maphead", "vgadict", "vgagraph", "vgahead", "vswap", NULL }; //test to load this bitch up. . .
 static void IdentifyWolfenstein(void)
 {
@@ -1407,11 +1443,11 @@ static void IdentifyWolfenstein(void)
 			{
 				std::string fn(epi::PATH_Join(location2, wlf_extension[w_idx]));
 
-				fn += ("." WOLFDATEXT); //Wolfenstein Datas, maybe instead of +=, use an iterator, fn++?
+				fn += (WOLFREDUXPAK "." EDGEPAKEXT); //Wolfenstein Datas, maybe instead of +=, use an iterator, fn++?
 
 				if (epi::FS_Access(fn.c_str(), epi::file_c::ACCESS_READ))
 				{
-					if (stricmp(wlf_extension[w_idx], "MAPHEAD") == 0)
+					if (stricmp(wlf_extension[w_idx], "wolf") == 0)
 					{
 						wolf3d_mode = true;
 						I_Printf("DDF: Loading Wolfenstein, joining path\n");
@@ -1421,7 +1457,7 @@ static void IdentifyWolfenstein(void)
 
 					wolf_file = fn;
 					done = true;
-					I_Printf("MAPHEAD.WL6 found!/n");
+					//I_Printf("MAPHEAD.WL6 found!/n");
 					break;
 				}
 			}
@@ -1433,16 +1469,35 @@ static void IdentifyWolfenstein(void)
 		I_Printf("Wolfenstein -- brute force all WL6 files!\n");
 
 	if (wolf3d_mode)
-	I_Printf("BruteForce_DDF: Loading Wolfenstein DDF\n");
-	ddf_dir = epi::PATH_Join(game_dir.c_str(), "wolf_ddf");
-	DDF_SetWhere(ddf_dir);
+	I_Printf("wolf3d_mode still true\n");
+	//ddf_dir = epi::PATH_Join(game_dir.c_str(), "wolf_ddf");
+	//DDF_SetWhere(ddf_dir);
 
 
-	I_Printf("Wolfenstein: Joining Wolf3D Data!!!\n");
-	I_Debugf("Added filename: %s\n", WOLFMAPHEAD "." WOLFDATEXT);
-	epi::PATH_Join(game_dir.c_str(), WOLFMAPHEAD "." WOLFDATEXT);
-
-
+	I_Printf("Wolfenstein: Calling Add_Wolf function for WL6 data!\n");
+	Add_Wolf();
+	std::string reqwolfpak(epi::PATH_Join(game_dir.c_str(), WOLFREDUXPAK "." EDGEPAKEXT));
+	epi::PATH_Join(game_dir.c_str(), WOLFREDUXPAK "." EDGEPAKEXT);
+	I_Printf("Wolfenstein: Found Redux %s\n", reqwolfpak.c_str());
+	W_AddRawFilename(reqwolfpak.c_str(), FLKIND_PAK);
+	//std::string maphead_file = "MAPHEAD.WL6";
+	//I_Debugf("Added filename: %s\n", WOLFMAPHEAD "." WOLFDATEXT);
+	//WLF_AddRawFilename(maphead_file.c_str(), FLKIND_WL6);
+	//MapsReadHeaders();
+	//if (!PhysFS::exists("wolf.pak")) {
+		// Sigh, I don't know why it is, but VS2012 seems to set the base dir one lower than
+		//  it should be when debugging. Try to deal with this.
+	//	if (PhysFS_isDirectory("game") && PhysFS::exists("game/wolf.pak")) {
+	//		PhysFS::removeFromSearchPath(path);
+	//		path += "/game";
+	//		PhysFS::mount(path, "", false);
+	//	}
+	//	else {
+	//		throw PhysFS::Exception("wolf.pak is not in the base direcory! (" + path + ")");
+	//	}
+	//}
+	//PhysFS::mount(path + "/wolf.pak", "");
+	/*
 	I_Debugf("Added filename: %s\n", WOLFGAMEMAPS "." WOLFDATEXT);
 	epi::PATH_Join(game_dir.c_str(), WOLFGAMEMAPS "." WOLFDATEXT);
 
@@ -1464,7 +1519,7 @@ static void IdentifyWolfenstein(void)
 
 	I_Debugf("Added filename: %s\n", WOLFAUDIOT "." WOLFDATEXT);
 	epi::PATH_Join(game_dir.c_str(), WOLFAUDIOT "." WOLFDATEXT);
-
+	*/
 	CreatePlaypal();
 
 	wolf_base = epi::PATH_GetBasename(wolf_file.c_str());
@@ -1506,7 +1561,7 @@ static void IdentifyWolfenstein(void)
 
 	W_AddRawFilename(reqwad.c_str(), FLKIND_EPK);
 
-	I_Printf("Wolfenstein Data is loaded and joined with 3DGE -- let's keep going!\n");
+	//I_Printf("Wolfenstein Data is loaded and joined with 3DGE -- let's keep going!\n");
 
 	// After this, should we skip all the bullshit and load the stuff directly?
 }
@@ -1543,6 +1598,7 @@ static void Add_Extras(void)
 	}
 
 }
+
 
 
 static void CheckTurbo(void)
@@ -2295,7 +2351,7 @@ void E_Tick(void)
 		S_SoundTicker();
 		S_MusicTicker(); // -ACB- 1999/11/13 Improved music update routines
 
-		N_NetUpdate(false);  // check for new console commands
+		N_NetUpdate(true);  // check for new console commands
 	}
 }
 

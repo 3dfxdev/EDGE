@@ -166,6 +166,7 @@ endif()
 
 add_subdirectory( deps/lzma )
 add_subdirectory( zipdir )
+add_subdirectory( ajbsp ) 
 
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
@@ -481,7 +482,8 @@ set(EDGE_SOURCES
 	src/hu_font.cc
 	src/hu_stuff.cc
 	src/hu_style.cc
-	src/l_glbsp.cc
+	src/l_ajbsp.cc   
+	#src/l_glbsp.cc
 	src/l_deh.cc
 	src/m_argv.cc
 	src/m_bbox.cc
@@ -596,7 +598,7 @@ set(EDGE_SOURCES
 	epi/kmq2/epi_quake2stuff.cc
 
 	#src/utility/lib_file.cc
-	src/utility/lib_util.cc
+	#src/utility/lib_util.cc
 	src/utility/m_strings.cc
 
 	epi/arrays.cc
@@ -632,16 +634,16 @@ set(EDGE_SOURCES
 	epi/timestamp.cc
 	epi/utility.cc
 	
-	glbsp/src/analyze.cc
-	glbsp/src/blockmap.cc
-	glbsp/src/glbsp.cc
-	glbsp/src/level.cc
-	glbsp/src/node.cc
-	glbsp/src/reject.cc
-	glbsp/src/seg.cc
-	glbsp/src/system.cc
-	glbsp/src/util.cc
-	glbsp/src/wad.cc
+	#glbsp/src/analyze.cc
+	#glbsp/src/blockmap.cc
+	#glbsp/src/glbsp.cc
+	#glbsp/src/level.cc
+	#glbsp/src/node.cc
+	#glbsp/src/reject.cc
+	#glbsp/src/seg.cc
+	#glbsp/src/system.cc
+	#glbsp/src/util.cc
+	#glbsp/src/wad.cc
 
 	src/system/sound/opllib/opl3.cc
 	src/system/sound/opllib/oplapi.cc
@@ -775,6 +777,7 @@ endif()
 
 if (WIN32)
 	target_link_libraries(EDGE
+		edge_ajbsp
 		wsock32
 		winmm
 		gdi32
@@ -785,11 +788,11 @@ if (WIN32)
 	)
 elseif(APPLE)
 	set_target_properties(EDGE PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa -framework IOKit")
-	target_link_libraries(EDGE SDL2 COCOA_LIBRARY stdc++ "-framework Foundation" "-framework Cocoa" "-framework IOKIT" objc)
+	target_link_libraries(EDGE SDL2 COCOA_LIBRARY stdc++ "-framework Foundation" "-framework Cocoa" "-framework IOKIT" objc edge_ajbsp)
 elseif(VITA)
-	target_link_libraries(EDGE SDL2 vitaGL SceDisplay_stub SceCtrl_stub SceAudio_stub SceSysmodule_stub SceGxm_stub SceCommonDialog_stub SceTouch_stub SceHid_stub m)
+	target_link_libraries(EDGE SDL2 vitaGL SceDisplay_stub SceCtrl_stub SceAudio_stub SceSysmodule_stub SceGxm_stub SceCommonDialog_stub SceTouch_stub SceHid_stub m edge_ajbsp)
 elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "(Free|Open)BSD")
-	target_link_libraries(EDGE SDL2 OpenGL::GL dl)
+	target_link_libraries(EDGE SDL2 OpenGL::GL dl edge_ajbsp)
 endif()
 
 #if(MSVC)

@@ -1,18 +1,15 @@
 # AJBSP CMake Script
 cmake_minimum_required(VERSION 3.2.2)
 
-project(ajbsp)
+project(edge_ajbsp)
 
-set(AJBSP_SOURCES
-	src/bsp_level.cc
-	src/bsp_node.cc
-	src/bsp_util.cc
-	src/lib_file.cc
-	src/lib_util.cc
-	src/main.cc
-	src/w_wad.cc
-)
-
-add_executable(ajbsp
-	${AJBSP_SOURCES}
+add_library(
+	edge_ajbsp
+	ajbsp.cc
+	bsp_level.cc
+	bsp_node.cc
+	bsp_util.cc
+	lib_file.cc
+	lib_util.cc
+	w_wad.cc
 )
