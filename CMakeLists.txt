@@ -280,6 +280,7 @@ endif()
 add_definitions(
 	-DDEH_EDGE_PLUGIN
 	-DHAVE_PHYSFS
+	-DHAVE_EDGE_AJBSP_H
 	#-DUSE_FFMPEG
 )
 
@@ -753,8 +754,15 @@ add_custom_command(TARGET EDGE POST_BUILD
 add_custom_command(TARGET EDGE POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${CMAKE_SOURCE_DIR}/data/soundfont $<TARGET_FILE_DIR:${PROJECT_NAME}>/soundfont)
-target_include_directories(EDGE PRIVATE deps/minivorbis)
+
+target_include_directories(EDGE 
+	PRIVATE
+	deps/minivorbis
+	src/edge_ajbsp
+)
+
 target_link_libraries(EDGE
+	edge_ajbsp
 	${SDL2_LIBRARY}
 	${SDL_NET_LIBRARY}
 	ZLIB::ZLIB
@@ -777,7 +785,6 @@ endif()
 
 if (WIN32)
 	target_link_libraries(EDGE
-		edge_ajbsp
 		wsock32
 		winmm
 		gdi32
@@ -788,11 +795,11 @@ if (WIN32)
 	)
 elseif(APPLE)
 	set_target_properties(EDGE PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa -framework IOKit")
-	target_link_libraries(EDGE SDL2 COCOA_LIBRARY stdc++ "-framework Foundation" "-framework Cocoa" "-framework IOKIT" objc edge_ajbsp)
+	target_link_libraries(EDGE SDL2 COCOA_LIBRARY stdc++ "-framework Foundation" "-framework Cocoa" "-framework IOKIT" objc)
 elseif(VITA)
-	target_link_libraries(EDGE SDL2 vitaGL SceDisplay_stub SceCtrl_stub SceAudio_stub SceSysmodule_stub SceGxm_stub SceCommonDialog_stub SceTouch_stub SceHid_stub m edge_ajbsp)
+	target_link_libraries(EDGE SDL2 vitaGL SceDisplay_stub SceCtrl_stub SceAudio_stub SceSysmodule_stub SceGxm_stub SceCommonDialog_stub SceTouch_stub SceHid_stub m)
 elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "(Free|Open)BSD")
-	target_link_libraries(EDGE SDL2 OpenGL::GL dl edge_ajbsp)
+	target_link_libraries(EDGE SDL2 OpenGL::GL dl)
 endif()
 
 #if(MSVC)
