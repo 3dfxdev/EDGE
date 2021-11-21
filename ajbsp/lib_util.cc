@@ -19,8 +19,21 @@
 
 #include "ajbsp.h"
 
-//#include <sys/time.h>
+#ifndef _MSC_VER
+#include <sys/time.h>
+#endif
 #include <time.h>
+
+#ifdef _APPLE
+#include <unistd.h>
+#endif
+
+//#define FatalError I_Error
+
+#ifdef _MSC_VER
+#define strdup _strdup
+#define sprintf sprintf_s
+#endif
 
 
 //
