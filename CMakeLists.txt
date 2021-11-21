@@ -258,21 +258,15 @@ elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
 endif()
 endif(MSVC)
 
-IF(APPLE)
-  SET(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
-ENDIF(APPLE)
-
-IF(NOT APPLE)
-if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
+if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm" AND NOT APPLE)
 		set ( CMAKE_CXX_FLAGS "-mfpu=neon-vfpv4 -mtune=cortex-a7 -mhard-float ${CMAKE_CXX_FLAGS}" )
-	elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64")
+	elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64" AND NOT APPLE)
 		set( CMAKE_CXX_FLAGS "-mcpu=cortex-a72 -mtune=cortex-a72 -march=armv8-a+fp+simd+crc ${CMAKE_CXX_FLAGS}" )
+	elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm64" AND APPLE)
+		set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" )
 	elseif(CMAKE_SIZEOF_VOID_P EQUAL 4 AND NOT MSVC)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
 	endif()
-endif(NOT APPLE)
-
 if(NOT MSVC)
 	if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
 		set ( CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}" )
@@ -836,4 +830,3 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
 )
 endif()
 ## EOF
-
