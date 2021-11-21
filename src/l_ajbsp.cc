@@ -24,12 +24,12 @@
 //
 //----------------------------------------------------------------------------
 
-#include "system\i_defs.h"
+#include "system/i_defs.h"
 
 #ifdef HAVE_EDGE_AJBSP_H
-#include "ajbsp\edge_ajbsp.h"
+#include "ajbsp/edge_ajbsp.h"
 #else
-#include "..\ajbsp\edge_ajbsp.h"
+#include "../ajbsp/edge_ajbsp.h"
 #endif
 
 #include "e_main.h"
