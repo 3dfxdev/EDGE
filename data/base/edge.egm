@@ -1,0 +1,3 @@
+[evars]
+	base_dir = ".\\base"
+	iwad_dir = ".\\"

@@ -66,8 +66,8 @@ float P_ApproxDistance(float dx, float dy)
 
 float P_ApproxDistance(float dx, float dy, float dz)
 {
-	return sqrt(pow(dx,2)+pow(dy,2)+pow(dz,2));
-/*
+	//return sqrt(pow(dx,2)+pow(dy,2)+pow(dz,2));
+
 	dx = fabs(dx);
 	dy = fabs(dy);
 	dz = fabs(dz);
@@ -75,7 +75,12 @@ float P_ApproxDistance(float dx, float dy, float dz)
 	float dxy = (dy > dx) ? dy + dx/2 : dx + dy/2;
 
 	return (dz > dxy) ? dz + dxy/2 : dxy + dz/2;
-*/
+
+}
+
+float P_FastApproxDistance(float dx, float dy, float dz)
+{
+	return sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
 }
 
 //
@@ -159,10 +164,6 @@ int P_PointOnDivlineSide(float x, float y, divline_t *div)
 	//return (div->dx * (y - div->y) - div->dy * (x - div->x)) >= 0; // FIXME: returns back / left if the point is *on* the line.
 	//We should find a way to use a tri-state instead of boolean logic. Besides, there's currently no way to *tell* the engine the state is undefined... maybe there is upstream logic for this?
 }
-
-
-
-
 
 // [SP] -- might we be able to license this code for later use? ---> __forceinline int32_t DMulScale32(int32_t a, int32_t b, int32_t c, int32_t d) { return (int32_t)(((int64_t)a*b + (int64_t)c*d) >> 32); } // used by R_PointOnSide.
 //inline int R_PointOnSide (float x, float y, divline_t *div)
@@ -384,7 +385,7 @@ static int GAP_RemoveSolid(vgap_t * dest, int d_num, float z1, float z2)
 		}
 	}
 
-	Z_MoveData(dest, new_gaps, vgap_t, new_num); //TODO: V782 https://www.viva64.com/en/w/v782/ There is no sense in evaluating the distance between elements from different arrays: '(new_gaps) - (vgap_t *)(new_gaps)'.
+	Z_MoveData(dest, new_gaps, vgap_t, new_num);
 
 	return new_num;
 }
@@ -483,7 +484,7 @@ static int GAP_Restrict(vgap_t * dest, int d_num, vgap_t * src, int s_num)
 		}
 	}
 
-	Z_MoveData(dest, new_gaps, vgap_t, new_num); //TODO: V782 https://www.viva64.com/en/w/v782/ There is no sense in evaluating the distance between elements from different arrays: '(new_gaps) - (vgap_t *)(new_gaps)'.
+	Z_MoveData(dest, new_gaps, vgap_t, new_num);
 
 	return new_num;
 }

@@ -95,7 +95,6 @@
 #include "r_gldefs.h"
 #include "s_sound.h"
 #include "s_music.h"
-#include "s_timid.h"
 #include "am_map.h"
 #include "r_draw.h"
 #include "r_modes.h"
@@ -236,7 +235,7 @@ static char SoundBits[] = "8 bit/16 bit/32 bit";
 static char StereoNess[] = "Off/On/Swapped";
 static char MixChans[] = "8/16/32/64/96";
 static char QuietNess[] = "Loud (distorted)/Normal/Soft/Very Soft";
-static char MusicDevs[] = "System/Timidity/OPL";
+static char MusicDevs[] = "System/TinySoundfont/OPL";
 static char SoundPitching[] = "Off/On";
 static char OPL[] = "OPL 1/OPL 3";
 
@@ -328,11 +327,6 @@ static void M_ChangeSfxVol(int keypressed)
 static void M_ChangeMixChan(int keypressed)
 {
 	S_ChangeChannelNum();
-}
-
-static void M_ChangeTimidQuiet(int keypressed)
-{
-	S_ChangeTimidQuiet();
 }
 
 static int M_GetCurrentSwitchValue(optmenuitem_t *item)
@@ -640,14 +634,13 @@ static optmenuitem_t soundoptions[] =
 	{OPT_Switch,  "Music Device",    MusicDevs, 3, &var_music_dev, NULL, "Choose Music Device Playback [default OPL]" },
 
 	{ OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL },
-	{OPT_Boolean, "Sound Pitching",  SoundPitching, 2,  &sound_pitch, NULL, "Emulate Doom 1.2 SFX Pitching"},
+	{OPT_Boolean, "Sound Pitching",  SoundPitching, 2,  &sound_pitch, NULL, "Emulate Doom 1.2 Random SFX Pitching"},
 	{OPT_Switch,  "Mix Channels",    MixChans,  4, &var_mix_channels, M_ChangeMixChan, NULL},
 	{OPT_Switch,  "SFX: Quiet Factor",    QuietNess, 3, &var_quiet_factor, NULL, "How normalized do you want the sound?"},
 
-	{OPT_Plain,   "",                NULL, 0,  NULL, NULL, NULL},
+	//{OPT_Plain,   "SF2 File Selection",                SF2FILE, 0,  NULL, NULL, NULL},
 
 	{OPT_Boolean, "OPL Emulation Mode",       OPL,     2, &var_opl_opl3mode, NULL, "OPL1 or OPL3 mode emulation"},
-	{ OPT_Switch, "Timidity Factor", QuietNess, 3, &var_timid_factor, M_ChangeTimidQuiet, NULL },
 };
 
 static menuinfo_t sound_optmenu =
@@ -810,7 +803,7 @@ static menuinfo_t hereticattack_optmenu =
 //
 static optmenuitem_t other_keyconfig[] =
 {
-	{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL },
+	//{OPT_Plain,     "",                 NULL, 0, NULL, NULL, NULL },
 	{OPT_KeyConfig, "Strafe",           NULL, 0, &key_strafe, NULL, NULL},
 	{OPT_KeyConfig, "Run",              NULL, 0, &key_speed, NULL, NULL},
 	{OPT_KeyConfig, "Toggle Autorun",   NULL, 0, &key_autorun, NULL, NULL},
@@ -924,7 +917,7 @@ static menuinfo_t * heretic_key_menus[NUM_KEY_MENUS] =
 	&hereticautomap_optmenu
 };
 
-static char keystring1[] = "Enter to change, Backspace to Clear";
+static char keystring1[] = "Enter to Change, Backspace to Clear";
 static char keystring2[] = "Press a key for this action";
 
 //

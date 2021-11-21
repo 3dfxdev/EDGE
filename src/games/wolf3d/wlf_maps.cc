@@ -69,7 +69,7 @@ static inline void FROM_LE_U32(u32_t& val)
 	val = EPI_LE_U32(val); //TODO: V570 https://www.viva64.com/en/w/v570/ The 'val' variable is assigned to itself.
 }
 
-static void MapsReadHeaders()
+bool MapsReadHeaders()
 {
 	FILE *fp = fopen("MAPHEAD.WL6", "rb");
 	if (!fp)

@@ -594,7 +594,7 @@ void RGL_CheckExtensions_Old(void)
 	}
 	else
 	{
-		I_Warning("OpenGL driver does not support EDGE-Clamp.\n");
+		I_Warning("OpenGL driver does not support Edge-Clamp.\n");
 		r_dumbclamp = 1;
 	}
 

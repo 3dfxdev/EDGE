@@ -428,8 +428,7 @@ static void P_BringUpWeapon(player_t * p)
 		return;
 	}
 
-	weapondef_c *info = p->weapons[sel].info; 
-	//TODO: V557 https://www.viva64.com/en/w/v557/ Array underrun is possible. The 'sel' index is pointing beyond array bound.
+	weapondef_c *info = p->weapons[sel].info;
 
 	// update current key choice
 	if (info->bind_key >= 0)

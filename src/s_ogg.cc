@@ -2,7 +2,7 @@
 //  EDGE OGG Music Player
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2009  The EDGE Team.
+//  Copyright (c) 2004-2021  The EDGE Team.
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -38,6 +38,11 @@
 #include "w_wad.h"
 
 #define OGGV_NUM_SAMPLES  8192
+
+#define OV_EXCLUDE_STATIC_CALLBACKS
+#define OGG_IMPL
+#define VORBIS_IMPL
+#include "minivorbis.h"
 
 extern bool dev_stereo;  // FIXME: encapsulation
 

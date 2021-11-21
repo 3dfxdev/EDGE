@@ -149,16 +149,18 @@ const commandlist_t thing_commands[] =
 	DF("AMBIENT_SOUND", seesound, DDF_MainLookupSound),
 	DF("SIGHTING_SOUND", seesound, DDF_MainLookupSound),
 	DF("DEATH_SOUND", deathsound, DDF_MainLookupSound),
-	DF("SECRET_SOUND", secretsound, DDF_MainLookupSound),
+
 	DF("OVERKILL_SOUND", overkill_sound, DDF_MainLookupSound),
 	DF("PAIN_SOUND", painsound, DDF_MainLookupSound),
 	DF("STARTCOMBAT_SOUND", attacksound, DDF_MainLookupSound),
 	DF("WALK_SOUND", walksound, DDF_MainLookupSound),
 	DF("JUMP_SOUND", jump_sound, DDF_MainLookupSound),
-	DF("FALLING_SOUND", falling_sound, DDF_MainLookupSound),
+
 	DF("NOWAY_SOUND", noway_sound, DDF_MainLookupSound),
 	DF("OOF_SOUND", oof_sound, DDF_MainLookupSound),
 	DF("GASP_SOUND", gasp_sound, DDF_MainLookupSound),
+	DF("SECRET_SOUND", secretsound, DDF_MainLookupSound), // -CA- 
+	DF("FALLING_SOUND", falling_sound, DDF_MainLookupSound), // -CA- 
 	DF("GLOOP_SOUND", gloopsound, DDF_MainLookupSound), // -CA- 2015/12/23
 
 	DF("FLOAT_SPEED", float_speed, DDF_MainGetFloat),
@@ -1308,7 +1310,7 @@ static specflags_t hyper_specials[] =
 	{"VAMPIRE", HF_VAMPIRE, 0},
 	{"AUTOAIM", HF_NO_AUTOAIM, 1},
 	{"TILT", HF_TILT, 0},
-	{"MIRRORED", HF_MIRRORED, 0},
+	{"IMMORTAL", HF_IMMORTAL, 0},
 	{NULL, 0, 0}
 };
 
@@ -1809,15 +1811,17 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	attacksound = src.attacksound;
 	painsound = src.painsound;
 	deathsound = src.deathsound;
-	secretsound = src.secretsound;
+
 	overkill_sound = src.overkill_sound;
 	activesound = src.activesound;
 	walksound = src.walksound;
 	jump_sound = src.jump_sound;
-	falling_sound = src.falling_sound;
+
 	noway_sound = src.noway_sound;
 	oof_sound = src.oof_sound;
 	gasp_sound = src.gasp_sound;
+	secretsound = src.secretsound;
+	falling_sound = src.falling_sound;
 	gloopsound = src.gloopsound;
 
 	fuse = src.fuse;
@@ -1947,9 +1951,10 @@ void mobjtype_c::Default()
 	noway_sound = sfx_None;
 	oof_sound = sfx_None;
 	gasp_sound = sfx_None;
+
+	secretsound = sfx_None;
 	falling_sound = sfx_None;
 	gloopsound = sfx_None;
-	secretsound = sfx_None;
 
 	fuse = 0;
 	reload_shots = 5;

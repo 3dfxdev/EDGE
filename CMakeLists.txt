@@ -84,8 +84,8 @@ if(MINGW AND MINGW_LINK_STATIC)
 	SET(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a)
 endif()
 
-find_package(Ogg REQUIRED)
-find_package(Vorbis REQUIRED)
+#find_package(Ogg REQUIRED)
+#find_package(Vorbis REQUIRED)
 find_package( ZLIB )
 find_package( BZip2 )
 find_package ( PhysFS )
@@ -166,6 +166,7 @@ endif()
 
 add_subdirectory( deps/lzma )
 add_subdirectory( zipdir )
+add_subdirectory( ajbsp ) 
 
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
@@ -287,6 +288,7 @@ endif()
 add_definitions(
 	-DDEH_EDGE_PLUGIN
 	-DHAVE_PHYSFS
+	-DHAVE_EDGE_AJBSP_H
 	#-DUSE_FFMPEG
 )
 
@@ -355,24 +357,8 @@ ENDIF (WIN32)
 if (FORCE_STATIC_MSVC_LIBS)
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/lib/x64/SDL2_net.lib" )
-		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x64/libogg_staticd.lib" )
-		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/include" )
-		set( ogg_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x64/libogg_static.lib" )
-		set( vorbisFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x64/libvorbisfile_static.lib" )
-		set( vorbisFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x64/libvorbisfile_static.lib" )
-		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x64/libvorbis_static.lib" )
-		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/include" )
-		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x64/libvorbis_static.lib" )
 	elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
 		set( SDL_NET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/SDL_net-2.0.1/lib/x86/SDL2_net.lib" )
-		set( ogg_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x86/libogg_staticd.lib" )
-		set( ogg_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/include" )
-		set( ogg_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libogg-1.3.3/lib/x86/libogg_static.lib" )
-		set( vorbisFILE_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x86/libvorbisfile_staticd.lib" )
-		set( vorbisFILE_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x86/libvorbisfile_static.lib" )
-		set( vorbis_DEBUG_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x86/libvorbis_staticd.lib" )
-		set( vorbis_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/include" )
-		set( vorbis_RELEASE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/libvorbis-1.3.6/lib/x86/libvorbis_static.lib" )
 		#set (kitchensink_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/kitchensink/include")
 		#set (kitchensink_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/libs/msvc/kitchensink/lib/SDL_kitchensink_static.lib")
 	endif()
@@ -420,11 +406,6 @@ elseif(VITA)
     FIND_PACKAGE (VitaGL)
 endif()
 
-# libvorbis/libogg
-include_directories(
-	${ogg_INCLUDE_DIR}
-	${vorbis_INCLUDE_DIR}
-)
 
 # zlib
 #find_package(ZLIB REQUIRED)
@@ -510,7 +491,8 @@ set(EDGE_SOURCES
 	src/hu_font.cc
 	src/hu_stuff.cc
 	src/hu_style.cc
-	src/l_glbsp.cc
+	src/l_ajbsp.cc   
+	#src/l_glbsp.cc
 	src/l_deh.cc
 	src/m_argv.cc
 	src/m_bbox.cc
@@ -585,10 +567,11 @@ set(EDGE_SOURCES
 	#src/s_dumb.cc
 	src/s_cache.cc
 	src/s_sound.cc
+	src/s_mp3.cc
 	src/s_music.cc
 	src/s_ogg.cc
 	src/s_opl.cc
-	src/s_timid.cc
+	src/s_tsf.cc
 	src/sv_chunk.cc
 	src/sv_glob.cc
 	src/sv_level.cc
@@ -624,7 +607,7 @@ set(EDGE_SOURCES
 	epi/kmq2/epi_quake2stuff.cc
 
 	#src/utility/lib_file.cc
-	src/utility/lib_util.cc
+	#src/utility/lib_util.cc
 	src/utility/m_strings.cc
 
 	epi/arrays.cc
@@ -660,25 +643,16 @@ set(EDGE_SOURCES
 	epi/timestamp.cc
 	epi/utility.cc
 	
-	glbsp/src/analyze.cc
-	glbsp/src/blockmap.cc
-	glbsp/src/glbsp.cc
-	glbsp/src/level.cc
-	glbsp/src/node.cc
-	glbsp/src/reject.cc
-	glbsp/src/seg.cc
-	glbsp/src/system.cc
-	glbsp/src/util.cc
-	glbsp/src/wad.cc
-
-	src/system/sound/timidity/common.cc
-	src/system/sound/timidity/instrum.cc
-	src/system/sound/timidity/mix.cc
-	src/system/sound/timidity/playmidi.cc
-	src/system/sound/timidity/loadmidi.cc
-	src/system/sound/timidity/resample.cc
-	src/system/sound/timidity/tables.cc
-	src/system/sound/timidity/timidity.cc
+	#glbsp/src/analyze.cc
+	#glbsp/src/blockmap.cc
+	#glbsp/src/glbsp.cc
+	#glbsp/src/level.cc
+	#glbsp/src/node.cc
+	#glbsp/src/reject.cc
+	#glbsp/src/seg.cc
+	#glbsp/src/system.cc
+	#glbsp/src/util.cc
+	#glbsp/src/wad.cc
 
 	src/system/sound/opllib/opl3.cc
 	src/system/sound/opllib/oplapi.cc
@@ -784,17 +758,30 @@ add_custom_command(TARGET EDGE POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${CMAKE_SOURCE_DIR}/data/base $<TARGET_FILE_DIR:${PROJECT_NAME}>/base)
 
+#copy soundfont folder to build root (Not sure where you want this in the final iteration - Dasho)
+add_custom_command(TARGET EDGE POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_SOURCE_DIR}/data/soundfont $<TARGET_FILE_DIR:${PROJECT_NAME}>/soundfont)
+
+target_include_directories(EDGE 
+	PRIVATE
+	deps/minivorbis
+	src/edge_ajbsp
+)
+
 target_link_libraries(EDGE
+	edge_ajbsp
 	${SDL2_LIBRARY}
 	${SDL_NET_LIBRARY}
-	Ogg::ogg
-	Vorbis::vorbis Vorbis::vorbisenc Vorbis::vorbisfile
-#	${VORBIS_LIBRARIES} ${VORBISFILE_LIBRARIES}
 	ZLIB::ZLIB
 	${PHYSFS_LIBRARY}
+#	Ogg::ogg
+#	Vorbis::vorbis Vorbis::vorbisenc Vorbis::vorbisfile
+#	${VORBIS_LIBRARIES} ${VORBISFILE_LIBRARIES}
 	#	${LIBDUMB_LIBRARY}
 	#	${SDLKitchensink_STATIC_LIBRARY}
 )
+
 
 if(MINGW)
 	set(MINGW_BUILD_EDGE_TARGET_PROPERTIES "-Wl,-subsystem,windows")

@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //  EDGE Packed Data Support Code
-//  WAD, PAK, ZIP, WL6 (Wolfenstein) Handler
+//  WAD, EPK, PAK, ZIP, PK3/PK7, WL6, PhysFS Handler
 //----------------------------------------------------------------------------
 //
-//  Copyright (c) 1999-2018  The EDGE Team.
+//  Copyright (c) 1999-2021  The EDGE Team.
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -65,7 +65,7 @@
 #include "e_main.h"
 #include "e_search.h"
 #include "l_deh.h"
-#include "l_glbsp.h"
+#include "l_ajbsp.h"
 #include "m_misc.h"
 #include "r_image.h"
 #include "rad_trig.h"
@@ -81,6 +81,7 @@
 
 extern void CreatePlaypal(); //Wolfenstein 3D
 extern void CreateROTTpal(); // Rise of the Triad
+//extern std::string iwad_base;
 
 // -KM- 1999/01/31 Order is important, Languages are loaded before sfx, etc...
 typedef struct ddf_reader_s
@@ -245,7 +246,7 @@ public:
 
 static std::list<raw_filename_c *> wadfiles;
 //static std::list<raw_filename_c *> r_pak_fp;
-//static std::list<raw_filename_c *> raw_wl6;
+static std::list<raw_filename_c *> wl6files;
 
 typedef enum
 {
@@ -1204,7 +1205,8 @@ static void AddLumpEx(data_file_c *df, int lump, int pos, int size, int file,
 
 	Z_StrNCpy(lump_p->name, name, 8);
 
-	strupr(lump_p->name);
+	for (size_t i=0;i<strlen(lump_p->name);i++) 
+		lump_p->name[i] = toupper(lump_p->name[i]);
 
 	// strip any extension
 	for (j = 7; j >= 0; j--)
@@ -1944,10 +1946,10 @@ static bool Check_isDirectory(const char *fname)
 	return fstat.filetype == PHYSFS_FILETYPE_DIRECTORY ? true : false;
 }
 
-static PHYSFS_EnumerateCallbackResult LumpNamespace(void *userData, const char *origDir, const char *fname)
+static PHYSFS_EnumerateCallbackResult LumpNamespace(void* userData, const char* origDir, const char* fname)
 {
 #ifdef HAVE_PHYSFS
-	file_info_t *user_data = (file_info_t *)userData;
+	file_info_t* user_data = (file_info_t*)userData;
 	char path[256];
 	strcpy(path, origDir);
 	strcat(path, "/");
@@ -1962,6 +1964,29 @@ static PHYSFS_EnumerateCallbackResult LumpNamespace(void *userData, const char *
 		return PHYSFS_ENUM_OK;
 	}
 
+	//switch( tolower(iwad_base.c_str()))
+#if 0
+	if (game_mode_doom)
+	{
+		if (stricmp(fname, "doom") == 0)
+		{
+			// recurse rott subdirectory to TopLevel
+			PHYSFS_enumerate(path, LumpNamespace, userData);
+			return PHYSFS_ENUM_OK;
+		}
+	}
+
+	else if (game_mode_doom2)
+	{
+		if (stricmp(fname, "doom2") == 0)
+		{
+			// recurse rott subdirectory to TopLevel
+			PHYSFS_enumerate(path, LumpNamespace, userData);
+			return PHYSFS_ENUM_OK;
+		}
+	}
+#endif // 0
+
 	if (wolf3d_mode)
 	{
 		if (stricmp(fname, "wolf3d") == 0)
@@ -1971,7 +1996,6 @@ static PHYSFS_EnumerateCallbackResult LumpNamespace(void *userData, const char *
 			return PHYSFS_ENUM_OK;
 		}
 	}
-
 	else if (rott_mode)
 	{
 		if (stricmp(fname, "rott") == 0)
@@ -2028,13 +2052,17 @@ static PHYSFS_EnumerateCallbackResult WadNamespace(void *userData, const char *o
 
 	PHYSFS_readBytes(file, &header, sizeof(raw_wad_header_t));
 
-	if (strncmp(header.identification, "IWAD", 4) != 0)
+	
+	if ((strncmp(header.identification, "IWAD", 4) != 0) && (!wolf3d_mode))
 	{
 		// Homebrew levels?
 		if (strncmp(header.identification, "PWAD", 4) != 0)
 		{
 			I_Error("Wad file %s doesn't have IWAD or PWAD id\n", fname);
 		}
+		else
+			I_Warning("Wolf_WAD: No IWAD for Wolfenstein, return ENUM_OK\n", fname);
+			return PHYSFS_ENUM_OK;
 	}
 
 	header.num_entries = EPI_LE_S32(header.num_entries);
@@ -2180,6 +2208,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 	strcpy(path, origDir);
 	strcat(path, "/");
 	strcat(path, fname);
+
 
 	I_Printf("TopLevel: processing %s\n", path);
 
@@ -2338,6 +2367,9 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 			// enumerate all entries in the graphics directory
 			PHYSFS_enumerate(path, LumpNamespace, userData);
 		}
+
+
+		//const char* game_extras[] = { "base", "extras", NULL };
 		else if (stricmp(fname, "maps") == 0)
 		{
 			// enumerate all entries in the maps directory
@@ -2357,6 +2389,11 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 		{
 			// enumerate all entries in the skins directory
 			PHYSFS_enumerate(path, LumpNamespace, userData);
+		}
+		else if (stricmp(fname, "soundfonts") == 0)
+		{
+		// enumerate all entries in the soundfonts directory
+		PHYSFS_enumerate(path, LumpNamespace, userData);
 		}
 		else if (stricmp(fname, "sounds") == 0)
 		{
@@ -2471,7 +2508,7 @@ static PHYSFS_EnumerateCallbackResult TopLevel(void *userData, const char *origD
 	return PHYSFS_ENUM_OK;
 }
 
-extern void MapsReadHeaders(); //<--- This makes wlf_maps able to start the header identification
+extern bool MapsReadHeaders(); //<--- This makes wlf_maps able to start the header identification
 
 
 
@@ -2589,7 +2626,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 				{
 					I_Printf("Building GL Nodes for: %s\n", filename);
 
-					if (!GB_BuildNodes(pakdir, gwa_filename.c_str()))
+					if (!AJ_BuildNodes(pakdir, gwa_filename.c_str()))
 						I_Error("Failed to build GL nodes for: %s\n", filename);
 				}
 				else
@@ -2830,9 +2867,11 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 			if (base.size() > 8)
 				I_Error("Filename base of %s >8 chars", filename);
 
-			strcpy(lump_name, base.c_str());
-			strupr(lump_name);    // Required to be uppercase
-		}
+            strcpy(lump_name, base.c_str());
+			for (size_t i=0;i<strlen(lump_name);i++) {
+				lump_name[i] = toupper(lump_name[i]);
+			}
+        }
 
 		// calculate MD5 hash over whole file
 		ComputeFileMD5hash(df->dir_hash, file);
@@ -2902,7 +2941,7 @@ static void AddFile(const char *filename, int kind, int dyn_index)
 			{
 				I_Printf("Building GL Nodes for: %s\n", filename);
 
-				if (!GB_BuildNodes(filename, gwa_filename.c_str()))
+				if (!AJ_BuildNodes(filename, gwa_filename.c_str()))
 					I_Error("Failed to build GL nodes for: %s\n", filename);
 			}
 
@@ -2968,6 +3007,13 @@ void W_AddRawFilename(const char *file, int kind)
 	wadfiles.push_back(new raw_filename_c(file, kind));
 }
 
+void WLF_AddRawFilename(const char* file, int kind)
+{
+	I_Debugf("Added filename: %s\n", file);
+
+	wl6files.push_back(new raw_filename_c(file, kind));
+}
+
 //
 // W_InitMultipleFiles
 //
@@ -2996,7 +3042,7 @@ void W_InitMultipleFiles(void)
 	}
 
 	if (numlumps == 0)
-		I_Error("W_InitMultipleFiles: no files found!\n");
+		I_Warning("W_InitMultipleFiles: no files found!\n");
 }
 
 static bool TryLoadExtraLanguage(const char *name)
@@ -3313,7 +3359,7 @@ int W_CheckNumForName2(const char *name)
 	{
 		if (i > 8)
 		{
-			I_Error("W_CheckNumForName: Name '%s' longer than 8 chars!\n", name);
+			I_Warning("W_CheckNumForName: Name '%s' longer than 8 chars!\n", name);
 			return -1;
 		}
 		buf[i] = toupper(name[i]);
@@ -3967,6 +4013,90 @@ void W_ShowFiles(void)
 
 		I_Printf(" %2d %-4s \"%s\"\n", i + 1, FileKind_Strings[df->kind], df->file_name);
 	}
+}
+
+// TODO ~CA: Namespace it 
+// Lobo
+int W_LoboFindSkyImage(int for_file, const char* match)
+{
+	int total = 0;
+
+	for (int i = 0; i < numlumps; i++)
+	{
+		lumpinfo_t* L = &lumpinfo[i];
+
+		if (for_file >= 1 && L->file != for_file - 1)
+			continue;
+
+		if (match && *match)
+			if (!strstr(L->name, match))
+				continue;
+
+		switch (L->kind)
+		{
+		case LMKIND_Patch:
+			/*I_Printf(" %4d %-9s %2d %-6s %7d @ 0x%08x\n",
+			 i+1, L->name,
+			 L->file+1, LumpKind_Strings[L->kind],
+			 L->size, L->position); */
+			total++;
+			break;
+		case LMKIND_Normal:
+			/*I_Printf(" %4d %-9s %2d %-6s %7d @ 0x%08x\n",
+			 i+1, L->name,
+			 L->file+1, LumpKind_Strings[L->kind],
+			 L->size, L->position); */
+			total++;
+			break;
+		default: //Optional
+			continue;
+		}
+	}
+
+	I_Debugf("FindSkyPatch: file %i,  match %s, count: %i\n", for_file, match, total);
+
+	//I_Printf("Total: %d\n", total);
+	return total;
+}
+
+// Lobo
+bool W_LoboDisableSkybox(const char* ActualSky)
+{
+	bool TurnOffSkyBox = true;
+
+	//Run through all our loaded files
+	for (int m = 0; m < (int)data_files.size(); m++)
+	{
+		data_file_c* df = data_files[m];
+
+		//we only want pwads
+		if (FileKind_Strings[df->kind] == FileKind_Strings[FLKIND_PWad ||FLKIND_EPK ||FLKIND_PK3 ||FLKIND_PK7])
+		{
+			//I_Printf("Checking skies in %s\n",df->file_name);
+			//I_Printf(" %2d %-4s \"%s\"\n", m+1, FileKind_Strings[df->kind], df->file_name);
+
+			//first check if it has a sky box: this overrides normal skies
+			int totalskies = W_LoboFindSkyImage(m + 1, ActualSky);
+			if (totalskies != 0)
+			{	//we have a skybox
+				I_Debugf("%s has a skybox\n", df->file_name);
+				TurnOffSkyBox = false;
+			}
+			else
+			{
+				//3. does it have a patch with "SKY" in the name?
+				totalskies = W_LoboFindSkyImage(m + 1, "SKY");
+				if (totalskies != 0)
+				{	//assume it is a replacement sky
+					I_Debugf("%s has %i sky patches\n", df->file_name, totalskies);
+					TurnOffSkyBox = true;
+				}
+			}
+		}
+	}
+	//no sky patches detected
+	return TurnOffSkyBox;
+
 }
 
 //--- editor settings ---

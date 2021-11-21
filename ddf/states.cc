@@ -405,7 +405,7 @@ void DDF_StateReadState(const char *info, const char *label,
 	//----------------SPRITE NAME HANDLING--------------
 	//--------------------------------------------------
 
-	if (stateinfo[1].empty() || stateinfo[2].empty() || stateinfo[3].empty()) //TODO: V560 https://www.viva64.com/en/w/v560/ A part of conditional expression is always false: stateinfo[2].empty().
+	if (stateinfo[1].empty() || stateinfo[2].empty() || stateinfo[3].empty()) 
 		DDF_Error("Bad state frame, missing fields: %s\n", info);
 
 	if (strlen(stateinfo[0].c_str()) != 4)

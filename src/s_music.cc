@@ -33,8 +33,9 @@
 #include "dm_state.h"
 #include "s_sound.h"
 #include "s_music.h"
+#include "s_mp3.h"
 #include "s_ogg.h"
-#include "s_timid.h"
+#include "s_tsf.h"
 #include "s_opl.h"
 #include "m_misc.h"
 #include "w_wad.h"
@@ -88,7 +89,7 @@ void S_ChangeMusic(int entrynum, bool loop)
 
 	if (play->type == MUS_MP3)
 	{
-		I_Warning("S_ChangeMusic: MP3 music no longer supported.\n");
+		music_player = S_PlayMP3Music(play, volume, loop);
 		return;
 	}
 
@@ -172,12 +173,21 @@ void S_ChangeMusic(int entrynum, bool loop)
 		return;
 	}
 	
+	if (S_CheckMP3(data, length))
+	{
+		delete F;
+		delete data;
+
+		music_player = S_PlayMP3Music(play, volume, loop);
+		return;
+	}
+
 	bool is_mus = (data[0] == 'M' && data[1] == 'U' && data[2] == 'S');
 
 	if (var_music_dev == 0 && is_mus)
 		music_player = I_PlayNativeMusic(data, length, volume, loop);
     else if (var_music_dev == 1)
-        music_player = S_PlayTimidity(data, length, is_mus, volume, loop);
+        music_player = S_PlayTSF(data, length, is_mus, volume, loop);
     else
         music_player = S_PlayOPL(data, length, volume, loop);
 

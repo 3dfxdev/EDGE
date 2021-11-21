@@ -793,7 +793,7 @@ static void RAD_ParseVersion(int pnum, const char **pars)
 	int rts_version = I_ROUND(vers * 100);
 
 	if (rts_version > EDGEVER)
-		RAD_Error("This version of 3DGE cannot handle this RTS script\n");
+		RAD_WarnError("This version of EDGE may be unable to handle this RTS script\n");
 }
 
 static void RAD_ParseClearAll(int pnum, const char **pars)
@@ -832,7 +832,9 @@ static void RAD_ParseStartMap(int pnum, const char **pars)
 	ClearPreviousScripts(pars[1]);
 
 	this_map = Z_StrDup(pars[1]);
-	strupr(this_map);
+	for (size_t i=0; i < strlen(this_map); i++) {
+		this_map[i] = toupper(this_map[i]);
+	}
 
 	rad_cur_level++;
 	rad_has_start_map = true;
@@ -868,7 +870,7 @@ static void RAD_ParseRadiusTrigger(int pnum, const char **pars)
 	this_rad->rad_x = -1;
 	this_rad->rad_y = -1;
 	this_rad->rad_z = -1;
-	this_rad->appear = DEFAULT_APPEAR; //TODO: V1016 https://www.viva64.com/en/w/v1016/ The value '(0xFFFF)' is out of range of enum values. This causes unspecified or undefined behavior.
+	this_rad->appear = DEFAULT_APPEAR;
 	this_rad->min_players = 0;
 	this_rad->max_players = MAXPLAYERS;
 	this_rad->absolute_req_players = 1;
@@ -1294,6 +1296,14 @@ static void RAD_ParseExitLevel(int pnum, const char **pars)
 	AddStateToScript(this_rad, 0, RAD_ActExitLevel, exit);
 }
 
+//Lobo November 2021
+static void RAD_ParseExitGame(int pnum, const char **pars)
+{
+	// ExitGame to TitleScreen
+
+	AddStateToScript(this_rad, 0, RAD_ActExitGame, NULL);
+}
+
 static void RAD_ParseTip(int pnum, const char **pars)
 {
 	// Tip "<text>"
@@ -1335,9 +1345,9 @@ static void RAD_ParseTip(int pnum, const char **pars)
 
 	if (pnum >= 5)
 	{
-		if (! tip->tip_graphic)
+		/*if (! tip->tip_graphic)
 			RAD_Error("%s: scale value only works with TIP_GRAPHIC.\n", pars[0]);
-
+		*/
 		RAD_CheckForFloat(pars[4], &tip->gfx_scale);
 	}
 
@@ -2293,6 +2303,7 @@ static const rts_parser_t radtrig_parsers[] =
 	{2, "JUMP",  2,3, RAD_ParseJump},
 	{2, "LABEL", 2,2, RAD_ParseLabel},
 	{2, "SLEEP", 1,1, RAD_ParseSleep},
+	{2, "EXITGAME", 1,1, RAD_ParseExitGame},
 	{2, "RETRIGGER", 1,1, RAD_ParseRetrigger},
 	{2, "CHANGE_TEX", 3,5, RAD_ParseChangeTex},
 	{2, "CHANGE_MUSIC", 2,2, RAD_ParseChangeMusic},

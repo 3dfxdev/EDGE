@@ -294,8 +294,8 @@ typedef enum
 	// -AJA- 2010/12/23: force models to tilt by viewangle
 	HF_TILT = (1 << 15),
 	
-	HF_MIRRORED = (1 << 16),
-
+	// -Lobo- 2021/10/24: immortal flag
+	HF_IMMORTAL = (1 << 16),
 	// -CA- 2017/09/27: force items to be picked up silently
 	HF_SILENTPICKUP = (1 << 17),
 }
@@ -341,8 +341,10 @@ typedef enum
 
 	AM_9,  AM_10, AM_11, AM_12,
 	AM_13, AM_14, AM_15, AM_16,
+	AM_17, AM_18, AM_19, AM_20,
+	AM_21, AM_22, AM_23, AM_24,
 
-	NUMAMMO  // Total count (16)
+	NUMAMMO  // Total count (24)
 }
 ammotype_e;
 
@@ -812,15 +814,15 @@ public:
 	struct sfx_s *attacksound;
 	struct sfx_s *painsound;
 	struct sfx_s *deathsound;
-	struct sfx_s *secretsound;
 	struct sfx_s *overkill_sound;
 	struct sfx_s *activesound;
 	struct sfx_s *walksound;
 	struct sfx_s *jump_sound;
-	struct sfx_s *falling_sound;
 	struct sfx_s *noway_sound;
 	struct sfx_s *oof_sound;
 	struct sfx_s *gasp_sound;
+	struct sfx_s *secretsound;
+	struct sfx_s *falling_sound;
 	struct sfx_s *gloopsound;
 
 	int fuse;

@@ -1295,7 +1295,7 @@ static bool PTR_AimTraverse(intercept_t * in, void *dataptr)
 
 	if (! (mo->flags & MF_SHOOTABLE))
 		return true;  // has to be able to be shot
-
+	
 	if (mo->hyperflags & HF_NO_AUTOAIM)
 		return true;  // never should be aimed at
 
@@ -1320,7 +1320,18 @@ static bool PTR_AimTraverse(intercept_t * in, void *dataptr)
 	if (thingbottomslope < aim_I.bottomslope)
 		thingbottomslope = aim_I.bottomslope;
 
-	aim_I.slope = (thingtopslope + thingbottomslope) / 2;
+	// This code causes problems with the EDGE renderer
+	// 
+	//if (mo->hyperflags & HF_NO_AUTOAIM)
+	//{
+		//Lobo: never should be aimed at
+	//	aim_I.slope = M_Tan(mo->vertangle);
+	//}
+	//else
+	//{
+		aim_I.slope = (thingtopslope + thingbottomslope) / 2;
+	//}
+
 	aim_I.target = mo;
 
 	return false;  // don't go any farther
@@ -2023,7 +2034,7 @@ static bool PIT_RadiusAttack(mobj_t * thing, void *data)
 	dy = (float)fabs(thing->y - bomb_I.spot->y);
 	dz = (float)fabs(MO_MIDZ(thing) - MO_MIDZ(bomb_I.spot));
 
-	// dist is the distance to the *EDGE* of the thing
+	// dist is the distance to the *edge* of the thing
 	dist = MAX(dx, dy) - thing->radius;
 
 	if (bomb_I.use_3d)

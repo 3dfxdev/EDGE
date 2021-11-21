@@ -90,9 +90,9 @@
 #define CFGDEF_OPL_OPL3MODE     (1)
 
 #ifdef LINUX
-#define CFGDEF_MUSIC_DEVICE     (1)  // Timidity
+#define CFGDEF_MUSIC_DEVICE     (1)  // TinySoundfont
 #else
-#define CFGDEF_MUSIC_DEVICE     (2)  // System
+#define CFGDEF_MUSIC_DEVICE     (2)  // OPL
 #endif
 
 // Video Options

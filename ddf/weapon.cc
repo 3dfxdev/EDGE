@@ -196,16 +196,24 @@ const specflags_t ammo_types[] =
 	{"AMMO7",  AM_Grenade, 0},
 	{"AMMO8",  AM_Gas,     0},
 
-	{"AMMO9",  AM_9,  0},
-	{"AMMO10", AM_10, 0},
-	{"AMMO11", AM_11, 0},
-	{"AMMO12", AM_12, 0},
-	{"AMMO13", AM_13, 0},
-	{"AMMO14", AM_14, 0},
-	{"AMMO15", AM_15, 0},
-	{"AMMO16", AM_16, 0},
-
-	{NULL, 0, 0}
+    {"AMMO9",  AM_9,  0},
+    {"AMMO10", AM_10, 0},
+    {"AMMO11", AM_11, 0},
+    {"AMMO12", AM_12, 0},
+    {"AMMO13", AM_13, 0},
+    {"AMMO14", AM_14, 0},
+    {"AMMO15", AM_15, 0},
+    {"AMMO16", AM_16, 0},
+	{"AMMO17", AM_17, 0},
+    {"AMMO18", AM_18, 0},
+    {"AMMO19", AM_19, 0},
+    {"AMMO20", AM_20, 0},
+	{"AMMO21", AM_21, 0},
+    {"AMMO22", AM_22, 0},
+    {"AMMO23", AM_23, 0},
+    {"AMMO24", AM_24, 0},
+	
+    {NULL, 0, 0}
 };
 
 //

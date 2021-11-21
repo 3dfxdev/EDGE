@@ -81,7 +81,7 @@ static bool BOT_MeleeWeapon(bot_t *bot)
 {
 	int wp_num = bot->pl->ready_wp;
 
-	if (bot->pl->pending_wp >= 0) //TODO: V547 https://www.viva64.com/en/w/v547/ Expression 'bot->pl->pending_wp >= 0' is always false.
+	if (bot->pl->pending_wp >= 0)
 		wp_num = bot->pl->pending_wp;
 
 	return bot->pl->weapons[wp_num].info->ammo[0] == AM_NoAmmo;
@@ -729,8 +729,7 @@ void P_BotCreate(player_t *p, bool recreate)
 {
 	bot_t *bot = new bot_t;
 
-	Z_Clear(bot, bot_t, 1); 
-	//TODO: V782 https://www.viva64.com/en/w/v782/ There is no sense in evaluating the distance between elements from different arrays: '(bot) - ((bot_t *)(bot))'.
+	Z_Clear(bot, bot_t, 1);
 
 	p->builder = P_BotPlayerBuilder;
 	p->build_data = (void *)bot;
