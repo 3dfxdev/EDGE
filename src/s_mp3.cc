@@ -30,7 +30,7 @@
 #include "epi/filesystem.h"
 #include "epi/sound_gather.h"
 
-#include "playlist.h"
+#include "ddf/playlist.h"
 
 #include "s_cache.h"
 #include "s_blit.h"

@@ -2060,9 +2060,6 @@ static PHYSFS_EnumerateCallbackResult WadNamespace(void *userData, const char *o
 		{
 			I_Error("Wad file %s doesn't have IWAD or PWAD id\n", fname);
 		}
-		else
-			I_Warning("Wolf_WAD: No IWAD for Wolfenstein, return ENUM_OK\n", fname);
-			return PHYSFS_ENUM_OK;
 	}
 
 	header.num_entries = EPI_LE_S32(header.num_entries);
