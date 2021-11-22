@@ -929,6 +929,10 @@ void InitDirectories(void)
 		ddf_dir = epi::PATH_Join(base_ddf.c_str(), "heretic");
 		//I_Printf("DDF Directory; [%s]\n", ddf_dir);
 	}
+	else if (game_mode_hacx)
+	{
+		ddf_dir = epi::PATH_Join(base_ddf.c_str(), "hacx");
+	}
 	else if (rott_mode)
 	{
 		ddf_dir = epi::PATH_Join(base_ddf.c_str(), "rott");
@@ -1199,11 +1203,12 @@ static void IdentifyVersion(void)
 				//CreateROTTpal();
 			}
 			else
-			heretic_mode = false;
-			game_mode_hacx = false;
-			rott_mode = false;
-			wolf3d_mode = false;
-
+			{
+				heretic_mode = false;
+				game_mode_hacx = false;
+				rott_mode = false;
+				wolf3d_mode = false;
+			}
 		}
 	}
 	else
@@ -1248,23 +1253,23 @@ static void IdentifyVersion(void)
 					// next two lines check for Heretic mode, and set it to true
 					if (stricmp(wadname[w_idx], "heretic") == 0)
 					{
-						I_Printf("DDF: Loading Heretic HDF\n");
-						ddf_dir = epi::PATH_Join(game_dir.c_str(), "her_ddf");
-						DDF_SetWhere(ddf_dir);
+						I_Printf("w_idx: Heretic\n");
+						//ddf_dir = epi::PATH_Join(game_dir.c_str(), "her_ddf");
+						//DDF_SetWhere(ddf_dir);
 						heretic_mode = true;
 					}
 					else if (stricmp(wadname[w_idx], "darkwar") == 0)
 					{
-						I_Printf("GAME: Rise of the Triad: DARKWAR\n");
-						ddf_dir = epi::PATH_Join(game_dir.c_str(), "rott_ddf");
-						DDF_SetWhere(ddf_dir);
+						I_Printf("w_idx: DarkWar\n");
+						//ddf_dir = epi::PATH_Join(game_dir.c_str(), "rott_ddf");
+						//DDF_SetWhere(ddf_dir);
 						rott_mode = true;
 					}
 					else if (stricmp(wadname[w_idx], "wlf_iwad") == 0)
 					{
 						I_Printf("GAME: Wolfenstein 3D Registered\n");
-						ddf_dir = epi::PATH_Join(game_dir.c_str(), "wolf_ddf");
-						DDF_SetWhere(ddf_dir);
+						//ddf_dir = epi::PATH_Join(game_dir.c_str(), "wolf_ddf");
+						//DDF_SetWhere(ddf_dir);
 						wolf3d_mode = true;
 					}
 					iwad_file = fn;
@@ -1281,7 +1286,7 @@ static void IdentifyVersion(void)
 	{
 
 
-		I_Error("Cannot find a game IWAD (doom.wad, doom2.wad, heretic.wad, etc.).\n"
+		I_Error("ERROR: Cannot find a game IWAD!\n"
 			"Did you install EDGE properly? You can do either of the following:\n"
 			"\n"
 			"1. Place one or more of these wads in the same directory as EDGE.\n"

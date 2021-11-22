@@ -2143,7 +2143,7 @@ static PHYSFS_EnumerateCallbackResult ScriptNamespace(void *userData, const char
 		// check for supported namespace directory
 		if (wolf3d_mode)
 		{
-			if ((stricmp(fname, "wolf3d") == 0) || (stricmp(fname, "wolf3d") == 0))
+			if ((stricmp(fname, "wolf3d") == 0) || (stricmp(fname, "wolf3d_ddf") == 0))
 			{
 				// recurse wolf3d subdirectory to TopLevel
 				PHYSFS_enumerate(path, TopLevel, userData);
@@ -2163,6 +2163,14 @@ static PHYSFS_EnumerateCallbackResult ScriptNamespace(void *userData, const char
 			if ((stricmp(fname, "heretic") == 0) || (stricmp(fname, "heretic_ddf") == 0))
 			{
 				// recurse heretic subdirectory to TopLevel
+				PHYSFS_enumerate(path, TopLevel, userData);
+			}
+		}
+		else if (game_mode_hacx)
+		{
+			if ((stricmp(fname, "hacx") == 0) || (stricmp(fname, "hacx_ddf") == 0))
+			{
+				// recurse HACX subdirectory to TopLevel
 				PHYSFS_enumerate(path, TopLevel, userData);
 			}
 		}
