@@ -296,8 +296,12 @@ typedef enum
 	
 	// -Lobo- 2021/10/24: immortal flag
 	HF_IMMORTAL = (1 << 16),
+
 	// -CA- 2017/09/27: force items to be picked up silently
 	HF_SILENTPICKUP = (1 << 17),
+
+	// -Lobo- 2021/11/18: floorclip flag
+	HF_FLOORCLIP = (1 << 18),
 }
 mobjhyperflag_t;
 
