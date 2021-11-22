@@ -2,7 +2,7 @@
 //  EDGE MP3 Music Player (HEADER)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2009  The EDGE Team.
+//  Copyright (c) 2004-2021  The EDGE Team.
 //  Adapted from the EDGE OGG Player in 2021 - Dashodanger
 // 
 //  This program is free software; you can redistribute it and/or
@@ -24,6 +24,8 @@
 
 #include "system/i_defs.h"
 
+#include "epi/sound_data.h"
+
 class pl_entry_c;
 
 /* FUNCTIONS */
@@ -31,6 +33,8 @@ class pl_entry_c;
 abstract_music_c * S_PlayMP3Music(const pl_entry_c *musdat, float volume, bool looping);
 
 bool S_CheckMP3(byte *data, int length);
+
+bool S_LoadMP3Sound(epi::sound_data_c *buf, const byte *data, int length);
 
 #endif  /* __MP3PLAYER_H__ */
 
