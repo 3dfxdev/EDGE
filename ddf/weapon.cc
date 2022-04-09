@@ -294,10 +294,11 @@ static void WeaponParseField(const char *field, const char *contents,
 
 static void WeaponFinishEntry(void)
 {
-	if (!dynamic_weapon->state_grp.back().first)
+	//Lobo December 2021: this check seems wrong and breaks DDFWEAP inheritance
+	/*if (! dynamic_weapon->state_grp.back().first)
 		DDF_Error("Weapon `%s' has missing states.\n",
 			dynamic_weapon->name.c_str());
-
+	*/
 	DDF_StateFinishRange(dynamic_weapon->state_grp);
 
 	// check stuff...
@@ -651,7 +652,7 @@ void weapondef_c::Default(void)
 	specials[0] = DEFAULT_WPSP;
 	specials[1] = (weapon_flag_e)(DEFAULT_WPSP & ~WPSP_SwitchAway);
 
-	kick = 0;
+	kick = 0.0f;
 
 	up_state = 0;
 	down_state = 0;
