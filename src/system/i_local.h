@@ -18,7 +18,7 @@
 
 #ifndef __SYSTEM_LOCAL_H__
 #define __SYSTEM_LOCAL_H__
-
+extern SDL_AudioDeviceID mydev_id;
 
 // I_CTRL
 void I_CentreMouse();

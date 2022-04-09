@@ -34,6 +34,7 @@
 ////////////Video///////////////
 
 extern SDL_Surface *screen;
+extern SDL_AudioDeviceID *mydev_id;
 
 void I_InitVideo(void);
 void I_InitScreen(void);

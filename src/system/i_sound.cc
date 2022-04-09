@@ -18,6 +18,7 @@
 
 #include "i_defs.h"
 #include "i_sdlinc.h"
+#include "i_sound.h"
 
 #include <fcntl.h>
 #include <signal.h>
@@ -50,6 +51,7 @@ static const int sample_bits[3]  = { 8, 16, 32 };
 
 
 static SDL_AudioSpec mydev;
+SDL_AudioDeviceID mydev_id;
 
 int dev_freq;
 int dev_bits;
