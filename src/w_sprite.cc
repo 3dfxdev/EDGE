@@ -403,9 +403,12 @@ static void MarkCompletedFrames(void)
 			frame->finished = 1;
 			finish_num++;
 
-			if (rot_count < frame->rots)
-				I_Warning("Sprite %s:%c is missing rotations (%d of %d).\n",
-					def->name, frame_ch, frame->rots - rot_count, frame->rots);
+			I_Warning("Sprite %s:%c is missing rotations (%d of %d).\n",
+				def->name, frame_ch, frame->rots - rot_count, frame->rots);
+
+			//Lobo: try to fix cases where some dumbass used A1 instead of A0
+			if (rot_count == 1)
+				frame->rots = 1;
 		}
 
 		// remove complete sprites from sprite_map
