@@ -322,7 +322,9 @@ typedef enum
 	BENEFIT_Key,
 	BENEFIT_Health,
 	BENEFIT_Armour,
-	BENEFIT_Powerup
+	BENEFIT_Powerup,
+	BENEFIT_Inventory,
+	BENEFIT_InventoryLimit
 }
 benefit_type_e;
 
@@ -352,6 +354,17 @@ typedef enum
 }
 ammotype_e;
 
+// Inventory types defined.
+typedef enum
+{
+	INV_01,	INV_02,	INV_03,	INV_04,	INV_05,
+	INV_06,	INV_07,	INV_08,	INV_09,	INV_10,
+	INV_11,	INV_12,	INV_13,	INV_14,	INV_15,
+	INV_16,	INV_17,	INV_18,	INV_19,	INV_20,
+	INV_21,	INV_22,	INV_23,	INV_24,	INV_25,
+	NUMINV  // Total count (25)
+}
+invtype_e;
 typedef enum
 {
 	// weak armour, saves 33% of damage
@@ -500,6 +513,8 @@ typedef enum
 
 	// player must have ammo (subtype is AM_* value)
 	COND_Ammo,
+	// player must have inventory (subtype is INV_* value)
+	COND_Inventory,
 
 	// player must be jumping
 	COND_Jumping,

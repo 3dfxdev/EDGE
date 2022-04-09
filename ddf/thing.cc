@@ -404,6 +404,35 @@ const specflags_t simplecond_names[] =
 	{NULL, 0, 0}
 };
 
+const specflags_t inv_types[] =
+{
+    {"INV01", INV_01, 0},
+    {"INV02", INV_02, 0},
+    {"INV03", INV_03, 0},
+    {"INV04", INV_04, 0},
+    {"INV05", INV_05, 0},
+    {"INV06", INV_06, 0},
+    {"INV07", INV_07, 0},
+    {"INV08", INV_08, 0},
+    {"INV09", INV_09, 0},
+    {"INV10", INV_10, 0},
+    {"INV11", INV_11, 0},
+    {"INV12", INV_12, 0},
+    {"INV13", INV_13, 0},
+    {"INV14", INV_14, 0},
+    {"INV15", INV_15, 0},
+    {"INV16", INV_16, 0},
+    {"INV17", INV_17, 0},
+    {"INV18", INV_18, 0},
+    {"INV19", INV_19, 0},
+    {"INV20", INV_20, 0},
+    {"INV21", INV_21, 0},
+    {"INV22", INV_22, 0},
+    {"INV23", INV_23, 0},
+    {"INV24", INV_24, 0},
+    {"INV25", INV_25, 0},	
+    {NULL, 0, 0}
+};
 //
 // DDF_CompareName
 //
@@ -771,6 +800,66 @@ static int ParseBenefitString(const char *info, char *name, char *param,
 //  false.
 //
 
+static bool BenefitTryInventory(const char *name, benefit_t *be,
+								int num_vals)
+{
+	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, inv_types, 
+		&be->sub.type, false, false))
+	{
+		return false;
+	}
+
+	be->type = BENEFIT_Inventory;
+
+	if (num_vals < 1)
+	{
+		DDF_WarnError("Inventory benefit used, but amount is missing.\n");
+		return false;
+	}
+
+	if (num_vals < 2)
+	{
+		be->limit = be->amount;
+	}
+
+	return true;
+}
+
+static bool BenefitTryInventoryLimit(const char *name, benefit_t *be,
+									 int num_vals)
+{
+	char namebuf[200];
+	int len = strlen(name);
+
+	// check for ".LIMIT" prefix
+	if (len < 7 || DDF_CompareName(name+len-6, ".LIMIT") != 0)
+		return false;
+
+	len -= 6;
+	Z_StrNCpy(namebuf, name, len);
+
+	if (CHKF_Positive != DDF_MainCheckSpecialFlag(namebuf, inv_types, 
+		&be->sub.type, false, false))
+	{
+		return false;
+	}
+
+	be->type = BENEFIT_InventoryLimit;
+	be->limit = 0;
+
+	if (num_vals < 1)
+	{
+		DDF_WarnError("InventoryLimit benefit used, but amount is missing.\n");
+		return false;
+	}
+
+	if (num_vals > 1)
+	{
+		DDF_WarnError("InventoryLimit benefit cannot have a limit value.\n");
+		return false;
+	}
+	return true;
+}
 static bool BenefitTryAmmo(const char *name, benefit_t *be,
 	int num_vals)
 {
@@ -1059,9 +1148,11 @@ void DDF_MobjGetBenefit(const char *info, void *storage)
 		BenefitTryKey(namebuf, &temp, num_vals) ||
 		BenefitTryHealth(namebuf, &temp, num_vals) ||
 		BenefitTryArmour(namebuf, &temp, num_vals) ||
-		BenefitTryPowerup(namebuf, &temp, num_vals))
+		BenefitTryPowerup(namebuf, &temp, num_vals) ||
+		BenefitTryInventory(namebuf, &temp, num_vals) ||
+		BenefitTryInventoryLimit(namebuf, &temp, num_vals))
 	{
-		BenefitAdd((benefit_t **)storage, &temp);
+		BenefitAdd((benefit_t **) storage, &temp);
 		return;
 	}
 
@@ -1311,7 +1402,7 @@ static specflags_t hyper_specials[] =
 	{"AUTOAIM", HF_NO_AUTOAIM, 1},
 	{"TILT", HF_TILT, 0},
 	{"IMMORTAL", HF_IMMORTAL, 0},
-	{"FLOORCLIP", HF_FLOORCLIP, 0},
+	{"FLOOR_CLIP", HF_FLOORCLIP, 0},
 	{NULL, 0, 0}
 };
 
@@ -1543,8 +1634,24 @@ static void DDF_MobjGetAngleRange(const char *info, void *storage)
 //  accodingly.  Otherwise returns false.
 //
 
+static bool ConditionTryInventory(const char *name, const char *sub,
+								  condition_check_t *cond)
+{
+	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, inv_types, 
+		&cond->sub.type, false, false))
+	{
+		return false;
+	}
+
+
+	if (sub[0])
+		sscanf(sub, " %f ", &cond->amount);
+
+	cond->cond_type = COND_Inventory;
+	return true;
+}
 static bool ConditionTryAmmo(const char *name, const char *sub,
-	condition_check_t *cond)
+								  condition_check_t *cond)
 {
 	if (CHKF_Positive != DDF_MainCheckSpecialFlag(name, ammo_types,
 		&cond->sub.type, false, false))
@@ -1704,6 +1811,7 @@ bool DDF_MainParseCondition(const char *info, condition_check_t *cond)
 	}
 
 	if (ConditionTryAmmo(typebuf + t_off, sub_buf, cond) ||
+	    ConditionTryInventory(typebuf + t_off, sub_buf, cond) ||
 		ConditionTryWeapon(typebuf + t_off, sub_buf, cond) ||
 		ConditionTryKey(typebuf + t_off, sub_buf, cond) ||
 		ConditionTryHealth(typebuf + t_off, sub_buf, cond) ||
@@ -1812,15 +1920,14 @@ void mobjtype_c::CopyDetail(mobjtype_c &src)
 	attacksound = src.attacksound;
 	painsound = src.painsound;
 	deathsound = src.deathsound;
-
 	overkill_sound = src.overkill_sound;
 	activesound = src.activesound;
 	walksound = src.walksound;
 	jump_sound = src.jump_sound;
-
 	noway_sound = src.noway_sound;
 	oof_sound = src.oof_sound;
 	gasp_sound = src.gasp_sound;
+	
 	secretsound = src.secretsound;
 	falling_sound = src.falling_sound;
 	gloopsound = src.gloopsound;

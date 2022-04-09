@@ -580,6 +580,9 @@ typedef enum
 
 	// experimental: make tagged lines (incl) block monster sight
 	LINEFX_BlockSight = (1 << 8),
+	
+	// experimental: transfer upper texture to SKY
+	LINEFX_SkyTransfer = (1 << 9),
 }
 line_effect_type_e;
 
@@ -723,6 +726,16 @@ public:
 
 	// Teleporter
 	teleportdef_c t;
+	//Lobo: item to spawn (or NULL).  The mobjdef pointer is only valid after
+	// DDF_MobjCleanUp() has been called.
+	const mobjtype_c *effectobject;
+	epi::strent_c effectobject_ref;
+	
+	// Handle this line differently
+	bool glass;
+	
+	// line texture to change to.
+	lumpname_c brokentex;
 
 	// LIGHT SPECIFIC
 	// Things may be added here; start strobing/flashing glowing lights.
@@ -851,7 +864,15 @@ typedef enum
 	SECSP_AirLess = 0x0020,
 
 	// player can swim in this sector
-	SECSP_Swimming = 0x0040
+	SECSP_Swimming = 0x0040,
+	// sounds will apply underwater effects in this sector
+	SECSP_SubmergedSFX = 0x0080,
+
+	// sounds will be heavily muffled in this sector
+	SECSP_VacuumSFX = 0x0100,
+
+	// sounds will reverberate/echo in this sector
+	SECSP_ReverbSFX = 0x0200,
 }
 sector_flag_e;
 
@@ -913,6 +934,10 @@ public:
 	float push_speed;
 	float push_zspeed;
 	angle_t push_angle;
+	// Dasho 2022 - Params for user-defined reverb in sectors
+	epi::strent_c reverb_type;
+	float reverb_ratio;
+	float reverb_delay;
 
 private:
 	// disable copy construct and assignment operator

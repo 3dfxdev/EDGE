@@ -208,6 +208,11 @@ static const commandlist_t linedef_commands[] =
 		// -AJA- backwards compatibility cruft...
 		DF("EXTRAFLOOR_TRANSLUCENCY", translucency, DDF_MainGetPercent),
 
+			//Lobo: 2022
+		DF("EFFECT_OBJECT", effectobject_ref, DDF_MainGetString),
+		DF("GLASS", glass, DDF_MainGetBoolean),
+		DF("BROKEN_TEXTURE", brokentex, DDF_MainGetLumpName),
+		
 		DDF_CMD_END
 };
 
@@ -507,6 +512,9 @@ void DDF_LinedefCleanUp(void)
 
 		l->t.outspawnobj = l->t.outspawnobj_ref ?
 			mobjtypes.Lookup(l->t.outspawnobj_ref) : NULL;
+		//Lobo: 2021
+		l->effectobject = l->effectobject_ref ?
+			mobjtypes.Lookup(l->effectobject_ref) : NULL;
 
 		cur_ddf_entryname.clear();
 	}
@@ -918,6 +926,7 @@ static specflags_t line_effect_names[] =
 	{"UNBLOCK_THINGS", LINEFX_UnblockThings, 0},
 	{"BLOCK_SHOTS",    LINEFX_BlockShots,    0},
 	{"BLOCK_SIGHT",    LINEFX_BlockSight,    0},
+	{"SKY_TRANSFER",    LINEFX_SkyTransfer,    0}, //Lobo 2022
 	{NULL, 0, 0}
 };
 
@@ -1672,6 +1681,11 @@ void linetype_c::CopyDetail(linetype_c &src)
 	portal_effect = src.portal_effect;
 	slope_type = src.slope_type;
 	fx_color = src.fx_color;
+	//lobo 2022
+	effectobject = src.effectobject;	
+	effectobject_ref = src.effectobject_ref;
+	glass = src.glass;
+	brokentex = src.brokentex;
 }
 
 void linetype_c::Default(void)
@@ -1726,6 +1740,11 @@ void linetype_c::Default(void)
 	portal_effect = PORTFX_None;
 	slope_type = SLP_NONE;
 	fx_color = RGB_MAKE(0, 0, 0);
+	//lobo 2022
+	effectobject = NULL;	
+	effectobject_ref.clear();
+	glass = false;
+	brokentex.clear();
 }
 
 // --> Line definition type container class
