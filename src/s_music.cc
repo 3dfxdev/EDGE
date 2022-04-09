@@ -23,8 +23,8 @@
 
 #include <stdlib.h>
 
-#include "../epi/file.h"
-#include "../epi/filesystem.h"
+#include "epi/file.h"
+#include "epi/filesystem.h"
 
 #include "../ddf/main.h"
 
@@ -37,6 +37,9 @@
 #include "s_ogg.h"
 #include "s_tsf.h"
 #include "s_opl.h"
+#include "s_xmp.h"
+#include "s_gme.h"
+#include "s_sid.h"
 #include "m_misc.h"
 #include "w_wad.h"
 
@@ -106,6 +109,23 @@ void S_ChangeMusic(int entrynum, bool loop)
 		return;
 	}
 
+	if (play->type == MUS_XMP)
+	{
+		music_player = S_PlayXMPMusic(play, volume, loop);
+		return;
+	}
+
+	if (play->type == MUS_GME)
+	{
+		music_player = S_PlayGMEMusic(play, volume, loop);
+		return;
+	}
+
+	if (play->type == MUS_SID)
+	{
+		music_player = S_PlaySIDMusic(play, volume, loop);
+		return;
+	}
 	// open the file or lump, and read it into memory
 	epi::file_c *F;
 
@@ -182,6 +202,32 @@ void S_ChangeMusic(int entrynum, bool loop)
 		return;
 	}
 
+	if (S_CheckXMP(data, length))
+	{
+		delete F;
+		delete data;
+
+		music_player = S_PlayXMPMusic(play, volume, loop);
+		return;
+	}
+
+	if (S_CheckGME(data, length))
+	{
+		delete F;
+		delete data;
+
+		music_player = S_PlayGMEMusic(play, volume, loop);
+		return;
+	}
+
+	if (S_CheckSID(data, length))
+	{
+		delete F;
+		delete data;
+
+		music_player = S_PlaySIDMusic(play, volume, loop);
+		return;
+	}
 	bool is_mus = (data[0] == 'M' && data[1] == 'U' && data[2] == 'S');
 
 	if (var_music_dev == 0 && is_mus)

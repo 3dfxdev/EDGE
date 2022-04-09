@@ -370,7 +370,6 @@ void RGL_DrawSkyBox(void)
 
 	float col[4];
 
-	//TODO: V583 https://www.viva64.com/en/w/v583/ The '?:' operator, regardless of its conditional expression, always returns one and the same value: (255).
 	col[0] = LT_RED(255); 
 	col[1] = LT_GRN(255);
 	col[2] = LT_BLU(255);
@@ -392,6 +391,10 @@ void RGL_DrawSkyBox(void)
 	glBindTexture(GL_TEXTURE_2D, fake_box[SK].tex[WSKY_Top]);
         glNormal3i(0, 0, -1);
 
+	#ifdef APPLE_SILICON
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	#endif
 	glBegin(GL_QUADS);
 	glTexCoord2f(v0, v0); glVertex3f(-dist,  dist, +dist);
 	glTexCoord2f(v0, v1); glVertex3f(-dist, -dist, +dist);
@@ -403,6 +406,10 @@ void RGL_DrawSkyBox(void)
 	glBindTexture(GL_TEXTURE_2D, fake_box[SK].tex[WSKY_Bottom]);
         glNormal3i(0, 0, +1);
 
+	#ifdef APPLE_SILICON
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	#endif
 	glBegin(GL_QUADS);
 	glTexCoord2f(v0, v0); glVertex3f(-dist, -dist, -dist);
 	glTexCoord2f(v0, v1); glVertex3f(-dist,  dist, -dist);
@@ -414,6 +421,10 @@ void RGL_DrawSkyBox(void)
 	glBindTexture(GL_TEXTURE_2D, fake_box[SK].tex[WSKY_North]);
         glNormal3i(0, -1, 0);
 
+	#ifdef APPLE_SILICON
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	#endif
 	glBegin(GL_QUADS);
 	glTexCoord2f(v0, v0); glVertex3f(-dist,  dist, -dist);
 	glTexCoord2f(v0, v1); glVertex3f(-dist,  dist, +dist);
@@ -425,6 +436,10 @@ void RGL_DrawSkyBox(void)
 	glBindTexture(GL_TEXTURE_2D, fake_box[SK].tex[WSKY_East]);
         glNormal3i(-1, 0, 0);
 
+	#ifdef APPLE_SILICON
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	#endif
 	glBegin(GL_QUADS);
 	glTexCoord2f(v0, v0); glVertex3f( dist,  dist, -dist);
 	glTexCoord2f(v0, v1); glVertex3f( dist,  dist, +dist);
@@ -436,6 +451,10 @@ void RGL_DrawSkyBox(void)
 	glBindTexture(GL_TEXTURE_2D, fake_box[SK].tex[WSKY_South]);
         glNormal3i(0, +1, 0);
 
+	#ifdef APPLE_SILICON
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	#endif
 	glBegin(GL_QUADS);
 	glTexCoord2f(v0, v0); glVertex3f( dist, -dist, -dist);
 	glTexCoord2f(v0, v1); glVertex3f( dist, -dist, +dist);
@@ -447,6 +466,10 @@ void RGL_DrawSkyBox(void)
 	glBindTexture(GL_TEXTURE_2D, fake_box[SK].tex[WSKY_West]);
         glNormal3i(+1, 0, 0);
 
+	#ifdef APPLE_SILICON
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	#endif
 	glBegin(GL_QUADS);
 	glTexCoord2f(v0, v0); glVertex3f(-dist, -dist, -dist);
 	glTexCoord2f(v0, v1); glVertex3f(-dist, -dist, +dist);
@@ -480,6 +503,10 @@ void RGL_DrawSkyOriginal(void)
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex_id);
+	 	#ifdef APPLE_SILICON
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	#endif
  
 	// divide screen into 32 vertical strips, since mapping is non-linear
 	glBegin(GL_QUAD_STRIP);
@@ -918,8 +945,11 @@ int RGL_UpdateSkyBoxTextures(void)
 	info->face[WSKY_North] = W_ImageLookup(
 			UserSkyFaceName(sky_image->name, WSKY_North), INS_Texture, ILF_Null);
 
-	//decide what to do for this maps sky i.e. Use a skybox or not
-	if (W_LoboDisableSkybox(UserSkyFaceName(sky_image->name, WSKY_North)))
+	//LOBO 2022:
+	//If we do nothing, our EWAD skybox will be used for all maps.
+	//So we need to disable it if we have a pwad that contains it's
+	//own sky.
+	if (W_LoboDisableSkybox(sky_image->name))
 	{
 		info->face[WSKY_North] = NULL;
 		//I_Printf("Skybox turned OFF\n");

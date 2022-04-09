@@ -537,9 +537,9 @@ void SV_CopySlot(const char *src_name, const char *dest_name)
 
 		I_Debugf("  Copying %s --> %s\n", src_file.c_str(), dest_file.c_str());
 
-		if (! epi::FS_Copy(src_file.c_str(), dest_file.c_str()))
-			I_Error("SV_CopySlot: failed to copy '%s' to '%s'\n",
-			        src_file.c_str(), dest_file.c_str());
+		//if (! epi::FS_Copy(src_file.c_str(), dest_file.c_str()))
+		//	I_Error("SV_CopySlot: failed to copy '%s' to '%s'\n",
+		//	        src_file.c_str(), dest_file.c_str());
 	}
 }
 

@@ -73,6 +73,15 @@ extern struct mobj_s *background_camera_mo;
 
 extern float pixel_aspect;
 
+// Values/tables adapted from Quake 3 GPL release
+#define FUNCTABLE_SIZE 1024
+#define FUNCTABLE_MASK FUNCTABLE_SIZE - 1
+#define DEG2RAD( a ) (( a * M_PI ) / 180.0f)
+extern float *r_sintable;
+extern float *r_squaretable;
+extern float *r_sawtoothtable;
+extern float *r_inversesawtoothtable;
+extern float *r_triangletable;
 
 //
 // Utility functions.
@@ -86,6 +95,7 @@ float R_PointToDist(float x1, float y1, float x2, float y2);
 float R_ScaleFromGlobalAngle(angle_t visangle);
 subsector_t *R_PointInSubsector(float x, float y);
 region_properties_t *R_PointGetProps(subsector_t *sub, float z);
+void R_InitShaderTables();
 
 //
 // REFRESH - the actual rendering functions.

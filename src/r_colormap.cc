@@ -591,8 +591,8 @@ void V_GetColmapRGB(const colourmap_c *colmap, float *r, float *g, float *b)
 	rgbcol_t col = colmap->gl_colour;
 
 	(*r) = GAMMA_CONV((col >> 16) & 0xFF) / 255.0f;
-	(*g) = GAMMA_CONV((col >> 8) & 0xFF) / 255.0f;
-	(*b) = GAMMA_CONV((col) & 0xFF) / 255.0f;
+	(*g) = GAMMA_CONV((col >>  8) & 0xFF) / 255.0f;
+	(*b) = GAMMA_CONV((col      ) & 0xFF) / 255.0f;
 }
 
 rgbcol_t V_GetFontColor(const colourmap_c *colmap)

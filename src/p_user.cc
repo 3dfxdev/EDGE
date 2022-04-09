@@ -39,6 +39,11 @@
 #include "s_sound.h"
 #include "z_zone.h"
 
+// Room size test - Dasho
+#include "p_blockmap.h"
+
+float room_area;
+
 extern float fade_gdelta;
 extern float fade_gamma;
 extern int fade_starttic;

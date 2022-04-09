@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------
-//  EDGE2 OGG Music Player (HEADER)
+//  EDGE GME Music Player (HEADER)
 //----------------------------------------------------------------------------
 // 
-//  Copyright (c) 2004-2009  The EDGE2 Team.
+//  Copyright (c) 2022 - The EDGE-Classic Community
 // 
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -15,14 +15,11 @@
 //  GNU General Public License for more details.
 //
 //----------------------------------------------------------------------------
-//
-// -ACB- 2004/08/18 Written
-//
-#ifndef __OGGPLAYER_H__
-#define __OGGPLAYER_H__
+
+#ifndef __GMEPLAYER_H__
+#define __GMEPLAYER_H__
 
 #include "system/i_defs.h"
-
 
 #include "epi/sound_data.h"
 
@@ -30,11 +27,11 @@ class pl_entry_c;
 
 /* FUNCTIONS */
 
-abstract_music_c * S_PlayOGGMusic(const pl_entry_c *musdat, float volume, bool looping);
+abstract_music_c * S_PlayGMEMusic(const pl_entry_c *musdat, float volume, bool looping);
 
-bool S_LoadOGGSound(epi::sound_data_c *buf, const byte *data, int length);
+bool S_CheckGME(byte *data, int length);
 
-#endif  /* __OGGPLAYER_H__ */
+#endif  /* __GMEPLAYER_H__ */
 
 //--- editor settings ---
 // vi:ts=4:sw=4:noexpandtab

@@ -27,7 +27,7 @@
 #define __S_SOUND_H__
 
 // Forward declarations
-struct position_c; //CA: 6.8.2016: not class, but struct.
+class position_c;
 struct mobj_s;
 struct sfx_s;
 

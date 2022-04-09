@@ -51,6 +51,19 @@ bool FULLSCREEN;
 static std::vector<scrmode_c *> screen_modes;
 
 
+bool R_DepthIsEquivalent(int depth1, int depth2)
+{
+	if (depth1 == depth2)
+		return true;
+
+	if (MIN(depth1,depth2) == 15 && MAX(depth1,depth2) == 16)
+		return true;
+
+	if (MIN(depth1,depth2) == 24 && MAX(depth1,depth2) == 32)
+		return true;
+
+	return false;
+}
 static int SizeDiff(int w1, int h1, int w2, int h2)
 {
 	return (w1 * 10000 + h1) - (w2 * 10000 + h2);

@@ -39,6 +39,7 @@
 #include "s_sound.h"
 #include "s_cache.h"
 #include "s_ogg.h"
+#include "s_mp3.h"
 
 #include "dm_state.h"  // game_dir
 #include "m_argv.h"
@@ -112,6 +113,10 @@ static bool Load_OGG(epi::sound_data_c *buf, const byte *lump, int length)
 	return S_LoadOGGSound(buf, lump, length);
 }
 
+static bool Load_MP3(epi::sound_data_c *buf, const byte *lump, int length)
+{
+	return S_LoadMP3Sound(buf, lump, length);
+}
 
 //----------------------------------------------------------------------------
 
@@ -191,8 +196,13 @@ static bool DoCacheLoad(sfxdef_c *def, epi::sound_data_c *buf)
 		OK = Load_OGG(buf, data, length);
 	else if (memcmp(data, "Creative Voice File", 19) == 0)
 		OK = Load_VOC(buf, data, length);
+	else if (S_CheckMP3(data, length))
+		OK = Load_MP3(buf, data, length);
 	else
 		OK = Load_DOOM(buf, data, length);
+		// Tag sound as SFX for environmental effects - Dasho
+	if (OK)
+		buf->is_sfx = true;
 
 	return OK;
 }

@@ -18,6 +18,7 @@
 
 #include "system/i_defs.h"
 #include "system/i_sdlinc.h"
+#include "system/i_sound.h"
 
 #include "dm_state.h"
 #include "m_argv.h"
@@ -30,7 +31,7 @@
 #include "s_blit.h"
 
 #include "p_local.h" // P_ApproxDistance
-
+#include "p_user.h" // room_area
 
 static bool allow_hogs = true;
 
@@ -38,10 +39,11 @@ extern float listen_x;
 extern float listen_y;
 extern float listen_z;
 
+DEF_CVAR(sound_cache, int, "c", 1);
 DEF_CVAR(sound_pitch, int, "c", 0);
 
 /* See m_option.cc for corresponding menu items */
-const int channel_counts[5] = { 8, 16, 32, 64, 96 };
+const int channel_counts[3] = { 32, 64, 96 };
 
 
 const int category_limit_table[3][8][3] =
@@ -268,18 +270,18 @@ void S_Init(void)
 	S_QueueInit();
 
 	// okidoke, start the ball rolling!
-	SDL_PauseAudio(0);
+	SDL_PauseAudioDevice(mydev_id, 0);
 }
 
 void S_Shutdown(void)
 {
 	if (nosound) return;
 
-	SDL_PauseAudio(1);
+	SDL_PauseAudioDevice(mydev_id, 1);
 
 	// make sure mixing thread is not running our code
-	SDL_LockAudio();
-	SDL_UnlockAudio();
+	SDL_LockAudioDevice(mydev_id);
+	SDL_UnlockAudioDevice(mydev_id);
 
 	S_QueueShutdown();
 
@@ -306,14 +308,14 @@ sfxdef_c * LookupEffectDef(const sfx_t *s)
 	return sfxdefs[num];
 }
 
-static void S_PlaySound(int idx, sfxdef_c *def, int category, position_c *pos, int flags)
+static void S_PlaySound(int idx, sfxdef_c *def, int category, position_c *pos, int flags, epi::sound_data_c *buf)
 {
 //I_Printf("S_PlaySound on idx #%d DEF:%p\n", idx, def);
 
 //I_Printf("Looked up def: %p, caching...\n", def);
-	epi::sound_data_c *buf = S_CacheLoad(def);
-	if (! buf)
-		return;
+	//epi::sound_data_c *buf = S_CacheLoad(def);
+	//if (! buf)
+		//return;
 
 	mix_channel_c *chan = mix_chan[idx];
 
@@ -362,7 +364,7 @@ static void S_PlaySound(int idx, sfxdef_c *def, int category, position_c *pos, i
 //I_Printf("FINISHED: delta=0x%lx\n", chan->delta);
 }
 
-static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
+static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags, epi::sound_data_c *buf)
 {
 	CountPlayingCats();
 
@@ -386,7 +388,7 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 
 //I_Printf("@@ Killing sound for SINGULAR\n");
 			S_KillChannel(k);
-			S_PlaySound(k, def, category, pos, flags);
+			S_PlaySound(k, def, category, pos, flags, buf);
 			return;
 		}
 	}
@@ -430,7 +432,7 @@ static void DoStartFX(sfxdef_c *def, int category, position_c *pos, int flags)
 		S_KillChannel(k);
 	}
 
-	S_PlaySound(k, def, category, pos, flags);
+	S_PlaySound(k, def, category, pos, flags, buf);
 }
 
 
@@ -468,9 +470,24 @@ void S_StartFX(sfx_t *sfx, int category, position_c *pos, int flags)
 	while (cat_limits[category] == 0)
 		category++;
 
+	epi::sound_data_c *buf = S_CacheLoad(def);
+	if (! buf)
+		return;	
+
+	if (vacuum_sfx)
+		buf->Mix_Vacuum();
+	else if (submerged_sfx)
+		buf->Mix_Submerged();
+	else
+	{
+		if (ddf_reverb)
+			buf->Mix_Reverb(dynamic_reverb, room_area, outdoor_reverb, ddf_reverb_type, ddf_reverb_ratio, ddf_reverb_delay);
+		else
+			buf->Mix_Reverb(dynamic_reverb, room_area, outdoor_reverb, 0, 0, 0);
+	}
 	I_LockAudio();
 	{
-		DoStartFX(def, category, pos, flags);
+		DoStartFX(def, category, pos, flags, buf);
 	}
 	I_UnlockAudio();
 }
@@ -552,6 +569,17 @@ void S_ChangeChannelNum(void)
 		SetupCategoryLimits();
 	}
 	I_UnlockAudio();
+}
+
+void S_PrecacheSounds(void)
+{
+	if (sound_cache)
+	{
+		for (int i =0; i < sfxdefs.GetSize(); i++)
+		{
+			S_CacheLoad(sfxdefs[i]);
+		}
+	}
 }
 
 //--- editor settings ---

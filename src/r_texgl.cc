@@ -166,7 +166,7 @@ GLuint R_UploadTexture(epi::image_data_c *img, int flags, int max_pix)
 	if (flags & UPL_Thresh)
 		mip_level = CLAMP(0, mip_level, 1);
 
-	static GLuint minif_modes[2 * 3] =//4] =
+	static GLuint minif_modes[2 * 3] =
 	{
 		GL_NEAREST,
 		GL_NEAREST_MIPMAP_NEAREST,
@@ -331,7 +331,7 @@ int R_DetermineOpacity(epi::image_data_c *img)
 			{
 				u8_t pix = img->PixelAt(x, y)[0];
 
-				if (pix == TRANS_PIXEL)// || (pix == ROTT_TRANSPIXEL)) !!! 
+				if (pix == TRANS_PIXEL)
 					return OPAC_Masked;
 			}
 
@@ -399,7 +399,7 @@ void R_DumpImage(epi::image_data_c *img)
 		{
 			u8_t pixel = img->PixelAt(x, y)[0];
 
-			L_WriteDebug("%02x", pixel);
+			//L_WriteDebug("%02x", pixel);
 			L_WriteDebug("%c", 'A' + (pixel % 26));
 		}
 

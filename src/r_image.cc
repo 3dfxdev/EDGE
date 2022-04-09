@@ -48,6 +48,8 @@
 #include "../epi/image_jpeg.h"
 #include "../epi/image_tga.h"
 
+#include "ddf/flat.h"
+
 #include "dm_data.h"
 #include "dm_defs.h"
 #include "dm_state.h"
@@ -70,6 +72,8 @@
 
 // LIGHTING DEBUGGING
 // #define MAKE_TEXTURES_WHITE  1
+
+swirl_type_e swirling_flats = SWIRL_Vanilla;
 
 extern epi::image_data_c *ReadAsEpiBlock(image_c *rim);
 
@@ -290,7 +294,8 @@ static image_c *NewImage(int width, int height, int opacity = OPAC_Unknown)
 	rim->anim.cur = rim;
 	rim->anim.next = NULL;
 	rim->anim.count = rim->anim.speed = 0;
-
+	rim->liquid_type = LIQ_None;
+	rim->swirled_gametic = 0;
 	return rim;
 }
 
@@ -601,6 +606,19 @@ static image_c *AddImageGraphic(const char *name, image_source_e type, int lump,
 	I_Printf("IMAGE: Creating new image [%s].\n", name);
 #endif
 
+	
+	if (swirling_flats > SWIRL_Vanilla)
+	{
+		flatdef_c *current_flatdef = flatdefs.Find(rim->name);
+
+		if (current_flatdef && !current_flatdef->liquid.empty())
+		{
+			if (strcasecmp(current_flatdef->liquid.c_str(), "THIN") == 0)
+				rim->liquid_type = LIQ_Thin;
+			else if (strcasecmp(current_flatdef->liquid.c_str(), "THICK") == 0)
+				rim->liquid_type = LIQ_Thick;
+		}
+	}
 
 	rim->source_type = type;
 	rim->source.graphic.lump = lump;
@@ -631,6 +649,19 @@ static image_c *AddImageTexture(const char *name, texturedef_t *tdef)
 	rim = NewImage(tdef->width, tdef->height);
 
 	strcpy(rim->name, name);
+	
+	if (swirling_flats > SWIRL_Vanilla)
+	{
+		flatdef_c *current_flatdef = flatdefs.Find(rim->name);
+
+		if (current_flatdef && !current_flatdef->liquid.empty())
+		{
+			if (strcasecmp(current_flatdef->liquid.c_str(), "THIN") == 0)
+				rim->liquid_type = LIQ_Thin;
+			else if (strcasecmp(current_flatdef->liquid.c_str(), "THICK") == 0)
+				rim->liquid_type = LIQ_Thick;
+		}
+	}
 
 	if (tdef->scale_x) rim->scale_x = 8.0 / tdef->scale_x;
 	if (tdef->scale_y) rim->scale_y = 8.0 / tdef->scale_y;
@@ -708,6 +739,19 @@ static image_c *AddImageFlat(const char *name, int lump)
 	rim->source_type = IMSRC_Flat;
 	rim->source.flat.lump = lump;
 	rim->source_palette = W_GetPaletteForLump(lump);
+	
+	if (swirling_flats > SWIRL_Vanilla)
+	{
+		flatdef_c *current_flatdef = flatdefs.Find(rim->name);
+
+		if (current_flatdef && !current_flatdef->liquid.empty())
+		{
+			if (strcasecmp(current_flatdef->liquid.c_str(), "THIN") == 0)
+				rim->liquid_type = LIQ_Thin;
+			else if (strcasecmp(current_flatdef->liquid.c_str(), "THICK") == 0)
+				rim->liquid_type = LIQ_Thick;
+		}
+	}
 
 	real_flats.push_back(rim);
 
@@ -1307,6 +1351,12 @@ static GLuint LoadImageOGL(image_c *rim, const colourmap_c *trans2)
 		rim->offset_x = tmp_img->grAb->x;
 		rim->offset_y = tmp_img->grAb->y;
 	}
+	
+	if (rim->liquid_type > LIQ_None && (swirling_flats == SWIRL_SMMU || swirling_flats == SWIRL_SMMUSWIRL))
+	{
+		tmp_img->Swirl(leveltime, rim->liquid_type);
+		rim->swirled_gametic = gametic;
+	}
 
 	if (rim->opacity == OPAC_Unknown)
 		rim->opacity = R_DetermineOpacity(tmp_img);
@@ -1763,6 +1813,18 @@ static cached_image_t *ImageCacheOGL(image_c *rim,
 	}
 
 	SYS_ASSERT(rc);
+	
+	if (rim->liquid_type > LIQ_None && (swirling_flats == SWIRL_SMMU || swirling_flats == SWIRL_SMMUSWIRL))
+	{
+		if (rc->parent->liquid_type > LIQ_None && rc->parent->swirled_gametic != gametic)
+		{
+			if (rc->tex_id != 0)
+			{
+				glDeleteTextures(1, &rc->tex_id);
+				rc->tex_id = 0;
+			}
+		}
+	}
 
 #if 0  // REMOVE
 	if (rc->invalidated)
