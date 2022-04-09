@@ -20,6 +20,7 @@
 
 #include "file.h"
 #include "filesystem.h"
+#include <chrono>
 
 #define MAX_MODE_CHARS  32
 
@@ -86,6 +87,114 @@ file_c* FS_Open(const char *name, unsigned int flags)
         return NULL;
 
 	return new ansi_file_c(fp);
+}
+std::filesystem::path FS_GetCurrDir()
+{
+	return std::filesystem::current_path();
+}
+
+bool FS_SetCurrDir(std::filesystem::path dir)
+{
+	SYS_ASSERT(!dir.empty());
+	try
+	{
+		std::filesystem::current_path(dir);
+	}
+	catch (std::filesystem::filesystem_error const& ex)
+	{
+		I_Warning("Failed to set current directory! Error: %s\n", ex.what());
+		return false;
+	}
+	return true;
+}
+
+bool FS_IsDir(const char *dir)
+{
+	SYS_ASSERT(dir);
+	return std::filesystem::is_directory(dir);
+}
+
+bool FS_MakeDir(const char *dir)
+{
+	SYS_ASSERT(dir);
+	return std::filesystem::create_directory(dir);
+}
+
+bool FS_RemoveDir(const char *dir)
+{
+	SYS_ASSERT(dir);
+	return std::filesystem::remove(dir);
+}
+
+bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
+{
+	if (!dir || !fsd || !mask)
+		return false;
+
+	std::filesystem::path prev_dir = FS_GetCurrDir();
+	std::filesystem::path mask_ext = std::filesystem::path(mask).extension(); // Allows us to retain the *.extension syntax - Dasho
+
+	if (prev_dir.empty())
+		return false;
+
+	if (! FS_SetCurrDir(dir))
+		return false;
+
+	// Ensure the container is empty
+	fsd->Clear();
+
+	for (auto const& dir_entry: std::filesystem::directory_iterator{std::filesystem::current_path()})
+	{
+		if (strcasecmp(mask_ext.string().c_str(), ".*") != 0 && strcasecmp(mask_ext.string().c_str(), dir_entry.path().extension().string().c_str()) != 0)
+			continue;
+
+		filesys_direntry_c *entry = new filesys_direntry_c();
+
+		entry->name = dir_entry.path().filename().string();
+		entry->is_dir = dir_entry.is_directory();
+		entry->size = entry->is_dir ? 0 : dir_entry.file_size();
+
+		if (! fsd->AddEntry(entry))
+		{
+			delete entry;
+			FS_SetCurrDir(prev_dir);
+			return false;
+		}
+	}
+
+	FS_SetCurrDir(prev_dir);
+	return true;
+}
+
+bool FS_Copy(const char *src, const char *dest)
+{
+	SYS_ASSERT(src && dest);
+
+	// Copy src to dest overwriting dest if it exists
+	return std::filesystem::copy_file(src, dest, std::filesystem::copy_options::overwrite_existing);
+}
+
+bool FS_Delete(const char *name)
+{
+	SYS_ASSERT(name);
+
+	return std::filesystem::remove(name);
+}
+
+bool FS_Rename(const char *oldname, const char *newname)
+{
+	SYS_ASSERT(oldname);
+	SYS_ASSERT(newname);
+	try
+	{
+		std::filesystem::rename(oldname, newname);
+	}
+	catch (std::filesystem::filesystem_error const& ex)
+	{
+		I_Warning("Failed to rename file! Error: %s\n", ex.what());
+		return false;
+	}
+	return true;
 }
 
 } // namespace epi

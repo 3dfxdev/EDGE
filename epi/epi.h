@@ -33,13 +33,13 @@
 #include "epi_linux.h"
 #endif
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
 #define HAVE_PHYSFS 1
 #include <physfs.h>
 #include "epi_win32.h"
 #endif
 
-#ifdef MACOSX
+#ifdef __APPLE__
 #define HAVE_PHYSFS 1
 #include <physfs.h>
 #include "epi_macosx.h"

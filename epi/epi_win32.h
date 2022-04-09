@@ -62,6 +62,14 @@
 #define _WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
+#ifndef WIN32
+#define WIN32
+#endif
+
+#ifdef _MSC_VER
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#endif
 
 #include <windows.h>
 

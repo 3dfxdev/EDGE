@@ -19,6 +19,7 @@
 #include "epi.h"
 
 #include "image_data.h"
+#include "tables.h"
 
 namespace epi
 {
@@ -301,6 +302,36 @@ void image_data_c::RemoveAlpha()
 	bpp = 3;
 }
 
+void image_data_c::SetAlpha(int alphaness)
+{
+	if (bpp < 3)
+		return;
+
+	if (bpp == 3)
+	{
+		u8_t *new_pixels = new u8_t[width * height * 4];
+		u8_t *src   = pixels;
+		u8_t *s_end = src + (width * height * 3);
+		u8_t *dest  = new_pixels;
+		for (; src < s_end; src += 3)
+		{
+			*dest++ = src[0];
+			*dest++ = src[1];
+			*dest++ = src[2];
+			*dest++ = alphaness;
+		}
+		delete[] pixels;
+		pixels = new_pixels;
+		bpp = 4;
+	}
+	else
+	{
+		for (int i = 3; i < width * height * 4; i += 4)
+		{
+			pixels[i] = alphaness;
+		}
+	}
+}
 void image_data_c::ThresholdAlpha(u8_t alpha)
 {
 	if (bpp != 4)
@@ -426,7 +457,63 @@ void image_data_c::AverageHue(u8_t *hue, u8_t *ity)
 		*ity = i_sum / weight;
 	}
 }
+void image_data_c::Swirl(int leveltime, int thickness)
+{
+	const int sizefactor = (height + width) / 128;
+	const int swirlfactor =  8192 / 64;
+    const int swirlfactor2 = 8192 / 32;
+	const int amp = 1 + sizefactor;
+    const int amp2 = 0 + sizefactor;
+    int speed;
 
+	if (thickness == 1) // Thin liquid
+	{
+		speed = 40;
+	}
+	else
+	{
+		speed = 10;
+	}
+
+	u8_t *old_pixels = new u8_t[width * height * bpp];
+
+	memcpy(old_pixels, pixels, width * height * bpp * sizeof(u8_t));
+
+    int x, y;
+
+    // SMMU swirling algorithm
+	for (x = 0; x < width; x++)
+	{
+	    for (y = 0; y < height; y++)
+	    {
+			int x1, y1;
+			int sinvalue, sinvalue2;
+
+			sinvalue = (y * swirlfactor + leveltime * speed * 5 + 900) & 8191;
+			sinvalue2 = (x * swirlfactor2 + leveltime * speed * 4 + 300) & 8191;
+			x1 = x + width + height
+			+ ((finesine[sinvalue] * amp) >> FRACBITS)
+			+ ((finesine[sinvalue2] * amp2) >> FRACBITS);
+
+			sinvalue = (x * swirlfactor + leveltime * speed * 3 + 700) & 8191;
+			sinvalue2 = (y * swirlfactor2 + leveltime * speed * 4 + 1200) & 8191;
+			y1 = y + width + height
+			+ ((finesine[sinvalue] * amp) >> FRACBITS)
+			+ ((finesine[sinvalue2] * amp2) >> FRACBITS);
+
+			x1 &= width - 1;
+			y1 &= height - 1;
+
+			u8_t *src = old_pixels + (y1 * width + x1) * bpp;
+			u8_t *dest = pixels + (y * width + x) * bpp;
+
+			for (int i = 0; i < bpp; i++)
+				*dest++ = *src++;
+		}
+	}
+	delete[] old_pixels;
+	old_pixels = NULL;
+}
 } // namespace epi
 
 

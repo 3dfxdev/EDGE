@@ -20,7 +20,9 @@
 #define __EPI_FILESYSTEM_H__
 
 #include "arrays.h"
-#include "timestamp.h"
+//#include "timestamp.h"
+#include <filesystem>
+
 
 namespace epi
 {
@@ -66,8 +68,10 @@ public:
 // ---- The Filesystem ----
 
 // Directory Functions
-bool FS_GetCurrDir(char *dir, unsigned int bufsize); 
-bool FS_SetCurrDir(const char *dir);
+//bool FS_GetCurrDir(char *dir, unsigned int bufsize); 
+//bool FS_SetCurrDir(const char *dir);
+std::filesystem::path FS_GetCurrDir(); 
+bool FS_SetCurrDir(std::filesystem::path dir);
 
 bool FS_IsDir(const char *dir);
 bool FS_MakeDir(const char *dir);
@@ -85,7 +89,7 @@ bool FS_Copy(const char *src, const char *dest);
 bool FS_Delete(const char *name);
 bool FS_Rename(const char *oldname, const char *newname);
 
-bool FS_GetModifiedTime(const char *filename, timestamp_c& t);
+//bool FS_GetModifiedTime(const char *filename, timestamp_c& t);
 
 } // namespace epi
 

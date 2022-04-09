@@ -206,7 +206,7 @@ namespace epi
 			return false;
 
 		newarray = new array_block_t[array_block_objsize*entries];
-		if (!newarray) //TODO: V668 https://www.viva64.com/en/w/v668/ There is no sense in testing the 'newarray' pointer against null, as the memory was allocated using the 'new' operator. The exception will be generated in the case of memory allocation error.
+		if (!newarray)
 			return false;
 
 		// if there is any existing data, then copy from old data

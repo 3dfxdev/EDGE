@@ -59,10 +59,7 @@ public:
 
 	/* ---- read-only operations ---- */
 
-	inline float Sin() const 
-	{ 
-		return sin(Radians()); 
-	}
+	inline float Sin() const { return sin(Radians()); }
 	inline float Cos() const { return cos(Radians()); }
 	inline float Tan() const { return tan(Radians()); }
 

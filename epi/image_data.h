@@ -126,6 +126,9 @@ public:
 	void RemoveAlpha();
 	// convert an RGBA image to RGB.  Partially transparent colors
 	// (alpha < 255) are blended with black.
+	void SetAlpha(int alphaness);
+	// Set uniform alpha value for all pixels in an image
+	// If RGB, will convert to RGBA
 	
 	void ThresholdAlpha(u8_t alpha = 128);
 	// test each alpha value in the RGBA image against the threshold:
@@ -147,6 +150,8 @@ public:
 	// compute the average Hue of the RGB(A) image, storing the
 	// result in the 'hue' array (r, g, b).  The average intensity
 	// will be stored in 'ity' when given.
+	void Swirl(int leveltime, int thickness);
+	// SMMU-style swirling
 };
 
 

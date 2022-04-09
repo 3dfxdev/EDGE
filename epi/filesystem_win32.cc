@@ -108,6 +108,7 @@ bool FS_SetCurrDir(const char *dir)
 	return (::SetCurrentDirectory(dir) != FALSE);
 }
 
+#if 0 // using common code
 bool FS_IsDir(const char *dir)
 {
 	SYS_ASSERT(dir);
@@ -202,7 +203,6 @@ bool FS_ReadDir(filesystem_dir_c *fsd, const char *dir, const char *mask)
 }
 
 
-#if 0 // using common code
 bool FS_Access(const char *name, unsigned int flags)
 {
 	createfile_s fs;
@@ -220,8 +220,6 @@ bool FS_Access(const char *name, unsigned int flags)
 	CloseHandle(handle);
 	return true;
 }
-#endif
-
 
 bool FS_Copy(const char *src, const char *dest)
 {
@@ -238,7 +236,7 @@ bool FS_Delete(const char *name)
 	return (::DeleteFile(name) != FALSE);
 }
 
-#if 0 // using common code
+
 file_c* FS_Open(const char *name, unsigned int flags)
 {
 	SYS_ASSERT(name);
@@ -266,7 +264,7 @@ file_c* FS_Open(const char *name, unsigned int flags)
     file->Setup(this, handle);
     return file;
 }
-#endif
+
 
 //
 // bool FS_Rename()
@@ -288,6 +286,7 @@ bool FS_Rename(const char *oldname, const char *newname)
 // -ACB- 2001/06/14
 // -ACB- 2004/02/15 Use native win32 functions: they should work!
 //
+
 bool FS_GetModifiedTime(const char *filename, timestamp_c& t)
 {
 	SYSTEMTIME timeinf;
@@ -317,7 +316,7 @@ bool FS_GetModifiedTime(const char *filename, timestamp_c& t)
 
 	return true;
 }
-
+#endif
 } // namespace epi
 
 //--- editor settings ---
