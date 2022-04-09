@@ -330,8 +330,11 @@ static void InstallTextureLumps(int file, const wadtex_resource_c *WT)
 		// -ES- 2000/02/10 Texture must have patches.
 		int patchcount = EPI_LE_S16(mtexture->patch_count);
 		if (!patchcount)
-			I_Error("W_InitTextures: Texture '%.8s' has no patches", mtexture->name);
-
+		{
+			I_Warning("W_InitTextures: Texture '%.8s' has no patches", mtexture->name);
+			//I_Error("W_InitTextures: Texture '%.8s' has no patches", mtexture->name);
+			patchcount = 0; //mark it as a dud
+		} 
 		int width = EPI_LE_S16(mtexture->width);
 		if (width == 0)
 			I_Error("W_InitTextures: Texture '%.8s' has zero width", mtexture->name);

@@ -22,6 +22,8 @@
 
 #include "../ddf/types.h"
 
+#include "ddf/flat.h"
+
 #include "vm_coal.h"
 #include "p_local.h"  
 #include "p_mobj.h"
