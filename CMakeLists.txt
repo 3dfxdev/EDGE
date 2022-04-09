@@ -36,7 +36,12 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   endif()
 endif()
 
-project(EDGE)
+project(EDGE
+LANGUAGES CXX
+VERSION 2.1.0
+)
+
+
 if(VITA)
 	include("${VITASDK}/share/vita.cmake" REQUIRED)
 	set(VITA_APP_NAME "vitaEDGE")
@@ -58,7 +63,9 @@ IF (${CMAKE_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
 ENDIF (${CMAKE_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
 
 list( APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
-include( FindPackageHandleStandardArgs )
+#include( FindPackageHandleStandardArgs )
+#set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH} cmake")
+
 
 macro( make_release_only )
 	set( CMAKE_C_FLAGS_MINSIZEREL ${CMAKE_C_FLAGS_RELEASE} )
@@ -83,6 +90,7 @@ if(MINGW AND MINGW_LINK_STATIC)
 	SET(CMAKE_FIND_LIBRARY_PREFIXES "lib")
 	SET(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a)
 endif()
+
 
 #find_package(Ogg REQUIRED)
 #find_package(Vorbis REQUIRED)
@@ -137,6 +145,16 @@ else()
 	set( PHYSFS_LIBRARY physfs-static )
 endif()
 
+if( LIBGME_FOUND AND NOT FORCE_INTERNAL_LIBGME )
+	message( STATUS "Using system libgme library, includes found at ${LIBGME_INCLUDE_DIR}" )
+else()
+	message( STATUS "Using internal libgme library" )
+	add_subdirectory( deps/libgme )
+	set (LIBGME_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/libgme/gme")
+	set( LIBGME_LIBRARIES gme)
+	set( LIBGME libgme )
+endif()
+
 #find_package(FLTK)
 #if(NOT FLTK_FOUND)
     # if(WIN32)
@@ -163,6 +181,10 @@ endif()
 #	set( LIBDUMB_LIBRARIES dumb )
 #	set( LIBDUMB_LIBRARY dumb )
 #endif()
+#add_subdirectory( deps/miniz )
+#add_subdirectory( deps/libgme/gme )
+add_subdirectory( deps/libxmp-lite )
+add_subdirectory( deps/libwebsid )
 
 add_subdirectory( deps/lzma )
 add_subdirectory( zipdir )
@@ -247,13 +269,14 @@ add_subdirectory(data)
 add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
 
 if (MSVC)
+
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-	set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT /W1 ${CMAKE_CXX_FLAGS}" )
+	set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT /W1 ${CMAKE_CXX_FLAGS} /std:c++17" )
 	add_definitions(-DSIMD_X64)
 	add_definitions(-DWIN64)
 	add_definitions(/W1)
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-	set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT /W1 ${CMAKE_CXX_FLAGS} /arch:SSE2" )
+	set( CMAKE_CXX_FLAGS "/MP /GF /Ox /Ob2 /Oi /Ot /GT /W1 ${CMAKE_CXX_FLAGS} /std:c++17 /arch:SSE2" )
 	add_definitions(/W1)
 endif()
 endif(MSVC)
@@ -269,9 +292,9 @@ if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm" AND NOT APPLE)
 	endif()
 if(NOT MSVC)
 	if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
-		set ( CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}" )
+		set ( CMAKE_CXX_FLAGS "-std=c++17 ${CMAKE_CXX_FLAGS}" )
 	else ()
-		set ( CMAKE_CXX_FLAGS "-std=gnu++11 ${CMAKE_CXX_FLAGS}" )
+		set ( CMAKE_CXX_FLAGS "-std=gnu++17 ${CMAKE_CXX_FLAGS}" )
 endif()
 endif(NOT MSVC)
 
@@ -322,10 +345,6 @@ elseif(UNIX)
 	endif()
 endif()
 
-# Module Paths
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/modules)
-
-#message(${CMAKE_MODULE_PATH})
 
 # Gitinfo Puller thingy
 add_custom_target(revision_check ALL
@@ -402,8 +421,8 @@ endif()
 
 
 # zlib
-#find_package(ZLIB REQUIRED)
-include_directories(${ZLIB_INCLUDE_DIR})
+find_package(ZLIB REQUIRED)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/deps/miniz)
 
 # dumb
 #include_directories(${LIBDUMB_INCLUDE_DIR})
@@ -419,6 +438,7 @@ set(EDGE_SOURCES
 	ddf/attack.cc
 	ddf/boom.cc
 	ddf/colormap.cc
+	ddf/flat.cc
 	ddf/font.cc
 	ddf/game.cc
 	ddf/image.cc
@@ -560,12 +580,15 @@ set(EDGE_SOURCES
 	src/s_blit.cc
 	#src/s_dumb.cc
 	src/s_cache.cc
+	src/s_gme.cc
 	src/s_sound.cc
 	src/s_mp3.cc
 	src/s_music.cc
 	src/s_ogg.cc
 	src/s_opl.cc
+	src/s_sid.cc
 	src/s_tsf.cc
+	src/s_xmp.cc
 	src/sv_chunk.cc
 	src/sv_glob.cc
 	src/sv_level.cc
@@ -759,12 +782,19 @@ add_custom_command(TARGET EDGE POST_BUILD
 
 target_include_directories(EDGE 
 	PRIVATE
+	deps/libgme/gme
+    deps/libxmp-lite
+    deps/libwebsid
 	deps/minivorbis
+	deps/miniz
 	src/edge_ajbsp
 )
 
 target_link_libraries(EDGE
 	edge_ajbsp
+	${LIBGME_LIBRARIES}
+	libxmp-lite
+	libwebsid
 	${SDL2_LIBRARY}
 	${SDL_NET_LIBRARY}
 	ZLIB::ZLIB
