@@ -96,6 +96,13 @@
 #endif
 #include "system/i_x86.h"
 
+#include "../epi/pfd.h"
+#if _WIN32
+#define DEFAULT_PATH "C:\\"
+#else
+#define DEFAULT_PATH "/tmp"
+#endif
+
 //CA: 6/11/2018
 //    Removed E_TITLE from e_main.cc and into version.h!
 // uncomment line below to enable ROQ playback, which is in testing phases.
@@ -193,6 +200,7 @@ std::string epakfile; //<---- EDGE PAK FILE
 std::string rottepak; //<---- ROTT PAK FILE
 
 DEF_CVAR(iwad_base, std::string, "c", "")	// CVAR for IWAD FILE std::string iwad_base;
+DEF_CVAR(iwad_dir, std::string, "c", "")
 std::string wolf_base; //<--- Wolfenstein file?
 
 std::string cache_dir;
@@ -1075,33 +1083,6 @@ static void IdentifyVersion(void)
 	//fileName = fileName.append(".wad");
 
 
-#if 0
-	///This handles the startup for Heretic, which forces 3DGE to load her_ddf and the heretic fix PWAD, scheduled for removal.
-//if (s ? s : "heretic")
-	if (stricmp(wadname[iwad_file], "heretic") == 0)
-	{
-		heretic_mode = true;
-#if 0
-
-		I_Printf("Heretic IWAD: Joining PWAD fix!!!\n");
-		I_Debugf("Added filename: %s\n", REQHERETICPWAD "." EDGEWADEXT);
-		epi::PATH_Join(game_dir.c_str(), REQHERETICPWAD "." EDGEWADEXT);
-
-
-#endif // 0
-		I_Printf("DDF: Loading Heretic HDF\n");
-		ddf_dir = epi::PATH_Join(game_dir.c_str(), "her_ddf");
-		DDF_SetWhere(ddf_dir);
-	}
-	else
-	{
-		heretic_mode = false;
-		ddf_dir = epi::PATH_Join(game_dir.c_str(), "doom_ddf");
-		DDF_SetWhere(ddf_dir);
-	}
-#endif // 0
-
-
 	if (!iwad_par.empty())
 	{
 		if (epi::FS_IsDir(iwad_par.c_str()))
@@ -1217,7 +1198,7 @@ static void IdentifyVersion(void)
 
 		int max = 1;
 
-		I_Printf("IdentifyVersion: Current iwad_dir: current game_dir:  \n");
+		//I_Printf("IdentifyVersion: Current iwad_dir: current game_dir:  \n");
 		if (stricmp(iwad_dir.c_str(), game_dir.c_str()) != 0)
 		{
 			// IWAD directory & game directory differ
@@ -1285,15 +1266,64 @@ static void IdentifyVersion(void)
 	if (iwad_file.empty())
 	{
 
+		// Check that the EPI backend is available
+		if (!epi_pfd::settings::available())
+		{
+			I_Warning("Warning: EPI::PFD is not available on this platform!\n");
+		}
 
-		I_Error("ERROR: Cannot find a game IWAD!\n"
+		// Set verbosity to true
+		epi_pfd::settings::verbose(true);
+
+		// OS Notification, currently UNUSED
+		//epi_pfd::notify("EDGE IWAD Picker",
+		//	"This is ' a message, pay \" attention \\ to it!",
+		//	pfd::icon::info);
+
+		// Message box
+		auto m = epi_pfd::message("EDGE IWAD Picker",
+			"WARNING: IWAD Not Found, please specify the path to the desired IWADs (you can select more than one).",
+			epi_pfd::choice::ok_cancel,
+			epi_pfd::icon::warning);
+
+		// ~CA: Asynchronous: do something while waiting for user action
+		//for (int i = 0; i < 10 && !m.ready(1000); ++i)
+			//std::cout << "Waited 1 second for user input...\n";
+
+		// Determine based on user IWAD selection choice:
+		switch (m.result())
+		{
+		case epi_pfd::button::yes: I_Printf("IdentifyVersion: User selected YES for IWAD, calling dialogue\n"); break;
+		case epi_pfd::button::cancel: I_Error("ERROR: Cannot find a game IWAD!\n"); break;
+		default: break;
+		}
+
+		// epi_pfd Directory selection
+		auto dir = epi_pfd::select_folder("Select the directory", DEFAULT_PATH).result();
+		//I_Printf("Selected dir:  &dir \n");
+
+		// epi_pfd open_file
+		auto f = epi_pfd::open_file("Choose IWAD to open", DEFAULT_PATH,
+			{ "IWAD Files (.wad)", "*.wad *.pak",
+			  "All Files", "*" },
+			epi_pfd::opt::multiselect);
+		I_Printf("IdentifyVersion: Selected files:\n");
+		for (auto const& name : f.result())
+		{
+			std::string fn(epi::PATH_Join(dir.c_str(), name.c_str()));
+			iwad_file = fn;
+			I_Printf("PFD:Open_File: iwad_file returning true!\n");
+			break;
+		}
+		
+		/* I_Error("ERROR: Cannot find a game IWAD!\n"
 			"Did you install EDGE properly? You can do either of the following:\n"
 			"\n"
 			"1. Place one or more of these wads in the same directory as EDGE.\n"
 			"2. Edit your PATH settings to point to your desired IWAD\n"
 			"as per DOOMWADDIR and/or DOOMWADPATH.\n"
 			"3. Create a batch file or supply IWAD with the -iwad parameter.\n"
-			"4. Hardcode the IWAD string via EDGE.ini with the exact path.\n");
+			"4. Hardcode the IWAD string via EDGE.ini with the exact path.\n");*/
 	}
 
 		W_AddRawFilename(iwad_file.c_str(), FLKIND_IWad);
