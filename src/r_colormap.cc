@@ -94,21 +94,35 @@ int pal_yellow, pal_green1, pal_brown1;
 
 static int V_FindPureColour(int which);
 
+// 9/2018: Added "strife1"
+
+//ROTT or DOOM Pallette?
+const char* palname[] = { "PAL", "PLAYPAL" };
+
 void V_InitPalette(void)
 {
 	int t, i, r, g, b, max_file, pal_lump;
 	wadtex_resource_c WT;
 
 	const byte *pal = 0;
-	const byte *rotpal = 0;
-	if (rott_mode)
+
+	I_Printf("==============================================================================\n");
+
+	for (int p_idx = 0; palname[p_idx]; p_idx++)
 	{
-		rotpal = (const byte*)W_CacheLumpName("PAL");
-		I_Printf("ROTT: Found PLAYPAL (PAL)\n");
-		return;
+		if (stricmp(palname[p_idx], "PAL") == 0)
+		{
+			I_Printf("p_idx: ROTT PLAYPAL (PAL) found\n");
+			pal = (const byte*)W_CacheLumpName("PAL");
+			break;
+		}
+		else if (stricmp(palname[p_idx], "PLAYPAL") == 0)
+		{
+			I_Printf("p_idx: PLAYPAL found\n");
+			pal = (const byte*)W_CacheLumpName("PLAYPAL");
+			break;
+		}
 	}
-	else
-		pal = (const byte*)W_CacheLumpName("PLAYPAL");
 
 	max_file = W_GetNumFiles();
 	pal_lump = -1;
@@ -127,15 +141,7 @@ void V_InitPalette(void)
 
 	if (pal_lump == -1)
 	{
-		I_Warning("Cannot find PLAYPAL, searching...\n");
-		if (rott_mode)
-		{
-			rotpal = (const byte*)W_CacheLumpNum(pal_lump);
-			I_Printf("ROTT: found PLAYPAL lump\n");
-		}
-
-		else
-			I_Error("Missing PLAYPAL palette lump !\n");
+			I_Error("V_InitPalette: Missing palette lump!\n");
 	}
 
 	// read in palette colours
@@ -143,19 +149,9 @@ void V_InitPalette(void)
 	{
 		for (i = 0; i < 256; i++)
 		{
-
-			if (rott_mode)
-			{
-				playpal_data[t][i][0] = rotpal[(t * 256 + i) * 3 + 0];
-				playpal_data[t][i][1] = rotpal[(t * 256 + i) * 3 + 1];
-				playpal_data[t][i][2] = rotpal[(t * 256 + i) * 3 + 2];
-			}
-		else
-			{
 				playpal_data[t][i][0] = pal[(t * 256 + i) * 3 + 0];
 				playpal_data[t][i][1] = pal[(t * 256 + i) * 3 + 1];
 				playpal_data[t][i][2] = pal[(t * 256 + i) * 3 + 2];
-			}
 		}
 	}
 
@@ -166,10 +162,7 @@ void V_InitPalette(void)
 		b = playpal_data[t][i][2];
 	}
 
-	if (rott_mode)
-		W_DoneWithLump(rotpal);
-	else
-		W_DoneWithLump(pal);
+	W_DoneWithLump(pal);
 
 	loaded_playpal = true;
 
@@ -186,7 +179,7 @@ void V_InitPalette(void)
 	pal_green1 = V_FindColour(64, 128, 48);
 	pal_brown1 = V_FindColour(192, 128, 74);
 
-	I_Printf("==============================================================================\n");
+	
 	I_Printf("Loaded global palette.\n");
 
 	L_WriteDebug("Black:%d White:%d Red:%d Green:%d Blue:%d\n",
