@@ -29,6 +29,7 @@
 #include "i_defs_gl.h"
 #include "i_sdlinc.h"
 #include "i_system.h"
+#include "i_sound.h"
 #include "i_cinematic.h"
 
 #include "dm_state.h"
@@ -97,6 +98,7 @@ static void MovieSnd_Callback(void *udata, Uint8 *stream, int len)
 static bool CIN_TryOpenSound(int rate)
 {
 	SDL_AudioSpec firstdev;
+	SDL_zero(firstdev);
 
 	SDL_CloseAudio();
 
@@ -115,6 +117,10 @@ static bool CIN_TryOpenSound(int rate)
 	firstdev.samples = samples;
 	firstdev.callback = MovieSnd_Callback;
 
+	mydev_id = SDL_OpenAudioDevice(NULL, 0, &firstdev, &mydev, 0);
+
+
+	if (mydev_id >= 0)
 	if (SDL_OpenAudio(&firstdev, &mydev) >= 0)
 	{
 		SDL_PauseAudio(0);

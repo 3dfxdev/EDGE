@@ -85,7 +85,7 @@
 #define CFGDEF_SAMPLE_RATE      (5)  // 22050Hz, 5 = 48000Hz
 #define CFGDEF_SOUND_BITS       (2)  // 16-bit, 2 = 32-bit floating point
 #define CFGDEF_SOUND_STEREO     (1)  // Stereo
-#define CFGDEF_MIX_CHANNELS     (3)  // 32 channels, 3 = 96 mixing channels!
+#define CFGDEF_MIX_CHANNELS     (2)  // 32 channels, 3 = 96 mixing channels!
 #define CFGDEF_QUIET_FACTOR     (1)
 #define CFGDEF_OPL_OPL3MODE     (1)
 

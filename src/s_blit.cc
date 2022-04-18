@@ -90,7 +90,7 @@ static mix_channel_c *queue_chan;
 
 
 DEF_CVAR(au_sfx_volume, int, "c", CFGDEF_SOUND_VOLUME);
-int sfx_volume = 0;
+//int sfx_volume = 0;
 
 static bool sfxpaused = false;
 
@@ -157,8 +157,7 @@ void mix_channel_c::ComputeVolume()
 
 	float sep = 0.5f;
 	float mul = 1.0f;
-	float dist = P_ApproxDistance(listen_x - pos->x, listen_y - pos->y, listen_z - pos->z);
-
+	float dist = 1.0f;
 	if (pos && category >= SNCAT_Opponent)
 	{
 		if (dev_stereo)
@@ -171,10 +170,11 @@ void mix_channel_c::ComputeVolume()
 
 		if (! boss)
 		{
-			
+			dist = P_ApproxDistance(listen_x - pos->x, listen_y - pos->y, listen_z - pos->z);
+
 			if (players[consoleplayer1]->mo)
 			{
-				if (P_CheckSightToPoint(players[consoleplayer1]->mo, pos->x, pos->y, pos->z))
+			if (P_CheckSightToPoint(players[consoleplayer1]->mo, pos->x, pos->y, pos->z))
 					dist = MAX(1.25f, dist / 100.0f);
 				else
 					dist = MAX(1.25f, dist / 75.0f);
@@ -301,8 +301,7 @@ static void BlitToU8(const int *src, u8_t *dest, int length)
 		     if (val >  CLIP_THRESHHOLD) val =  CLIP_THRESHHOLD;
 		else if (val < -CLIP_THRESHHOLD) val = -CLIP_THRESHHOLD;
 
-		*dest++ = (u8_t) ((val >> (24-SAFE_BITS)) ^ 0x80); 
-		//TODO: V610 https://www.viva64.com/en/w/v610/ Unspecified behavior. Check the shift operator '>>'. The left operand is negative ('val' = [-134217727..134217727]).
+		*dest++ = (u8_t) ((val >> (24-SAFE_BITS)) ^ 0x80);
 	}
 }
 
@@ -450,7 +449,6 @@ static void MixInterleaved(mix_channel_c *chan, int *dest, int pairs)
 
 	SYS_ASSERT(pairs > 0);
 
-	//const s16_t *src_L = chan->data->data_L;
 	s16_t *src_L;
 
 	if (paused || menuactive)
