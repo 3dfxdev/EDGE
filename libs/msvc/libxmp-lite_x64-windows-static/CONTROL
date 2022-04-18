@@ -1,0 +1,9 @@
+Package: libxmp-lite
+Version: 4.4.1
+Port-Version: 8
+Depends: vcpkg-cmake:x64-windows
+Architecture: x64-windows-static
+Multi-Arch: same
+Abi: 32173029e2166790cafc320d2e216f241b8499bfe7553c0cb95e63f9416a1ecf
+Description: Lightweight version of libxmp that supports MOD, S3M, XM and IT modules.
+Type: Port

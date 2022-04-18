@@ -17,7 +17,6 @@
 //----------------------------------------------------------------------------
 
 #include "i_defs.h"
-#include "i_sdlinc.h"
 #include "i_sound.h"
 
 #include <fcntl.h>
@@ -26,6 +25,7 @@
 #include <sys/types.h>
 #ifdef _MSC_VER
 #include <WinSock2.h>
+#include <ctime>
 #else
 #include <sys/time.h>
 #endif
@@ -47,7 +47,7 @@ static int steptable[256];
 
 /* See m_option.cc for corresponding menu items */
 static const int sample_rates[6] = { 11025, 16000, 22050, 32000, 44100, 48000 };
-static const int sample_bits[3]  = { 8, 16, 32 };
+static const int sample_bits[3] = { 8, 16, 32 };
 
 
 static SDL_AudioSpec mydev;
@@ -70,7 +70,7 @@ typedef struct
 }
 sound_mode_t;
 
-static sound_mode_t mode_try_list[2*6*2];
+static sound_mode_t mode_try_list[2 * 6 * 2];
 
 
 #define PRI_NOSOUND   -1
@@ -82,14 +82,16 @@ static char scratcherror[256];
 
 static bool audio_is_locked = false;
 
-void SoundFill_Callback(void *udata, Uint8 *stream, int len)
+void SoundFill_Callback(void* udata, Uint8* stream, int len)
 {
-    S_MixAllChannels(stream, len);
+	SDL_memset(stream, 0, len);
+	S_MixAllChannels(stream, len);
 }
 
-static bool I_TryOpenSound(const sound_mode_t *mode)
+static bool I_TryOpenSound(const sound_mode_t* mode)
 {
 	SDL_AudioSpec firstdev;
+	SDL_zero(firstdev);
 
 	int samples = 512;
 
@@ -99,31 +101,42 @@ static bool I_TryOpenSound(const sound_mode_t *mode)
 		samples = 1024;
 
 	I_Printf("I_StartupSound: trying %d Hz, %d bit %s\n",
-			 mode->freq, mode->bits, mode->stereo ? "Stereo" : "Mono");
+		mode->freq, mode->bits, mode->stereo ? "Stereo" : "Mono");
 
-	firstdev.freq     = mode->freq;
-	firstdev.format   = (mode->bits < 12) ? AUDIO_U8 : (mode->bits < 28) ? AUDIO_S16SYS : AUDIO_F32SYS;
+	firstdev.freq = mode->freq;
+	firstdev.format = (mode->bits < 12) ? AUDIO_U8 : (mode->bits < 28) ? AUDIO_S16SYS : AUDIO_F32SYS;
 	firstdev.channels = mode->stereo ? 2 : 1;
-	firstdev.samples  = samples;
+	firstdev.samples = samples;
 	firstdev.callback = SoundFill_Callback;
 
-	if (SDL_OpenAudio(&firstdev, &mydev) >= 0)
+	mydev_id = SDL_OpenAudioDevice(NULL, 0, &firstdev, &mydev, 0);
+
+
+	if (mydev_id > 0)
 		return true;
 
 	I_Printf("  failed: %s\n", SDL_GetError());
 
 	// --- try again, but with the less common formats ---
 
-	firstdev.freq     = mode->freq;
-	firstdev.format   = (mode->bits < 12) ? AUDIO_S8 : (mode->bits < 28) ? AUDIO_S16SYS : AUDIO_F32SYS;
+	firstdev.freq = mode->freq;
+	firstdev.format = (mode->bits < 12) ? AUDIO_S8 : (mode->bits < 28) ? AUDIO_S16SYS : AUDIO_F32SYS;
 	firstdev.channels = mode->stereo ? 2 : 1;
-	firstdev.samples  = samples;
+	firstdev.samples = samples;
 	firstdev.callback = SoundFill_Callback;
 
-	if (SDL_OpenAudio(&firstdev, &mydev) >= 0)
-		return true;
+	mydev_id = SDL_OpenAudioDevice(NULL, 0, &firstdev, &mydev, 0);
 
-	return false;
+
+	if (mydev_id > 0)
+	{
+		return true;
+	}
+	else
+	{
+		I_Printf("  failed: %s\n", SDL_GetError());
+		return false;
+	}
 }
 
 static int BuildSoundModeTryList(int want_freq, int want_bits, int want_stereo)
@@ -138,29 +151,29 @@ static int BuildSoundModeTryList(int want_freq, int want_bits, int want_stereo)
 	int index = 0;
 
 	for (int S = 0; S < 2; S++)
-	for (int F = 0; F < 6; F++)
-	for (int B = 0; B < 2; B++)
-	{
-		int cur_freq = want_freq;
+		for (int F = 0; F < 6; F++)
+			for (int B = 0; B < 2; B++)
+			{
+				int cur_freq = want_freq;
 
-		if (F > 0)
-		{
-			if (want_freq >= 27000)
-				cur_freq = sample_rates[5-F];
-			else
-				cur_freq = sample_rates[(8-F) % 5];
+				if (F > 0)
+				{
+					if (want_freq >= 27000)
+						cur_freq = sample_rates[5 - F];
+					else
+						cur_freq = sample_rates[(8 - F) % 5];
 
-			if (cur_freq == want_freq)
-				continue;
-		}
+					if (cur_freq == want_freq)
+						continue;
+				}
 
-		sound_mode_t *mode = &mode_try_list[index];
-		index++;
+				sound_mode_t* mode = &mode_try_list[index];
+				index++;
 
-		mode->freq   = cur_freq;
-		mode->bits   = (B == 0) ? want_bits : (want_bits < 12) ? 16 : 8;
-		mode->stereo = (S == 0) ? want_stereo : !want_stereo;
-	}
+				mode->freq = cur_freq;
+				mode->bits = (B == 0) ? want_bits : (want_bits < 12) ? 16 : 8;
+				mode->stereo = (S == 0) ? want_stereo : !want_stereo;
+			}
 
 	return index;
 }
@@ -176,57 +189,45 @@ void I_StartupSound(void)
 	if (M_CheckParm("-dsound") || M_CheckParm("-nowaveout"))
 		force_waveout = false;
 
-	const char *driver = M_GetParm("-audiodriver");
+	const char* driver = M_GetParm("-audiodriver");
 
-	if (! driver)
+	if (!driver)
 		driver = SDL_getenv("SDL_AUDIODRIVER");
 
-	if (! driver)
+	if (!driver)
 	{
 		driver = "default";
 
 #ifdef WIN32
 		if (force_waveout)
 			driver = "waveout";
-		else
-			driver = "directsound";
 #endif
 	}
 
 	if (stricmp(driver, "default") != 0)
 	{
-		char nameBuffer[200];
-		char valueBuffer[200];
-		bool overWrite = true;
-		snprintf(nameBuffer, sizeof(nameBuffer), "SDL_AUDIODRIVER");
-		snprintf(valueBuffer, sizeof(valueBuffer), "%s", driver);
-		SDL_setenv(nameBuffer, valueBuffer, overWrite);
-	}
-#ifdef WIN32
-		SDL_setenv("SDL_AUDIODRIVER", "directsound", true);
-#endif
-
-	I_Printf("SDL_Audio_Driver: %s\n", driver);
+		SDL_setenv("SDL_AUDIODRIVER", driver, 1);
+	}	I_Printf("SDL_Audio_Driver: %s\n", driver);
 
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0)
 	{
 		I_Printf("I_StartupSound: Couldn't init SDL AUDIO! %s\n",
-				 SDL_GetError());
+			SDL_GetError());
 		nosound = true;
 		return;
 	}
 
-	const char *p;
+	const char* p;
 
 	int want_freq = sample_rates[var_sample_rate];
-	int want_bits = sample_bits [var_sound_bits];
+	int want_bits = sample_bits[var_sound_bits];
 	bool want_stereo = (var_sound_stereo >= 1);
 
 	p = M_GetParm("-freq");
 	if (p)
 		want_freq = atoi(p);
 
-	if (M_CheckParm("-sound8")  > 0) want_bits = 8;
+	if (M_CheckParm("-sound8") > 0) want_bits = 8;
 	if (M_CheckParm("-sound16") > 0) want_bits = 16;
 	if (M_CheckParm("-sound32") > 0) want_bits = 32;
 
@@ -234,14 +235,14 @@ void I_StartupSound(void)
 	want_bits = 32;
 #endif
 
-	if (M_CheckParm("-mono")   > 0) want_stereo = false;
+	if (M_CheckParm("-mono") > 0) want_stereo = false;
 	if (M_CheckParm("-stereo") > 0) want_stereo = true;
 
 	int count = BuildSoundModeTryList(want_freq, want_bits, want_stereo);
 
 	bool success = false;
 
-	for (int i=0; i < count; i++)
+	for (int i = 0; i < count; i++)
 	{
 		if (I_TryOpenSound(mode_try_list + i))
 		{
@@ -250,7 +251,7 @@ void I_StartupSound(void)
 		}
 	}
 
-	if (! success)
+	if (!success)
 	{
 		I_Printf("I_StartupSound: Unable to find a working sound mode!\n");
 		nosound = true;
@@ -258,7 +259,7 @@ void I_StartupSound(void)
 	}
 #if 0
 	// get round SDL's signal handlers
-	signal(SIGFPE,  SIG_DFL);
+	signal(SIGFPE, SIG_DFL);
 	signal(SIGSEGV, SIG_DFL);
 #endif
 
@@ -266,20 +267,20 @@ void I_StartupSound(void)
 
 	switch (mydev.format)
 	{
-		case AUDIO_S16SYS: dev_bits=16; dev_signed=true; dev_float=false; break;
-		case AUDIO_U16SYS: dev_bits=16; dev_signed=false; dev_float=false; break;
+	case AUDIO_S16SYS: dev_bits = 16; dev_signed = true; dev_float = false; break;
+	case AUDIO_U16SYS: dev_bits = 16; dev_signed = false; dev_float = false; break;
 
-		case AUDIO_S8: dev_bits=8; dev_signed=true; dev_float=false; break;
-		case AUDIO_U8: dev_bits=8; dev_signed=false; dev_float=false; break;
+	case AUDIO_S8: dev_bits = 8; dev_signed = true; dev_float = false; break;
+	case AUDIO_U8: dev_bits = 8; dev_signed = false; dev_float = false; break;
 
-		case AUDIO_F32SYS: dev_bits=32; dev_signed=true; dev_float=true; break;
+	case AUDIO_F32SYS: dev_bits = 32; dev_signed = true; dev_float = true; break;
 
-	    default:
-			I_Printf("I_StartupSound: unsupported format: %d\n", mydev.format);
-			SDL_CloseAudio();
+	default:
+		I_Printf("I_StartupSound: unsupported format: %d\n", mydev.format);
+		SDL_CloseAudio();
 
-			nosound = true;
-			return;
+		nosound = true;
+		return;
 	}
 
 	if (mydev.channels >= 3)
@@ -299,8 +300,8 @@ void I_StartupSound(void)
 	else if (!want_stereo && mydev.channels != 1)
 		I_Printf("I_StartupSound: mono sound not available.\n");
 
-	if (mydev.freq < (want_freq - want_freq/100) ||
-		mydev.freq > (want_freq + want_freq/100))
+	if (mydev.freq < (want_freq - want_freq / 100) ||
+		mydev.freq >(want_freq + want_freq / 100))
 	{
 		I_Printf("I_StartupSound: %d Hz sound not available.\n", want_freq);
 	}
@@ -311,12 +312,12 @@ void I_StartupSound(void)
 	SYS_ASSERT(dev_bytes_per_sample > 0);
 	SYS_ASSERT(dev_frag_pairs > 0);
 
-	dev_freq   = mydev.freq;
+	dev_freq = mydev.freq;
 	dev_stereo = (mydev.channels == 2);
 
 	// update Sound Options menu
-	//if (dev_bits != sample_bits[var_sound_bits])
-	//	var_sound_bits = (dev_bits >= 32) ? 2 : 0;
+	if (dev_bits != sample_bits[var_sound_bits])
+		var_sound_bits = (dev_bits >= 32) ? 2 : 0;
 
 	//if (dev_stereo != (var_sound_stereo >= 1))
 	//	var_sound_stereo = dev_stereo ? 1 : 0;
@@ -339,7 +340,7 @@ void I_StartupSound(void)
 
 	// display some useful stuff
 	I_Printf("I_StartupSound: Success @ %d Hz, %d bit %s\n",
-			dev_freq, dev_bits, dev_stereo ? "Stereo" : "Mono");
+		dev_freq, dev_bits, dev_stereo ? "Stereo" : "Mono");
 
 	return;
 }
@@ -358,7 +359,7 @@ void I_ShutdownSound(void)
 }
 
 
-const char *I_SoundReturnError(void)
+const char* I_SoundReturnError(void)
 {
 	memcpy(scratcherror, errordesc, sizeof(scratcherror));
 	memset(errordesc, '\0', sizeof(errordesc));

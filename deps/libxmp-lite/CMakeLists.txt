@@ -4,11 +4,11 @@ project(
   VERSION 0.1.0
 )
 
-set(CMAKE_CC_FLAGS "-O2 -DINLINE_G=inline -Wall")
+set(CMAKE_C_FLAGS "-O2 -DINLINE_G=inline -Wall")
 if(WIN32 AND NOT MSYS)
-  set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS} /fp:fast /EHs")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /fp:fast /EHs")
 else()
-  set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS} -ffast-math -fno-strict-aliasing")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffast-math -fno-strict-aliasing")
 endif()
 
 add_compile_definitions(LIBXMP_CORE_PLAYER)

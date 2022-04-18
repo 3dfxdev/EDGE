@@ -111,6 +111,7 @@ static ddf_reader_t DDF_Readers[] =
 	{ "DDFANIM", "Anims",      DDF_ReadAnims },
 	{ "DDFGAME", "Games",      DDF_ReadGames },
 	{ "DDFLEVL", "Levels",     DDF_ReadLevels },
+	{ "DDFFLAT", "Flats",     DDF_ReadFlat },
 	{ "RSCRIPT", "RadTrig",    RAD_ReadScript }       // -AJA- 2000/04/21.
 };
 

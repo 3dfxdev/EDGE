@@ -46,7 +46,7 @@ namespace Deh_Edge
 }
 
 // Windows
-#elif defined(WIN32)
+#elif defined(_WIN32)
 
 #define STRICT
 
