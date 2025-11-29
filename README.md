@@ -9,10 +9,10 @@ Welcome to EDGE!
 
 #### EDGE is an advanced OpenGL source port spawned from the DOOM engine, with focus on easy development and expansion for modders and end-users.
 
-# (C) 1999-2022 The EDGE Team & [Contributors](https://github.com/3dfxdev/hyper3DGE/blob/master/AUTHORS.md)
+# (C) 1999-2025 The EDGE Team & [Contributors](https://github.com/3dfxdev/EDGE/blob/master/AUTHORS.md)
 ##### Uses GPL-licensed technology from id Tech 1-4 (C) 1997-2011 id Software, LLC
 ##### DOSDoom originally developed by Chi Hoang and the DOSDoom Team, (C) 1997-1999
-##### Visit our sister port which derives from an earlier branch of EDGE, called [Edge-Classic](https://github.com/dashodanger/EDGE-classic). (C) The Edge-Classic Team, 2021-2022
+##### Visit our sister port which derives from an earlier branch of EDGE, called [Edge-Classic](https://github.com/dashodanger/EDGE-classic). (C) The Edge-Classic Team, 2021
 #### Licensed under the GPLv2 (or greater)
 http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 # See our EDGE Wiki (http://3dfxdev.net/edgewiki/index.php/Main_Page)
@@ -26,7 +26,7 @@ Occasionally we will package and upload builds for Windows and Linux. You can ge
 
 ## Build System for EDGE
 ---
-To build EDGE, please see the [build guides](https://github.com/3dfxdev/hyper3DGE/tree/master/build_guide) and choose
+To build EDGE, please see the [build guides](https://github.com/3dfxdev/EDGE/tree/master/build_guide) and choose
 based on your platform and compiler. Some of this information may be out of date; feel free to open up a Github Issue for assistance.
 
 ## Libraries
@@ -57,4 +57,5 @@ community and the various projects for the engine.
 * The [EDGEWiki](http://3dfxdev.net/edgewiki) is also a great resource for
 editing documentation and other information related to the engine.
 
-(C) 1999 - 2022 [Isotope SoftWorks](https://www.facebook.com/IsotopeSoftWorks/) and Contributors (The EDGE Team). All Rights Reserved.
+(C) 1999 - 2025 [Isotope SoftWorks](https://www.facebook.com/IsotopeSoftWorks/) and Contributors (referred to as The EDGE Team). All Rights Reserved.
+
